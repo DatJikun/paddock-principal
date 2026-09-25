@@ -9,7 +9,7 @@
 
 | Warstwa | Technologia | Dlaczego |
 |---|---|---|
-| Rdzeń symulacji | **C# / .NET 9**, bez zależności od UI | szybki, typowany, deterministyczny; infrastrukturę przenosimy z Pelotona |
+| Rdzeń symulacji | **C# / .NET 10 (LTS)**, bez zależności od UI | szybki, typowany, deterministyczny; infrastrukturę przenosimy z Pelotona |
 | Zapis | **SQLite** (`Microsoft.Data.Sqlite`), jeden plik `.paddock` na karierę | transakcje, zapytania po historii bez ładowania wszystkiego do RAM |
 | UI | **HTML/CSS + TypeScript + Svelte** w oknie desktopowym **Photino.NET (WebView2)** | patrz §1.1 |
 | Narzędzia | `SimRunner` (CLI do przebiegów wsadowych), `DataPipeline` (import historii) | balans, regresje, dane |

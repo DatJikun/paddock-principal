@@ -29,7 +29,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 **Bramka:** przeglądasz raport i mówisz „to ma sens”. Jeśli się nie da, zmieniamy podejście, zanim powstanie reszta gry.
 
 ## Faza 2: Rdzeń świata
-- Solucja .NET 9 (TECH §2); przeniesienie z Pelotona determinizmu, RNG, zapisu SQLite, migracji i kalendarza.
+- Solucja .NET 10 (TECH §2); przeniesienie z Pelotona determinizmu, RNG, zapisu SQLite, migracji i kalendarza.
 - Osoby, organizacje (z linią następstwa), tory z wersjami, kontrakty, oś czasu epok, harmonogram ludzi, tick dnia.
 - SimRunner: przebieg bez wyścigów.
 

@@ -171,18 +171,22 @@ Projekt roczny to zestaw decyzji na osiach, w których **każdy biegun ma swoją
 
 Do tego wybrane technologie z drzewa (§4.2). **Jakość wykonania** zależy od personelu (§6.2), infrastruktury (§4.3) i budżetu. Kierowca z dobrą informacją zwrotną pomaga rozwijać auto w sezonie.
 
-### 5.3. Rozwój: krzywa S i podział zasobów (PP-032)
-**Krzywa S na każdy cykl regulaminowy.** Każdy regulamin ma teoretyczny sufit osiągów, a zespoły zbliżają się do niego po krzywej S:
-- **Start nowych przepisów:** mało wiedzy, zyski niepewne, a rozrzut między zespołami duży (tu rodzą się dominacje).
-- **Środek cyklu:** najszybszy przyrost. Kto ma lepszych ludzi i infrastrukturę, ucieka.
-- **Dojrzałe przepisy:** każda dziesiątka sekundy kosztuje coraz więcej, a stawka się ściska (jak w F1 w latach 2019–2021).
-- **Nowy regulamin** to nowa krzywa. Część wiedzy przechodzi (ludzie, narzędzia, rozumienie opon), a część przepada. Sam sufit też przesuwa się z granicą technologii (§4.3).
-- **Koncepcja ma własną krzywą:** rewolucyjna ma wyższy sufit, ale wolniejszy start; ewolucyjna odwrotnie.
+### 5.3. Rozwój: potencjał koncepcji, konto rozwoju, moment wdrożenia (PP-032)
 
-**Podział zasobów** (ludzie, tunel/CFD, pieniądze) między trzy strumienie, zmieniany w dowolnym momencie:
-1. **Bieżące auto:** poprawki w ramach obecnej koncepcji. Malejące zyski, bo jest coraz bliżej swojego sufitu.
-2. **Nowa koncepcja jeszcze w tym sezonie („wersja B”):** duży projekt, który daje nowy, wyższy sufit, ale kosztuje dużo, zeruje zrozumienie auta (patrz niżej) i może się nie udać.
-3. **Auto na przyszły sezon:** im wcześniej zaczniesz, tym lepsze auto dostaniesz, kosztem obecnego sezonu. Przed zmianą przepisów to kluczowa decyzja („poświęcenie sezonu”, gracz i AI).
+**Nie ma wspólnej krzywej, na której „stoi” auto.** Tempo rozwoju wynika z **zapasu własnej koncepcji**:
+- **Sufit (potencjał) koncepcji:** każda koncepcja ma własny. Zależy od pomysłu (osie z §5.2 i technologie), od regulaminu i od jakości ludzi, którzy ją wymyślili. Nikt nie zna go dokładnie. Dyrektor techniczny podaje szacunek z niepewnością, a jego trafność zależy od umiejętności.
+- **Zysk z pracy** jest proporcjonalny do **pozostałego zapasu** (sufit minus obecny poziom) oraz do zasobów, ludzi i infrastruktury. Blisko sufitu każda dziesiątka sekundy kosztuje coraz więcej. Nie ma premii za bycie „w środku krzywej”.
+- **Skutek:** zespół, który trafił w lepszą koncepcję, rozwija się dłużej. Zespół z przeciętną koncepcją szybko się zatrzymuje i musi podjąć decyzję o zmianie (jak Mercedes z koncepcją „zero sidepods” w 2022). Stawka ściska się naturalnie, gdy wszyscy zbliżają się do podobnych sufitów w dojrzałych przepisach. Dominacje rodzą się z trafionych koncepcji (podwójny dyfuzor w 2009), a nie z pozycji na krzywej.
+- **Nowy regulamin:** nowe koncepcje, nowe sufity. Część wiedzy przechodzi (ludzie, narzędzia, rozumienie opon), a część przepada.
+
+**Konto rozwoju („oszczędności”):** nie każdą pracę trzeba od razu zamieniać na części do bieżącego auta. Część wyników badań można odłożyć na konto wiedzy i wykorzystać później: w kolejnej poprawce, w nowej koncepcji albo w aucie na przyszły rok. Konto traci wartość, gdy regulamin się zmienia, bo wiedza o zakazanym rozwiązaniu jest nic niewarta. Trzymanie wszystkiego na zapas też kosztuje, bo rywale uciekają.
+
+**Nowa koncepcja jako projekt, z wdrożeniem kiedy chcesz** (i kiedy pozwala regulamin):
+- W trakcie sezonu, gdy projekt jest gotowy. Wtedy zrozumienie auta spada do zera i trzeba je odbudować, a epoka może to blokować (homologacja podwozia, zamrożenia, limity testów).
+- Po kilku wyścigach, gdy auto jest już przetestowane i zrozumiane.
+- Dopiero w przyszłym sezonie, jako baza nowego auta.
+
+Decyzja „czekać czy wdrażać” to kompromis: wcześniejsze wdrożenie daje punkty teraz, ale kosztuje zrozumienie i ryzyko. Podział zasobów między poprawki bieżącego auta, konto rozwoju i projekt nowej koncepcji ustawiasz sam albo zostawiasz dyrektorowi technicznemu (PP-029).
 
 **Zrozumienie części:** nowa część czy nowy pakiet nie daje pełnych osiągów od razu. Zespół musi go **zrozumieć** przez testy, kilometry w wyścigach i pracę inżynierów (procent zrozumienia na projekt). Limity testów z regulaminu sprawiają, że wprowadzenie dużej poprawki w połowie sezonu to realny koszt.
 
@@ -209,19 +213,30 @@ Do tego wybrane technologie z drzewa (§4.2). **Jakość wykonania** zależy od 
 
 **Tożsamość:** imię i nazwisko, narodowość, data urodzenia i wiek, numer, wizerunek, kraj bazy fanów.
 
-**Atrybuty widoczne (1–20) + ocena ogólna (1–100):**
+**Atrybuty widoczne (1–20) + ocena ogólna (1–100)** (PROPOZYCJA po uwagach właściciela):
 | Atrybut | Znaczenie |
 |---|---|
-| Tempo | czysta prędkość na okrążeniu |
-| Walka | wyprzedzanie i obrona |
-| Regularność | powtarzalność czasów, mniej błędów |
-| Deszcz | jazda w mokrych i zmiennych warunkach |
-| Oszczędzanie sprzętu | opony, hamulce, skrzynia; w latach 50. równie ważne jak tempo |
-| Opanowanie | presja, starty, walka o tytuł |
+| Zakręty | szybkość w zakrętach, czyli „czyste tempo”, ale nie jako jedna liczba, która rządzi wszystkim |
+| Hamowanie | dohamowania, stabilność i skuteczność na wejściu w zakręt |
+| Płynność | delikatność dla auta: opony, hamulce, skrzynia. **Wartość jest stała, a jej waga zależy od epoki**, np. w latach 50. płynność ratuje skrzynię, dziś głównie opony. Dzięki temu cecha jest uczciwa w każdej erze. |
+| Wyprzedzanie | skuteczność ataku |
+| Obrona | utrzymanie pozycji |
+| Regularność | powtarzalność czasów, mało błędów |
+| Opanowanie | presja, starty, walka o tytuł, skupienie |
+| Adaptacja | szybkość wejścia w nowe auto, nowy tor i zmienne warunki |
+| Deszcz | mokry i przesychający tor |
+| Kondycja | utrzymanie formy w długim, gorącym albo fizycznie ciężkim wyścigu (lata 50., brak wspomagania, endurance) |
 | Informacja zwrotna | rozwój auta, ustawienia, zrozumienie części |
-| Doświadczenie | rośnie z każdym startem |
 
-**Preferencje prowadzenia:** balans i trakcja (§5.2).
+**Ocena ogólna** to ważona suma atrybutów, której wagi zależą od epoki.
+
+**Doświadczenie nie jest atrybutem, tylko licznikami z konkretnym działaniem:**
+- starty ogółem: mniej błędów w chaosie (restarty, kolizje w pierwszym okrążeniu);
+- okrążenia na danym torze: znajomość toru;
+- wyścigi w deszczu: mniejsza kara za pierwsze mokre wyścigi;
+- sezony w zespole: lepsza współpraca z inżynierami.
+
+**Preferencje prowadzenia:** balans (podsterowność ↔ nadsterowność), trakcja (miękka ↔ ostra) i **styl hamowania (wczesne / normalne / późne)**. Porównywane z charakterystyką auta (§5.2).
 
 **Osobowość:**
 - *Jedna główna:* szuka bezpieczeństwa, najemnik, lojalny, prestiżowy, krótkoterminowy, ambitny, mentor, gracz zespołowy.
@@ -231,7 +246,7 @@ Każda z nich zmienia wagi oceny oferty (§8) oraz reakcje na status #2, na zła
 
 **Cechy (0–3):** np. mistrz kwalifikacji, zaklinacz opon / niszczyciel opon, szybki tylko w czystym powietrzu, artysta wyprzedzania, mistrz deszczu, pękający pod presją, skłonny do kraks, „mechanik” (oszczędza sprzęt), kierowca z pieniędzmi, mentor (rozwija partnera z zespołu). Widoczne dopiero po obserwacji.
 
-**Stan bieżący (zmienny):** forma (średnia krocząca), morale, pewność siebie (spada po błędach i w aucie, które mu nie leży), zdrowie i kontuzje, zmęczenie.
+**Stan bieżący (zmienny):** forma (średnia krocząca), morale, pewność siebie (spada po błędach i w aucie, które mu nie leży), zdrowie i kontuzje. Zmęczenia nie ma w widoku składu. Istnieje tylko wewnątrz długich wyścigów endurance (stinty), gdzie liczy się kondycja.
 
 **Tory:** trzy warstwy, od najbardziej wytłumaczalnej:
 1. **Z atrybutów × profil toru:** wynika wprost z liczb. Na przykład w Monako liczą się regularność i opanowanie, a na Monzy więcej daje walka na prostych.
@@ -242,7 +257,19 @@ Do tego wyścig domowy: przewaga morale, ale też presja, zależnie od opanowani
 
 **Kariera i statystyki:** starty, zwycięstwa, pole position, podia, punkty, tytuły, najszybsze okrążenia, nieukończone wyścigi (z podziałem na własne błędy i awarie), historia sezon po sezonie i zespół po zespole, pojedynki z partnerami z zespołu, rekordy, historia kontuzji.
 
-**Rynek:** kontrakt, wartość rynkowa, oczekiwania płacowe, sława (popularność u kibiców, która napędza sponsorów i model popularności, §9), relacje (§6.3).
+**Tryb porównania:** dowolnych dwóch (albo więcej) kierowców, a w nim:
+- całe kariery;
+- wybrane sezony obok siebie (np. Senna 1988 kontra Verstappen 2023);
+- pojedynki bezpośrednie (kwalifikacje, wyścigi, wspólne lata w zespole);
+- statystyki względne wobec auta.
+
+Porównania między epokami są opatrzone kontekstem: liczba wyścigów, punktacja i awaryjność epoki.
+
+**Kontrakt, a nie „wartość rynkowa”.** To nie piłka nożna, kierowców rzadko się wykupuje. Profil pokazuje:
+- wartość bieżącego kontraktu, lata do końca, premie;
+- **klauzule** (§10);
+- oczekiwania co do następnej umowy;
+- sławę, czyli popularność u kibiców, która napędza sponsorów i model popularności (§9).
 
 **Ukryte (tylko Spy albo pasma ze scoutingu):** potencjał, podatność na kontuzje, powinowactwo do torów.
 
@@ -277,8 +304,16 @@ Personel ma analogiczny profil: tożsamość, atrybuty roli, osobowość, stan, 
 
 Morale personelu (np. po zwolnieniu kolegi, przy słabych wynikach, przy dużym budżecie) lekko przesuwa jego skuteczność. Szef zespołu (gracz albo AI) ma atrybuty menedżerskie: negocjacje, zarządzanie ludźmi, polityka (wpływ na regulamin) i biznes.
 
-### 6.3. Relacje
-Relacje kierowca–kierowca, kierowca–zespół i osoba–osoba (0–100) mają swoją historię: wspólne kraksy, bycie partnerami, spory kontraktowe, mentorstwo. Wpływają na zgodę na transfer („do tego zespołu nie wrócę”), na atmosferę w zespole (rywalizacja partnerów, polecenia zespołowe) i na historie w skrzynce. Rywalizacje w stylu Senna–Prost mają wyrastać z relacji, a nie ze skryptu.
+### 6.3. Zaufanie i obietnice (PP-035)
+„Relacje” to w praktyce **pamięć i zaufanie** między ludźmi i zespołami (0–100, z historią zdarzeń): dotrzymane lub złamane obietnice, wspólne sukcesy, kraksy między partnerami z zespołu, spory kontraktowe, mentorstwo.
+
+**System obietnic i warunków:**
+- **Kierowca stawia warunki**, np. „podpiszę jeszcze jeden rok, ale to ostatnia szansa: chcę widzieć podia” albo „chcę statusu #1”, „chcę lepszego silnika”.
+- **Zespół składa obietnice**, np. nowy tunel aerodynamiczny, status, konkretny partner z zespołu, auto zbudowane pod jego styl.
+- Każda obietnica ma **termin i mierzalny warunek**. Gra ją śledzi i pokazuje w profilu (STATE / WHY / FORECAST).
+- **Dotrzymanie buduje zaufanie**, a złamanie je niszczy. Kierowca lojalny wybacza raz, najemnik odchodzi od razu. Niskie zaufanie oznacza twardsze negocjacje, odejście przy pierwszej okazji i gorszą atmosferę.
+
+Z zaufania wyrastają też rywalizacje (Senna–Prost), napięcia między partnerami z zespołu i historie w skrzynce, bez skryptu.
 
 ### 6.4. Rozwój i wiek
 Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datami. W trybie „Trajektoria” zastępuje ją prawdziwa krzywa.
@@ -337,7 +372,15 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 
 ## 10. Rynek i kontrakty
 
-- **Pola kontraktu:** pensja, premie (za punkty i zwycięstwa), długość, status (#1 / równy / #2 / rezerwowy), klauzula wykupu. Kierowcy wnoszący sponsora mają osobne pole.
+- **Pola kontraktu:** pensja, premie (za punkty, zwycięstwa, tytuł), długość, status (#1 / równy / #2 / rezerwowy). Kierowcy wnoszący sponsora mają osobne pole.
+- **Klauzule** (głęboki system, którego nikt w gatunku nie ma):
+  - **wyjścia z umowy:** kierowca może odejść, jeśli zespół spadnie poniżej np. 5. miejsca w konstruktorach albo nie da mu podium w ciągu N wyścigów; zespół może rozwiązać umowę, jeśli kierowca przegra pojedynek z partnerem albo nie zdobędzie punktów;
+  - **opcja przedłużenia** po stronie zespołu albo kierowcy;
+  - **gwarancje:** status #1, partner z zespołu (albo zakaz konkretnego), liczba samochodów zespołu, dostęp do nowych części jako pierwszy;
+  - **pieniądze:** premie za wyniki, udział w dochodach sponsora osobistego, kara za zerwanie;
+  - **zakazy:** udział w innych seriach (np. Le Mans), ryzykowne hobby;
+  - **zwolnienie za kwotę:** rzadkie, ale możliwe (historycznie wykupy kontraktów się zdarzały).
+- Każdą klauzulę można negocjować. Obie strony wyceniają ją według swojej osobowości i sytuacji. Złamanie klauzuli jest sprawą w skrzynce i uderza w zaufanie (§6.3).
 - **Negocjacje z ludźmi, a nie z paskami:** UI pokazuje powody odmowy lub zgody.
 - **Dynamika okna transferowego:** negocjacje trwają tygodnie. Liczba prowadzonych naraz rozmów zależy od ludzi i infrastruktury, a im później w sezonie, tym mniej wolnych miejsc i krótsze okna decyzji. Kierowca bez miejsca pod koniec sezonu obniża oczekiwania. Spóźnienie na rynek kosztuje stanem rynku, a nie zablokowanym przyciskiem.
 - **Scouting:** obcy zawodnicy mają atrybuty w pasmach (np. 12–16), które zawężają się dzięki obserwacji, wspólnym startom albo podpisaniu kontraktu.

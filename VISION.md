@@ -72,7 +72,7 @@ Zmiana decyzji to nowy wpis, a nie cicha edycja starego. Oznaczenia `D-xxx` odno
 
 **PP-001: Flagowy tryb to historyczne F1 od 1950.** Pierwsza grywalna wersja to kariera od dowolnego roku 1950+ z prawdziwymi ludźmi. Endurance, GT i serie juniorskie powstają później na tym samym silniku.
 
-**PP-002: Stack: C#/.NET 9 (rdzeń headless) + UI w HTML/CSS/TypeScript (Svelte) w oknie Photino/WebView2, zapis w SQLite.** Godot odrzucony: UI to w 90% tabele, a AI piszące sceny Godota pracuje na ślepo (uzasadnienie w TECH §1.1). Infrastrukturę przenosimy z Peloton Managera. Stary kod w Pythonie nie istnieje.
+**PP-002: Stack: C#/.NET 9 (→ .NET 10, PP-036) (rdzeń headless) + UI w HTML/CSS/TypeScript (Svelte) w oknie Photino/WebView2, zapis w SQLite.** Godot odrzucony: UI to w 90% tabele, a AI piszące sceny Godota pracuje na ślepo (uzasadnienie w TECH §1.1). Infrastrukturę przenosimy z Peloton Managera. Stary kod w Pythonie nie istnieje.
 
 **PP-003: Jeden ciągły świat zamiast paczek-migawek sezonów.** Baza świata zawiera osoby (z datami urodzenia i debiutu), organizacje (z datami powstania i końca), tory (z wersjami układu) oraz oś czasu epok. Rok startu to tylko miejsce, od którego zaczyna się symulacja.
 
@@ -156,9 +156,23 @@ Zadania są opisane jako GitHub Issues z kryteriami akceptacji. Implementacja id
 
 **PP-031: Opcjonalny tryb bez liczb.** Atrybuty, oceny i osiągi auta poznajesz wyłącznie z opinii swoich ludzi. Ich trafność zależy od jakości personelu. Technicznie to tylko inna prezentacja wiedzy zespołu (INV-003), więc każdy system od początku zwraca wiedzę z niepewnością, a nie gołe liczby. Szczegóły w DESIGN §13. Do tego pełny profil kierowcy z trzema warstwami dopasowania do torów: atrybuty, znajomość toru i ukryte powinowactwo (w trybie historycznym wyliczone z prawdziwych wyników); szczegóły w DESIGN §6.1.
 
-**PP-032: Rozwój auta po krzywej S w każdym cyklu regulaminowym.** Zasoby dzielisz na trzy strumienie: bieżące auto, nową koncepcję w tym sezonie („wersja B”) i auto na przyszły sezon. Szczegóły w DESIGN §5.3.
+**PP-032: ~~Rozwój auta po krzywej S.~~** Zmienione w rundzie ósmej: rozwój zależy od zapasu własnej koncepcji (brak wspólnej krzywej), do tego konto rozwoju i elastyczny moment wdrożenia nowej koncepcji. Szczegóły w DESIGN §5.3.
 
 **PP-033: Personel to kluczowi ludzie plus działy z liczebnością.** Wydajność działów ma malejące korzyści, a talenty mogą wyrosnąć wewnątrz działów. Szczegóły w DESIGN §6.2.
 
 **PP-034: Wspólny katalog zasad dla trybu historycznego i proceduralnego,** z polityką regulaminową (propozycje i głosowania) tam, gdzie epoka ją przewiduje. Research zasad robi Grok.
+
+### Przyjęte 2026-09-26 (ósma runda)
+
+**PP-035: Profil kierowcy i kontrakty.**
+- Atrybuty: zakręty, hamowanie, płynność (waga zależna od epoki), wyprzedzanie, obrona, regularność, opanowanie, adaptacja, deszcz, kondycja, informacja zwrotna.
+- Doświadczenie to liczniki z konkretnym działaniem, a nie atrybut.
+- Preferencje: balans, trakcja, styl hamowania.
+- Bez zmęczenia w widoku składu.
+- Tryb porównania karier, sezonów i pojedynków bezpośrednich.
+- Brak „wartości rynkowej”. Są za to: kontrakt, klauzule (głęboki system), zaufanie i obietnice z terminami i warunkami.
+
+Szczegóły w DESIGN §6.1, §6.3 i §10.
+
+**PP-036: .NET 10 (LTS) zamiast .NET 9.** Na maszynie jest SDK 10, a .NET 10 ma długie wsparcie.
 

@@ -441,11 +441,15 @@ To nie jest osobny system, tylko **inna prezentacja tej samej wiedzy** (INV-003)
 ### 14.1. Kierunek wizualny
 Podstawą jest kierunek C, czyli „barwy epoki”, z 1976 jako wzorcem jakości. Makieta referencyjna: `ui/mockups/d-dashboard-v2.html`.
 - **Skórka epoki jest opcją:** domyślnie zmienia się z dekadą kariery, ale gracz może ustawić na stałe styl wybranej ery.
-- **Barwy zespołu:** kolory interfejsu (pasek boczny, akcenty, przycisk „Dalej”) pochodzą z zespołu, a po podpisaniu sponsora tytularnego mogą przejść na jego barwy (np. JPS: czerń i złoto).
+- **Barwy zespołu:** kolory interfejsu (pasek boczny, akcenty, przycisk „Dalej”) pochodzą z zespołu, a po podpisaniu sponsora tytularnego mogą przejść na jego barwy (np. JPS: czerń i złoto). Barwy zespołu delikatnie zabarwiają też tło, karty i tekst drugorzędny.
+- **Styl do wyboru: „Era” albo „Zespół”.** Era: paski i akcenty w barwach dekady. Zespół: wszystkie akcenty z barw zespołu. Makieta referencyjna v3: `ui/mockups/e-dashboard-v3.html`.
+- **Tło żyje:** powolne, rozmyte plamy barw zespołu i epoki oraz delikatne linie przepływu powietrza, jak smuga dymu w tunelu aerodynamicznym. Wszystko abstrakcyjne, bez bolidów. Panele są lekko przezroczyste, więc barwy przenikają (bardziej „applowsko”). Przy włączonym ograniczeniu ruchu tło stoi.
 - **Inspiracje:** konstruktywistyczny wygląd Pelotona (grube ramki, przesunięty cień, papier, jeden główny przycisk), grafika wyścigowa z lat 70.
 
 ### 14.2. Zasady (lista anty-AI-slop)
-- **Każdy ekran ma jeden punkt skupienia.** Na pulpicie to „Do zrobienia”: decyzje z terminem i skutkami widocznymi przed kliknięciem.
+- **Każdy ekran ma jeden punkt skupienia.** Na pulpicie są to skrzynka i następny wyścig.
+- **Skrzynka na pulpicie pokazuje tylko nadawcę i tytuł;** decyzje z terminem są przypięte na górze. Szczegóły i wybór opcji (ze skutkami widocznymi przed kliknięciem) są w ekranie skrzynki.
+- **Typografia ma stały zestaw ról:** tytuł ekranowy, tytuł wiersza, treść, etykieta, liczby. Nie ma przypadkowych rozmiarów, grubości ani przezroczystości. Tekst drugorzędny to atrament zabarwiony barwą zespołu, a nie generyczna szarość.
 - **Na pulpicie tylko to, co wymaga uwagi albo zmienia decyzje.** Pełne statystyki kierowców są na ich ekranie, a nie na pulpicie.
 - **Pozycję względem stawki pokazujemy paskiem:** długość odpowiada miejscu w stawce, kolor idzie od zielonego (najlepsi) do czerwonego (najgorsi). Nie ma tabeli miejsc.
 - **Bez siatki identycznych kart, bez etykiet-nadtytułów nad każdym blokiem, bez ozdobnych wskaźników i sztucznych liczb.** Mniej elementów, ale mocniejszych.

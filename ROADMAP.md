@@ -1,93 +1,70 @@
 # Paddock Principal — ROADMAP
 
-**Status:** DRAFT (2026-09-25). Opiera się na [VISION.md](VISION.md) i [DECISIONS.md](DECISIONS.md).
-**Zasada:** każda faza kończy się bramką, czyli czymś, co da się uruchomić i ocenić. Nie ma faz „tylko dokumentacja” poza fazą 0.
+**Status:** DRAFT (2026-09-25)
+**Zasada:** każda faza kończy się bramką, czyli czymś, co da się uruchomić i ocenić. Poza fazą 0 nie ma faz „tylko dokumentacja”.
 
 ---
 
-## Faza 0: Fundament dokumentacji
-- [x] VISION, DECISIONS, ROADMAP
-- [ ] Odpowiedzi na [otwarte pytania](#otwarte-pytania)
-- [ ] Przepisanie istniejących dokumentów pod model ciągłego świata (lista niżej)
-- [ ] `git init` + repo na GitHubie (zgodnie z Peloton D-029: historia gita to pamięć projektu)
-
-**Bramka:** komplet dokumentów bez wewnętrznych sprzeczności.
+## Faza 0: Fundament ✅ (prawie)
+- [x] VISION z decyzjami, DESIGN, TECH, ROADMAP; stare dokumenty skonsolidowane (są w historii gita)
+- [x] repozytorium git
+- [ ] push na GitHub
+- [ ] odpowiedzi na [otwarte pytania](#otwarte-pytania)
 
 ## Faza 1: Pipeline danych historycznych (test wykonalności)
 Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
-- Import F1 1950–2025 z Jolpica-F1 (API zgodne z Ergastem): kierowcy, konstruktorzy, tory, wyniki, kwalifikacje.
-- Model ocen: porównania z partnerem z zespołu i efekt „konstruktor × sezon”, co daje tempo kierowcy na sezon, krzywą kariery i sufit talentu.
-- Plik jawnych nadpisań dla przypadków brzegowych (Indianapolis 500 w latach 1950–60, kierowcy jednego wyścigu, dzielone samochody).
-- Raport sprawdzający: czy Fangio, Clark, Stewart, Lauda, Prost, Senna, Schumacher i Hamilton lądują tam, gdzie powinni? Gdzie model się myli i dlaczego?
-- Szkielet danych personelu (Team Principal, projektant, projektant silnika): wstępnie ręcznie, dla czołowych zespołów każdej dekady.
+- `DataPipeline`: import F1 1950–2025 z Jolpica-F1 (kierowcy, konstruktorzy, tory, wyniki, kwalifikacje) do lokalnego cache.
+- Model ocen: porównania z partnerem z zespołu i efekt konstruktor × sezon, co daje tempo na sezon, krzywą kariery i sufit talentu.
+- Przypadki brzegowe: Indy 500 w latach 1950–60, kierowcy jednego wyścigu, dzielone samochody.
+- `data/authored/`: szkielet osi czasu epok, drzewa technologii i kluczowego personelu (szefowie i projektanci czołowych zespołów każdej dekady).
+- **Raport do Twojej oceny:** ranking kierowców wszech czasów i per dekada, z listą miejsc, gdzie model się myli, i wyjaśnieniem dlaczego.
 
-**Bramka:** tabela ocen, którą przejrzysz i powiesz „to ma sens”. Jeśli się nie da, zmieniamy podejście, zanim powstanie reszta gry.
+**Bramka:** przeglądasz raport i mówisz „to ma sens”. Jeśli się nie da, zmieniamy podejście, zanim powstanie reszta gry.
 
 ## Faza 2: Rdzeń świata
-- Solucja .NET 9: przeniesienie z Pelotona determinizmu, strumieni RNG, zapisu SQLite, migracji, stabilnych ID i kalendarza.
-- Encje: osoba (kierowca, personel, menedżer), organizacja, samochód i projekt, tor i jego wersje, seria, sezon, kontrakt.
-- Oś czasu epok: przepisy, punktacja, bezpieczeństwo, ekonomia, technologie.
-- Harmonogram ludzi: kiedy prawdziwa osoba pojawia się w świecie i w jakim stanie.
-- SimRunner: przebieg N sezonów bez UI.
+- Solucja .NET 9 (TECH §2); przeniesienie z Pelotona determinizmu, RNG, zapisu SQLite, migracji i kalendarza.
+- Osoby, organizacje (z linią następstwa), tory z wersjami, kontrakty, oś czasu epok, harmonogram ludzi, tick dnia.
+- SimRunner: przebieg bez wyścigów.
 
-**Bramka:** SimRunner przechodzi 1950→2026 bez wyścigów (sama populacja): ludzie pojawiają się, starzeją i odchodzą, a zapis pozostaje mały.
+**Bramka:** 1950→2026 w SimRunnerze. Ludzie pojawiają się, starzeją i odchodzą, zapis pozostaje mały, a wynik jest deterministyczny.
 
 ## Faza 3: Silnik wyścigu dla wielu epok
-- Model okrążeń sparametryzowany epoką: awaryjność, tankowanie, opony, aero, brudne powietrze, zmiana kierowcy w trakcie wyścigu.
-- Strategia sztabu, pogoda, incydenty, kontuzje (PP-006).
+- Model okrążeń parametryzowany epoką, strategia sztabu, awaryjność, pogoda, incydenty i kontuzje.
 - Race Spy od pierwszego dnia.
-- **Test wierności historii (PP-012)** dla lat 1950–1960, a potem dla kolejnych dekad.
+- Test wierności historii: 1950–1960, a potem kolejne dekady.
 
-**Bramka (grywalności):** obejrzysz tekstową relację wyścigu z 1955 i z 1988 i powiesz, że czuć różnicę epok, a wyniki są wiarygodne.
+**Bramka (grywalności):** czytasz relację wyścigu z 1955 i z 1988. Czuć różnicę epok, a wyniki są wiarygodne.
 
-## Faza 4: Pętla kariery (pierwszy grywalny sezon, jeszcze w CLI)
-- Rynek kierowców i personelu, negocjacje (wzorzec z Pelotona).
-- Projekt samochodu, R&D, drzewo technologii (PP-009).
-- Finanse, sponsorzy, nagrody startowe (starting money w latach 50.).
-- AI principali: archetypy, strategia przypisana do osoby, zwolnienia (wzorzec z Ping-Ponga).
-- Powstawanie, upadki i wykupy zespołów oraz warunkowe zdarzenia historyczne (PP-004).
+## Faza 4: Pętla kariery (pierwszy grywalny sezon, w CLI / prostym UI)
+- Start kariery: praca w istniejącym zespole albo **własny zespół z pakietem sponsora założycielskiego** (PP-015).
+- Rynek i negocjacje, projekt samochodu i R&D, drzewo technologii, finanse i sponsorzy.
+- AI szefów zespołów, zwolnienia (także gracza).
+- Powstawanie, upadki i wykupy zespołów; propozycje historyczne.
+- Projekt szczegółowy: zakładanie i wykup zespołu w trakcie kariery.
 
-**Bramka:** jeden pełny sezon 1955 jest grywalny od A do Z, a decyzje mają odczuwalne konsekwencje.
+**Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 
-## Faza 5: Wyróżnik, czyli żywa historia
-- Kronika rozbieżności: Twoja oś czasu obok prawdziwej.
-- Hall of Fame, rekordy, kompaktowa historia na 76+ lat (wzorzec z Ping-Ponga).
-- Skrzynka i zdarzenia życiowe (0–3 na turę, cisza jest OK).
+## Faza 5: Żywa historia
+- Kronika rozbieżności, Hall of Fame, rekordy, kompaktowanie historii.
+- Skrzynka i zdarzenia życiowe.
 - Przejście od prawdziwych ludzi do generatora po 2026.
 
-## Faza 6: UI w Godot
-- Klient Godot 4.7 C# nad tymi samymi zapytaniami (wzorzec klienta z Pelotona).
-- Gęste tabele (za wizją Ping-Ponga: arkusz, który wygląda dobrze), ekran wyścigu, kronika.
+**Bramka:** kariera 1950→2040 w SimRunnerze plus Twoja ręczna rozgrywka kilku sezonów. Historia rozjeżdża się ciekawie, a nie losowo.
 
-## Faza 7+: Rozszerzenia świata
-- Serie juniorskie (F2/F3 i ich historyczne odpowiedniki) jako ścieżka rozwoju.
-- Le Mans / WEC / IMSA / GT: wizja endurance (drabina GT4→GT3→LMP2→Hypercar, zespoły z kilkoma programami) i specyfikacja wejść na wyścigi 24h z wcześniejszych ustaleń; do spisania jako osobny dokument przed tą fazą.
-- Tryb proceduralny od zera, tryb wyzwań, edytor bazy, paczka fikcyjna.
+## Faza 6: UI (HTML/TS/Svelte w Photino)
+- Most JSON, tryb deweloperski w przeglądarce, zrzuty ekranu do przeglądu.
+- Kierunek wizualny najpierw jako 2–3 statyczne makiety do Twojego wyboru, potem właściwe ekrany: gęste tabele, ekran wyścigu, kronika.
 
----
-
-## Istniejące dokumenty: co z nimi
-
-| Dokument | Decyzja |
-|---|---|
-| ARCHITECTURE.md | zostaje w dużej części; dopisać Godot, oś czasu epok i harmonogram ludzi |
-| DETERMINISM_AND_EVENT_CONTRACTS.md | zostaje; dopisać strumienie `PeopleSchedule` i `HistoricalProposals` |
-| PADDOCK_SPY_AND_DECISION_TRACING.md | zostaje; porównać z WORLD_SPY z Pelotona i ujednolicić |
-| AI_PRINCIPAL_SYSTEM.md | zostaje jako baza; strategia przypisana do osoby, zespoły z kolejnych epok zamiast Red Bulla i Haasa |
-| DATA_MODEL.md | **przepisać**: osoba zamiast kierowcy, organizacje z datami, projekt samochodu dla wielu epok, skala 1–20 w UI |
-| CONTENT_FORMAT.md | **przepisać**: jedna baza świata zamiast paczek per sezon, zdarzenia warunkowe, nadpisania ocen |
-| RACE_ENGINE_DESIGN.md | **przepisać**: model parametryzowany epoką, bez założeń współczesnego F1 |
-| SAVE_FORMAT.md | zostaje w dużej części; dodać tabelę kroniki rozbieżności i Hall of Fame |
-| README.md / DOCS_INDEX.md | zaktualizować po przepisaniu reszty |
+## Faza 7+: Rozszerzenia
+Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyścigi 24h z wcześniejszych ustaleń), tryb proceduralny od zera, wyzwania, edytor bazy, paczka fikcyjna, wydanie.
 
 ---
 
 ## Otwarte pytania
 
-1. **Własny zespół:** czy gracz może założyć swój zespół (jak Brabham, McLaren czy Williams), czy tylko dostaje pracę w istniejącym?
-2. **Wiedza o przyszłości:** gracz wie, że Senna będzie wielki. Czy to celowa część zabawy („znam historię, więc łowię talenty”), czy ukrywamy tożsamość i potencjał prawdziwych juniorów? AI na pewno nie zna przyszłości.
-3. **Serie w świecie 1950:** tylko mistrzostwa świata F1, czy też wyścigi F1 poza mistrzostwami i F2 (w latach 1952–53 mistrzostwa rozgrywano według przepisów F2)? Juniorzy jako abstrakcyjna pula czy prawdziwe serie?
-4. **Gracz jako producent silników:** czy możliwa jest ścieżka „buduję własne silniki”, czy tylko wybór dostawcy (Coventry-Climax, Cosworth DFV, …)?
-5. **Postęp czasu:** dzień po dniu jak w Pelotonie, czy od zdarzenia do zdarzenia z jednym przyciskiem „Dalej”?
-6. **Prezentacja wyścigu w pierwszej wersji:** tekstowa relacja i tabela, czy od razu mapa toru 2D?
-7. **Język gry:** polski, angielski czy oba?
+1. **Wiedza o przyszłości:** gracz wie, że Senna będzie wielki. Czy to celowa część zabawy („znam historię, więc łowię talenty”), czy ukrywamy prawdziwych juniorów (np. opcja „anonimowi juniorzy do debiutu”)? AI na pewno nie zna przyszłości.
+2. **Serie w świecie 1950:** tylko mistrzostwa świata F1, czy też wyścigi F1 poza mistrzostwami? (Było ich wtedy więcej niż rund mistrzostw i dawały pieniądze startowe).
+3. **Własne silniki:** czy gracz może zostać producentem silników (droga Ferrari, BRM, Hondy), czy tylko wybiera dostawcę?
+4. **Prezentacja wyścigu w pierwszej wersji:** relacja tekstowa i tabela na żywo wystarczą, czy od razu chcesz mapę toru 2D?
+5. **Język gry:** polski, angielski czy oba (i-18n od początku kosztuje niewiele)?
+6. **Repozytorium na GitHubie:** prywatne czy publiczne (Peloton i Ping-Pong są publiczne)?

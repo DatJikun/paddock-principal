@@ -190,3 +190,8 @@ Szczegóły w DESIGN §6.1, §6.3 i §10.
 
 **PP-039: Paddock Monthly, czyli interaktywny miesięcznik ze świata gry.** Rynek i plotki, talenty, wyniki innych serii, technika, pieniądze. Wszystko prowadzi do aktualnych danych (klasyfikacje, profile, kontrakty). Szczegóły w DESIGN §14.3.
 
+**PP-040: Ocena ogólna jako gwiazdki (0–5, z połówkami) zamiast liczby 1–100** (zmienia PP-013).
+- Atrybuty zostają w skali 1–20.
+- Gwiazdki pochodzą z wiedzy zespołu, a nie z prawdy symulacji: przy obcych kierowcach to pasmo (np. 3–4★), a potencjał pokazują gwiazdki „duchy”.
+- Rynek filtruje i sortuje po gwiazdkach, tak jak w Ping-Pong Managerze.
+

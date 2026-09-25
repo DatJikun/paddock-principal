@@ -28,6 +28,7 @@ Nie symulujemy całej drabinki motorsportu, od kartingu dla 6-latków w górę. 
 
 - **Kiedy prawdziwy kierowca trafia do puli:** 2–3 lata przed prawdziwym debiutem w F1, nie wcześniej niż w wieku ~17 lat. Dokładną liczbę lat ustalimy przy kalibracji. Weterani innych serii (np. Indy, sportowe samochody) wchodzą w wieku, w jakim byli naprawdę.
 - **Co się dzieje w puli:** talent rozwija się sam, w tempie zależnym od potencjału i losu. Zespoły mogą go podpisać jako kierowcę wyścigowego, testowego albo „juniora” z opcją na przyszłość.
+- **Inwestycja w juniora:** można opłacić juniorowi sezon „gdzieś niżej” (abstrakcyjny program: tanio i wolno, albo drogo i szybko). To przyspiesza jego rozwój i buduje lojalność. Kierowca rezerwowy rozwija się przez prywatne testy, ograniczone regulaminem epoki.
 - **Wypełniacze:** pulę uzupełnia generator wiarygodnymi fikcyjnymi kierowcami. Bez nich pula byłaby listą przyszłych mistrzów, a wybór pozbawiony sensu. AI nie wie, kto jest „prawdziwy”.
 - **Rozszerzenie ladderu:** gdy dodamy F2/F3 (faza 7+), punkt wejścia przesunie się niżej, a pula zamieni się w prawdziwe serie. Ten sam mechanizm, bez przepisywania.
 
@@ -103,7 +104,7 @@ Każdy wpis zmienia parametry od danego sezonu. Przykłady z historii F1:
 | 1993 | samochód bezpieczeństwa | przebieg wyścigu |
 | 2009+ | budżety ograniczane (limit wydatków od 2021) | ekonomia |
 
-Pełną oś czasu budujemy w fazie 1 razem z danymi.
+Pełną oś czasu budujemy w fazie 1 razem z danymi. Lista wymiarów regulaminu do sparametryzowania: samochód bezpieczeństwa (brak / fizyczny / też wirtualny), przydział opon i mieszanki, masa minimalna, pomoce elektroniczne (kontrola trakcji, ABS, aktywne zawieszenie, aktywna aerodynamika), DRS, ERS, tankowanie i pojemność zbiornika, punktacja, format kwalifikacji, podział nagród, limity testów, limit wydatków, silniki (pojemność, turbo, hybryda).
 
 ### 4.2. Drzewo technologii (PP-009)
 Technologie mają prawdziwą datę wprowadzenia. Dla AI to punkt odniesienia, a gracz może ją wyprzedzić albo się spóźnić.
@@ -157,10 +158,12 @@ Projekt roczny to zestaw decyzji na osiach, w których **każdy biegun ma swoją
 | Opony | łagodne dla opon: dłuższe stinty | agresywne: szybkie okrążenie, słabsze na dystansie |
 | Integracja silnika | pod konkretny silnik: optymalnie | uniwersalnie: łatwa zmiana dostawcy |
 
+**Dopasowanie kierowcy do auta:** każdy kierowca ma preferencje prowadzenia (np. balans: podsterowność ↔ nadsterowność, trakcja: miękka ↔ ostra). Koncepcja auta ma swoją charakterystykę, a rozjazd kosztuje tempo i pewność siebie. Mistrz może być przeciętny w aucie, które mu nie leży. To jednocześnie decyzja projektowa („budujemy auto pod naszą gwiazdę czy pod partnera?”) i transferowa.
+
 Do tego wybrane technologie z drzewa (§4.2). **Jakość wykonania** zależy od personelu (§6.2), infrastruktury (§4.3) i budżetu. Kierowca z dobrą informacją zwrotną pomaga rozwijać auto w sezonie.
 
 ### 5.3. Rozwój w sezonie
-Kolejne pakiety poprawek dają malejący zysk, a dalszy postęp wymaga zmiany koncepcji. Decyzja o „poświęceniu sezonu” (wcześniejsze przejście na nowy samochód) jest dostępna dla gracza i dla AI. Zmiana regulaminu częściowo zeruje przewagę.
+Nowa część czy nowy pakiet nie daje pełnych osiągów od razu. Zespół musi go **zrozumieć** przez testy, kilometry w wyścigach i pracę inżynierów (procent zrozumienia na projekt). Limity testów z regulaminu sprawiają, że wprowadzenie dużej poprawki w połowie sezonu to realny koszt. Kolejne pakiety poprawek dają malejący zysk, a dalszy postęp wymaga zmiany koncepcji. Decyzja o „poświęceniu sezonu” (wcześniejsze przejście na nowy samochód) jest dostępna dla gracza i dla AI. Zmiana regulaminu częściowo zeruje przewagę.
 
 ### 5.4. Osiągi, silnik, opony
 - **Wektor osiągów:** Moc, Docisk (ograniczony epoką i technologią), Przyczepność mechaniczna, Hamowanie, Niezawodność. Dopasowanie do toru to iloczyn skalarny z wagami profilu toru.
@@ -186,7 +189,11 @@ Kolejne pakiety poprawek dają malejący zysk, a dalszy postęp wymaga zmiany ko
 | Informacja zwrotna | wpływ na rozwój samochodu i ustawienia |
 | Doświadczenie | rośnie z każdym startem |
 
-**Osobowość:** ambicja, lojalność, temperament, skłonność do ryzyka. Wpływa na kontrakty, relacje w zespole i ryzyko wypadku.
+**Preferencje prowadzenia:** balans i trakcja (§5.2).
+
+**Osobowość (jedna główna):** szuka bezpieczeństwa, najemnik, lojalny, prestiżowy, krótkoterminowy, ambitny, mentor, gracz zespołowy. Każda zmienia wagi oceny oferty (§8) oraz reakcje na status #2, na obietnice i na złe wyniki.
+
+**Cechy (0–3):** np. mistrz kwalifikacji, zaklinacz opon / niszczyciel opon, szybki tylko w czystym powietrzu, artysta wyprzedzania, mistrz deszczu, pękający pod presją, skłonny do kraks, „mechanik” (oszczędza sprzęt), kierowca z pieniędzmi, mentor (rozwija partnera z zespołu). Cechy są widoczne dopiero po obserwacji, zgodnie z zasadą mgły scoutingu.
 **Ukryte:** potencjał, podatność na kontuzje. Widoczne tylko w Spy albo jako pasma ze scoutingu.
 
 ### 6.2. Personel (PROPOZYCJA do ustalenia)
@@ -198,15 +205,19 @@ Każda rola ma 3–4 własne atrybuty, a nie wspólną listę. Wszyscy mają te�
 | Główny projektant | 1950 | podwozie, integracja, precyzja | jakość wykonania koncepcji |
 | Projektant silników | 1950 (jeśli budujesz silniki) | moc, niezawodność, wydajność | silnik |
 | Szef aerodynamiki | ~1968 | aerodynamika, korelacja tunel–tor, innowacyjność | docisk, trafność rozwoju |
+| Szef dynamiki pojazdu | 1950 | zawieszenie, opony, temperatura opon | przyczepność mechaniczna, zużycie opon |
 | Inżynier wyścigowy (1 na kierowcę) | ~1970 | ustawienia, relacja z kierowcą, analiza danych | tempo w weekendzie, forma kierowcy |
 | Strateg | ~1994 (tankowanie) | strategia, reakcja, pogoda | decyzje w wyścigu |
 | Szef mechaników | 1950 | pit-stopy, jakość montażu, organizacja | czas postojów, awarie |
 | Skaut | 1950 | ocena talentu, sieć kontaktów | zawężanie pasm w puli talentów |
 | Dyrektor komercyjny | ~1968 (sponsorzy) | negocjacje, marketing, sieć | sponsorzy, przychody |
 
-Szef zespołu (gracz albo AI) ma atrybuty menedżerskie: negocjacje, zarządzanie ludźmi, polityka (wpływ na regulamin) i biznes.
+Morale personelu (np. po zwolnieniu kolegi, przy słabych wynikach, przy dużym budżecie) lekko przesuwa jego skuteczność. Szef zespołu (gracz albo AI) ma atrybuty menedżerskie: negocjacje, zarządzanie ludźmi, polityka (wpływ na regulamin) i biznes.
 
-### 6.3. Rozwój i wiek
+### 6.3. Relacje
+Relacje kierowca–kierowca, kierowca–zespół i osoba–osoba (0–100) mają swoją historię: wspólne kraksy, bycie partnerami, spory kontraktowe, mentorstwo. Wpływają na zgodę na transfer („do tego zespołu nie wrócę”), na atmosferę w zespole (rywalizacja partnerów, polecenia zespołowe) i na historie w skrzynce. Rywalizacje w stylu Senna–Prost mają wyrastać z relacji, a nie ze skryptu.
+
+### 6.4. Rozwój i wiek
 Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datami. W trybie „Trajektoria” zastępuje ją prawdziwa krzywa.
 
 ---
@@ -255,7 +266,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 ### 9.2. Przychody i koszty
 - **Przychody według epoki:** pieniądze startowe → sponsorzy (od 1968) → TV i umowa Concorde → nagrody za pozycję w konstruktorach, sprzedaż silników i samochodów klienckich.
 - **Koszty:** pensje, projekt i budowa aut, silniki, podróże, infrastruktura (także jej starzenie się, §4.3), naprawy po wypadkach.
-- **Sponsorzy** to rynek z celami, a jego wielkość w każdym kraju wynika z popularności.
+- **Sponsorzy** to rynek z celami, a jego wielkość w każdym kraju wynika z popularności. Sponsorzy mają **branże** zmieniające się z epokami: paliwa i opony w latach 50., tytoń od 1968 do zakazów w latach 2000., alkohol, banki, telekomy, IT, kryptowaluty. Zakaz reklamy tytoniu to w trybie historycznym realny szok finansowy dla zespołów od niej zależnych.
 - **Gotówka to nie budżet:** UI rozróżnia gotówkę, zobowiązania, pewne przychody i prognozę. Jeśli czegoś nie da się kupić, gra mówi dokładnie dlaczego.
 - **Kwoty nominalne:** UI pokazuje prawdziwe kwoty, które z biegiem lat rosną razem ze sportem.
 
@@ -265,6 +276,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 
 - **Pola kontraktu:** pensja, premie (za punkty i zwycięstwa), długość, status (#1 / równy / #2 / rezerwowy), klauzula wykupu. Kierowcy wnoszący sponsora mają osobne pole.
 - **Negocjacje z ludźmi, a nie z paskami:** UI pokazuje powody odmowy lub zgody.
+- **Dynamika okna transferowego:** negocjacje trwają tygodnie. Liczba prowadzonych naraz rozmów zależy od ludzi i infrastruktury, a im później w sezonie, tym mniej wolnych miejsc i krótsze okna decyzji. Kierowca bez miejsca pod koniec sezonu obniża oczekiwania. Spóźnienie na rynek kosztuje stanem rynku, a nie zablokowanym przyciskiem.
 - **Scouting:** obcy zawodnicy mają atrybuty w pasmach (np. 12–16), które zawężają się dzięki obserwacji, wspólnym startom albo podpisaniu kontraktu.
 
 ---

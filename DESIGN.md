@@ -436,6 +436,36 @@ To nie jest osobny system, tylko **inna prezentacja tej samej wiedzy** (INV-003)
 
 ---
 
-## 14. Później (faza 7+)
+## 14. UI i gazeta (PP-038, PP-039)
+
+### 14.1. Kierunek wizualny
+Podstawą jest kierunek C, czyli „barwy epoki”, z 1976 jako wzorcem jakości. Makieta referencyjna: `ui/mockups/d-dashboard-v2.html`.
+- **Skórka epoki jest opcją:** domyślnie zmienia się z dekadą kariery, ale gracz może ustawić na stałe styl wybranej ery.
+- **Barwy zespołu:** kolory interfejsu (pasek boczny, akcenty, przycisk „Dalej”) pochodzą z zespołu, a po podpisaniu sponsora tytularnego mogą przejść na jego barwy (np. JPS: czerń i złoto).
+- **Inspiracje:** konstruktywistyczny wygląd Pelotona (grube ramki, przesunięty cień, papier, jeden główny przycisk), grafika wyścigowa z lat 70.
+
+### 14.2. Zasady (lista anty-AI-slop)
+- **Każdy ekran ma jeden punkt skupienia.** Na pulpicie to „Do zrobienia”: decyzje z terminem i skutkami widocznymi przed kliknięciem.
+- **Na pulpicie tylko to, co wymaga uwagi albo zmienia decyzje.** Pełne statystyki kierowców są na ich ekranie, a nie na pulpicie.
+- **Pozycję względem stawki pokazujemy paskiem:** długość odpowiada miejscu w stawce, kolor idzie od zielonego (najlepsi) do czerwonego (najgorsi). Nie ma tabeli miejsc.
+- **Bez siatki identycznych kart, bez etykiet-nadtytułów nad każdym blokiem, bez ozdobnych wskaźników i sztucznych liczb.** Mniej elementów, ale mocniejszych.
+- **Typografia:** żadnych zbyt szerokich krojów (odrzucony wariant 1992). Liczby zawsze w kroju o stałej szerokości.
+- **„Juice”:** dźwięk, ruch i mikroreakcje (przycisk, który się wciska, liczby, które się odliczają, reakcja na wynik wyścigu) to część jakości, a nie ozdoba. Ruch ma dwie rodziny: reakcja na gest oraz narracja sterowana czasem, 150–350 ms.
+- **Poprzeczka:** gra ma być fantastyczna albo jej nie wydajemy. Każdy ekran przechodzi przegląd na zrzutach ekranu przed akceptacją.
+
+### 14.3. Paddock Monthly: interaktywny miesięcznik (PP-039)
+Gazeta ze świata gry, wydawana co miesiąc. Działy:
+- rynek i plotki transferowe;
+- łowcy talentów;
+- wyniki innych serii (np. Le Mans i Mistrzostwa Świata Samochodów Sportowych);
+- technika (nowinki rywali);
+- pieniądze i sponsorzy;
+- „z historii”.
+
+**Wszystko jest klikalne:** z artykułu o Le Mans przechodzisz do aktualnej klasyfikacji serii, z plotki („Alonso wraca do Renault?”) do profilu kierowcy i jego sytuacji kontraktowej. Gazeta pokazuje świat przez **wiedzę publiczną** (INV-003): plotki mogą być nieprawdziwe, a ich wiarygodność zależy od źródła. Treść wynika ze zdarzeń symulacji, a nie z generatora wypełniaczy.
+
+---
+
+## 15. Później (faza 7+)
 
 Serie juniorskie jako prawdziwa ścieżka rozwoju, Le Mans / WEC / GT (drabina klas, zespoły z kilkoma programami, realistyczne zasady wejścia na wyścigi 24h), tryb proceduralny od zera, tryb wyzwań, edytor bazy.

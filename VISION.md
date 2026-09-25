@@ -178,3 +178,15 @@ Szczegóły w DESIGN §6.1, §6.3 i §10.
 
 
 **PP-037: Na razie bez szarej strefy i oszustw.** Nie ma wykorzystywania luk w przepisach, protestów rywali ani zakazanych systemów z ryzykiem wykrycia. Temat można otworzyć później jako opcjonalny moduł (PP-029).
+
+### Przyjęte 2026-09-26 (dziewiąta runda: UI)
+
+**PP-038: Kierunek UI to C („barwy epoki”), z 1976 jako wzorcem jakości.**
+- Skórka ery zmienia się z dekadą albo jest ustawiana na stałe (opcja).
+- Kolory interfejsu pochodzą z barw zespołu, a opcjonalnie ze sponsora tytularnego.
+- Kierunek A („ściana boksu”) odrzucony jako AI-slop; wariant 1992 odrzucony za zbyt szerokie kroje.
+- Pulpit jest zbudowany wokół „Do zrobienia”, a pozycja auta względem stawki jest pokazana paskami od zielonego do czerwonego.
+- Zasady w DESIGN §14.2. **Gra ma być fantastyczna albo jej nie wydajemy.**
+
+**PP-039: Paddock Monthly, czyli interaktywny miesięcznik ze świata gry.** Rynek i plotki, talenty, wyniki innych serii, technika, pieniądze. Wszystko prowadzi do aktualnych danych (klasyfikacje, profile, kontrakty). Szczegóły w DESIGN §14.3.
+

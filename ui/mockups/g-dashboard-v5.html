@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paddock Principal · Pulpit v5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   Pulpit v3
+   Typografia: 5 ról, nic poza nimi.
+     display  Big Shoulders 900  (56 / 24)   tytuły
+     title    Archivo 600 16                 tytuły wierszy
+     body     Archivo 400 15                 treść
+     meta     Archivo 600 12.5 caps +.05em   etykiety (oszczędnie)
+     data     Space Mono 700 15              liczby
+   Kolory: tekst drugorzędny = atrament zabarwiony barwą zespołu, nigdy szary.
+   ========================================================= */
+:root{
+  --ink:#231710;
+  --good:#23863a; --bad:#c23a1f;
+  --e1:#e2572b; --e2:#f0a33b; --e3:#7b3f1d;            /* barwy epoki 1976 */
+  --display:'Big Shoulders Display',sans-serif; --ui:'Archivo',sans-serif; --data:'Space Mono',monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+body[data-team="tyrrell"]{--t1:#1f4f9a;--t2:#e03a3e;--on1:#fff}
+body[data-team="lotus"]  {--t1:#16130e;--t2:#c9a24a;--on1:#f0dba0}
+body[data-team="ferrari"]{--t1:#c4161c;--t2:#f5c518;--on1:#fff}
+/* styl: era = tło z barw epoki, zespół = wszystko z barw zespołu */
+body{
+  --paper:color-mix(in oklab,#f2e8d5 90%,var(--t1));
+  --card:color-mix(in oklab,#fffaf0 94%,var(--t1));
+  --ink2:color-mix(in oklab,var(--ink) 74%,var(--t1));
+  --ink3:color-mix(in oklab,var(--ink) 58%,var(--t1));
+  --rule:color-mix(in oklab,var(--ink) 14%,transparent);
+  --a1:var(--e1); --a2:var(--e2); --a3:var(--e3);
+}
+body[data-style="team"]{--a1:var(--t1); --a2:var(--t2); --a3:color-mix(in oklab,var(--t1) 60%,#000)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--paper)}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.45 var(--ui);min-height:100vh;transition:background .5s var(--ease)}
+::selection{background:var(--t2);color:var(--ink)}
+.data{font:700 15px var(--data);font-variant-numeric:tabular-nums}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--t1);outline-offset:3px;border-radius:8px}
+
+/* ---------- tło: smugi dymu w tunelu aerodynamicznym (canvas) ---------- */
+#air{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
+
+/* ---------- rama ---------- */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:232px 1fr;height:100vh;overflow:hidden}
+.content{display:flex;flex-direction:column;min-height:0}
+aside{background:var(--t1);color:var(--on1);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:visible;z-index:4;transition:background .5s var(--ease)}
+aside .stripes{flex:none;height:46px;background:linear-gradient(180deg,var(--a1) 0 33.3%,var(--a2) 0 66.6%,var(--a3) 0);clip-path:polygon(0 55%,100% 0,100% 100%,0 100%)}
+.crest{padding:20px 22px 14px}
+.crest .team{font:900 28px/.86 var(--display);text-transform:uppercase}
+.crest .team span{display:block;color:var(--t2)}
+.me{display:flex;gap:10px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid color-mix(in oklab,var(--on1) 22%,transparent)}
+.me .av{width:34px;height:34px;border-radius:50%;background:var(--t2);color:var(--t1);display:grid;place-items:center;font:900 15px var(--display)}
+.me b{display:block;font:600 15px var(--ui)}
+.me small{font:500 12.5px var(--ui);opacity:.78}
+nav{padding:4px 12px;display:grid;gap:1px;overflow:auto;min-height:0;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav .grp{font:600 11.5px var(--ui);letter-spacing:.08em;text-transform:uppercase;opacity:.6;padding:12px 12px 4px}
+nav a{display:flex;align-items:center;gap:11px;padding:6.5px 12px;border-radius:12px;color:inherit;text-decoration:none;font:500 15px var(--ui);opacity:.82;transition:background .15s,opacity .15s}
+nav a:hover{opacity:1;background:color-mix(in oklab,var(--on1) 10%,transparent)}
+nav a.on{opacity:1;background:var(--card);color:var(--ink);font-weight:600}
+nav a .n{margin-left:auto;font:700 12px var(--data);background:var(--t2);color:var(--t1);border-radius:99px;padding:1px 7px}
+nav .sep{height:1px;background:color-mix(in oklab,var(--on1) 18%,transparent);margin:8px 12px}
+
+/* ---------- górna belka ---------- */
+.top{display:flex;align-items:center;gap:28px;padding:18px 32px;position:sticky;top:0;z-index:3;
+  background:color-mix(in oklab,var(--paper) 78%,transparent);backdrop-filter:blur(16px) saturate(1.2);border-bottom:1px solid var(--rule)}
+.day{display:flex;align-items:center;gap:12px}
+.day .d{font:900 38px/.8 var(--display);color:var(--t1)}
+.day b{display:block;font:900 26px/1 var(--display);text-transform:uppercase;letter-spacing:.01em}
+.day small{display:block;margin-top:3px;font:500 13px var(--ui);color:var(--ink2)}
+.cash{display:flex;gap:26px}
+.cash div{display:grid;gap:1px}
+.meta{font:600 12.5px var(--ui);letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)}
+.settings{position:relative;margin:auto 12px 10px;padding:10px 12px;border-radius:14px;background:color-mix(in oklab,var(--on1) 8%,transparent)}
+.set-panel{position:absolute;left:0;right:0;bottom:calc(100% + 8px);padding:6px 14px 14px;border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 18px 40px -16px rgba(0,0,0,.5);z-index:5}
+.set-panel .seg button{color:var(--ink2)}
+.settings summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;font:600 14px var(--ui)}
+.settings summary::-webkit-details-marker{display:none}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font:500 13px var(--ui)}
+
+.seg{display:flex;padding:3px;border-radius:99px;background:color-mix(in oklab,var(--ink) 7%,transparent)}
+.seg button{all:unset;cursor:pointer;padding:5px 12px;border-radius:99px;font:600 13px var(--ui);color:var(--ink2);transition:background .2s,color .2s}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.sw{display:flex;gap:6px}
+.sw button{all:unset;cursor:pointer;width:20px;height:20px;border-radius:50%;box-shadow:0 0 0 2px var(--card),0 0 0 3px var(--rule);transition:box-shadow .15s}
+.sw button.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
+/* jedyny przycisk postępu: fizyczny, wciskany */
+.go{all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;background:var(--t2);color:var(--ink);border:2px solid var(--ink);border-radius:16px;padding:10px 16px 10px 20px;
+  box-shadow:0 4px 0 var(--ink),0 14px 24px -12px color-mix(in oklab,var(--ink) 60%,transparent);transition:transform .12s var(--ease),box-shadow .12s var(--ease)}
+body[data-team="lotus"] .go{color:#16130e}
+.go b{display:block;font:900 24px/1 var(--display);text-transform:uppercase}
+.go small{display:block;font:600 12.5px var(--ui);margin-top:2px}
+.go .arr{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--t2);display:grid;place-items:center}
+.go:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--ink),0 18px 28px -12px color-mix(in oklab,var(--ink) 60%,transparent)}
+.go:active{transform:translateY(4px);box-shadow:0 0 0 var(--ink),0 6px 12px -8px var(--ink)}
+
+/* ---------- siatka ---------- */
+main{flex:1;min-height:0;padding:24px 32px 28px;display:grid;grid-template-columns:330px minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr);gap:22px}
+.col{display:flex;flex-direction:column;gap:22px;min-height:0}
+.panel{min-height:0}
+.panel{background:color-mix(in oklab,var(--card) 88%,transparent);backdrop-filter:blur(18px) saturate(1.15);
+  border:1.5px solid color-mix(in oklab,var(--ink) 80%,transparent);border-radius:22px;
+  box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 2px 4px -2px rgba(0,0,0,.12),0 22px 40px -24px color-mix(in oklab,var(--t1) 45%,#000)}
+.panel>header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:20px 22px 12px}
+h2{font:900 24px/1 var(--display);text-transform:uppercase}
+.link{display:inline-flex;align-items:center;gap:6px;font:600 13.5px var(--ui);color:var(--t1);text-decoration:none}
+body[data-team="lotus"] .link{color:#8a6a22}
+.link:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* skrzynka */
+.inbox{display:flex;flex-direction:column}
+.inbox .list{flex:1;min-height:0;overflow:hidden}
+.inbox footer{margin-top:auto}
+.mail{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center;padding:12px 22px;border-top:1px solid var(--rule);text-decoration:none;color:inherit;transition:background .15s}
+.mail:hover{background:color-mix(in oklab,var(--t1) 7%,transparent)}
+.mail .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font:900 15px var(--display);background:color-mix(in oklab,var(--ink) 8%,transparent);color:var(--ink2)}
+.mail .from{font:500 13px var(--ui);color:var(--ink2);display:flex;gap:8px;align-items:center}
+.mail .t{font:600 16px/1.3 var(--ui);margin-top:1px}
+.mail.read .t{font-weight:500;color:var(--ink2)}
+.mail .when{font:600 12.5px var(--ui);color:var(--ink3);text-align:right}
+.mail.unread .av::after{content:"";position:absolute}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--t1)}
+.due{display:inline-flex;align-items:center;gap:5px;font:600 12.5px var(--ui);color:#fff;background:var(--bad);border-radius:99px;padding:2px 9px}
+.mail.decision{background:color-mix(in oklab,var(--t2) 16%,transparent)}
+.mail.decision .av{background:var(--ink);color:var(--t2)}
+.inbox footer{padding:14px 22px 18px;border-top:1px solid var(--rule)}
+
+/* wyścig: główny moment */
+.race{padding:22px 24px 24px;position:relative;overflow:hidden}
+.race .ring{position:absolute;right:-64px;top:-64px;width:190px;height:190px;border-radius:50%;
+  background:conic-gradient(var(--a1) 0 25%,var(--a2) 0 50%,var(--a3) 0 75%,transparent 0);mask:radial-gradient(circle,transparent 57%,#000 58%)}
+.race h1{font:900 clamp(44px,5.2vh,62px)/.82 var(--display);text-transform:uppercase;letter-spacing:-.01em;position:relative;max-width:80%}
+.race .where{font:500 15px var(--ui);color:var(--ink2);margin-top:10px}
+.facts{display:flex;gap:28px;margin-top:18px;padding:14px 0;border-block:1px solid var(--rule)}
+.facts div{display:grid;gap:2px;white-space:nowrap}
+.voice{display:grid;grid-template-columns:44px 1fr;gap:14px;margin-top:18px}
+.voice .av{width:44px;height:44px;border-radius:50%;background:var(--t1);color:var(--on1);display:grid;place-items:center;font:900 17px var(--display)}
+.voice p{font:500 17px/1.4 var(--ui)}
+.voice small{display:block;margin-top:6px;font:500 13px var(--ui);color:var(--ink2)}
+.voice small b{color:var(--ink);font-weight:600}
+.fit{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
+.fit div{display:grid;gap:3px}
+.fit .v{font:600 14px var(--ui)}
+.fit .v.good{color:var(--good)}.fit .v.bad{color:var(--bad)}.fit .v.mid{color:var(--ink2)}
+
+/* auto vs stawka */
+.car{padding-bottom:18px}
+.row{display:grid;grid-template-columns:1fr 34px;gap:4px 12px;padding:9px 22px}
+.row .n{font:600 15px var(--ui)}
+.row .p{font:700 15px var(--data);text-align:right}
+.row .bar{grid-column:1/3;height:10px;border-radius:99px;background:color-mix(in oklab,var(--ink) 8%,transparent);overflow:hidden}
+.row .bar i{display:block;height:100%;border-radius:99px;transform-origin:left;animation:fill 1.1s var(--ease) both}
+.row:nth-child(2) .bar i{animation-delay:.08s}.row:nth-child(3) .bar i{animation-delay:.16s}.row:nth-child(4) .bar i{animation-delay:.24s}.row:nth-child(5) .bar i{animation-delay:.32s}.row:nth-child(6) .bar i{animation-delay:.4s}
+@keyframes fill{from{transform:scaleX(0)}}
+@media (prefers-reduced-motion:reduce){.row .bar i{animation:none}}
+.car footer{padding:10px 22px 0;font:500 13px var(--ui);color:var(--ink2)}
+
+/* gazeta */
+.monthly{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.monthly .stories{flex:1;min-height:0}
+.monthly .mast{display:flex;align-items:baseline;justify-content:space-between;padding:16px 22px;background:var(--ink);color:#f7eedd;border-radius:20px 20px 0 0}
+.monthly .mast b{font:900 26px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
+.monthly .mast span{font:500 13px var(--ui);color:color-mix(in oklab,#f7eedd 72%,var(--t2))}
+.stories{display:grid;grid-template-columns:1.3fr 1fr}
+.lead{padding:18px 22px 20px;border-right:1px solid var(--rule)}
+.lead{display:flex;flex-direction:column}
+.lead h3{font:900 34px/.95 var(--display);text-transform:uppercase;margin-bottom:12px}
+.lead .link{margin-top:auto}
+.lead p{color:var(--ink2);margin-bottom:12px}
+.side{padding:6px 22px}
+.side a{display:block;padding:12px 0;border-bottom:1px solid var(--rule);text-decoration:none;color:inherit}
+.side a:last-child{border:0}
+.side .t{font:600 15px/1.3 var(--ui)}
+.side .s{font:500 13px var(--ui);color:var(--ink2);margin-top:2px}
+
+/* mistrzostwa */
+.stand{flex:1;display:flex;flex-direction:column}
+.stand table{width:100%;border-collapse:collapse}
+.stand footer{margin-top:auto}
+.stand>header{align-items:center}
+.seg.small button{padding:4px 10px;font-size:12.5px}
+.stand td{padding:9px 0;border-top:1px solid var(--rule);font:500 15px var(--ui)}
+.stand td:first-child{padding-left:22px;width:44px}
+.stand td:last-child{padding-right:22px;text-align:right}
+.stand tr.mine td{font-weight:600;background:color-mix(in oklab,var(--t1) 10%,transparent)}
+.stand tr.mine td{color:var(--t1)}body[data-team="lotus"] .stand tr.mine td{color:#7a5c1c}
+.stand footer{padding:12px 22px 18px;font:500 13px var(--ui);color:var(--ink2);border-top:1px solid var(--rule)}
+
+.chron{margin-top:24px;border-radius:22px;padding:18px 22px;background:var(--ink);color:#f7eedd}
+.chron h2{color:var(--a2)}
+body[data-style="team"] .chron h2{color:var(--t2)}
+.chron p{margin-top:8px;font:500 15px/1.45 var(--ui)}
+.chron p span{color:color-mix(in oklab,#f7eedd 70%,var(--a2))}
+
+/* jedno wejście: panele pojawiają się raz, szybko */
+.panel,.chron{animation:enter .6s var(--ease) both}
+main>:nth-child(2){animation-delay:.04s}main>:nth-child(3){animation-delay:.08s}main>:nth-child(4){animation-delay:.12s}main>:nth-child(5){animation-delay:.16s}
+@keyframes enter{from{opacity:0;transform:translateY(10px);filter:blur(4px)}}
+@media (prefers-reduced-motion:reduce){.panel,.chron{animation:none}}
+</style>
+</head>
+<body data-team="tyrrell" data-style="era">
+
+<canvas id="air" aria-hidden="true"></canvas>
+
+<div class="app">
+<aside>
+  <div class="crest">
+    <div class="team" id="teamname">Elf Team<span>Tyrrell</span></div>
+    <div class="me"><div class="av">MW</div><div><b>M. Wojnar</b><small>szef zespołu · 2. sezon</small></div></div>
+  </div>
+  <nav>
+    <a class="on" href="#"><svg class="i" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/></svg>Pulpit</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>Skrzynka<span class="n">5</span></a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>Kalendarz</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>Klasyfikacje</a>
+    <div class="grp">Zespół</div>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/></svg>Kierowcy</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c1-3 3-5 6-5s5 2 6 5M15 15c3 0 5 1.5 6 4"/></svg>Personel</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/></svg>Akademia</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M8 3.5h8M12 3.5v4M10.5 7.5h3l1 5v4.5l-1.5 3h-3L8.5 17v-4.5z"/><rect x="5" y="7" width="2.6" height="4.2" rx="1"/><rect x="16.4" y="7" width="2.6" height="4.2" rx="1"/><rect x="4.6" y="14.5" width="3" height="4.8" rx="1"/><rect x="16.4" y="14.5" width="3" height="4.8" rx="1"/><path d="M7.5 21h9"/></svg>Auto i rozwój</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M4 20V9l5-3v14M9 20V4l6 3v13M15 20v-9l5 2v7M3 20h18"/></svg>Infrastruktura</a>
+    <div class="grp">Biznes</div>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>Dostawcy</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>Sponsorzy</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v18M17 7H9.5a3 3 0 000 6h5a3 3 0 010 6H6"/></svg>Finanse</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M6 20V10M10 20V10M14 20V10M18 20V10M3 10l9-6 9 6z"/></svg>Zarząd</a>
+    <div class="grp">Świat</div>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>Rynek</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Paddock Monthly</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M7 7l-3 7h6zM17 7l-3 7h6z"/></svg>FIA i regulamin</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Kronika</a>
+  </nav>
+  <details class="settings">
+    <summary><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Ustawienia wyglądu</summary>
+    <div class="set-panel">
+    <div class="set-row"><span>Kolory</span>
+      <div class="seg" role="group" aria-label="Styl interfejsu"><button data-s="era" class="on">Era</button><button data-s="team">Zespół</button></div></div>
+    <div class="set-row"><span>Podgląd zespołu</span>
+      <div class="sw" role="group" aria-label="Zespół (podgląd)">
+        <button data-t="tyrrell" class="on" style="background:linear-gradient(135deg,#1f4f9a 50%,#e03a3e 50%)" aria-label="Tyrrell"></button>
+        <button data-t="lotus" style="background:linear-gradient(135deg,#16130e 50%,#c9a24a 50%)" aria-label="Lotus"></button>
+        <button data-t="ferrari" style="background:linear-gradient(135deg,#c4161c 50%,#f5c518 50%)" aria-label="Ferrari"></button>
+      </div></div>
+    </div>
+  </details>
+  <div class="stripes"></div>
+</aside>
+
+<div class="content">
+  <header class="top">
+    <div class="day"><div><b>Środa, 7 lipca 1976</b><small>runda 9 z 16 · Brands Hatch za 11 dni</small></div></div>
+    <div class="cash">
+      <div><span class="meta">Wolne środki</span><span class="data" style="color:var(--good)">£120 tys.</span></div>
+      <div><span class="meta">Gotówka</span><span class="data">£410 tys.</span></div>
+    </div>
+    <div style="margin-left:auto"></div>
+    <button class="go"><span><b>Dalej</b><small>Pt 9 lip · najpierw decyzja</small></span><span class="arr"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+  </header>
+
+  <main>
+    <section class="panel inbox">
+      <header><h2>Skrzynka</h2><span class="meta">5 nowych</span></header>
+      <div class="list">
+      <a class="mail decision" href="#"><span class="av">GY</span><div><div class="from">Goodyear<span class="due"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>do Pt 9 lip</span></div><div class="t">Umowa na lata 1977–79</div></div><span class="dot"></span></a>
+      <a class="mail" href="#"><span class="av">DG</span><div><div class="from">Derek Gardner</div><div class="t">Przednie opony zużywają się szybciej</div></div><span class="when">dziś</span></a>
+      <a class="mail" href="#"><span class="av">SK</span><div><div class="from">Skaut</div><div class="t">Didier Pironi, Formuła 2: raport</div></div><span class="when">dziś</span></a>
+      <a class="mail" href="#"><span class="av">JS</span><div><div class="from">Jody Scheckter</div><div class="t">Pytanie o lżejszą skrzynię</div></div><span class="when">pon</span></a>
+      <a class="mail read" href="#"><span class="av">KT</span><div><div class="from">Ken Tyrrell</div><div class="t">Budżet na drugą połowę sezonu</div></div><span class="when">5 lip</span></a>
+      <a class="mail read" href="#"><span class="av">EL</span><div><div class="from">Elf</div><div class="t">Kampania przed GP Wielkiej Brytanii</div></div><span class="when">3 lip</span></a>
+      </div>
+      <footer><a class="link" href="#">Otwórz skrzynkę<svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></footer>
+    </section>
+
+
+
+
+
+
+
+    <div class="col">
+    <section class="panel race">
+      <div class="ring"></div>
+      <h1>Brands Hatch</h1>
+      <div class="where">GP Wielkiej Brytanii · niedziela 18 lipca</div>
+      <div class="facts">
+        <div><span class="meta">Okrążenia</span><span class="data">76</span></div>
+        <div><span class="meta">Długość</span><span class="data">4,207 km</span></div>
+        <div><span class="meta">Deszcz</span><span class="data">20%</span></div>
+        <div><span class="meta">Dopasowanie</span><span class="data" style="color:var(--good)">4. z 16</span></div>
+      </div>
+      <div class="voice"><span class="av">DG</span><div><p>„Tor nam leży: dużo hamowania i ciasnych nawrotów. Tracimy tylko na długiej prostej. Realnie walczymy o podium.”</p><small>Derek Gardner · prognoza <b>P3–P6</b> · pewność średnia</small></div></div>
+      <div class="fit">
+        <div><span class="meta">Proste</span><span class="v bad">nasza słabość</span></div>
+        <div><span class="meta">Szybkie</span><span class="v mid">przeciętnie</span></div>
+        <div><span class="meta">Wolne</span><span class="v good">nasza siła</span></div>
+        <div><span class="meta">Hamowanie</span><span class="v good">nasza siła</span></div>
+      </div>
+    </section>
+    <section class="panel monthly">
+      <div class="mast"><b>Paddock Monthly</b><span>lipiec 1976</span></div>
+      <div class="stories">
+        <div class="lead"><h3>Peterson rozmawia z Tyrrellem?</h3><p>Szwed ma dość Marcha. Jego ludzie pytają o miejsce na 1977, jeśli Scheckter odejdzie.</p><a class="link" href="#">Plotki transferowe<svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+        <div class="side">
+          <a href="#"><div class="t">Porsche 936 wygrywa Le Mans</div><div class="s">Klasyfikacja mistrzostw samochodów sportowych</div></a>
+          <a href="#"><div class="t">Villeneuve rozbija Formułę Atlantic</div><div class="s">Łowcy talentów · profil kierowcy</div></a>
+          <a href="#"><div class="t">Ferrari testuje nowy tylny spojler</div><div class="s">Technika · co wiemy o 312T2</div></a>
+        </div>
+      </div>
+    </section>
+    </div>
+    <div class="col">
+    <section class="panel car">
+      <header><h2>Auto vs stawka</h2><span class="meta">16 aut</span></header>
+      <div class="row"><span class="n">Przyczepność mechaniczna</span><span class="p" style="color:hsl(128 58% 32%)">1.</span><span class="bar"><i style="width:100%;background:hsl(128 55% 40%)"></i></span></div>
+      <div class="row"><span class="n">Hamowanie</span><span class="p" style="color:hsl(118 58% 32%)">2.</span><span class="bar"><i style="width:94%;background:hsl(115 55% 42%)"></i></span></div>
+      <div class="row"><span class="n">Docisk</span><span class="p" style="color:hsl(62 70% 28%)">6.</span><span class="bar"><i style="width:69%;background:hsl(68 62% 42%)"></i></span></div>
+      <div class="row"><span class="n">Niezawodność</span><span class="p" style="color:hsl(38 85% 34%)">8.</span><span class="bar"><i style="width:56%;background:hsl(42 85% 48%)"></i></span></div>
+      <div class="row"><span class="n">Moc</span><span class="p" style="color:hsl(12 75% 40%)">10.</span><span class="bar"><i style="width:44%;background:hsl(18 78% 48%)"></i></span></div>
+      <footer>Ocena naszego działu technicznego</footer>
+    </section>
+      <section class="panel stand">
+        <header><h2>Mistrzostwa</h2>
+          <div class="seg small" role="tablist"><button class="on" data-tab="drv">Kierowcy</button><button data-tab="con">Konstruktorzy</button></div></header>
+        <table data-pane="drv">
+          <tr><td class="data">1</td><td>Niki Lauda</td><td class="data">43</td></tr>
+          <tr class="mine"><td class="data">2</td><td>Jody Scheckter</td><td class="data">31</td></tr>
+          <tr><td class="data">3</td><td>James Hunt</td><td class="data">26</td></tr>
+          <tr class="mine"><td class="data">4</td><td>Patrick Depailler</td><td class="data">20</td></tr>
+          <tr><td class="data">5</td><td>Clay Regazzoni</td><td class="data">16</td></tr>
+          <tr><td class="data">6</td><td>Jochen Mass</td><td class="data">12</td></tr>
+        </table>
+        <table data-pane="con" hidden>
+          <tr><td class="data">1</td><td>Ferrari</td><td class="data">51</td></tr>
+          <tr class="mine"><td class="data">2</td><td>Tyrrell-Ford</td><td class="data">42</td></tr>
+          <tr><td class="data">3</td><td>McLaren-Ford</td><td class="data">30</td></tr>
+          <tr><td class="data">4</td><td>Lotus-Ford</td><td class="data">13</td></tr>
+          <tr><td class="data">5</td><td>Penske-Ford</td><td class="data">10</td></tr>
+          <tr><td class="data">6</td><td>Ligier-Matra</td><td class="data">9</td></tr>
+        </table>
+        <footer><a class="link" href="#">Pełne klasyfikacje<svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></footer>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+
+<script>
+const names={tyrrell:['Elf Team','Tyrrell'],lotus:['John Player','Team Lotus'],ferrari:['Scuderia','Ferrari']};
+document.querySelectorAll('.sw button').forEach(b=>b.onclick=()=>{
+  document.body.dataset.team=b.dataset.t;
+  document.querySelectorAll('.sw button').forEach(x=>x.classList.toggle('on',x===b));
+  const n=names[b.dataset.t];document.getElementById('teamname').innerHTML=n[0]+'<span>'+n[1]+'</span>';
+});
+document.querySelectorAll('.stand .seg button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.stand .seg button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.stand [data-pane]').forEach(t=>t.hidden=t.dataset.pane!==b.dataset.tab);
+});
+document.querySelectorAll('.settings .seg button').forEach(b=>b.onclick=()=>{
+  document.body.dataset.style=b.dataset.s;
+  document.querySelectorAll('.settings .seg button').forEach(x=>x.classList.toggle('on',x===b));
+});
+
+/* Smugi dymu: cząstki niesione gładkim polem przepływu (opływ niewidocznego profilu). */
+(()=>{
+  const cv=document.getElementById('air'),cx=cv.getContext('2d');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W,H,dpr,P=[],t=0,run=true;
+  const col=()=>getComputedStyle(document.body);
+  function size(){dpr=Math.min(devicePixelRatio||1,2);W=cv.width=innerWidth*dpr;H=cv.height=innerHeight*dpr;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
+    P=Array.from({length:Math.round(innerWidth*innerHeight/1700)},()=>spawn(Math.random()*W));cx.clearRect(0,0,W,H)}
+  function spawn(x){return{x:x??-10,y:Math.random()*H,life:200+Math.random()*400,hue:Math.random()<.5}}
+  /* pole: główny nurt w prawo + fale + wir za „profilem” w 62% szerokości */
+  function field(x,y){
+    const nx=x/W,ny=y/H;
+    let a=Math.sin(nx*3.1+t*.00012)*.35+Math.sin(ny*5.3-t*.00009+nx*2)*.25;
+    const dx=nx-.62,dy=(ny-.5)*1.4,d=Math.hypot(dx,dy);
+    if(d<.3){a+=Math.atan2(dy,dx)*.0+(dy>0?1:-1)*(.3-d)*2.2*Math.exp(-d*6)}
+    return a;
+  }
+  function frame(){
+    if(!run)return;
+    t+=16;
+    const cs=col(),c1=cs.getPropertyValue('--t1').trim(),c2=cs.getPropertyValue('--a1').trim();
+    cx.globalCompositeOperation='destination-out';cx.fillStyle='rgba(0,0,0,.012)';cx.fillRect(0,0,W,H);
+    cx.globalCompositeOperation='source-over';cx.lineWidth=1.1*dpr;cx.lineCap='round';
+    for(const p of P){
+      const a=field(p.x,p.y),v=.55*dpr;
+      const x2=p.x+Math.cos(a)*v*1.6,y2=p.y+Math.sin(a)*v;
+      cx.strokeStyle=p.hue?c1:c2;cx.globalAlpha=.3;
+      cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(x2,y2);cx.stroke();
+      p.x=x2;p.y=y2;p.life--;
+      if(p.x>W+10||p.y<-10||p.y>H+10||p.life<0)Object.assign(p,spawn());
+    }
+    cx.globalAlpha=1;requestAnimationFrame(frame);
+  }
+  size();addEventListener('resize',size);
+  document.addEventListener('visibilitychange',()=>{run=!document.hidden;if(run)requestAnimationFrame(frame)});
+  if(reduce){for(let i=0;i<260;i++){run=true;t+=16}/* statyczny kadr */}
+  requestAnimationFrame(frame);
+  if(reduce)setTimeout(()=>run=false,4000);
+})();
+</script>
+</body>
+</html>

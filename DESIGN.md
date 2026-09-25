@@ -442,7 +442,7 @@ To nie jest osobny system, tylko **inna prezentacja tej samej wiedzy** (INV-003)
 Podstawą jest kierunek C, czyli „barwy epoki”, z 1976 jako wzorcem jakości. Makieta referencyjna: `ui/mockups/d-dashboard-v2.html`.
 - **Skórka epoki jest opcją:** domyślnie zmienia się z dekadą kariery, ale gracz może ustawić na stałe styl wybranej ery.
 - **Barwy zespołu:** kolory interfejsu (pasek boczny, akcenty, przycisk „Dalej”) pochodzą z zespołu, a po podpisaniu sponsora tytularnego mogą przejść na jego barwy (np. JPS: czerń i złoto). Barwy zespołu delikatnie zabarwiają też tło, karty i tekst drugorzędny.
-- **Styl do wyboru: „Era” albo „Zespół”.** Era: paski i akcenty w barwach dekady. Zespół: wszystkie akcenty z barw zespołu. Makieta referencyjna: `ui/mockups/f-dashboard-v4.html`.
+- **Styl do wyboru: „Era” albo „Zespół”.** Era: paski i akcenty w barwach dekady. Zespół: wszystkie akcenty z barw zespołu. Makieta referencyjna: `ui/mockups/g-dashboard-v5.html`.
 - **Tło żyje:** smugi dymu jak w tunelu aerodynamicznym, czyli cząstki niesione polem przepływu wokół niewidocznego profilu, w barwach zespołu i epoki. Plamy odrzucone. Wszystko abstrakcyjne, bez bolidów. Panele są lekko przezroczyste, więc barwy przenikają (bardziej „applowsko”). Przy włączonym ograniczeniu ruchu tło stoi.
 - **Inspiracje:** konstruktywistyczny wygląd Pelotona (grube ramki, przesunięty cień, papier, jeden główny przycisk), grafika wyścigowa z lat 70.
 
@@ -450,6 +450,9 @@ Podstawą jest kierunek C, czyli „barwy epoki”, z 1976 jako wzorcem jakości
 - **Każdy ekran ma jeden punkt skupienia.** Na pulpicie są to skrzynka i następny wyścig.
 - **Pulpit i ekrany przeglądowe mieszczą się na jednym ekranie** (od 1440×900 w górę), bez przewijania i bez pustych dziur. Przewijanie jest dozwolone tylko tam, gdzie treść jest z natury długa, np. na liście transferowej z wieloma kolumnami.
 - **Kronika rozbieżności nie trafia na pulpit.** To ciekawostka we własnej zakładce, bo gracz pisze swoją historię i nie trzeba mu jej przypominać.
+- **Nawigacja:** Pulpit, Skrzynka, Kalendarz, Klasyfikacje · Zespół (Kierowcy, Personel, Akademia, Auto i rozwój, Infrastruktura) · Biznes (Dostawcy, Sponsorzy, Finanse, Zarząd) · Świat (Rynek, Paddock Monthly, FIA i regulamin, Kronika). Na dole „Ustawienia wyglądu”: kolory Era/Zespół.
+- **Data zawsze w formie „Środa, 7 lipca 1976”.**
+- **Klasyfikacje na pulpicie mają przełącznik Kierowcy / Konstruktorzy**, zawsze z pełnym top 6, a nie ze zdaniem w stylu „Tyrrell drugi”.
 - **Ikony są rysowane jednym stylem i jedną grubością linii**, z sensownym motywem (auto to bolid z odkrytymi kołami widziany z góry).
 - **Skrzynka na pulpicie pokazuje tylko nadawcę i tytuł;** decyzje z terminem są przypięte na górze. Szczegóły i wybór opcji (ze skutkami widocznymi przed kliknięciem) są w ekranie skrzynki.
 - **Typografia ma stały zestaw ról:** tytuł ekranowy, tytuł wiersza, treść, etykieta, liczby. Nie ma przypadkowych rozmiarów, grubości ani przezroczystości. Tekst drugorzędny to atrament zabarwiony barwą zespołu, a nie generyczna szarość.
@@ -473,6 +476,16 @@ Gazeta ze świata gry, wydawana co miesiąc. Działy:
 
 ---
 
-## 15. Później (faza 7+)
+## 15. Reputacja menedżera i zarząd
+
+Pomysły ze starego GDD V4, dopasowane do obecnego projektu.
+- **Reputacja menedżera:** rośnie z wynikami ponad oczekiwania, tytułami i rozwojem ludzi, a spada ze słabymi wynikami i złym zarządzaniem pieniędzmi. Wpływa na oferty pracy, negocjacje z kierowcami i sponsorami, a także na wiarygodność obietnic (§6.3).
+- **Zarząd (albo właściciel)** stawia cele na sezon i na kilka lat i ocenia menedżera. Jego cierpliwość zależy od osobowości właściciela. W zespole założonym przez gracza tę rolę pełnią inwestorzy i sponsor założycielski (§3.2).
+- **Pogoda w wyścigu:** sucho, lekki deszcz, ulewa, burza, ze zmianami w trakcie wyścigu.
+- **Tempo oglądania wyścigu:** na żywo, ×5, ×10, ×20 albo sam wynik.
+
+---
+
+## 16. Później (faza 7+)
 
 Serie juniorskie jako prawdziwa ścieżka rozwoju, Le Mans / WEC / GT (drabina klas, zespoły z kilkoma programami, realistyczne zasady wejścia na wyścigi 24h), tryb proceduralny od zera, tryb wyzwań, edytor bazy.

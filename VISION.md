@@ -176,3 +176,5 @@ Szczegóły w DESIGN §6.1, §6.3 i §10.
 
 **PP-036: .NET 10 (LTS) zamiast .NET 9.** Na maszynie jest SDK 10, a .NET 10 ma długie wsparcie.
 
+
+**PP-037: Na razie bez szarej strefy i oszustw.** Nie ma wykorzystywania luk w przepisach, protestów rywali ani zakazanych systemów z ryzykiem wykrycia. Temat można otworzyć później jako opcjonalny moduł (PP-029).

@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Paddock.Domain\Paddock.Domain.csproj" />
+  </ItemGroup>
+</Project>

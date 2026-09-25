@@ -1,0 +1,163 @@
+[
+  {
+    "name": "Reverse-grid sprint",
+    "where": "FIA Formula 2 and Formula 3 sprint races",
+    "years": "A long-running feeder-series format; the exact reverse method has been rewritten more than once",
+    "description": "The short race starts in reverse order of an earlier result, often the top eight or top ten from qualifying or from the feature race, so the fastest cars have to come through the field.",
+    "gameplay_value": "A single weekend contains two different puzzles: qualify well for the feature, then survive a race where track position is handed to someone else."
+  },
+  {
+    "name": "Success ballast",
+    "where": "BTCC, and at times DTM and Super GT",
+    "years": "A recurring touring-car tool from the 1990s onward; the kilogram table changes by season",
+    "description": "Weight is added to a car that has just won or that leads the championship, and it is taken off when results cool down. The handicap is public and updates between rounds.",
+    "gameplay_value": "Winning makes the next race harder, which keeps a dominant team from disappearing up the road and makes 'when do we stop winning' a real choice."
+  },
+  {
+    "name": "Balance of Performance",
+    "where": "FIA WEC Hypercar and LMGT3, GT3 series, and some DTM seasons",
+    "years": "The modern endurance and GT norm; adjustments are published before events",
+    "description": "Different car concepts are equalised with published changes to weight, power, ride height or fuel flow, instead of forcing every team onto one chassis.",
+    "gameplay_value": "A manufacturer can keep a distinctive car while the series stops that car from becoming unbeatable. Lobbying the next bulletin is part of the game."
+  },
+  {
+    "name": "Attack Mode",
+    "where": "Formula E",
+    "years": "From the Gen2 era; the number and length of activations has varied",
+    "description": "A driver must leave the racing line to arm a temporary power boost, then gets a short window of extra kilowatts. Missing the activation loop wastes the chance.",
+    "gameplay_value": "Overtaking is a timed resource you choose to spend, and the loop that arms it is a position you can defend."
+  },
+  {
+    "name": "Push-to-pass",
+    "where": "IndyCar",
+    "years": "Used for many years on road and street courses; the second budget and horsepower have been revised",
+    "description": "The driver has a limited pool of extra boost, measured in seconds, and spends it in bursts to attack or defend. It does not require leaving the racing line.",
+    "gameplay_value": "A race becomes a hand of cards: spend the boost now to clear traffic, or save it for the last stint."
+  },
+  {
+    "name": "Spec engine",
+    "where": "FIA Formula 2 and Formula 3, Indy NXT, and other one-make formulae",
+    "years": "Ongoing",
+    "description": "Every car uses the same engine supply, usually leased, with sealed units and a fixed rebuild schedule. Development is not a team activity.",
+    "gameplay_value": "In a procedural series this removes engine politics and puts the game on chassis setup, drivers and operations. It is also the cheap way into a ladder."
+  },
+  {
+    "name": "Spec chassis",
+    "where": "Formula 2, Formula 3, IndyCar (Dallara), Formula E",
+    "years": "Ongoing; each series refreshes the chassis every few years",
+    "description": "One constructor sells the same tub, crash structure and, often, gearbox to every team. Teams may still set the car up, but they do not design the monocoque.",
+    "gameplay_value": "A new team can be on the grid in months. The performance gap moves to people, and a works-design advantage cannot exist."
+  },
+  {
+    "name": "Spec suspension and dampers",
+    "where": "Bundled into full spec cars such as Formula 2, and damper-control rules in IndyCar-style series",
+    "years": "Ongoing where the car is a single supply",
+    "description": "Geometry, uprights or damper suppliers are fixed so a private damper programme cannot become a secret development war.",
+    "gameplay_value": "Cuts a costly, invisible arms race. Setup still matters, but nobody disappears because they hired the one damper specialist."
+  },
+  {
+    "name": "Spec ECU",
+    "where": "Formula 1 from 2008, and most spec formulae",
+    "years": "F1 standard ECU from 2008; common in junior and one-make series",
+    "description": "Every car runs the same control electronics and a policed software build, so traction control, launch maps and other aids cannot be hidden in a private box.",
+    "gameplay_value": "A clean way to ban an aid without trusting scrutineers to find it. It also makes a supplier contract for electronics meaningful."
+  },
+  {
+    "name": "Reversed championship-order qualifying",
+    "where": "Formula 1 one-lap running order in 2003-2005; also used as a full reverse-order idea in touring-car votes",
+    "years": "F1 used championship order only to decide who went out first, not to set the grid itself",
+    "description": "The driver leading the championship qualifies first, on a green or dirty track, and the last-placed driver goes last, on the best surface. A stronger version sets the grid directly from reversed points.",
+    "gameplay_value": "The championship leader is punished for being in front, which manufactures jeopardy late in a season without adding ballast."
+  },
+  {
+    "name": "Sliding-scale aero testing",
+    "where": "Formula 1 aerodynamic testing restrictions",
+    "years": "Championship-position scale from 2021",
+    "description": "Wind-tunnel runs and CFD items are handed out in reverse order of the constructors' table and reset at mid-season, so the last team may research more than the first.",
+    "gameplay_value": "A comeback mechanic that is not a lap-time gift. It helps a poor team next year's car, and it can be a vote in a procedural rulebook."
+  },
+  {
+    "name": "Double points finale",
+    "where": "Formula 1, 2014 Abu Dhabi; occasionally floated in other series",
+    "years": "2014 only in F1",
+    "description": "The last race pays twice the normal points, so a driver who looked beaten can still take the title in one afternoon.",
+    "gameplay_value": "Makes the final weekend absurdly important. Useful as a one-season vote the paddock can come to regret, which is what happened in 2014."
+  },
+  {
+    "name": "Fastest-lap point",
+    "where": "Formula 1 in 1950-59 and 2019-2024; also common in other single-seater series",
+    "years": "On and off",
+    "description": "One extra point for the fastest lap, sometimes only if the driver finishes inside the points, so a midfield car may pit for fresh tyres to steal it.",
+    "gameplay_value": "A late-race tactic that is not about winning the race. It gives a backmarker a reason to keep pushing."
+  },
+  {
+    "name": "Dropped scores",
+    "where": "Formula 1 drivers' title until 1990; still used in some club and national championships",
+    "years": "1950-1990 in F1, with the counted total changing almost every year",
+    "description": "Only a driver's best results count, sometimes split across the two halves of the season, so a retirement can be discarded.",
+    "gameplay_value": "Reliability and consistency are priced differently. A driver can afford an experimental weekend, and a late mechanical failure hurts less if a bad score is already due to be dropped."
+  },
+  {
+    "name": "Team-orders ban",
+    "where": "Formula 1, 2002-2010",
+    "years": "2002 (from mid-season) through 2010",
+    "description": "A team may not instruct one of its drivers to let the other through. The ban is famous because it was hard to prove and easy to disguise as a slow pace.",
+    "gameplay_value": "A political rule the player's own drivers will hate or love depending on who is ahead. Policing it badly is part of the drama."
+  },
+  {
+    "name": "Customer cars",
+    "where": "Formula 1 before the 1981 Concorde Agreement; GT3 and LMP2 as a normal model",
+    "years": "F1 through 1980 as a routine practice; GT3 and prototype customer racing ongoing",
+    "description": "A team buys a complete car, or a chassis, from a manufacturer and races it without designing the tub. The works team usually gets the updates first.",
+    "gameplay_value": "The cheap on-ramp for a new team, with a permanent performance ceiling and a dependency on the works squad staying interested."
+  },
+  {
+    "name": "Joker lap",
+    "where": "World Rallycross",
+    "years": "Part of the modern rallycross format",
+    "description": "Each driver must take a longer alternative route exactly once in the race. Taking it early or late changes who you meet on the next lap.",
+    "gameplay_value": "A mandatory detour with timing skill, portable to a procedural street race or a stadium event."
+  },
+  {
+    "name": "Fanboost",
+    "where": "Formula E, later discontinued",
+    "years": "An early Formula E feature, removed in later rules",
+    "description": "Fans voted a handful of drivers a short extra-energy boost for that race. It was a popularity contest bolted onto the sporting code.",
+    "gameplay_value": "A risky, optional gimmick: it ties a result to fame, which helps a star driver and annoys a purist engineer. Good as a vote the board can repeal."
+  },
+  {
+    "name": "Mandatory pit window",
+    "where": "Many GT and touring-car series, including stretches of the DTM",
+    "years": "Common in sprint endurance formats",
+    "description": "Every car must stop once inside a published lap window, sometimes for a driver change or a fixed service time, even if the tyres could have gone further.",
+    "gameplay_value": "Guarantees a strategic variable on short races and stops a lucky safety car from deleting the only stop."
+  },
+  {
+    "name": "Stage racing",
+    "where": "NASCAR Cup",
+    "years": "From the 2017 Cup season onward",
+    "description": "The race is split into stages. The top finishers of each stage score a smaller points award, and the stage end bunches the field for a restart.",
+    "gameplay_value": "Gives mid-race points and manufactured restarts, so a driver can farm a result without winning. Easy to overuse."
+  },
+  {
+    "name": "Multi-class grid",
+    "where": "FIA WEC, IMSA, and historic endurance racing",
+    "years": "Ongoing",
+    "description": "Two or more classes share one track. Faster cars must pass slower ones, and each class has its own balance of performance and its own trophy.",
+    "gameplay_value": "Traffic becomes a skill, and a small team can win its class on the same afternoon as the prototypes. Useful when endurance is added later."
+  },
+  {
+    "name": "Pro-Am driver grades",
+    "where": "GT World Challenge and similar GT series",
+    "years": "Ongoing FIA driver categorisation",
+    "description": "Drivers are graded by résumé, from professional to amateur, and some classes require a mixed crew. A bronze driver must take a minimum stint.",
+    "gameplay_value": "Lineup building is a regulation, not just a preference. A rich amateur pays for the seat and costs lap time, which is a real contract decision."
+  },
+  {
+    "name": "Votable weekend rules",
+    "where": "Motorsport Manager, as a game reference rather than a real series",
+    "years": "The video game's championship votes",
+    "description": "Team bosses vote rule changes for the next season: refuelling on or off, how qualifying works, whether a fastest-lap bonus exists, how many tyre compounds are used, and whether a safety car is in the book. Each boss votes for the rule that helps his own car.",
+    "gameplay_value": "This is the politics loop PP-034 wants. The same catalogue can be proposed and voted when the era allows it, instead of being a hard-coded season."
+  }
+]

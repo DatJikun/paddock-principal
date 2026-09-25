@@ -1,0 +1,585 @@
+[
+  {
+    "id": "points_scale",
+    "category": "sporting",
+    "name": "Grand Prix points scale",
+    "type": "enum",
+    "values": [
+      "top5_8_6_4_3_2",
+      "top6_8_6_4_3_2_1",
+      "top6_9_6_4_3_2_1",
+      "top6_10_6_4_3_2_1",
+      "top8_10_8_6_5_4_3_2_1",
+      "top10_25_18_15_12_10_8_6_4_2_1"
+    ],
+    "unit": null,
+    "gameplay_effect": "Sets how many points each classified place pays, before fastest-lap, sprint, shortened-race or double-points modifiers."
+  },
+  {
+    "id": "fastest_lap_point",
+    "category": "sporting",
+    "name": "Point for fastest lap",
+    "type": "enum",
+    "values": [
+      "one_point_shared_if_tied",
+      "none",
+      "one_point_if_top_10",
+      "one_point_if_top_10_and_half_distance"
+    ],
+    "unit": null,
+    "gameplay_effect": "Adds a bonus championship point for the fastest race lap when the era pays one."
+  },
+  {
+    "id": "shared_drive_points",
+    "category": "sporting",
+    "name": "Points for a shared car",
+    "type": "enum",
+    "values": [
+      "shared_equally",
+      "not_shared"
+    ],
+    "unit": null,
+    "gameplay_effect": "Decides whether two drivers who share one car split that car's points."
+  },
+  {
+    "id": "results_counted",
+    "category": "sporting",
+    "name": "Which results count toward the title",
+    "type": "enum",
+    "values": [
+      "best_4",
+      "best_5",
+      "best_6",
+      "best_9_split_5_and_4",
+      "best_10_split_5_and_5",
+      "best_11_split_6_and_5",
+      "best_10_split_5_and_5_of_6",
+      "best_13_split_7_and_6",
+      "best_12_split_6_and_6",
+      "best_14_split_7_and_7",
+      "best_15_split_8_and_7",
+      "best_8_split_4_and_4",
+      "best_10_split_5_and_5_of_7",
+      "best_10",
+      "best_11",
+      "all"
+    ],
+    "unit": null,
+    "gameplay_effect": "Drops a driver's worst finishes when the championship only counts a best-N or a split-season quota."
+  },
+  {
+    "id": "double_points_finale",
+    "category": "sporting",
+    "name": "Double points at the final round",
+    "type": "bool",
+    "values": [
+      "yes",
+      "no"
+    ],
+    "unit": null,
+    "gameplay_effect": "Doubles the points paid by the last round of the season."
+  },
+  {
+    "id": "shortened_race_points",
+    "category": "sporting",
+    "name": "Points when a race is stopped short",
+    "type": "enum",
+    "values": [
+      "unknown",
+      "bands_30_60",
+      "half_under_75_none_under_two_laps",
+      "graduated_with_green_flag_exception",
+      "graduated_by_distance"
+    ],
+    "unit": null,
+    "gameplay_effect": "Scales championship points when the leader has not completed the scheduled distance."
+  },
+  {
+    "id": "constructors_points_counting",
+    "category": "sporting",
+    "name": "How constructor points are counted",
+    "type": "enum",
+    "values": [
+      "no_championship",
+      "best_finishing_car_only",
+      "all_cars"
+    ],
+    "unit": null,
+    "gameplay_effect": "Controls whether a constructor scores with every car or only its best finisher, or whether that title exists."
+  },
+  {
+    "id": "indy_500_counts",
+    "category": "sporting",
+    "name": "Indianapolis 500 in the World Championship",
+    "type": "enum",
+    "values": [
+      "counts_for_drivers_only",
+      "does_not_count"
+    ],
+    "unit": null,
+    "gameplay_effect": "Includes or excludes the Indianapolis 500 from the drivers' championship."
+  },
+  {
+    "id": "qualifying_format",
+    "category": "sporting",
+    "name": "Qualifying format",
+    "type": "enum",
+    "values": [
+      "two_session_best_time",
+      "saturday_twelve_lap",
+      "one_lap_friday_and_saturday",
+      "one_lap_saturday_pair",
+      "one_lap_2005_mixed",
+      "knockout_q1_q2_q3"
+    ],
+    "unit": null,
+    "gameplay_effect": "Sets how the Grand Prix grid is decided and how much fuel or tyre strategy leaks into qualifying."
+  },
+  {
+    "id": "sprint_format",
+    "category": "sporting",
+    "name": "Sprint weekend format",
+    "type": "enum",
+    "values": [
+      "none",
+      "sprint_qualifying_points_3_2_1",
+      "sprint_points_top_8_sets_grid",
+      "standalone_sprint_shootout",
+      "friday_sprint_qualifying"
+    ],
+    "unit": null,
+    "gameplay_effect": "Adds a short points race on selected weekends and decides whether it sets the Grand Prix grid."
+  },
+  {
+    "id": "team_orders",
+    "category": "sporting",
+    "name": "Team orders",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "Allows or forbids a team instructing one of its drivers to surrender a position."
+  },
+  {
+    "id": "parc_ferme",
+    "category": "sporting",
+    "name": "Parc fermé before the race",
+    "type": "enum",
+    "values": [
+      "none",
+      "from_qualifying",
+      "from_end_of_fp3"
+    ],
+    "unit": null,
+    "gameplay_effect": "Freezes setup after a session, so overnight changes and qualifying fuel strategy stop being free."
+  },
+  {
+    "id": "safety_car",
+    "category": "sporting",
+    "name": "Safety car",
+    "type": "enum",
+    "values": [
+      "none",
+      "physical",
+      "physical_and_vsc"
+    ],
+    "unit": null,
+    "gameplay_effect": "Neutralises the race with a physical safety car, and from 2015 also a virtual safety car that keeps gaps."
+  },
+  {
+    "id": "drs",
+    "category": "technical",
+    "name": "Drag reduction system",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "Lets a following car open the rear wing on designated straights to make a pass."
+  },
+  {
+    "id": "active_aero",
+    "category": "technical",
+    "name": "Moveable aerodynamic devices",
+    "type": "enum",
+    "values": [
+      "immobile",
+      "adjustable_front_wing",
+      "drs_only",
+      "two_mode_front_and_rear"
+    ],
+    "unit": null,
+    "gameplay_effect": "Controls whether wings may move, which changes straight-line speed versus corner downforce."
+  },
+  {
+    "id": "in_season_testing",
+    "category": "sporting",
+    "name": "Track testing during the season",
+    "type": "enum",
+    "values": [
+      "unrestricted",
+      "annual_mileage_cap",
+      "in_season_banned",
+      "one_nominated_test",
+      "limited_days"
+    ],
+    "unit": null,
+    "gameplay_effect": "Limits how many private laps a team can run between races, which slows development and setup learning."
+  },
+  {
+    "id": "aero_testing_restrictions",
+    "category": "sporting",
+    "name": "Wind tunnel and CFD limits",
+    "type": "enum",
+    "values": [
+      "none",
+      "fixed_limit",
+      "sliding_scale_small_step",
+      "sliding_scale_larger_step"
+    ],
+    "unit": null,
+    "gameplay_effect": "Caps aerodynamic research, and from 2021 gives lower-ranked teams more tunnel and CFD time."
+  },
+  {
+    "id": "budget_cap_usd_million",
+    "category": "financial",
+    "name": "Team cost cap base",
+    "type": "enum",
+    "values": [
+      "none",
+      "base_145",
+      "base_140",
+      "base_135",
+      "base_215_wider_inclusions"
+    ],
+    "unit": null,
+    "gameplay_effect": "Caps team spending for a 21-race season before indexation, which stops a rich team buying unlimited development."
+  },
+  {
+    "id": "power_unit_cost_cap_usd_million",
+    "category": "financial",
+    "name": "Power-unit manufacturer cost cap base",
+    "type": "enum",
+    "values": [
+      "none",
+      "base_95",
+      "base_190"
+    ],
+    "unit": null,
+    "gameplay_effect": "Caps what an engine maker may spend, which matters once the player becomes a supplier."
+  },
+  {
+    "id": "cars_per_team",
+    "category": "sporting",
+    "name": "Cars a team may enter",
+    "type": "enum",
+    "values": [
+      "flexible_entry_count",
+      "unknown",
+      "two_cars"
+    ],
+    "unit": null,
+    "gameplay_effect": "Sets whether a team can enter one car or must field a pair, which changes budget and points."
+  },
+  {
+    "id": "customer_chassis",
+    "category": "sporting",
+    "name": "Customer chassis",
+    "type": "enum",
+    "values": [
+      "allowed",
+      "constructor_must_build_own_car"
+    ],
+    "unit": null,
+    "gameplay_effect": "Decides if a team may buy a rival's chassis or must design its own car to be a constructor."
+  },
+  {
+    "id": "refuelling",
+    "category": "sporting",
+    "name": "Refuelling during the race",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "Allows or bans adding fuel in a pit stop, which switches races between fuel stops and one-stop tyre races."
+  },
+  {
+    "id": "fuel_specification",
+    "category": "technical",
+    "name": "Fuel chemistry",
+    "type": "enum",
+    "values": [
+      "special_blends_allowed",
+      "commercial_petrol",
+      "unleaded_close_to_road_fuel",
+      "unknown",
+      "sustainable"
+    ],
+    "unit": null,
+    "gameplay_effect": "Restricts how exotic the fuel blend may be, which changes power, cost and supplier deals."
+  },
+  {
+    "id": "race_fuel_allowance",
+    "category": "technical",
+    "name": "Fuel allowed for the race",
+    "type": "enum",
+    "values": [
+      "none",
+      "litres_220",
+      "litres_195",
+      "na_unlimited_turbo_restricted",
+      "turbo_150_na_unlimited",
+      "unknown",
+      "kg_105",
+      "kg_110"
+    ],
+    "unit": null,
+    "gameplay_effect": "Caps how much fuel a car may use in the race, which forces lift-and-coast or shorter fuel loads."
+  },
+  {
+    "id": "engine_formula",
+    "category": "technical",
+    "name": "Engine capacity and layout",
+    "type": "enum",
+    "values": [
+      "4500na_or_1500_supercharged",
+      "f2_2000na_or_750_supercharged",
+      "2500na_or_750_supercharged",
+      "1300_to_1500_na",
+      "3000na_or_1500_forced",
+      "1500_forced_only",
+      "3500na_or_1500_forced_4bar",
+      "3500na_or_1500_forced_2_5bar",
+      "3500na_8_to_12",
+      "3000na_up_to_12",
+      "3000_v10",
+      "2400_v8",
+      "1600_v6_turbo_hybrid",
+      "1600_v6_turbo_hybrid_no_mgu_h"
+    ],
+    "unit": null,
+    "gameplay_effect": "Sets displacement, cylinder layout and whether a turbo or supercharger is part of the formula."
+  },
+  {
+    "id": "forced_induction",
+    "category": "technical",
+    "name": "Turbo or supercharging",
+    "type": "enum",
+    "values": [
+      "allowed",
+      "banned",
+      "required"
+    ],
+    "unit": null,
+    "gameplay_effect": "Allows, bans or requires forced induction, which swings power against fuel use and reliability."
+  },
+  {
+    "id": "hybrid_system",
+    "category": "technical",
+    "name": "Hybrid energy recovery",
+    "type": "enum",
+    "values": [
+      "none",
+      "kers_optional",
+      "ers_with_mgu_h",
+      "ers_without_mgu_h"
+    ],
+    "unit": null,
+    "gameplay_effect": "Adds a deployable electric boost and, in the hybrid era, an energy-management strategy every lap."
+  },
+  {
+    "id": "power_unit_allocation",
+    "category": "technical",
+    "name": "Engines or power units per driver",
+    "type": "enum",
+    "values": [
+      "unlimited",
+      "one_engine_per_weekend",
+      "one_engine_per_two_weekends",
+      "eight_engines_per_season",
+      "five_of_each_element",
+      "four_of_each_element",
+      "four_power_units",
+      "three_ice_two_energy",
+      "four_ice_class_two_store",
+      "four_ice_three_ers_2026"
+    ],
+    "unit": null,
+    "gameplay_effect": "Limits how many engines a driver may use and applies grid penalties when the pool is exceeded."
+  },
+  {
+    "id": "minimum_weight_kg",
+    "category": "technical",
+    "name": "Minimum car weight",
+    "type": "number",
+    "values": null,
+    "unit": "kg",
+    "gameplay_effect": "Sets the lightest legal car, so ballast placement and excess weight change lap time."
+  },
+  {
+    "id": "driver_mass_allowance_kg",
+    "category": "technical",
+    "name": "Separate driver-and-seat mass allowance",
+    "type": "number",
+    "values": null,
+    "unit": "kg",
+    "gameplay_effect": "Adds ballast up to a reference driver mass so a lighter driver is not a weight advantage."
+  },
+  {
+    "id": "aero_package",
+    "category": "technical",
+    "name": "Major aerodynamic rule set",
+    "type": "enum",
+    "values": [
+      "no_wings",
+      "high_wings",
+      "wings_on_sprung_mass",
+      "ground_effect_skirts",
+      "skirts_banned_6cm",
+      "skirts_legal",
+      "flat_bottom",
+      "1994_midseason_slowdown",
+      "1995_package",
+      "narrow_track",
+      "2009_cleanup",
+      "2014_low_nose",
+      "wide_high_downforce",
+      "simplified_wings",
+      "ground_effect_underbody",
+      "2026_active_aero"
+    ],
+    "unit": null,
+    "gameplay_effect": "Switches the downforce concept of the car, which resets development and changes overtaking."
+  },
+  {
+    "id": "traction_control",
+    "category": "technical",
+    "name": "Traction control",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "If banned, electronic traction control cannot be used even when the team has the technology."
+  },
+  {
+    "id": "anti_lock_brakes",
+    "category": "technical",
+    "name": "Anti-lock brakes",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "If banned, ABS cannot be used even when the team has the technology."
+  },
+  {
+    "id": "active_suspension",
+    "category": "technical",
+    "name": "Active suspension",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "If banned, computer-controlled ride height cannot be used even when the team has the technology."
+  },
+  {
+    "id": "launch_control",
+    "category": "technical",
+    "name": "Launch control",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "If banned, an automatic race start cannot be used and the driver must manage the clutch."
+  },
+  {
+    "id": "semi_automatic_gearbox",
+    "category": "technical",
+    "name": "Semi-automatic paddle shift",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "Allows a paddle-shift gearbox, which shortens shift time once the technology exists."
+  },
+  {
+    "id": "fully_automatic_gearbox",
+    "category": "technical",
+    "name": "Fully automatic gearchange",
+    "type": "bool",
+    "values": [
+      "allowed",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "If banned, the car may not shift by itself; the driver still uses a paddle or a lever."
+  },
+  {
+    "id": "tyre_supplier_model",
+    "category": "technical",
+    "name": "Tyre supply",
+    "type": "enum",
+    "values": [
+      "multiple_suppliers",
+      "single_supplier_de_facto",
+      "appointed_single_supplier"
+    ],
+    "unit": null,
+    "gameplay_effect": "Switches the paddock between a tyre war and a control tyre that every team must use."
+  },
+  {
+    "id": "tyre_tread",
+    "category": "technical",
+    "name": "Dry-tyre tread",
+    "type": "enum",
+    "values": [
+      "treaded",
+      "slick",
+      "grooved_front3_rear4",
+      "grooved_four"
+    ],
+    "unit": null,
+    "gameplay_effect": "Changes dry grip: slicks are fastest, grooves were mandated to cut cornering speed."
+  },
+  {
+    "id": "dry_tyre_rule",
+    "category": "sporting",
+    "name": "Dry-tyre compound obligation",
+    "type": "enum",
+    "values": [
+      "no_mandatory_compound_mix",
+      "no_tyre_changes",
+      "two_compounds_both_mandatory",
+      "three_nominated_two_mandatory"
+    ],
+    "unit": null,
+    "gameplay_effect": "Forces a pit stop or a compound change in a dry race, or locks the car onto one set of tyres."
+  },
+  {
+    "id": "cockpit_protection",
+    "category": "technical",
+    "name": "Cockpit protection",
+    "type": "enum",
+    "values": [
+      "none_required",
+      "roll_structure",
+      "halo"
+    ],
+    "unit": null,
+    "gameplay_effect": "Raises the car's safety level and, with the halo, adds weight and a visibility constraint."
+  }
+]

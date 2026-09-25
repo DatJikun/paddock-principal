@@ -1,0 +1,2090 @@
+[
+  {
+    "dimension": "points_scale",
+    "value": "top5_8_6_4_3_2",
+    "from": 1950,
+    "to": 1959,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "A win pays 8, then 6, 4, 3 and 2. The fastest-lap point is a separate dimension."
+  },
+  {
+    "dimension": "points_scale",
+    "value": "top6_8_6_4_3_2_1",
+    "from": 1960,
+    "to": 1960,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Sixth place scores for the first time and the fastest-lap point is gone."
+  },
+  {
+    "dimension": "points_scale",
+    "value": "top6_9_6_4_3_2_1",
+    "from": 1961,
+    "to": 1990,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "A win pays 9 for drivers. In 1961 only, the constructors' title paid 8 for a win."
+  },
+  {
+    "dimension": "points_scale",
+    "value": "top6_10_6_4_3_2_1",
+    "from": 1991,
+    "to": 2002,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "A win pays 10 and, from this season, every result counts."
+  },
+  {
+    "dimension": "points_scale",
+    "value": "top8_10_8_6_5_4_3_2_1",
+    "from": 2003,
+    "to": 2009,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Points reach eighth place. A win is still worth 10."
+  },
+  {
+    "dimension": "points_scale",
+    "value": "top10_25_18_15_12_10_8_6_4_2_1",
+    "from": 2010,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "The 25-point win is still the base scale in 2026. The 2014 finale and the 2019-2024 fastest-lap point sit on top of it."
+  },
+  {
+    "dimension": "fastest_lap_point",
+    "value": "one_point_shared_if_tied",
+    "from": 1950,
+    "to": 1959,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "One point, split if several drivers set the same fastest lap. In 1958-59 that point did not go to constructors."
+  },
+  {
+    "dimension": "fastest_lap_point",
+    "value": "none",
+    "from": 1960,
+    "to": 2018,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "No fastest-lap point."
+  },
+  {
+    "dimension": "fastest_lap_point",
+    "value": "one_point_if_top_10",
+    "from": 2019,
+    "to": 2021,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "One point only if the driver is classified in the top ten. No official fastest lap was awarded at the 2021 Belgian Grand Prix."
+  },
+  {
+    "dimension": "fastest_lap_point",
+    "value": "one_point_if_top_10_and_half_distance",
+    "from": 2022,
+    "to": 2024,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Same top-ten condition, and from 2022 the point is paid only if at least half the scheduled distance is completed."
+  },
+  {
+    "dimension": "fastest_lap_point",
+    "value": "none",
+    "from": 2025,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "The bonus was abolished for 2025 and has not returned."
+  },
+  {
+    "dimension": "shared_drive_points",
+    "value": "shared_equally",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Drivers who shared a car split its points. A driver who drove more than one scoring car was sometimes limited to his best finish."
+  },
+  {
+    "dimension": "shared_drive_points",
+    "value": "not_shared",
+    "from": 1958,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "From 1958 a shared drive no longer split points. Changing drivers mid-race stopped being a way to score."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_4",
+    "from": 1950,
+    "to": 1953,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Only the best four results counted for drivers. There was no constructors' title yet."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_5",
+    "from": 1954,
+    "to": 1954,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best five results."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_5",
+    "from": 1955,
+    "to": 1957,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Read as best five from a Wikipedia table rowspan under 1954. Those cells are blank in the converted table, so the count is medium confidence."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_6",
+    "from": 1958,
+    "to": 1958,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best six results."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_5",
+    "from": 1959,
+    "to": 1959,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best five results."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_6",
+    "from": 1960,
+    "to": 1960,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best six results."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_5",
+    "from": 1961,
+    "to": 1961,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best five results."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_5",
+    "from": 1962,
+    "to": 1962,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Taken from the same Wikipedia table rowspan as 1961, so this one season is medium confidence."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_6",
+    "from": 1963,
+    "to": 1965,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best six results."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_5",
+    "from": 1966,
+    "to": 1966,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best five results."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_9_split_5_and_4",
+    "from": 1967,
+    "to": 1967,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Five from the first six races and four from the last five."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_10_split_5_and_5",
+    "from": 1968,
+    "to": 1968,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Five from each half of a twelve-race season."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_9_split_5_and_4",
+    "from": 1969,
+    "to": 1969,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Five from the first six races and four from the last five."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_11_split_6_and_5",
+    "from": 1970,
+    "to": 1970,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Six from the first seven races and five from the last six."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_9_split_5_and_4",
+    "from": 1971,
+    "to": 1971,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Five from the first six races and four from the last five."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_10_split_5_and_5_of_6",
+    "from": 1972,
+    "to": 1972,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Five from each block of six races."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_13_split_7_and_6",
+    "from": 1973,
+    "to": 1974,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Seven from the first eight races and six from the last seven."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_12_split_6_and_6",
+    "from": 1975,
+    "to": 1975,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Six from each half."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_14_split_7_and_7",
+    "from": 1976,
+    "to": 1976,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Seven from each half."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_15_split_8_and_7",
+    "from": 1977,
+    "to": 1977,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Eight from the first nine races and seven from the last eight."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_14_split_7_and_7",
+    "from": 1978,
+    "to": 1978,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Seven from each half."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_8_split_4_and_4",
+    "from": 1979,
+    "to": 1979,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Four from each half. Constructors began scoring with every car this year."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_10_split_5_and_5_of_7",
+    "from": 1980,
+    "to": 1980,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Five from each half of a fourteen-race season."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_10",
+    "from": 1981,
+    "to": 1981,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best ten results, no longer split into halves."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "best_11",
+    "from": 1982,
+    "to": 1990,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Best eleven results."
+  },
+  {
+    "dimension": "results_counted",
+    "value": "all",
+    "from": 1991,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Every race counts."
+  },
+  {
+    "dimension": "double_points_finale",
+    "value": "no",
+    "from": 1950,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Finales paid the normal scale."
+  },
+  {
+    "dimension": "double_points_finale",
+    "value": "yes",
+    "from": 2014,
+    "to": 2014,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Only the 2014 Abu Dhabi Grand Prix paid double points. The experiment was not repeated."
+  },
+  {
+    "dimension": "double_points_finale",
+    "value": "no",
+    "from": 2015,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The 2015 rules dropped double points for the finale."
+  },
+  {
+    "dimension": "shortened_race_points",
+    "value": "unknown",
+    "from": 1950,
+    "to": 1974,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Half-distance points were used later, but this pass did not confirm a formal scale before the 1975 Spanish Grand Prix."
+  },
+  {
+    "dimension": "shortened_race_points",
+    "value": "bands_30_60",
+    "from": 1975,
+    "to": 1976,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "No points under 30 percent, half points from 30 to 60 percent, full points above that."
+  },
+  {
+    "dimension": "shortened_race_points",
+    "value": "unknown",
+    "from": 1977,
+    "to": 1979,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "A two-lap minimum is believed to have arrived somewhere in 1977-1980. The exact season was not pinned down."
+  },
+  {
+    "dimension": "shortened_race_points",
+    "value": "half_under_75_none_under_two_laps",
+    "from": 1980,
+    "to": 2021,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "No points if the leader has completed two laps or fewer; half points under 75 percent; full points otherwise. The 2021 Belgian Grand Prix exposed how generous the two-lap rule was."
+  },
+  {
+    "dimension": "shortened_race_points",
+    "value": "graduated_with_green_flag_exception",
+    "from": 2022,
+    "to": 2022,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Distance bands replaced half points, but a race that finished under green still paid full points. That is why Suzuka 2022 paid a full score."
+  },
+  {
+    "dimension": "shortened_race_points",
+    "value": "graduated_by_distance",
+    "from": 2023,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "From 2023 the bands apply whenever the race is shorter than planned, whether it ends under red or green. Under two racing laps pays nothing."
+  },
+  {
+    "dimension": "constructors_points_counting",
+    "value": "no_championship",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "The constructors' championship starts in 1958."
+  },
+  {
+    "dimension": "constructors_points_counting",
+    "value": "best_finishing_car_only",
+    "from": 1958,
+    "to": 1978,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Only the best-placed car of each constructor scored at each race. Indianapolis points, when they existed, were for drivers only."
+  },
+  {
+    "dimension": "constructors_points_counting",
+    "value": "all_cars",
+    "from": 1979,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Every classified car adds to the constructors' total."
+  },
+  {
+    "dimension": "indy_500_counts",
+    "value": "counts_for_drivers_only",
+    "from": 1950,
+    "to": 1960,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "The 500 counted for the drivers' title only. It was not a road-course Grand Prix and its cars were not Formula One cars."
+  },
+  {
+    "dimension": "indy_500_counts",
+    "value": "does_not_count",
+    "from": 1961,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "Dropped when the 1.5-litre formula began. The race leaves the championship for good."
+  },
+  {
+    "dimension": "qualifying_format",
+    "value": "two_session_best_time",
+    "from": 1950,
+    "to": 1995,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "The usual pre-1996 format was two one-hour sessions, twelve laps each, with the best lap counting. Early-1950s grids were sometimes taken from practice rather than this formal pair of sessions."
+  },
+  {
+    "dimension": "qualifying_format",
+    "value": "saturday_twelve_lap",
+    "from": 1996,
+    "to": 2002,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "One Saturday hour, twelve laps, and the 107 percent cutoff."
+  },
+  {
+    "dimension": "qualifying_format",
+    "value": "one_lap_friday_and_saturday",
+    "from": 2003,
+    "to": 2003,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "One flying lap each day. Only Saturday counted for the grid, on race fuel, with cars running one at a time."
+  },
+  {
+    "dimension": "qualifying_format",
+    "value": "one_lap_saturday_pair",
+    "from": 2004,
+    "to": 2004,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "Both one-lap runs moved to Saturday. The grid lap was still on race fuel."
+  },
+  {
+    "dimension": "qualifying_format",
+    "value": "one_lap_2005_mixed",
+    "from": 2005,
+    "to": 2005,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "The year opened by adding a low-fuel Saturday lap to a race-fuel Sunday lap. From the European Grand Prix it reverted to a single Saturday lap."
+  },
+  {
+    "dimension": "qualifying_format",
+    "value": "knockout_q1_q2_q3",
+    "from": 2006,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "Three knockout segments. The first two races of 2016 tried eliminating a car every 90 seconds, then the sport went back to this format. Session lengths and how many cars drop out change with the grid size."
+  },
+  {
+    "dimension": "sprint_format",
+    "value": "none",
+    "from": 1950,
+    "to": 2020,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "No championship sprint."
+  },
+  {
+    "dimension": "sprint_format",
+    "value": "sprint_qualifying_points_3_2_1",
+    "from": 2021,
+    "to": 2021,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "Three weekends. A Saturday sprint set the Grand Prix grid and paid 3-2-1."
+  },
+  {
+    "dimension": "sprint_format",
+    "value": "sprint_points_top_8_sets_grid",
+    "from": 2022,
+    "to": 2022,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "Three weekends. The sprint still set the Grand Prix grid and paid the first eight places, 8 down to 1."
+  },
+  {
+    "dimension": "sprint_format",
+    "value": "standalone_sprint_shootout",
+    "from": 2023,
+    "to": 2023,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "Six weekends. The sprint no longer set the Grand Prix grid. It had its own shorter qualifying session."
+  },
+  {
+    "dimension": "sprint_format",
+    "value": "friday_sprint_qualifying",
+    "from": 2024,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "Sprint qualifying moved to Friday and the sprint to Saturday, with two parc fermé windows. Treated as still current in 2026 because the race-weekend article describes this shape as the present format; 2025 and 2026 were not checked against a fresh FIA PDF."
+  },
+  {
+    "dimension": "team_orders",
+    "value": "allowed",
+    "from": 1950,
+    "to": 2001,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No ban. Teams routinely told a driver to move over."
+  },
+  {
+    "dimension": "team_orders",
+    "value": "banned",
+    "from": 2002,
+    "to": 2010,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The ban was imposed during 2002 after Austria, so the early 2002 races were not under it. It stayed in the book through 2010."
+  },
+  {
+    "dimension": "team_orders",
+    "value": "allowed",
+    "from": 2011,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The ban was lifted. The FIA kept a disrepute power for abuse, which is not modelled as a separate ban."
+  },
+  {
+    "dimension": "parc_ferme",
+    "value": "none",
+    "from": 1950,
+    "to": 2002,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Cars could be worked on overnight. This pass did not find a pre-2003 rule that froze the race setup after qualifying."
+  },
+  {
+    "dimension": "parc_ferme",
+    "value": "from_qualifying",
+    "from": 2003,
+    "to": 2020,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The 2003 text explicitly stops refuelling between qualifying and the start. The wider setup freeze usually dated to 2003 is treated as medium confidence."
+  },
+  {
+    "dimension": "parc_ferme",
+    "value": "from_end_of_fp3",
+    "from": 2021,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Parc fermé starts when final practice ends, not when qualifying ends. Sprint weekends from 2024 use two separate parc fermé windows."
+  },
+  {
+    "dimension": "safety_car",
+    "value": "none",
+    "from": 1950,
+    "to": 1992,
+    "confidence": "high",
+    "source": "https://www.formula1.com/en/latest/article/timeline-the-50-year-history-of-the-safety-cars-evolution-in-formula-1.3pYd8T6uM4dVWnp1VQ30Vz",
+    "notes": "A local safety car appeared at the 1973 Canadian Grand Prix and there were trials in 1992, but it was not yet a fixture at every round. The regulations-history page dates the introduction to 1992; this entry follows Formula1.com."
+  },
+  {
+    "dimension": "safety_car",
+    "value": "physical",
+    "from": 1993,
+    "to": 2014,
+    "confidence": "high",
+    "source": "https://www.formula1.com/en/latest/article/timeline-the-50-year-history-of-the-safety-cars-evolution-in-formula-1.3pYd8T6uM4dVWnp1VQ30Vz",
+    "notes": "Official safety car at every round from 1993. Organisers supplied their own car until Mercedes became the standard supplier during 1996."
+  },
+  {
+    "dimension": "safety_car",
+    "value": "physical_and_vsc",
+    "from": 2015,
+    "to": null,
+    "confidence": "high",
+    "source": "https://www.formula1.com/en/latest/article/fia-clarifies-new-virtual-safety-car-procedures.3kAXqSlWzpv5DRXo8eW8Nf",
+    "notes": "Virtual safety car added for 2015 after Jules Bianchi's 2014 accident. It holds gaps instead of bunching the field. The physical safety car remains."
+  },
+  {
+    "dimension": "drs",
+    "value": "banned",
+    "from": 1950,
+    "to": 2010,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "No drag-reduction system. The 2009-2010 adjustable front wing is tracked on active_aero, not here."
+  },
+  {
+    "dimension": "drs",
+    "value": "allowed",
+    "from": 2011,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "Rear-wing DRS in detection zones when within one second. It could be used more freely in practice and qualifying at first. 2024 let it open after one racing lap rather than two."
+  },
+  {
+    "dimension": "drs",
+    "value": "banned",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "DRS was removed. Overtaking help moved to the 2026 active-aero and extra-energy modes."
+  },
+  {
+    "dimension": "active_aero",
+    "value": "immobile",
+    "from": 1950,
+    "to": 2008,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "From the late 1960s, aerodynamic devices had to be fixed. Before wings existed that is the same gameplay result: nothing moves."
+  },
+  {
+    "dimension": "active_aero",
+    "value": "adjustable_front_wing",
+    "from": 2009,
+    "to": 2010,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The driver could trim the front wing a limited number of times per lap. Banned again for 2011."
+  },
+  {
+    "dimension": "active_aero",
+    "value": "drs_only",
+    "from": 2011,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "The only legal moving wing was the DRS flap. Do not also add a separate active-aero lap-time bonus on top of DRS."
+  },
+  {
+    "dimension": "active_aero",
+    "value": "two_mode_front_and_rear",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "Front and rear wings switch between a high-downforce corner mode and a low-drag straight mode. This replaces DRS."
+  },
+  {
+    "dimension": "in_season_testing",
+    "value": "unrestricted",
+    "from": 1950,
+    "to": 2006,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Private testing was part of normal development. This pass did not find a hard seasonal mileage cap before 2007."
+  },
+  {
+    "dimension": "in_season_testing",
+    "value": "annual_mileage_cap",
+    "from": 2007,
+    "to": 2008,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "2007 capped annual testing at 30,000 km. 2008 is carried forward because that year's notes do not lift the cap."
+  },
+  {
+    "dimension": "in_season_testing",
+    "value": "in_season_banned",
+    "from": 2009,
+    "to": 2011,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "In-season testing was banned for 2009. 2010-2011 are inferred because 2012 describes testing as allowed again."
+  },
+  {
+    "dimension": "in_season_testing",
+    "value": "one_nominated_test",
+    "from": 2012,
+    "to": 2012,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "One in-season test at a circuit agreed with the FIA. Mugello was the 2012 venue."
+  },
+  {
+    "dimension": "in_season_testing",
+    "value": "in_season_banned",
+    "from": 2013,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The mid-season test was dropped again."
+  },
+  {
+    "dimension": "in_season_testing",
+    "value": "limited_days",
+    "from": 2014,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "In-season testing returned in 2014, but the day count, filming days and previous-car running changed several times and are not enumerated here."
+  },
+  {
+    "dimension": "aero_testing_restrictions",
+    "value": "none",
+    "from": 1950,
+    "to": 2007,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No championship-wide tunnel or CFD cap was found before 2008."
+  },
+  {
+    "dimension": "aero_testing_restrictions",
+    "value": "fixed_limit",
+    "from": 2008,
+    "to": 2020,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "2008 imposed equal CFD and wind-tunnel limits. The exact hours changed inside this span and are not listed run by run."
+  },
+  {
+    "dimension": "aero_testing_restrictions",
+    "value": "sliding_scale_small_step",
+    "from": 2021,
+    "to": 2021,
+    "confidence": "high",
+    "source": "https://www.the-race.com/formula-1/the-winners-and-losers-of-f1s-increased-aero-testing-handicap/",
+    "notes": "Tunnel runs and CFD items scale with constructors' championship position, reset at mid-season. The 2021 step between teams was 2.5 percent."
+  },
+  {
+    "dimension": "aero_testing_restrictions",
+    "value": "sliding_scale_larger_step",
+    "from": 2022,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://www.the-race.com/formula-1/the-winners-and-losers-of-f1s-increased-aero-testing-handicap/",
+    "notes": "The 2022 step widened to 5 percent. Later seasons were not re-checked against the FIA sporting regulations, so 2023-2026 stay on this value at medium confidence."
+  },
+  {
+    "dimension": "budget_cap_usd_million",
+    "value": "none",
+    "from": 1950,
+    "to": 2020,
+    "confidence": "high",
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "No financial regulations and no team cost cap."
+  },
+  {
+    "dimension": "budget_cap_usd_million",
+    "value": "base_145",
+    "from": 2021,
+    "to": 2021,
+    "confidence": "high",
+    "source": "https://www.fia.com/sites/default/files/formula_1_-_financial_regulations_-_iss_9_-_2022-02-18.pdf",
+    "notes": "145 million US dollars for 21 races, before indexation. Driver pay and the three highest salaries sat outside the cap."
+  },
+  {
+    "dimension": "budget_cap_usd_million",
+    "value": "base_140",
+    "from": 2022,
+    "to": 2022,
+    "confidence": "high",
+    "source": "https://www.fia.com/sites/default/files/formula_1_-_financial_regulations_-_iss_9_-_2022-02-18.pdf",
+    "notes": "Base reduced to 140 million for a 21-race year, still before indexation."
+  },
+  {
+    "dimension": "budget_cap_usd_million",
+    "value": "base_135",
+    "from": 2023,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://api.fia.com/system/files/documents/2025_fia_formula_1_financial_regulations_-_issue_25_-_2025-07-31.pdf",
+    "notes": "Base 135 million for a 21-race year. The 2025 financial regulations still state that base. Indexation can raise the cash figure; this entry is the base, not the outturn."
+  },
+  {
+    "dimension": "budget_cap_usd_million",
+    "value": "base_215_wider_inclusions",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://www.formula1.com/en/latest/article/explained-what-is-the-f1-cost-cap-and-why-has-it-gone-up.2tYtDIe5SbE5utjThctBT3",
+    "notes": "Headline base rises to 215 million because costs that used to sit outside, including capital-expenditure depreciation, move inside. It is not an 80 million spending spree on last year's rules."
+  },
+  {
+    "dimension": "power_unit_cost_cap_usd_million",
+    "value": "none",
+    "from": 1950,
+    "to": 2022,
+    "confidence": "high",
+    "source": "https://www.formula1.com/en/latest/article/explained-what-is-the-f1-cost-cap-and-why-has-it-gone-up.2tYtDIe5SbE5utjThctBT3",
+    "notes": "No separate cap on power-unit manufacturers."
+  },
+  {
+    "dimension": "power_unit_cost_cap_usd_million",
+    "value": "base_95",
+    "from": 2023,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://www.formula1.com/en/latest/article/explained-what-is-the-f1-cost-cap-and-why-has-it-gone-up.2tYtDIe5SbE5utjThctBT3",
+    "notes": "95 million plus inflation per year. A new manufacturer had an extra allowance. This sits beside the team cap, it does not replace it."
+  },
+  {
+    "dimension": "power_unit_cost_cap_usd_million",
+    "value": "base_190",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://www.formula1.com/en/latest/article/explained-what-is-the-f1-cost-cap-and-why-has-it-gone-up.2tYtDIe5SbE5utjThctBT3",
+    "notes": "The 2026 manufacturer cap was agreed at 190 million after the separate capital-expenditure cap was removed. A brand-new manufacturer has a further allowance."
+  },
+  {
+    "dimension": "cars_per_team",
+    "value": "flexible_entry_count",
+    "from": 1950,
+    "to": 1987,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "One-car entries were still legal in 1984 and 1987, because a second driver of a one-car team was ineligible for points. Earlier decades also saw works teams enter more than two cars. A hard maximum of two was not established in the sources used here."
+  },
+  {
+    "dimension": "cars_per_team",
+    "value": "unknown",
+    "from": 1988,
+    "to": 2006,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The season in which the rules settled on two race cars per entrant was not found. Not guessed."
+  },
+  {
+    "dimension": "cars_per_team",
+    "value": "two_cars",
+    "from": 2007,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "From 2007 a team could no longer run a third car on Friday. By 2026 each entered team fields two cars. The sporting-regulation article that states the maximum was not opened, so this is medium confidence."
+  },
+  {
+    "dimension": "customer_chassis",
+    "value": "allowed",
+    "from": 1950,
+    "to": 1980,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Privateers bought Cooper, Lotus, March, Brabham and similar chassis and raced them as their own entries."
+  },
+  {
+    "dimension": "customer_chassis",
+    "value": "constructor_must_build_own_car",
+    "from": 1981,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The first Concorde Agreement required each team to enter a car it built itself. Engines and gearboxes could still be bought. Enforcement was argued again in 2006-2008 when customer-style chassis appeared."
+  },
+  {
+    "dimension": "refuelling",
+    "value": "allowed",
+    "from": 1950,
+    "to": 1983,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "In-race refuelling was legal. The 1984 ban is described as ending a practice that had been allowed."
+  },
+  {
+    "dimension": "refuelling",
+    "value": "banned",
+    "from": 1984,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Banned, with a maximum fuel load used to try to cut turbo power."
+  },
+  {
+    "dimension": "refuelling",
+    "value": "allowed",
+    "from": 1994,
+    "to": 2009,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Brought back for 1994. Pit crews had to wear fire overalls again."
+  },
+  {
+    "dimension": "refuelling",
+    "value": "banned",
+    "from": 2010,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "Banned again. Cars start with their race fuel on board and do not take on more."
+  },
+  {
+    "dimension": "fuel_specification",
+    "value": "special_blends_allowed",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Alcohol and other racing blends were still used. They were banned when commercial petrol became compulsory."
+  },
+  {
+    "dimension": "fuel_specification",
+    "value": "commercial_petrol",
+    "from": 1958,
+    "to": 1994,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Commercial petrol from 1958. 1993 restated that the fuel had to be of a kind available to the public."
+  },
+  {
+    "dimension": "fuel_specification",
+    "value": "unleaded_close_to_road_fuel",
+    "from": 1995,
+    "to": 2021,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Exotic benzene and toluene blends were banned. Fuel had to resemble ordinary unleaded petrol."
+  },
+  {
+    "dimension": "fuel_specification",
+    "value": "unknown",
+    "from": 2022,
+    "to": 2025,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "A road-relevant bio-content rule is widely described for these seasons, but the blend percentage was not confirmed against an FIA text in this pass."
+  },
+  {
+    "dimension": "fuel_specification",
+    "value": "sustainable",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The 2026 cars run on sustainable fuel. The exact blend recipe is a supplier matter and is not copied here."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "none",
+    "from": 1950,
+    "to": 1983,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No race fuel-volume cap was found before the 1984 turbo limit. Early races were often short enough that strategy was about reliability more than a legal tank size."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "litres_220",
+    "from": 1984,
+    "to": 1985,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "1984 set 220 litres. 1985 does not change it in the regulations history, so it is carried one year."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "litres_195",
+    "from": 1986,
+    "to": 1986,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Cut to 195 litres. Naturally aspirated engines were not allowed this year, so the cap applied to the whole field."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "na_unlimited_turbo_restricted",
+    "from": 1987,
+    "to": 1987,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Atmospheric cars had no fuel limit. Turbo cars were still restricted, but the litre figure for 1987 was not confirmed and is not guessed."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "turbo_150_na_unlimited",
+    "from": 1988,
+    "to": 1988,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Turbo cars were cut to 150 litres in their last year. Atmospheric cars stayed unlimited."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "none",
+    "from": 1989,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Fuel-volume limits were removed with the turbo ban. The later engine table still shows no race fuel limit through the V8 era."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "unknown",
+    "from": 2014,
+    "to": 2017,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "The 2014-2025 table only gives a 100-110 kg band for the whole hybrid era. The year-by-year figure inside that band was not established for these four seasons."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "kg_105",
+    "from": 2018,
+    "to": 2018,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The 2019 rules raise the race allowance from 105 kg to 110 kg, so 2018 is 105 kg."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "kg_110",
+    "from": 2019,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "110 kg for the race, raised so drivers would spend less of the grand prix saving fuel."
+  },
+  {
+    "dimension": "race_fuel_allowance",
+    "value": "none",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "The race fuel-mass cap is gone. A fuel-energy flow limit of 3000 MJ/h above 10,500 rpm replaces it. Do not invent a race energy total on top of that."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "4500na_or_1500_supercharged",
+    "from": 1950,
+    "to": 1951,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "World championship cars: 4.5 litres without a compressor, or 1.5 litres with one. No weight limit."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "f2_2000na_or_750_supercharged",
+    "from": 1952,
+    "to": 1953,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The championship was run to Formula Two: 2.0 litres, or 750 cc supercharged. The Formula One rulebook itself stayed at 4.5 litres, and the Indianapolis 500 still used its own engines."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "2500na_or_750_supercharged",
+    "from": 1954,
+    "to": 1960,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "2.5 litres, or 750 cc with a compressor."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "1300_to_1500_na",
+    "from": 1961,
+    "to": 1965,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "1.3 to 1.5 litres, no compressor."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "3000na_or_1500_forced",
+    "from": 1966,
+    "to": 1985,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "3.0 litres atmospheric or 1.5 litres forced induction. Cylinder count was not fixed. Renault's 1977 turbo was legal under this rule, not a new formula."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "1500_forced_only",
+    "from": 1986,
+    "to": 1986,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Atmospheric engines were prohibited for this one season."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "3500na_or_1500_forced_4bar",
+    "from": 1987,
+    "to": 1987,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "3.5-litre atmospheric engines returned with no fuel limit. Turbos were boost-capped at 4.0 bar."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "3500na_or_1500_forced_2_5bar",
+    "from": 1988,
+    "to": 1988,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Turbo boost cut to 2.5 bar for their final season."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "3500na_8_to_12",
+    "from": 1989,
+    "to": 1994,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Turbos banned. 3.5 litres, 8 to 12 cylinders."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "3000na_up_to_12",
+    "from": 1995,
+    "to": 1999,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Capacity cut to 3.0 litres. A V12 was still legal; the V10 mandate comes in 2000."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "3000_v10",
+    "from": 2000,
+    "to": 2005,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "3.0-litre V10 required."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "2400_v8",
+    "from": 2006,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "2.4-litre 90-degree V8. In 2006 a team without a V8 could run a rev-limited V10 for a transition period."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "1600_v6_turbo_hybrid",
+    "from": 2014,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "1.6-litre V6 turbo hybrid with MGU-K and MGU-H. The 2026 power-unit PDF fixes capacity at 1600 cc (+0/−10) and a 90-degree V6."
+  },
+  {
+    "dimension": "engine_formula",
+    "value": "1600_v6_turbo_hybrid_no_mgu_h",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://api.fia.com/sites/default/files/fia_2026_formula_1_technical_regulations_pu_-_issue_2_-_2023-03-03.pdf",
+    "notes": "Same 1.6-litre 90-degree V6 turbo, MGU-H deleted, much larger MGU-K. Roughly half the power is electric."
+  },
+  {
+    "dimension": "forced_induction",
+    "value": "allowed",
+    "from": 1950,
+    "to": 1960,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "A smaller supercharged option sat beside the atmospheric formula."
+  },
+  {
+    "dimension": "forced_induction",
+    "value": "banned",
+    "from": 1961,
+    "to": 1965,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Compressors were not allowed in the 1.5-litre formula."
+  },
+  {
+    "dimension": "forced_induction",
+    "value": "allowed",
+    "from": 1966,
+    "to": 1985,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "1.5-litre forced induction was the alternative to a 3.0-litre atmospheric engine."
+  },
+  {
+    "dimension": "forced_induction",
+    "value": "required",
+    "from": 1986,
+    "to": 1986,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Only forced-induction engines were legal."
+  },
+  {
+    "dimension": "forced_induction",
+    "value": "allowed",
+    "from": 1987,
+    "to": 1988,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Turbos and atmospheric engines raced together, with the turbo boost capped."
+  },
+  {
+    "dimension": "forced_induction",
+    "value": "banned",
+    "from": 1989,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Forced induction banned after 1988."
+  },
+  {
+    "dimension": "forced_induction",
+    "value": "required",
+    "from": 2014,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "The hybrid formula requires a turbocharger. The 2014 rules also allowed a supercharger; every maker used a turbo."
+  },
+  {
+    "dimension": "hybrid_system",
+    "value": "none",
+    "from": 1950,
+    "to": 2008,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No energy-recovery system in the regulations."
+  },
+  {
+    "dimension": "hybrid_system",
+    "value": "kers_optional",
+    "from": 2009,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "KERS was optional: about 80 hp for roughly 6.6 seconds a lap. In 2010 the teams agreed not to run it, but it stayed legal. It returned in 2011."
+  },
+  {
+    "dimension": "hybrid_system",
+    "value": "ers_with_mgu_h",
+    "from": 2014,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "ERS is part of the power unit, with both kinetic and exhaust-heat recovery, and a continuous electric deployment rather than a short KERS boost."
+  },
+  {
+    "dimension": "hybrid_system",
+    "value": "ers_without_mgu_h",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "MGU-H removed. Electric deployment rises to about 350 kW, with boost, recharge and overtake modes."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "unlimited",
+    "from": 1950,
+    "to": 2003,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No season-long engine pool and no grid penalty for a fresh engine."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "one_engine_per_weekend",
+    "from": 2004,
+    "to": 2004,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "An engine had to last the meeting. A change was a ten-place grid penalty."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "one_engine_per_two_weekends",
+    "from": 2005,
+    "to": 2008,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "From 2005 an engine had to last two race weekends. 2006-2008 are carried because the history does not lift the rule; from 2007 a Friday practice change was no longer itself a penalty."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "eight_engines_per_season",
+    "from": 2009,
+    "to": 2013,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Eight engines for race and qualifying. A further engine was ten places. 2010 restates the same pool. 2011-2013 are carried until the 2014 hybrid rules replace them."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "five_of_each_element",
+    "from": 2014,
+    "to": 2014,
+    "confidence": "high",
+    "source": "https://www.racefans.net/2014/07/16/engine-penalties-shape-second-half-season/",
+    "notes": "Five of each of ICE, turbo, MGU-K, MGU-H, energy store and control electronics. The first extra of a kind was ten places, and further extras of that kind were five."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "four_of_each_element",
+    "from": 2015,
+    "to": 2015,
+    "confidence": "high",
+    "source": "https://www.racefans.net/2014/07/16/engine-penalties-shape-second-half-season/",
+    "notes": "Cut to four of each element, provided the calendar did not grow past 20 races."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "five_of_each_element",
+    "from": 2016,
+    "to": 2016,
+    "confidence": "high",
+    "source": "https://www.f1-fansite.com/2016-f1-season/2016-used-f1-power-unit-elements/",
+    "notes": "Back to five of each element for a 21-race year. Same ten-then-five grid-penalty pattern."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "four_power_units",
+    "from": 2017,
+    "to": 2017,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Four power units per driver whatever the number of races. The per-element split was not restated in the source used here."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "three_ice_two_energy",
+    "from": 2018,
+    "to": 2023,
+    "confidence": "medium",
+    "source": "https://www.f1-fansite.com/2018-f1-season/2018-used-f1-power-unit-elements/",
+    "notes": "2018 allowed 3 ICE, 3 turbo, 3 MGU-H, 2 MGU-K, 2 energy stores and 2 control electronics. 2019-2023 are carried: the 2024 rules are written as an increase to four, which fits a pool that had been under four. The element split for those middle years was not re-checked."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "four_ice_class_two_store",
+    "from": 2024,
+    "to": 2025,
+    "confidence": "medium",
+    "source": "https://maxf1.net/en/2024-f1-power-unit-elements-usage/",
+    "notes": "2024: 4 ICE, 4 turbo, 4 MGU-H, 4 MGU-K, 2 energy store, 2 control electronics, 8 exhausts. First extra is 10 places, later extras 5, and more than 15 places sends the car to the back. 2025 is carried because that year's rule notes do not change the pool."
+  },
+  {
+    "dimension": "power_unit_allocation",
+    "value": "four_ice_three_ers_2026",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "Four ICE, four turbos and four exhausts; three MGU-K, three energy stores and three control electronics. No MGU-H. A grid penalty applies for each extra element. The same page says the pool shrinks again in 2027, which is outside this file."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "none",
+    "from": 1950,
+    "to": 1960,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history states that there was no weight limit."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "450",
+    "from": 1961,
+    "to": 1965,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "First minimum: 450 kg."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "500",
+    "from": 1966,
+    "to": 1969,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Raised to 500 kg with the 3-litre formula."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "530",
+    "from": 1970,
+    "to": 1971,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Raised to 530 kg in 1970. 1971 does not change it."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "550",
+    "from": 1972,
+    "to": 1972,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Raised to 550 kg."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "575",
+    "from": 1973,
+    "to": 1980,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Raised to 575 kg in 1973. The 1980 note says it was still 575 kg."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "585",
+    "from": 1981,
+    "to": 1981,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Raised to 585 kg."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "580",
+    "from": 1982,
+    "to": 1982,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Cut to 580 kg."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "540",
+    "from": 1983,
+    "to": 1986,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Cut to 540 kg for 1983. 1984-1986 do not restate a new figure, so 540 is carried until the 1987 change."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "500",
+    "from": 1987,
+    "to": 1987,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history gives a single figure of 500 kg. Other summaries describe a split between turbo and atmospheric cars. That split was not confirmed, so it is not entered as two numbers."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "540",
+    "from": 1988,
+    "to": 1988,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Raised to 540 kg."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "unknown",
+    "from": 1989,
+    "to": 2003,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No year-by-year figure in the sources used here. Secondary tables disagree with each other, so nothing was filled in. Whether the driver was inside the number also changes in this span."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "605",
+    "from": 2004,
+    "to": 2004,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Stated as 605 kg in qualifying and at least 600 kg at other times, including driver and fuel. One number cannot represent both, so 605 is the qualifying figure only."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "unknown",
+    "from": 2005,
+    "to": 2012,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Not stated year by year in the sources used here. The 2011 notes add 20 kg for KERS without giving the resulting total."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "642",
+    "from": 2013,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Stated minimum 642 kg."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "unknown",
+    "from": 2014,
+    "to": 2016,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The hybrid cars were heavier, but the kilogram figure for these three seasons was not taken from the regulations history."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "728",
+    "from": 2017,
+    "to": 2017,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Stated minimum 728 kg with the wider car and wider tyres."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "unknown",
+    "from": 2018,
+    "to": 2021,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The halo and later tweaks changed the figure, but the kilograms were not copied from a regulation text in this pass."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "798",
+    "from": 2022,
+    "to": 2024,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The 2025 rules raise the fuel-free minimum from 798 kg to 800 kg. 2022 and 2023 sections do not mention a weight change, so 798 is carried back across those two seasons at medium confidence."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "800",
+    "from": 2025,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "800 kg without fuel. The separate driver allowance rises from 80 kg to 82 kg in the same change."
+  },
+  {
+    "dimension": "minimum_weight_kg",
+    "value": "unknown",
+    "from": 2026,
+    "to": null,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "Sources disagree and may be measuring different things. The Formula One regulations page says 724 kg for car and driver. Motor Sport Magazine and F1 Chronicle say 768 kg. Not resolved, so not entered as a fact."
+  },
+  {
+    "dimension": "driver_mass_allowance_kg",
+    "value": "none",
+    "from": 1950,
+    "to": 2018,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No separate driver-and-seat reference mass. The driver's body weight was just part of the car."
+  },
+  {
+    "dimension": "driver_mass_allowance_kg",
+    "value": "80",
+    "from": 2019,
+    "to": 2024,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "2019 stops counting the driver's own weight inside the car minimum. The 80 kg figure is the allowance the 2025 rules say they are raising, and it is treated as having applied since that 2019 split."
+  },
+  {
+    "dimension": "driver_mass_allowance_kg",
+    "value": "82",
+    "from": 2025,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Raised to 82 kg for 2025. Not restated in the 2026 notes, so it is carried one year."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "no_wings",
+    "from": 1950,
+    "to": 1967,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No wings. Downforce from body shape was negligible."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "high_wings",
+    "from": 1968,
+    "to": 1968,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Wings arrived. The regulations history bundles the later height ban into a 1966-1969 paragraph, so the single-year 'unrestricted high wings' split is medium confidence."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "wings_on_sprung_mass",
+    "from": 1969,
+    "to": 1976,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "High wings were banned during 1969 after failures. Aero devices had to be fixed to the sprung mass and stay inside height and width limits. The page does not isolate the Monday-after-Barcelona date."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "ground_effect_skirts",
+    "from": 1977,
+    "to": 1980,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Underbody ground effect, pioneered by Lotus, with sliding skirts sealing the floor."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "skirts_banned_6cm",
+    "from": 1981,
+    "to": 1981,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Skirts banned and a 6 cm ground clearance required. Teams used hydraulic ride to dodge the check."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "skirts_legal",
+    "from": 1982,
+    "to": 1982,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The clearance rule was abandoned as unpoliceable and rigid skirts were legal again."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "flat_bottom",
+    "from": 1983,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Shaped undertrays banned. Flat bottom from 1983. This is the long post-ground-effect package, with smaller detail cuts in 1993."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "1994_midseason_slowdown",
+    "from": 1994,
+    "to": 1994,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The year opened with driver aids banned and refuelling back. After Imola, wings, the diffuser and a wooden plank under the car were cut in during the season. One value cannot show both halves of the year."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "1995_package",
+    "from": 1995,
+    "to": 1997,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The settled post-1994 package: smaller engine, deeper cockpit protection and a slower car. Step-floor dimensions were not copied from a regulation text here."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "narrow_track",
+    "from": 1998,
+    "to": 2008,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Track width cut from 2.0 m to 1.8 m, with grooved tyres. Grooves are their own dimension."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "2009_cleanup",
+    "from": 2009,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Most add-on winglets banned. Wide low front wing, narrow tall rear wing, cleaner body. Double diffusers and the F-duct were closed off inside this span."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "2014_low_nose",
+    "from": 2014,
+    "to": 2016,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Noses were lowered again with the new power unit. This was not a clean-sheet aero formula; the big 2014 change is the engine dimension."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "wide_high_downforce",
+    "from": 2017,
+    "to": 2018,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Cars back to 2000 mm, much wider tyres, wider front wings and more downforce. Shark fins and T-wings were allowed in 2017 and banned in 2018."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "simplified_wings",
+    "from": 2019,
+    "to": 2021,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Simpler, wider front wings and a larger DRS opening, aimed at following in dirty air. 2021 mostly carried the 2020 cars over under a token system."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "ground_effect_underbody",
+    "from": 2022,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Ground effect returned through the floor, with 18-inch wheels and much simpler upper wings. 2023 tightened floor-flex tests after porpoising."
+  },
+  {
+    "dimension": "aero_package",
+    "value": "2026_active_aero",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Shorter cars, less floor downforce, and two-mode active wings. DRS is gone. See active_aero."
+  },
+  {
+    "dimension": "traction_control",
+    "value": "allowed",
+    "from": 1950,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No ban. The aid was not in use for most of this span; that is a technology question, not a regulation one."
+  },
+  {
+    "dimension": "traction_control",
+    "value": "banned",
+    "from": 1994,
+    "to": 2000,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Banned with the other electronic driver aids at the start of 1994."
+  },
+  {
+    "dimension": "traction_control",
+    "value": "allowed",
+    "from": 2001,
+    "to": 2007,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Legal again from the 2001 Spanish Grand Prix, because the FIA said it could not police a ban. The first races of 2001 were still under the ban."
+  },
+  {
+    "dimension": "traction_control",
+    "value": "banned",
+    "from": 2008,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Banned by making every team use a standard ECU, so a hidden traction-control map could not be hidden in a private one."
+  },
+  {
+    "dimension": "anti_lock_brakes",
+    "value": "allowed",
+    "from": 1950,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No ban. Like traction control, the device was not a normal fitting until the early 1990s."
+  },
+  {
+    "dimension": "anti_lock_brakes",
+    "value": "banned",
+    "from": 1994,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Banned with the 1994 driver-aid package and not re-legalised."
+  },
+  {
+    "dimension": "active_suspension",
+    "value": "allowed",
+    "from": 1950,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No ban. Lotus and then Williams showed what a computer-controlled platform was worth once the technology existed."
+  },
+  {
+    "dimension": "active_suspension",
+    "value": "banned",
+    "from": 1994,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Banned for 1994 and not brought back. 2026 active aero is wings, not suspension."
+  },
+  {
+    "dimension": "launch_control",
+    "value": "allowed",
+    "from": 1950,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No ban."
+  },
+  {
+    "dimension": "launch_control",
+    "value": "banned",
+    "from": 1994,
+    "to": 2000,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Banned with the 1994 electronic aids."
+  },
+  {
+    "dimension": "launch_control",
+    "value": "allowed",
+    "from": 2001,
+    "to": 2003,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Re-allowed from the 2001 Spanish Grand Prix together with traction control."
+  },
+  {
+    "dimension": "launch_control",
+    "value": "banned",
+    "from": 2004,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Banned again for 2004, along with fully automatic gearchanges. The current regulations page still lists it as forbidden."
+  },
+  {
+    "dimension": "semi_automatic_gearbox",
+    "value": "allowed",
+    "from": 1950,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Paddle-shift semi-automatic gearboxes were never banned. Ferrari raced the first one in 1989. Fully automatic shifting is a separate dimension."
+  },
+  {
+    "dimension": "fully_automatic_gearbox",
+    "value": "allowed",
+    "from": 1950,
+    "to": 1993,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No explicit ban found before the electronic-aid purge. A fully automatic box was not a normal fitting."
+  },
+  {
+    "dimension": "fully_automatic_gearbox",
+    "value": "banned",
+    "from": 1994,
+    "to": 2000,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Treated as part of the 1994 aid ban because 2001 describes fully automatic transmissions as allowed again. The 1994 sentence itself names traction control, launch control, ABS and active suspension, not the gearbox, so the start year is medium confidence."
+  },
+  {
+    "dimension": "fully_automatic_gearbox",
+    "value": "allowed",
+    "from": 2001,
+    "to": 2003,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Explicitly allowed again from the 2001 Spanish Grand Prix."
+  },
+  {
+    "dimension": "fully_automatic_gearbox",
+    "value": "banned",
+    "from": 2004,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Banned again for 2004. Paddle shift stays legal."
+  },
+  {
+    "dimension": "tyre_supplier_model",
+    "value": "multiple_suppliers",
+    "from": 1950,
+    "to": 1998,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Several makers could and did supply tyres: Dunlop, Englebert, Firestone, Continental, Goodyear, Pirelli, Michelin, Avon, Bridgestone. Not every season was a close war."
+  },
+  {
+    "dimension": "tyre_supplier_model",
+    "value": "single_supplier_de_facto",
+    "from": 1999,
+    "to": 2000,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Goodyear left after 1998 and Bridgestone was the only maker on the grid. That was an exit, not a regulation that appointed a single supplier."
+  },
+  {
+    "dimension": "tyre_supplier_model",
+    "value": "multiple_suppliers",
+    "from": 2001,
+    "to": 2006,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Michelin returned and the Bridgestone war resumed."
+  },
+  {
+    "dimension": "tyre_supplier_model",
+    "value": "appointed_single_supplier",
+    "from": 2007,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "A single supplier from 2007: Bridgestone through 2010, Pirelli from 2011. The Pirelli deal runs through 2027."
+  },
+  {
+    "dimension": "tyre_tread",
+    "value": "treaded",
+    "from": 1950,
+    "to": 1970,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Treaded dry tyres. Slicks had not been introduced."
+  },
+  {
+    "dimension": "tyre_tread",
+    "value": "slick",
+    "from": 1971,
+    "to": 1997,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Firestone slicks appeared at the 1971 Spanish Grand Prix, so the early 1971 races may still have been treaded. The rest of this span is slicks."
+  },
+  {
+    "dimension": "tyre_tread",
+    "value": "grooved_front3_rear4",
+    "from": 1998,
+    "to": 1998,
+    "confidence": "high",
+    "source": "https://jomenvisst.de/fia/1998SportingRegulations/1998_FIA_Formula_One_World_Championship_Sporting_Regulations.htm",
+    "notes": "Dry tyres had to be grooved: three grooves on the front, four on the rear."
+  },
+  {
+    "dimension": "tyre_tread",
+    "value": "grooved_four",
+    "from": 1999,
+    "to": 2008,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "At least four grooves on both axles, about 14 mm wide, to cut grip."
+  },
+  {
+    "dimension": "tyre_tread",
+    "value": "slick",
+    "from": 2009,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Slicks brought back with the 2009 aero package and kept ever since, including 2026."
+  },
+  {
+    "dimension": "dry_tyre_rule",
+    "value": "no_mandatory_compound_mix",
+    "from": 1950,
+    "to": 2004,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "No rule that a driver must use two different dry compounds. Teams chose from what their supplier brought."
+  },
+  {
+    "dimension": "dry_tyre_rule",
+    "value": "no_tyre_changes",
+    "from": 2005,
+    "to": 2005,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Tyre changes were forbidden in qualifying and the race, so one set had to last the grand prix. The United States Grand Prix that year showed how brittle that was."
+  },
+  {
+    "dimension": "dry_tyre_rule",
+    "value": "no_mandatory_compound_mix",
+    "from": 2006,
+    "to": 2006,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Changes were allowed again. The obligation to use both dry compounds starts the following year."
+  },
+  {
+    "dimension": "dry_tyre_rule",
+    "value": "two_compounds_both_mandatory",
+    "from": 2007,
+    "to": 2015,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "Two dry compounds at each race, and a dry race required both. Wets waived the rule. From 2010 the top-ten qualifying tyre also became the race-start tyre, until that extra lock was removed for 2022."
+  },
+  {
+    "dimension": "dry_tyre_rule",
+    "value": "three_nominated_two_mandatory",
+    "from": 2016,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+    "notes": "The supplier nominates three dry compounds and a dry race still requires two of them. The 2026 Wikipedia tyre page says the annual pool is C1-C5, while the regulations page still lists C1-C6. The weekend rule, three nominated and two used, is the part that is agreed."
+  },
+  {
+    "dimension": "cockpit_protection",
+    "value": "none_required",
+    "from": 1950,
+    "to": 1960,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No mandatory roll structure. Helmets became compulsory in 1952, but they were not a survival cell."
+  },
+  {
+    "dimension": "cockpit_protection",
+    "value": "roll_structure",
+    "from": 1961,
+    "to": 2017,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "A roll bar was required from the 1961 formula, later raised and strengthened. This value covers that whole family, not one unchanging hoop."
+  },
+  {
+    "dimension": "cockpit_protection",
+    "value": "halo",
+    "from": 2018,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "The titanium halo is mandatory in 2018 and still required. It adds mass and closes off some cockpit strikes."
+  }
+]

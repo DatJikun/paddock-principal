@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paddock Principal · A · Pit Wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Kierunek A: ściana boksu. Ciemny, gęsty, ekran pomiaru czasu. */
+:root{
+  --bg:#090b0e; --panel:#10141a; --panel2:#141922; --line:#1f2630; --line2:#2a3340;
+  --ink:#dfe5ec; --muted:#7f8a98; --dim:#4c5663;
+  --amber:#ffb000; --green:#3ddc84; --red:#ff5a5f; --cyan:#4cc9f0; --team:#2f6fd6;
+  --display:'Chakra Petch',sans-serif; --body:'IBM Plex Sans Condensed',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.35 var(--body);min-height:100vh;
+  background-image:radial-gradient(ellipse at 70% -10%,rgba(47,111,214,.14),transparent 55%),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* górna belka */
+.top{display:flex;align-items:center;gap:22px;height:54px;padding:0 18px;border-bottom:1px solid var(--line);background:rgba(9,11,14,.9);position:sticky;top:0;z-index:5}
+.brand{font:700 15px var(--display);letter-spacing:.14em;text-transform:uppercase}
+.brand b{color:var(--team)}
+.team{display:flex;align-items:center;gap:10px;padding-left:18px;border-left:1px solid var(--line)}
+.team i{width:4px;height:26px;background:var(--team);box-shadow:0 0 12px var(--team)}
+.team small{display:block;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.date{margin-left:auto;text-align:right}
+.date strong{font:600 15px var(--display);letter-spacing:.04em}
+.date small{display:block;color:var(--muted);font-size:11px}
+.money{display:flex;gap:16px;padding:0 18px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.money div small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.money div span{font:500 14px var(--mono)}
+.go{background:var(--amber);color:#111;border:0;height:36px;padding:0 16px;font:700 13px var(--display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:10px;clip-path:polygon(0 0,100% 0,100% 70%,92% 100%,0 100%)}
+.go small{font:500 11px var(--body);letter-spacing:0;text-transform:none;opacity:.75}
+.go:hover{filter:brightness(1.08)}
+/* układ */
+.shell{display:grid;grid-template-columns:62px 1fr}
+nav{border-right:1px solid var(--line);padding-top:10px;min-height:calc(100vh - 54px)}
+nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0;color:var(--dim);font:600 9px var(--display);letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-left:2px solid transparent}
+nav a svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6}
+nav a.on,nav a:hover{color:var(--ink);border-left-color:var(--amber)}
+main{padding:16px;display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+.p{background:var(--panel);border:1px solid var(--line);position:relative;animation:in .5s both}
+.p:nth-child(2){animation-delay:.05s}.p:nth-child(3){animation-delay:.1s}.p:nth-child(4){animation-delay:.15s}.p:nth-child(5){animation-delay:.2s}.p:nth-child(6){animation-delay:.25s}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.h{display:flex;align-items:baseline;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.h h2{font:600 12px var(--display);letter-spacing:.14em;text-transform:uppercase}
+.h span{color:var(--muted);font-size:12px}
+.h .r{margin-left:auto}
+.b{padding:12px 14px}
+.s7{grid-column:span 7}.s5{grid-column:span 5}.s12{grid-column:span 12}.s4{grid-column:span 4}.s3{grid-column:span 3}
+/* następny wyścig */
+.race{display:grid;grid-template-columns:1.15fr 1fr;gap:18px}
+.race h3{font:700 26px/1 var(--display);letter-spacing:.02em}
+.race .meta{color:var(--muted);margin:6px 0 14px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.kv div{background:var(--panel2);padding:8px 10px}
+.kv small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.kv b{font:500 16px var(--mono)}
+.profile{display:grid;gap:7px}
+.bar{display:grid;grid-template-columns:110px 1fr 38px;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.bar .t{height:6px;background:var(--line2);position:relative}
+.bar .t i{position:absolute;inset:0 auto 0 0;background:var(--cyan)}
+.bar .t u{position:absolute;top:-3px;width:2px;height:12px;background:var(--amber)}
+.quote{margin-top:12px;border-left:2px solid var(--amber);padding:8px 10px;background:rgba(255,176,0,.05);font-size:13px}
+.quote small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+/* auto na tle stawki */
+.areas{display:grid;gap:9px}
+.area{display:grid;grid-template-columns:130px 1fr 54px;align-items:center;gap:10px}
+.area .lbl{font-size:13px}
+.ranks{display:grid;grid-template-columns:repeat(16,1fr);gap:2px}
+.ranks i{height:14px;background:var(--line2)}
+.ranks i.me{background:var(--team);box-shadow:0 0 8px var(--team)}
+.area .pos{font:600 13px var(--mono);text-align:right}
+.good{color:var(--green)}.bad{color:var(--red)}.mid{color:var(--amber)}
+.legend{display:flex;justify-content:space-between;color:var(--dim);font-size:10px;margin:2px 0 0 140px;padding-right:64px;text-transform:uppercase;letter-spacing:.08em}
+/* kierowcy */
+table{width:100%;border-collapse:collapse}
+th{font:600 10px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;padding:8px 4px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.l,td.l{text-align:left}
+td{padding:9px 4px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+.drv{display:flex;align-items:center;gap:10px}
+.drv .no{font:700 18px var(--display);color:var(--team);width:22px}
+.drv b{font-weight:600;font-size:15px}
+.drv small{display:block;color:var(--muted);font-size:11px}
+.a{font:600 14px var(--mono);display:inline-block;min-width:26px;padding:2px 0}
+.a1{color:var(--dim)}.a2{color:#9aa4b1}.a3{color:var(--ink)}.a4{color:var(--green);text-shadow:0 0 10px rgba(61,220,132,.45)}
+.ovr{font:700 18px var(--display)}
+.up{color:var(--green);font-size:10px;vertical-align:super}
+.form{display:inline-flex;gap:2px}.form i{width:5px;height:14px;background:var(--line2)}.form i.g{background:var(--green)}.form i.y{background:var(--amber)}.form i.r{background:var(--red)}
+.promise{font-size:12px;text-align:left;max-width:240px}
+.promise b{color:var(--amber);font-weight:600}
+.promise .pb{height:3px;background:var(--line2);margin-top:5px}.promise .pb i{display:block;height:100%;background:var(--amber)}
+/* skrzynka */
+.msg{padding:11px 14px;border-bottom:1px solid var(--line)}
+.msg:last-child{border-bottom:0}
+.msg .tag{font:600 9px var(--display);letter-spacing:.14em;text-transform:uppercase;padding:2px 6px;border:1px solid}
+.tag.dec{color:var(--amber);border-color:var(--amber)}.tag.inf{color:var(--cyan);border-color:var(--cyan)}.tag.tal{color:var(--green);border-color:var(--green)}
+.msg h4{font-size:14px;font-weight:600;margin:6px 0 3px}
+.msg p{color:var(--muted);font-size:12.5px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.opt{border:1px solid var(--line2);padding:8px 9px;cursor:pointer;background:var(--panel2);transition:border-color .15s}
+.opt:hover{border-color:var(--amber)}
+.opt b{font:600 12px var(--display);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:3px}
+.opt span{font-size:12px;color:var(--muted);display:block}
+.opt span em{font-style:normal;color:var(--green)}.opt span strong{font-weight:500;color:var(--red)}
+/* rozwój */
+.proj{margin-bottom:13px}
+.proj .row{display:flex;justify-content:space-between;font-size:13px}
+.proj .row span{color:var(--muted);font-size:12px}
+.prog{height:6px;background:var(--line2);margin:6px 0 4px}.prog i{display:block;height:100%;background:var(--cyan)}
+.proj small{color:var(--muted);font-size:11.5px}
+.range{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11.5px;color:var(--muted)}
+.range .rt{flex:1;height:6px;background:var(--line2);position:relative}
+.range .rt i{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(90deg,rgba(255,176,0,.55) 0 3px,transparent 3px 6px)}
+/* tabela punktowa */
+.st td{padding:6px 4px;font-size:13px}
+.st tr.me td{color:var(--team);font-weight:600}
+/* kronika */
+.chron{grid-column:span 12;display:flex;align-items:center;gap:14px;border:1px solid var(--line);background:linear-gradient(90deg,rgba(255,176,0,.08),transparent 40%);padding:10px 14px;animation:in .5s .3s both}
+.chron b{font:700 11px var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--amber);white-space:nowrap}
+.chron p{font-size:13px}
+.chron p span{color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Paddock <b>Principal</b></div>
+  <div class="team"><i></i><div>Elf Team Tyrrell<small>Twój zespół · menedżer: M. Wojnar</small></div></div>
+  <div class="date"><strong>Śr 7 lipca 1976</strong><small>Sezon 1976 · po 8 z 16 rund</small></div>
+  <div class="money">
+    <div><small>Gotówka</small><span class="num">£410 tys.</span></div>
+    <div><small>Zobowiązania</small><span class="num bad">−£290 tys.</span></div>
+    <div><small>Wolne środki</small><span class="num good">£120 tys.</span></div>
+  </div>
+  <button class="go">Dalej <small>→ Pt 9 lip · termin decyzji: Goodyear</small></button>
+</header>
+<div class="shell">
+<nav>
+  <a class="on" href="#"><svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8v8H3z"/></svg>Pulpit</a>
+  <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Skład</a>
+  <a href="#"><svg viewBox="0 0 24 24"><path d="M3 15h18l-2-5H5zM6 15v3M18 15v3"/></svg>Auto</a>
+  <a href="#"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Rozwój</a>
+  <a href="#"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>Skrzynka</a>
+  <a href="#"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8h14M7 14h10"/></svg>Finanse</a>
+  <a href="#"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Rynek</a>
+  <a href="#"><svg viewBox="0 0 24 24"><path d="M5 4h14v16l-7-4-7 4z"/></svg>Kronika</a>
+</nav>
+<main>
+  <section class="p s7">
+    <div class="h"><h2>Następny wyścig</h2><span>Runda 9 z 16</span><span class="r num">za 11 dni</span></div>
+    <div class="b race">
+      <div>
+        <h3>GP Wielkiej Brytanii</h3>
+        <div class="meta">Brands Hatch · układ Grand Prix (1976) · Nd 18 lipca</div>
+        <div class="kv">
+          <div><small>Okrążenia</small><b>76</b></div>
+          <div><small>Długość</small><b>4,207 km</b></div>
+          <div><small>Deszcz</small><b>20%</b></div>
+          <div><small>Znajomość toru</small><b class="good">wysoka</b></div>
+        </div>
+        <div class="quote">„Tor nam leży: dużo hamowania i ciasnych nawrotów. Tracimy na długiej prostej Pilgrim's Drop. Realnie walczymy o podium.”
+          <small>Derek Gardner, główny projektant · prognoza P3–P6 · pewność średnia</small></div>
+      </div>
+      <div class="profile">
+        <div style="font:600 10px var(--display);letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:2px">Profil toru <span style="color:var(--amber)">▎ nasze auto</span></div>
+        <div class="bar">Proste<div class="t"><i style="width:25%"></i><u style="left:31%"></u></div><span class="num">25%</span></div>
+        <div class="bar">Szybkie zakręty<div class="t"><i style="width:30%"></i><u style="left:52%"></u></div><span class="num">30%</span></div>
+        <div class="bar">Wolne zakręty<div class="t"><i style="width:25%"></i><u style="left:78%"></u></div><span class="num">25%</span></div>
+        <div class="bar">Hamowanie<div class="t"><i style="width:20%"></i><u style="left:84%"></u></div><span class="num">20%</span></div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted)">Dopasowanie auta do toru: <b class="good num">4. z 16</b> · średnio w sezonie: <span class="num">7.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="p s5">
+    <div class="h"><h2>Auto na tle stawki</h2><span>Tyrrell P34 · sześć kół</span><span class="r" style="font-size:11px">wg naszego działu</span></div>
+    <div class="b areas">
+      <div class="area"><span class="lbl">Moc</span><div class="ranks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="me"></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="pos bad">10.</span></div>
+      <div class="area"><span class="lbl">Docisk</span><div class="ranks"><i></i><i></i><i></i><i></i><i></i><i class="me"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="pos mid">6.</span></div>
+      <div class="area"><span class="lbl">Przyczepność mech.</span><div class="ranks"><i class="me"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="pos good">1.</span></div>
+      <div class="area"><span class="lbl">Hamowanie</span><div class="ranks"><i></i><i class="me"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="pos good">2.</span></div>
+      <div class="area"><span class="lbl">Niezawodność</span><div class="ranks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="me"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="pos mid">8.</span></div>
+      <div class="legend"><span>najlepszy</span><span>najsłabszy</span></div>
+    </div>
+  </section>
+
+  <section class="p s12">
+    <div class="h"><h2>Kierowcy</h2><span>atrybuty 1–20 · ocena ogólna 1–100</span><span class="r" style="font-size:12px">▲ wzrost w tym sezonie</span></div>
+    <table>
+      <thead><tr><th class="l" style="padding-left:14px">Kierowca</th><th>Ogólna</th><th>Zakręty</th><th>Hamow.</th><th>Płynność</th><th>Wyprz.</th><th>Obrona</th><th>Regul.</th><th>Opan.</th><th>Adapt.</th><th>Deszcz</th><th>Kond.</th><th>Inf. zwr.</th><th>Forma</th><th class="l">Kontrakt i obietnice</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="l" style="padding-left:14px"><div class="drv"><span class="no">3</span><div><b>Jody Scheckter</b><small>RSA · 26 l. · kierowca #1</small></div></div></td>
+          <td><span class="ovr">84</span><span class="up">▲</span></td>
+          <td><span class="a a4">17</span></td><td><span class="a a3">16</span></td><td><span class="a a3">13</span></td><td><span class="a a3">15</span></td><td><span class="a a3">15</span></td><td><span class="a a3">14</span></td><td><span class="a a3">14</span></td><td><span class="a a3">15</span></td><td><span class="a a3">13</span></td><td><span class="a a3">16</span></td><td><span class="a a3">13</span></td>
+          <td><span class="form"><i class="g"></i><i class="g"></i><i class="y"></i><i class="g"></i><i class="r"></i></span></td>
+          <td class="promise">Do końca 1976 · <b>może odejść</b>, jeśli spadniemy poza top 3 konstruktorów<br>Obietnica: <b>lżejsza skrzynia do GP Niemiec</b> · 3 wyścigi<div class="pb"><i style="width:62%"></i></div></td>
+        </tr>
+        <tr>
+          <td class="l" style="padding-left:14px"><div class="drv"><span class="no">4</span><div><b>Patrick Depailler</b><small>FRA · 31 l. · równy status</small></div></div></td>
+          <td><span class="ovr">80</span></td>
+          <td><span class="a a3">16</span></td><td><span class="a a4">17</span></td><td><span class="a a3">14</span></td><td><span class="a a3">14</span></td><td><span class="a a3">13</span></td><td><span class="a a2">12</span></td><td><span class="a a2">12</span></td><td><span class="a a3">14</span></td><td><span class="a a3">15</span></td><td><span class="a a3">14</span></td><td><span class="a a4">17</span></td>
+          <td><span class="form"><i class="y"></i><i class="g"></i><i class="g"></i><i class="y"></i><i class="g"></i></span></td>
+          <td class="promise">Do końca 1977 · premia £2 tys. za podium<br><span style="color:var(--muted)">Zaufanie do zespołu: wysokie · brak otwartych obietnic</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="p s5">
+    <div class="h"><h2>Skrzynka</h2><span>3 sprawy · 1 wymaga decyzji</span></div>
+    <div class="msg">
+      <span class="tag dec">Decyzja</span>
+      <h4>Goodyear proponuje przedłużenie umowy na lata 1977–79</h4>
+      <p>Chcą nadal rozwijać z nami małe przednie opony 10″. Odpowiedź do Pt 9 lip.</p>
+      <div class="opts">
+        <div class="opt"><b>Podpisz</b><span><em>+ wspólny rozwój przednich opon</em><br><em>+ £40 tys./rok</em><br><strong>− wyłączność do 1979</strong></span></div>
+        <div class="opt"><b>Odmów</b><span><em>+ swoboda wyboru na 1977</em><br><strong>− koniec prac nad oponami 10″</strong><br><strong>− P34 bez rozwoju opon</strong></span></div>
+      </div>
+    </div>
+    <div class="msg"><span class="tag inf">Raport</span><h4>Przednie opony zużywają się szybciej, niż zakładaliśmy</h4><p>Gardner: na Brands Hatch spodziewamy się o ok. 8 okrążeń krótszego stintu. Strateg rozważa późniejszy postój.</p></div>
+    <div class="msg"><span class="tag tal">Talent</span><h4>Skaut: Didier Pironi, 24 l., Formuła 2</h4><p>Zakręty 14–17 · Opanowanie 12–16 · cechy nieznane. Kontrakt w F2 kończy się w 1977.</p></div>
+  </section>
+
+  <section class="p s4">
+    <div class="h"><h2>Rozwój</h2><span>podział: 60 / 15 / 25</span></div>
+    <div class="b">
+      <div class="proj"><div class="row">Przednie zawieszenie (bieżące auto)<span class="num">62% · 3 tyg.</span></div><div class="prog"><i style="width:62%"></i></div><small>Cel: przyczepność mech. i przednie opony</small></div>
+      <div class="proj"><div class="row">Konto rozwoju<span class="num">+1,8 pkt odłożone</span></div><small>Straci ok. 30% wartości, jeśli regulamin 1977 zmieni wymiary kół.</small></div>
+      <div class="proj"><div class="row">Koncepcja 1977: P34B<span class="num">zamrożenie za 5 tyg.</span></div><div class="prog"><i style="width:28%;background:var(--amber)"></i></div>
+        <div class="range">Zapas koncepcji<div class="rt"><i style="left:35%;width:30%"></i></div><span class="num">4–7 pkt</span></div>
+        <small>Szacunek Gardnera · pewność średnia</small></div>
+    </div>
+  </section>
+
+  <section class="p s3">
+    <div class="h"><h2>Mistrzostwa</h2><span>kierowcy</span></div>
+    <table class="st"><tbody>
+      <tr><td class="num">1</td><td class="l">N. Lauda</td><td class="num">43</td></tr>
+      <tr class="me"><td class="num">2</td><td class="l">J. Scheckter</td><td class="num">31</td></tr>
+      <tr><td class="num">3</td><td class="l">J. Hunt</td><td class="num">26</td></tr>
+      <tr class="me"><td class="num">4</td><td class="l">P. Depailler</td><td class="num">20</td></tr>
+      <tr><td class="num">5</td><td class="l">C. Regazzoni</td><td class="num">16</td></tr>
+      <tr><td class="num">6</td><td class="l">J. Mass</td><td class="num">12</td></tr>
+    </tbody></table>
+  </section>
+
+  <div class="chron"><b>Kronika rozbieżności</b><p>W prawdziwym 1976 Hunt zdobył tytuł jednym punktem. <span>U Ciebie po 8 rundach prowadzi Lauda, 12 pkt przed Scheckterem, a Hunt jest trzeci.</span></p></div>
+</main>
+</div>
+</body>
+</html>

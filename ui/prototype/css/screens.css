@@ -1,0 +1,165 @@
+/* ---------- Pulpit ---------- */
+.dash{height:100%;display:grid;grid-template-columns:340px minmax(0,1fr) 310px;gap:22px}
+.dash .inbox{display:flex;flex-direction:column}
+.dash .inbox .list{flex:1;min-height:0;overflow:hidden}
+.dash .inbox footer{margin-top:auto}
+.race{padding:22px 24px;position:relative;overflow:hidden;flex:none}
+.race .ring{position:absolute;right:-64px;top:-64px;width:190px;height:190px;border-radius:50%;
+  background:conic-gradient(var(--a1) 0 25%,var(--a2) 0 50%,var(--a3) 0 75%,transparent 0);mask:radial-gradient(circle,transparent 57%,#000 58%)}
+.race h1{font:900 clamp(44px,5.4vh,62px)/.82 var(--display);text-transform:uppercase;letter-spacing:-.01em;position:relative;max-width:80%}
+.race .where{color:var(--ink2);margin-top:10px}
+.facts{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:28px;margin-top:16px;padding:12px 0;border-block:1px solid var(--rule)}
+.facts div{display:grid;gap:2px;white-space:nowrap}
+.facts .num{font-size:16px}
+.voice{display:grid;grid-template-columns:44px 1fr;gap:14px;margin-top:16px}
+.voice .av{width:44px;height:44px;background:var(--t1);color:var(--on1);font-size:17px}
+.voice p{font:500 17px/1.4 var(--ui)}
+.voice small{display:block;margin-top:6px;font-size:13px;color:var(--ink2)}
+.voice small b{color:var(--ink)}
+.strengths{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
+.strengths div{display:grid;gap:3px;font-weight:600;font-size:14px}
+.monthly{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.monthly .mast{display:flex;align-items:baseline;justify-content:space-between;padding:15px 22px;background:var(--ink);color:#f7eedd;border-radius:20px 20px 0 0}
+.monthly .mast b{font:900 26px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
+.monthly .mast span{font:500 13px var(--ui);color:color-mix(in oklab,#f7eedd 72%,var(--t2))}
+.stories{flex:1;min-height:0;display:grid;grid-template-columns:1.3fr 1fr}
+.stories .lead{padding:18px 22px;border-right:1px solid var(--rule);display:flex;flex-direction:column}
+.stories .lead h3{font-size:34px;line-height:.95;margin-bottom:12px}
+.stories .lead p{color:var(--ink2);margin-bottom:12px}
+.stories .lead .link{margin-top:auto}
+.stories .side{padding:4px 22px;overflow:hidden}
+.stories .side a{display:block;padding:11px 0;border-bottom:1px solid var(--rule);text-decoration:none}
+.stories .side a:last-child{border:0}
+.stories .side .t{font:600 15px/1.3 var(--ui)}
+.stories .side .s{font-size:13px;color:var(--ink2);margin-top:2px}
+.crow{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:6px 22px}
+.panel .body .crow{padding:8px 0}
+.crow .num{font-size:15px}
+.crow .bar{grid-column:1/3}
+.car footer{margin-top:4px}
+.stand{flex:1;display:flex;flex-direction:column}
+.stand .tabs{padding:0 22px 8px}
+.stand .table td{padding-top:6px;padding-bottom:6px}
+.stand .table td:first-child{padding-left:22px}.stand .table td:last-child{padding-right:22px}
+.stand footer{margin-top:auto}
+
+/* ---------- Skrzynka ---------- */
+.mailbox{display:grid;grid-template-columns:400px 1fr;gap:22px;height:calc(100% - 84px)}
+.mailbox .list{overflow:auto}
+.mailbox .list .mail:first-child{border-top:0;border-radius:20px 20px 0 0}
+.reader{padding:26px 30px;overflow:auto}
+.rhead{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.av.big{width:52px;height:52px;font-size:20px;background:var(--ink);color:var(--t2)}
+.rhead h2{font-size:32px;margin-top:2px}
+.letter{font-size:17px;line-height:1.55;max-width:65ch}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:22px}
+.hint{margin-top:16px;font-size:14px}
+
+/* ---------- Kalendarz ---------- */
+.cal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.rnd{display:grid;grid-template-columns:34px 1fr;gap:4px 12px;align-items:start;padding:16px 18px;border-radius:18px;border:1.5px solid color-mix(in oklab,var(--ink) 80%,transparent);background:color-mix(in oklab,var(--card) 88%,transparent);backdrop-filter:blur(12px)}
+.rnd>.num{font:900 30px/1 var(--display);color:var(--ink3)}
+.rnd b{display:block;font:900 20px/1 var(--display);text-transform:uppercase;margin-top:3px}
+.rnd small{color:var(--ink2)}
+.rnd .res,.rnd .chip{grid-column:2;display:flex;justify-content:space-between;margin-top:8px;font-size:13px}
+.rnd .chip{justify-self:start}
+.rnd.past{opacity:.72}
+.rnd.next{background:var(--t1);color:var(--on1);border-color:var(--t1)}
+.rnd.next small,.rnd.next .meta,.rnd.next>.num{color:color-mix(in oklab,var(--on1) 80%,transparent)}
+.rnd.next .chip{background:var(--t2);color:var(--ink)}
+
+/* ---------- tabele w panelach ---------- */
+.tbl{overflow:hidden}
+.tbl>.table th:first-child,.tbl>.table td:first-child{padding-left:22px}
+.tbl>.table th:last-child,.tbl>.table td:last-child{padding-right:22px}
+.tbl>header+.table th{border-top:0}
+.market{max-height:calc(100% - 90px);overflow:auto}
+.search{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;background:color-mix(in oklab,var(--ink) 7%,transparent);color:var(--ink2)}
+.search input{border:0;background:none;outline:none;width:170px;color:var(--ink)}
+
+/* ---------- Profil kierowcy ---------- */
+.profile{display:grid;gap:22px}
+.profile .hero{display:flex;align-items:center;gap:26px;padding:18px 28px;background:linear-gradient(110deg,var(--t1) 0 150px,color-mix(in oklab,var(--card) 90%,transparent) 150px)}
+.num-big{font:900 110px/.8 var(--display);color:var(--on1);width:100px;text-align:center}
+.profile .hero .tools{margin-left:auto;display:flex;gap:10px}
+.profile .stats b{font-size:16px}
+.attrs .arow{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:center;padding:3px 0}
+.attrs .arow .bar{grid-column:1/3}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.clauses{list-style:none;display:grid;gap:8px}
+.clauses li{padding:9px 12px;border-radius:12px;background:var(--tint);font-size:14px}
+.promise{background:color-mix(in oklab,var(--t2) 14%,var(--card))}
+
+/* ---------- Porównanie ---------- */
+.cmprow{display:grid;grid-template-columns:28px 1fr 90px 1fr 28px;gap:10px;align-items:center;padding:6px 0}
+.cmprow .lbl{text-align:center;font-weight:600;font-size:14px}
+.bar.rev{transform:scaleX(-1)}
+.duel{display:flex;align-items:center;justify-content:center;gap:26px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.duel div{display:grid;justify-items:center}
+.num.big{font:900 54px/1 var(--display)}
+.vs{font:900 40px var(--display);color:var(--ink3)}
+
+/* ---------- Personel ---------- */
+.sattr{display:inline-flex;align-items:center;gap:4px;margin-right:12px;font-size:13.5px;color:var(--ink2)}
+.dept{display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule)}
+.dept small{display:block}
+.dnum,.dq{display:grid;justify-items:center}
+.dnum .num{font-size:22px}
+
+/* ---------- Auto ---------- */
+.proj{padding:12px 0;border-bottom:1px solid var(--rule)}
+.proj:last-child{border:0}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.proj .muted{font-size:13.5px}
+.split{display:flex;gap:4px;height:34px;border-radius:12px;overflow:hidden}
+.split i{display:grid;place-items:center;color:#fff;font:600 13px var(--ui);font-style:normal;white-space:nowrap;overflow:hidden}
+.axis{padding:9px 0}
+.alab{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2);margin-bottom:6px}
+.alab b{color:var(--ink);font-size:14px}
+.atrack{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--t1),color-mix(in oklab,var(--ink) 10%,transparent) 50%,var(--t2));position:relative}
+.atrack i{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--card);border:2.5px solid var(--ink);transform:translate(-50%,-50%)}
+
+/* ---------- Finanse ---------- */
+.kv.big{font-size:17px;gap:12px 18px}
+.mchart{display:flex;align-items:flex-end;gap:14px;height:170px;padding-top:10px}
+.mcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
+.mbar{width:100%;max-width:48px;border-radius:8px 8px 3px 3px;animation:fill .9s var(--ease) both;transform-origin:bottom}
+.mbar.pos{background:var(--good)}.mbar.neg{background:var(--bad)}.mbar.fut{background:var(--rule)}
+
+/* ---------- Zarząd ---------- */
+.goal{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.gi{width:28px;height:28px;border-radius:50%;display:grid;place-items:center}
+.gi.ok{background:color-mix(in oklab,var(--good) 18%,transparent);color:var(--good)}
+.gi.open{background:var(--tint);color:var(--ink3)}
+
+/* ---------- Paddock Monthly ---------- */
+.magazine{max-width:1180px;margin:0 auto;background:color-mix(in oklab,#fbf6ea 94%,var(--t1));border:1.5px solid var(--ink);border-radius:8px;box-shadow:0 30px 60px -30px rgba(0,0,0,.45);padding:26px 38px 34px}
+.mhead{display:grid;grid-template-columns:1fr auto;align-items:end;border-bottom:3px double var(--ink);padding-bottom:10px}
+.mhead b{font:900 64px/.85 var(--display);text-transform:uppercase;letter-spacing:.01em}
+.mhead span{font:500 14px var(--ui);color:var(--ink2)}
+.msecs{grid-column:1/3;display:flex;gap:22px;margin-top:12px}
+.msecs a{font:600 13px var(--ui);text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);cursor:pointer;padding-bottom:4px}
+.msecs a.on{color:var(--ink);box-shadow:inset 0 -2px var(--t2)}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:20px}
+.mgrid article{padding:0 22px 22px;border-left:1px solid var(--rule)}
+.mgrid article:nth-child(3n+1){border-left:0;padding-left:0}
+.mlead{grid-column:1/3;grid-row:span 2;padding-right:30px!important}
+.mlead h1{font:900 64px/.88 var(--display);text-transform:uppercase;margin:6px 0 14px}
+.mlead p{font-size:18px;line-height:1.55;color:var(--ink2);margin-bottom:14px}
+.mstory h2{font-size:24px;line-height:1;margin:6px 0 8px}
+.mstory p{font-size:14.5px;color:var(--ink2);margin-bottom:8px}
+.msec{font:700 12px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--e1)}
+
+/* ---------- Kronika ---------- */
+.timeline{padding:10px 26px}
+.tl{display:grid;grid-template-columns:140px 1fr;gap:20px;padding:16px 0;border-bottom:1px solid var(--rule)}
+.tl:last-child{border:0}
+.tl b{font-size:17px}
+
+/* ---------- Ustawienia ---------- */
+.srow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.srow:last-child{border:0}
+.srow small{display:block;font-size:13px}
+.sw{display:flex;gap:8px}
+.sw button{all:unset;cursor:pointer;width:24px;height:24px;border-radius:50%;box-shadow:0 0 0 2px var(--card),0 0 0 3px var(--rule)}
+.sw button.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}

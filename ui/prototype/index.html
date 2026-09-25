@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paddock Principal · prototyp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/screens.css">
+</head>
+<body data-team="tyrrell" data-style="era">
+<canvas id="air" aria-hidden="true"></canvas>
+<div class="app">
+  <aside>
+    <div class="crest"><div class="team" id="teamname">Elf Team<span>Tyrrell</span></div></div>
+    <nav id="nav"></nav>
+    <div class="foot" id="navfoot"></div>
+    <div class="stripes"></div>
+  </aside>
+  <div class="content">
+    <header class="top">
+      <div class="day"><b id="date">Środa, 7 lipca 1976</b><small id="datesub">runda 9 z 16 · Brands Hatch za 11 dni</small></div>
+      <div class="cash">
+        <div><span class="meta">Wolne środki</span><span class="num good">£120 tys.</span></div>
+        <div><span class="meta">Gotówka</span><span class="num">£410 tys.</span></div>
+      </div>
+      <a class="me" href="#/menedzer" style="margin-left:auto"><span class="av">MW</span><span><b>M. Wojnar</b><small>szef zespołu</small></span></a>
+      <button class="go" id="go" style="margin-left:0"><span><b>Dalej</b><small>Pt 9 lip · najpierw decyzja</small></span><span class="arr"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

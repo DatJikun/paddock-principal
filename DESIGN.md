@@ -188,6 +188,18 @@ Do tego wybrane technologie z drzewa (§4.2). **Jakość wykonania** zależy od 
 
 Decyzja „czekać czy wdrażać” to kompromis: wcześniejsze wdrożenie daje punkty teraz, ale kosztuje zrozumienie i ryzyko. Podział zasobów między poprawki bieżącego auta, konto rozwoju i projekt nowej koncepcji ustawiasz sam albo zostawiasz dyrektorowi technicznemu (PP-029).
 
+**Ilu ludzi i jak dobrzy (zasada ogólna dla rozwoju):** liczba ludzi przypisanych do projektu decyduje o **czasie**. O **jakości** decydują kluczowi ludzie, infrastruktura i budżet. Dorzucenie 50 inżynierów skraca projekt, ale nie robi z przeciętnej koncepcji genialnej.
+
+**Nowe auto startuje z części własnego potencjału.** Z koncepcji na przyszły rok samochód dostaje na start tylko pewien procent sufitu, a resztę trzeba wyrobić rozwojem w sezonie. Filozofia projektu przesuwa ten kompromis:
+- ostrożna: mocniejszy start, niższy sufit;
+- eksperymentalna: słabszy start, wyższy sufit, większy rozrzut.
+
+To dokładnie pasuje do modelu zapasu opisanego wyżej.
+
+**Moment zamrożenia koncepcji:** projekt na przyszły rok bierze za punkt wyjścia stan auta w chwili zatwierdzenia koncepcji. Poprawki wprowadzone później pomagają już tylko temu sezonowi. Decyzja „kiedy zamrozić” jest więc realnym wyborem, a konto rozwoju pozwala część późniejszej pracy przenieść dalej.
+
+**Wcześniejsze zakończenie projektu:** każdy projekt można zamknąć przed czasem. Dostajesz wtedy proporcjonalną część efektu. Przydaje się, gdy zbliża się ważny wyścig albo kończą się pieniądze.
+
 **Zrozumienie części:** nowa część czy nowy pakiet nie daje pełnych osiągów od razu. Zespół musi go **zrozumieć** przez testy, kilometry w wyścigach i pracę inżynierów (procent zrozumienia na projekt). Limity testów z regulaminu sprawiają, że wprowadzenie dużej poprawki w połowie sezonu to realny koszt.
 
 ### 5.4. Osiągi, silnik, opony
@@ -203,6 +215,9 @@ Decyzja „czekać czy wdrażać” to kompromis: wcześniejsze wdrożenie daje 
   - **Umowy wieloletnie** budują relację: im dłużej i lepiej, tym więcej wspólnego rozwoju (np. Ferrari i Shell).
   - **Zespół numer 1 u dostawcy** (najlepszy wśród jego klientów) współtworzy z nim technologię i dostaje ją pierwszy. Inni klienci dostają ją później albo w słabszej wersji.
   - **Każdy dostawca ma swoje plusy i minusy** (np. paliwo mocniejsze, ale mniej wydajne; opona szybka, ale kapryśna). Wybór jest kompromisem, a nie rankingiem.
+  - **Silnik zeszłoroczny:** najtańsza opcja awaryjna. Tańszy, ale wolniejszy i bez rozwoju (historycznie np. Toro Rosso).
+  - **Umowa partnerska może kosztować udziały:** producent daje darmowe albo tańsze silniki w zamian za udział w zespole na czas kontraktu (§3.4). Partner dostaje też prawo wpływu na kierunek rozwoju dostawcy (moc, niezawodność, wydajność) i może go dofinansować.
+  - **Rozwój dostawcy przez zespół fabryczny poprawia produkt dla wszystkich jego klientów,** więc pomagasz też rywalom na tych samych oponach czy silnikach.
   - **Wojny oponiarskie** (Goodyear–Firestone, Michelin–Bridgestone): opona dostrojona pod zespół partnerski potrafi zmienić układ sił.
 
 ---
@@ -283,7 +298,7 @@ Personel ma analogiczny profil: tożsamość, atrybuty roli, osobowość, stan, 
   - **liczebność** (zatrudniasz i zwalniasz ludzi grupami),
   - **średnią jakość** (poziom rekrutacji i szkolenia),
   - **koszt na osobę**.
-- **Wydajność działu** = liczebność × jakość × skuteczność szefa × jakość infrastruktury, **z malejącymi korzyściami**. Każdy kolejny człowiek daje mniej, a zbyt duży dział traci na koordynacji. Nie da się wygrać samym zatrudnianiem.
+- **Liczebność decyduje o tempie, jakość o wyniku:** więcej ludzi to szybciej ukończone projekty (z malejącymi korzyściami), a jakość efektu zależy od kluczowych ludzi, średniego poziomu działu, infrastruktury i budżetu. Każdy kolejny człowiek daje mniej, a zbyt duży dział traci na koordynacji. Nie da się wygrać samym zatrudnianiem.
 - **Zatrudnianie trwa** (rekrutacja, wdrożenie), a zwolnienia obniżają morale. W erze limitu wydatków liczebność ogranicza budżet.
 - **Talenty z wnętrza działów:** co jakiś czas w dziale wyrasta ktoś wybitny, kto może awansować na kluczowe stanowisko. W trybie historycznym prawdziwi inżynierowie zaczynają właśnie tak (Adrian Newey zaczynał jako młody inżynier w Fittipaldi w 1980).
 
@@ -365,6 +380,10 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 - **Przychody według epoki:** pieniądze startowe → sponsorzy (od 1968) → TV i umowa Concorde → nagrody za pozycję w konstruktorach, sprzedaż silników i samochodów klienckich.
 - **Koszty:** pensje, projekt i budowa aut, silniki, podróże, infrastruktura (także jej starzenie się, §4.3), naprawy po wypadkach.
 - **Sponsorzy** to rynek z celami, a jego wielkość w każdym kraju wynika z popularności. Sponsorzy mają **branże** zmieniające się z epokami: paliwa i opony w latach 50., tytoń od 1968 do zakazów w latach 2000., alkohol, banki, telekomy, IT, kryptowaluty. Zakaz reklamy tytoniu to w trybie historycznym realny szok finansowy dla zespołów od niej zależnych.
+  - **Miejsca na aucie:** główne, drugorzędne, mniejsze. Każde daje inną część kwoty.
+  - **Sponsor tytularny zmienia nazwę zespołu** (historycznie np. „Marlboro McLaren”, „Mild Seven Benetton”). Wymaga prestiżu i długiej umowy, może też chcieć udziałów.
+  - **Rozmowy przyspieszają:** zgodna narodowość sponsora i kierowcy, prestiż zespołu, przedłużenie istniejącej umowy.
+  - **Rozmowy spowalniają:** konflikt branż, bo dwa koncerny paliwowe na jednym aucie nie przejdą.
 - **Gotówka to nie budżet:** UI rozróżnia gotówkę, zobowiązania, pewne przychody i prognozę. Jeśli czegoś nie da się kupić, gra mówi dokładnie dlaczego.
 - **Kwoty nominalne:** UI pokazuje prawdziwe kwoty, które z biegiem lat rosną razem ze sportem.
 
@@ -382,6 +401,10 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
   - **zwolnienie za kwotę:** rzadkie, ale możliwe (historycznie wykupy kontraktów się zdarzały).
 - Każdą klauzulę można negocjować. Obie strony wyceniają ją według swojej osobowości i sytuacji. Złamanie klauzuli jest sprawą w skrzynce i uderza w zaufanie (§6.3).
 - **Negocjacje z ludźmi, a nie z paskami:** UI pokazuje powody odmowy lub zgody.
+  - **Ograniczona liczba prób:** zwykle kilka, u niecierpliwych mniej. Kolejne drobne podbijanie pensji o grosze irytuje drugą stronę i obniża jej zainteresowanie. Liczy się realna zmiana oferty (status, klauzula, lata), a nie klikanie suwaka.
+  - **Rywale składają oferty równolegle.** Kierowca porównuje wszystkie akceptowalne oferty, a przy remisie przesądza zaufanie (§6.3). Obecny zespół nie wygrywa automatycznie.
+  - **Kierowcy i personel sami zgłaszają się z propozycjami** („jestem zainteresowany, oto moje warunki”).
+- **Umowy handlowe (sponsorzy, dostawcy) prowadzi dział komercyjny.** Jego liczebność i jakość decydują o tym, ile rozmów prowadzisz naraz i jak szybko idą. **Im dłużej negocjujesz, tym lepsze warunki możesz wynegocjować, ale rywal może w tym czasie podpisać umowę przed Tobą.** Pytanie „podpisać teraz czy czekać” jest świadomym ryzykiem, a gra pokazuje, kto jeszcze rozmawia z tym partnerem (o ile to wiesz).
 - **Dynamika okna transferowego:** negocjacje trwają tygodnie. Liczba prowadzonych naraz rozmów zależy od ludzi i infrastruktury, a im później w sezonie, tym mniej wolnych miejsc i krótsze okna decyzji. Kierowca bez miejsca pod koniec sezonu obniża oczekiwania. Spóźnienie na rynek kosztuje stanem rynku, a nie zablokowanym przyciskiem.
 - **Scouting:** obcy zawodnicy mają atrybuty w pasmach (np. 12–16), które zawężają się dzięki obserwacji, wspólnym startom albo podpisaniu kontraktu.
 

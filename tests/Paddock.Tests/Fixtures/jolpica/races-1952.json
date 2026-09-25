@@ -1,0 +1,30 @@
+{
+  "MRData": {
+    "limit": "100",
+    "offset": "0",
+    "total": "1",
+    "RaceTable": {
+      "season": "1952",
+      "Races": [
+        {
+          "season": "1952",
+          "round": "6",
+          "url": "https://en.wikipedia.org/wiki/1952_German_Grand_Prix",
+          "raceName": "German Grand Prix",
+          "Circuit": {
+            "circuitId": "nurburgring",
+            "url": "https://en.wikipedia.org/wiki/Nürburgring",
+            "circuitName": "Nürburgring",
+            "Location": {
+              "lat": "50.3356",
+              "long": "6.9475",
+              "locality": "Nürburg",
+              "country": "Germany"
+            }
+          },
+          "date": "1952-08-03"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "MRData": {
+    "limit": "100",
+    "offset": "0",
+    "total": "4",
+    "CircuitTable": {
+      "Circuits": [
+        {
+          "circuitId": "indianapolis",
+          "url": "https://en.wikipedia.org/wiki/Indianapolis_Motor_Speedway",
+          "circuitName": "Indianapolis Motor Speedway",
+          "Location": {
+            "lat": "39.795",
+            "long": "-86.2347",
+            "locality": "Indianapolis",
+            "country": "USA"
+          }
+        },
+        {
+          "circuitId": "interlagos",
+          "url": "https://en.wikipedia.org/wiki/Interlagos_Circuit",
+          "circuitName": "Autódromo José Carlos Pace",
+          "Location": {
+            "lat": "-23.7036",
+            "long": "-46.6997",
+            "locality": "São Paulo",
+            "country": "Brazil"
+          }
+        },
+        {
+          "circuitId": "nurburgring",
+          "url": "https://en.wikipedia.org/wiki/Nürburgring",
+          "circuitName": "Nürburgring",
+          "Location": {
+            "lat": "50.3356",
+            "long": "6.9475",
+            "locality": "Nürburg",
+            "country": "Germany"
+          }
+        },
+        {
+          "circuitId": "silverstone",
+          "url": "https://en.wikipedia.org/wiki/Silverstone_Circuit",
+          "circuitName": "Silverstone Circuit",
+          "Location": {
+            "lat": "52.0786",
+            "long": "-1.01694",
+            "locality": "Silverstone",
+            "country": "UK"
+          }
+        }
+      ]
+    }
+  }
+}

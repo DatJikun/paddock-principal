@@ -1,0 +1,54 @@
+{
+  "MRData": {
+    "limit": "1",
+    "offset": "0",
+    "total": "153",
+    "RaceTable": {
+      "season": "1952",
+      "Races": [
+        {
+          "season": "1952",
+          "round": "6",
+          "url": "https://en.wikipedia.org/wiki/1952_German_Grand_Prix",
+          "raceName": "German Grand Prix",
+          "Circuit": {
+            "circuitId": "nurburgring",
+            "circuitName": "Nürburgring",
+            "Location": {
+              "lat": "50.3356",
+              "long": "6.9475",
+              "locality": "Nürburg",
+              "country": "Germany"
+            }
+          },
+          "date": "1952-08-03",
+          "Results": [
+            {
+              "number": "105",
+              "position": "25",
+              "positionText": "D",
+              "points": "0",
+              "Driver": {
+                "driverId": "bonetto",
+                "url": "http://en.wikipedia.org/wiki/Felice_Bonetto",
+                "givenName": "Felice",
+                "familyName": "Bonetto",
+                "dateOfBirth": "1903-06-09",
+                "nationality": "Italian"
+              },
+              "Constructor": {
+                "constructorId": "maserati",
+                "url": "https://en.wikipedia.org/wiki/Maserati",
+                "name": "Maserati",
+                "nationality": "Italian"
+              },
+              "grid": "10",
+              "laps": "1",
+              "status": "Disqualified"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

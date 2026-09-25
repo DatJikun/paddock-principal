@@ -15,6 +15,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Paddock.Domain\Paddock.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Paddock.Data\Paddock.Data.csproj" />
+    <ProjectReference Include="..\..\tools\Paddock.DataPipeline\Paddock.DataPipeline.csproj" />
     <ProjectReference Include="..\..\tools\Paddock.SimRunner\Paddock.SimRunner.csproj" />
   </ItemGroup>
 </Project>

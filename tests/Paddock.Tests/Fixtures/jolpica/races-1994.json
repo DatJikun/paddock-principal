@@ -1,0 +1,30 @@
+{
+  "MRData": {
+    "limit": "100",
+    "offset": "0",
+    "total": "1",
+    "RaceTable": {
+      "season": "1994",
+      "Races": [
+        {
+          "season": "1994",
+          "round": "1",
+          "url": "https://en.wikipedia.org/wiki/1994_Brazilian_Grand_Prix",
+          "raceName": "Brazilian Grand Prix",
+          "Circuit": {
+            "circuitId": "interlagos",
+            "url": "https://en.wikipedia.org/wiki/Interlagos_Circuit",
+            "circuitName": "Autódromo José Carlos Pace",
+            "Location": {
+              "lat": "-23.7036",
+              "long": "-46.6997",
+              "locality": "São Paulo",
+              "country": "Brazil"
+            }
+          },
+          "date": "1994-03-27"
+        }
+      ]
+    }
+  }
+}

@@ -9,6 +9,16 @@ people, where history can be changed. The owner (DatJikun) reviews; agents build
 2. `ROADMAP.md` — which phase is current. Work on the current phase only.
 3. `DESIGN.md` (game systems) and `TECH.md` (architecture, invariants) as needed.
 
+## Workflow (PP-024)
+- Claude (reviewer/architect) writes tasks as GitHub Issues with acceptance
+  criteria. Implement exactly the issue; if the issue is ambiguous or conflicts
+  with VISION/TECH, stop and ask in the issue instead of guessing.
+- One issue = one branch (`feat/<issue#>-short-name`) = one PR referencing the
+  issue. Never push to `main`, never merge your own PR.
+- A PR is ready when: builds, all tests pass, new behaviour has tests, and the
+  PR description says what changed, why, and what was NOT done.
+- Don't refactor or "improve" code outside the issue's scope — note it in the PR.
+
 ## Hard rules
 - **Invariants in TECH §3 are non-negotiable**: no game logic in UI, determinism,
   isolated RNG streams, truth vs knowledge, passive Spy, stable IDs.

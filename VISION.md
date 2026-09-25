@@ -47,6 +47,14 @@ Silnik działa również na fikcyjnych danych. Prawdziwe nazwiska, zespoły i to
 | **Proceduralny** | wybrany rok lub „dziś” | generator | historyczna lub proceduralna oś czasu |
 | **Wyzwania** (później) | scenariusz | jak wyżej | jak wyżej |
 
+## Konkurencja i pozycjonowanie
+
+Najbliższy konkurent to **Team Principal: A Racing Manager** (Steam, wczesny dostęp od 02.2026): głęboki menedżer w stylu Grand Prix World, w którym da się edytować wszystko, a epoki są migawkami sezonów robionymi przez modderów. Nie ścigamy się z nim na „więcej funkcji” ani na „edytuj wszystko”. Wyróżniamy się trzema rzeczami, w tej kolejności:
+
+1. **Najlepszy UI w gatunku.** Czytelny, gęsty, piękny; każda blokada i każda decyzja wyjaśniona (STATE / WHY / FORECAST). Ich największa słabość to brak onboardingu i niewyjaśnione blokady.
+2. **Ciągła historia jako rdzeń gry, a nie mod:** ludzie według harmonogramu, epoki, technologie, propozycje historyczne, kronika rozbieżności.
+3. **Polski i angielski.**
+
 ## Czego NIE robimy
 
 - Nie wymuszamy prawdziwych transferów ani wyników.
@@ -117,3 +125,13 @@ D-006 (postęp w dniach, sterowany zdarzeniami), D-007 (stabilne ID nigdy nieuż
 **PP-021: Dwa języki: polski i angielski.** Kod, identyfikatory i commity są po angielsku. Wszystkie teksty dla gracza idą przez klucze tłumaczeń od pierwszego dnia (także w CLI). Dokumentacja projektu zostaje po polsku.
 
 **PP-022: Repozytorium jest publiczne** (github.com/DatJikun/paddock-principal), a pomagają w nim również agenci AI znajomych. Zasady pracy dla nich są w AGENTS.md. Dane historyczne w repo muszą mieć zgodną licencję i atrybucję (TECH §6.1).
+
+### Przyjęte 2026-09-25 (czwarta runda)
+
+**PP-023: UI to główny wyróżnik, więc nie zostawiamy go na koniec** (uzupełnia PP-020). Grywalne ekrany nadal powstają po backendzie, ale **język wizualny** (makiety, typografia, kolory, komponenty tabel) tworzymy równolegle od fazy 1. Backend od początku zwraca to, czego UI potrzebuje: stan, powody i prognozy, a nie tylko liczby.
+
+**PP-024: Podział pracy.**
+- **Claude:** decyzje, architektura, specyfikacje zadań, review, UI.
+- **Grok 4.7 (Cursor):** implementuje dobrze opisane zadania backendowe.
+
+Zadania są opisane jako GitHub Issues z kryteriami akceptacji. Implementacja idzie na gałęzi, jako PR, po review Claude'a, a merge robi właściciel albo Claude po review. Zasady dla kodera są w AGENTS.md.

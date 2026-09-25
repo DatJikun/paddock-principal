@@ -11,6 +11,11 @@
 - [x] push na GitHub (github.com/DatJikun/paddock-principal)
 - [x] odpowiedzi na otwarte pytania
 
+## Tor równoległy: język wizualny (od fazy 1, PP-023)
+- 2–3 kierunki wizualne jako statyczne makiety HTML (pulpit, tabela kierowców, profil kierowcy, kronika) do Twojego wyboru.
+- Wybrany kierunek staje się design systemem: typografia, kolory, gęsta tabela, karty, wykresy, stany pusty/błąd/blokada z wyjaśnieniem.
+- Po fazie 5 z tych komponentów składamy prawdziwe ekrany (faza 6).
+
 ## Faza 1: Pipeline danych historycznych (test wykonalności)
 Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - `DataPipeline`: import F1 1950–2025 z Jolpica-F1 (kierowcy, konstruktorzy, tory, wyniki, kwalifikacje) do lokalnego cache.
@@ -54,7 +59,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 
 ## Faza 6: UI (HTML/TS/Svelte w Photino)
 - Most JSON, tryb deweloperski w przeglądarce, zrzuty ekranu do przeglądu.
-- Kierunek wizualny najpierw jako 2–3 statyczne makiety do Twojego wyboru, potem właściwe ekrany: gęste tabele, ekran wyścigu, kronika.
+- Prawdziwe ekrany z design systemu (tor równoległy): gęste tabele, ekran wyścigu, kronika, onboarding.
 
 ## Faza 7+: Rozszerzenia
 Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyścigi 24h z wcześniejszych ustaleń), tryb proceduralny od zera, wyzwania, edytor bazy, paczka fikcyjna, wydanie.

@@ -1,0 +1,14 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+# saves & caches
+*.paddock
+data/cache/
+# web ui
+node_modules/
+dist/
+# os
+Thumbs.db
+.DS_Store

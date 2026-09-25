@@ -109,7 +109,9 @@ Każdy wpis zmienia parametry od danego sezonu. Przykłady z historii F1:
 | 1993 | samochód bezpieczeństwa | przebieg wyścigu |
 | 2009+ | budżety ograniczane (limit wydatków od 2021) | ekonomia |
 
-Pełną oś czasu budujemy w fazie 1 razem z danymi. Lista wymiarów regulaminu do sparametryzowania: samochód bezpieczeństwa (brak / fizyczny / też wirtualny), przydział opon i mieszanki, masa minimalna, pomoce elektroniczne (kontrola trakcji, ABS, aktywne zawieszenie, aktywna aerodynamika), DRS, ERS, tankowanie i pojemność zbiornika, punktacja, format kwalifikacji, podział nagród, limity testów, limit wydatków, silniki (pojemność, turbo, hybryda).
+Pełną oś czasu budujemy w fazie 1 razem z danymi (**zadanie badawcze dla Groka**, patrz ROADMAP). Katalog zasad jest wspólny dla trybu historycznego (prawdziwe daty) i proceduralnego (zasady proponowane i głosowane). Przykłady spoza oczywistych: odwrócona kolejność startowa albo odwrócona kolejność mistrzostw, balast za sukcesy, zasady typu spec (silnik, zawieszenie, ECU, części standardowe), monopol vs wojna oponiarska, samochody klienckie dozwolone lub nie, podwójne punkty w finale (2014), wyścigi sprinterskie, zakaz poleceń zespołowych (2002–2010), parc fermé (od 2003), zakaz testów w sezonie (od 2009), ruchomy limit testów aero zależny od pozycji w mistrzostwach (od 2021), limity jednostek napędowych z karami. Lista wymiarów regulaminu do sparametryzowania: samochód bezpieczeństwa (brak / fizyczny / też wirtualny), przydział opon i mieszanki, masa minimalna, pomoce elektroniczne (kontrola trakcji, ABS, aktywne zawieszenie, aktywna aerodynamika), DRS, ERS, tankowanie i pojemność zbiornika, punktacja, format kwalifikacji, podział nagród, limity testów, limit wydatków, silniki (pojemność, turbo, hybryda).
+
+**Polityka regulaminowa:** w erach, w których zespoły współdecydują o przepisach (np. Komisja F1), zmiany są proponowane i głosowane. Zespoły głosują zgodnie z własnym interesem, a gracz może lobbować; atrybut szefa „polityka” ma tu znaczenie. W trybie historycznym prawdziwe zmiany przychodzą jako propozycje (PP-004).
 
 ### 4.2. Drzewo technologii (PP-009)
 Technologie mają prawdziwą datę wprowadzenia. Dla AI to punkt odniesienia, a gracz może ją wyprzedzić albo się spóźnić.
@@ -169,8 +171,20 @@ Projekt roczny to zestaw decyzji na osiach, w których **każdy biegun ma swoją
 
 Do tego wybrane technologie z drzewa (§4.2). **Jakość wykonania** zależy od personelu (§6.2), infrastruktury (§4.3) i budżetu. Kierowca z dobrą informacją zwrotną pomaga rozwijać auto w sezonie.
 
-### 5.3. Rozwój w sezonie
-Nowa część czy nowy pakiet nie daje pełnych osiągów od razu. Zespół musi go **zrozumieć** przez testy, kilometry w wyścigach i pracę inżynierów (procent zrozumienia na projekt). Limity testów z regulaminu sprawiają, że wprowadzenie dużej poprawki w połowie sezonu to realny koszt. Kolejne pakiety poprawek dają malejący zysk, a dalszy postęp wymaga zmiany koncepcji. Decyzja o „poświęceniu sezonu” (wcześniejsze przejście na nowy samochód) jest dostępna dla gracza i dla AI. Zmiana regulaminu częściowo zeruje przewagę.
+### 5.3. Rozwój: krzywa S i podział zasobów (PP-032)
+**Krzywa S na każdy cykl regulaminowy.** Każdy regulamin ma teoretyczny sufit osiągów, a zespoły zbliżają się do niego po krzywej S:
+- **Start nowych przepisów:** mało wiedzy, zyski niepewne, a rozrzut między zespołami duży (tu rodzą się dominacje).
+- **Środek cyklu:** najszybszy przyrost. Kto ma lepszych ludzi i infrastrukturę, ucieka.
+- **Dojrzałe przepisy:** każda dziesiątka sekundy kosztuje coraz więcej, a stawka się ściska (jak w F1 w latach 2019–2021).
+- **Nowy regulamin** to nowa krzywa. Część wiedzy przechodzi (ludzie, narzędzia, rozumienie opon), a część przepada. Sam sufit też przesuwa się z granicą technologii (§4.3).
+- **Koncepcja ma własną krzywą:** rewolucyjna ma wyższy sufit, ale wolniejszy start; ewolucyjna odwrotnie.
+
+**Podział zasobów** (ludzie, tunel/CFD, pieniądze) między trzy strumienie, zmieniany w dowolnym momencie:
+1. **Bieżące auto:** poprawki w ramach obecnej koncepcji. Malejące zyski, bo jest coraz bliżej swojego sufitu.
+2. **Nowa koncepcja jeszcze w tym sezonie („wersja B”):** duży projekt, który daje nowy, wyższy sufit, ale kosztuje dużo, zeruje zrozumienie auta (patrz niżej) i może się nie udać.
+3. **Auto na przyszły sezon:** im wcześniej zaczniesz, tym lepsze auto dostaniesz, kosztem obecnego sezonu. Przed zmianą przepisów to kluczowa decyzja („poświęcenie sezonu”, gracz i AI).
+
+**Zrozumienie części:** nowa część czy nowy pakiet nie daje pełnych osiągów od razu. Zespół musi go **zrozumieć** przez testy, kilometry w wyścigach i pracę inżynierów (procent zrozumienia na projekt). Limity testów z regulaminu sprawiają, że wprowadzenie dużej poprawki w połowie sezonu to realny koszt.
 
 ### 5.4. Osiągi, silnik, opony
 - **Wektor osiągów:** Moc, Docisk (ograniczony epoką i technologią), Przyczepność mechaniczna, Hamowanie, Niezawodność. Dopasowanie do toru to iloczyn skalarny z wagami profilu toru.
@@ -191,27 +205,62 @@ Nowa część czy nowy pakiet nie daje pełnych osiągów od razu. Zespół musi
 
 ## 6. Ludzie
 
-### 6.1. Kierowca (skala: PP-013)
+### 6.1. Kierowca: profil (PP-013, PP-031)
+
+**Tożsamość:** imię i nazwisko, narodowość, data urodzenia i wiek, numer, wizerunek, kraj bazy fanów.
+
+**Atrybuty widoczne (1–20) + ocena ogólna (1–100):**
 | Atrybut | Znaczenie |
 |---|---|
 | Tempo | czysta prędkość na okrążeniu |
-| Walka | wyprzedzanie i obrona (zamiast osobnych Attack/Defend) |
+| Walka | wyprzedzanie i obrona |
 | Regularność | powtarzalność czasów, mniej błędów |
-| Deszcz | jazda w mokrych warunkach |
+| Deszcz | jazda w mokrych i zmiennych warunkach |
 | Oszczędzanie sprzętu | opony, hamulce, skrzynia; w latach 50. równie ważne jak tempo |
-| Opanowanie | zachowanie pod presją, starty |
-| Informacja zwrotna | wpływ na rozwój samochodu i ustawienia |
+| Opanowanie | presja, starty, walka o tytuł |
+| Informacja zwrotna | rozwój auta, ustawienia, zrozumienie części |
 | Doświadczenie | rośnie z każdym startem |
 
 **Preferencje prowadzenia:** balans i trakcja (§5.2).
 
-**Osobowość (jedna główna):** szuka bezpieczeństwa, najemnik, lojalny, prestiżowy, krótkoterminowy, ambitny, mentor, gracz zespołowy. Każda zmienia wagi oceny oferty (§8) oraz reakcje na status #2, na obietnice i na złe wyniki.
+**Osobowość:**
+- *Jedna główna:* szuka bezpieczeństwa, najemnik, lojalny, prestiżowy, krótkoterminowy, ambitny, mentor, gracz zespołowy.
+- *Ukryte wartości 1–20:* lojalność, ambicja, temperament, profesjonalizm, ego.
 
-**Cechy (0–3):** np. mistrz kwalifikacji, zaklinacz opon / niszczyciel opon, szybki tylko w czystym powietrzu, artysta wyprzedzania, mistrz deszczu, pękający pod presją, skłonny do kraks, „mechanik” (oszczędza sprzęt), kierowca z pieniędzmi, mentor (rozwija partnera z zespołu). Cechy są widoczne dopiero po obserwacji, zgodnie z zasadą mgły scoutingu.
-**Ukryte:** potencjał, podatność na kontuzje. Widoczne tylko w Spy albo jako pasma ze scoutingu.
+Każda z nich zmienia wagi oceny oferty (§8) oraz reakcje na status #2, na złamane obietnice i na złe wyniki. Poznaje się je z czasem: z rozmów, z historii kariery i dzięki relacjom.
 
-### 6.2. Personel (PROPOZYCJA do ustalenia)
-Każda rola ma 3–4 własne atrybuty, a nie wspólną listę. Wszyscy mają też doświadczenie, osobowość (ambicja, lojalność) i krzywą wieku. Role pojawiają się razem z epoką.
+**Cechy (0–3):** np. mistrz kwalifikacji, zaklinacz opon / niszczyciel opon, szybki tylko w czystym powietrzu, artysta wyprzedzania, mistrz deszczu, pękający pod presją, skłonny do kraks, „mechanik” (oszczędza sprzęt), kierowca z pieniędzmi, mentor (rozwija partnera z zespołu). Widoczne dopiero po obserwacji.
+
+**Stan bieżący (zmienny):** forma (średnia krocząca), morale, pewność siebie (spada po błędach i w aucie, które mu nie leży), zdrowie i kontuzje, zmęczenie.
+
+**Tory:** trzy warstwy, od najbardziej wytłumaczalnej:
+1. **Z atrybutów × profil toru:** wynika wprost z liczb. Na przykład w Monako liczą się regularność i opanowanie, a na Monzy więcej daje walka na prostych.
+2. **Znajomość toru:** rośnie z przejechanymi okrążeniami. Nowy tor albo nowa wersja układu to strata dla wszystkich, mniejsza dla kierowców o wysokim doświadczeniu.
+3. **Ukryte powinowactwo (±, małe):** niektórzy kierowcy są po prostu lepsi albo gorsi na konkretnych torach, czego atrybuty nie tłumaczą. W trybie historycznym powinowactwo wylicza pipeline z prawdziwych wyników: to, co zostaje po odjęciu modelu (Senna w Monako, Hamilton na Silverstone). Kierowcy generowani losują je. Gracz odkrywa je z czasem, np. inżynier mówi: „on ma coś z tym torem”.
+
+Do tego wyścig domowy: przewaga morale, ale też presja, zależnie od opanowania.
+
+**Kariera i statystyki:** starty, zwycięstwa, pole position, podia, punkty, tytuły, najszybsze okrążenia, nieukończone wyścigi (z podziałem na własne błędy i awarie), historia sezon po sezonie i zespół po zespole, pojedynki z partnerami z zespołu, rekordy, historia kontuzji.
+
+**Rynek:** kontrakt, wartość rynkowa, oczekiwania płacowe, sława (popularność u kibiców, która napędza sponsorów i model popularności, §9), relacje (§6.3).
+
+**Ukryte (tylko Spy albo pasma ze scoutingu):** potencjał, podatność na kontuzje, powinowactwo do torów.
+
+Personel ma analogiczny profil: tożsamość, atrybuty roli, osobowość, stan, historia kariery i relacje.
+
+### 6.2. Personel (PROPOZYCJA do ustalenia; PP-033)
+
+**Dwa poziomy: kluczowi ludzie i działy.** W zespole nie pracuje 10 osób, tylko od ~20 (lata 50.) do ~1000+ (dziś).
+- **Kluczowi ludzie** (tabela niżej) to imienni specjaliści z pełnym profilem. Kierują działami i podejmują decyzje.
+- **Działy:** projektowy, aerodynamiki, silnika, produkcji, dynamiki pojazdu, zespół wyścigowy i mechanicy, komercyjny, scouting. Każdy ma:
+  - **liczebność** (zatrudniasz i zwalniasz ludzi grupami),
+  - **średnią jakość** (poziom rekrutacji i szkolenia),
+  - **koszt na osobę**.
+- **Wydajność działu** = liczebność × jakość × skuteczność szefa × jakość infrastruktury, **z malejącymi korzyściami**. Każdy kolejny człowiek daje mniej, a zbyt duży dział traci na koordynacji. Nie da się wygrać samym zatrudnianiem.
+- **Zatrudnianie trwa** (rekrutacja, wdrożenie), a zwolnienia obniżają morale. W erze limitu wydatków liczebność ogranicza budżet.
+- **Talenty z wnętrza działów:** co jakiś czas w dziale wyrasta ktoś wybitny, kto może awansować na kluczowe stanowisko. W trybie historycznym prawdziwi inżynierowie zaczynają właśnie tak (Adrian Newey zaczynał jako młody inżynier w Fittipaldi w 1980).
+
+**Kluczowi ludzie:** każda rola ma 3–4 własne atrybuty, a nie wspólną listę. Wszyscy mają też doświadczenie, osobowość (ambicja, lojalność) i krzywą wieku. Role pojawiają się razem z epoką.
 
 | Rola | Od | Atrybuty | Na co wpływa |
 |---|---|---|---|
@@ -310,6 +359,17 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 
 ---
 
-## 13. Później (faza 7+)
+## 13. Tryb bez liczb (PP-031)
+
+Opcja kariery: **grasz bez atrybutów, ocen i statystyk osiągów.** Wszystko, co wiesz o kierowcach, aucie i rywalach, pochodzi z **opinii Twoich ludzi**:
+- „Jesteśmy mocni w wolnych zakrętach, na prostych tracimy do Ferrari mniej więcej 3 dziesiąte.”
+- „Młody jest bardzo szybki, ale zjada opony.”
+- „Nie ufam temu pakietowi, dajcie nam jeszcze jeden test.”
+
+To nie jest osobny system, tylko **inna prezentacja tej samej wiedzy** (INV-003): gra zawsze pokazuje wiedzę zespołu, a nie prawdę, raz jako pasma liczb, raz jako słowa. **Trafność opinii zależy od jakości ludzi.** Słaby inżynier potrafi się mylić, mieć w czymś przesadną pewność albo coś przeoczyć. Wtedy dobór personelu staje się jeszcze ważniejszy. Wyniki, czasy okrążeń i tabele mistrzostw są widoczne zawsze, bo to fakty publiczne.
+
+---
+
+## 14. Później (faza 7+)
 
 Serie juniorskie jako prawdziwa ścieżka rozwoju, Le Mans / WEC / GT (drabina klas, zespoły z kilkoma programami, realistyczne zasady wejścia na wyścigi 24h), tryb proceduralny od zera, tryb wyzwań, edytor bazy.

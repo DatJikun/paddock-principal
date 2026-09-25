@@ -22,6 +22,8 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - Model ocen: porównania z partnerem z zespołu i efekt konstruktor × sezon, co daje tempo na sezon, krzywą kariery i sufit talentu.
 - Przypadki brzegowe: Indy 500 w latach 1950–60, kierowcy jednego wyścigu, dzielone samochody.
 - `data/authored/`: szkielet osi czasu epok, drzewa technologii i kluczowego personelu (szefowie i projektanci czołowych zespołów każdej dekady).
+- **Research dla Groka (R1):** katalog zasad sportowych i technicznych F1 1950–2026, rok po roku, ze źródłami, plus katalog nietypowych zasad z innych serii i gier (np. Motorsport Manager). Wynik to dane w `data/authored/regulations/`, a nie dokument.
+- **Research dla Groka (R2):** tory F1 1950–2026 z wersjami układu (lata, długość, charakter).
 - **Raport do Twojej oceny:** ranking kierowców wszech czasów i per dekada, z listą miejsc, gdzie model się myli, i wyjaśnieniem dlaczego.
 
 **Bramka:** przeglądasz raport i mówisz „to ma sens”. Jeśli się nie da, zmieniamy podejście, zanim powstanie reszta gry.

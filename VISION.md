@@ -152,3 +152,13 @@ Zadania są opisane jako GitHub Issues z kryteriami akceptacji. Implementacja id
 
 **PP-030: Umowy z dostawcami to ważny system.** Opony, paliwo, części i silniki; umowy fabryczne, partnerskie i klienckie; umowy wieloletnie; zespół numer 1 współtworzy technologię z dostawcą. Każdy dostawca ma swoje plusy i minusy. Szczegóły w DESIGN §5.4.
 
+### Przyjęte 2026-09-25 (siódma runda)
+
+**PP-031: Opcjonalny tryb bez liczb.** Atrybuty, oceny i osiągi auta poznajesz wyłącznie z opinii swoich ludzi. Ich trafność zależy od jakości personelu. Technicznie to tylko inna prezentacja wiedzy zespołu (INV-003), więc każdy system od początku zwraca wiedzę z niepewnością, a nie gołe liczby. Szczegóły w DESIGN §13. Do tego pełny profil kierowcy z trzema warstwami dopasowania do torów: atrybuty, znajomość toru i ukryte powinowactwo (w trybie historycznym wyliczone z prawdziwych wyników); szczegóły w DESIGN §6.1.
+
+**PP-032: Rozwój auta po krzywej S w każdym cyklu regulaminowym.** Zasoby dzielisz na trzy strumienie: bieżące auto, nową koncepcję w tym sezonie („wersja B”) i auto na przyszły sezon. Szczegóły w DESIGN §5.3.
+
+**PP-033: Personel to kluczowi ludzie plus działy z liczebnością.** Wydajność działów ma malejące korzyści, a talenty mogą wyrosnąć wewnątrz działów. Szczegóły w DESIGN §6.2.
+
+**PP-034: Wspólny katalog zasad dla trybu historycznego i proceduralnego,** z polityką regulaminową (propozycje i głosowania) tam, gdzie epoka ją przewiduje. Research zasad robi Grok.
+

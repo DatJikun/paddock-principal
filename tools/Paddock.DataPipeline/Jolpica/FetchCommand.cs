@@ -9,7 +9,7 @@ public static class FetchCommand
     // Jolpica usually returns HTTP 200 with total 0 instead (qualifying before 1994, sprints before 2021,
     // constructor standings before 1958). Both shapes mean "no rows".
     private const string EmptyPageJson = """{"MRData":{"limit":"0","offset":"0","total":"0"}}""";
-    private const int MaxTransportAttempts = 4;
+    private const int MaxTransportAttempts = 8;
     private const int MaxThrottleAttempts = 8;
 
     public static async Task<int> ExecuteAsync(
@@ -136,14 +136,14 @@ public static class FetchCommand
             {
                 response = await http.GetAsync(relativeUrl, cancellationToken);
             }
-            catch (HttpRequestException) when (transportAttempts + 1 < MaxTransportAttempts)
+            catch (Exception ex) when (IsRetryable(ex, cancellationToken) && transportAttempts + 1 < MaxTransportAttempts)
             {
                 transportAttempts++;
                 stdout.WriteLine($"retry transport {relativeUrl} attempt {transportAttempts.ToString(CultureInfo.InvariantCulture)}");
                 await delay(TimeSpan.FromSeconds(Math.Min(60, 1 << transportAttempts)), cancellationToken);
                 continue;
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex) when (IsRetryable(ex, cancellationToken))
             {
                 throw new InvalidDataException($"Failed to fetch {relativeUrl}: {ex.Message}", ex);
             }
@@ -208,6 +208,17 @@ public static class FetchCommand
 
             return response.Body;
         }
+    }
+
+    // HttpClient turns its own timeout into TaskCanceledException. That is not a caller cancel.
+    private static bool IsRetryable(Exception exception, CancellationToken cancellationToken)
+    {
+        if (exception is HttpRequestException)
+        {
+            return true;
+        }
+
+        return exception is OperationCanceledException && !cancellationToken.IsCancellationRequested;
     }
 
     private static PageInfo ReadPage(string json, string context)

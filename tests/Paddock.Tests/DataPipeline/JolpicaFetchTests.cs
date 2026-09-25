@@ -152,6 +152,44 @@ public class JolpicaFetchTests
     }
 
     [Fact]
+    public async Task FetchRetriesAnHttpClientTimeout()
+    {
+        var cache = TempCache();
+        try
+        {
+            var timeouts = 0;
+            var http = new ScriptedHttp((url, _) =>
+            {
+                if (url.StartsWith("seasons.json", StringComparison.Ordinal) && timeouts == 0)
+                {
+                    timeouts++;
+                    throw new TaskCanceledException("The request was canceled due to the configured HttpClient.Timeout of 60 seconds elapsing.");
+                }
+
+                return new JolpicaHttpResponse(200, EmptyBody(url), null);
+            });
+
+            var stderr = new StringWriter();
+            var code = await PipelineCommands.ExecuteAsync(
+                ["fetch", "--from", "1950", "--to", "1950", "--cache", cache],
+                new StringWriter(),
+                stderr,
+                http,
+                new ImmediatePacer(),
+                NoDelay);
+
+            Assert.Equal(0, code);
+            Assert.Equal(string.Empty, stderr.ToString());
+            Assert.Equal(1, timeouts);
+            Assert.True(File.Exists(Path.Combine(cache, "raw", "seasons", "offset-0.json")));
+        }
+        finally
+        {
+            Directory.Delete(cache, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task FetchRejectsANonJsonSuccessAfterRetries()
     {
         var cache = TempCache();

@@ -59,7 +59,7 @@ public sealed class HttpJolpicaClient : IJolpicaHttp, IDisposable
     {
         var http = handler is null ? new HttpClient() : new HttpClient(handler, disposeHandler: true);
         http.BaseAddress = new Uri(BaseUrl);
-        http.Timeout = TimeSpan.FromSeconds(100);
+        http.Timeout = TimeSpan.FromSeconds(60);
         http.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
         return http;
     }

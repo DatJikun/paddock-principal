@@ -98,7 +98,7 @@ Oba warianty korzystają z tego samego wyliczonego profilu kierowcy.
 
 **PP-012: Test wierności historii to bramka jakości.** Symulacja okresu (np. 1950–1960) bez gracza musi dawać wiarygodne rezultaty w stosunku do prawdziwych: dominujący kierowcy są w czołówce, a nie w loterii. Nie oczekujemy identycznych wyników.
 
-**PP-013: UI nigdy nie pokazuje ułamków umiejętności.** Wewnętrzne wartości są ciągłe, a wyświetlane są liczby całkowite. Wybór skali jest otwarty.
+**PP-013: Skala: atrybuty 1–20 plus ogólna ocena 1–100, zawsze liczby całkowite.** Ułamki nigdy nie są pokazywane. Wewnętrzne wartości są ciągłe, a drobne postępy pokazują strzałki trendu. Scouting pokazuje pasma (np. 16–19).
 
 **PP-014: Prawdziwe dane to wymienna paczka.** Silnik musi działać na paczce fikcyjnej. Licencje na nazwy są problemem przyszłej publikacji, a nie architektury.
 

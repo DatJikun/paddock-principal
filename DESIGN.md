@@ -122,25 +122,59 @@ Technologie mają prawdziwą datę wprowadzenia. Dla AI to punkt odniesienia, a 
 
 Technologia wymaga badań (personel i pieniądze), ma ryzyko porażki i szansę, że rywale ją skopiują. **Zakazy reagują na świat:** propozycja zakazu pojawia się, gdy dana technologia zbyt mocno dominuje w *Twoim* świecie, a nie w tym prawdziwym roku.
 
+### 4.3. Nieskończona infrastruktura (PP-026)
+Nie ma końca drzewka. **W 1972 nie może być endgame'u.** Trzy mechanizmy:
+1. **Ruchoma granica technologii.** Jakość obiektu (tunel, hamownia, symulator, CFD) liczy się **względem stanu sztuki danego roku**, a ten stale przesuwa się do przodu razem z R&D całego świata. Najlepszy tunel w 1975 jest przestarzały w 1990. Obiekty starzeją się względnie i wymagają modernizacji albo wymiany.
+2. **Nowe rodzaje obiektów z epokami:** hamownia → tunel aerodynamiczny → pełnoskalowy tunel → CFD → symulator kierowcy → hamownia jednostki hybrydowej itd. Każdy otwiera nowy wymiar rozwoju.
+3. **Zmiany regulaminu i limity:** reset przepisów częściowo zeruje przewagę wiedzy. Od ery limitów (godziny w tunelu, limit wydatków) wygrywa efektywność, a nie sama wielkość.
+
 ---
 
-## 5. Samochód
+## 5. Samochód (PP-027)
 
-- **Projekt roczny:** koncepcja plus wybrane technologie, tworzone przez głównego projektanta. Jakość zależy od personelu, budżetu i infrastruktury.
-- **Rozwój w sezonie:** małe przyrosty. Decyzja o „poświęceniu sezonu” (wcześniejsze przejście na nowy samochód) jest dostępna dla gracza i dla AI.
-- **Wektor osiągów:** Moc, Docisk (ograniczony epoką i technologią), Przyczepność mechaniczna, Hamowanie, Niezawodność.
-- **Silnik:** kliencki (umowa z dostawcą epoki, np. Coventry-Climax, Cosworth DFV) albo **własny** (PP-019). Gracz może zostać producentem silników, jak Ferrari, BRM czy Honda:
-  - wymaga to projektanta silników, osobnego budżetu i czasu (pierwszy silnik powstaje co najmniej sezon);
-  - własny silnik można **sprzedawać zespołom klienckim**, co daje przychód, wpływy i dane, ale też tworzy rywali na tym samym sprzęcie;
-  - przepisy epoki (pojemność, turbo, hybryda) mogą unieważnić projekt, więc zmiana regulaminu to realne ryzyko.
-- **Opony:** dostawca z epoki, z wojnami oponiarskimi (Goodyear–Firestone, Michelin–Bridgestone).
-- **Dopasowanie do toru:** iloczyn skalarny wektora samochodu i wag profilu toru (prosta, szybkie zakręty, wolne zakręty, hamowanie). Ten mechanizm zostaje ze starej dokumentacji.
+Budowanie auta ma być jednym z najlepszych systemów gry. Zasada: **nie ma jednej dobrej odpowiedzi**, bo każda droga i każdy wybór ma plusy i minusy, a ich wartość zależy od toru, regulaminu, budżetu i ludzi.
+
+### 5.1. Skąd bierzesz samochód
+Trzy drogi, dostępne zależnie od serii i epoki:
+
+| Droga | Plusy | Minusy | Kiedy |
+|---|---|---|---|
+| **Samochód kliencki** (kupujesz gotowe podwozie) | tanio, szybko, znana baza, dobry start dla nowego zespołu | sufit osiągów wyznacza producent, zawsze jesteś krok za zespołem fabrycznym, rozwój ograniczony | F1: lata 50.–70. (Cooper, Lotus, Brabham, March, Lola), zakaz od umowy Concorde (1981); GT3: zawsze |
+| **Własna konstrukcja** | pełna kontrola, sufit tylko w Twoich ludziach, możliwa przewaga technologiczna | drogo, ryzyko nieudanego projektu, wymaga infrastruktury i projektantów | F1: zawsze, od 1981 obowiązkowo |
+| **Umowa z producentem**: od klienta, przez partnera, po zespół fabryczny | pieniądze, części, inżynierowie i silnik skrojony pod auto | zależność, cele producenta, ryzyko wycofania się, obowiązki marketingowe | silniki w F1, samochody w GT (szczegóły: specyfikacja GT3 z wcześniejszych ustaleń, faza 7+) |
+
+W GT3 samochód ma **gotową, homologowaną specyfikację (plus BoP)**. Wynik zależy od tego, ile osiągów wyciągną z niego kierowcy, inżynierowie i mechanicy, a także od umowy z producentem. To samo jądro gry, tylko z inną drogą pozyskania auta.
+
+### 5.2. Własna konstrukcja: koncepcja
+Projekt roczny to zestaw decyzji na osiach, w których **każdy biegun ma swoją cenę**:
+
+| Oś | Jedna strona | Druga strona |
+|---|---|---|
+| Aero | mały opór: szybko na prostych | duży docisk: szybko w zakrętach, większe zużycie opon |
+| Filozofia | ewolucja: pewna, przewidywalna | rewolucja: wysoki sufit, ryzyko porażki, rywale mogą skopiować |
+| Okno pracy | szerokie: łatwe ustawienia, stabilne na każdym torze | wąskie: bardzo szybkie w oknie, bezradne poza nim |
+| Chłodzenie i niezawodność | zapas: mniej awarii, trochę wolniej | na krawędzi: szybciej, więcej awarii w upale |
+| Opony | łagodne dla opon: dłuższe stinty | agresywne: szybkie okrążenie, słabsze na dystansie |
+| Integracja silnika | pod konkretny silnik: optymalnie | uniwersalnie: łatwa zmiana dostawcy |
+
+Do tego wybrane technologie z drzewa (§4.2). **Jakość wykonania** zależy od personelu (§6.2), infrastruktury (§4.3) i budżetu. Kierowca z dobrą informacją zwrotną pomaga rozwijać auto w sezonie.
+
+### 5.3. Rozwój w sezonie
+Kolejne pakiety poprawek dają malejący zysk, a dalszy postęp wymaga zmiany koncepcji. Decyzja o „poświęceniu sezonu” (wcześniejsze przejście na nowy samochód) jest dostępna dla gracza i dla AI. Zmiana regulaminu częściowo zeruje przewagę.
+
+### 5.4. Osiągi, silnik, opony
+- **Wektor osiągów:** Moc, Docisk (ograniczony epoką i technologią), Przyczepność mechaniczna, Hamowanie, Niezawodność. Dopasowanie do toru to iloczyn skalarny z wagami profilu toru.
+- **Silnik:** kliencki albo **własny** (PP-019). Gracz może zostać producentem jak Ferrari, BRM czy Honda:
+  - potrzebny jest projektant silników, osobny budżet i co najmniej sezon na pierwszy silnik;
+  - silnik można sprzedawać klientom: to przychód, wpływy i dane, ale też rywale na tym samym sprzęcie;
+  - zmiana przepisów (pojemność, turbo, hybryda) może unieważnić projekt.
+- **Opony:** dostawca epoki, z wojnami oponiarskimi (Goodyear–Firestone, Michelin–Bridgestone).
 
 ---
 
 ## 6. Ludzie
 
-### 6.1. Kierowca (UI w skali 1–20)
+### 6.1. Kierowca (skala: PP-013)
 | Atrybut | Znaczenie |
 |---|---|
 | Tempo | czysta prędkość na okrążeniu |
@@ -155,14 +189,22 @@ Technologia wymaga badań (personel i pieniądze), ma ryzyko porażki i szansę,
 **Osobowość:** ambicja, lojalność, temperament, skłonność do ryzyka. Wpływa na kontrakty, relacje w zespole i ryzyko wypadku.
 **Ukryte:** potencjał, podatność na kontuzje. Widoczne tylko w Spy albo jako pasma ze scoutingu.
 
-### 6.2. Personel
-Role pojawiają się razem z epoką:
-- od początku: szef zespołu, główny projektant, szef mechaników, opcjonalnie projektant silnika;
-- od końca lat 60.: aerodynamik;
-- od lat 70.–80.: inżynier wyścigowy;
-- od lat 90.: strateg.
+### 6.2. Personel (PROPOZYCJA do ustalenia)
+Każda rola ma 3–4 własne atrybuty, a nie wspólną listę. Wszyscy mają też doświadczenie, osobowość (ambicja, lojalność) i krzywą wieku. Role pojawiają się razem z epoką.
 
-Każda rola ma 2–4 atrybuty istotne dla swojej pracy, a nie wspólną listę dla wszystkich.
+| Rola | Od | Atrybuty | Na co wpływa |
+|---|---|---|---|
+| Dyrektor techniczny | 1950 | wizja, zarządzanie projektem, innowacyjność | koncepcja auta, ryzyko rewolucji, praca działu technicznego |
+| Główny projektant | 1950 | podwozie, integracja, precyzja | jakość wykonania koncepcji |
+| Projektant silników | 1950 (jeśli budujesz silniki) | moc, niezawodność, wydajność | silnik |
+| Szef aerodynamiki | ~1968 | aerodynamika, korelacja tunel–tor, innowacyjność | docisk, trafność rozwoju |
+| Inżynier wyścigowy (1 na kierowcę) | ~1970 | ustawienia, relacja z kierowcą, analiza danych | tempo w weekendzie, forma kierowcy |
+| Strateg | ~1994 (tankowanie) | strategia, reakcja, pogoda | decyzje w wyścigu |
+| Szef mechaników | 1950 | pit-stopy, jakość montażu, organizacja | czas postojów, awarie |
+| Skaut | 1950 | ocena talentu, sieć kontaktów | zawężanie pasm w puli talentów |
+| Dyrektor komercyjny | ~1968 (sponsorzy) | negocjacje, marketing, sieć | sponsorzy, przychody |
+
+Szef zespołu (gracz albo AI) ma atrybuty menedżerskie: negocjacje, zarządzanie ludźmi, polityka (wpływ na regulamin) i biznes.
 
 ### 6.3. Rozwój i wiek
 Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datami. W trybie „Trajektoria” zastępuje ją prawdziwa krzywa.
@@ -195,13 +237,27 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 
 ---
 
-## 9. Ekonomia
+## 9. Ekonomia i popularność (PP-025)
 
-- **Pieniądz w indeksie epoki** (PP-010): wartości w jednostce znormalizowanej, UI może pokazać kwotę nominalną.
-- **Przychody według epoki:** pieniądze startowe → sponsorzy → pieniądze z TV i nagrody z umowy Concorde → nagrody za pozycję w konstruktorach.
-- **Koszty:** pensje, projekt i budowa samochodów, silniki klienckie, podróże, infrastruktura, naprawy po wypadkach.
-- **Sponsorzy** to rynek z celami, a nie stała kwota (za Pelotonem, D-011).
+### 9.1. Popularność sportu napędza pieniądze
+Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatycznej inflacji**. Model popularności:
+- **Globalna popularność serii**, plus **baza fanów w każdym kraju**.
+- **Co ją podnosi:** wyrównane walki o tytuł (wielu pretendentów, rozstrzygnięcia w ostatnich wyścigach), gwiazdy i ich rywalizacje, krajowi bohaterowie (np. mistrz z Polski buduje polski rynek), wyścigi w nowych krajach, era TV.
+- **Co ją obniża:** długa dominacja jednego zespołu lub kierowcy, nudne wyścigi, skandale, (przy włączonej opcji) tragedie.
+- **Tryb historyczny:** bazowy wzrost pochodzi z osi czasu epok (np. era TV, umowa Concorde), a popularność świata go wzmacnia lub osłabia. Po 2026 działa już tylko model.
+
+**Skutki:**
+- pula pieniędzy z TV i nagród rośnie lub maleje;
+- rynek sponsorów w każdym kraju się zmienia;
+- **pensje rosną naturalnie**, bo zespoły mają więcej pieniędzy, a gwiazdy są więcej warte (to jest „inflacja zarobków”);
+- rośnie popyt na nowe wyścigi w krajach z dużą bazą fanów.
+
+### 9.2. Przychody i koszty
+- **Przychody według epoki:** pieniądze startowe → sponsorzy (od 1968) → TV i umowa Concorde → nagrody za pozycję w konstruktorach, sprzedaż silników i samochodów klienckich.
+- **Koszty:** pensje, projekt i budowa aut, silniki, podróże, infrastruktura (także jej starzenie się, §4.3), naprawy po wypadkach.
+- **Sponsorzy** to rynek z celami, a jego wielkość w każdym kraju wynika z popularności.
 - **Gotówka to nie budżet:** UI rozróżnia gotówkę, zobowiązania, pewne przychody i prognozę. Jeśli czegoś nie da się kupić, gra mówi dokładnie dlaczego.
+- **Kwoty nominalne:** UI pokazuje prawdziwe kwoty, które z biegiem lat rosną razem ze sportem.
 
 ---
 

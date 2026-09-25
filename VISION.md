@@ -92,13 +92,13 @@ Oba warianty korzystają z tego samego wyliczonego profilu kierowcy.
 
 **PP-009: Technologie to drzewo z historycznymi datami jako punktem odniesienia dla AI.** Gracz (i AI) może wprowadzić technologię wcześniej albo później niż w rzeczywistości. Przykłady: silnik centralny, efekt przyziemny, turbo, monokok z włókna węglowego, półautomatyczna skrzynia.
 
-**PP-010: Pieniądz to indeks epoki bez automatycznej inflacji** (odpowiednik Peloton D-012). Wartości są przechowywane w jednostce znormalizowanej dla epoki, a UI może pokazać kwotę nominalną.
+**PP-010: ~~Pieniądz to indeks epoki bez automatycznej inflacji.~~** Zastąpione przez PP-025.
 
 **PP-011: Oceny kierowców historycznych są wyliczane, a nie wpisywane ręcznie.** Pipeline danych wyprowadza je z wyników (porównania z partnerem z zespołu z odjęciem efektu samochodu w danym sezonie). Ręczne korekty to jawny, opisany plik nadpisań.
 
 **PP-012: Test wierności historii to bramka jakości.** Symulacja okresu (np. 1950–1960) bez gracza musi dawać wiarygodne rezultaty w stosunku do prawdziwych: dominujący kierowcy są w czołówce, a nie w loterii. Nie oczekujemy identycznych wyników.
 
-**PP-013: UI pokazuje umiejętności w skali 1–20.** Wewnętrzne wartości są ciągłe.
+**PP-013: UI nigdy nie pokazuje ułamków umiejętności.** Wewnętrzne wartości są ciągłe, a wyświetlane są liczby całkowite. Wybór skali jest otwarty.
 
 **PP-014: Prawdziwe dane to wymienna paczka.** Silnik musi działać na paczce fikcyjnej. Licencje na nazwy są problemem przyszłej publikacji, a nie architektury.
 
@@ -135,3 +135,11 @@ D-006 (postęp w dniach, sterowany zdarzeniami), D-007 (stabilne ID nigdy nieuż
 - **Grok 4.7 (Cursor):** implementuje dobrze opisane zadania backendowe.
 
 Zadania są opisane jako GitHub Issues z kryteriami akceptacji. Implementacja idzie na gałęzi, jako PR, po review Claude'a, a merge robi właściciel albo Claude po review. Zasady dla kodera są w AGENTS.md.
+
+### Przyjęte 2026-09-25 (piąta runda)
+
+**PP-025: Pieniądze rosną z popularności sportu** (zastępuje PP-010). Model popularności (globalny i per kraj; wyrównana walka o tytuł i krajowi bohaterowie podnoszą, dominacja obniża) steruje pulą TV i nagród, rynkiem sponsorów i naturalnym wzrostem pensji. W trybie historycznym bazą jest oś czasu epok. Szczegóły w DESIGN §9.
+
+**PP-026: Infrastruktura jest nieskończona.** Jakość obiektów liczy się względem ruchomej granicy technologii, nowe rodzaje obiektów przychodzą z epokami, a regulamin resetuje przewagi. Nie ma endgame'u. Szczegóły w DESIGN §4.3.
+
+**PP-027: Budowanie auta to kluczowy system z realnymi kompromisami.** Są trzy drogi pozyskania (samochód kliencki, własna konstrukcja, umowa z producentem aż po status zespołu fabrycznego), a koncepcja składa się z osi, na których każdy biegun ma swoją cenę. Szczegóły w DESIGN §5.

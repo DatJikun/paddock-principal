@@ -95,6 +95,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Oceny kierowców:** model porównań z partnerem z zespołu z efektem konstruktor × sezon. Wynik to tempo na sezon, krzywa kariery i sufit talentu. Każde ręczne nadpisanie ma komentarz z uzasadnieniem.
 - **Walidacja referencji i hash bazy.** Hash trafia do save'a, więc wczytanie zapisu wymaga tej samej wersji bazy (albo jawnej migracji).
 - **Paczka prawdziwych danych jest wymienna** na fikcyjną (PP-014).
+- **Licencja danych:** repo jest publiczne (PP-022). Przed commitowaniem zbudowanej bazy sprawdzamy licencję Jolpica/Ergast (historycznie było to CC BY-NC-SA, czyli niekomercyjnie, z atrybucją i na tej samej licencji) i dodajemy plik `data/ATTRIBUTION.md`. Jeśli licencja nie pozwoli, w repo zostaje tylko pipeline, a bazę każdy buduje lokalnie.
 
 ### 6.2. Save (`.paddock` = SQLite, tryb WAL)
 - **Główne tabele:** `meta` (wersja schematu, hash bazy, master seed, stan RNG, data gry), `people`, `person_attributes`, `organizations`, `org_lineage`, `contracts`, `cars`, `seasons`, `race_results`, `standings`, `chronicle` (rozbieżności), `hall_of_fame`, `inbox`, `decision_traces`.
@@ -107,6 +108,10 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Cel:** save po 76 sezonach poniżej ~50 MB. Weryfikujemy to w SimRunnerze, a nie deklarujemy.
 
 ---
+
+### 6.3. Języki (PP-021)
+- Każdy tekst dla gracza to klucz w `strings/pl.json` i `strings/en.json`, także w CLI. Rdzeń zwraca klucz i parametry, a nie gotowe zdania.
+- Test pilnuje, żeby oba pliki miały te same klucze.
 
 ## 7. Paddock Spy (diagnostyka decyzji)
 

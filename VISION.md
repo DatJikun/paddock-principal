@@ -104,5 +104,16 @@ D-006 (postęp w dniach, sterowany zdarzeniami), D-007 (stabilne ID nigdy nieuż
 
 **PP-016: Czas płynie dzień po dniu.** „Dalej” przewija dni do najbliższej sprawy wymagającej uwagi.
 
-**PP-017: Mało dokumentacji.** Tylko README, VISION (z decyzjami), ROADMAP, DESIGN, TECH. Nowy dokument powstaje wyłącznie dla dużego, osobnego systemu, i to tuż przed jego budową. Kod i historia gita są dokumentacją szczegółów.
+**PP-017: Mało dokumentacji.** Tylko README, VISION (z decyzjami), ROADMAP, DESIGN, TECH, plus krótki AGENTS.md dla agentów AI pomagających w repo. Nowy dokument powstaje wyłącznie dla dużego, osobnego systemu, i to tuż przed jego budową. Kod i historia gita są dokumentacją szczegółów.
 
+### Przyjęte 2026-09-25 (trzecia runda)
+
+**PP-018: Wiedza o przyszłości jest częścią zabawy, ale świat ma punkt wejścia.** Gracz może wykorzystywać znajomość historii. Jak mocno świat trzyma się historii, ustawia w konfiguracji kariery (presety plus suwak „siła historii”). Ludzie wchodzą do świata w punkcie wejścia, czyli na najniższym modelowanym szczeblu drabinki. Na start modelujemy tylko mistrzostwa świata F1, więc punktem wejścia jest abstrakcyjna pula talentów, uzupełniana fikcyjnymi kierowcami. Szczegóły w DESIGN §2.
+
+**PP-019: Gracz może zostać producentem silników** i sprzedawać je zespołom klienckim.
+
+**PP-020: Najpierw mocny backend, potem UI.** Do fazy 5 włącznie gramy w CLI. Mapa toru 2D powstaje po UI.
+
+**PP-021: Dwa języki: polski i angielski.** Kod, identyfikatory i commity są po angielsku. Wszystkie teksty dla gracza idą przez klucze tłumaczeń od pierwszego dnia (także w CLI). Dokumentacja projektu zostaje po polsku.
+
+**PP-022: Repozytorium jest publiczne** (github.com/DatJikun/paddock-principal), a pomagają w nim również agenci AI znajomych. Zasady pracy dla nich są w AGENTS.md. Dane historyczne w repo muszą mieć zgodną licencję i atrybucję (TECH §6.1).

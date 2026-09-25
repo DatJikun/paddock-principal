@@ -14,7 +14,7 @@ Kierunek i decyzje: [VISION.md](VISION.md). Technika: [TECH.md](TECH.md).
 |---|---|---|
 | **Osoba** | kierowca, personel, menedżer, właściciel | Jedna osoba może zmieniać rolę w życiu: Brabham, McLaren, Surtees i Prost byli kierowcami, a potem szefami własnych zespołów. |
 | **Organizacja** | zespół, producent silników, dostawca opon, sponsor, organizator serii | Ma datę powstania, zmiany nazwy, sprzedaż i koniec. Linia następstwa jest zapamiętana (Tyrrell → BAR → Honda → Brawn → Mercedes). |
-| **Seria / sezon** | mistrzostwa z regulaminem epoki | Na start: mistrzostwa świata F1. Inne serie w późniejszych fazach. |
+| **Seria / sezon** | mistrzostwa z regulaminem epoki | Na start **tylko mistrzostwa świata F1** (bez wyścigów poza mistrzostwami). Inne serie w późniejszych fazach. |
 | **Tor** | tor z **wersjami układu** | Nürburgring Nordschleife, stara i nowa Spa, stare Hockenheim to osobne wersje z własnym profilem. |
 | **Samochód** | projekt na sezon plus rozwój w trakcie | Patrz §5. |
 | **Epoka** | wpis osi czasu | Przepisy, punktacja, bezpieczeństwo, ekonomia (§4). |
@@ -23,25 +23,38 @@ Kierunek i decyzje: [VISION.md](VISION.md). Technika: [TECH.md](TECH.md).
 
 ## 2. Tryb historyczny
 
-### 2.1. Harmonogram ludzi
-Każda prawdziwa osoba ma w danych datę urodzenia i realny debiut. Do świata wchodzi **przed debiutem**: jako junior w puli talentów, kilka lat przed prawdziwym debiutem albo w wieku około 17–18 lat. Dopóki serie juniorskie nie są modelowane (faza 7+), pula juniorów jest abstrakcyjna: talent rozwija się, a zespoły mogą go podpisać lub przetestować.
+### 2.1. Punkt wejścia do świata (PP-018)
+Nie symulujemy całej drabinki motorsportu, od kartingu dla 6-latków w górę. Ludzie pojawiają się w świecie w **punkcie wejścia**, czyli na najniższym modelowanym szczeblu drabinki. Na start modelujemy **tylko mistrzostwa świata F1**, więc punktem wejścia jest **pula talentów**: abstrakcyjny „świat poza F1”, czyli juniorzy, kierowcy innych serii i testerzy.
+
+- **Kiedy prawdziwy kierowca trafia do puli:** 2–3 lata przed prawdziwym debiutem w F1, nie wcześniej niż w wieku ~17 lat. Dokładną liczbę lat ustalimy przy kalibracji. Weterani innych serii (np. Indy, sportowe samochody) wchodzą w wieku, w jakim byli naprawdę.
+- **Co się dzieje w puli:** talent rozwija się sam, w tempie zależnym od potencjału i losu. Zespoły mogą go podpisać jako kierowcę wyścigowego, testowego albo „juniora” z opcją na przyszłość.
+- **Wypełniacze:** pulę uzupełnia generator wiarygodnymi fikcyjnymi kierowcami. Bez nich pula byłaby listą przyszłych mistrzów, a wybór pozbawiony sensu. AI nie wie, kto jest „prawdziwy”.
+- **Rozszerzenie ladderu:** gdy dodamy F2/F3 (faza 7+), punkt wejścia przesunie się niżej, a pula zamieni się w prawdziwe serie. Ten sam mechanizm, bez przepisywania.
 
 Jeśli nikt nie da prawdziwemu kierowcy szansy, jego kariera może się nie wydarzyć. **To jest cecha gry, nie błąd.** Trafia wtedy do Kroniki rozbieżności.
 
-### 2.2. Los legend (PP-005)
-Wybór przy tworzeniu kariery:
-- **Potencjał:** prawdziwa kariera wyznacza sufit talentu (z niepewnością), a osiągnięcie go zależy od świata: samochodu, wyników, sztabu, pewności siebie, kontuzji.
-- **Trajektoria:** umiejętności podążają rok po roku za wyliczoną krzywą prawdziwej kariery. Świat zmienia wtedy, *gdzie* jeździ, ale nie *jak dobry* jest.
-- **Suwak losowości** działa w obu trybach.
+### 2.2. Wiedza o przyszłości to część zabawy
+Gracz zna historię i wolno mu z niej korzystać, np. podpisać Sennę do Lotusa i odbudować z nim potęgę z lat 60. i 70. albo jako Ferrari wybrać Häkkinena zamiast Schumachera. AI tej wiedzy nie ma (D-010) i działa na podstawie scoutingu. Jak bardzo świat „trzyma się” historii, ustawia gracz w konfiguracji kariery (§2.3).
 
-### 2.3. Zdarzenia historyczne jako propozycje (PP-004)
+### 2.3. Konfiguracja kariery (PP-005, PP-018)
+Ustawienia przy tworzeniu kariery. Presety mają nazwy (np. **„Najbardziej historyczny”**, „Zbalansowany”, „Piaskownica”), ale każdy suwak można zmienić ręcznie:
+- **Los legend:**
+  - *Potencjał*: prawdziwa kariera wyznacza sufit talentu (z niepewnością), a osiągnięcie go zależy od świata: samochodu, wyników, sztabu, pewności siebie, kontuzji;
+  - *Trajektoria*: umiejętności podążają rok po roku za wyliczoną krzywą prawdziwej kariery; świat zmienia wtedy, *gdzie* kierowca jeździ, ale nie *jak dobry* jest.
+- **Siła historii (0–100%):** jak chętnie aktorzy AI realizują propozycje historyczne (§2.4), gdy są sensowne.
+  - Przy 100% świat bez udziału gracza idzie torem prawdziwej historii, a rozjeżdża się tam, gdzie gracz zainterweniuje. Jeśli zabierzesz Mercedesowi miejsce dla Hamiltona, Mercedes weźmie np. Alonso.
+  - Przy 0% jest czysta symulacja.
+- **Suwak losowości:** rozwój, forma, awarie.
+- **Śmiertelność** (PP-006), **rok startu**, **zespół** (istniejący albo własny, §3).
+
+### 2.4. Zdarzenia historyczne jako propozycje (PP-004)
 Prawdziwe zdarzenie w danych ma **warunki sensowności**, a nie wymuszenie. Przykład:
 
 > *Schumacher przechodzi do Ferrari (koniec 1995).* Propozycja pojawia się tylko wtedy, gdy Ferrari istnieje, ma budżet i nie ma mistrza w składzie, a Schumacher ma kontrakt do zakończenia lub klauzulę. W przeciwnym razie zdarzenie przepada i ląduje w Kronice.
 
-Rodzaje propozycji: powstanie zespołu (Brabham 1962, McLaren 1966, Williams 1977), wejście lub wyjście producenta, wejście sponsora, zmiana regulaminu, sprzedaż zespołu. Decyzję podejmuje odpowiedni aktor (AI albo gracz) na zwykłych zasadach. Propozycja jedynie podsuwa mu tę opcję.
+Rodzaje propozycji: powstanie zespołu (Brabham 1962, McLaren 1966, Williams 1977), wejście lub wyjście producenta, wejście sponsora, zmiana regulaminu, sprzedaż zespołu. Decyzję podejmuje odpowiedni aktor (AI albo gracz) na zwykłych zasadach. Propozycja jedynie podsuwa mu tę opcję, a „siła historii” (§2.3) podbija jej użyteczność dla AI.
 
-### 2.4. Po 2026
+### 2.5. Po 2026
 Gdy prawdziwych ludzi zabraknie, generator tworzy nowych w tym samym rytmie i o tym samym rozkładzie talentu, jaki miały ostatnie dekady. Gracz nie powinien zauważyć szwu.
 
 ---
@@ -116,7 +129,10 @@ Technologia wymaga badań (personel i pieniądze), ma ryzyko porażki i szansę,
 - **Projekt roczny:** koncepcja plus wybrane technologie, tworzone przez głównego projektanta. Jakość zależy od personelu, budżetu i infrastruktury.
 - **Rozwój w sezonie:** małe przyrosty. Decyzja o „poświęceniu sezonu” (wcześniejsze przejście na nowy samochód) jest dostępna dla gracza i dla AI.
 - **Wektor osiągów:** Moc, Docisk (ograniczony epoką i technologią), Przyczepność mechaniczna, Hamowanie, Niezawodność.
-- **Silnik:** własny (wymaga projektanta silników i dużego budżetu) albo kliencki (umowa z dostawcą, np. Coventry-Climax czy Cosworth DFV). Ścieżka własnego producenta to otwarte pytanie.
+- **Silnik:** kliencki (umowa z dostawcą epoki, np. Coventry-Climax, Cosworth DFV) albo **własny** (PP-019). Gracz może zostać producentem silników, jak Ferrari, BRM czy Honda:
+  - wymaga to projektanta silników, osobnego budżetu i czasu (pierwszy silnik powstaje co najmniej sezon);
+  - własny silnik można **sprzedawać zespołom klienckim**, co daje przychód, wpływy i dane, ale też tworzy rywali na tym samym sprzęcie;
+  - przepisy epoki (pojemność, turbo, hybryda) mogą unieważnić projekt, więc zmiana regulaminu to realne ryzyko.
 - **Opony:** dostawca z epoki, z wojnami oponiarskimi (Goodyear–Firestone, Michelin–Bridgestone).
 - **Dopasowanie do toru:** iloczyn skalarny wektora samochodu i wag profilu toru (prosta, szybkie zakręty, wolne zakręty, hamowanie). Ten mechanizm zostaje ze starej dokumentacji.
 
@@ -164,7 +180,7 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 
 **Kwalifikacje** mają format epoki.
 **Incydenty i awarie:** ryzyko zależy od epoki (bezpieczeństwo), kierowcy (agresja, opanowanie) i sprzętu. Skutki to kontuzje i końce karier. Śmierć tylko przy włączonej opcji (PP-006).
-**Prezentacja:** wynik natychmiastowy albo relacja na żywo (tabela, różnice czasu, komunikaty). Mapa toru 2D później.
+**Prezentacja:** najpierw backend (PP-020). Wyścig ma wynik natychmiastowy albo relację na żywo w formie tabeli z różnicami czasu i komunikatami. Mapa toru 2D powstanie po zbudowaniu UI.
 
 ---
 

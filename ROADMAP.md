@@ -5,11 +5,11 @@
 
 ---
 
-## Faza 0: Fundament ✅ (prawie)
+## Faza 0: Fundament ✅
 - [x] VISION z decyzjami, DESIGN, TECH, ROADMAP; stare dokumenty skonsolidowane (są w historii gita)
 - [x] repozytorium git
-- [ ] push na GitHub
-- [ ] odpowiedzi na [otwarte pytania](#otwarte-pytania)
+- [x] push na GitHub (github.com/DatJikun/paddock-principal)
+- [x] odpowiedzi na otwarte pytania
 
 ## Faza 1: Pipeline danych historycznych (test wykonalności)
 Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
@@ -35,9 +35,10 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 
 **Bramka (grywalności):** czytasz relację wyścigu z 1955 i z 1988. Czuć różnicę epok, a wyniki są wiarygodne.
 
-## Faza 4: Pętla kariery (pierwszy grywalny sezon, w CLI / prostym UI)
+## Faza 4: Pętla kariery (pierwszy grywalny sezon, w CLI)
 - Start kariery: praca w istniejącym zespole albo **własny zespół z pakietem sponsora założycielskiego** (PP-015).
-- Rynek i negocjacje, projekt samochodu i R&D, drzewo technologii, finanse i sponsorzy.
+- Konfiguracja kariery: presety, siła historii, los legend (DESIGN §2.3).
+- Rynek i negocjacje, pula talentów, projekt samochodu i R&D, drzewo technologii, własne silniki, finanse i sponsorzy.
 - AI szefów zespołów, zwolnienia (także gracza).
 - Powstawanie, upadki i wykupy zespołów; propozycje historyczne.
 - Projekt szczegółowy: zakładanie i wykup zespołu w trakcie kariery.
@@ -62,9 +63,6 @@ Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyśc
 
 ## Otwarte pytania
 
-1. **Wiedza o przyszłości:** gracz wie, że Senna będzie wielki. Czy to celowa część zabawy („znam historię, więc łowię talenty”), czy ukrywamy prawdziwych juniorów (np. opcja „anonimowi juniorzy do debiutu”)? AI na pewno nie zna przyszłości.
-2. **Serie w świecie 1950:** tylko mistrzostwa świata F1, czy też wyścigi F1 poza mistrzostwami? (Było ich wtedy więcej niż rund mistrzostw i dawały pieniądze startowe).
-3. **Własne silniki:** czy gracz może zostać producentem silników (droga Ferrari, BRM, Hondy), czy tylko wybiera dostawcę?
-4. **Prezentacja wyścigu w pierwszej wersji:** relacja tekstowa i tabela na żywo wystarczą, czy od razu chcesz mapę toru 2D?
-5. **Język gry:** polski, angielski czy oba (i-18n od początku kosztuje niewiele)?
-6. **Repozytorium na GitHubie:** prywatne czy publiczne (Peloton i Ping-Pong są publiczne)?
+Na razie nie ma pytań blokujących. Następne pojawią się przy raporcie z fazy 1 (kalibracja ocen, np. ile lat przed debiutem kierowca trafia do puli talentów).
+
+Rozstrzygnięte 2026-09-25: wiedza o przyszłości (PP-018), tylko mistrzostwa F1 na start (PP-018), własne silniki (PP-019), backend przed UI (PP-020), dwa języki (PP-021), publiczne repo (PP-022).

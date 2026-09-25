@@ -12,6 +12,7 @@ Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić
 | [ROADMAP.md](ROADMAP.md) | fazy z bramkami i otwarte pytania |
 | [DESIGN.md](DESIGN.md) | systemy gry: świat, historia, epoki, samochód, ludzie, wyścig, AI, ekonomia |
 | [TECH.md](TECH.md) | stack, architektura, determinizm, dane, zapis, diagnostyka, testy |
+| [AGENTS.md](AGENTS.md) | zasady dla agentów AI pomagających w repo |
 
 Dokumentacji ma być mało (PP-017). Szczegóły żyją w kodzie i historii gita.
 

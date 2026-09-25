@@ -87,6 +87,11 @@ Są dwie ścieżki. Ich trudność wynika z historii, a nie ze sztucznego limitu
 
 Oferty są rzadkie i pojawiają się jako okazje w skrzynce (np. „zespół X upada, właściciel szuka kupca”). Szczegóły to osobny etap projektowania w fazie 4.
 
+### 3.4. Własność i udziały (PP-028)
+Zespoły są prywatne albo mają udziałowców. Można sprzedać część udziałów, żeby zdobyć gotówkę (inwestor dostaje wpływ i oczekiwania). Można też kupić udziały w innym zespole, np. zespół B do rozwoju juniorów albo inwestycję. Historycznie: Fiat kupuje Ferrari (1969), Red Bull i Toro Rosso, Mercedes kupuje Brawn (2009).
+
+**Nie da się przejąć całej F1.** Limity wynikają z regulaminu (ile zespołów może kontrolować jeden podmiot, np. najwyżej dwa), ze zgody organizatora serii i właścicieli oraz z reakcji rynku, bo sponsorzy i producenci nie lubią monopolu. W trybie piaskownicy limity można wyłączyć dla zabawy.
+
 ---
 
 ## 4. Epoki i technologie
@@ -121,7 +126,9 @@ Technologie mają prawdziwą datę wprowadzenia. Dla AI to punkt odniesienia, a 
 | Aktywne zawieszenie | Lotus 1987, Williams 1992, zakaz 1994 | docisk i przyczepność mechaniczna |
 | Hybryda | KERS 2009, jednostki napędowe 2014 | moc, koszty |
 
-Technologia wymaga badań (personel i pieniądze), ma ryzyko porażki i szansę, że rywale ją skopiują. **Zakazy reagują na świat:** propozycja zakazu pojawia się, gdy dana technologia zbyt mocno dominuje w *Twoim* świecie, a nie w tym prawdziwym roku.
+Technologia wymaga badań (personel i pieniądze) i ma ryzyko porażki.
+
+**Kopiowanie wynika z ludzi, a nie z systemu szpiegowskiego** (PP-028). Inżynierowie podpatrują widoczne rozwiązania rywali (skrzydła, podłoga, koncepcja). Szansa i tempo skopiowania zależą od ich umiejętności analizy i kreatywności oraz od tego, jak bardzo rozwiązanie jest widoczne: skrzydło widać, mapowanie silnika nie. Wiedzę przenoszą też **ludzie zmieniający zespół**, bo projektant przechodzący do rywala zabiera doświadczenie z poprzedniej koncepcji. Osobnego systemu szpiegostwa nie ma. **Zakazy reagują na świat:** propozycja zakazu pojawia się, gdy dana technologia zbyt mocno dominuje w *Twoim* świecie, a nie w tym prawdziwym roku.
 
 ### 4.3. Nieskończona infrastruktura (PP-026)
 Nie ma końca drzewka. **W 1972 nie może być endgame'u.** Trzy mechanizmy:
@@ -171,7 +178,14 @@ Nowa część czy nowy pakiet nie daje pełnych osiągów od razu. Zespół musi
   - potrzebny jest projektant silników, osobny budżet i co najmniej sezon na pierwszy silnik;
   - silnik można sprzedawać klientom: to przychód, wpływy i dane, ale też rywale na tym samym sprzęcie;
   - zmiana przepisów (pojemność, turbo, hybryda) może unieważnić projekt.
-- **Opony:** dostawca epoki, z wojnami oponiarskimi (Goodyear–Firestone, Michelin–Bridgestone).
+- **Dostawcy (PP-030):** opony, paliwo i olej, kluczowe części (np. hamulce, skrzynia, elektronika), silniki.
+  - **Rodzaje umów:**
+    - fabryczna / partnerska: wspólny rozwój, pierwszeństwo w nowościach, pieniądze albo rabaty, obowiązki marketingowe, zależność;
+    - kliencka: tanio i elastycznie, ale produkt „dla wszystkich” i zawsze krok za partnerem.
+  - **Umowy wieloletnie** budują relację: im dłużej i lepiej, tym więcej wspólnego rozwoju (np. Ferrari i Shell).
+  - **Zespół numer 1 u dostawcy** (najlepszy wśród jego klientów) współtworzy z nim technologię i dostaje ją pierwszy. Inni klienci dostają ją później albo w słabszej wersji.
+  - **Każdy dostawca ma swoje plusy i minusy** (np. paliwo mocniejsze, ale mniej wydajne; opona szybka, ale kapryśna). Wybór jest kompromisem, a nie rankingiem.
+  - **Wojny oponiarskie** (Goodyear–Firestone, Michelin–Bridgestone): opona dostrojona pod zespół partnerski potrafi zmienić układ sił.
 
 ---
 
@@ -224,7 +238,7 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 
 ## 7. Wyścig
 
-**Automatyczny, sterowany przez sztab (zostaje ze starej dokumentacji).** Gracz przygotowuje zespół, a strategię w wyścigu realizują jego ludzie. Jakość ich decyzji zależy od ich umiejętności. Race Spy wyjaśnia każdą decyzję.
+**Automatyczny, sterowany przez sztab (zostaje ze starej dokumentacji, PP-029).** Nie ma magazynu pojedynczych części ani mikrozarządzania: zatrudniasz stratega, a on steruje postojami i tempem. Gra jest modularna, więc chętni mogą włączyć moduły ręcznej kontroli (np. ręczne pit-stopy i polecenia tempa w wyścigu). To ustawienie kariery, a nie wymóg. Gracz przygotowuje zespół, a strategię w wyścigu realizują jego ludzie. Jakość ich decyzji zależy od ich umiejętności. Race Spy wyjaśnia każdą decyzję.
 
 **Czas okrążenia składa się z warstw:** baza toru, dopasowanie samochodu, kierowca, paliwo, opony, ruch i brudne powietrze, pogoda, szum losowy. **Każda warstwa jest parametryzowana epoką:**
 - **lata 50.:** jedna mieszanka opon, rzadkie postoje, awaryjność decyduje o połowie wyników, zmiana kierowcy w trakcie wyścigu;

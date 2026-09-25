@@ -143,3 +143,12 @@ Zadania są opisane jako GitHub Issues z kryteriami akceptacji. Implementacja id
 **PP-026: Infrastruktura jest nieskończona.** Jakość obiektów liczy się względem ruchomej granicy technologii, nowe rodzaje obiektów przychodzą z epokami, a regulamin resetuje przewagi. Nie ma endgame'u. Szczegóły w DESIGN §4.3.
 
 **PP-027: Budowanie auta to kluczowy system z realnymi kompromisami.** Są trzy drogi pozyskania (samochód kliencki, własna konstrukcja, umowa z producentem aż po status zespołu fabrycznego), a koncepcja składa się z osi, na których każdy biegun ma swoją cenę. Szczegóły w DESIGN §5.
+
+### Przyjęte 2026-09-25 (szósta runda, po researchu Team Principal)
+
+**PP-028: Własność i udziały: tak. Szpiegostwo: nie.** Zespoły mogą sprzedawać i kupować udziały, a zespoły B są dozwolone. Limity regulaminowe i rynkowe nie pozwalają przejąć całej F1; w piaskownicy można je wyłączyć. Nie ma osobnego systemu szpiegostwa: kopiowanie rozwiązań rywali wynika z umiejętności inżynierów i z przepływu ludzi między zespołami.
+
+**PP-029: Delegowanie zamiast mikrozarządzania, ale gra jest modularna.** Nie ma magazynu części; wyścigiem steruje zatrudniony strateg. Ręczna kontrola (np. pit-stopy) to opcjonalne moduły włączane w ustawieniach kariery. Każdy system musi dać się zaprojektować tak, żeby mógł być delegowany albo sterowany ręcznie.
+
+**PP-030: Umowy z dostawcami to ważny system.** Opony, paliwo, części i silniki; umowy fabryczne, partnerskie i klienckie; umowy wieloletnie; zespół numer 1 współtworzy technologię z dostawcą. Każdy dostawca ma swoje plusy i minusy. Szczegóły w DESIGN §5.4.
+

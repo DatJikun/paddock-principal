@@ -218,13 +218,15 @@ Opcjonalne. „Jak się nie przydadzą, to luz.”
 
 Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloton Managerze żadna się nie udała (`experiments/avatar_prototype` w repo Pelotona), w Ping-Pong Managerze na 4/10 (`tools/avatar-preview.html`, `tests/avatars.test.js`). Przed startem obejrzyj oba repozytoria i nazwij, co tam nie zagrało.
 
-**Proponowany kierunek (do potwierdzenia na starcie):**
-- **Kierowcy to przede wszystkim kask.** W motorsporcie to tożsamość (żółty kask Senny, wiosła Hilla).
-  - Kask proceduralny z ziarna: kształt zależny od epoki (otwarty z goglami w latach 50.–60., integralny od lat 70., później szybka i halo), wzór (pasy, łuki, gwiazdy, motyw flagi), 2–3 kolory, numer.
-  - Omija problem prawa do wizerunku, bo nie rysujemy prawdziwych twarzy.
-  - Prawdziwi kierowcy mogą dostać ręcznie przygotowane wzory „w stylu” swoich kasków.
-- **Personel i menedżer:** stylizowane portrety w płaskim stylu plakatu z lat 70., bez ambicji realizmu. Muszą pasować do skórki epoki i barw zespołu.
-- **Technika:** SVG składane z warstw, deterministyczne z ziarna osoby (INV-002). Kilka rozmiarów: wiersz tabeli 32–40 px, karta, profil. Test: siatka 100 losowych awatarów jako „arkusz kontaktowy” do oceny właściciela.
+**Decyzje właściciela (2026-09-26):**
+- **Bez kasku.** Kask nie jest wizerunkiem kierowcy.
+- **Twarze: tak, jak najbardziej.** Twarze mają wszyscy: kierowcy, personel, menedżer.
+- **Styl:** właściciel prosi nową sesję o propozycję. Pokaż 2–3 wyraźnie różne style na tych samych osobach, zanim zbudujesz system.
 
-**Pytania na start:** czy kask ma być głównym wizerunkiem kierowcy? Czy twarze w ogóle są potrzebne? Jaki styl portretów: plakat, rysunek, sylwetka? Najpierw 2–3 próbki stylu, dopiero potem system.
-
+**Wymagania techniczne:**
+- SVG składane z warstw, deterministyczne z ziarna osoby (INV-002).
+- Wiek widoczny na twarzy: starzenie się przez dekady kariery.
+- Epoka widoczna w wyglądzie (fryzury, zarost, okulary z danej dekady), pasuje do skórki epoki i barw zespołu.
+- Rozmiary: wiersz tabeli 32–40 px, karta, profil.
+- Prawdziwe osoby dostają twarz generowaną **„w duchu”** cech (wiek, kolor włosów, zarost), a nie próbę portretu. Prawo do wizerunku: żadnego odwzorowania prawdziwych twarzy.
+- Test: arkusz kontaktowy ze 100 losowymi twarzami do oceny właściciela (różnorodność, brak „klonów”).

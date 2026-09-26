@@ -1,0 +1,286 @@
+[
+  {
+    "id": "revenue_model",
+    "category": "economic",
+    "name": "Championship revenue distribution model",
+    "type": "enum",
+    "values": [
+      "promoter_individual_deals",
+      "foca_collective_guarantee",
+      "concorde_1_fisa_foca_split",
+      "concorde_2_fopa_expansion",
+      "concorde_3_commercial_growth",
+      "concorde_4_interim",
+      "concorde_5_columns_structure",
+      "concorde_mou_interim",
+      "concorde_6_fota_accord",
+      "bilateral_agreements_ccb",
+      "concorde_8_cost_cap_equitable"
+    ],
+    "unit": null,
+    "gameplay_effect": "Governs how Grand Prix income, television broadcasting revenue, and prize fund money are collected and distributed to participating teams."
+  },
+  {
+    "id": "team_budget_low_nominal_usd",
+    "category": "economic",
+    "name": "Backmarker team operating budget (nominal USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Benchmark annual operating budget for the smallest independent / backmarker entrants in current-year nominal USD."
+  },
+  {
+    "id": "team_budget_typical_nominal_usd",
+    "category": "economic",
+    "name": "Midfield team operating budget (nominal USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Benchmark annual operating budget for a competitive midfield team in current-year nominal USD."
+  },
+  {
+    "id": "team_budget_top_nominal_usd",
+    "category": "economic",
+    "name": "Front-runner team operating budget (nominal USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Benchmark annual operating budget for a championship-contending works or top-tier team in current-year nominal USD."
+  },
+  {
+    "id": "team_budget_low_2025_usd",
+    "category": "economic",
+    "name": "Backmarker team operating budget (2025 USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Benchmark annual operating budget for backmarker entrants adjusted to constant 2025 USD via the US CPI-U index."
+  },
+  {
+    "id": "team_budget_typical_2025_usd",
+    "category": "economic",
+    "name": "Midfield team operating budget (2025 USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Benchmark annual operating budget for a competitive midfield team adjusted to constant 2025 USD via the US CPI-U index."
+  },
+  {
+    "id": "team_budget_top_2025_usd",
+    "category": "economic",
+    "name": "Front-runner team operating budget (2025 USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Benchmark annual operating budget for a championship-contending team adjusted to constant 2025 USD via the US CPI-U index."
+  },
+  {
+    "id": "driver_pay_midfield_nominal_usd",
+    "category": "economic",
+    "name": "Midfield driver salary (nominal USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Typical annual base retainer paid to an established midfield Formula 1 driver in current-year nominal USD."
+  },
+  {
+    "id": "driver_pay_top_nominal_usd",
+    "category": "economic",
+    "name": "Top driver salary (nominal USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Typical annual base retainer commanded by a premier race winner or World Champion driver in current-year nominal USD."
+  },
+  {
+    "id": "driver_pay_midfield_2025_usd",
+    "category": "economic",
+    "name": "Midfield driver salary (2025 USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Typical annual base retainer paid to an established midfield driver adjusted to constant 2025 USD via the US CPI-U index."
+  },
+  {
+    "id": "driver_pay_top_2025_usd",
+    "category": "economic",
+    "name": "Top driver salary (2025 USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Typical annual base retainer commanded by a premier driver adjusted to constant 2025 USD via the US CPI-U index."
+  },
+  {
+    "id": "commercial_liveries",
+    "category": "commercial",
+    "name": "Permissibility of commercial livery sponsorship",
+    "type": "enum",
+    "values": [
+      "national_racing_colours",
+      "commercial_sponsorship_allowed"
+    ],
+    "unit": null,
+    "gameplay_effect": "Determines whether cars must carry national racing colours or are allowed to display commercial title sponsors and product branding."
+  },
+  {
+    "id": "tobacco_advertising",
+    "category": "commercial",
+    "name": "Tobacco advertising regulation",
+    "type": "enum",
+    "values": [
+      "none_pre_commercial",
+      "unrestricted",
+      "national_restrictions_mosaic",
+      "eu_ban_and_global_phaseout",
+      "full_ban"
+    ],
+    "unit": null,
+    "gameplay_effect": "Controls the legality and restrictions surrounding tobacco company sponsorships, which historically formed the bulk of team commercial revenue."
+  },
+  {
+    "id": "alcohol_advertising",
+    "category": "commercial",
+    "name": "Alcohol advertising regulation",
+    "type": "enum",
+    "values": [
+      "unrestricted",
+      "national_restrictions"
+    ],
+    "unit": null,
+    "gameplay_effect": "Controls restrictions on alcoholic beverage sponsorships at specific rounds, requiring replacement liveries or non-alcoholic brand promotion."
+  },
+  {
+    "id": "entry_barrier_model",
+    "category": "entry",
+    "name": "New team championship entry mechanism",
+    "type": "enum",
+    "values": [
+      "open_entry_low_barrier",
+      "concorde_registered_constructors",
+      "entry_bond_48m",
+      "fia_selection_tender",
+      "fia_call_for_expressions_of_interest",
+      "anti_dilution_fee_200m",
+      "anti_dilution_fee_450m"
+    ],
+    "unit": null,
+    "gameplay_effect": "Regulates the institutional process, regulatory barriers, and fee requirements for new entrants seeking to join the grid."
+  },
+  {
+    "id": "entry_fee_nominal_usd",
+    "category": "entry",
+    "name": "Mandatory new entrant fee or bond (nominal USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Mandatory cash fee, bond deposit, or anti-dilution fund required from a new entrant in nominal USD."
+  },
+  {
+    "id": "entry_fee_2025_usd",
+    "category": "entry",
+    "name": "Mandatory new entrant fee or bond (2025 USD)",
+    "type": "number",
+    "values": null,
+    "unit": "usd",
+    "gameplay_effect": "Mandatory cash fee or bond required from a new entrant adjusted to constant 2025 USD via the US CPI-U index."
+  },
+  {
+    "id": "pre_qualifying",
+    "category": "entry",
+    "name": "Pre-qualifying elimination sessions",
+    "type": "enum",
+    "values": [
+      "none",
+      "ad_hoc_elimination",
+      "mandatory_friday_prequalifying"
+    ],
+    "unit": null,
+    "gameplay_effect": "Controls whether early morning pre-qualifying sessions are staged to eliminate surplus entrants before official practice and qualifying."
+  },
+  {
+    "id": "maximum_grid_size",
+    "category": "entry",
+    "name": "Maximum starting grid capacity",
+    "type": "enum",
+    "values": [
+      "circuit_specific_limit_16_to_28",
+      "standard_26_cars"
+    ],
+    "unit": null,
+    "gameplay_effect": "Sets the maximum number of cars permitted to take the start of a Grand Prix."
+  },
+  {
+    "id": "crash_test_standard",
+    "category": "safety",
+    "name": "Mandatory chassis structural crash testing",
+    "type": "enum",
+    "values": [
+      "none",
+      "frontal_impact_survival_cell",
+      "feet_behind_axle_and_frontal",
+      "post_imola_monocoque_reinforcements",
+      "rear_and_dynamic_side_impact",
+      "strengthened_side_and_rollhoop",
+      "hybrid_era_low_nose_and_side_impact_spars",
+      "increased_energy_absorption_2022"
+    ],
+    "unit": null,
+    "gameplay_effect": "Governs mandatory structural impact verification tests required before a new chassis design can be homologated for competition."
+  },
+  {
+    "id": "medical_service_standard",
+    "category": "safety",
+    "name": "Trackside emergency medical service standards",
+    "type": "enum",
+    "values": [
+      "basic_local_first_aid",
+      "permanent_medical_delegate_and_chase_car",
+      "mandatory_circuit_medical_centre_and_helo",
+      "modern_fia_emergency_protocol"
+    ],
+    "unit": null,
+    "gameplay_effect": "Dictates the quality and speed of emergency medical response, including medical chase cars, permanent trauma facilities, and helicopter evacuation."
+  },
+  {
+    "id": "circuit_safety_standards",
+    "category": "safety",
+    "name": "Circuit safety infrastructure standards",
+    "type": "enum",
+    "values": [
+      "natural_road_unprotected",
+      "gpda_protests_and_armco_mandate",
+      "fisa_inspections_and_gravel_runoffs",
+      "post_imola_circuit_reprofiling_and_barriers",
+      "fia_grade_1_tecpro_and_asphalt_runoffs"
+    ],
+    "unit": null,
+    "gameplay_effect": "Governs circuit barrier technology, runoff dimensions, and mandatory track safety licensing standards."
+  },
+  {
+    "id": "hans_device",
+    "category": "safety",
+    "name": "Head and Neck Support (HANS) device",
+    "type": "enum",
+    "values": [
+      "none",
+      "mandatory"
+    ],
+    "unit": null,
+    "gameplay_effect": "Mandates the HANS head restraint device to drastically mitigate the risk of fatal basilar skull fractures during rapid decelerations."
+  },
+  {
+    "id": "fatality_risk",
+    "category": "safety",
+    "name": "Inherent competition fatality risk level",
+    "type": "enum",
+    "values": [
+      "very_high",
+      "high",
+      "moderate",
+      "low",
+      "very_low"
+    ],
+    "unit": null,
+    "gameplay_effect": "Sets the baseline probability of catastrophic injury or fatal accidents during race weekends, shaping driver safety concerns and public scrutiny."
+  }
+]

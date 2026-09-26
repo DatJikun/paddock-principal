@@ -213,6 +213,27 @@ public class JolpicaNormalizerTests
     }
 
     [Fact]
+    public void NameOnlyDriverStubsKeepNullBiography()
+    {
+        var cache = Path.Combine(Path.GetTempPath(), "paddock-jolpica-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Write(cache, "raw/drivers/offset-0.json", """
+                {"MRData":{"limit":"1","offset":"0","total":"1","DriverTable":{"Drivers":[{"driverId":"paul_aron","givenName":"Paul","familyName":"Aron"}]}}}
+                """);
+            var driver = Assert.Single(JolpicaNormalizer.ReadRaw(Path.Combine(cache, "raw")).Drivers.Drivers);
+            Assert.Equal("paul_aron", driver.DriverId);
+            Assert.Null(driver.DateOfBirth);
+            Assert.Null(driver.Nationality);
+            Assert.Null(driver.Url);
+        }
+        finally
+        {
+            Directory.Delete(cache, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task UnknownCommandFailsWithoutWritingData()
     {
         var stdout = new StringWriter();

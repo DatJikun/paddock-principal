@@ -36,11 +36,11 @@ public sealed record HistoricalDriver(
     string DriverId,
     string GivenName,
     string FamilyName,
-    string DateOfBirth,
-    string Nationality,
+    string? DateOfBirth,
+    string? Nationality,
     string? Code,
     string? PermanentNumber,
-    string Url);
+    string? Url);
 
 public sealed record HistoricalConstructorsDocument(int SchemaVersion, IReadOnlyList<HistoricalConstructor> Constructors);
 

@@ -190,15 +190,16 @@ public static class JolpicaNormalizer
         foreach (var row in rows.EnumerateArray())
         {
             var id = RequiredString(row, "driverId", file);
+            // A few recent drivers in the index are name-only stubs: no date of birth, nationality, or url.
             drivers[id] = new HistoricalDriver(
                 id,
                 RequiredString(row, "givenName", file),
                 RequiredString(row, "familyName", file),
-                RequiredString(row, "dateOfBirth", file),
-                RequiredString(row, "nationality", file),
+                OptionalString(row, "dateOfBirth"),
+                OptionalString(row, "nationality"),
                 OptionalString(row, "code"),
                 OptionalString(row, "permanentNumber"),
-                RequiredString(row, "url", file));
+                OptionalString(row, "url"));
         }
     }
 

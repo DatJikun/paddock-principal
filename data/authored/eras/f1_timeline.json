@@ -1,0 +1,1127 @@
+[
+  {
+    "dimension": "revenue_model",
+    "value": "promoter_individual_deals",
+    "from": 1950,
+    "to": 1973,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_Group",
+    "notes": "no specific source found for how promoters paid entrants before FOCA. The Formula One Group article dates the constructors' association to 1974, so individual promoter deals are only the working assumption for the years before that."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "foca_collective_guarantee",
+    "from": 1974,
+    "to": 1980,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_Group",
+    "notes": "The Formula One Constructors' Association was founded in 1974 to organize the commercial side of the championship for the teams. Bernie Ecclestone became its executive in 1978."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_1_fisa_foca_split",
+    "from": 1981,
+    "to": 1986,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The first Concorde Agreement was signed on 19 January 1981, ending the FISA–FOCA dispute. Signatory teams had to appear at every race, and FOCA received the television rights, which it leased to Bernie Ecclestone's promotions company. The article's section heading dates this version to 1981–1986; it also says the contract expired on 31 December 1987."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_2_fopa_expansion",
+    "from": 1987,
+    "to": 1991,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The second agreement governed 1987–1991. Ecclestone left team ownership and set up Formula One Promotions and Administration to handle television rights. The article gives the television split as 49% to that company, 1% to the teams and 50% to the FIA."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_3_commercial_growth",
+    "from": 1992,
+    "to": 1996,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The third agreement covered 1992–1996. Ecclestone needed FIA president Jean-Marie Balestre's approval to move the television rights to FOCA. Max Mosley became FIA president in 1993."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_4_1997",
+    "from": 1997,
+    "to": 1997,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "On 5 September 1996 every team except McLaren, Williams and Tyrrell signed an agreement intended to run from 1 January 1997 to 31 December 2002. The three hold-outs stayed outside and lost signatory income. 1997 is kept as its own year because the 1998 agreement replaced this one."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_5_1998",
+    "from": 1998,
+    "to": 2007,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "A compromise signed on 27 August 1998 brought McLaren, Williams and Tyrrell into the agreement and expired on 31 December 2007. The article does not describe a two-column prize fund."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_mou_interim",
+    "from": 2008,
+    "to": 2008,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The Concorde Agreement article says a full Concorde Agreement was not in place for 2008. A memorandum signed on 14 May 2006, together with extensions and separate team deals, was used as a stop-gap."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_6_fota_accord",
+    "from": 2009,
+    "to": 2012,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "After the 2009 dispute between the teams' association and the FIA, a new agreement was signed and ran until 31 December 2012, continuing the terms of the 1998 agreement."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "bilateral_agreements",
+    "from": 2013,
+    "to": 2020,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "There was no single collective contract for 2013–2020. The Formula One Group signed separate bilateral agreements with the FIA and with each team. The arrangement expired on 31 December 2020."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_8_cost_cap_equitable",
+    "from": 2021,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The eighth agreement, the first under Liberty Media, covers 2021–2025 and took effect on 1 January 2021. It introduced a budget cap and changed the prize-money split. A new entrant must pay $200 million up front, divided equally among the ten existing teams, to share revenue from its first season."
+  },
+  {
+    "dimension": "revenue_model",
+    "value": "concorde_9_2026",
+    "from": 2026,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "On 16 March 2025 all eleven teams signed the 2026 commercial agreement, in force from 1 January 2026 through 2030. The FIA, Formula 1 and the teams signed the governance agreement on 12 December 2025."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "20000",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "60000",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "250000",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "5000",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "25000",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "35000",
+    "from": 1958,
+    "to": 1965,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "100000",
+    "from": 1958,
+    "to": 1965,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "300000",
+    "from": 1958,
+    "to": 1965,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "8000",
+    "from": 1958,
+    "to": 1965,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "40000",
+    "from": 1958,
+    "to": 1965,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "80000",
+    "from": 1966,
+    "to": 1972,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Cosworth_DFV",
+    "notes": "Estimate. The Cosworth DFV article states a customer engine price of £7,500 at 1967 prices. no specific source found for full team budgets or driver retainers; the figures in this band are estimates around that engine price and the 1968 arrival of sponsorship."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "250000",
+    "from": 1966,
+    "to": 1972,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Cosworth_DFV",
+    "notes": "Estimate. The Cosworth DFV article states a customer engine price of £7,500 at 1967 prices. no specific source found for full team budgets or driver retainers; the figures in this band are estimates around that engine price and the 1968 arrival of sponsorship."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "750000",
+    "from": 1966,
+    "to": 1972,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Cosworth_DFV",
+    "notes": "Estimate. The Cosworth DFV article states a customer engine price of £7,500 at 1967 prices. no specific source found for full team budgets or driver retainers; the figures in this band are estimates around that engine price and the 1968 arrival of sponsorship."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "15000",
+    "from": 1966,
+    "to": 1972,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Cosworth_DFV",
+    "notes": "Estimate. The Cosworth DFV article states a customer engine price of £7,500 at 1967 prices. no specific source found for full team budgets or driver retainers; the figures in this band are estimates around that engine price and the 1968 arrival of sponsorship."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "100000",
+    "from": 1966,
+    "to": 1972,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Cosworth_DFV",
+    "notes": "Estimate. The Cosworth DFV article states a customer engine price of £7,500 at 1967 prices. no specific source found for full team budgets or driver retainers; the figures in this band are estimates around that engine price and the 1968 arrival of sponsorship."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "300000",
+    "from": 1973,
+    "to": 1976,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "800000",
+    "from": 1973,
+    "to": 1976,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "2000000",
+    "from": 1973,
+    "to": 1976,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "35000",
+    "from": 1973,
+    "to": 1976,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "250000",
+    "from": 1973,
+    "to": 1976,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "1000000",
+    "from": 1977,
+    "to": 1982,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "3500000",
+    "from": 1977,
+    "to": 1982,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "10000000",
+    "from": 1977,
+    "to": 1982,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "80000",
+    "from": 1977,
+    "to": 1982,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "1000000",
+    "from": 1977,
+    "to": 1982,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "3000000",
+    "from": 1983,
+    "to": 1988,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "12000000",
+    "from": 1983,
+    "to": 1988,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "40000000",
+    "from": 1983,
+    "to": 1988,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "250000",
+    "from": 1983,
+    "to": 1988,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "4000000",
+    "from": 1983,
+    "to": 1988,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "6000000",
+    "from": 1989,
+    "to": 1993,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "22000000",
+    "from": 1989,
+    "to": 1993,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "75000000",
+    "from": 1989,
+    "to": 1993,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "600000",
+    "from": 1989,
+    "to": 1993,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "12000000",
+    "from": 1989,
+    "to": 1993,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "10000000",
+    "from": 1994,
+    "to": 1997,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "35000000",
+    "from": 1994,
+    "to": 1997,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "120000000",
+    "from": 1994,
+    "to": 1997,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "1200000",
+    "from": 1994,
+    "to": 1997,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "25000000",
+    "from": 1994,
+    "to": 1997,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "45000000",
+    "from": 1998,
+    "to": 2008,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "160000000",
+    "from": 1998,
+    "to": 2008,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "450000000",
+    "from": 1998,
+    "to": 2008,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "2500000",
+    "from": 1998,
+    "to": 2008,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "35000000",
+    "from": 1998,
+    "to": 2008,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "60000000",
+    "from": 2009,
+    "to": 2013,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "130000000",
+    "from": 2009,
+    "to": 2013,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "320000000",
+    "from": 2009,
+    "to": 2013,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "2000000",
+    "from": 2009,
+    "to": 2013,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "25000000",
+    "from": 2009,
+    "to": 2013,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "110000000",
+    "from": 2014,
+    "to": 2020,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "180000000",
+    "from": 2014,
+    "to": 2020,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "450000000",
+    "from": 2014,
+    "to": 2020,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "3500000",
+    "from": 2014,
+    "to": 2020,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "40000000",
+    "from": 2014,
+    "to": 2020,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
+  },
+  {
+    "dimension": "team_budget_low_nominal_usd",
+    "value": "150000000",
+    "from": 2021,
+    "to": null,
+    "confidence": "low",
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Estimate. Formula 1's 27 May 2020 article states a cost cap of $145 million in 2021, $140 million in 2022 and $135 million from 2023. no specific source found there for total spend above the cap, or for driver salaries. The values in this band include cap-exempt items and are estimates."
+  },
+  {
+    "dimension": "team_budget_typical_nominal_usd",
+    "value": "190000000",
+    "from": 2021,
+    "to": null,
+    "confidence": "low",
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Estimate. Formula 1's 27 May 2020 article states a cost cap of $145 million in 2021, $140 million in 2022 and $135 million from 2023. no specific source found there for total spend above the cap, or for driver salaries. The values in this band include cap-exempt items and are estimates."
+  },
+  {
+    "dimension": "team_budget_top_nominal_usd",
+    "value": "250000000",
+    "from": 2021,
+    "to": null,
+    "confidence": "low",
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Estimate. Formula 1's 27 May 2020 article states a cost cap of $145 million in 2021, $140 million in 2022 and $135 million from 2023. no specific source found there for total spend above the cap, or for driver salaries. The values in this band include cap-exempt items and are estimates."
+  },
+  {
+    "dimension": "driver_pay_midfield_nominal_usd",
+    "value": "5000000",
+    "from": 2021,
+    "to": null,
+    "confidence": "low",
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Estimate. Formula 1's 27 May 2020 article states a cost cap of $145 million in 2021, $140 million in 2022 and $135 million from 2023. no specific source found there for total spend above the cap, or for driver salaries. The values in this band include cap-exempt items and are estimates."
+  },
+  {
+    "dimension": "driver_pay_top_nominal_usd",
+    "value": "50000000",
+    "from": 2021,
+    "to": null,
+    "confidence": "low",
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Estimate. Formula 1's 27 May 2020 article states a cost cap of $145 million in 2021, $140 million in 2022 and $135 million from 2023. no specific source found there for total spend above the cap, or for driver salaries. The values in this band include cap-exempt items and are estimates."
+  },
+  {
+    "dimension": "entry_barrier_model",
+    "value": "open_entry_low_barrier",
+    "from": 1950,
+    "to": 1980,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "no specific source found for the pre-1981 entry procedure. A low barrier, with privateers dealing with the race organiser, is the working assumption for this band."
+  },
+  {
+    "dimension": "entry_barrier_model",
+    "value": "concorde_registered_constructors",
+    "from": 1981,
+    "to": 2001,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "From the first Concorde Agreement, signatory teams had to enter and compete in every race so that broadcasters had a reliable grid."
+  },
+  {
+    "dimension": "entry_barrier_model",
+    "value": "entry_bond_48m",
+    "from": 2002,
+    "to": 2007,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/2006_Formula_One_World_Championship",
+    "notes": "The 2006 season article states that Super Aguri paid a US$48 million bond as a deposit and was confirmed on 26 January 2006. no specific source found for the bond starting in 2002 or for it being repaid with interest."
+  },
+  {
+    "dimension": "entry_barrier_model",
+    "value": "fia_selection_tender",
+    "from": 2008,
+    "to": 2014,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/2010_Formula_One_World_Championship",
+    "notes": "The 2010 season article says that in July 2009 the FIA aimed for 13 teams and chose three new applicants from fifteen (Campos Meta, Manor and US F1), later adding Lotus Racing after BMW Sauber withdrew. Lotus Racing, Virgin and HRT raced in 2010. no specific source found for that tender being the entry rule across all of 2008–2014."
+  },
+  {
+    "dimension": "entry_barrier_model",
+    "value": "fia_call_for_expressions_of_interest",
+    "from": 2015,
+    "to": 2020,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Haas_F1_Team",
+    "notes": "no specific source found for an expressions-of-interest window covering 2015–2020. The Haas article says the team was established in April 2014 and debuted in 2016, and that it was the first American constructor to file an entry after the failed US F1 project."
+  },
+  {
+    "dimension": "entry_barrier_model",
+    "value": "anti_dilution_fee_200m",
+    "from": 2021,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The eighth Concorde Agreement requires a new entrant to pay $200 million up front, shared equally by the ten existing teams, in exchange for revenue share from its first year."
+  },
+  {
+    "dimension": "entry_barrier_model",
+    "value": "anti_dilution_fee_450m",
+    "from": 2026,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The Concorde Agreement article says Cadillac, approved in March 2025 to join in 2026, has to pay $450 million to the existing teams. Marked medium because the contract text itself is not public."
+  },
+  {
+    "dimension": "entry_fee_nominal_usd",
+    "value": "0",
+    "from": 1950,
+    "to": 2001,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
+    "notes": "no specific source found for a mandatory multi-million entry bond before the mid-2000s. Zero is the working figure for this band."
+  },
+  {
+    "dimension": "entry_fee_nominal_usd",
+    "value": "48000000",
+    "from": 2002,
+    "to": 2007,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/2006_Formula_One_World_Championship",
+    "notes": "Estimate of the period attached to one documented case: the 2006 season article says Super Aguri paid a US$48 million bond as a deposit. no specific source found for that sum being charged from 2002, or for a repayment schedule."
+  },
+  {
+    "dimension": "entry_fee_nominal_usd",
+    "value": "0",
+    "from": 2008,
+    "to": 2020,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/2010_Formula_One_World_Championship",
+    "notes": "no specific source found for the size of any new-team fee in 2008–2020. The 2010 season article describes a selection of new teams, not an anti-dilution payment."
+  },
+  {
+    "dimension": "entry_fee_nominal_usd",
+    "value": "200000000",
+    "from": 2021,
+    "to": 2025,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The eighth agreement sets a $200 million up-front payment for a new entrant, divided equally among the ten existing teams."
+  },
+  {
+    "dimension": "entry_fee_nominal_usd",
+    "value": "450000000",
+    "from": 2026,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "The article says Cadillac has to pay $450 million to the existing teams to join in 2026. Medium confidence: that sentence is in the 2021–2025 section, and the 2026 agreement text is not public."
+  },
+  {
+    "dimension": "pre_qualifying",
+    "value": "none",
+    "from": 1950,
+    "to": 1976,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend#Historical_pre-qualifying",
+    "notes": "The race-weekend article places pre-qualifying sessions in the late 1970s and does not describe an earlier formal session."
+  },
+  {
+    "dimension": "pre_qualifying",
+    "value": "ad_hoc_elimination",
+    "from": 1977,
+    "to": 1987,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/1977_British_Grand_Prix",
+    "notes": "The 1977 British Grand Prix article says a Wednesday pre-qualification session was added because the entry was so large; most of the fourteen cars were from teams outside FOCA. no specific source found for that session being repeated whenever a grid overflowed through 1987."
+  },
+  {
+    "dimension": "pre_qualifying",
+    "value": "reintroduced_prequalifying",
+    "from": 1988,
+    "to": 1992,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend#Historical_pre-qualifying",
+    "notes": "The race-weekend article says pre-qualifying returned in the late 1980s and early 1990s, when some races drew thirty-nine cars. Usually the four fastest went forward, and thirty cars then fought for twenty-six grid places. It ended after the 1992 Hungarian Grand Prix, when many small teams withdrew."
+  },
+  {
+    "dimension": "pre_qualifying",
+    "value": "none",
+    "from": 1993,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend#Historical_pre-qualifying",
+    "notes": "Pre-qualifying stopped after the 1992 Hungarian Grand Prix. With fewer than twenty-six cars the field no longer needed an extra session; the 107% rule arrived in 1996 so that a very slow car would not qualify automatically."
+  },
+  {
+    "dimension": "maximum_grid_size",
+    "value": "no_single_championship_cap",
+    "from": 1950,
+    "to": 1992,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend#Historical_pre-qualifying",
+    "notes": "no specific source found for one championship-wide maximum, or for Monaco at 16 and Monza at 26–28. During the pre-qualifying era the same article says thirty cars contested twenty-six places."
+  },
+  {
+    "dimension": "maximum_grid_size",
+    "value": "cap_revised_in_1993",
+    "from": 1993,
+    "to": null,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history says that in 1993 the maximum grid was set at 25 cars and then raised to 26 from the German Grand Prix. no specific source found for that 26-car figure remaining the cap through 2026."
+  },
+  {
+    "dimension": "commercial_liveries",
+    "value": "national_racing_colours",
+    "from": 1950,
+    "to": 1967,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
+    "notes": "Before 1968 the team's nationality set the car colour, such as British racing green or Italian red. The liveries article treats 1968 as the start of sponsorship paint schemes."
+  },
+  {
+    "dimension": "commercial_liveries",
+    "value": "commercial_sponsorship_allowed",
+    "from": 1968,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
+    "notes": "The FIA allowed unrestricted sponsorship. Team Gunston's privately entered Brabham at the 1968 South African Grand Prix was the first sponsored livery, and Lotus followed with Imperial Tobacco's Gold Leaf colours."
+  },
+  {
+    "dimension": "tobacco_advertising",
+    "value": "none_pre_commercial",
+    "from": 1950,
+    "to": 1967,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
+    "notes": "Sponsorship liveries began in 1968. Before that, the article says the team's nationality set the car's colour."
+  },
+  {
+    "dimension": "tobacco_advertising",
+    "value": "unrestricted",
+    "from": 1968,
+    "to": 1972,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Regulation_of_nicotine_marketing",
+    "notes": "Imperial Tobacco's Gold Leaf colours appeared on a works Lotus at the 1968 Monaco Grand Prix, and tobacco money then became a major backer of the sport. The same article dates the first national ban on tobacco sponsorship of motor races to West Germany in 1973."
+  },
+  {
+    "dimension": "tobacco_advertising",
+    "value": "national_restrictions_mosaic",
+    "from": 1973,
+    "to": 2006,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Regulation_of_nicotine_marketing",
+    "notes": "West Germany began outlawing tobacco sponsorship of motor races in 1973, the United Kingdom in 1980 and France in 1993. Teams ran alternate liveries where a ban applied. The article also names the EU ban in Directive 2003/33/EC. Renault dropped Mild Seven after 2006, and British American Tobacco left the same year."
+  },
+  {
+    "dimension": "tobacco_advertising",
+    "value": "eu_ban_and_global_phaseout",
+    "from": 2007,
+    "to": 2007,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Regulation_of_nicotine_marketing",
+    "notes": "By 2007 Ferrari was the only team still backed by a cigarette brand, and Marlboro was legally visible at only three races: Bahrain, Monaco and China."
+  },
+  {
+    "dimension": "tobacco_advertising",
+    "value": "direct_logos_ended_surrogates_remain",
+    "from": 2008,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Regulation_of_nicotine_marketing",
+    "notes": "From 2008 Ferrari no longer carried Marlboro logos at any race. A barcode that hinted at the brand lingered, then left during 2010, and the Marlboro name left the team title at the 2011 British Grand Prix. The article still records tobacco-linked money in 2021 through Philip Morris's Mission Winnow and a McLaren sponsor, so this is the end of direct cigarette logos, not of every tobacco-company link."
+  },
+  {
+    "dimension": "alcohol_advertising",
+    "value": "unrestricted",
+    "from": 1950,
+    "to": 1975,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
+    "notes": "no specific source found for an alcohol-advertising rule in this period. The liveries article mentions Martini as a Brabham sponsor in 1975–76 and does not state a ban."
+  },
+  {
+    "dimension": "alcohol_advertising",
+    "value": "national_restrictions",
+    "from": 1976,
+    "to": null,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
+    "notes": "no specific source found for alcohol sponsorship being restricted from 1976. National limits are a working assumption, not a fact stated on the liveries page."
+  },
+  {
+    "dimension": "crash_test_standard",
+    "value": "none",
+    "from": 1950,
+    "to": 1984,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The year-by-year regulations history first requires a crash test in 1985. Nothing earlier on that list is a mandatory impact test."
+  },
+  {
+    "dimension": "crash_test_standard",
+    "value": "frontal_impact_test",
+    "from": 1985,
+    "to": 1987,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "From 1985 every car had to pass a frontal crash test before it could race. The article does not give the 1985 impact speed; the 1995 entry says that speed was later raised from 11 m/s to 12 m/s."
+  },
+  {
+    "dimension": "crash_test_standard",
+    "value": "feet_behind_axle_and_static_cell",
+    "from": 1988,
+    "to": 1991,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "From 1988 the driver's feet must not extend beyond the front-wheel axle, and a static test of the survival cell and fuel cell became mandatory."
+  },
+  {
+    "dimension": "crash_test_standard",
+    "value": "rear_impact_survival_cell",
+    "from": 1992,
+    "to": 1994,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The 1992 list adds more thorough survival-cell testing, including a rear impact test. Side-impact tests are listed under 1995, not 1994."
+  },
+  {
+    "dimension": "crash_test_standard",
+    "value": "side_impact_tests",
+    "from": 1995,
+    "to": 1997,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "For 1995 the history lists survival-cell side-impact tests, a longer cockpit ahead of the driver's feet, and a frontal impact speed raised from 11 m/s to 12 m/s."
+  },
+  {
+    "dimension": "crash_test_standard",
+    "value": "higher_energy_side_impact",
+    "from": 1998,
+    "to": 2006,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "In 1998 the side-impact test had to absorb 100% more energy. The article does not give a Zylon-panel rule or a 7 m/s to 10 m/s change."
+  },
+  {
+    "dimension": "crash_test_standard",
+    "value": "stronger_rear_structure",
+    "from": 2007,
+    "to": 2021,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The 2007 list requires a stronger rear crash structure. In 2014 noses were reprofiled again; the article does not state a 185 mm nose height or a standard side-impact spar."
+  },
+  {
+    "dimension": "crash_test_standard",
+    "value": "ground_effect_era_tests",
+    "from": 2022,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "2022 brought the ground-effect cars. For 2023 the halo roll hoop had to have a rounded top after Zhou Guanyu's rollover at the 2022 British Grand Prix."
+  },
+  {
+    "dimension": "medical_service_standard",
+    "value": "basic_local_first_aid",
+    "from": 1950,
+    "to": 1977,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Sid_Watkins",
+    "notes": "Sid Watkins's article says trackside medical facilities were sometimes nothing more than a tent before he took the Formula One role."
+  },
+  {
+    "dimension": "medical_service_standard",
+    "value": "permanent_medical_delegate_and_chase_car",
+    "from": 1978,
+    "to": 1985,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Sid_Watkins",
+    "notes": "Watkins was Formula One safety and medical delegate from 1978 to 2004. After Ronnie Peterson's fatal crash at Monza in 1978 he insisted on an anaesthetist, a medical car and a helicopter. The medical car was to follow the field on the first lap, and the equipment was in place at the next race in the United States."
+  },
+  {
+    "dimension": "medical_service_standard",
+    "value": "mandatory_medevac_and_inspector",
+    "from": 1986,
+    "to": 1996,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "After Elio de Angelis died testing in 1986, the regulations history says a permanent FIA medical-service inspector and a medevac helicopter became mandatory at race meetings."
+  },
+  {
+    "dimension": "medical_service_standard",
+    "value": "fia_approved_medical_centres",
+    "from": 1997,
+    "to": 2003,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "From 1997 the FIA had to approve each circuit's chief medical officer and medical centre. The 1999 list also requires at least four medical-intervention cars and an FIA doctor car."
+  },
+  {
+    "dimension": "medical_service_standard",
+    "value": "fia_institute_for_motor_sport_safety",
+    "from": 2004,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Sid_Watkins",
+    "notes": "In 2004 the FIA's circuit, rally and karting safety groups were combined into the FIA Institute for Motor Sport Safety, with Watkins as president. His spell as medical delegate ended the same year."
+  },
+  {
+    "dimension": "circuit_safety_standards",
+    "value": "natural_road_unprotected",
+    "from": 1950,
+    "to": 1968,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_fatalities",
+    "notes": "The fatalities list says the 1950 Silverstone event had no medical backup and no safety measures if someone crashed. Helmets were not compulsory until 1952."
+  },
+  {
+    "dimension": "circuit_safety_standards",
+    "value": "gpda_circuit_boycotts",
+    "from": 1969,
+    "to": 1979,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Grand_Prix_Drivers%27_Association",
+    "notes": "The GPDA article records driver boycotts of Spa in 1969 and of the Nürburgring in 1970 and again after 1976, over circuits the drivers considered unsafe. It does not say steel Armco barriers were made compulsory."
+  },
+  {
+    "dimension": "circuit_safety_standards",
+    "value": "interim_before_catch_fence_ban",
+    "from": 1980,
+    "to": 1985,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "no specific source found for a distinct circuit standard in 1980–1985. The next dated change on the regulations history is the 1986 ban on catch fencing."
+  },
+  {
+    "dimension": "circuit_safety_standards",
+    "value": "catch_fencing_banned",
+    "from": 1986,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "Catch fencing was banned for 1986. The 1992 list also lowers kerbs, widens the pit lane to 12 metres and introduces the safety car. A pit-lane speed limit is listed under 1994, not in this period."
+  },
+  {
+    "dimension": "circuit_safety_standards",
+    "value": "post_imola_layout_changes",
+    "from": 1994,
+    "to": 2003,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "After Imola 1994 a pit-lane speed limit was introduced, and sections of circuits classed as very high risk were removed or modified. The article does not name an expert committee or a Tecpro barrier in this period."
+  },
+  {
+    "dimension": "circuit_safety_standards",
+    "value": "fia_grade_one_required",
+    "from": 2004,
+    "to": null,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Safety_in_Formula_One",
+    "notes": "Safety in Formula One says a circuit must be FIA Grade One to host a race, covering safety, facilities and access. no specific source found for that rule starting in 2004, or for a Tecpro mandate and asphalt run-offs replacing gravel."
+  },
+  {
+    "dimension": "hans_device",
+    "value": "none",
+    "from": 1950,
+    "to": 2002,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/2003_Formula_One_World_Championship",
+    "notes": "The 2003 season article says the World Motor Sport Council made the HANS device compulsory on 26 June 2002, for Formula One use from the 2003 season. It was not required before that decision."
+  },
+  {
+    "dimension": "hans_device",
+    "value": "mandatory",
+    "from": 2003,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/2003_Formula_One_World_Championship",
+    "notes": "On 26 June 2002 the World Motor Sport Council declared the HANS device compulsory in Formula One. Several drivers objected, including Rubens Barrichello, Jacques Villeneuve, Justin Wilson and Nick Heidfeld."
+  },
+  {
+    "dimension": "fatality_risk",
+    "value": "very_high",
+    "from": 1950,
+    "to": 1969,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_fatalities",
+    "notes": "The list counts fifteen driver deaths in the 1950s and fourteen in the 1960s. Those totals include world-championship weekends, tests and some non-championship events, and the Indianapolis 500 while it counted toward the title."
+  },
+  {
+    "dimension": "fatality_risk",
+    "value": "high",
+    "from": 1970,
+    "to": 1982,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_fatalities",
+    "notes": "The same list counts twelve driver deaths in the 1970s. Gilles Villeneuve and Riccardo Paletti were killed at world-championship races in 1982. The band stops before 1983 so that those two races stay in the high-risk years."
+  },
+  {
+    "dimension": "fatality_risk",
+    "value": "moderate",
+    "from": 1983,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_fatalities",
+    "notes": "On this list the only driver death dated 1983–1993 is Elio de Angelis, killed in a test at Paul Ricard on 14 May 1986. The article's decade totals are four drivers in the 1980s, the other three being Patrick Depailler (test, 1980), Villeneuve and Paletti."
+  },
+  {
+    "dimension": "fatality_risk",
+    "value": "low",
+    "from": 1994,
+    "to": 2013,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_fatalities",
+    "notes": "Roland Ratzenberger and Ayrton Senna were killed on consecutive days at Imola in 1994. The list says no driver then died at a world-championship event for more than twenty years. Three later deaths on the list in that gap were in historic cars, not at Grands Prix."
+  },
+  {
+    "dimension": "fatality_risk",
+    "value": "very_low",
+    "from": 2014,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_fatalities",
+    "notes": "Jules Bianchi died in 2015 from injuries suffered at the 2014 Japanese Grand Prix. The list calls that the most recent world-championship race fatality, and its 2020s decade total is zero."
+  }
+]

@@ -1,12 +1,15 @@
 using System.Globalization;
-using System.Text.Json;
+using Paddock.Data.Authored;
+using Paddock.Domain.World;
 
 namespace Paddock.DataPipeline;
 
 /// <summary>
-/// Points-counting rules for one season, read from <c>data/authored/regulations/f1_timeline.json</c>.
-/// <see cref="WinPoints"/> and <see cref="FastestLapBonus"/> are only the ceiling for
-/// "could the leader still be caught". Counted championship points come from the
+/// Points-counting rules for one season. The four regulation values come from
+/// <see cref="AuthoredData.RuleSetFor"/> (<c>points_scale</c>, <c>fastest_lap_point</c>,
+/// <c>double_points_finale</c>, <c>results_counted</c>). This type only interprets those
+/// catalog tokens. <see cref="WinPoints"/> and <see cref="FastestLapBonus"/> are the ceiling
+/// for "could the leader still be caught". Counted championship points come from the
 /// <c>points</c> already stored on each Jolpica result (half-points and fastest-lap
 /// points included), not from reapplying the scale.
 /// </summary>
@@ -30,14 +33,27 @@ public sealed record SplitResults(int FirstHalfLastRound, int KeepFirst, int Kee
 
 public static class ChampionshipRules
 {
-    // Open-ended timeline rows ("to": null) are the rules still in force. Materialize them
-    // through 2100 so a later season fails only when the file truly has a gap.
-    private const int OpenEndedThrough = 2100;
-
-    // Split seasons name the quota in the timeline value, and the notes name which rounds
-    // form each half. The half cut is not a separate field, so it lives here and is checked
-    // against the timeline value at load. 1979's note says only "four from each half";
-    // the same Wikipedia page cited on that row says rounds 1–7 and 8–15.
+    // Half-season cuts are not a regulation dimension yet. The timeline value names the
+    // quota (best 5 from each half, and so on) and the notes name the rounds. Until those
+    // cuts live in authored data, this table is the cut. It is checked against the
+    // results_counted token from RuleSet. 1979's note says only "four from each half";
+    // the Wikipedia page cited on that row says rounds 1–7 and 8–15.
+    //
+    // Year | results_counted                  | first half ends | keep first | keep second
+    // 1967 | best_9_split_5_and_4             | round 6         | 5          | 4
+    // 1968 | best_10_split_5_and_5            | round 6         | 5          | 5
+    // 1969 | best_9_split_5_and_4             | round 6         | 5          | 4
+    // 1970 | best_11_split_6_and_5            | round 7         | 6          | 5
+    // 1971 | best_9_split_5_and_4             | round 6         | 5          | 4
+    // 1972 | best_10_split_5_and_5_of_6       | round 6         | 5          | 5
+    // 1973 | best_13_split_7_and_6            | round 8         | 7          | 6
+    // 1974 | best_13_split_7_and_6            | round 8         | 7          | 6
+    // 1975 | best_12_split_6_and_6            | round 7         | 6          | 6
+    // 1976 | best_14_split_7_and_7            | round 8         | 7          | 7
+    // 1977 | best_15_split_8_and_7            | round 9         | 8          | 7
+    // 1978 | best_14_split_7_and_7            | round 8         | 7          | 7
+    // 1979 | best_8_split_4_and_4             | round 7         | 4          | 4
+    // 1980 | best_10_split_5_and_5_of_7       | round 7         | 5          | 5
     private static readonly Dictionary<int, SplitSpec> SplitSeasons = new()
     {
         [1967] = new("best_9_split_5_and_4", FirstHalfLastRound: 6, KeepFirst: 5, KeepSecond: 4),
@@ -74,16 +90,44 @@ public static class ChampionshipRules
         ["one_point_if_top_10_and_half_distance"] = 1,
     };
 
-    private static readonly Lazy<IReadOnlyDictionary<int, SeasonPointsRule>> Rules = new(Load);
+    private static readonly Lazy<AuthoredData> Authored = new(LoadAuthored);
 
     public static SeasonPointsRule ForSeason(int season)
     {
-        if (!Rules.Value.TryGetValue(season, out var rule))
+        RuleSet rules;
+        try
         {
-            throw new InvalidDataException($"No championship points rule for season {season.ToString(CultureInfo.InvariantCulture)}.");
+            rules = Authored.Value.RuleSetFor(season);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or KeyNotFoundException or AuthoredDataLoadException)
+        {
+            throw new InvalidDataException(
+                $"No championship points rule for season {season.ToString(CultureInfo.InvariantCulture)}. {ex.Message}",
+                ex);
         }
 
-        return rule;
+        var scale = rules.Value("points_scale");
+        var lap = rules.Value("fastest_lap_point");
+        var doubled = rules.Value("double_points_finale");
+        var quota = rules.Value("results_counted");
+        if (!WinPointsByScale.TryGetValue(scale, out var win))
+        {
+            throw new InvalidDataException($"Unknown points_scale '{scale}' in {season.ToString(CultureInfo.InvariantCulture)}.");
+        }
+
+        if (!FastestLapBonusByValue.TryGetValue(lap, out var bonus))
+        {
+            throw new InvalidDataException($"Unknown fastest_lap_point '{lap}' in {season.ToString(CultureInfo.InvariantCulture)}.");
+        }
+
+        var doubleFinale = doubled switch
+        {
+            "yes" => true,
+            "no" => false,
+            _ => throw new InvalidDataException($"Unknown double_points_finale '{doubled}' in {season.ToString(CultureInfo.InvariantCulture)}."),
+        };
+
+        return new SeasonPointsRule(win, bonus, doubleFinale, QuotaFor(season, quota));
     }
 
     public static decimal CountRounds(IReadOnlyList<(int Round, decimal Points)> rounds, SeasonPointsRule rule)
@@ -121,82 +165,17 @@ public static class ChampionshipRules
         return scores.OrderByDescending(score => score).Take(keep).Sum();
     }
 
-    private static Dictionary<int, SeasonPointsRule> Load()
+    private static AuthoredData LoadAuthored()
     {
-        var path = Path.Combine(JolpicaCache.FindRepoRoot(), "data", "authored", "regulations", "f1_timeline.json");
-        if (!File.Exists(path))
+        var dataRoot = Path.Combine(JolpicaCache.FindRepoRoot(), "data");
+        try
         {
-            throw new InvalidDataException($"Missing regulations timeline: {path}");
+            return AuthoredDataLoader.Load(dataRoot);
         }
-
-        var scales = new Dictionary<int, string>();
-        var laps = new Dictionary<int, string>();
-        var doubles = new Dictionary<int, string>();
-        var counted = new Dictionary<int, string>();
-        using (var document = JsonDocument.Parse(File.ReadAllText(path)))
+        catch (AuthoredDataLoadException ex)
         {
-            foreach (var row in document.RootElement.EnumerateArray())
-            {
-                var dimension = Required(row, "dimension");
-                var target = dimension switch
-                {
-                    "points_scale" => scales,
-                    "fastest_lap_point" => laps,
-                    "double_points_finale" => doubles,
-                    "results_counted" => counted,
-                    _ => null,
-                };
-                if (target is null)
-                {
-                    continue;
-                }
-
-                var from = row.GetProperty("from").GetInt32();
-                var toElement = row.GetProperty("to");
-                var to = toElement.ValueKind == JsonValueKind.Null ? OpenEndedThrough : toElement.GetInt32();
-                var value = Required(row, "value");
-                for (var year = from; year <= to; year++)
-                {
-                    if (!target.TryAdd(year, value))
-                    {
-                        throw new InvalidDataException($"Overlapping {dimension} for {year.ToString(CultureInfo.InvariantCulture)}.");
-                    }
-                }
-            }
+            throw new InvalidDataException(ex.Message, ex);
         }
-
-        var rules = new Dictionary<int, SeasonPointsRule>();
-        for (var year = 1950; year <= OpenEndedThrough; year++)
-        {
-            if (!scales.TryGetValue(year, out var scale)
-                || !laps.TryGetValue(year, out var lap)
-                || !doubles.TryGetValue(year, out var doubled)
-                || !counted.TryGetValue(year, out var quota))
-            {
-                throw new InvalidDataException($"Championship rules do not cover {year.ToString(CultureInfo.InvariantCulture)}.");
-            }
-
-            if (!WinPointsByScale.TryGetValue(scale, out var win))
-            {
-                throw new InvalidDataException($"Unknown points_scale '{scale}' in {year.ToString(CultureInfo.InvariantCulture)}.");
-            }
-
-            if (!FastestLapBonusByValue.TryGetValue(lap, out var bonus))
-            {
-                throw new InvalidDataException($"Unknown fastest_lap_point '{lap}' in {year.ToString(CultureInfo.InvariantCulture)}.");
-            }
-
-            var doubleFinale = doubled switch
-            {
-                "yes" => true,
-                "no" => false,
-                _ => throw new InvalidDataException($"Unknown double_points_finale '{doubled}' in {year.ToString(CultureInfo.InvariantCulture)}."),
-            };
-
-            rules[year] = new SeasonPointsRule(win, bonus, doubleFinale, QuotaFor(year, quota));
-        }
-
-        return rules;
     }
 
     private static ResultsQuota QuotaFor(int year, string value)
@@ -232,16 +211,6 @@ public static class ChampionshipRules
         }
 
         throw new InvalidDataException($"Unknown results_counted '{value}' in {year.ToString(CultureInfo.InvariantCulture)}.");
-    }
-
-    private static string Required(JsonElement row, string name)
-    {
-        if (!row.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.String || string.IsNullOrEmpty(value.GetString()))
-        {
-            throw new InvalidDataException($"Regulations timeline is missing {name}.");
-        }
-
-        return value.GetString()!;
     }
 
     private readonly record struct SplitSpec(string Value, int FirstHalfLastRound, int KeepFirst, int KeepSecond);

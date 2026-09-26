@@ -14,10 +14,12 @@ public static class EraStatsText
 
         A starter is a row whose status is not a non-start (Withdrew, Did not start, Did not qualify,
         Did not prequalify, 107% Rule). Classified finishers are starters whose positionText is all
-        digits. Every other starter is a DNF. DNF statuses are mapped to mechanical, accident, or
-        other in FinishStatus. A status that is not in that table is unmapped and listed here; it
-        is not folded into other. Bucket percents are shares of DNFs. Classified percent is the
-        share of starters.
+        digits, even when the status names a failure. Every other starter is a DNF. DNF statuses
+        are mapped to mechanical, accident, or other in FinishStatus. A status that is not in that
+        table is unmapped and listed here; it is not folded into other. Bucket percents are shares
+        of DNFs. Classified percent is the share of starters. Classified mechanical and classified
+        accident count classified rows whose status is in those DNF buckets. They stay inside the
+        classified percent. Each deliberately unmapped status is counted per decade, including zeroes.
 
         Winning margin is second place minus the winner, for races where both have a time. Season
         and decade values are medians of those race margins. The count in parentheses is how many
@@ -95,8 +97,8 @@ public static class EraStatsText
             return;
         }
 
-        text.Append("| Decade | Races | Starters/race | Classified | Mechanical | Accident | Other | Unmapped |\n");
-        text.Append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n");
+        text.Append("| Decade | Races | Starters/race | Classified | Mechanical | Accident | Other | Unmapped | Classified mechanical | Classified accident |\n");
+        text.Append("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n");
         foreach (var decade in population.Decades)
         {
             text.Append("| ");
@@ -115,8 +117,15 @@ public static class EraStatsText
             text.Append(Bucket(decade.DnfOther, decade));
             text.Append(" | ");
             text.Append(Bucket(decade.DnfUnmapped, decade));
+            text.Append(" | ");
+            text.Append(Num(decade.ClassifiedMechanical));
+            text.Append(" | ");
+            text.Append(Num(decade.ClassifiedAccident));
             text.Append(" |\n");
         }
+
+        text.Append("\nUnmapped statuses by decade (not folded into other):\n\n");
+        AppendUnmappedByDecade(text, population.Decades);
 
         text.Append("\n| Decade | Median margin | Wins from pole | Winners | Pole sitters | Top constructor |");
         if (championship)
@@ -165,8 +174,8 @@ public static class EraStatsText
             return;
         }
 
-        text.Append("| Season | Races | Starters/race | Classified | Mechanical | Accident | Other | Unmapped |\n");
-        text.Append("| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n");
+        text.Append("| Season | Races | Starters/race | Classified | Mechanical | Accident | Other | Unmapped | Classified mechanical | Classified accident |\n");
+        text.Append("| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n");
         foreach (var season in population.Seasons)
         {
             text.Append("| ");
@@ -185,6 +194,10 @@ public static class EraStatsText
             text.Append(Bucket(season.DnfOther, season));
             text.Append(" | ");
             text.Append(Bucket(season.DnfUnmapped, season));
+            text.Append(" | ");
+            text.Append(Num(season.ClassifiedMechanical));
+            text.Append(" | ");
+            text.Append(Num(season.ClassifiedAccident));
             text.Append(" |\n");
         }
 
@@ -236,6 +249,9 @@ public static class EraStatsText
             + ", accident " + Num(decade.DnfAccident)
             + ", other " + Num(decade.DnfOther)
             + ", unmapped " + Num(decade.DnfUnmapped)
+            + ", classified mechanical " + Num(decade.ClassifiedMechanical)
+            + ", classified accident " + Num(decade.ClassifiedAccident)
+            + UnmappedByStatus(decade)
             + ", median margin " + Margin(decade.MedianWinningMarginMillis, decade.RacesWithWinningMargin)
             + ", wins from pole " + Pct(decade.WinsFromPole, decade.Wins)
             + ", winners " + Num(decade.DifferentWinners)
@@ -245,6 +261,81 @@ public static class EraStatsText
             + ", top constructor " + (decade.TopConstructorId is null
                 ? "n/a"
                 : decade.TopConstructorId + " " + Pct(decade.TopConstructorWins, decade.Wins));
+    }
+
+    private static void AppendUnmappedByDecade(StringBuilder text, IReadOnlyList<DecadeReport> decades)
+    {
+        var columns = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var status in FinishStatus.DeliberatelyUnmappedStatuses)
+        {
+            columns.Add(status);
+            seen.Add(status);
+        }
+
+        foreach (var status in decades
+                     .SelectMany(decade => decade.UnmappedByStatus)
+                     .Where(item => item.Count > 0)
+                     .Select(item => item.Status)
+                     .Distinct(StringComparer.Ordinal)
+                     .OrderBy(status => status, StringComparer.Ordinal))
+        {
+            if (seen.Add(status))
+            {
+                columns.Add(status);
+            }
+        }
+
+        text.Append("| Status |");
+        foreach (var decade in decades)
+        {
+            text.Append(' ');
+            text.Append(Num(decade.DecadeStart));
+            text.Append("s |");
+        }
+
+        text.Append("\n| --- |");
+        foreach (var _ in decades)
+        {
+            text.Append(" ---: |");
+        }
+
+        text.Append('\n');
+        foreach (var status in columns)
+        {
+            text.Append("| ");
+            text.Append(status);
+            text.Append(" |");
+            foreach (var decade in decades)
+            {
+                var count = 0;
+                foreach (var item in decade.UnmappedByStatus)
+                {
+                    if (string.Equals(item.Status, status, StringComparison.Ordinal))
+                    {
+                        count = item.Count;
+                        break;
+                    }
+                }
+
+                text.Append(' ');
+                text.Append(Num(count));
+                text.Append(" |");
+            }
+
+            text.Append('\n');
+        }
+    }
+
+    private static string UnmappedByStatus(DecadeReport decade)
+    {
+        var occurred = decade.UnmappedByStatus.Where(item => item.Count > 0).ToList();
+        if (occurred.Count == 0)
+        {
+            return "";
+        }
+
+        return ", unmapped by status: " + string.Join(", ", occurred.Select(item => item.Status + " " + Num(item.Count)));
     }
 
     private static string Unmapped(EraStatsReport report)

@@ -127,6 +127,18 @@ public static class EraStats
             {
                 tally.Starters++;
                 tally.Classified++;
+                // A numeric positionText is still a classified finish. The status can
+                // nevertheless name a failure (common when running at the end was not required).
+                // Those rows stay inside classified % and are counted again here.
+                if (kind == FinishStatus.Kind.Mechanical)
+                {
+                    tally.ClassifiedMechanical++;
+                }
+                else if (kind == FinishStatus.Kind.Accident)
+                {
+                    tally.ClassifiedAccident++;
+                }
+
                 NotePole(tally, row);
                 continue;
             }
@@ -147,6 +159,8 @@ public static class EraStats
                     tally.Unmapped++;
                     unmapped.TryGetValue(row.Status, out var count);
                     unmapped[row.Status] = count + 1;
+                    tally.UnmappedByStatus.TryGetValue(row.Status, out var statusCount);
+                    tally.UnmappedByStatus[row.Status] = statusCount + 1;
                     break;
             }
 
@@ -377,6 +391,8 @@ public static class EraStats
             pooled.Accident,
             pooled.Other,
             pooled.Unmapped,
+            pooled.ClassifiedMechanical,
+            pooled.ClassifiedAccident,
             pooled.NonStarts,
             Median(races.Where(race => race.MarginMillis is not null).Select(race => race.MarginMillis!.Value).ToList()),
             races.Count(race => race.MarginMillis is not null),
@@ -421,6 +437,8 @@ public static class EraStats
             pooled.Accident,
             pooled.Other,
             pooled.Unmapped,
+            pooled.ClassifiedMechanical,
+            pooled.ClassifiedAccident,
             pooled.NonStarts,
             Median(races.Where(race => race.MarginMillis is not null).Select(race => race.MarginMillis!.Value).ToList()),
             races.Count(race => race.MarginMillis is not null),
@@ -433,7 +451,8 @@ public static class EraStats
             constructorName,
             shares.Count == 0 ? null : shares.Sum() / shares.Count,
             titled.Count == 0 ? null : titled.Count(season => season.TitleDecidedInFinalRace == true),
-            titled.Count == 0 ? null : titled.Count);
+            titled.Count == 0 ? null : titled.Count,
+            UnmappedBreakdown(pooled.UnmappedByStatus));
     }
 
     private static Pooled Pool(List<RaceTally> races)
@@ -448,7 +467,14 @@ public static class EraStats
             pooled.Accident += race.Accident;
             pooled.Other += race.Other;
             pooled.Unmapped += race.Unmapped;
+            pooled.ClassifiedMechanical += race.ClassifiedMechanical;
+            pooled.ClassifiedAccident += race.ClassifiedAccident;
             pooled.NonStarts += race.NonStarts;
+            foreach (var pair in race.UnmappedByStatus)
+            {
+                pooled.UnmappedByStatus.TryGetValue(pair.Key, out var count);
+                pooled.UnmappedByStatus[pair.Key] = count + pair.Value;
+            }
             if (race.WinnerDriverId is string winner)
             {
                 pooled.Wins++;
@@ -511,6 +537,28 @@ public static class EraStats
         return (values[mid - 1] + values[mid]) / 2m;
     }
 
+    private static List<UnmappedStatusCount> UnmappedBreakdown(Dictionary<string, int> counts)
+    {
+        var listed = new List<UnmappedStatusCount>();
+        var known = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var status in FinishStatus.DeliberatelyUnmappedStatuses)
+        {
+            counts.TryGetValue(status, out var count);
+            listed.Add(new UnmappedStatusCount(status, count));
+            known.Add(status);
+        }
+
+        foreach (var pair in counts.OrderBy(pair => pair.Key, StringComparer.Ordinal))
+        {
+            if (known.Add(pair.Key))
+            {
+                listed.Add(new UnmappedStatusCount(pair.Key, pair.Value));
+            }
+        }
+
+        return listed;
+    }
+
     private static string DisplayDriver(HistoricalDriver driver)
     {
         return driver.GivenName + " " + driver.FamilyName;
@@ -527,7 +575,10 @@ public static class EraStats
         public int Accident { get; set; }
         public int Other { get; set; }
         public int Unmapped { get; set; }
+        public int ClassifiedMechanical { get; set; }
+        public int ClassifiedAccident { get; set; }
         public int NonStarts { get; set; }
+        public Dictionary<string, int> UnmappedByStatus { get; } = new(StringComparer.Ordinal);
         public long? MarginMillis { get; set; }
         public string? WinnerDriverId { get; set; }
         public string? WinnerConstructorId { get; set; }
@@ -544,7 +595,10 @@ public static class EraStats
         public int Accident { get; set; }
         public int Other { get; set; }
         public int Unmapped { get; set; }
+        public int ClassifiedMechanical { get; set; }
+        public int ClassifiedAccident { get; set; }
         public int NonStarts { get; set; }
+        public Dictionary<string, int> UnmappedByStatus { get; } = new(StringComparer.Ordinal);
         public int Wins { get; set; }
         public int WinsFromPole { get; set; }
         public HashSet<string> Winners { get; } = new(StringComparer.Ordinal);
@@ -584,6 +638,8 @@ public sealed record SeasonReport(
     int DnfAccident,
     int DnfOther,
     int DnfUnmapped,
+    int ClassifiedMechanical,
+    int ClassifiedAccident,
     int NonStarts,
     decimal? MedianWinningMarginMillis,
     int RacesWithWinningMargin,
@@ -611,6 +667,8 @@ public sealed record DecadeReport(
     int DnfAccident,
     int DnfOther,
     int DnfUnmapped,
+    int ClassifiedMechanical,
+    int ClassifiedAccident,
     int NonStarts,
     decimal? MedianWinningMarginMillis,
     int RacesWithWinningMargin,
@@ -623,4 +681,5 @@ public sealed record DecadeReport(
     string? TopConstructorName,
     decimal? MeanChampionShare,
     int? TitlesDecidedInFinalRace,
-    int? SeasonsWithChampionship);
+    int? SeasonsWithChampionship,
+    IReadOnlyList<UnmappedStatusCount> UnmappedByStatus);

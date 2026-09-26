@@ -95,7 +95,7 @@ public class EraStatsTests
                 "shared-drive races: 1",
                 "indianapolis 500 races: 1",
                 "unmapped statuses: none",
-                "decade 1950s: races 1, starters/race 3.00, classified 33.3%, dnf mechanical 1, accident 0, other 1, unmapped 0, median margin n/a, wins from pole 100.0%, winners 1, pole sitters 1, champion share 100.0%, titles to final race 1/1, top constructor alfa 100.0%",
+                "decade 1950s: races 1, starters/race 3.00, classified 33.3%, dnf mechanical 1, accident 0, other 1, unmapped 0, classified mechanical 0, classified accident 0, median margin n/a, wins from pole 100.0%, winners 1, pole sitters 1, champion share 100.0%, titles to final race 1/1, top constructor alfa 100.0%",
             ],
             lines[..^2]);
             Assert.StartsWith("wrote ", lines[^2], StringComparison.Ordinal);
@@ -173,6 +173,8 @@ public class EraStatsTests
         {
             Row(2010, 1, "a", "alfa", "1", "Finished", 25m, 1, 100_000),
             Row(2010, 1, "b", "ferrari", "2", "Finished", 18m, 2, 101_000),
+            Row(2010, 1, "c", "alfa", "6", "Engine", 0m, 8),
+            Row(2010, 1, "d", "ferrari", "7", "Accident", 0m, 9),
             Row(2010, 2, "a", "alfa", "1", "Finished", 25m, 1, 200_000),
             Row(2010, 2, "b", "ferrari", "R", "Engine", 0m, 2, position: 4),
             Row(2010, 3, "a", "alfa", "R", "Accident", 0m, 2, position: 6),
@@ -216,6 +218,9 @@ public class EraStatsTests
         Assert.Equal(2, clinched.DifferentPoleSitters);
         Assert.Equal(2, clinched.DnfMechanical);
         Assert.Equal(1, clinched.DnfAccident);
+        Assert.Equal(1, clinched.ClassifiedMechanical);
+        Assert.Equal(1, clinched.ClassifiedAccident);
+        Assert.Equal(5, clinched.Classified);
 
         var open = Assert.Single(report.Main.Seasons, season => season.Season == 2011);
         Assert.Equal("b", open.ChampionDriverId);
@@ -234,6 +239,11 @@ public class EraStatsTests
         Assert.Equal(1, Assert.Single(report.SharedDrives.Seasons, season => season.Season == 1950).Wins);
         Assert.Equal(1, Assert.Single(report.Indianapolis500.Seasons).Wins);
         Assert.DoesNotContain(report.Main.Seasons, season => season.ChampionDriverId == "indy");
+
+        var fifties = Assert.Single(report.Main.Decades, item => item.DecadeStart == 1950);
+        Assert.Equal(1, Assert.Single(fifties.UnmappedByStatus, item => item.Status == "Puncture").Count);
+        Assert.Equal(0, Assert.Single(fifties.UnmappedByStatus, item => item.Status == "Fire").Count);
+        Assert.Equal(FinishStatus.DeliberatelyUnmappedStatuses.Count, fifties.UnmappedByStatus.Count(item => FinishStatus.DeliberatelyUnmappedStatuses.Contains(item.Status)));
 
         var decade = Assert.Single(report.Main.Decades, item => item.DecadeStart == 2010);
         Assert.Equal(1, decade.TitlesDecidedInFinalRace);

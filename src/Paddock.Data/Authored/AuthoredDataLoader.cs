@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace Paddock.Data.Authored;
 
 /// <summary>
-/// Loads <c>data/authored/regulations</c> and <c>data/authored/tracks</c>.
+/// Loads authored regulations, tracks, technologies, teams and staff.
 /// Unknown JSON properties are errors. Every file is attempted so load failures are reported together.
 /// </summary>
 public static class AuthoredDataLoader
@@ -30,8 +30,33 @@ public static class AuthoredDataLoader
         var raceMap = TryRead<List<RaceLayoutEntry>>(
             Path.Combine(root, "authored", "tracks", "race_layout_map.json"),
             failures);
+        var technologies = TryRead<List<Technology>>(
+            Path.Combine(root, "authored", "tech", "technologies.json"),
+            failures);
+        var engines = TryRead<EnginesFile>(
+            Path.Combine(root, "authored", "teams", "engines.json"),
+            failures);
+        var lineage = TryRead<LineageFile>(
+            Path.Combine(root, "authored", "teams", "lineage.json"),
+            failures);
+        var founders = TryRead<FoundersFile>(
+            Path.Combine(root, "authored", "teams", "founders.json"),
+            failures);
+        var staff = TryRead<List<StaffMember>>(
+            Path.Combine(root, "authored", "people", "staff.json"),
+            failures);
 
-        if (failures.Count > 0 || catalog is null || timeline is null || ideas is null || circuits is null || raceMap is null)
+        if (failures.Count > 0
+            || catalog is null
+            || timeline is null
+            || ideas is null
+            || circuits is null
+            || raceMap is null
+            || technologies is null
+            || engines is null
+            || lineage is null
+            || founders is null
+            || staff is null)
         {
             if (failures.Count == 0)
             {
@@ -41,7 +66,17 @@ public static class AuthoredDataLoader
             throw new AuthoredDataLoadException(string.Join(Environment.NewLine, failures));
         }
 
-        return new AuthoredData(catalog, timeline, ideas, circuits, raceMap);
+        return new AuthoredData(
+            catalog,
+            timeline,
+            ideas,
+            circuits,
+            raceMap,
+            technologies,
+            engines,
+            lineage,
+            founders,
+            staff);
     }
 
     private static T? TryRead<T>(string path, List<string> failures)

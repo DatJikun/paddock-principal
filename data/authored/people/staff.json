@@ -1,0 +1,4941 @@
+[
+  {
+    "id": "a_j_watson",
+    "name": "A. J. Watson",
+    "born": "1924-05-08",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "watson",
+        "role": "designer",
+        "from": 1949,
+        "to": 1984,
+        "source": "https://en.wikipedia.org/wiki/A._J._Watson"
+      }
+    ],
+    "notable": [
+      "Built Indianapolis 500-winning cars that raced in the world championship"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "adrian_newey",
+    "name": "Adrian Newey",
+    "born": "1958-12-26",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "truesports",
+        "role": "designer",
+        "from": 1984,
+        "to": 1985,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey",
+        "series": "indycar"
+      },
+      {
+        "org": "truesports",
+        "role": "race_engineer",
+        "from": 1984,
+        "to": 1985,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey",
+        "series": "indycar"
+      },
+      {
+        "org": "newman_haas",
+        "role": "race_engineer",
+        "from": 1987,
+        "to": 1987,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey",
+        "series": "indycar"
+      },
+      {
+        "org": "march",
+        "role": "chief_designer",
+        "from": 1988,
+        "to": 1990,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey"
+      },
+      {
+        "org": "march",
+        "role": "technical_director",
+        "from": 1990,
+        "to": 1990,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey"
+      },
+      {
+        "org": "williams",
+        "role": "chief_designer",
+        "from": 1991,
+        "to": 1996,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey"
+      },
+      {
+        "org": "mclaren",
+        "role": "technical_director",
+        "from": 1997,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey"
+      },
+      {
+        "org": "red_bull",
+        "role": "technical_director",
+        "from": 2006,
+        "to": 2024,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey"
+      },
+      {
+        "org": "aston_martin",
+        "role": "owner",
+        "from": 2026,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey"
+      },
+      {
+        "org": "aston_martin",
+        "role": "team_principal",
+        "from": 2026,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey"
+      },
+      {
+        "org": "aston_martin",
+        "role": "technical_director",
+        "from": 2026,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Adrian_Newey"
+      }
+    ],
+    "notable": [
+      "Title-winning designer at Williams, McLaren and Red Bull",
+      "Aston Martin team principal and co-owner from 2026"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "aguri_suzuki",
+    "name": "Aguri Suzuki",
+    "born": "1960-09-08",
+    "nationality": "JPN",
+    "career": [
+      {
+        "org": "super_aguri",
+        "role": "owner",
+        "from": 2006,
+        "to": 2008,
+        "source": "https://en.wikipedia.org/wiki/Aguri_Suzuki"
+      }
+    ],
+    "notable": [
+      "Owned Super Aguri during its Formula One years"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "alain_prost",
+    "name": "Alain Prost",
+    "born": "1955-02-24",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "prost",
+        "role": "owner",
+        "from": 1997,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Alain_Prost"
+      },
+      {
+        "org": "renault",
+        "role": "owner",
+        "from": 2014,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Alain_Prost"
+      }
+    ],
+    "notable": [
+      "Owned Prost Grand Prix after buying Ligier",
+      "Co-owned a Formula E team until 2018"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "alan_permane",
+    "name": "Alan Permane",
+    "born": "1967-02-04",
+    "nationality": null,
+    "career": [
+      {
+        "org": "benetton",
+        "role": "race_engineer",
+        "from": 1996,
+        "to": 1996,
+        "source": "https://en.wikipedia.org/wiki/Alan_Permane"
+      },
+      {
+        "org": "renault",
+        "role": "race_engineer",
+        "from": 1997,
+        "to": 2006,
+        "source": "https://en.wikipedia.org/wiki/Alan_Permane"
+      },
+      {
+        "org": "rb",
+        "role": "team_principal",
+        "from": 2025,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Alan_Permane"
+      }
+    ],
+    "notable": [
+      "Race engineer at Enstone before leading Racing Bulls"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "alan_rees",
+    "name": "Alan Rees",
+    "born": "1938-01-12",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "shadow",
+        "role": "team_principal",
+        "from": 1971,
+        "to": 1977,
+        "source": "https://en.wikipedia.org/wiki/Alan_Rees_%28racing_driver%29"
+      }
+    ],
+    "notable": [
+      "Shadow team principal from 1971",
+      "Co-founded March and later Arrows"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "aldo_costa",
+    "name": "Aldo Costa",
+    "born": "1961-06-05",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "minardi",
+        "role": "chief_designer",
+        "from": 1989,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Aldo_Costa"
+      },
+      {
+        "org": "minardi",
+        "role": "technical_director",
+        "from": 1991,
+        "to": 1995,
+        "source": "https://en.wikipedia.org/wiki/Aldo_Costa"
+      },
+      {
+        "org": "ferrari",
+        "role": "chief_designer",
+        "from": 2004,
+        "to": 2006,
+        "source": "https://en.wikipedia.org/wiki/Aldo_Costa"
+      },
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 2008,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/Aldo_Costa"
+      },
+      {
+        "org": "mercedes",
+        "role": "technical_director",
+        "from": 2011,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Aldo_Costa"
+      },
+      {
+        "org": "dallara",
+        "role": "technical_director",
+        "from": 2020,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Aldo_Costa",
+        "series": "engineering"
+      }
+    ],
+    "notable": [
+      "Ferrari chief designer, then Mercedes engineering director",
+      "Chief technical officer of Dallara since 2020"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "alex_hitzinger",
+    "name": "Alex Hitzinger",
+    "born": "1971-10-23",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "toro_rosso",
+        "role": "technical_director",
+        "from": 2006,
+        "to": 2007,
+        "source": "https://en.wikipedia.org/wiki/Alex_Hitzinger"
+      },
+      {
+        "org": "porsche",
+        "role": "technical_director",
+        "from": 2011,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Alex_Hitzinger"
+      }
+    ],
+    "notable": [
+      "Technical director at Toro Rosso in 2006",
+      "Led Porsche's Le Mans LMP1 project"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "alexander_hesketh",
+    "name": "Alexander Hesketh",
+    "born": "1950-10-28",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "hesketh",
+        "role": "owner",
+        "from": 1972,
+        "to": 1978,
+        "source": "https://en.wikipedia.org/wiki/Alexander_Fermor-Hesketh%2C_3rd_Baron_Hesketh"
+      }
+    ],
+    "notable": [
+      "Founded Hesketh Racing, which won the 1975 Dutch Grand Prix"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "alfred_neubauer",
+    "name": "Alfred Neubauer",
+    "born": "1891-03-29",
+    "nationality": "AUT",
+    "career": [
+      {
+        "org": "mercedes",
+        "role": "team_principal",
+        "from": 1926,
+        "to": 1955,
+        "source": "https://en.wikipedia.org/wiki/Alfred_Neubauer"
+      }
+    ],
+    "notable": [
+      "Racing manager of the Mercedes Grand Prix team through 1955"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "andre_de_cortanze",
+    "name": "André de Cortanze",
+    "born": "1941-03-30",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "elf_aquitaine",
+        "role": "chief_designer",
+        "from": 1978,
+        "to": 1978,
+        "source": "https://en.wikipedia.org/wiki/Andr%C3%A9_de_Cortanze",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Chief designer of the 1978 Elf racing motorcycle"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "andrea_stella",
+    "name": "Andrea Stella",
+    "born": "1971-02-22",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "race_engineer",
+        "from": 2009,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Andrea_Stella"
+      },
+      {
+        "org": "mclaren",
+        "role": "team_principal",
+        "from": 2023,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Andrea_Stella"
+      }
+    ],
+    "notable": [
+      "Ferrari race engineer for Räikkönen and Alonso",
+      "McLaren team principal since 2023"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "andreas_seidl",
+    "name": "Andreas Seidl",
+    "born": "1976-01-06",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "team_principal",
+        "from": 2019,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Andreas_Seidl"
+      }
+    ],
+    "notable": [
+      "McLaren Formula One team principal from 2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "andrew_green",
+    "name": "Andrew Green",
+    "born": "1965-06-14",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "force_india",
+        "role": "technical_director",
+        "from": 2011,
+        "to": 2021,
+        "source": "https://en.wikipedia.org/wiki/Andrew_Green_%28Formula_One%29"
+      },
+      {
+        "org": "aston_martin",
+        "role": "technical_director",
+        "from": 2021,
+        "to": 2023,
+        "source": "https://en.wikipedia.org/wiki/Andrew_Green_%28Formula_One%29"
+      }
+    ],
+    "notable": [
+      "Technical director through Force India's later years and the Racing Point period"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "andy_cowell",
+    "name": "Andy Cowell",
+    "born": "1969-02-12",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mercedes_hpp",
+        "role": "technical_director",
+        "from": 2008,
+        "to": 2013,
+        "source": "https://en.wikipedia.org/wiki/Andy_Cowell",
+        "series": "engine_supplier"
+      },
+      {
+        "org": "aston_martin",
+        "role": "team_principal",
+        "from": 2025,
+        "to": 2025,
+        "source": "https://en.wikipedia.org/wiki/Andy_Cowell"
+      }
+    ],
+    "notable": [
+      "Directed Mercedes engine engineering, then a short spell as Aston Martin team principal"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "antonia_terzi",
+    "name": "Antonia Terzi",
+    "born": "1971-04-29",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "williams",
+        "role": "head_of_aero",
+        "from": 2001,
+        "to": 2004,
+        "source": "https://en.wikipedia.org/wiki/Antonia_Terzi"
+      }
+    ],
+    "notable": [
+      "Williams chief aerodynamicist in the early 2000s"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "aurelio_lampredi",
+    "name": "Aurelio Lampredi",
+    "born": "1917-06-16",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "engine_designer",
+        "from": 1951,
+        "to": 1955,
+        "source": "https://en.wikipedia.org/wiki/Aurelio_Lampredi"
+      }
+    ],
+    "notable": [
+      "Designed Ferrari's racing engines in the early 1950s."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "ayao_komatsu",
+    "name": "Ayao Komatsu",
+    "born": "1976-01-28",
+    "nationality": "JPN",
+    "career": [
+      {
+        "org": "team_lotus",
+        "role": "race_engineer",
+        "from": 2015,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Ayao_Komatsu"
+      },
+      {
+        "org": "haas",
+        "role": "team_principal",
+        "from": 2024,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Ayao_Komatsu"
+      }
+    ],
+    "notable": [
+      "Haas team principal since 2024"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "ben_agathangelou",
+    "name": "Ben Agathangelou",
+    "born": "1971-11-04",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "jaguar_sport",
+        "role": "designer",
+        "from": 2003,
+        "to": 2003,
+        "source": "https://en.wikipedia.org/wiki/Ben_Agathangelou",
+        "series": "sportscar"
+      },
+      {
+        "org": "red_bull",
+        "role": "designer",
+        "from": 2005,
+        "to": 2007,
+        "source": "https://en.wikipedia.org/wiki/Ben_Agathangelou"
+      }
+    ],
+    "notable": [
+      "Designed Jaguar and early Red Bull Formula One cars"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "ben_hodgkinson",
+    "name": "Ben Hodgkinson",
+    "born": null,
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "red_bull",
+        "role": "technical_director",
+        "from": 2022,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Ben_Hodgkinson"
+      }
+    ],
+    "notable": [
+      "Held technical director roles in Formula One"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "bernard_dudot",
+    "name": "Bernard Dudot",
+    "born": "1939-01-30",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "renault",
+        "role": "technical_director",
+        "from": 1980,
+        "to": 1997,
+        "source": "https://en.wikipedia.org/wiki/Bernard_Dudot"
+      },
+      {
+        "org": "prost",
+        "role": "technical_director",
+        "from": 1997,
+        "to": 1999,
+        "source": "https://en.wikipedia.org/wiki/Bernard_Dudot"
+      }
+    ],
+    "notable": [
+      "Renault Sport technical director who then joined Prost."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "bernie_ecclestone",
+    "name": "Bernie Ecclestone",
+    "born": "1930-10-28",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "brabham",
+        "role": "owner",
+        "from": 1971,
+        "to": 1988,
+        "source": "https://en.wikipedia.org/wiki/Bernie_Ecclestone"
+      }
+    ],
+    "notable": [
+      "Partial owner of a Lotus Formula 2 team",
+      "Owned Brabham from 1971 until 1988"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "bob_bell",
+    "name": "Bob Bell",
+    "born": "1958-04-10",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "renault",
+        "role": "team_principal",
+        "from": 2009,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Bob_Bell_%28motorsport%29"
+      },
+      {
+        "org": "mercedes",
+        "role": "technical_director",
+        "from": 2011,
+        "to": 2013,
+        "source": "https://en.wikipedia.org/wiki/Bob_Bell_%28motorsport%29"
+      },
+      {
+        "org": "renault",
+        "role": "technical_director",
+        "from": 2016,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Bob_Bell_%28motorsport%29"
+      }
+    ],
+    "notable": [
+      "Acting Renault team principal for the rest of 2009",
+      "Technical director at Mercedes GP and Renault Sport"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "bobby_rahal",
+    "name": "Bobby Rahal",
+    "born": "1953-01-10",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "gloy_rahal_racing",
+        "role": "owner",
+        "from": 1997,
+        "to": 1999,
+        "source": "https://en.wikipedia.org/wiki/Bobby_Rahal",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Co-owned a NASCAR truck team with Tom Gloy"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "bruce_mclaren",
+    "name": "Bruce McLaren",
+    "born": "1937-08-30",
+    "nationality": "NZL",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "owner",
+        "from": 1963,
+        "to": 1970,
+        "source": "https://en.wikipedia.org/wiki/Bruce_McLaren"
+      }
+    ],
+    "notable": [
+      "Founded McLaren and won a Grand Prix in a car of his own construction"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "bruno_famin",
+    "name": "Bruno Famin",
+    "born": null,
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "peugeot_sport",
+        "role": "technical_director",
+        "from": 2005,
+        "to": 2012,
+        "source": "https://en.wikipedia.org/wiki/Bruno_Famin",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Held technical director roles in Formula One"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "carlo_chiti",
+    "name": "Carlo Chiti",
+    "born": "1924-12-19",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "designer",
+        "from": 1958,
+        "to": 1962,
+        "source": "https://en.wikipedia.org/wiki/Carlo_Chiti"
+      },
+      {
+        "org": "alfa",
+        "role": "engine_designer",
+        "from": 1964,
+        "to": 1984,
+        "source": "https://en.wikipedia.org/wiki/Carlo_Chiti"
+      },
+      {
+        "org": "motori_moderni",
+        "role": "engine_designer",
+        "from": 1984,
+        "to": 1994,
+        "source": "https://en.wikipedia.org/wiki/Carlo_Chiti",
+        "series": "engine_supplier"
+      }
+    ],
+    "notable": [
+      "Designed the championship-winning Ferrari 156",
+      "Alfa Romeo and Motori Moderni engine designer"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "chris_cooney",
+    "name": "Chris Cooney",
+    "born": null,
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "lotus_f1",
+        "role": "technical_director",
+        "from": 2013,
+        "to": 2015,
+        "source": "https://en.wikipedia.org/wiki/Chris_Cooney"
+      },
+      {
+        "org": "renault",
+        "role": "technical_director",
+        "from": 2015,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/Chris_Cooney"
+      }
+    ],
+    "notable": [
+      "Engineering director at Enstone from 2013 to 2019"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "christian_horner",
+    "name": "Christian Horner",
+    "born": "1973-11-16",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "red_bull",
+        "role": "team_principal",
+        "from": 2005,
+        "to": 2025,
+        "source": "https://en.wikipedia.org/wiki/Christian_Horner"
+      }
+    ],
+    "notable": [
+      "Red Bull team principal from 2005 to 2025"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "christijan_albers",
+    "name": "Christijan Albers",
+    "born": "1979-04-16",
+    "nationality": "NLD",
+    "career": [
+      {
+        "org": "caterham",
+        "role": "team_principal",
+        "from": 2014,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Christijan_Albers"
+      }
+    ],
+    "notable": [
+      "Caterham team principal for part of 2014"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "christoph_zimmermann",
+    "name": "Christoph Zimmermann",
+    "born": "1968-06-07",
+    "nationality": "CHE",
+    "career": [
+      {
+        "org": "mercedes",
+        "role": "designer",
+        "from": 1989,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Christoph_Zimmermann_%28engineer%29"
+      },
+      {
+        "org": "sauber",
+        "role": "designer",
+        "from": 1992,
+        "to": 1999,
+        "source": "https://en.wikipedia.org/wiki/Christoph_Zimmermann_%28engineer%29"
+      },
+      {
+        "org": "bmw_sauber",
+        "role": "chief_designer",
+        "from": 2008,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/Christoph_Zimmermann_%28engineer%29"
+      }
+    ],
+    "notable": [
+      "Sauber designer who became BMW Sauber chief designer"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "claire_williams",
+    "name": "Claire Williams",
+    "born": "1976-07-21",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "williams",
+        "role": "team_principal",
+        "from": 2013,
+        "to": 2020,
+        "source": "https://en.wikipedia.org/wiki/Claire_Williams"
+      }
+    ],
+    "notable": [
+      "De facto Williams boss from 2013",
+      "Resigned after the team was sold"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "colin_chapman",
+    "name": "Colin Chapman",
+    "born": "1928-05-19",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "team_lotus",
+        "role": "designer",
+        "from": 1962,
+        "to": 1978,
+        "source": "https://en.wikipedia.org/wiki/Colin_Chapman"
+      },
+      {
+        "org": "team_lotus",
+        "role": "team_principal",
+        "from": 1962,
+        "to": 1978,
+        "source": "https://en.wikipedia.org/wiki/Colin_Chapman"
+      }
+    ],
+    "notable": [
+      "Led Team Lotus through its championship years",
+      "Credited with the Lotus 25 monocoque and the Lotus 79"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "colin_kolles",
+    "name": "Colin Kolles",
+    "born": "1967-12-13",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "jordan",
+        "role": "team_principal",
+        "from": 2005,
+        "to": 2008,
+        "source": "https://en.wikipedia.org/wiki/Colin_Kolles"
+      }
+    ],
+    "notable": [
+      "Team principal of the Jordan to Force India outfit"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "cyril_abiteboul",
+    "name": "Cyril Abiteboul",
+    "born": "1977-10-14",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "caterham",
+        "role": "team_principal",
+        "from": 2012,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Cyril_Abiteboul"
+      },
+      {
+        "org": "hyundai_motorsport",
+        "role": "team_principal",
+        "from": 2023,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Cyril_Abiteboul",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Team principal of Caterham and Hyundai Motorsport"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "dan_fallows",
+    "name": "Dan Fallows",
+    "born": "1973-11-13",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "red_bull",
+        "role": "head_of_aero",
+        "from": 2014,
+        "to": 2021,
+        "source": "https://en.wikipedia.org/wiki/Dan_Fallows"
+      },
+      {
+        "org": "aston_martin",
+        "role": "technical_director",
+        "from": 2022,
+        "to": 2024,
+        "source": "https://en.wikipedia.org/wiki/Dan_Fallows"
+      },
+      {
+        "org": "rb",
+        "role": "technical_director",
+        "from": 2026,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Dan_Fallows"
+      }
+    ],
+    "notable": [
+      "Aston Martin technical director from 2022 to 2024",
+      "Technical director of Racing Bulls since 2026"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "dan_gurney",
+    "name": "Dan Gurney",
+    "born": "1931-04-13",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "all_american_racers",
+        "role": "owner",
+        "from": 1970,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/Dan_Gurney",
+        "series": "indycar"
+      }
+    ],
+    "notable": [
+      "Sole owner of All American Racers"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "dave_robson",
+    "name": "Dave Robson",
+    "born": null,
+    "nationality": null,
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "race_engineer",
+        "from": 2010,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Dave_Robson"
+      },
+      {
+        "org": "williams",
+        "role": "race_engineer",
+        "from": 2015,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Dave_Robson"
+      }
+    ],
+    "notable": [
+      "Race engineer at McLaren and at Williams."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "david_richards",
+    "name": "David Richards",
+    "born": "1952-06-03",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "bar",
+        "role": "team_principal",
+        "from": 2001,
+        "to": 2004,
+        "source": "https://en.wikipedia.org/wiki/David_Richards_%28motorsport_executive%29"
+      }
+    ],
+    "notable": [
+      "Team principal of BAR until Honda bought in"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "david_sanchez",
+    "name": "David Sanchez",
+    "born": null,
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "head_of_aero",
+        "from": 2016,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/David_Sanchez_%28engineer%29"
+      },
+      {
+        "org": "alpine",
+        "role": "technical_director",
+        "from": 2024,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/David_Sanchez_%28engineer%29"
+      },
+      {
+        "org": "mclaren",
+        "role": "technical_director",
+        "from": 2024,
+        "to": 2024,
+        "source": "https://en.wikipedia.org/wiki/David_Sanchez_%28engineer%29"
+      }
+    ],
+    "notable": [
+      "Ferrari chief aerodynamicist, later Alpine technical director."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "davide_brivio",
+    "name": "Davide Brivio",
+    "born": "1964-07-17",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "trackhouse_racing",
+        "role": "team_principal",
+        "from": 2024,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Davide_Brivio_%28motorsport%29",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Trackhouse Racing MotoGP team principal"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "derek_gardner",
+    "name": "Derek Gardner",
+    "born": "1931-09-19",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "tyrrell",
+        "role": "designer",
+        "from": 1970,
+        "to": 1971,
+        "source": "https://en.wikipedia.org/wiki/Derek_Gardner_%28designer%29"
+      }
+    ],
+    "notable": [
+      "Designed the Tyrrell 001 and the 1971 championship cars"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "diane_holl",
+    "name": "Diane Holl",
+    "born": "1964-05-06",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "chip_ganassi_racing",
+        "role": "race_engineer",
+        "from": 2001,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Diane_Holl",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "First woman to win a CART race as engineer",
+      "Engineered Tony Kanaan's CART rookie title"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "dino_toso",
+    "name": "Dino Toso",
+    "born": "1969-02-11",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "jordan",
+        "role": "race_engineer",
+        "from": 1997,
+        "to": 2000,
+        "source": "https://en.wikipedia.org/wiki/Dino_Toso"
+      },
+      {
+        "org": "renault",
+        "role": "head_of_aero",
+        "from": 2003,
+        "to": 2008,
+        "source": "https://en.wikipedia.org/wiki/Dino_Toso"
+      }
+    ],
+    "notable": [
+      "Jordan race engineer for Hill's 1998 win",
+      "Renault chief aerodynamicist for the Alonso titles"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "dirk_de_beer",
+    "name": "Dirk de Beer",
+    "born": "1963-06-02",
+    "nationality": "ZAF",
+    "career": [
+      {
+        "org": "renault",
+        "role": "head_of_aero",
+        "from": 2008,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/Dirk_de_Beer"
+      },
+      {
+        "org": "lotus_f1",
+        "role": "head_of_aero",
+        "from": 2012,
+        "to": 2012,
+        "source": "https://en.wikipedia.org/wiki/Dirk_de_Beer"
+      },
+      {
+        "org": "ferrari",
+        "role": "head_of_aero",
+        "from": 2013,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Dirk_de_Beer"
+      },
+      {
+        "org": "williams",
+        "role": "head_of_aero",
+        "from": 2017,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Dirk_de_Beer"
+      },
+      {
+        "org": "renault",
+        "role": "head_of_aero",
+        "from": 2019,
+        "to": 2020,
+        "source": "https://en.wikipedia.org/wiki/Dirk_de_Beer"
+      },
+      {
+        "org": "alpine",
+        "role": "head_of_aero",
+        "from": 2021,
+        "to": 2024,
+        "source": "https://en.wikipedia.org/wiki/Dirk_de_Beer"
+      }
+    ],
+    "notable": [
+      "Head of aerodynamics at Enstone, Ferrari, Williams and Alpine."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "don_nichols",
+    "name": "Don Nichols",
+    "born": "1924-11-23",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "shadow",
+        "role": "owner",
+        "from": 1973,
+        "to": 1981,
+        "source": "https://en.wikipedia.org/wiki/Don_Nichols"
+      },
+      {
+        "org": "shadow",
+        "role": "team_principal",
+        "from": 1973,
+        "to": 1981,
+        "source": "https://en.wikipedia.org/wiki/Don_Nichols"
+      }
+    ],
+    "notable": [
+      "Founded Shadow and ran it through its only Grand Prix win"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "ed_wood",
+    "name": "Ed Wood",
+    "born": "1968-03-01",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "prodrive",
+        "role": "chief_designer",
+        "from": 2003,
+        "to": 2006,
+        "source": "https://en.wikipedia.org/wiki/Ed_Wood_%28engineer%29",
+        "series": "other"
+      },
+      {
+        "org": "williams",
+        "role": "chief_designer",
+        "from": 2006,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Ed_Wood_%28engineer%29"
+      }
+    ],
+    "notable": [
+      "Chief designer at Prodrive and then Williams"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "eddie_jordan",
+    "name": "Eddie Jordan",
+    "born": "1948-03-30",
+    "nationality": "IRL",
+    "career": [
+      {
+        "org": "jordan",
+        "role": "team_principal",
+        "from": 1991,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Eddie_Jordan"
+      }
+    ],
+    "notable": [
+      "Held team principal roles in Formula One"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "eddie_kuzma",
+    "name": "Eddie Kuzma",
+    "born": "1911-09-18",
+    "nationality": null,
+    "career": [
+      {
+        "org": "kuzma",
+        "role": "designer",
+        "from": 1951,
+        "to": 1960,
+        "source": "https://en.wikipedia.org/wiki/Eddie_Kuzma"
+      }
+    ],
+    "notable": [
+      "Built the car that won the 1952 Indianapolis 500"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "enrico_cardile",
+    "name": "Enrico Cardile",
+    "born": "1975-04-05",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "head_of_aero",
+        "from": 2016,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Enrico_Cardile"
+      },
+      {
+        "org": "aston_martin",
+        "role": "technical_director",
+        "from": 2025,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Enrico_Cardile"
+      }
+    ],
+    "notable": [
+      "Aston Martin chief technical officer since 2025"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "enrico_gualtieri",
+    "name": "Enrico Gualtieri",
+    "born": "1975-02-21",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 2023,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Enrico_Gualtieri"
+      }
+    ],
+    "notable": [
+      "Ferrari power unit technical director since 2023."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "enrique_scalabroni",
+    "name": "Enrique Scalabroni",
+    "born": "1949-10-20",
+    "nationality": "ARG",
+    "career": [
+      {
+        "org": "williams",
+        "role": "designer",
+        "from": 1985,
+        "to": 1989,
+        "source": "https://en.wikipedia.org/wiki/Enrique_Scalabroni"
+      },
+      {
+        "org": "ferrari",
+        "role": "chief_designer",
+        "from": 1989,
+        "to": 1990,
+        "source": "https://en.wikipedia.org/wiki/Enrique_Scalabroni"
+      },
+      {
+        "org": "lotus_f1",
+        "role": "chief_designer",
+        "from": 1991,
+        "to": 1992,
+        "source": "https://en.wikipedia.org/wiki/Enrique_Scalabroni"
+      },
+      {
+        "org": "asiatech",
+        "role": "technical_director",
+        "from": 1999,
+        "to": 2002,
+        "source": "https://en.wikipedia.org/wiki/Enrique_Scalabroni",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Chief designer at Ferrari and then Lotus",
+      "Technical director of the Asiatech engine project"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "enzo_ferrari",
+    "name": "Enzo Ferrari",
+    "born": "1898-02-18",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "owner",
+        "from": 1950,
+        "to": 1988,
+        "source": "https://en.wikipedia.org/wiki/Enzo_Ferrari"
+      },
+      {
+        "org": "ferrari",
+        "role": "team_principal",
+        "from": 1950,
+        "to": 1988,
+        "source": "https://en.wikipedia.org/wiki/Enzo_Ferrari"
+      }
+    ],
+    "notable": [
+      "Founded Ferrari and controlled its racing until his death"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "eric_boullier",
+    "name": "Éric Boullier",
+    "born": "1973-11-09",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "lotus_f1",
+        "role": "team_principal",
+        "from": 2010,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/%C3%89ric_Boullier"
+      }
+    ],
+    "notable": [
+      "Team principal of Lotus F1 through early 2014"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "eric_broadley",
+    "name": "Eric Broadley",
+    "born": "1928-09-22",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "lola",
+        "role": "chief_designer",
+        "from": 1958,
+        "to": 1997,
+        "source": "https://en.wikipedia.org/wiki/Eric_Broadley"
+      }
+    ],
+    "notable": [
+      "Held chief designer roles in Formula One"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "eric_gandelin",
+    "name": "Eric Gandelin",
+    "born": "1977-03-12",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "sauber",
+        "role": "chief_designer",
+        "from": 2013,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Eric_Gandelin"
+      },
+      {
+        "org": "audi",
+        "role": "chief_designer",
+        "from": 2021,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Eric_Gandelin"
+      }
+    ],
+    "notable": [
+      "Sauber chief designer, now chief designer at Audi"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "ernst_loof",
+    "name": "Ernst Loof",
+    "born": "1907-07-04",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "veritas",
+        "role": "designer",
+        "from": 1953,
+        "to": 1953,
+        "source": "https://en.wikipedia.org/wiki/Ernst_Loof"
+      }
+    ],
+    "notable": [
+      "Designed the Veritas car he raced in 1953"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "flavio_briatore",
+    "name": "Flavio Briatore",
+    "born": "1950-04-12",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "benetton",
+        "role": "team_principal",
+        "from": 1991,
+        "to": 1997,
+        "source": "https://en.wikipedia.org/wiki/Flavio_Briatore"
+      },
+      {
+        "org": "benetton",
+        "role": "team_principal",
+        "from": 2000,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Flavio_Briatore"
+      },
+      {
+        "org": "renault",
+        "role": "team_principal",
+        "from": 2002,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Flavio_Briatore"
+      },
+      {
+        "org": "alpine",
+        "role": "team_principal",
+        "from": 2025,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Flavio_Briatore"
+      }
+    ],
+    "notable": [
+      "Longtime Benetton and Renault team principal",
+      "Returned as Alpine de facto team principal"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "francois_xavier_demaison",
+    "name": "François-Xavier Demaison",
+    "born": null,
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "petter_solberg_world_rally_team",
+        "role": "technical_director",
+        "from": 2010,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/Fran%C3%A7ois-Xavier_Demaison_%28engineer%29",
+        "series": "other"
+      },
+      {
+        "org": "williams",
+        "role": "technical_director",
+        "from": 2021,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Fran%C3%A7ois-Xavier_Demaison_%28engineer%29"
+      },
+      {
+        "org": "hyundai_motorsport",
+        "role": "technical_director",
+        "from": 2023,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Fran%C3%A7ois-Xavier_Demaison_%28engineer%29",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Technical director at Williams and at Hyundai Motorsport."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "frank_dernie",
+    "name": "Frank Dernie",
+    "born": "1950-04-03",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "ligier",
+        "role": "technical_director",
+        "from": 1995,
+        "to": 1995,
+        "source": "https://en.wikipedia.org/wiki/Frank_Dernie"
+      }
+    ],
+    "notable": [
+      "Ligier technical director for the 1995 season"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "frank_williams",
+    "name": "Frank Williams",
+    "born": "1942-04-16",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "williams",
+        "role": "owner",
+        "from": 1977,
+        "to": 2020,
+        "source": "https://en.wikipedia.org/wiki/Frank_Williams_%28Formula_One%29"
+      },
+      {
+        "org": "williams",
+        "role": "team_principal",
+        "from": 1977,
+        "to": 2020,
+        "source": "https://en.wikipedia.org/wiki/Frank_Williams_%28Formula_One%29"
+      }
+    ],
+    "notable": [
+      "Nine constructors' titles by 1997"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "franz_tost",
+    "name": "Franz Tost",
+    "born": "1956-01-20",
+    "nationality": "AUT",
+    "career": [
+      {
+        "org": "toro_rosso",
+        "role": "team_principal",
+        "from": 2005,
+        "to": 2023,
+        "source": "https://en.wikipedia.org/wiki/Franz_Tost"
+      },
+      {
+        "org": "alphatauri",
+        "role": "team_principal",
+        "from": 2020,
+        "to": 2023,
+        "source": "https://en.wikipedia.org/wiki/Franz_Tost"
+      }
+    ],
+    "notable": [
+      "Team principal from Toro Rosso through AlphaTauri"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "fred_vasseur",
+    "name": "Fred Vasseur",
+    "born": "1968-05-28",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "renault",
+        "role": "team_principal",
+        "from": 2016,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Fred_Vasseur"
+      },
+      {
+        "org": "sauber",
+        "role": "team_principal",
+        "from": 2017,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Fred_Vasseur"
+      },
+      {
+        "org": "ferrari",
+        "role": "team_principal",
+        "from": 2023,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Fred_Vasseur"
+      }
+    ],
+    "notable": [
+      "Ferrari team principal since the 2023 season",
+      "Previously led Renault and then Sauber"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "gabriele_tredozi",
+    "name": "Gabriele Tredozi",
+    "born": "1957-09-09",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "minardi",
+        "role": "race_engineer",
+        "from": 1989,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Gabriele_Tredozi"
+      },
+      {
+        "org": "minardi",
+        "role": "race_engineer",
+        "from": 1994,
+        "to": 1995,
+        "source": "https://en.wikipedia.org/wiki/Gabriele_Tredozi"
+      },
+      {
+        "org": "scuderia_playteam",
+        "role": "technical_director",
+        "from": 2008,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Gabriele_Tredozi",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Minardi race engineer in the early 1990s"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "gary_anderson",
+    "name": "Gary Anderson",
+    "born": "1951-03-09",
+    "nationality": null,
+    "career": [
+      {
+        "org": "jordan",
+        "role": "technical_director",
+        "from": 1992,
+        "to": 1998,
+        "source": "https://en.wikipedia.org/wiki/Gary_Anderson_%28motorsport%29"
+      }
+    ],
+    "notable": [
+      "Jordan technical director from 1992 to 1998"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "gavin_fisher",
+    "name": "Gavin Fisher",
+    "born": "1964-08-30",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "williams",
+        "role": "chief_designer",
+        "from": 1997,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Gavin_Fisher"
+      }
+    ],
+    "notable": [
+      "Williams chief designer after Adrian Newey left"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "gene_haas",
+    "name": "Gene Haas",
+    "born": "1952-11-12",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "haas",
+        "role": "owner",
+        "from": 2025,
+        "to": 2025,
+        "source": "https://en.wikipedia.org/wiki/Gene_Haas"
+      }
+    ],
+    "notable": [
+      "Sole owner of Haas Factory Team",
+      "Also founded a Formula One team"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "geoff_willis",
+    "name": "Geoff Willis",
+    "born": "1959-12-23",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "williams",
+        "role": "head_of_aero",
+        "from": 1997,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Geoff_Willis"
+      },
+      {
+        "org": "bar",
+        "role": "technical_director",
+        "from": 2005,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Geoff_Willis"
+      },
+      {
+        "org": "honda",
+        "role": "technical_director",
+        "from": 2006,
+        "to": 2006,
+        "source": "https://en.wikipedia.org/wiki/Geoff_Willis"
+      },
+      {
+        "org": "red_bull",
+        "role": "technical_director",
+        "from": 2007,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Geoff_Willis"
+      }
+    ],
+    "notable": [
+      "Technical director at BAR and Red Bull Racing"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "gerard_ducarouge",
+    "name": "Gérard Ducarouge",
+    "born": "1941-10-23",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "matra-ford",
+        "role": "designer",
+        "from": 1965,
+        "to": 1974,
+        "source": "https://en.wikipedia.org/wiki/G%C3%A9rard_Ducarouge"
+      },
+      {
+        "org": "ligier",
+        "role": "designer",
+        "from": 1976,
+        "to": 1981,
+        "source": "https://en.wikipedia.org/wiki/G%C3%A9rard_Ducarouge"
+      },
+      {
+        "org": "ligier",
+        "role": "technical_director",
+        "from": 1991,
+        "to": 1994,
+        "source": "https://en.wikipedia.org/wiki/G%C3%A9rard_Ducarouge"
+      }
+    ],
+    "notable": [
+      "Designed the 1969 championship-winning Matra MS80",
+      "Ligier technical director from 1991 to 1994"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "gerhard_berger",
+    "name": "Gerhard Berger",
+    "born": "1959-08-27",
+    "nationality": "AUT",
+    "career": [
+      {
+        "org": "toro_rosso",
+        "role": "owner",
+        "from": 2006,
+        "to": 2008,
+        "source": "https://en.wikipedia.org/wiki/Gerhard_Berger"
+      }
+    ],
+    "notable": [
+      "Co-owned Toro Rosso from 2006",
+      "Sold his stake back in 2008"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "giacomo_caliri",
+    "name": "Giacomo Caliri",
+    "born": "1940-07-29",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "minardi",
+        "role": "designer",
+        "from": 1985,
+        "to": 1989,
+        "source": "https://en.wikipedia.org/wiki/Giacomo_Caliri"
+      },
+      {
+        "org": "minardi",
+        "role": "technical_director",
+        "from": 1985,
+        "to": 1989,
+        "source": "https://en.wikipedia.org/wiki/Giacomo_Caliri"
+      },
+      {
+        "org": "forti",
+        "role": "designer",
+        "from": 1995,
+        "to": 1995,
+        "source": "https://en.wikipedia.org/wiki/Giacomo_Caliri"
+      }
+    ],
+    "notable": [
+      "Minardi technical director who designed the M185",
+      "One of the designers of Forti's 1995 chassis"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "giampaolo_dallara",
+    "name": "Giampaolo Dallara",
+    "born": "1936-11-16",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "dallara",
+        "role": "owner",
+        "from": 1972,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Giampaolo_Dallara",
+        "series": "engineering"
+      }
+    ],
+    "notable": [
+      "Founded Dallara and remains the company's owner"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "gioacchino_colombo",
+    "name": "Gioacchino Colombo",
+    "born": "1903-01-09",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "engine_designer",
+        "from": 1947,
+        "to": 1950,
+        "source": "https://en.wikipedia.org/wiki/Gioacchino_Colombo"
+      },
+      {
+        "org": "alfa",
+        "role": "technical_director",
+        "from": 1950,
+        "to": 1951,
+        "source": "https://en.wikipedia.org/wiki/Gioacchino_Colombo"
+      }
+    ],
+    "notable": [
+      "Oversaw Alfa Romeo's 1950 and 1951 championship campaigns"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "giotto_bizzarrini",
+    "name": "Giotto Bizzarrini",
+    "born": "1926-06-06",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "designer",
+        "from": 1957,
+        "to": 1961,
+        "source": "https://en.wikipedia.org/wiki/Giotto_Bizzarrini"
+      }
+    ],
+    "notable": [
+      "Ferrari designer who left in the 1961 walkout"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "giuseppe_busso",
+    "name": "Giuseppe Busso",
+    "born": "1913-04-27",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 1946,
+        "to": 1948,
+        "source": "https://en.wikipedia.org/wiki/Giuseppe_Busso"
+      },
+      {
+        "org": "alfa",
+        "role": "engine_designer",
+        "from": 1948,
+        "to": 1977,
+        "source": "https://en.wikipedia.org/wiki/Giuseppe_Busso"
+      }
+    ],
+    "notable": [
+      "Ferrari technical director and Alfa Romeo engine designer."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "gordon_coppuck",
+    "name": "Gordon Coppuck",
+    "born": "1936-12-08",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "chief_designer",
+        "from": 1971,
+        "to": 1980,
+        "source": "https://en.wikipedia.org/wiki/Gordon_Coppuck"
+      }
+    ],
+    "notable": [
+      "McLaren chief designer of the championship-winning M23"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "gordon_murray",
+    "name": "Gordon Murray",
+    "born": "1946-06-18",
+    "nationality": "ZAF",
+    "career": [
+      {
+        "org": "brabham",
+        "role": "chief_designer",
+        "from": 1969,
+        "to": 1986,
+        "source": "https://en.wikipedia.org/wiki/Gordon_Murray"
+      },
+      {
+        "org": "mclaren",
+        "role": "technical_director",
+        "from": 1987,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Gordon_Murray"
+      }
+    ],
+    "notable": [
+      "Lead designer of Brabham's championship cars",
+      "McLaren technical director in the MP4/4 era"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "guenther_steiner",
+    "name": "Guenther Steiner",
+    "born": "1965-04-07",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ford_world_rally_team",
+        "role": "technical_director",
+        "from": 2000,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Guenther_Steiner",
+        "series": "other"
+      },
+      {
+        "org": "jaguar",
+        "role": "team_principal",
+        "from": 2001,
+        "to": 2002,
+        "source": "https://en.wikipedia.org/wiki/Guenther_Steiner"
+      },
+      {
+        "org": "red_bull",
+        "role": "technical_director",
+        "from": 2006,
+        "to": 2008,
+        "source": "https://en.wikipedia.org/wiki/Guenther_Steiner"
+      },
+      {
+        "org": "haas",
+        "role": "team_principal",
+        "from": 2014,
+        "to": 2023,
+        "source": "https://en.wikipedia.org/wiki/Guenther_Steiner"
+      },
+      {
+        "org": "red_bull",
+        "role": "owner",
+        "from": 2025,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Guenther_Steiner"
+      }
+    ],
+    "notable": [
+      "Led Haas as its Formula One team principal",
+      "Now owns the Red Bull KTM Tech3 team"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "guy_ligier",
+    "name": "Guy Ligier",
+    "born": "1930-07-12",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "ligier",
+        "role": "owner",
+        "from": 1976,
+        "to": 1992,
+        "source": "https://en.wikipedia.org/wiki/Guy_Ligier"
+      }
+    ],
+    "notable": [
+      "Founded Équipe Ligier and sold it in 1992"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "harvey_postlethwaite",
+    "name": "Harvey Postlethwaite",
+    "born": "1944-03-04",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "hesketh",
+        "role": "designer",
+        "from": 1974,
+        "to": 1976,
+        "source": "https://en.wikipedia.org/wiki/Harvey_Postlethwaite"
+      },
+      {
+        "org": "wolf",
+        "role": "designer",
+        "from": 1977,
+        "to": 1979,
+        "source": "https://en.wikipedia.org/wiki/Harvey_Postlethwaite"
+      },
+      {
+        "org": "ferrari",
+        "role": "designer",
+        "from": 1981,
+        "to": 1987,
+        "source": "https://en.wikipedia.org/wiki/Harvey_Postlethwaite"
+      },
+      {
+        "org": "sauber",
+        "role": "technical_director",
+        "from": 1991,
+        "to": 1992,
+        "source": "https://en.wikipedia.org/wiki/Harvey_Postlethwaite"
+      },
+      {
+        "org": "honda",
+        "role": "technical_director",
+        "from": 1999,
+        "to": 1999,
+        "source": "https://en.wikipedia.org/wiki/Harvey_Postlethwaite"
+      }
+    ],
+    "notable": [
+      "Died testing Honda's aborted 1999 Formula One car"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "hywel_thomas",
+    "name": "Hywel Thomas",
+    "born": "1972-09-18",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mercedes",
+        "role": "technical_director",
+        "from": 2013,
+        "to": 2015,
+        "source": "https://en.wikipedia.org/wiki/Hywel_Thomas"
+      }
+    ],
+    "notable": [
+      "Engineering director at Mercedes-Ilmor during the hybrid era."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "jack_brabham",
+    "name": "Jack Brabham",
+    "born": "1926-04-02",
+    "nationality": null,
+    "career": [
+      {
+        "org": "brabham",
+        "role": "owner",
+        "from": 1962,
+        "to": 1969,
+        "source": "https://en.wikipedia.org/wiki/Jack_Brabham"
+      },
+      {
+        "org": "brabham",
+        "role": "team_principal",
+        "from": 1962,
+        "to": 1969,
+        "source": "https://en.wikipedia.org/wiki/Jack_Brabham"
+      }
+    ],
+    "notable": [
+      "Co-founded Brabham and won the 1966 title in his own car"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "jackie_oliver",
+    "name": "Jackie Oliver",
+    "born": "1942-08-14",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "arrows",
+        "role": "team_principal",
+        "from": 1978,
+        "to": 1996,
+        "source": "https://en.wikipedia.org/wiki/Jackie_Oliver"
+      }
+    ],
+    "notable": [
+      "Team principal of Arrows for nearly two decades"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "jackie_stewart",
+    "name": "Jackie Stewart",
+    "born": "1939-06-11",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "stewart",
+        "role": "owner",
+        "from": 1997,
+        "to": 2000,
+        "source": "https://en.wikipedia.org/wiki/Jackie_Stewart"
+      },
+      {
+        "org": "stewart",
+        "role": "team_principal",
+        "from": 1997,
+        "to": 1999,
+        "source": "https://en.wikipedia.org/wiki/Jackie_Stewart"
+      }
+    ],
+    "notable": [
+      "Owned and ran Stewart Grand Prix with his son"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "jacques_coune",
+    "name": "Jacques Coune",
+    "born": "1924-01-16",
+    "nationality": null,
+    "career": [
+      {
+        "org": "equipe_nationale_belge",
+        "role": "designer",
+        "from": 1962,
+        "to": 1962,
+        "source": "https://en.wikipedia.org/wiki/Jacques_Coune",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Designed Equipe Nationale Belge's 1962 Formula One car"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "jacques_swaters",
+    "name": "Jacques Swaters",
+    "born": "1926-10-30",
+    "nationality": "BEL",
+    "career": [
+      {
+        "org": "ecurie_francorchamps",
+        "role": "owner",
+        "from": 1952,
+        "to": 1982,
+        "source": "https://en.wikipedia.org/wiki/Jacques_Swaters",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Owned Ecurie Francorchamps until 1982"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "james_allison",
+    "name": "James Allison",
+    "born": "1968-02-21",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "renault",
+        "role": "technical_director",
+        "from": 2009,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/James_Allison_%28motorsport%29"
+      },
+      {
+        "org": "lotus_f1",
+        "role": "technical_director",
+        "from": 2012,
+        "to": 2013,
+        "source": "https://en.wikipedia.org/wiki/James_Allison_%28motorsport%29"
+      },
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 2013,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/James_Allison_%28motorsport%29"
+      },
+      {
+        "org": "mercedes",
+        "role": "technical_director",
+        "from": 2017,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/James_Allison_%28motorsport%29"
+      }
+    ],
+    "notable": [
+      "Technical director at Mercedes, Ferrari and Renault",
+      "Returned to Mercedes as technical director in 2023"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "james_vowles",
+    "name": "James Vowles",
+    "born": "1979-06-20",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "williams",
+        "role": "team_principal",
+        "from": 2023,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/James_Vowles"
+      }
+    ],
+    "notable": [
+      "Williams team principal since February 2023"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "jarrod_murphy",
+    "name": "Jarrod Murphy",
+    "born": null,
+    "nationality": null,
+    "career": [
+      {
+        "org": "mercedes",
+        "role": "head_of_aero",
+        "from": 2013,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Jarrod_Murphy"
+      }
+    ],
+    "notable": [
+      "Mercedes aerodynamics leader since 2013"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "jason_somerville",
+    "name": "Jason Somerville",
+    "born": "1968-12-03",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "williams",
+        "role": "head_of_aero",
+        "from": 2011,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Jason_Somerville_%28engineer%29"
+      },
+      {
+        "org": "formula_one_group",
+        "role": "head_of_aero",
+        "from": 2017,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Jason_Somerville_%28engineer%29",
+        "series": "commercial"
+      },
+      {
+        "org": "fia",
+        "role": "head_of_aero",
+        "from": 2022,
+        "to": 2025,
+        "source": "https://en.wikipedia.org/wiki/Jason_Somerville_%28engineer%29",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Williams head of aerodynamics in the 2010s",
+      "Later shaped Formula One aerodynamic rules"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "jean_todt",
+    "name": "Jean Todt",
+    "born": "1946-02-25",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "team_principal",
+        "from": 1994,
+        "to": 2007,
+        "source": "https://en.wikipedia.org/wiki/Jean_Todt"
+      }
+    ],
+    "notable": [
+      "Led Ferrari from the mid-1990s through the Schumacher championships"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "jody_egginton",
+    "name": "Jody Egginton",
+    "born": "1974-01-28",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "rb",
+        "role": "technical_director",
+        "from": 2025,
+        "to": 2025,
+        "source": "https://en.wikipedia.org/wiki/Jody_Egginton"
+      },
+      {
+        "org": "red_bull_advanced_technologies",
+        "role": "technical_director",
+        "from": 2025,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Jody_Egginton",
+        "series": "engineering"
+      }
+    ],
+    "notable": [
+      "Engineering director at Red Bull Advanced Technologies."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "john_barnard",
+    "name": "John Barnard",
+    "born": "1946-05-04",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "designer",
+        "from": 1980,
+        "to": 1986,
+        "source": "https://en.wikipedia.org/wiki/John_Barnard"
+      },
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 1987,
+        "to": 1989,
+        "source": "https://en.wikipedia.org/wiki/John_Barnard"
+      },
+      {
+        "org": "benetton",
+        "role": "technical_director",
+        "from": 1990,
+        "to": 1992,
+        "source": "https://en.wikipedia.org/wiki/John_Barnard"
+      }
+    ],
+    "notable": [
+      "Designed McLaren's carbon-fibre Formula One chassis",
+      "Ferrari technical director who introduced paddle-shift gearboxes"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "john_crosthwaite",
+    "name": "John Crosthwaite",
+    "born": "1925-10-09",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "brm",
+        "role": "designer",
+        "from": 1963,
+        "to": 1965,
+        "source": "https://en.wikipedia.org/wiki/John_Crosthwaite"
+      }
+    ],
+    "notable": [
+      "BRM chassis designer in the mid-1960s"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "john_owen",
+    "name": "John Owen",
+    "born": "1972-03-30",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mercedes",
+        "role": "chief_designer",
+        "from": 2010,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/John_Owen_%28Formula_One%29"
+      }
+    ],
+    "notable": [
+      "Mercedes chief designer through the hybrid era"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "jonathan_wheatley",
+    "name": "Jonathan Wheatley",
+    "born": "1967-05-07",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "sauber",
+        "role": "team_principal",
+        "from": 2025,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Jonathan_Wheatley"
+      }
+    ],
+    "notable": [
+      "Sauber team principal before leaving in 2026"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "jorg_zander",
+    "name": "Jörg Zander",
+    "born": "1964-02-15",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "williams",
+        "role": "chief_designer",
+        "from": 2005,
+        "to": 2006,
+        "source": "https://en.wikipedia.org/wiki/J%C3%B6rg_Zander"
+      },
+      {
+        "org": "bmw_sauber",
+        "role": "chief_designer",
+        "from": 2006,
+        "to": 2007,
+        "source": "https://en.wikipedia.org/wiki/J%C3%B6rg_Zander"
+      },
+      {
+        "org": "honda",
+        "role": "chief_designer",
+        "from": 2007,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/J%C3%B6rg_Zander"
+      },
+      {
+        "org": "brawn",
+        "role": "chief_designer",
+        "from": 2009,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/J%C3%B6rg_Zander"
+      }
+    ],
+    "notable": [
+      "Chief designer at Williams, BMW Sauber, Honda and Brawn"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "keith_duckworth",
+    "name": "Keith Duckworth",
+    "born": "1933-08-10",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "cosworth",
+        "role": "engine_designer",
+        "from": 1958,
+        "to": 1980,
+        "source": "https://en.wikipedia.org/wiki/Keith_Duckworth",
+        "series": "engine_supplier"
+      },
+      {
+        "org": "cosworth",
+        "role": "owner",
+        "from": 1958,
+        "to": 1980,
+        "source": "https://en.wikipedia.org/wiki/Keith_Duckworth",
+        "series": "engine_supplier"
+      }
+    ],
+    "notable": [
+      "Designed the Cosworth DFV used across Formula One"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "keith_wiggins",
+    "name": "Keith Wiggins",
+    "born": "1958-07-01",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "pacific",
+        "role": "owner",
+        "from": 1984,
+        "to": 1997,
+        "source": "https://en.wikipedia.org/wiki/Keith_Wiggins"
+      }
+    ],
+    "notable": [
+      "Owned Pacific Racing through its 1997 closure."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "ken_tyrrell",
+    "name": "Ken Tyrrell",
+    "born": "1924-05-03",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "matra-ford",
+        "role": "team_principal",
+        "from": 1968,
+        "to": 1969,
+        "source": "https://en.wikipedia.org/wiki/Ken_Tyrrell"
+      },
+      {
+        "org": "tyrrell",
+        "role": "owner",
+        "from": 1971,
+        "to": 1997,
+        "source": "https://en.wikipedia.org/wiki/Ken_Tyrrell"
+      }
+    ],
+    "notable": [
+      "Ran Matra International and founded the Tyrrell team"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "laurent_mekies",
+    "name": "Laurent Mekies",
+    "born": "1977-04-28",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "asiatech",
+        "role": "race_engineer",
+        "from": 2001,
+        "to": 2002,
+        "source": "https://en.wikipedia.org/wiki/Laurent_Mekies",
+        "series": "other"
+      },
+      {
+        "org": "minardi",
+        "role": "race_engineer",
+        "from": 2003,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Laurent_Mekies"
+      },
+      {
+        "org": "rb",
+        "role": "team_principal",
+        "from": 2024,
+        "to": 2024,
+        "source": "https://en.wikipedia.org/wiki/Laurent_Mekies"
+      },
+      {
+        "org": "red_bull",
+        "role": "team_principal",
+        "from": 2025,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Laurent_Mekies"
+      }
+    ],
+    "notable": [
+      "From race engineer to Red Bull Racing team principal."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "loic_bigois",
+    "name": "Loïc Bigois",
+    "born": "1960-09-19",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "minardi",
+        "role": "head_of_aero",
+        "from": 2001,
+        "to": 2003,
+        "source": "https://en.wikipedia.org/wiki/Lo%C3%AFc_Bigois"
+      },
+      {
+        "org": "brawn",
+        "role": "head_of_aero",
+        "from": 2009,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Lo%C3%AFc_Bigois"
+      }
+    ],
+    "notable": [
+      "Head of aerodynamics at Minardi and Brawn GP"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "loic_serra",
+    "name": "Loïc Serra",
+    "born": "1972-03-30",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 2024,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Lo%C3%AFc_Serra"
+      }
+    ],
+    "notable": [
+      "Ferrari chassis technical director since October 2024."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "lorenzo_sassi",
+    "name": "Lorenzo Sassi",
+    "born": null,
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "chief_designer",
+        "from": 2006,
+        "to": 2010,
+        "source": "https://en.wikipedia.org/wiki/Lorenzo_Sassi"
+      },
+      {
+        "org": "ferrari",
+        "role": "chief_designer",
+        "from": 2014,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Lorenzo_Sassi"
+      },
+      {
+        "org": "mercedes_hpp",
+        "role": "technical_director",
+        "from": 2023,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Lorenzo_Sassi",
+        "series": "engine_supplier"
+      }
+    ],
+    "notable": [
+      "Ferrari engine chief designer in two stints",
+      "Engineering director of Mercedes Formula One engines"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "luigi_colani",
+    "name": "Luigi Colani",
+    "born": "1928-08-02",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "eifelland",
+        "role": "designer",
+        "from": 1972,
+        "to": 1972,
+        "source": "https://en.wikipedia.org/wiki/Luigi_Colani",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Designed the 1972 Eifelland Formula One car"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "marcin_budkowski",
+    "name": "Marcin Budkowski",
+    "born": "1977-04-23",
+    "nationality": "POL",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "head_of_aero",
+        "from": 2012,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Marcin_Budkowski"
+      },
+      {
+        "org": "cadillac",
+        "role": "team_principal",
+        "from": 2026,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Marcin_Budkowski"
+      }
+    ],
+    "notable": [
+      "McLaren head of aerodynamics",
+      "Cadillac Formula 1 team principal"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "marco_piccinini",
+    "name": "Marco Piccinini",
+    "born": "1952-07-02",
+    "nationality": "MCO",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "team_principal",
+        "from": 1978,
+        "to": 1988,
+        "source": "https://en.wikipedia.org/wiki/Marco_Piccinini"
+      }
+    ],
+    "notable": [
+      "Ferrari Formula One team principal through the 1980s"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "mariano_alperin",
+    "name": "Mariano Alperin",
+    "born": "1965-10-10",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "durango",
+        "role": "race_engineer",
+        "from": 1993,
+        "to": 1994,
+        "source": "https://en.wikipedia.org/wiki/Mariano_Alperin",
+        "series": "other"
+      },
+      {
+        "org": "honda",
+        "role": "head_of_aero",
+        "from": 2006,
+        "to": 2007,
+        "source": "https://en.wikipedia.org/wiki/Mariano_Alperin"
+      }
+    ],
+    "notable": [
+      "Honda chief aerodynamicist in 2006 and 2007",
+      "Formula 3000 race engineer with Durango"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "mario_illien",
+    "name": "Mario Illien",
+    "born": "1949-08-02",
+    "nationality": "CHE",
+    "career": [
+      {
+        "org": "cosworth",
+        "role": "engine_designer",
+        "from": 1979,
+        "to": 1984,
+        "source": "https://en.wikipedia.org/wiki/Mario_Illien",
+        "series": "engine_supplier"
+      },
+      {
+        "org": "ilmor",
+        "role": "engine_designer",
+        "from": 1984,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Mario_Illien",
+        "series": "engine_supplier"
+      }
+    ],
+    "notable": [
+      "Led Ilmor engine design, later Mercedes' Formula One engine partner"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "mario_theissen",
+    "name": "Mario Theissen",
+    "born": "1952-08-17",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "bmw_sauber",
+        "role": "team_principal",
+        "from": 2005,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Mario_Theissen"
+      }
+    ],
+    "notable": [
+      "Team principal of BMW Sauber until the sale"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "mark_ellis",
+    "name": "Mark Ellis",
+    "born": "1964-06-22",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "bar",
+        "role": "designer",
+        "from": 2000,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Mark_Ellis_%28Formula_One%29"
+      },
+      {
+        "org": "jaguar",
+        "role": "race_engineer",
+        "from": 2001,
+        "to": 2002,
+        "source": "https://en.wikipedia.org/wiki/Mark_Ellis_%28Formula_One%29"
+      }
+    ],
+    "notable": [
+      "Jaguar chief race engineer in 2001 and 2002"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "mark_preston",
+    "name": "Mark Preston",
+    "born": "1968-11-07",
+    "nationality": null,
+    "career": [
+      {
+        "org": "super_aguri",
+        "role": "technical_director",
+        "from": 2006,
+        "to": 2008,
+        "source": "https://en.wikipedia.org/wiki/Mark_Preston_%28businessman%29"
+      },
+      {
+        "org": "super_aguri",
+        "role": "team_principal",
+        "from": 2015,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Mark_Preston_%28businessman%29"
+      }
+    ],
+    "notable": [
+      "Technical director of the Super Aguri Formula One team",
+      "Team principal of Aguri's early Formula E squad"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "mark_smith",
+    "name": "Mark Smith",
+    "born": "1961-03-09",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "jordan",
+        "role": "chief_designer",
+        "from": 1998,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Mark_Smith_%28racing_engineer%29"
+      },
+      {
+        "org": "benetton",
+        "role": "chief_designer",
+        "from": 2001,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Mark_Smith_%28racing_engineer%29"
+      },
+      {
+        "org": "renault",
+        "role": "chief_designer",
+        "from": 2002,
+        "to": 2004,
+        "source": "https://en.wikipedia.org/wiki/Mark_Smith_%28racing_engineer%29"
+      },
+      {
+        "org": "jordan",
+        "role": "technical_director",
+        "from": 2004,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Mark_Smith_%28racing_engineer%29"
+      },
+      {
+        "org": "red_bull",
+        "role": "technical_director",
+        "from": 2005,
+        "to": 2008,
+        "source": "https://en.wikipedia.org/wiki/Mark_Smith_%28racing_engineer%29"
+      },
+      {
+        "org": "force_india",
+        "role": "technical_director",
+        "from": 2010,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/Mark_Smith_%28racing_engineer%29"
+      },
+      {
+        "org": "team_lotus",
+        "role": "technical_director",
+        "from": 2011,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Mark_Smith_%28racing_engineer%29"
+      },
+      {
+        "org": "sauber",
+        "role": "technical_director",
+        "from": 2015,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Mark_Smith_%28racing_engineer%29"
+      }
+    ],
+    "notable": [
+      "Chief designer at Jordan, Benetton and Renault",
+      "Technical director at several Formula One teams"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "mark_tatham",
+    "name": "Mark Tatham",
+    "born": null,
+    "nationality": null,
+    "career": [
+      {
+        "org": "hrt",
+        "role": "chief_designer",
+        "from": 2012,
+        "to": 2012,
+        "source": "https://en.wikipedia.org/wiki/Mark_Tatham"
+      },
+      {
+        "org": "toro_rosso",
+        "role": "chief_designer",
+        "from": 2015,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Mark_Tatham"
+      }
+    ],
+    "notable": [
+      "Chief designer at Toro Rosso and briefly at HRT"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "martin_tolliday",
+    "name": "Martin Tolliday",
+    "born": null,
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "lotus_f1",
+        "role": "chief_designer",
+        "from": 2011,
+        "to": 2020,
+        "source": "https://en.wikipedia.org/wiki/Martin_Tolliday"
+      }
+    ],
+    "notable": [
+      "Enstone chief designer through Lotus and Renault"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "martin_whitmarsh",
+    "name": "Martin Whitmarsh",
+    "born": "1958-04-29",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "team_principal",
+        "from": 2009,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Martin_Whitmarsh"
+      }
+    ],
+    "notable": [
+      "McLaren team principal after Ron Dennis stepped aside"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "mattia_binotto",
+    "name": "Mattia Binotto",
+    "born": "1969-11-03",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 2016,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/Mattia_Binotto"
+      },
+      {
+        "org": "ferrari",
+        "role": "team_principal",
+        "from": 2019,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Mattia_Binotto"
+      },
+      {
+        "org": "sauber",
+        "role": "team_principal",
+        "from": 2025,
+        "to": 2025,
+        "source": "https://en.wikipedia.org/wiki/Mattia_Binotto"
+      },
+      {
+        "org": "audi",
+        "role": "team_principal",
+        "from": 2026,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Mattia_Binotto"
+      }
+    ],
+    "notable": [
+      "Ferrari chief technical officer, then team principal",
+      "Later interim Sauber and Audi team principal"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "maurizio_arrivabene",
+    "name": "Maurizio Arrivabene",
+    "born": "1957-03-07",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "team_principal",
+        "from": 2014,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/Maurizio_Arrivabene"
+      }
+    ],
+    "notable": [
+      "Ferrari team principal from late 2014 until 2019"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "mauro_forghieri",
+    "name": "Mauro Forghieri",
+    "born": "1935-01-13",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 1961,
+        "to": 1984,
+        "source": "https://en.wikipedia.org/wiki/Mauro_Forghieri"
+      },
+      {
+        "org": "lamborghini_engineering",
+        "role": "engine_designer",
+        "from": 1989,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Mauro_Forghieri",
+        "series": "engine_supplier"
+      },
+      {
+        "org": "bugatti",
+        "role": "technical_director",
+        "from": 1992,
+        "to": 1994,
+        "source": "https://en.wikipedia.org/wiki/Mauro_Forghieri",
+        "series": "road_car"
+      }
+    ],
+    "notable": [
+      "Ferrari technical director from 1961 to 1984"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "max_mosley",
+    "name": "Max Mosley",
+    "born": "1940-04-13",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "march",
+        "role": "owner",
+        "from": 1969,
+        "to": 1977,
+        "source": "https://en.wikipedia.org/wiki/Max_Mosley"
+      }
+    ],
+    "notable": [
+      "Co-owned March Engineering until 1977",
+      "Later served as FIA president"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "michel_tetu",
+    "name": "Michel Têtu",
+    "born": null,
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "alfa",
+        "role": "designer",
+        "from": 1972,
+        "to": 1976,
+        "source": "https://en.wikipedia.org/wiki/Michel_T%C3%AAtu"
+      },
+      {
+        "org": "renault",
+        "role": "designer",
+        "from": 1978,
+        "to": 1984,
+        "source": "https://en.wikipedia.org/wiki/Michel_T%C3%AAtu"
+      },
+      {
+        "org": "ligier",
+        "role": "designer",
+        "from": 1985,
+        "to": 1988,
+        "source": "https://en.wikipedia.org/wiki/Michel_T%C3%AAtu"
+      }
+    ],
+    "notable": [
+      "Designed Renault's ground-effect Formula One cars",
+      "Designed Ligier cars from 1985 until 1988"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "mike_costin",
+    "name": "Mike Costin",
+    "born": "1929-07-10",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "cosworth",
+        "role": "owner",
+        "from": 1958,
+        "to": 1990,
+        "source": "https://en.wikipedia.org/wiki/Mike_Costin",
+        "series": "engine_supplier"
+      }
+    ],
+    "notable": [
+      "Co-founded Cosworth with Keith Duckworth"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "mike_coughlan",
+    "name": "Mike Coughlan",
+    "born": "1959-02-17",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "chief_designer",
+        "from": 2002,
+        "to": 2007,
+        "source": "https://en.wikipedia.org/wiki/Mike_Coughlan"
+      },
+      {
+        "org": "williams",
+        "role": "technical_director",
+        "from": 2011,
+        "to": 2013,
+        "source": "https://en.wikipedia.org/wiki/Mike_Coughlan"
+      },
+      {
+        "org": "richard_childress_racing",
+        "role": "technical_director",
+        "from": 2013,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Mike_Coughlan",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "McLaren chief designer suspended in the 2007 spy case",
+      "Later technical director at Williams and Richard Childress"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "mike_elliott",
+    "name": "Mike Elliott",
+    "born": "1974-06-04",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mercedes",
+        "role": "head_of_aero",
+        "from": 2012,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Mike_Elliott_%28Formula_One%29"
+      },
+      {
+        "org": "mercedes",
+        "role": "technical_director",
+        "from": 2021,
+        "to": 2023,
+        "source": "https://en.wikipedia.org/wiki/Mike_Elliott_%28Formula_One%29"
+      },
+      {
+        "org": "alpine",
+        "role": "technical_director",
+        "from": 2026,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Mike_Elliott_%28Formula_One%29"
+      }
+    ],
+    "notable": [
+      "Mercedes head of aerodynamics, then technical director",
+      "Alpine chief technical officer from 2026"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "mike_gascoyne",
+    "name": "Mike Gascoyne",
+    "born": "1963-04-02",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "jordan",
+        "role": "technical_director",
+        "from": 1998,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Mike_Gascoyne"
+      },
+      {
+        "org": "benetton",
+        "role": "technical_director",
+        "from": 2001,
+        "to": 2003,
+        "source": "https://en.wikipedia.org/wiki/Mike_Gascoyne"
+      }
+    ],
+    "notable": [
+      "Technical director at Jordan and at Benetton"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "mike_krack",
+    "name": "Mike Krack",
+    "born": "1972-03-18",
+    "nationality": "LUX",
+    "career": [
+      {
+        "org": "aston_martin",
+        "role": "team_principal",
+        "from": 2022,
+        "to": 2025,
+        "source": "https://en.wikipedia.org/wiki/Mike_Krack"
+      }
+    ],
+    "notable": [
+      "Aston Martin team principal from 2022"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "monisha_kaltenborn",
+    "name": "Monisha Kaltenborn",
+    "born": "1971-05-10",
+    "nationality": "AUT",
+    "career": [
+      {
+        "org": "sauber",
+        "role": "owner",
+        "from": 2012,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Monisha_Kaltenborn"
+      },
+      {
+        "org": "sauber",
+        "role": "team_principal",
+        "from": 2012,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Monisha_Kaltenborn"
+      }
+    ],
+    "notable": [
+      "Part owner and team principal of Sauber"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "naoki_tokunaga",
+    "name": "Naoki Tokunaga",
+    "born": null,
+    "nationality": "JPN",
+    "career": [
+      {
+        "org": "renault",
+        "role": "technical_director",
+        "from": 2012,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Naoki_Tokunaga"
+      }
+    ],
+    "notable": [
+      "Technical director of Renault Sport F1 until 2022."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "neil_oatley",
+    "name": "Neil Oatley",
+    "born": "1954-06-12",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "chief_designer",
+        "from": 1989,
+        "to": 2003,
+        "source": "https://en.wikipedia.org/wiki/Neil_Oatley"
+      }
+    ],
+    "notable": [
+      "McLaren chief designer through the 1989–1991 and 1998–1999 title cars"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "nick_chester",
+    "name": "Nick Chester",
+    "born": "1969-03-22",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "lotus_f1",
+        "role": "technical_director",
+        "from": 2012,
+        "to": 2015,
+        "source": "https://en.wikipedia.org/wiki/Nick_Chester"
+      },
+      {
+        "org": "renault",
+        "role": "technical_director",
+        "from": 2016,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/Nick_Chester"
+      },
+      {
+        "org": "mercedes_eq",
+        "role": "technical_director",
+        "from": 2020,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Nick_Chester",
+        "series": "formula_e"
+      },
+      {
+        "org": "mclaren_formula_e",
+        "role": "technical_director",
+        "from": 2022,
+        "to": 2023,
+        "source": "https://en.wikipedia.org/wiki/Nick_Chester",
+        "series": "formula_e"
+      },
+      {
+        "org": "cadillac",
+        "role": "technical_director",
+        "from": 2025,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Nick_Chester"
+      }
+    ],
+    "notable": [
+      "Technical director at Enstone and later Cadillac."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "nick_wirth",
+    "name": "Nick Wirth",
+    "born": "1966-03-26",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "simtek",
+        "role": "owner",
+        "from": 1993,
+        "to": 1995,
+        "source": "https://en.wikipedia.org/wiki/Nick_Wirth"
+      },
+      {
+        "org": "simtek",
+        "role": "technical_director",
+        "from": 1993,
+        "to": 1995,
+        "source": "https://en.wikipedia.org/wiki/Nick_Wirth"
+      }
+    ],
+    "notable": [
+      "Owner and technical director of Simtek"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "nicolas_hennel",
+    "name": "Nicolas Hennel",
+    "born": null,
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "head_of_aero",
+        "from": 2012,
+        "to": 2013,
+        "source": "https://en.wikipedia.org/wiki/Nicolas_Hennel"
+      },
+      {
+        "org": "lotus_f1",
+        "role": "head_of_aero",
+        "from": 2013,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Nicolas_Hennel"
+      },
+      {
+        "org": "sauber",
+        "role": "head_of_aero",
+        "from": 2016,
+        "to": 2021,
+        "source": "https://en.wikipedia.org/wiki/Nicolas_Hennel"
+      }
+    ],
+    "notable": [
+      "Head of aerodynamics at Ferrari, Lotus and Sauber"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "niki_lauda",
+    "name": "Niki Lauda",
+    "born": "1949-02-22",
+    "nationality": "AUT",
+    "career": [
+      {
+        "org": "jaguar_sport",
+        "role": "team_principal",
+        "from": 2001,
+        "to": 2002,
+        "source": "https://en.wikipedia.org/wiki/Niki_Lauda",
+        "series": "sportscar"
+      },
+      {
+        "org": "mercedes",
+        "role": "owner",
+        "from": 2012,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/Niki_Lauda"
+      }
+    ],
+    "notable": [
+      "Jaguar team principal in 2001 and 2002",
+      "Mercedes co-owner until his death"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "nikolas_tombazis",
+    "name": "Nikolas Tombazis",
+    "born": "1968-04-22",
+    "nationality": "GRC",
+    "career": [
+      {
+        "org": "benetton",
+        "role": "head_of_aero",
+        "from": 1993,
+        "to": 1996,
+        "source": "https://en.wikipedia.org/wiki/Nikolas_Tombazis"
+      },
+      {
+        "org": "ferrari",
+        "role": "head_of_aero",
+        "from": 1998,
+        "to": 2003,
+        "source": "https://en.wikipedia.org/wiki/Nikolas_Tombazis"
+      },
+      {
+        "org": "mclaren",
+        "role": "head_of_aero",
+        "from": 2004,
+        "to": 2004,
+        "source": "https://en.wikipedia.org/wiki/Nikolas_Tombazis"
+      },
+      {
+        "org": "mclaren",
+        "role": "chief_designer",
+        "from": 2005,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Nikolas_Tombazis"
+      },
+      {
+        "org": "ferrari",
+        "role": "chief_designer",
+        "from": 2006,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Nikolas_Tombazis"
+      },
+      {
+        "org": "manor",
+        "role": "head_of_aero",
+        "from": 2016,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Nikolas_Tombazis"
+      }
+    ],
+    "notable": [
+      "Aerodynamics leader in Benetton and Ferrari title years",
+      "Ferrari chief designer for the 2007 title car"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "oliver_oakes",
+    "name": "Oliver Oakes",
+    "born": "1988-01-11",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "hitech_gp",
+        "role": "team_principal",
+        "from": 2015,
+        "to": 2024,
+        "source": "https://en.wikipedia.org/wiki/Oliver_Oakes",
+        "series": "other"
+      },
+      {
+        "org": "alpine",
+        "role": "team_principal",
+        "from": 2024,
+        "to": 2025,
+        "source": "https://en.wikipedia.org/wiki/Oliver_Oakes"
+      }
+    ],
+    "notable": [
+      "Team principal of Hitech GP and then Alpine."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "otmar_szafnauer",
+    "name": "Otmar Szafnauer",
+    "born": "1964-08-13",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "alpine",
+        "role": "team_principal",
+        "from": 2022,
+        "to": 2023,
+        "source": "https://en.wikipedia.org/wiki/Otmar_Szafnauer"
+      }
+    ],
+    "notable": [
+      "Alpine team principal from 2022 into 2023"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "owen_maddock",
+    "name": "Owen Maddock",
+    "born": "1925-01-24",
+    "nationality": null,
+    "career": [
+      {
+        "org": "cooper",
+        "role": "chief_designer",
+        "from": 1950,
+        "to": 1963,
+        "source": "https://en.wikipedia.org/wiki/Owen_Maddock"
+      }
+    ],
+    "notable": [
+      "Cooper chief designer of the mid-engined champions"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "paddy_lowe",
+    "name": "Paddy Lowe",
+    "born": "1962-04-08",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "technical_director",
+        "from": 2005,
+        "to": 2013,
+        "source": "https://en.wikipedia.org/wiki/Paddy_Lowe"
+      },
+      {
+        "org": "williams",
+        "role": "technical_director",
+        "from": 2017,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/Paddy_Lowe"
+      }
+    ],
+    "notable": [
+      "McLaren technical director and Williams chief technical officer."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "parnelli_jones",
+    "name": "Parnelli Jones",
+    "born": "1933-08-12",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "parnelli",
+        "role": "owner",
+        "from": 1974,
+        "to": 1976,
+        "source": "https://en.wikipedia.org/wiki/Parnelli_Jones"
+      }
+    ],
+    "notable": [
+      "Owned a short-lived Formula One team",
+      "Indy 500 winner as a team owner"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "pat_fry",
+    "name": "Pat Fry",
+    "born": "1964-03-17",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "race_engineer",
+        "from": 1995,
+        "to": 1995,
+        "source": "https://en.wikipedia.org/wiki/Pat_Fry"
+      },
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 2013,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Pat_Fry"
+      },
+      {
+        "org": "mclaren",
+        "role": "technical_director",
+        "from": 2018,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/Pat_Fry"
+      },
+      {
+        "org": "alpine",
+        "role": "technical_director",
+        "from": 2022,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Pat_Fry"
+      },
+      {
+        "org": "williams",
+        "role": "technical_director",
+        "from": 2023,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Pat_Fry"
+      }
+    ],
+    "notable": [
+      "Chief technical officer at Williams since 2023."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "pat_symonds",
+    "name": "Pat Symonds",
+    "born": "1953-06-11",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "toleman",
+        "role": "race_engineer",
+        "from": 1982,
+        "to": 1984,
+        "source": "https://en.wikipedia.org/wiki/Pat_Symonds"
+      },
+      {
+        "org": "benetton",
+        "role": "race_engineer",
+        "from": 1994,
+        "to": 1995,
+        "source": "https://en.wikipedia.org/wiki/Pat_Symonds"
+      },
+      {
+        "org": "benetton",
+        "role": "technical_director",
+        "from": 1997,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Pat_Symonds"
+      },
+      {
+        "org": "renault",
+        "role": "technical_director",
+        "from": 2002,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Pat_Symonds"
+      },
+      {
+        "org": "williams",
+        "role": "technical_director",
+        "from": 2013,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Pat_Symonds"
+      },
+      {
+        "org": "formula_one",
+        "role": "technical_director",
+        "from": 2017,
+        "to": 2024,
+        "source": "https://en.wikipedia.org/wiki/Pat_Symonds",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Technical director at Benetton, Renault, Williams and Formula One."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "patrick_head",
+    "name": "Patrick Head",
+    "born": "1946-06-05",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "williams",
+        "role": "technical_director",
+        "from": 1977,
+        "to": 2012,
+        "source": "https://en.wikipedia.org/wiki/Patrick_Head"
+      }
+    ],
+    "notable": [
+      "Williams technical director from 1977 until 2012"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "paul_rosche",
+    "name": "Paul Rosche",
+    "born": "1934-04-01",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "bmw_motorsport",
+        "role": "technical_director",
+        "from": 1978,
+        "to": 1996,
+        "source": "https://en.wikipedia.org/wiki/Paul_Rosche",
+        "series": "engine_supplier"
+      }
+    ],
+    "notable": [
+      "BMW Motorsport technical director through 1996."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "paul_stoddart",
+    "name": "Paul Stoddart",
+    "born": "1955-05-26",
+    "nationality": null,
+    "career": [
+      {
+        "org": "minardi",
+        "role": "owner",
+        "from": 2001,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Paul_Stoddart"
+      },
+      {
+        "org": "minardi",
+        "role": "team_principal",
+        "from": 2001,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Paul_Stoddart"
+      }
+    ],
+    "notable": [
+      "Bought Minardi and sold it to Red Bull"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "peter_prodromou",
+    "name": "Peter Prodromou",
+    "born": "1969-01-14",
+    "nationality": "CYP",
+    "career": [
+      {
+        "org": "red_bull",
+        "role": "head_of_aero",
+        "from": 2006,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Peter_Prodromou"
+      },
+      {
+        "org": "mclaren",
+        "role": "technical_director",
+        "from": 2017,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Peter_Prodromou"
+      }
+    ],
+    "notable": [
+      "Red Bull head of aerodynamics until 2014",
+      "McLaren technical director for aerodynamics"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "peter_sauber",
+    "name": "Peter Sauber",
+    "born": "1943-10-13",
+    "nationality": "CHE",
+    "career": [
+      {
+        "org": "sauber",
+        "role": "owner",
+        "from": 2009,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Peter_Sauber"
+      }
+    ],
+    "notable": [
+      "Regained Sauber, then sold the team in 2016"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "peter_warr",
+    "name": "Peter Warr",
+    "born": "1938-06-18",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "team_lotus",
+        "role": "team_principal",
+        "from": 1970,
+        "to": 1976,
+        "source": "https://en.wikipedia.org/wiki/Peter_Warr"
+      },
+      {
+        "org": "team_lotus",
+        "role": "team_principal",
+        "from": 1981,
+        "to": 1989,
+        "source": "https://en.wikipedia.org/wiki/Peter_Warr"
+      }
+    ],
+    "notable": [
+      "Lotus team principal across two separate spells"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "peter_wright",
+    "name": "Peter Wright",
+    "born": "1946-05-27",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "team_lotus",
+        "role": "head_of_aero",
+        "from": 1978,
+        "to": 1978,
+        "source": "https://en.wikipedia.org/wiki/Peter_Wright_%28engineer%29"
+      }
+    ],
+    "notable": [
+      "Worked on the ground-effect Lotus 79"
+    ],
+    "confidence": "low"
+  },
+  {
+    "id": "phil_irving",
+    "name": "Phil Irving",
+    "born": null,
+    "nationality": null,
+    "career": [
+      {
+        "org": "repco",
+        "role": "engine_designer",
+        "from": 1963,
+        "to": 1966,
+        "source": "https://en.wikipedia.org/wiki/Phil_Irving",
+        "series": "engine_supplier"
+      }
+    ],
+    "notable": [
+      "Designed the Repco V8 used for Brabham's 1966 titles"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "pierre_wache",
+    "name": "Pierre Waché",
+    "born": "1974-12-10",
+    "nationality": "FRA",
+    "career": [
+      {
+        "org": "red_bull",
+        "role": "technical_director",
+        "from": 2018,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Pierre_Wach%C3%A9"
+      }
+    ],
+    "notable": [
+      "Technical director of Red Bull Racing since 2018."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "quin_epperly",
+    "name": "Quin Epperly",
+    "born": "1913-03-03",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "epperly",
+        "role": "designer",
+        "from": 1955,
+        "to": 1960,
+        "source": "https://en.wikipedia.org/wiki/Quin_Epperly"
+      }
+    ],
+    "notable": [
+      "Built Indianapolis roadsters that won the 1957 and 1958 500s"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "ralph_bellamy",
+    "name": "Ralph Bellamy",
+    "born": "1938-02-04",
+    "nationality": null,
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "chief_designer",
+        "from": 1971,
+        "to": 1971,
+        "source": "https://en.wikipedia.org/wiki/Ralph_Bellamy_%28racing_car_designer%29"
+      }
+    ],
+    "notable": [
+      "Held chief designer roles in Formula One"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "rob_marshall",
+    "name": "Rob Marshall",
+    "born": "1968-04-14",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "red_bull",
+        "role": "chief_designer",
+        "from": 2006,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Rob_Marshall_%28motorsport%29"
+      },
+      {
+        "org": "mclaren",
+        "role": "chief_designer",
+        "from": 2024,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Rob_Marshall_%28motorsport%29"
+      },
+      {
+        "org": "mclaren",
+        "role": "technical_director",
+        "from": 2024,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Rob_Marshall_%28motorsport%29"
+      }
+    ],
+    "notable": [
+      "Red Bull chief designer who later joined McLaren."
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "rob_taylor",
+    "name": "Rob Taylor",
+    "born": "1959-04-23",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "haas",
+        "role": "chief_designer",
+        "from": 2015,
+        "to": 2020,
+        "source": "https://en.wikipedia.org/wiki/Rob_Taylor_%28engineer%29"
+      }
+    ],
+    "notable": [
+      "Haas chief designer for its first Formula One cars"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "robin_herd",
+    "name": "Robin Herd",
+    "born": "1939-03-23",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "designer",
+        "from": 1965,
+        "to": 1968,
+        "source": "https://en.wikipedia.org/wiki/Robin_Herd"
+      },
+      {
+        "org": "march",
+        "role": "owner",
+        "from": 1969,
+        "to": 1986,
+        "source": "https://en.wikipedia.org/wiki/Robin_Herd"
+      }
+    ],
+    "notable": [
+      "Designed McLaren Formula One cars in the 1960s"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "roger_penske",
+    "name": "Roger Penske",
+    "born": "1937-02-20",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "team_penske",
+        "role": "owner",
+        "from": 1966,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Roger_Penske",
+        "series": "indycar"
+      },
+      {
+        "org": "indianapolis_motor_speedway",
+        "role": "owner",
+        "from": 2019,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Roger_Penske",
+        "series": "indycar"
+      },
+      {
+        "org": "indycar",
+        "role": "owner",
+        "from": 2019,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Roger_Penske",
+        "series": "indycar"
+      }
+    ],
+    "notable": [
+      "Owner of Team Penske since its 1966 debut",
+      "Also owns Indianapolis Motor Speedway and IndyCar"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "ron_dennis",
+    "name": "Ron Dennis",
+    "born": "1947-06-01",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "owner",
+        "from": 1981,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Ron_Dennis"
+      },
+      {
+        "org": "mclaren",
+        "role": "team_principal",
+        "from": 1981,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Ron_Dennis"
+      },
+      {
+        "org": "mclaren_group",
+        "role": "owner",
+        "from": 1985,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Ron_Dennis",
+        "series": "group"
+      },
+      {
+        "org": "mclaren",
+        "role": "team_principal",
+        "from": 2014,
+        "to": 2017,
+        "source": "https://en.wikipedia.org/wiki/Ron_Dennis"
+      }
+    ],
+    "notable": [
+      "McLaren team principal and co-owner",
+      "Owner of McLaren Group until 2017"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "ron_tauranac",
+    "name": "Ron Tauranac",
+    "born": "1925-01-13",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "brabham",
+        "role": "designer",
+        "from": 1962,
+        "to": 1972,
+        "source": "https://en.wikipedia.org/wiki/Ron_Tauranac"
+      },
+      {
+        "org": "brabham",
+        "role": "owner",
+        "from": 1970,
+        "to": 1972,
+        "source": "https://en.wikipedia.org/wiki/Ron_Tauranac"
+      },
+      {
+        "org": "theodore",
+        "role": "designer",
+        "from": 1978,
+        "to": 1978,
+        "source": "https://en.wikipedia.org/wiki/Ron_Tauranac"
+      }
+    ],
+    "notable": [
+      "Owned Brabham after Jack Brabham retired",
+      "Designed the 1978 Theodore Formula One car"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "rory_byrne",
+    "name": "Rory Byrne",
+    "born": "1944-01-10",
+    "nationality": "ZAF",
+    "career": [
+      {
+        "org": "toleman",
+        "role": "chief_designer",
+        "from": 1980,
+        "to": 1985,
+        "source": "https://en.wikipedia.org/wiki/Rory_Byrne"
+      },
+      {
+        "org": "benetton",
+        "role": "chief_designer",
+        "from": 1985,
+        "to": 1996,
+        "source": "https://en.wikipedia.org/wiki/Rory_Byrne"
+      },
+      {
+        "org": "ferrari",
+        "role": "chief_designer",
+        "from": 1997,
+        "to": 2006,
+        "source": "https://en.wikipedia.org/wiki/Rory_Byrne"
+      }
+    ],
+    "notable": [
+      "Chief designer at Benetton and Scuderia Ferrari",
+      "Ferrari cars took five straight drivers' titles"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "ross_brawn",
+    "name": "Ross Brawn",
+    "born": "1954-11-23",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "arrows",
+        "role": "designer",
+        "from": 1986,
+        "to": 1989,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn"
+      },
+      {
+        "org": "jaguar_sport",
+        "role": "designer",
+        "from": 1989,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn",
+        "series": "sportscar"
+      },
+      {
+        "org": "benetton",
+        "role": "technical_director",
+        "from": 1991,
+        "to": 1996,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn"
+      },
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 1996,
+        "to": 2006,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn"
+      },
+      {
+        "org": "honda",
+        "role": "team_principal",
+        "from": 2007,
+        "to": 2008,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn"
+      },
+      {
+        "org": "mercedes",
+        "role": "owner",
+        "from": 2009,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn"
+      },
+      {
+        "org": "brawn",
+        "role": "team_principal",
+        "from": 2009,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn"
+      },
+      {
+        "org": "mercedes",
+        "role": "team_principal",
+        "from": 2010,
+        "to": 2013,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn"
+      },
+      {
+        "org": "formula_one_group",
+        "role": "technical_director",
+        "from": 2017,
+        "to": 2022,
+        "source": "https://en.wikipedia.org/wiki/Ross_Brawn",
+        "series": "commercial"
+      }
+    ],
+    "notable": [
+      "Technical director for Benetton and Ferrari title runs",
+      "Team principal of Honda, Brawn GP and Mercedes"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "rudolf_uhlenhaut",
+    "name": "Rudolf Uhlenhaut",
+    "born": "1906-07-15",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "mercedes",
+        "role": "designer",
+        "from": 1952,
+        "to": 1952,
+        "source": "https://en.wikipedia.org/wiki/Rudolf_Uhlenhaut"
+      }
+    ],
+    "notable": [
+      "Designed the 1952 Mercedes W194 race car"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "seamus_mullarkey",
+    "name": "Seamus Mullarkey",
+    "born": "1964-10-31",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "jordan",
+        "role": "head_of_aero",
+        "from": 1996,
+        "to": 1998,
+        "source": "https://en.wikipedia.org/wiki/Seamus_Mullarkey"
+      },
+      {
+        "org": "bmw_sauber",
+        "role": "head_of_aero",
+        "from": 2006,
+        "to": 2010,
+        "source": "https://en.wikipedia.org/wiki/Seamus_Mullarkey"
+      },
+      {
+        "org": "sauber",
+        "role": "head_of_aero",
+        "from": 2010,
+        "to": 2012,
+        "source": "https://en.wikipedia.org/wiki/Seamus_Mullarkey"
+      }
+    ],
+    "notable": [
+      "Head of aerodynamics at Jordan and Sauber",
+      "Chief aerodynamicist after BMW bought Sauber"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "sergio_rinland",
+    "name": "Sergio Rinland",
+    "born": "1952-03-17",
+    "nationality": "ARG",
+    "career": [
+      {
+        "org": "brabham",
+        "role": "designer",
+        "from": 1987,
+        "to": 1987,
+        "source": "https://en.wikipedia.org/wiki/Sergio_Rinland"
+      },
+      {
+        "org": "brabham",
+        "role": "chief_designer",
+        "from": 1989,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Sergio_Rinland"
+      },
+      {
+        "org": "sauber",
+        "role": "chief_designer",
+        "from": 1999,
+        "to": 2001,
+        "source": "https://en.wikipedia.org/wiki/Sergio_Rinland"
+      },
+      {
+        "org": "epsilon_euskadi",
+        "role": "technical_director",
+        "from": 2007,
+        "to": 2011,
+        "source": "https://en.wikipedia.org/wiki/Sergio_Rinland",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Brabham chief designer until the end of 1991",
+      "Engineering director at Epsilon Euskadi"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "simon_lacey",
+    "name": "Simon Lacey",
+    "born": "1971-06-09",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "head_of_aero",
+        "from": 2006,
+        "to": 2009,
+        "source": "https://en.wikipedia.org/wiki/Simon_Lacey_%28engineer%29"
+      }
+    ],
+    "notable": [
+      "McLaren head of aerodynamics for early Hamilton cars"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "simon_roberts",
+    "name": "Simon Roberts",
+    "born": "1962-09-27",
+    "nationality": null,
+    "career": [
+      {
+        "org": "williams",
+        "role": "team_principal",
+        "from": 2020,
+        "to": 2021,
+        "source": "https://en.wikipedia.org/wiki/Simon_Roberts_%28Formula_One%29"
+      }
+    ],
+    "notable": [
+      "Interim, then permanent, Williams team principal"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "simone_resta",
+    "name": "Simone Resta",
+    "born": "1970-09-14",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "chief_designer",
+        "from": 2014,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Simone_Resta"
+      },
+      {
+        "org": "alfa",
+        "role": "technical_director",
+        "from": 2018,
+        "to": 2019,
+        "source": "https://en.wikipedia.org/wiki/Simone_Resta"
+      },
+      {
+        "org": "haas",
+        "role": "technical_director",
+        "from": 2021,
+        "to": 2024,
+        "source": "https://en.wikipedia.org/wiki/Simone_Resta"
+      }
+    ],
+    "notable": [
+      "Ferrari chief designer from 2014 to 2018",
+      "Haas technical director from 2021 to 2024"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "stefano_domenicali",
+    "name": "Stefano Domenicali",
+    "born": "1965-05-11",
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "team_principal",
+        "from": 2008,
+        "to": 2014,
+        "source": "https://en.wikipedia.org/wiki/Stefano_Domenicali"
+      }
+    ],
+    "notable": [
+      "Ferrari team principal from 2008 until April 2014"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "steve_nichols",
+    "name": "Steve Nichols",
+    "born": "1947-02-20",
+    "nationality": "USA",
+    "career": [
+      {
+        "org": "mclaren",
+        "role": "race_engineer",
+        "from": 1982,
+        "to": 1989,
+        "source": "https://en.wikipedia.org/wiki/Steve_Nichols"
+      },
+      {
+        "org": "mclaren",
+        "role": "chief_designer",
+        "from": 1987,
+        "to": 1988,
+        "source": "https://en.wikipedia.org/wiki/Steve_Nichols"
+      },
+      {
+        "org": "ferrari",
+        "role": "technical_director",
+        "from": 1990,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Steve_Nichols"
+      },
+      {
+        "org": "jaguar",
+        "role": "technical_director",
+        "from": 2001,
+        "to": 2002,
+        "source": "https://en.wikipedia.org/wiki/Steve_Nichols"
+      }
+    ],
+    "notable": [
+      "McLaren chief designer of the 1988 MP4/4",
+      "Ferrari technical director during 1991"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "tim_densham",
+    "name": "Tim Densham",
+    "born": "1955-03-31",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "team_lotus",
+        "role": "race_engineer",
+        "from": 1984,
+        "to": 1986,
+        "source": "https://en.wikipedia.org/wiki/Tim_Densham"
+      },
+      {
+        "org": "brabham",
+        "role": "designer",
+        "from": 1990,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Tim_Densham"
+      },
+      {
+        "org": "brabham",
+        "role": "race_engineer",
+        "from": 1990,
+        "to": 1991,
+        "source": "https://en.wikipedia.org/wiki/Tim_Densham"
+      },
+      {
+        "org": "brabham",
+        "role": "chief_designer",
+        "from": 1991,
+        "to": 1992,
+        "source": "https://en.wikipedia.org/wiki/Tim_Densham"
+      },
+      {
+        "org": "tyrrell",
+        "role": "race_engineer",
+        "from": 1995,
+        "to": 1998,
+        "source": "https://en.wikipedia.org/wiki/Tim_Densham"
+      }
+    ],
+    "notable": [
+      "Race engineer at Lotus, Brabham and Tyrrell",
+      "Chief designer of Brabham's unbuilt BT61"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "tony_purnell",
+    "name": "Tony Purnell",
+    "born": "1958-05-23",
+    "nationality": null,
+    "career": [
+      {
+        "org": "red_bull",
+        "role": "team_principal",
+        "from": 2004,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Tony_Purnell"
+      }
+    ],
+    "notable": [
+      "Briefly team principal after Red Bull bought Jaguar"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "tony_rudd",
+    "name": "Tony Rudd",
+    "born": "1923-03-08",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "brm",
+        "role": "technical_director",
+        "from": 1960,
+        "to": 1969,
+        "source": "https://en.wikipedia.org/wiki/Tony_Rudd"
+      },
+      {
+        "org": "team_lotus",
+        "role": "team_principal",
+        "from": 1989,
+        "to": 1989,
+        "source": "https://en.wikipedia.org/wiki/Tony_Rudd"
+      }
+    ],
+    "notable": [
+      "Ran BRM's technical side through its championship seasons"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "tony_southgate",
+    "name": "Tony Southgate",
+    "born": "1940-05-25",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "brm",
+        "role": "chief_designer",
+        "from": 1969,
+        "to": 1972,
+        "source": "https://en.wikipedia.org/wiki/Tony_Southgate"
+      }
+    ],
+    "notable": [
+      "BRM chief designer of the early-1970s grand prix cars"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "tony_vandervell",
+    "name": "Tony Vandervell",
+    "born": "1898-09-08",
+    "nationality": null,
+    "career": [
+      {
+        "org": "vanwall",
+        "role": "owner",
+        "from": 1954,
+        "to": 1959,
+        "source": "https://en.wikipedia.org/wiki/Tony_Vandervell"
+      }
+    ],
+    "notable": [
+      "Vanwall Formula One team owner in the 1950s"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "toto_wolff",
+    "name": "Toto Wolff",
+    "born": "1972-01-12",
+    "nationality": "AUT",
+    "career": [
+      {
+        "org": "williams",
+        "role": "owner",
+        "from": 2009,
+        "to": 2016,
+        "source": "https://en.wikipedia.org/wiki/Toto_Wolff"
+      },
+      {
+        "org": "mercedes",
+        "role": "owner",
+        "from": 2013,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Toto_Wolff"
+      },
+      {
+        "org": "mercedes",
+        "role": "team_principal",
+        "from": 2013,
+        "to": 2026,
+        "source": "https://en.wikipedia.org/wiki/Toto_Wolff"
+      }
+    ],
+    "notable": [
+      "Mercedes team principal and co-owner",
+      "Held Williams shares until 2016"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "trevor_carlin",
+    "name": "Trevor Carlin",
+    "born": "1963-03-13",
+    "nationality": "GBR",
+    "career": [
+      {
+        "org": "carlin",
+        "role": "team_principal",
+        "from": 1999,
+        "to": 2023,
+        "source": "https://en.wikipedia.org/wiki/Trevor_Carlin",
+        "series": "other"
+      },
+      {
+        "org": "jordan",
+        "role": "team_principal",
+        "from": 2005,
+        "to": 2005,
+        "source": "https://en.wikipedia.org/wiki/Trevor_Carlin"
+      }
+    ],
+    "notable": [
+      "Team principal of his junior single-seater team",
+      "Short 2005 stint as Jordan team principal"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "valerio_colotti",
+    "name": "Valerio Colotti",
+    "born": null,
+    "nationality": "ITA",
+    "career": [
+      {
+        "org": "ferrari",
+        "role": "designer",
+        "from": 1948,
+        "to": 1953,
+        "source": "https://en.wikipedia.org/wiki/Valerio_Colotti"
+      },
+      {
+        "org": "maserati",
+        "role": "designer",
+        "from": 1953,
+        "to": 1957,
+        "source": "https://en.wikipedia.org/wiki/Valerio_Colotti"
+      }
+    ],
+    "notable": [
+      "Worked on Ferrari and Maserati chassis in the early world-championship years"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "vijay_mallya",
+    "name": "Vijay Mallya",
+    "born": "1955-12-18",
+    "nationality": "IND",
+    "career": [
+      {
+        "org": "force_india",
+        "role": "owner",
+        "from": 2007,
+        "to": 2018,
+        "source": "https://en.wikipedia.org/wiki/Vijay_Mallya"
+      }
+    ],
+    "notable": [
+      "Co-owned Force India until the team entered administration"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "walter_wolf",
+    "name": "Walter Wolf",
+    "born": "1939-10-05",
+    "nationality": "CAN",
+    "career": [
+      {
+        "org": "wolf",
+        "role": "owner",
+        "from": 1977,
+        "to": 1979,
+        "source": "https://en.wikipedia.org/wiki/Walter_Wolf"
+      }
+    ],
+    "notable": [
+      "Owned Walter Wolf Racing through its three Grand Prix wins"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "wiet_huidekoper",
+    "name": "Wiet Huidekoper",
+    "born": null,
+    "nationality": null,
+    "career": [
+      {
+        "org": "vector_racing_cars",
+        "role": "designer",
+        "from": 1993,
+        "to": 1993,
+        "source": "https://en.wikipedia.org/wiki/Wiet_Huidekoper",
+        "series": "other"
+      },
+      {
+        "org": "opel_performance_center",
+        "role": "technical_director",
+        "from": 2002,
+        "to": 2003,
+        "source": "https://en.wikipedia.org/wiki/Wiet_Huidekoper",
+        "series": "other"
+      }
+    ],
+    "notable": [
+      "Designed sports cars, Formula Fords and Le Mans cars",
+      "Technical director of Opel's 2003 DTM effort"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "willem_toet",
+    "name": "Willem Toet",
+    "born": "1952-03-29",
+    "nationality": "NLD",
+    "career": [
+      {
+        "org": "sauber",
+        "role": "head_of_aero",
+        "from": 2011,
+        "to": 2015,
+        "source": "https://en.wikipedia.org/wiki/Willem_Toet"
+      }
+    ],
+    "notable": [
+      "Head of aerodynamics at Sauber until 2015."
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "willi_kauhsen",
+    "name": "Willi Kauhsen",
+    "born": "1939-05-19",
+    "nationality": "DEU",
+    "career": [
+      {
+        "org": "kauhsen",
+        "role": "owner",
+        "from": 1972,
+        "to": 1979,
+        "source": "https://en.wikipedia.org/wiki/Willi_Kauhsen"
+      }
+    ],
+    "notable": [
+      "Owned the Willi Kauhsen Racing Team",
+      "Closed the team after the 1979 attempt"
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "wilson_fittipaldi_junior",
+    "name": "Wilson Fittipaldi Júnior",
+    "born": "1943-12-25",
+    "nationality": "BRA",
+    "career": [
+      {
+        "org": "fittipaldi",
+        "role": "owner",
+        "from": 1974,
+        "to": 1982,
+        "source": "https://en.wikipedia.org/wiki/Wilson_Fittipaldi_J%C3%BAnior"
+      }
+    ],
+    "notable": [
+      "Owner of the Fittipaldi Formula One team"
+    ],
+    "confidence": "high"
+  }
+]

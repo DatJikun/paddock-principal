@@ -10,6 +10,7 @@ public static class PipelineCommands
           fetch --from <year> --to <year> [--cache <dir>] [--force]
           normalize [--cache <dir>]
           summary [--cache <dir>] [--from <year>] [--to <year>]
+          stats [--cache <dir>] [--from <year>] [--to <year>]
         """;
 
     public static async Task<int> ExecuteAsync(
@@ -53,6 +54,8 @@ public static class PipelineCommands
                     return NormalizeCommand.Execute(args, stdout, stderr);
                 case "summary":
                     return SummaryCommand.Execute(args, stdout, stderr);
+                case "stats":
+                    return StatsCommand.Execute(args, stdout, stderr);
                 default:
                     stderr.WriteLine($"Unknown command: {args[0]}");
                     stderr.WriteLine(Usage);

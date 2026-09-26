@@ -20,6 +20,7 @@ public static partial class AuthoredDataValidator
     public const string DuplicateOrganization = "duplicate-organization";
     public const string InvertedSpan = "inverted-span";
     public const string FoundedAfterEntry = "founded-after-entry";
+    public const string OrganizationConstructorYear = "organization-constructor-year";
     public const string DuplicateStaff = "duplicate-staff";
     public const string StaffBorn = "staff-born";
     public const string InvertedCareer = "inverted-career";
@@ -369,6 +370,12 @@ public static partial class AuthoredDataValidator
                         continue;
                     }
 
+                    // Consecutive entries may share exactly the boundary year of a mid-season sale or rename.
+                    if (j == i + 1 && IsOneYearHandover(entry, other))
+                    {
+                        continue;
+                    }
+
                     errors.Add(new AuthoredDataError(
                         LineageOverlap,
                         $"lineage '{group.LineageId}' entries '{entry.ConstructorId}' ({Span(entry.From, entry.To)}) and '{other.ConstructorId}' ({Span(other.From, other.To)}) overlap"));
@@ -461,6 +468,54 @@ public static partial class AuthoredDataValidator
                     errors.Add(new AuthoredDataError(
                         FoundedAfterEntry,
                         $"organization '{organization.OrganizationId}' founded {Year(founded)} is after constructor '{entry.ConstructorId}' entry {Span(entry.From, entry.To)}"));
+                }
+            }
+        }
+
+        AppendOrganizationConstructorYears(errors, founders);
+    }
+
+    private static void AppendOrganizationConstructorYears(List<AuthoredDataError> errors, FoundersFile founders)
+    {
+        var owner = new Dictionary<string, Dictionary<int, string>>(StringComparer.Ordinal);
+        var reported = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var organization in founders.Organizations)
+        {
+            foreach (var entry in organization.ConstructorEntries)
+            {
+                if (entry.From > entry.To)
+                {
+                    continue;
+                }
+
+                if (!owner.TryGetValue(entry.ConstructorId, out var years))
+                {
+                    years = [];
+                    owner.Add(entry.ConstructorId, years);
+                }
+
+                for (var year = entry.From; year <= entry.To; year++)
+                {
+                    if (!years.TryGetValue(year, out var existing))
+                    {
+                        years.Add(year, organization.OrganizationId);
+                        continue;
+                    }
+
+                    if (string.Equals(existing, organization.OrganizationId, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    var key = string.Join("\u001f", entry.ConstructorId, existing, organization.OrganizationId);
+                    if (!reported.Add(key))
+                    {
+                        continue;
+                    }
+
+                    errors.Add(new AuthoredDataError(
+                        OrganizationConstructorYear,
+                        $"constructor '{entry.ConstructorId}' in {Year(year)} belongs to organizations '{existing}' and '{organization.OrganizationId}'"));
                 }
             }
         }
@@ -605,6 +660,13 @@ public static partial class AuthoredDataValidator
 
     private static bool IsIsoDate(string value) =>
         DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _);
+
+    private static bool IsOneYearHandover(LineageEntry earlierInFile, LineageEntry laterInFile)
+    {
+        var previous = earlierInFile.From <= laterInFile.From ? earlierInFile : laterInFile;
+        var next = ReferenceEquals(previous, earlierInFile) ? laterInFile : earlierInFile;
+        return previous.To is int boundary && next.From == boundary;
+    }
 
     private static bool YearsOverlap(int fromA, int? toA, int fromB, int? toB)
     {

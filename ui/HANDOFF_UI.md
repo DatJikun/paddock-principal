@@ -211,3 +211,20 @@ Opcjonalne. „Jak się nie przydadzą, to luz.”
 4. **Ekrany do przebudowy:** Infrastruktura, Dostawcy, Personel (+ profil osoby), Porównanie, Kalendarz (+ strona wyścigu z mapką toru), Rynek (+ profil z rynku), FIA (głosowania w skrzynce), Akademia, Zarząd.
 5. **Auto i rozwój:** najpierw przedstaw właścicielowi propozycję systemu z §4, dopiero potem UI.
 6. **Weryfikacja:** zrzuty na 1440×900 i 1620×860, zero przewijania poza naturalnie długimi listami, zero błędów w konsoli. Potem pokaż właścicielowi.
+
+---
+
+## 7. Następny temat właściciela: system awatarów (zgłoszony 2026-09-26)
+
+Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloton Managerze żadna się nie udała (`experiments/avatar_prototype` w repo Pelotona), w Ping-Pong Managerze na 4/10 (`tools/avatar-preview.html`, `tests/avatars.test.js`). Przed startem obejrzyj oba repozytoria i nazwij, co tam nie zagrało.
+
+**Proponowany kierunek (do potwierdzenia na starcie):**
+- **Kierowcy to przede wszystkim kask.** W motorsporcie to tożsamość (żółty kask Senny, wiosła Hilla).
+  - Kask proceduralny z ziarna: kształt zależny od epoki (otwarty z goglami w latach 50.–60., integralny od lat 70., później szybka i halo), wzór (pasy, łuki, gwiazdy, motyw flagi), 2–3 kolory, numer.
+  - Omija problem prawa do wizerunku, bo nie rysujemy prawdziwych twarzy.
+  - Prawdziwi kierowcy mogą dostać ręcznie przygotowane wzory „w stylu” swoich kasków.
+- **Personel i menedżer:** stylizowane portrety w płaskim stylu plakatu z lat 70., bez ambicji realizmu. Muszą pasować do skórki epoki i barw zespołu.
+- **Technika:** SVG składane z warstw, deterministyczne z ziarna osoby (INV-002). Kilka rozmiarów: wiersz tabeli 32–40 px, karta, profil. Test: siatka 100 losowych awatarów jako „arkusz kontaktowy” do oceny właściciela.
+
+**Pytania na start:** czy kask ma być głównym wizerunkiem kierowcy? Czy twarze w ogóle są potrzebne? Jaki styl portretów: plakat, rysunek, sylwetka? Najpierw 2–3 próbki stylu, dopiero potem system.
+

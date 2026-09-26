@@ -5,7 +5,7 @@ namespace Paddock.Tests.Authored;
 public class ValidateAuthoredCommandTests
 {
     [Fact]
-    public void RepoData_PrintsAnOkReport()
+    public void RepoData_ReportsTheKnownAuthorFailures()
     {
         var stdout = new StringWriter();
         var stderr = new StringWriter();
@@ -16,17 +16,25 @@ public class ValidateAuthoredCommandTests
             stdout,
             stderr);
 
-        Assert.Equal(0, code);
+        Assert.Equal(1, code);
         Assert.Equal(string.Empty, stderr.ToString());
         Assert.Equal(
             [
-                "authored data: ok",
+                "authored data: 2 errors",
                 "catalog dimensions: 41",
                 "timeline periods: 232",
                 "other series ideas: 23",
                 "circuits: 78",
                 "layouts: 156",
                 "race map entries: 1172",
+                "technologies: 40",
+                "engine entries: 1287",
+                "constructors: 213",
+                "lineages: 10",
+                "founder organizations: 50",
+                "staff: 182",
+                "error: lineage 'jordan-aston-martin' entries 'mf1' (2006) and 'spyker_mf1' (2006) overlap",
+                "error: organization 'williams' founded 1977 is after constructor 'williams' entry 1975-1976",
             ],
             Lines(stdout));
     }

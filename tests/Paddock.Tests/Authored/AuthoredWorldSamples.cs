@@ -540,7 +540,7 @@ internal static class AuthoredWorldSamples
         }
         """;
 
-    public const string OverlappingLineage = """
+    public const string HandoverLineage = """
         {
           "notes": "fixture",
           "lineages": [
@@ -551,6 +551,33 @@ internal static class AuthoredWorldSamples
                   "constructorId": "cooper",
                   "from": 1950,
                   "to": 1952,
+                  "how_it_ended": null,
+                  "source": "https://example.com/fixture"
+                },
+                {
+                  "constructorId": "cooper",
+                  "from": 1952,
+                  "to": 1954,
+                  "how_it_ended": null,
+                  "source": "https://example.com/fixture"
+                }
+              ]
+            }
+          ]
+        }
+        """;
+
+    public const string OverlappingLineage = """
+        {
+          "notes": "fixture",
+          "lineages": [
+            {
+              "lineage_id": "alpha",
+              "entries": [
+                {
+                  "constructorId": "cooper",
+                  "from": 1950,
+                  "to": 1953,
                   "how_it_ended": null,
                   "source": "https://example.com/fixture"
                 },
@@ -864,5 +891,85 @@ internal static class AuthoredWorldSamples
             "confidence": "high"
           }
         ]
+        """;
+
+    public const string ConstructorSharedAcrossOrganizations = """
+        {
+          "notes": "fixture",
+          "organizations": [
+            {
+              "organization_id": "alpha",
+              "season_count": 1,
+              "from": 1950,
+              "to": 1950,
+              "constructor_entries": [
+                { "constructorId": "cooper", "from": 1950, "to": 1950 }
+              ],
+              "founded": 1950,
+              "founders": ["A"],
+              "country": "GBR",
+              "base_city": "A",
+              "confidence": "high",
+              "source": "https://example.com/fixture",
+              "notes": "fixture"
+            },
+            {
+              "organization_id": "beta",
+              "season_count": 1,
+              "from": 1951,
+              "to": 1951,
+              "constructor_entries": [
+                { "constructorId": "cooper", "from": 1951, "to": 1951 }
+              ],
+              "founded": 1951,
+              "founders": ["B"],
+              "country": "GBR",
+              "base_city": "B",
+              "confidence": "high",
+              "source": "https://example.com/fixture",
+              "notes": "fixture"
+            }
+          ]
+        }
+        """;
+
+    public const string ConstructorYearOnTwoOrganizations = """
+        {
+          "notes": "fixture",
+          "organizations": [
+            {
+              "organization_id": "alpha",
+              "season_count": 3,
+              "from": 1950,
+              "to": 1952,
+              "constructor_entries": [
+                { "constructorId": "cooper", "from": 1950, "to": 1952 }
+              ],
+              "founded": 1950,
+              "founders": ["A"],
+              "country": "GBR",
+              "base_city": "A",
+              "confidence": "high",
+              "source": "https://example.com/fixture",
+              "notes": "fixture"
+            },
+            {
+              "organization_id": "beta",
+              "season_count": 3,
+              "from": 1952,
+              "to": 1954,
+              "constructor_entries": [
+                { "constructorId": "cooper", "from": 1952, "to": 1954 }
+              ],
+              "founded": 1950,
+              "founders": ["B"],
+              "country": "GBR",
+              "base_city": "B",
+              "confidence": "high",
+              "source": "https://example.com/fixture",
+              "notes": "fixture"
+            }
+          ]
+        }
         """;
 }

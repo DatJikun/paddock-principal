@@ -452,16 +452,48 @@
       "notes": "The page says Bruce McLaren founded the team in 1963 and that it is based at the McLaren Technology Centre in Woking. Championship results start in 1966. Engine-suffix ids are the same team."
     },
     {
-      "organization_id": "williams",
-      "season_count": 51,
-      "from": 1975,
-      "to": 2026,
+      "organization_id": "frank-williams-racing-cars",
+      "season_count": 5,
+      "from": 1972,
+      "to": 1976,
       "constructor_entries": [
+        {
+          "constructorId": "politoys",
+          "from": 1972,
+          "to": 1972
+        },
+        {
+          "constructorId": "iso_marlboro",
+          "from": 1973,
+          "to": 1974
+        },
         {
           "constructorId": "williams",
           "from": 1975,
           "to": 1976
         },
+        {
+          "constructorId": "wolf",
+          "from": 1976,
+          "to": 1976
+        }
+      ],
+      "founded": null,
+      "founders": [
+        "Frank Williams"
+      ],
+      "country": "GBR",
+      "base_city": "Reading",
+      "confidence": "medium",
+      "source": "https://en.wikipedia.org/wiki/Frank_Williams_Racing_Cars",
+      "notes": "The infobox names Frank Williams and does not give a founding year. Its Base field is empty. The Wolf-Williams section says the 1976 team was based at the Williams facility in Reading, and the lead calls the team British. Championship ids in engines.json are politoys in 1972, iso_marlboro in 1973-1974, and williams in 1975-1976. The 1976 wolf id is Wolf-Williams, the same operation. From 1977 the wolf id is Walter Wolf Racing and is not listed here. Williams Grand Prix Engineering, formed in 1977, is the williams organization."
+    },
+    {
+      "organization_id": "williams",
+      "season_count": 49,
+      "from": 1978,
+      "to": 2026,
+      "constructor_entries": [
         {
           "constructorId": "williams",
           "from": 1978,
@@ -477,7 +509,7 @@
       "base_city": "Grove",
       "confidence": "medium",
       "source": "https://en.wikipedia.org/wiki/Williams_Grand_Prix_Engineering",
-      "notes": "The page says Frank Williams and Patrick Head formed Williams Grand Prix Engineering in 1977, based in Grove. Jolpica's williams id also has 1975 and 1976, and has no 1977. The page treats Frank Williams Racing Cars, which became Wolf-Williams in 1976, as the earlier operation. Those two seasons stay on this id because they were not given a separate constructorId."
+      "notes": "The page says Frank Williams and Patrick Head formed Williams Grand Prix Engineering in 1977, based in Grove. Jolpica has no 1977 williams season, so the first constructor entry is 1978. The 1975-1976 seasons on this constructorId are Frank Williams Racing Cars."
     },
     {
       "organization_id": "team-lotus",

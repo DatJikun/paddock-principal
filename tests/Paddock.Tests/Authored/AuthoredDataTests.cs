@@ -5,29 +5,13 @@ namespace Paddock.Tests.Authored;
 
 public class AuthoredDataTests
 {
-    [Fact(Skip = "Expected failure until the authored files are corrected. Offending entries: founders organization 'williams' (founded 1977, constructor entry williams 1975-1976); lineage 'jordan-aston-martin' (mf1 2006 overlaps spyker_mf1 2006). Do not loosen the rules. See issue #21.")]
-    public void RealFiles_ValidateWithNoErrors()
-    {
-        var errors = AuthoredDataValidator.Validate(LoadRepo());
-        Assert.True(errors.Count == 0, string.Join('\n', errors.Select(error => error.Code + ": " + error.Message)));
-    }
-
     [Fact]
-    public void RealFiles_OnlyKnownDataFailures_AreReported()
+    public void RealFiles_ValidateWithNoErrors()
     {
         var data = LoadRepo();
         var errors = AuthoredDataValidator.Validate(data);
 
-        Assert.Equal(
-            [
-                new AuthoredDataError(
-                    AuthoredDataValidator.LineageOverlap,
-                    "lineage 'jordan-aston-martin' entries 'mf1' (2006) and 'spyker_mf1' (2006) overlap"),
-                new AuthoredDataError(
-                    AuthoredDataValidator.FoundedAfterEntry,
-                    "organization 'williams' founded 1977 is after constructor 'williams' entry 1975-1976"),
-            ],
-            errors);
+        Assert.True(errors.Count == 0, string.Join('\n', errors.Select(error => error.Code + ": " + error.Message)));
         Assert.Equal(41, data.Catalog.Count);
         Assert.Equal(232, data.Timeline.Count);
         Assert.Equal(23, data.OtherSeriesIdeas.Count);
@@ -38,7 +22,7 @@ public class AuthoredDataTests
         Assert.Equal(1287, data.Engines.Entries.Count);
         Assert.Equal(213, data.ConstructorIds.Count);
         Assert.Equal(10, data.Lineage.Lineages.Count);
-        Assert.Equal(50, data.Founders.Organizations.Count);
+        Assert.Equal(51, data.Founders.Organizations.Count);
         Assert.Equal(182, data.Staff.Count);
     }
 

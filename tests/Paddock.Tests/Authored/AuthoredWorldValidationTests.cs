@@ -165,6 +165,14 @@ public class AuthoredWorldValidationTests
     }
 
     [Fact]
+    public void OneYearLineageHandover_IsAllowed()
+    {
+        var errors = Validate(lineage: AuthoredWorldSamples.HandoverLineage);
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
     public void OverlappingLineageEntries_AreReported()
     {
         var errors = Validate(lineage: AuthoredWorldSamples.OverlappingLineage);
@@ -173,7 +181,7 @@ public class AuthoredWorldValidationTests
             [
                 new AuthoredDataError(
                     AuthoredDataValidator.LineageOverlap,
-                    "lineage 'alpha' entries 'cooper' (1950-1952) and 'cooper' (1952-1954) overlap"),
+                    "lineage 'alpha' entries 'cooper' (1950-1953) and 'cooper' (1952-1954) overlap"),
             ],
             errors);
     }
@@ -244,6 +252,28 @@ public class AuthoredWorldValidationTests
                 new AuthoredDataError(
                     AuthoredDataValidator.InvertedSpan,
                     "organization 'alpha' constructor 'cooper' period 1960-1950 ends before it starts"),
+            ],
+            errors);
+    }
+
+    [Fact]
+    public void SameConstructorInDifferentYears_MayBelongToTwoOrganizations()
+    {
+        var errors = Validate(founders: AuthoredWorldSamples.ConstructorSharedAcrossOrganizations);
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public void ConstructorYearOnTwoOrganizations_IsReported()
+    {
+        var errors = Validate(founders: AuthoredWorldSamples.ConstructorYearOnTwoOrganizations);
+
+        Assert.Equal(
+            [
+                new AuthoredDataError(
+                    AuthoredDataValidator.OrganizationConstructorYear,
+                    "constructor 'cooper' in 1952 belongs to organizations 'alpha' and 'beta'"),
             ],
             errors);
     }

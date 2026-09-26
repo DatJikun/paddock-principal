@@ -1,250 +1,271 @@
-/* Ekrany prototypu. Każdy zwraca HTML; app.js wstawia go do #view. */
+/* Ekrany prototypu (część 1). Każdy zwraca HTML; app.js wstawia go do #view. */
 const S = {};
 const A = UI.arrow;
-const head = (title, sub, tools = '') =>
-  `<div class="screen-head"><div><h1 class="screen">${title}</h1>${sub ? `<div class="sub">${sub}</div>` : ''}</div>${tools ? `<div class="tools">${tools}</div>` : ''}</div>`;
-const mailRow = (m, sel) => `<a class="mail ${m.decision ? 'decision' : ''} ${m.unread ? '' : 'read'} ${sel ? 'sel' : ''}" href="#/skrzynka/${m.id}">
-  <span class="av">${m.av}</span><div><div class="from">${m.from}${m.due ? `<span class="chip due">${UI.icon('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>', 13)}${m.due}</span>` : ''}</div><div class="t">${m.title}</div></div>
-  ${m.unread && !m.when ? '<span class="dot"></span>' : `<span class="when">${m.decision ? '<span class="dot"></span>' : m.when}</span>`}</a>`;
-const standingsTable = (kind, n = 6) => {
-  const rows = (kind === 'drv' ? DB.standings.drivers : DB.standings.constructors).slice(0, n);
-  return `<table class="table tight" data-pane="${kind}" ${kind === 'con' ? 'hidden' : ''}><tbody>${rows.map((r, i) =>
-    `<tr class="${r[kind === 'drv' ? 3 : 2] ? 'mine' : ''}"><td class="num" style="width:36px">${i + 1}</td><td>${r[0]}</td><td class="r num">${kind === 'drv' ? r[2] : r[1]}</td></tr>`).join('')}</tbody></table>`;
+
+/* ---------- stan prototypu: decyzje i przystanki czasu ---------- */
+const STATE = {
+  step: 0, decisions: {},
+  now() { return DB.stops[this.step]; },
+  next() { return DB.stops[this.step + 1] || DB.stops[this.step]; },
+  blocking() { return DB.inbox.find(m => m.decision && m.dueDay && !this.decisions[m.id] && m.dueDay <= this.next().day); },
+  onArrive() {
+    const pick = this.decisions[1];
+    if (this.step === 1 && pick && DB.replies[pick]) {
+      const r = DB.replies[pick], m = { id: 100, when: 'Dziś', unread: true, ...r };
+      DB.inbox.unshift(m); return m;
+    }
+    return null;
+  },
 };
+
+/* ---------- wspólne kawałki ---------- */
+const head = (title, fields = '', tools = '') =>
+  `<div class="screen-head"><h1 class="screen">${title}</h1>${fields}${tools ? `<div class="tools">${tools}</div>` : ''}</div>`;
+const teamName = k => (DB.teams[k] || { name: k }).name;
+const driverHref = id => DB.drivers.find(d => d.id === id) || DB.market.find(d => d.id === id) || DB.academy.pool.find(d => d.id === id) ? `#/kierowca/${id}` : null;
+const nameLink = (id, name) => { const h = driverHref(id); return h ? `<a class="plain" href="${h}">${name}</a>` : name; };
+const mailRow = (m, sel) => `<a class="mail ${m.decision && !STATE.decisions[m.id] ? 'decision' : ''} ${m.unread ? '' : 'read'} ${sel ? 'sel' : ''}" href="#/skrzynka/${m.id}">
+  <span class="av">${m.av}</span><div><div class="from">${m.from}${m.due && !STATE.decisions[m.id] ? UI.st('do ' + m.due, 'bad', true) : ''}</div><div class="t">${m.title}</div></div>
+  ${m.unread ? '<span class="unread" aria-label="nieprzeczytana"></span>' : `<span class="when">${m.when}</span>`}</a>`;
+
+/* sylwetka toru: zamknięta krzywa Catmulla-Roma przez punkty */
+function trackSvg(key, cls = '') {
+  const t = DB.tracks[key]; if (!t) return '';
+  const p = t.map, n = p.length;
+  const xs = p.map(q => q[0]), ys = p.map(q => q[1]);
+  const x0 = Math.min(...xs) - 4, y0 = Math.min(...ys) - 4, w = Math.max(...xs) - x0 + 4, h = Math.max(...ys) - y0 + 4;
+  let d = `M${p[0][0]},${p[0][1]}`;
+  for (let i = 0; i < n; i++) {
+    const a = p[(i - 1 + n) % n], b = p[i], c = p[(i + 1) % n], e = p[(i + 2) % n];
+    d += `C${(b[0] + (c[0] - a[0]) / 6).toFixed(1)},${(b[1] + (c[1] - a[1]) / 6).toFixed(1)} ${(c[0] - (e[0] - b[0]) / 6).toFixed(1)},${(c[1] - (e[1] - b[1]) / 6).toFixed(1)} ${c[0]},${c[1]}`;
+  }
+  const [sx, sy] = p[0], [nx, ny] = p[1], ang = Math.atan2(ny - sy, nx - sx) + Math.PI / 2;
+  const tick = `M${(sx - Math.cos(ang) * 3).toFixed(1)},${(sy - Math.sin(ang) * 3).toFixed(1)}L${(sx + Math.cos(ang) * 3).toFixed(1)},${(sy + Math.sin(ang) * 3).toFixed(1)}`;
+  return `<svg class="trk ${cls}" viewBox="${x0} ${y0} ${w} ${h}" aria-label="Układ toru ${t.name}"><path class="road" d="${d}"/><path class="line" d="${d}"/><path class="sf" d="${tick}"/></svg>`;
+}
 
 /* ============ PULPIT ============ */
 S.pulpit = () => {
   const car = DB.car.areas.map(([n, p]) => `<div class="crow"><span>${n}</span><span class="num" style="color:${UI.rankColor(p, 16, 34)}">${p}.</span>${UI.rankBar(p)}</div>`).join('');
-  const m = DB.monthly;
+  const m = DB.monthly, unread = DB.inbox.filter(x => x.unread).length;
+  const mails = [...DB.inbox].sort((a, b) => (b.decision && !STATE.decisions[b.id]) - (a.decision && !STATE.decisions[a.id])).slice(0, 6);
+  const std = (kind) => {
+    const rows = (kind === 'drv' ? DB.standings.drivers : DB.standings.constructors).slice(0, 6);
+    return `<table class="table tight" data-pane="std:${kind}" ${kind === 'con' ? 'hidden' : ''}><tbody>${rows.map((r, i) =>
+      `<tr class="${(r.team === 'tyrrell') ? 'mine' : ''}"><td class="num c" style="width:40px">${i + 1}</td><td>${kind === 'drv' ? `${UI.flag(r.nat)} ${nameLink(r.id, r.name)}` : DB.teams[r.team].full}</td><td class="r num">${r.pts}</td></tr>`).join('')}</tbody></table>`;
+  };
   return `<div class="dash">
-    <section class="panel inbox"><header><h2>Skrzynka</h2><span class="meta">5 nowych</span></header>
-      <div class="list">${DB.inbox.slice(0, 6).map(x => mailRow(x)).join('')}</div>
+    <section class="panel inbox"><header><h2>Skrzynka</h2>${unread ? `<span class="count">${unread}</span>` : ''}</header>
+      <div class="list">${mails.map(x => mailRow(x)).join('')}</div>
       <footer><a class="link" href="#/skrzynka">Otwórz skrzynkę${UI.icon(A, 15)}</a></footer></section>
     <div class="col">
-      <section class="panel race"><div class="ring"></div>
-        <h1>Brands Hatch</h1><div class="where">GP Wielkiej Brytanii · niedziela 18 lipca</div>
-        <div class="facts"><div><span class="meta">Okrążenia</span><span class="num">76</span></div><div><span class="meta">Długość</span><span class="num">4,207 km</span></div>
-          <div><span class="meta">Deszcz</span><span class="num">20%</span></div><div><span class="meta">Dopasowanie</span><span class="num good">4. z 16</span></div></div>
+      <a class="panel race" href="#/wyscig/9">
+        <div class="race-top"><div><h1>Brands Hatch</h1><div class="where">${UI.flag('GBR', 'md')} GP Wielkiej Brytanii · Niedziela, 18 lipca</div></div>${trackSvg('brands_hatch', 'dash-map')}</div>
+        ${UI.fields([{ k: 'Okrążenia', v: '76', num: 1 }, { k: 'Długość', v: '4,206 km', num: 1 }, { k: 'Deszcz', v: '20%', num: 1 }, { k: 'Dopasowanie auta', v: '4. z 16', num: 1, cls: 'good' }], 'facts')}
         <div class="voice"><span class="av">DG</span><div><p>„Tor nam leży: dużo hamowania i ciasnych nawrotów. Tracimy tylko na długiej prostej. Realnie walczymy o podium.”</p>
-          <small>Derek Gardner · prognoza <b>P3–P6</b> · pewność średnia</small></div></div>
-        <div class="strengths"><div><span class="meta">Proste</span><span class="bad">nasza słabość</span></div><div><span class="meta">Szybkie</span><span class="muted">przeciętnie</span></div>
-          <div><span class="meta">Wolne</span><span class="good">nasza siła</span></div><div><span class="meta">Hamowanie</span><span class="good">nasza siła</span></div></div>
-      </section>
-      <section class="panel monthly"><div class="mast"><b>Paddock Monthly</b><span>lipiec 1976</span></div>
-        <div class="stories"><div class="lead"><h3>${m.lead.title}</h3><p>Szwed ma dość Marcha. Jego ludzie pytają o miejsce na 1977, jeśli Scheckter odejdzie.</p><a class="link" href="#/monthly">${m.lead.link}${UI.icon(A, 15)}</a></div>
-          <div class="side">${m.stories.slice(0, 3).map(s => `<a href="#/monthly"><div class="t">${s.title}</div><div class="s">${s.sec}</div></a>`).join('')}</div></div>
+          <small>Derek Gardner · prognoza <b>P3–P6</b></small></div></div>
+        ${UI.fields(DB.car.sectors.map(([k, p]) => ({ k, v: `<span style="color:${UI.rankColor(p, 16, 34)}">${p}. w stawce</span>`, num: 1 })), 'sectors eq')}
+      </a>
+      <section class="panel monthly"><div class="mast"><b>Paddock Monthly</b><span>${m.issue}</span></div>
+        <div class="stories"><div class="lead"><span class="msec">${m.lead.sec}</span><h3>${m.lead.title}</h3><p>Szwed ma dość Marcha. Jego ludzie pytają o miejsce na 1977, jeśli Scheckter odejdzie.</p><a class="link" href="${m.lead.link[0]}">${m.lead.link[1]}${UI.icon(A, 15)}</a></div>
+          <div class="side">${m.stories.slice(0, 3).map(s => `<a href="${s.link[0]}"><span class="msec">${s.sec}</span><div class="t">${s.title}</div></a>`).join('')}</div></div>
       </section>
     </div>
     <div class="col">
-      <section class="panel car"><header><h2>Auto vs stawka</h2><span class="meta">16 aut</span></header>${car}<footer>Ocena naszego działu technicznego</footer></section>
-      <section class="panel stand"><header><h2>Mistrzostwa</h2></header>
-        <div class="tabs"><div class="seg wide" data-tabs><button class="on" data-tab="drv">Kierowcy</button><button data-tab="con">Konstruktorzy</button></div></div>
-        ${standingsTable('drv')}${standingsTable('con')}
+      <section class="panel car"><header><h2>Auto vs stawka</h2><span class="meta">16 aut</span></header><div class="body">${car}</div><footer><a class="link" href="#/auto">Auto i rozwój${UI.icon(A, 15)}</a></footer></section>
+      <section class="panel stand" data-scope><header><h2>Mistrzostwa</h2></header>
+        <div class="tabs-wrap">${UI.tabs('std', [['drv', 'Kierowcy'], ['con', 'Konstruktorzy']], 'drv', 'fill')}</div>
+        ${std('drv')}${std('con')}
         <footer><a class="link" href="#/klasyfikacje">Pełne klasyfikacje${UI.icon(A, 15)}</a></footer></section>
     </div></div>`;
 };
 S.pulpit.fit = true;
 
 /* ============ SKRZYNKA ============ */
+/* przełączanie wiadomości i filtrów bez animacji */
 S.skrzynka = (id) => {
   const cur = DB.inbox.find(m => m.id == id) || DB.inbox[0];
-  const opts = cur.options ? `<div class="choices">${cur.options.map(o => `<button class="choice" data-toast="Wybrano: ${o.label}"><div><b>${o.label}</b><ul>${o.plus.map(p => `<li class="p">+ ${p}</li>`).join('')}${o.minus.map(p => `<li class="m">− ${p}</li>`).join('')}</ul></div><span class="arr">${UI.icon(A, 16)}</span></button>`).join('')}</div>` : '';
-  return head('Skrzynka', '5 nowych · 1 decyzja czeka', `<div class="seg"><button class="on">Wszystkie</button><button>Decyzje</button><button>Raporty</button><button>Media</button></div>`) +
-  `<div class="mailbox"><section class="panel list">${DB.inbox.map(m => mailRow(m, m.id === cur.id)).join('')}</section>
-   <section class="panel reader"><div class="rhead"><span class="av big">${cur.av}</span><div><div class="muted">${cur.from} · ${cur.when}</div><h2>${cur.title}</h2></div>${cur.due ? `<span class="chip due" style="margin-left:auto">${cur.due}</span>` : ''}</div>
-     <p class="letter">${cur.body}</p>${opts}
-     ${cur.options ? '<p class="muted hint">Skutki każdej opcji widać przed wyborem. Decyzję można podjąć do terminu, a do tego czasu „Dalej” się tu zatrzyma.</p>' : ''}</section></div>`;
+  cur.unread = false;
+  const chosen = STATE.decisions[cur.id];
+  let opts = '';
+  if (cur.options) {
+    opts = `<div class="choices" role="radiogroup" aria-label="Opcje">${cur.options.map(o => `<button class="choice${chosen === o.label ? ' chosen' : ''}" role="radio" aria-checked="${chosen === o.label}" data-opt="${o.label}"${chosen ? ' disabled' : ''}>
+        <div class="ch"><b>${o.label}</b><span class="rd">${chosen === o.label ? UI.icon(UI.check, 14) : ''}</span></div>
+        <div class="fx">${o.fx.map(([t, x]) => `<div class="row ${t}"><b>${t === 'p' ? '+' : t === 'm' ? '−' : '·'}</b><span>${x}</span></div>`).join('')}</div></button>`).join('')}</div>
+      ${chosen ? `<div class="stamp">${UI.st('Decyzja podjęta', 'good')}<b>${chosen}</b><span class="muted">${STATE.now().title}</span></div>`
+        : `<div class="confirm">${UI.fields([{ k: 'Termin', v: cur.due, cls: 'bad' }, { k: 'Wybór', v: '<span id="pick">—</span>' }])}<button class="btn primary" id="confirm" disabled>${UI.icon(UI.check, 17)}<span>Potwierdź</span></button></div>`}`;
+  }
+  const count = k => DB.inbox.filter(m => k === 'all' || m.kind === k).length;
+  return head('Skrzynka', '', UI.tabs('box', [['all', `Wszystkie ${count('all')}`], ['decyzje', `Decyzje ${count('decyzje')}`], ['raporty', `Raporty ${count('raporty')}`], ['media', `Media ${count('media')}`]], 'all')) +
+  `<div class="mailbox instant"><section class="panel list">${DB.inbox.map(m => `<div data-kind="${m.kind}">${mailRow(m, m.id === cur.id)}</div>`).join('')}</section>
+   <section class="panel reader"><div class="rhead"><span class="av big">${cur.av}</span><div><div class="muted">${cur.from} · ${cur.when}</div><h2>${cur.title}</h2></div></div>
+     <p class="letter">${cur.body}</p>${cur.link ? `<a class="btn sm" href="${cur.link[0]}" style="margin-top:16px">${cur.link[1]}${UI.icon(A, 16)}</a>` : ''}${opts}</section></div>`;
 };
+S.skrzynka.after = (id) => {
+  const cur = DB.inbox.find(m => m.id == id) || DB.inbox[0];
+  document.querySelectorAll('.choice:not([disabled])').forEach(c => c.onclick = () => {
+    document.querySelectorAll('.choice').forEach(x => x.setAttribute('aria-checked', x === c));
+    document.getElementById('pick').textContent = c.dataset.opt;
+    document.getElementById('confirm').disabled = false;
+  });
+  const conf = document.getElementById('confirm');
+  if (conf) conf.onclick = () => {
+    const sel = document.querySelector('.choice[aria-checked="true"]'); if (!sel) return;
+    STATE.decisions[cur.id] = sel.dataset.opt;
+    drawTop(); render(parse());
+  };
+};
+document.addEventListener('tab', e => {
+  if (e.detail.group !== 'box') return;
+  document.querySelectorAll('.mailbox .list [data-kind]').forEach(r => r.hidden = e.detail.value !== 'all' && r.dataset.kind !== e.detail.value);
+});
 
 /* ============ KALENDARZ ============ */
-S.kalendarz = () => head('Kalendarz 1976', '16 rund · 8 za nami') +
+S.kalendarz = () => head('Kalendarz 1976', UI.fields([{ k: 'Rundy', v: '16', num: 1 }])) +
   `<div class="cal">${DB.calendar.map((r, i) => {
-    const past = !!r[3], next = i === 8;
-    return `<div class="rnd ${past ? 'past' : ''} ${next ? 'next' : ''}"><span class="num r">${i + 1}</span><div><span class="meta">${r[0]}</span><b>${r[1]}</b><small>${r[2]}</small></div>
-      ${past ? `<div class="res"><span class="muted">wygrał ${r[3]}</span><span class="num">${r[4]}</span></div>` : next ? '<span class="chip team">następny</span>' : ''}</div>`;
+    const past = i < 8, next = i === 8, t = DB.tracks[r[3]];
+    return `<a class="rnd ${past ? 'past' : ''} ${next ? 'next' : ''}" href="#/wyscig/${i + 1}"><span class="rno">${i + 1}</span>
+      <div class="rinfo"><span class="rdate">${r[0]}</span><b>${UI.flag(r[1], 'md')}<span>${FLAGS.name(r[1])}</span></b><small>${t.name}</small></div>${trackSvg(r[3])}</a>`;
   }).join('')}</div>`;
 
-/* ============ KLASYFIKACJE ============ */
-S.klasyfikacje = () => head('Klasyfikacje', 'Mistrzostwa świata F1 1976 · po 8 rundach',
-  '<div class="seg"><button class="on">F1</button><button>Samochody sportowe</button><button>Formuła 2</button></div>') +
-  `<div class="grid g2">
-    ${UI.panel('Kierowcy', `<table class="table"><thead><tr><th>#</th><th>Kierowca</th><th>Zespół</th><th class="r">Pkt</th></tr></thead><tbody>${DB.standings.drivers.map((r, i) => `<tr class="${r[3] ? 'mine' : ''}"><td class="num">${i + 1}</td><td>${r[0]}</td><td class="muted">${r[1]}</td><td class="r num">${r[2]}</td></tr>`).join('')}</tbody></table>`, { cls: 'tbl' })}
-    ${UI.panel('Konstruktorzy', `<table class="table"><thead><tr><th>#</th><th>Zespół</th><th class="r">Pkt</th></tr></thead><tbody>${DB.standings.constructors.map((r, i) => `<tr class="${r[2] ? 'mine' : ''}"><td class="num">${i + 1}</td><td>${r[0]}</td><td class="r num">${r[1]}</td></tr>`).join('')}</tbody></table>
-      <footer>Punktacja 9-6-4-3-2-1 · liczy się 7 najlepszych wyników z każdej połowy sezonu</footer>`, { cls: 'tbl' })}
-  </div>`;
-
-/* ============ KIEROWCY ============ */
-const AT = [['zakr','Zakręty'],['ham','Hamow.'],['pl','Płynność'],['wyp','Wyprz.'],['obr','Obrona'],['reg','Regul.'],['opa','Opan.'],['ada','Adapt.'],['desz','Deszcz'],['kon','Kond.'],['inf','Inf. zwr.']];
-S.kierowcy = () => head('Kierowcy', 'Skład na 1976 · 2 kierowców wyścigowych i tester', '<a class="btn" href="#/porownaj">Porównaj</a><a class="btn primary" href="#/rynek">Szukaj na rynku</a>') +
-  UI.panel('Skład', `<table class="table"><thead><tr><th>Kierowca</th><th>Ocena</th>${AT.map(a => `<th class="c">${a[1]}</th>`).join('')}<th>Forma</th><th>Kontrakt</th></tr></thead><tbody>
-  ${DB.drivers.map(d => `<tr onclick="location.hash='#/kierowca/${d.id}'" style="cursor:pointer"><td><div class="person"><span class="av">${d.no}</span><div><b>${d.name}</b><small>${UI.flag(d.nat)} ${d.age} l. · ${d.role}</small></div></div></td>
-    <td>${UI.stars(d.stars, d.pot)}</td>${AT.map(a => `<td class="c">${UI.attr(d.attrs[a[0]])}</td>`).join('')}<td>${d.form}</td><td class="muted">do ${d.contract.to}</td></tr>`).join('')}
-  </tbody></table><footer>Kliknij kierowcę, żeby zobaczyć profil, kontrakt i obietnice.</footer>`, { cls: 'tbl' });
-
-S.kierowca = (id) => {
-  const d = DB.drivers.find(x => x.id === id) || DB.drivers[0];
-  const attrs = AT.map(a => `<div class="arow"><span>${a[1]}</span>${UI.attr(d.attrs[a[0]])}<div class="bar thin"><i style="width:${d.attrs[a[0]] * 5}%;background:${d.attrs[a[0]] >= 17 ? 'var(--good)' : 'var(--ink)'}"></i></div></div>`).join('');
-  return `<div class="profile">
-    <section class="panel hero"><div class="num-big">${d.no}</div><div><h1 class="screen">${d.name}</h1><div class="sub">${UI.flag(d.nat)} ${d.age} l. · ${d.role} · Elf Team Tyrrell</div>
-      <div class="stats" style="margin-top:14px"><div class="stat"><span class="meta">Ocena</span>${UI.stars(d.stars, d.pot)}</div><div class="stat"><span class="meta">Forma</span><b>${d.form}</b></div><div class="stat"><span class="meta">Morale</span><b>${d.morale}</b></div><div class="stat"><span class="meta">Zaufanie do zespołu</span><b class="num">${d.trust}/100</b></div></div></div>
-      <div class="tools"><a class="btn" href="#/porownaj">Porównaj</a><a class="btn primary" href="#/kierowcy">Wróć do składu</a></div></section>
-    <div class="grid" style="grid-template-columns:1.1fr 1fr 1fr">
-      ${UI.panel('Atrybuty', `<div class="body attrs">${attrs}</div>`)}
-      <div class="col">${UI.panel('Styl i cechy', `<div class="body"><dl class="kv"><dt>Balans</dt><dd>${d.prefs.balans}</dd><dt>Trakcja</dt><dd>${d.prefs.trakcja}</dd><dt>Hamowanie</dt><dd>${d.prefs.hamowanie}</dd></dl>
-        <div class="chips">${d.traits.map(t => `<span class="chip">${t}</span>`).join('') || '<span class="muted">Cechy nieznane</span>'}</div>
-        <p class="muted" style="margin-top:12px">Dopasowanie do P34: <b class="good">dobre</b>. Auto lekko nadsterowne, jak lubi.</p></div>`)}
-        ${UI.panel('Kariera', `<div class="body"><div class="stats">${Object.entries({Starty:d.career.starts, Zwycięstwa:d.career.wins, 'Pole position':d.career.poles, Podia:d.career.podiums, Punkty:d.career.points}).map(([k, v]) => `<div class="stat"><span class="meta">${k}</span><span class="num">${v}</span></div>`).join('')}</div>
-          <table class="table tight" style="margin-top:12px"><thead><tr><th>Sezon</th><th>Zespół</th><th class="r">Pkt</th><th class="r">Wygrane</th></tr></thead><tbody>${d.seasons.map(s => `<tr><td class="num">${s[0]}</td><td>${s[1]}</td><td class="r num">${s[2]}</td><td class="r num">${s[3]}</td></tr>`).join('')}</tbody></table></div>`)}</div>
-      <div class="col">${UI.panel('Kontrakt', `<div class="body"><dl class="kv"><dt>Do końca</dt><dd>${d.contract.to}</dd><dt>Pensja</dt><dd>${d.contract.salary}</dd><dt>Premie</dt><dd>${d.contract.bonus}</dd></dl>
-        <div class="meta" style="margin:14px 0 6px">Klauzule</div><ul class="clauses">${d.clauses.map(c => `<li>${c}</li>`).join('') || '<li class="muted">Brak</li>'}</ul></div>`)}
-        ${d.promise ? UI.panel('Obietnica', `<div class="body"><b style="font-size:16px">${d.promise.text}</b><div class="bar" style="margin:10px 0 6px"><i style="width:${d.promise.pct}%;background:var(--t2)"></i></div><span class="muted">Postęp prac ${d.promise.pct}% · termin za ${d.promise.left}</span>
-          <p class="muted" style="margin-top:10px">Jeśli jej nie dotrzymamy, zaufanie spadnie, a klauzula wyjścia stanie się realna.</p></div>`, { cls: 'promise' }) : ''}</div>
+/* ============ STRONA WYŚCIGU ============ */
+S.wyscig = (n = 9) => {
+  const i = Math.max(0, Math.min(15, n - 1)), c = DB.calendar[i], t = DB.tracks[c[3]], res = DB.results[i], hist = DB.trackHistory[c[3]] || { years: [] };
+  const past = !!res, prev = i > 0 ? `<a class="btn sm" href="#/wyscig/${i}">${UI.icon(UI.back, 16)}Runda ${i}</a>` : '', nxt = i < 15 ? `<a class="btn sm" href="#/wyscig/${i + 2}">Runda ${i + 2}${UI.icon(A, 16)}</a>` : '';
+  const prof = [['Proste', t.profile.straights], ['Szybkie zakręty', t.profile.high_speed], ['Wolne zakręty', t.profile.low_speed], ['Hamowanie', t.profile.braking]];
+  const table = past ? `<table class="table tight results"><thead><tr><th class="c">Poz.</th><th class="c">Nr</th><th>Kierowca</th><th>Zespół</th><th class="c">Okr.</th><th class="r">Czas</th><th class="c">Start</th><th class="c">Pkt</th></tr></thead><tbody>
+      ${res.rows.map(r => `<tr class="${r.team === 'tyrrell' ? 'mine' : ''}"><td class="c num">${r.dnf ? '<span class="bad">DNF</span>' : r.pos}</td><td class="c num muted">${r.no}</td><td>${UI.flag(r.nat)} ${nameLink(r.id, r.name)}</td><td class="muted">${DB.teams[r.team].full}</td><td class="c num">${r.laps}</td><td class="r num ${r.dnf ? 'muted' : ''}">${r.time}</td><td class="c num">${r.grid}</td><td class="c num">${r.pts || ''}</td></tr>`).join('')}</tbody></table>` : '';
+  const pole = past ? DB.gridById[Object.values(DB.grid).find(g => g[0] === res.pole)[1]] : null, fl = past ? DB.grid.find(g => g[0] === res.fl.no) : null;
+  const years = hist.years.length ? `<table class="table tight"><thead><tr><th class="c">Rok</th><th>Zwycięzca</th><th>Zespół</th>${hist.years[0][3] ? '<th>Pole position</th><th>Najszybsze okrążenie</th>' : ''}</tr></thead><tbody>${hist.years.map(y => `<tr><td class="c num">${y[0]}</td><td><b>${y[1]}</b></td><td class="muted">${y[2]}</td>${y[3] ? `<td>${y[3]}</td><td>${y[4]}</td>` : ''}</tr>`).join('')}</tbody></table>`
+    : `<div class="empty">${UI.st('Pierwszy wyścig F1 na tym torze', 'hi')}</div>`;
+  return `<div class="race-page">
+    <section class="panel rp-head"><span class="rno big">${i + 1}</span>
+      <div class="rp-title"><div class="rp-where">${UI.flag(c[1], 'lg')}<span class="meta">${c[0]} 1976</span></div><h1 class="screen">${c[2]}</h1>
+        ${UI.fields([{ k: 'Tor', v: t.name }, { k: 'Długość okrążenia', v: `${String(t.len).replace('.', ',')} km`, num: 1 }, { k: 'Okrążenia', v: c[4], num: 1 }, { k: 'Dystans', v: `${(t.len * c[4]).toFixed(1).replace('.', ',')} km`, num: 1 }, { k: 'Charakter', v: t.tags.join(', ') }], 'mid')}</div>
+      <div class="rp-tools">${prev}${nxt}</div></section>
+    <div class="rp-grid">
+      <div class="col">
+        ${past ? UI.panel('Wyniki', `<div class="tbl-scroll">${table}</div>`, { cls: 'tbl', right: UI.fields([{ k: 'Pole position', v: pole[2] }, { k: 'Najszybsze okrążenie', v: `${fl[2]} · ${res.fl.time}` }], 'hdr') })
+          : UI.panel('Poprzednie lata', `<div class="tbl-scroll">${years}</div>`, { cls: 'tbl' })}
+      </div>
+      <div class="col">
+        <section class="panel rp-map">${trackSvg(c[3], 'big')}</section>
+        ${UI.panel('Tor w liczbach', `<div class="body">${UI.fields([{ k: 'Wyścigi F1', v: hist.gps || hist.years.length, num: 1 }, { k: 'Średnio DNF', v: String(hist.dnfAvg || '—').replace('.', ','), num: 1 }, { k: 'Średnio SC', v: String(hist.scAvg ?? 0), num: 1 }], 'eq')}
+          ${hist.record ? `<div class="record">${UI.fields([{ k: 'Rekord okrążenia', v: hist.record[2], num: 1 }, { k: 'Kierowca', v: `${hist.record[0]} · ${hist.record[1]}` }, { k: 'Rok', v: hist.record[3], num: 1 }])}</div>` : ''}
+          <div class="profile-bars">${prof.map(([k, v]) => `<div class="pb"><span>${k}</span><span class="num">${Math.round(v * 100)}%</span><div class="bar thin"><i style="width:${v * 100 / .5}%"></i></div></div>`).join('')}</div></div>`)}
+        ${past ? UI.panel('Zwycięzcy', `<div class="tbl-scroll">${years}</div>`, { cls: 'tbl' }) : ''}
+      </div>
     </div></div>`;
 };
 
-S.porownaj = () => {
-  const [a, b] = DB.drivers;
-  return head('Porównanie', `${a.name} vs ${b.name}`, '<div class="seg"><button class="on">Kariera</button><button>Sezon 1976</button><button>Pojedynki</button></div>') +
-  `<div class="grid g2">${UI.panel('Atrybuty', `<div class="body cmp">${AT.map(x => { const va = a.attrs[x[0]], vb = b.attrs[x[0]];
-    return `<div class="cmprow"><span class="num ${va > vb ? 'good' : ''}">${va}</span><div class="bar thin rev"><i style="width:${va * 5}%"></i></div><span class="lbl">${x[1]}</span><div class="bar thin"><i style="width:${vb * 5}%;background:var(--t2)"></i></div><span class="num ${vb > va ? 'good' : ''}">${vb}</span></div>`; }).join('')}</div>`)}
-    ${UI.panel('Pojedynki w 1976', `<div class="body"><div class="duel"><div><span class="num big">6</span><span class="muted">kwalifikacje</span></div><span class="vs">:</span><div><span class="num big">2</span><span class="muted">kwalifikacje</span></div></div>
-      <div class="duel"><div><span class="num big">5</span><span class="muted">wyścigi</span></div><span class="vs">:</span><div><span class="num big">3</span><span class="muted">wyścigi</span></div></div>
-      <p class="muted">Średnia różnica w kwalifikacjach: <b>0,21 s</b> na korzyść Schecktera. Depailler szybszy w deszczu (2 z 2).</p></div>`)}</div>`;
+/* ============ KLASYFIKACJE ============ */
+S.klasyfikacje = (series = 'f1') => {
+  const d = DB.standings.drivers, c = DB.standings.constructors;
+  const sc = DB.scoring;
+  const scoring = `<div class="scoring"><span class="meta">Punktacja</span><div class="pts">${sc.points.map((p, i) => `<div><span class="meta">${i + 1}.</span><b class="num">${p}</b></div>`).join('')}</div>
+    ${UI.fields([{ k: 'Liczone z rund 1–8', v: '7 najlepszych', num: 1 }, { k: 'Liczone z rund 9–16', v: '7 najlepszych', num: 1 }, { k: 'Konstruktorzy', v: 'Najlepsze auto' }])}</div>`;
+  const f1 = `<div class="stand-grid" data-pane="ser:f1" ${series !== 'f1' ? 'hidden' : ''}>
+    ${UI.panel('Kierowcy', `<div class="tbl-scroll"><table class="table tight"><thead><tr><th class="c">Poz.</th><th>Kierowca</th><th>Zespół</th><th class="c">Wygrane</th><th class="c">Pkt</th></tr></thead><tbody>${d.map((r, i) => `<tr class="${r.team === 'tyrrell' ? 'mine' : ''}"><td class="c num">${i + 1}</td><td>${UI.flag(r.nat)} ${nameLink(r.id, r.name)}</td><td class="muted">${teamName(r.team)}</td><td class="c num">${r.wins || ''}</td><td class="c num"><b>${r.pts}</b></td></tr>`).join('')}</tbody></table></div>`, { cls: 'tbl' })}
+    <div class="col">${UI.panel('Konstruktorzy', `<table class="table tight"><thead><tr><th class="c">Poz.</th><th>Konstruktor</th><th class="c">Wygrane</th><th class="c">Pkt</th></tr></thead><tbody>${c.map((r, i) => `<tr class="${r.team === 'tyrrell' ? 'mine' : ''}"><td class="c num">${i + 1}</td><td>${DB.teams[r.team].full}</td><td class="c num">${r.wins || ''}</td><td class="c num"><b>${r.pts}</b></td></tr>`).join('')}</tbody></table>`, { cls: 'tbl' })}
+      ${UI.panel('', `<div class="body" style="padding-top:18px">${scoring}</div>`)}</div></div>`;
+  const wsc = `<div class="stand-grid one" data-pane="ser:wsc" ${series !== 'wsc' ? 'hidden' : ''}>${UI.panel('Marki', `<table class="table tight"><thead><tr><th class="c">Poz.</th><th>Marka</th><th class="c">Pkt</th></tr></thead><tbody>${DB.wsc.map((r, i) => `<tr><td class="c num">${i + 1}</td><td>${r[0]}</td><td class="c num"><b>${r[1]}</b></td></tr>`).join('')}</tbody></table>`, { cls: 'tbl' })}</div>`;
+  const f2 = `<div class="stand-grid one" data-pane="ser:f2" ${series !== 'f2' ? 'hidden' : ''}>${UI.panel('Kierowcy', `<table class="table tight"><thead><tr><th class="c">Poz.</th><th>Kierowca</th><th>Zespół</th><th class="c">Pkt</th></tr></thead><tbody>${DB.f2.map((r, i) => `<tr><td class="c num">${i + 1}</td><td>${UI.flag(r[1])} ${r[0]}</td><td class="muted">${r[2]}</td><td class="c num"><b>${r[3]}</b></td></tr>`).join('')}</tbody></table>`, { cls: 'tbl' })}</div>`;
+  return head('Klasyfikacje 1976', UI.fields([{ k: 'Po rundzie', v: '8 z 16', num: 1 }]), UI.tabs('ser', [['f1', 'Formuła 1'], ['wsc', 'Samochody sportowe'], ['f2', 'Formuła 2']], series)) + f1 + wsc + f2;
 };
 
-/* ============ PERSONEL ============ */
-S.personel = () => head('Personel', '6 kluczowych osób · 34 pracowników w działach', '<a class="btn primary" href="#/rynek">Zatrudnij</a>') +
-  `<div class="grid" style="grid-template-columns:1.4fr 1fr">
-  ${UI.panel('Kluczowi ludzie', `<table class="table"><thead><tr><th>Osoba</th><th>Ocena</th><th>Atrybuty</th><th>Kontrakt</th></tr></thead><tbody>${DB.staff.map(s => `<tr><td><div class="person"><span class="av">${UI.initials(s.name)}</span><div><b>${s.name}</b><small>${s.role}${s.note ? ' · ' + s.note : ''}</small></div></div></td><td>${UI.stars(s.stars)}</td>
-    <td>${Object.entries(s.attrs).map(([k, v]) => `<span class="sattr">${k} ${UI.attr(v)}</span>`).join('')}</td><td class="muted">${s.contract}</td></tr>`).join('')}</tbody></table>`, { cls: 'tbl' })}
-  ${UI.panel('Działy', `<div class="body">${DB.departments.map(d => `<div class="dept"><div><b>${d.name}</b><small class="muted">szef: ${d.head} · ${d.cost}/mies.</small></div><div class="dnum"><span class="num">${d.people}</span><span class="meta">osób</span></div><div class="dq">${UI.attr(d.quality)}<span class="meta">jakość</span></div></div>`).join('')}
-    <p class="muted" style="margin-top:12px">Więcej ludzi = szybciej ukończone projekty. Jakość wyniku zależy od kluczowych osób i infrastruktury.</p></div>`)}
-  </div>`;
+/* ============ KIEROWCY ============ */
+const AT = DB.attrs;
+S.kierowcy = () => head('Kierowcy', UI.fields([{ k: 'Wyścigowi', v: '2', num: 1 }, { k: 'Testowi', v: '1', num: 1 }]), UI.btn('Porównaj', { href: '#/porownaj/scheckter/depailler' }) + UI.btn('Szukaj na rynku', { href: '#/rynek', cls: 'primary' })) +
+  UI.panel('Skład', `<table class="table squad"><thead><tr><th>Kierowca</th><th>Ocena</th>${AT.map(a => `<th class="c" title="${a[1]}">${a[2]}</th>`).join('')}<th>Forma</th><th class="c">Kontrakt</th></tr></thead><tbody>
+  ${DB.drivers.map(d => `<tr class="go-row" data-href="#/kierowca/${d.id}"><td><div class="person"><span class="av">${d.no}</span><div><b>${d.name}</b><small>${UI.flag(d.nat)} ${d.age} l. · ${d.role}</small></div></div></td>
+    <td>${UI.stars(d.stars, d.pot)}</td>${AT.map(a => `<td class="c">${UI.attr(d.attrs[a[0]])}</td>`).join('')}<td>${d.form}</td><td class="c num ${d.contract.to === 1976 ? 'bad' : ''}">${d.contract.to}</td></tr>`).join('')}
+  </tbody></table>`, { cls: 'tbl' });
 
-/* ============ AKADEMIA ============ */
-S.akademia = () => head('Akademia', 'Juniorzy, których finansujesz poza F1', '<a class="btn primary" href="#/rynek">Znajdź talent</a>') +
-  `<div class="grid g2">${DB.academy.map(j => UI.panel(j.name, `<div class="body"><div class="stats"><div class="stat"><span class="meta">Obecnie</span>${UI.stars(j.stars, j.pot)}</div><div class="stat"><span class="meta">Seria</span><b>${j.series}</b></div><div class="stat"><span class="meta">Wiek</span><span class="num">${j.age}</span></div></div>
-    <div class="meta" style="margin:16px 0 6px">Program</div><b>${j.program}</b><div class="bar" style="margin-top:8px"><i style="width:${j.progress}%"></i></div>
-    <p class="muted" style="margin-top:10px">Potencjał (gwiazdki przerywane) to ocena skauta, nie pewnik.</p></div>`, { right: UI.flag(j.nat) })).join('')}
-  ${UI.panel('Pula talentów', `<div class="body"><p class="muted">Kierowcy spoza F1, którzy mogą trafić do akademii: Formuła 2, F3, Formuła Atlantic. Najciekawsi według skauta:</p>
-    <div class="chips" style="margin-top:12px"><span class="chip">Gilles Villeneuve · Atlantic</span><span class="chip">Riccardo Patrese · F3</span><span class="chip">Eddie Cheever · F3</span><span class="chip">Didier Pironi · F2</span></div></div>`, { style: 'grid-column:1/3' })}</div>`;
-
-/* ============ AUTO I ROZWÓJ ============ */
-S.auto = () => {
-  const c = DB.car;
-  return head('Auto i rozwój', `${c.name} · ${c.concept}`, '<a class="btn primary">Nowy projekt</a>') +
-  `<div class="grid" style="grid-template-columns:1fr 1.2fr 1fr">
-    ${UI.panel('Na tle stawki', `<div class="body">${c.areas.map(([n, p]) => `<div class="crow"><span>${n}</span><span class="num" style="color:${UI.rankColor(p, 16, 34)}">${p}.</span>${UI.rankBar(p)}</div>`).join('')}</div><footer>Ocena działu technicznego · pewność średnia</footer>`)}
-    <div class="col">${UI.panel('Projekty', `<div class="body">${c.projects.map(p => `<div class="proj"><div class="prow"><b>${p.name}</b><span class="chip">${p.stream}</span></div><div class="bar thin" style="margin:8px 0 5px"><i style="width:${p.pct}%;background:${p.stream === 'Przyszły rok' ? 'var(--t2)' : 'var(--t1)'}"></i></div><span class="muted">${p.pct}% · ${p.eta} · ${p.note}</span></div>`).join('')}</div>`)}
-      ${UI.panel('Podział zasobów', `<div class="body"><div class="split"><i style="flex:${c.split[0]};background:var(--t1)">Bieżące ${c.split[0]}%</i><i style="flex:${c.split[1]};background:var(--a2)">Konto ${c.split[1]}%</i><i style="flex:${c.split[2]};background:var(--t2)">1977 ${c.split[2]}%</i></div>
-        <p class="muted" style="margin-top:10px">Na koncie rozwoju: <b>${c.bank}</b>. Straci ok. 30% wartości, jeśli regulamin 1977 zmieni wymiary kół.</p></div>`)}</div>
-    <div class="col">${UI.panel('Koncepcja', `<div class="body">${c.axes.map(a => `<div class="axis"><div class="alab"><span>${a[1]}</span><b>${a[0]}</b><span>${a[2]}</span></div><div class="atrack"><i style="left:${a[3]}%"></i></div></div>`).join('')}</div>`)}
-      ${UI.panel('Zrozumienie części', `<div class="body">${c.understanding.map(u => `<div class="crow"><span>${u[0]}</span><span class="num">${u[1]}%</span><div class="bar thin"><i style="width:${u[1]}%;background:var(--t1)"></i></div></div>`).join('')}</div>`)}</div>
-  </div>`;
+/* profil kierowcy: nasz (pełna wiedza) albo obcy (pasma skauta) */
+S.kierowca = (id) => {
+  const own = DB.drivers.find(x => x.id === id);
+  if (!own) return foreignProfile(id);
+  const d = own, words = PREF.numbers === 'off';
+  const season = DB.seasonOf(d.id);
+  const attrs = words
+    ? `<div class="voices">${(d.voices || [['TW', 'Tom Walsh', 'Inżynier wyścigowy', 'Za wcześnie, żeby coś powiedzieć. Dajcie mu kilka testów.']]).map(v => `<div class="vq"><span class="av">${v[0]}</span><div><p>„${v[3]}”</p><small>${v[1]} · ${v[2]}</small></div></div>`).join('')}</div>`
+    : `<div class="attrs">${AT.map(a => { const v = d.attrs[a[0]]; return `<div class="arow"><span>${a[1]}</span>${UI.attr(v)}<div class="bar thin"><i style="width:${v * 5}%;background:${v >= 17 ? 'var(--good)' : 'var(--ink)'}"></i></div></div>`; }).join('')}</div>`;
+  const strip = `<div class="season-strip"><span class="meta">Sezon 1976</span><div class="rs">${season.map((p, i) => `<a href="#/wyscig/${i + 1}" class="r ${p === 1 ? 'win' : p === 'DNF' ? 'dnf' : p && p <= 3 ? 'pod' : p && p <= 6 ? 'pts' : ''}" title="${DB.calendar[i][2]}"><span class="meta">${DB.calendar[i][1]}</span><b class="num">${p === null ? '—' : p === 'DNF' ? 'DNF' : p}</b></a>`).join('')}${DB.calendar.slice(8).map((c, k) => `<span class="r fut" title="${c[2]}"><span class="meta">${c[1]}</span><b>·</b></span>`).join('')}</div></div>`;
+  const c = d.career;
+  return `<div class="profile">
+    <section class="panel hero"><div class="num-big"><span>${d.no}</span></div>
+      <div class="hero-main"><h1 class="screen">${d.name}</h1>
+        ${UI.fields([{ k: 'Narodowość', v: `${UI.flag(d.nat, 'md')} ${FLAGS.name(d.nat)}` }, { k: 'Wiek', v: `${d.age} lat`, num: 1 }, { k: 'Rola', v: d.role }, { k: 'Zespół', v: 'Elf Team Tyrrell' }], 'mid')}</div>
+      <div class="hero-side">${UI.fields([{ k: 'Ocena', v: words ? '<span class="muted">—</span>' : UI.stars(d.stars, d.pot).replace('class="stars"', 'class="stars lg"') }, { k: 'Forma', v: d.form }, { k: 'Morale', v: d.morale }, { k: 'Zaufanie', v: `${d.trust}/100`, num: 1 }])}
+        <div class="tools">${UI.btn('Porównaj', { href: `#/porownaj/${d.id}/${d.id === 'scheckter' ? 'depailler' : 'scheckter'}` })}${UI.btn('Skład', { href: '#/kierowcy', icon: UI.back })}</div></div></section>
+    <div class="prof-grid">
+      ${UI.panel(words ? 'Co mówią ludzie' : 'Atrybuty', `<div class="body">${attrs}${strip}</div>`)}
+      <div class="col">${UI.panel('Styl i dopasowanie do P34', `<div class="body"><table class="table tight fit"><thead><tr><th></th><th>Lubi</th><th>P34</th></tr></thead><tbody>${d.prefs.map(p => `<tr><td class="muted">${p[0]}</td><td><b>${p[1]}</b></td><td>${p[1] === p[2] ? `<span class="good match">${UI.icon(UI.check, 16)}Zgodne</span>` : `<span class="warn">${p[2]}</span>`}</td></tr>`).join('')}</tbody></table>
+          <div class="tags" style="margin-top:12px">${d.traits.map(t => `<span class="tag">${t}</span>`).join('') || UI.st('Cechy nieznane')}</div></div>`)}
+        ${UI.panel('Kariera', `<div class="body">${UI.fields([{ k: 'Starty', v: c.starts, num: 1 }, { k: 'Wygrane', v: c.wins, num: 1 }, { k: 'Pole', v: c.poles, num: 1 }, { k: 'Podia', v: c.podiums, num: 1 }, { k: 'Punkty', v: c.points, num: 1 }], 'boxed center')}
+          <table class="table tight" style="margin-top:8px"><thead><tr><th class="c">Sezon</th><th>Zespół</th><th class="c">Starty</th><th class="c">Pkt</th><th class="c">Wygrane</th></tr></thead><tbody>${d.seasons.slice(-3).map(s => `<tr><td class="c num">${s[0]}</td><td>${s[1]}</td><td class="c num">${s[2]}</td><td class="c num">${s[3]}</td><td class="c num">${s[4]}</td></tr>`).join('')}</tbody></table></div>`)}</div>
+      <div class="col">${UI.panel('Kontrakt', `<div class="body">${UI.fields([{ k: 'Do końca', v: d.contract.to, num: 1, cls: d.contract.to === 1976 ? 'bad' : '' }, { k: 'Pensja', v: UI.money(d.contract.salary) + '/rok', num: 1 }, { k: 'Premie', v: d.contract.bonus }])}
+          ${d.clauses.length ? `<div class="clauses">${d.clauses.map(k => `<div class="cl"><span class="cl-type">${k.type}</span><div class="cl-txt"><span class="meta">Warunek</span><span>${k.cond}</span><span class="meta">Skutek</span><b>${k.effect}</b></div></div>`).join('')}</div>` : ''}</div>`)}
+        ${d.promise ? UI.panel('Obietnica', `<div class="body"><b class="promise-t">${d.promise.text}</b>
+          <div class="bar" style="margin:10px 0 12px"><i style="width:${d.promise.pct}%;background:var(--t2)"></i></div>
+          ${UI.fields([{ k: 'Postęp prac', v: d.promise.pct + '%', num: 1 }, { k: 'Termin', v: d.promise.due }, { k: 'Zostało', v: UI.n(d.promise.races, 'wyścig', 'wyścigi', 'wyścigów'), num: 1 }])}
+          <div class="miss"><span class="meta">Niedotrzymanie</span>${d.promise.miss.map(m => `<span>${m[0]}: <b class="bad">${m[1]}</b></span>`).join('')}</div></div>`, { cls: 'promise' }) : ''}</div>
+    </div></div>`;
 };
 
-/* ============ INFRASTRUKTURA ============ */
-S.infrastruktura = () => head('Infrastruktura', 'Jakość liczona względem stanu techniki w 1976 roku') +
-  `<div class="grid g3">${DB.facilities.map(f => UI.panel(f.name, `<div class="body"><div class="meta">Obecnie</div><b style="font-size:17px">${f.level}</b>
-    <div class="meta" style="margin:14px 0 6px">Względem najlepszych w stawce</div><div class="bar"><i style="width:${f.frontier}%;background:${UI.rankColor(16 - Math.round(f.frontier / 100 * 15), 16)}"></i></div>
-    <p class="muted" style="margin-top:10px">${f.note}</p></div>${f.cost ? `<footer><button class="btn" data-toast="Projekt dodany do planu">Rozbuduj · ${f.cost}</button></footer>` : ''}`)).join('')}
-    ${UI.panel('Dlaczego to nigdy się nie kończy', `<div class="body"><p class="muted">Stan techniki przesuwa się co roku razem z całą stawką. Tunel, który dziś jest najlepszy, za dziesięć lat będzie przeciętny. Nowe rodzaje obiektów (CFD, symulator) pojawią się z kolejnymi epokami.</p></div>`)}</div>`;
+/* obcy kierowca: wiedza skauta, pasma zamiast liczb */
+function foreignProfile(id) {
+  const m = DB.market.find(x => x.id === id) || DB.academy.pool.find(x => x.id === id) || DB.market[0];
+  const attrs = DB.scouted(m.id, (m.band[0] + m.band[1]) / 2, m.known);
+  const inMarket = DB.market.includes(m);
+  return `<div class="profile">
+    <section class="panel hero foreign"><div class="num-big"><span>${UI.initials(m.name)}</span></div>
+      <div class="hero-main"><h1 class="screen">${m.name}</h1>
+        ${UI.fields([{ k: 'Narodowość', v: `${UI.flag(m.nat, 'md')} ${FLAGS.name(m.nat)}` }, { k: 'Wiek', v: `${m.age} lat`, num: 1 }, { k: 'Obecnie', v: m.team }, { k: 'Wiedza skauta', v: `${m.known}%`, num: 1 }], 'mid')}</div>
+      <div class="hero-side">${UI.fields([{ k: 'Ocena', v: UI.stars(m.band[0], m.pot, m.band).replace('class="stars"', 'class="stars lg"') }, inMarket ? { k: 'Nastawienie', v: UI.st(m.mood, moodTone(m.mood)) } : { k: 'Seria', v: m.team }])}
+        <div class="tools">${inMarket ? UI.btn('Rozmawiaj', { cls: 'primary', attrs: ` data-talk="${m.id}"` }) : ''}${UI.btn(inMarket ? 'Rynek' : 'Akademia', { href: inMarket ? '#/rynek' : '#/akademia', icon: UI.back })}</div></div></section>
+    <div class="prof-grid f">
+      ${UI.panel('Atrybuty', `<div class="body"><div class="attrs">${AT.map(a => { const v = attrs[a[0]], lo = Array.isArray(v) ? v[0] : v, hi = Array.isArray(v) ? v[1] : v; return `<div class="arow"><span>${a[1]}</span>${UI.attr(v)}<div class="bar thin band"><i style="margin-left:${lo * 5 - 5}%;width:${(hi - lo + 1) * 5}%"></i></div></div>`; }).join('')}</div></div>`)}
+      <div class="col">${UI.panel('Kontrakt i oczekiwania', `<div class="body">${UI.fields(inMarket ? [{ k: 'Kontrakt do', v: m.to, num: 1 }, { k: 'Oczekiwana pensja', v: `${UI.money(m.salary)}/rok`, num: 1 }, { k: 'Zespół', v: m.team }] : [{ k: 'Seria', v: m.team }, { k: 'Potencjał', v: UI.stars(0, m.pot) }])}</div>`)}
+        ${UI.panel('Co wiemy', `<div class="body"><div class="voices"><div class="vq"><span class="av">SK</span><div><p>„${m.known < 40 ? 'Widziałem go dwa razy. Szybki, ale to za mało, żeby ocenić, jak radzi sobie pod presją.' : 'Znamy go dobrze z wyścigów. Pasma są wąskie, niespodzianek raczej nie będzie.'}”</p><small>Skaut · obserwacje: ${Math.max(1, Math.round(m.known / 12))}</small></div></div></div></div>`)}</div>
+    </div></div>`;
+}
+const moodTone = m => ({ 'Bardzo zainteresowany': 'good', 'Zainteresowany': 'good', 'Neutralny': '', 'Raczej nie': 'warn' })[m] || '';
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-talk]'); if (!t) return;
+  const m = DB.market.find(x => x.id === t.dataset.talk);
+  const id = 200 + DB.inbox.length;
+  DB.inbox.unshift({ id, kind: 'raporty', from: m.name, av: UI.initials(m.name), title: 'Rozmowy rozpoczęte: pierwsze warunki', when: 'Dziś', unread: true, link: [`#/kierowca/${m.id}`, `Profil: ${m.name}`],
+    body: `Menedżer kierowcy potwierdza zainteresowanie. Oczekiwania na start: ${UI.money(m.salary)} rocznie, kontrakt na dwa sezony. Odpowiedź w ciągu tygodnia.` });
+  markNav(cur.name, false); location.hash = `#/skrzynka/${id}`;
+});
 
-/* ============ DOSTAWCY ============ */
-S.dostawcy = () => head('Dostawcy', 'Umowy na silniki, opony, paliwo i części', '<a class="btn primary">Szukaj dostawcy</a>') +
-  UI.panel('Umowy', `<table class="table"><thead><tr><th>Kategoria</th><th>Dostawca</th><th>Typ umowy</th><th>Do</th><th>Plusy</th><th>Minusy</th></tr></thead><tbody>${DB.suppliers.map(s => `<tr><td class="muted">${s.cat}</td><td><b>${s.name}</b></td><td><span class="chip ${s.type === 'Fabryczna' ? 'team' : s.type === 'Partner' ? 'ok' : ''}">${s.type}</span></td><td class="num">${s.to}</td><td class="good">${s.pros}</td><td class="bad">${s.cons}</td></tr>`).join('')}</tbody></table>
-  <footer>Umowa fabryczna z Goodyear kończy się w tym roku. Decyzja czeka w skrzynce.</footer>`, { cls: 'tbl' });
-
-/* ============ SPONSORZY ============ */
-S.sponsorzy = () => head('Sponsorzy', '£265 tys. rocznie · 1 wolne miejsce na aucie', '<a class="btn primary">Szukaj sponsora</a>') +
-  `<div class="grid g2">${DB.sponsors.map(s => UI.panel(s.slot, `<div class="body"><h3 style="font-size:24px">${s.name}</h3><div class="muted">${s.ind}</div>
-    <dl class="kv" style="margin-top:14px"><dt>Kwota</dt><dd>${s.amount}</dd><dt>Umowa do</dt><dd>${s.to || '—'}</dd><dt>Cel</dt><dd class="${s.goalOk ? 'good' : ''}">${s.goal}</dd></dl></div>`, { right: s.slot === 'Tytularny' ? '<span class="chip team">nazwa zespołu</span>' : '' })).join('')}</div>`;
-
-/* ============ FINANSE ============ */
-S.finanse = () => {
-  const f = DB.finance, max = 40;
-  const chart = f.months.map(([v, m]) => `<div class="mcol"><div class="mbar ${v == null ? 'fut' : v < 0 ? 'neg' : 'pos'}" style="height:${v == null ? 6 : Math.abs(v) / max * 100}%"></div><span class="meta">${m}</span></div>`).join('');
-  const list = (arr) => arr.map(([n, v]) => `<div class="crow"><span>${n}</span><span class="num">£${v} tys.</span><div class="bar thin"><i style="width:${v / 2.7}%"></i></div></div>`).join('');
-  return head('Finanse', 'Sezon 1976 · gotówka to nie budżet') +
-  `<div class="grid" style="grid-template-columns:1fr 1fr 1fr">
-    ${UI.panel('Stan', `<div class="body"><dl class="kv big"><dt>Gotówka</dt><dd>£410 tys.</dd><dt>Zobowiązania do końca roku</dt><dd class="bad">−£290 tys.</dd><dt>Pewne wpływy</dt><dd class="good">+£205 tys.</dd><dt>Wolne środki</dt><dd class="good">£120 tys.</dd></dl>
-      <p class="muted" style="margin-top:12px">Prognoza na koniec sezonu: <b>+£35 tys.</b>, jeśli utrzymamy 2. miejsce.</p></div>`)}
-    ${UI.panel('Wpływy', `<div class="body">${list(f.income)}</div>`)}
-    ${UI.panel('Koszty', `<div class="body">${list(f.costs)}</div>`)}
-    ${UI.panel('Wynik miesiąc po miesiącu', `<div class="body"><div class="mchart">${chart}</div></div>`, { style: 'grid-column:1/4' })}
-  </div>`;
-};
-
-/* ============ ZARZĄD ============ */
-S.zarzad = () => {
-  const b = DB.board;
-  return head('Zarząd', `Właściciel: ${b.owner}`) +
-  `<div class="grid" style="grid-template-columns:1fr 1.4fr">
-    ${UI.panel('Nastrój', `<div class="body"><h3 style="font-size:30px" class="good">${b.mood}</h3><dl class="kv" style="margin-top:14px"><dt>Cierpliwość</dt><dd>${b.patience}</dd><dt>Twoja reputacja</dt><dd class="num">${b.rep}/100</dd></dl>
-      <div class="bar" style="margin-top:14px"><i style="width:${b.rep}%"></i></div></div>`)}
-    ${UI.panel('Cele', `<div class="body">${b.goals.map(g => `<div class="goal"><span class="gi ${g[1] ? 'ok' : 'open'}">${g[1] ? UI.icon('<path d="M5 12l5 5 9-10"/>', 16) : UI.icon('<circle cx="12" cy="12" r="7"/>', 16)}</span><b>${g[0]}</b><span class="muted" style="margin-left:auto">${g[2]}</span></div>`).join('')}</div>`)}
-  </div>`;
-};
-
-/* ============ RYNEK ============ */
-S.rynek = () => head('Rynek kierowców', `${DB.market.length} kierowców · sortuj, klikając nagłówek`,
-  `<div class="seg" id="mkt-stars"><button class="on" data-min="0">Wszyscy</button><button data-min="3">3★+</button><button data-min="3.5">3½★+</button><button data-min="4">4★+</button></div>
-   <label class="search">${UI.icon('<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>', 16)}<input id="mkt-q" placeholder="Szukaj kierowcy"></label>`) +
-  `<section class="panel tbl market"><table class="table" id="mkt"><thead><tr>
-    <th data-sort="0">Kierowca</th><th data-sort="2" class="r">Wiek</th><th data-sort="3">Obecnie</th><th data-sort="4" class="sorted">Ocena</th><th data-sort="5">Potencjał</th><th data-sort="6" class="r">Kontrakt do</th><th data-sort="7">Nastawienie</th><th></th></tr></thead><tbody></tbody></table></section>`;
-S.rynek.after = () => {
-  let key = 4, asc = false, min = 0, q = '';
-  const tb = document.querySelector('#mkt tbody');
-  const mood = { 'bardzo zainteresowany':'ok', 'zainteresowany':'ok', 'neutralny':'', 'raczej nie':'warn' };
-  const draw = () => {
-    const rows = DB.market.filter(r => r[4] >= min && r[0].toLowerCase().includes(q)).sort((a, b) => (a[key] > b[key] ? 1 : a[key] < b[key] ? -1 : 0) * (asc ? 1 : -1));
-    tb.innerHTML = rows.map(r => `<tr><td><div class="person"><span class="av">${UI.initials(r[0])}</span><div><b>${r[0]}</b><small>${UI.flag(r[1])} ${r[1]}</small></div></div></td><td class="r num">${r[2]}</td><td>${r[3]}</td><td>${UI.stars(r[4])}</td><td>${UI.stars(r[4], r[5])}</td><td class="r num">${r[6]}</td><td><span class="chip ${mood[r[7]]}">${r[7]}</span></td><td class="r"><button class="btn" data-toast="Rozpoczęto rozmowy z: ${r[0]}">Rozmawiaj</button></td></tr>`).join('');
+/* ============ PORÓWNANIE ============ */
+S.porownaj = (ia = 'scheckter', ib = 'depailler', tab = 'attr') => {
+  const a = DB.drivers.find(x => x.id === ia) || DB.drivers[0], b = DB.drivers.find(x => x.id === ib) || DB.drivers[1];
+  const sa = DB.seasonOf(a.id), sb = DB.seasonOf(b.id), ga = DB.gridOf(a.id), gb = DB.gridOf(b.id);
+  const n = x => typeof x === 'number';
+  let q = [0, 0], r = [0, 0];
+  sa.forEach((_, i) => { if (n(ga[i]) && n(gb[i])) q[ga[i] < gb[i] ? 0 : 1]++; if (n(sa[i]) && n(sb[i])) r[sa[i] < sb[i] ? 0 : 1]++; else if (n(sa[i]) && sb[i] === 'DNF') r[0]++; else if (n(sb[i]) && sa[i] === 'DNF') r[1]++; });
+  const avg = arr => { const v = arr.filter(n); return v.length ? v.reduce((x, y) => x + y, 0) / v.length : 0; };
+  const pts = id => (DB.standings.drivers.find(x => x.id === id) || { pts: 0 }).pts;
+  const row = (label, va, vb, better = 'hi', fmt = x => x) => {
+    const w = better === 'none' ? null : better === 'hi' ? (va > vb ? 'a' : vb > va ? 'b' : null) : (va < vb ? 'a' : vb < va ? 'b' : null);
+    return `<div class="cmprow"><span class="num v ${w === 'a' ? 'win' : ''}">${fmt(va)}</span><span class="lbl">${label}</span><span class="num v ${w === 'b' ? 'win' : ''}">${fmt(vb)}</span></div>`;
   };
-  document.querySelectorAll('#mkt th[data-sort]').forEach(th => th.onclick = () => {
-    const k = +th.dataset.sort; asc = key === k ? !asc : k === 0 || k === 3; key = k;
-    document.querySelectorAll('#mkt th').forEach(x => x.classList.remove('sorted', 'asc')); th.classList.add('sorted'); if (asc) th.classList.add('asc'); draw();
-  });
-  document.querySelectorAll('#mkt-stars button').forEach(b => b.onclick = () => { min = +b.dataset.min; document.querySelectorAll('#mkt-stars button').forEach(x => x.classList.toggle('on', x === b)); draw(); });
-  document.getElementById('mkt-q').oninput = e => { q = e.target.value.toLowerCase(); draw(); };
-  draw();
+  const bars = (label, va, vb) => `<div class="cmprow bars"><span class="num v ${va > vb ? 'win' : ''}">${va}</span><div class="bar thin rev"><i style="width:${va * 5}%"></i></div><span class="lbl">${label}</span><div class="bar thin"><i style="width:${vb * 5}%;background:var(--t2)"></i></div><span class="num v ${vb > va ? 'win' : ''}">${vb}</span></div>`;
+  const f1 = x => x.toFixed(1).replace('.', ',');
+  const panes = {
+    attr: AT.map(x => bars(x[1], a.attrs[x[0]], b.attrs[x[0]])).join(''),
+    kariera: [['Starty', 'starts'], ['Wygrane', 'wins'], ['Pole position', 'poles'], ['Podia', 'podiums'], ['Punkty', 'points'], ['Najszybsze okrążenia', 'fl'], ['Tytuły', 'titles']].map(([l, k]) => row(l, a.career[k], b.career[k])).join(''),
+    sezon: [row('Punkty', pts(a.id), pts(b.id)), row('Wygrane', sa.filter(x => x === 1).length, sb.filter(x => x === 1).length), row('Podia', sa.filter(x => n(x) && x <= 3).length, sb.filter(x => n(x) && x <= 3).length),
+      row('Średnia pozycja startowa', avg(ga), avg(gb), 'lo', f1), row('Średnia pozycja na mecie', avg(sa), avg(sb), 'lo', f1), row('Nieukończone', sa.filter(x => x === 'DNF').length, sb.filter(x => x === 'DNF').length, 'lo')].join(''),
+    pojedynki: [row('Kwalifikacje', q[0], q[1]), row('Wyścigi', r[0], r[1]), row('Różnica w kwalifikacjach', '−0,21 s', '+0,21 s', 'none'), row('Wyścigi w deszczu', 0, 2)].join(''),
+  };
+  const side = (d, cls) => `<a class="cmp-side ${cls}" href="#/kierowca/${d.id}"><span class="face">${UI.initials(d.name)}<i>${d.no}</i></span><div><h2>${d.name}</h2>${UI.fields([{ k: 'Kraj', v: UI.flag(d.nat, 'md') + ' ' + d.nat }, { k: 'Wiek', v: d.age, num: 1 }, { k: 'Ocena', v: UI.stars(d.stars, d.pot) }])}</div></a>`;
+  return head('Porównanie', '', UI.btn('Skład', { href: '#/kierowcy', icon: UI.back })) +
+  `<section class="panel cmp" data-scope>
+    <div class="cmp-top">${side(a, 'l')}<div class="cmp-mid">${UI.tabs('cmp', [['attr', 'Atrybuty'], ['kariera', 'Kariera'], ['sezon', 'Sezon 1976'], ['pojedynki', 'Pojedynki']], tab)}</div>${side(b, 'r')}</div>
+    ${Object.entries(panes).map(([k, v]) => `<div class="cmp-body" data-pane="cmp:${k}" ${k !== tab ? 'hidden' : ''}>${v}</div>`).join('')}
+  </section>`;
 };
-
-/* ============ PADDOCK MONTHLY ============ */
-S.monthly = () => {
-  const m = DB.monthly;
-  return `<div class="magazine"><header class="mhead"><b>Paddock Monthly</b><span>${m.issue}</span>
-      <nav class="msecs">${['Wszystko','Rynek','Wyścigi','Talenty','Technika','Pieniądze','Z historii'].map((x, i) => `<a class="${i ? '' : 'on'}">${x}</a>`).join('')}</nav></header>
-    <div class="mgrid"><article class="mlead"><span class="msec">${m.lead.sec}</span><h1>${m.lead.title}</h1><p>${m.lead.text}</p><a class="link" href="#/rynek">${m.lead.link}${UI.icon(A, 15)}</a></article>
-      ${m.stories.map(s => `<article class="mstory"><span class="msec">${s.sec}</span><h2>${s.title}</h2><p>${s.text}</p><a class="link" href="#/klasyfikacje">${s.link}${UI.icon(A, 15)}</a></article>`).join('')}</div></div>`;
-};
-
-/* ============ FIA ============ */
-S.fia = () => head('FIA i regulamin', 'Przepisy sezonu 1976 i propozycje zmian') +
-  `<div class="grid g2">${UI.panel('Obowiązuje teraz', `<div class="body"><dl class="kv">${DB.fia.rules.map(r => `<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')}</dl></div>`)}
-  <div class="col">${DB.fia.proposals.map(p => UI.panel(p.title, `<div class="body"><div class="muted">${p.from} · ${p.vote}</div><p style="margin:10px 0 14px">Wpływ na nas: <b>${p.effect}</b></p>
-    <div class="seg"><button class="${p.stance === 'za' ? 'on' : ''}" data-toast="Głos: za">Za</button><button data-toast="Wstrzymano się">Wstrzymaj się</button><button data-toast="Głos: przeciw">Przeciw</button></div></div>`)).join('')}</div></div>`;
-
-/* ============ KRONIKA ============ */
-S.kronika = () => head('Kronika', 'Twoja historia obok prawdziwej') +
-  `<section class="panel tbl"><div class="timeline">${DB.chronicle.map(c => `<div class="tl"><span class="meta">${c[0]}</span><div><b>${c[1]}</b><p class="muted">${c[2]}</p></div></div>`).join('')}</div></section>`;
-
-/* ============ MENEDŻER ============ */
-S.menedzer = () => head('M. Wojnar', 'Szef zespołu · 2. sezon w F1') +
-  `<div class="grid g3">${UI.panel('Reputacja', `<div class="body"><span class="num" style="font-size:44px">68</span><span class="muted"> / 100</span><div class="bar" style="margin-top:10px"><i style="width:68%"></i></div><p class="muted" style="margin-top:10px">Rośnie: zwycięstwo w Szwecji, 2. miejsce wśród konstruktorów.</p></div>`)}
-   ${UI.panel('Kariera', `<div class="body"><dl class="kv"><dt>Zespoły</dt><dd>Tyrrell (1975–)</dd><dt>Wyścigi</dt><dd class="num">22</dd><dt>Zwycięstwa</dt><dd class="num">1</dd><dt>Tytuły</dt><dd class="num">0</dd></dl></div>`)}
-   ${UI.panel('Oferty pracy', `<div class="body"><p class="muted">Brak ofert. Przy obecnej reputacji mógłbyś dostać propozycję od zespołu ze środka stawki.</p></div>`)}</div>`;
-
-/* ============ USTAWIENIA ============ */
-S.ustawienia = () => head('Ustawienia') +
-  `<div class="grid g2">${UI.panel('Wygląd', `<div class="body set">
-    <div class="srow"><div><b>Kolory interfejsu</b><small class="muted">Barwy epoki albo barwy zespołu</small></div><div class="seg" data-set="style"><button data-v="era">Era</button><button data-v="team">Zespół</button></div></div>
-    <div class="srow"><div><b>Skórka epoki</b><small class="muted">Zmienia się z dekadą albo jest stała</small></div><div class="seg"><button class="on">Automatycznie</button><button>1970s</button><button>1990s</button><button>2020s</button></div></div>
-    <div class="srow"><div><b>Podgląd zespołu</b><small class="muted">Tylko w prototypie</small></div><div class="sw" data-set="team"><button data-v="tyrrell" style="background:linear-gradient(135deg,#1f4f9a 50%,#e03a3e 50%)"></button><button data-v="lotus" style="background:linear-gradient(135deg,#16130e 50%,#c9a24a 50%)"></button><button data-v="ferrari" style="background:linear-gradient(135deg,#c4161c 50%,#f5c518 50%)"></button></div></div>
-    <div class="srow"><div><b>Animowane tło</b><small class="muted">Smugi dymu jak w tunelu aerodynamicznym</small></div><div class="seg" data-set="air"><button data-v="on">Włączone</button><button data-v="off">Wyłączone</button></div></div>
-  </div>`)}
-  ${UI.panel('Rozgrywka', `<div class="body set">
-    <div class="srow"><div><b>Tryb bez liczb</b><small class="muted">Wszystko z opinii Twoich ludzi</small></div><div class="seg"><button class="on">Liczby</button><button>Opinie</button></div></div>
-    <div class="srow"><div><b>Oglądanie wyścigu</b><small class="muted">Domyślne tempo relacji</small></div><div class="seg"><button>×5</button><button class="on">×10</button><button>×20</button><button>Wynik</button></div></div>
-    <div class="srow"><div><b>Pit-stopy</b><small class="muted">Moduł ręcznej kontroli</small></div><div class="seg"><button class="on">Strateg</button><button>Ręcznie</button></div></div>
-    <div class="srow"><div><b>Język</b></div><div class="seg"><button class="on">Polski</button><button>English</button></div></div>
-  </div>`)}</div>`;

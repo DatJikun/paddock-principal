@@ -223,7 +223,7 @@ a.fld:hover .v{text-decoration:underline;text-underline-offset:4px;text-decorati
 .stars svg{width:15px;height:15px;overflow:visible}
 .stars .f{fill:var(--t2);stroke:var(--ink);stroke-width:1.2}
 .stars .e{fill:none;stroke:color-mix(in oklab,var(--ink) 35%,transparent);stroke-width:1.2}
-.stars .g{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-dasharray:2 1.6;opacity:.7}
+.stars .g{fill:color-mix(in oklab,var(--t2) 22%,transparent);stroke:var(--ink);stroke-width:1.3;stroke-dasharray:2 1.6;opacity:.85}
 .stars .b{fill:color-mix(in oklab,var(--t2) 45%,transparent);stroke:var(--ink);stroke-width:1.2;stroke-dasharray:2 1.6}
 .stars.lg svg{width:20px;height:20px}
 
@@ -312,3 +312,17 @@ a.person:hover b{text-decoration:underline;text-underline-offset:3px}
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:11px 18px;border-radius:12px;font-weight:600;z-index:10;animation:toast .35s var(--ease)}
 @keyframes toast{from{opacity:0;transform:translate(-50%,10px)}}
 @media (prefers-reduced-motion:reduce){.bar i,.pane-in{animation:none}.nav-ind,.tabs .ind{transition:none}}
+
+/* węższe ekrany (od 1440 px): górny pasek bez zawijania */
+.hud .v,.hud .me b,.hud .me small{white-space:nowrap}
+@media (max-width:1560px){
+  .top{gap:10px;padding:14px 24px 0}
+  #view{padding:18px 24px 24px}
+  .hud .cell{padding:0 14px}
+  .hud .me span:not(.av){display:none}
+  .hud .me{padding-right:12px}
+  .hud .date b{font-size:23px}
+  .hud .next{min-width:0}
+  .ticks i{width:9px}.ticks i.race{width:14px}
+  .go{padding:0 12px 0 18px}.go b{font-size:24px}
+}

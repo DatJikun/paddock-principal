@@ -230,3 +230,38 @@ Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloto
 - Rozmiary: wiersz tabeli 32–40 px, karta, profil.
 - Prawdziwe osoby dostają twarz generowaną **„w duchu”** cech (wiek, kolor włosów, zarost), a nie próbę portretu. Prawo do wizerunku: żadnego odwzorowania prawdziwych twarzy.
 - Test: arkusz kontaktowy ze 100 losowymi twarzami do oceny właściciela (różnorodność, brak „klonów”).
+
+---
+
+## 8. Stan po sesji przebudowy (2026-09-26)
+
+Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane i mapki torów to atrapa.
+
+**Zrobione (kroki 1–4 z §6, w wersji szkicowej):**
+- **Komponenty** (`css/app.css`, `js/ui.js`):
+  - zakładki `UI.tabs` z przesuwanym znacznikiem; zastąpiły wszystkie „fasolki”;
+  - status `UI.st` (romb + tekst);
+  - pola `UI.fields` (etykieta nad wartością);
+  - `UI.plural` i `UI.n`;
+  - flagi SVG z epoki w `js/flags.js`;
+  - przyciski z fizycznym wciśnięciem;
+  - wybór opcji + „Potwierdź”.
+- **Przejście ekranów** (`js/app.js`, `sweep`): trzy pochylone pasy barw przejeżdżają przez obszar ekranu, ok. 0,8 s. Skrzynka przełącza się bez animacji.
+- **Znacznik w menu** przesuwa się między pozycjami.
+- **Górny pasek:** dwie strefy.
+  - Zespół: pieniądze.
+  - Czas: dni do wyścigu z terminami, data.
+  - „Dalej” pokazuje, co blokuje czas (wzorzec FM), i prowadzi do tej sprawy.
+- **Nowe ekrany:**
+  - strona wyścigu `#/wyscig/N`: wyniki, poprzednie lata, tor w liczbach, mapka;
+  - profil osoby z personelu `#/osoba/id`;
+  - profil obcego kierowcy z pasmami skauta: z rynku i z puli talentów;
+  - auto rywala `#/rywal/ferrari`.
+- **Przebudowane:** kalendarz, porównanie (działające zakładki), personel, akademia (miejsca i pula), infrastruktura, dostawcy, sponsorzy, finanse (rozwijane pozycje), zarząd (właściciel jako postać), rynek (zwarta tabela z podglądem), Monthly (działające działy i właściwe linki), FIA (głosowanie w skrzynce), ustawienia.
+- **Tryb „Opinie”** zapisuje się i zmienia profil kierowcy (cytaty zamiast atrybutów). Skórki lat 90. i 20. są oznaczone jako niedostępne.
+- **Barwy:** tryb „Zespół” zmienia tło, akcenty i dym, więc różnica jest wyraźna.
+
+**Znane braki:**
+- Profil kierowcy przewija się na 1440×900 (ok. 120 px) i minimalnie na 1620×860.
+- Sylwetki torów są rysowane z pamięci i przybliżone.
+- Auto i rozwój bez zmian: czeka na decyzję właściciela o systemie z §4.

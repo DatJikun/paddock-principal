@@ -35,13 +35,13 @@ function buildNav() {
 function markNav(name, animate) {
   const act = name in PARENT ? PARENT[name] : name;
   document.querySelectorAll('aside [data-r]').forEach(a => a.classList.toggle('on', a.dataset.r === act));
+  const unread = DB.inbox.filter(m => m.unread).length;
+  const badge = document.getElementById('nav-unread'); badge.textContent = unread; badge.hidden = !unread;
   const ind = document.querySelector('.nav-ind'), on = document.querySelector('#nav a.on');
   if (!on) { ind.style.opacity = 0; return; }
   if (!animate) ind.style.transition = 'none';
   ind.style.opacity = 1; ind.style.height = on.offsetHeight + 'px'; ind.style.transform = `translateY(${on.offsetTop}px)`;
   if (!animate) { ind.offsetWidth; ind.style.transition = ''; }
-  const unread = DB.inbox.filter(m => m.unread).length;
-  const badge = document.getElementById('nav-unread'); badge.textContent = unread; badge.hidden = !unread;
 }
 
 /* ---------- górny pasek: strefa zespołu (pieniądze) i strefa czasu (wyścig, data, Dalej) ---------- */
@@ -142,13 +142,18 @@ function sweep(r) {
   const a1 = old.animate([{ clipPath: oldPoly(-S) }, { clipPath: oldPoly(W + B) }], opt);
   view.animate([{ clipPath: newPoly(-S) }, { clipPath: newPoly(W + B) }], opt);
   wipe.animate([{ transform: `translateX(${-S - B}px)` }, { transform: `translateX(${W}px)` }], opt);
-  a1.onfinish = () => {
+  /* zapasowe zakończenie, gdyby animacja nie ruszyła (np. okno w tle) */
+  let done = false;
+  const finish = () => {
+    if (done) return; done = true;
     old.remove(); wipe.style.display = 'none';
     view.getAnimations().forEach(a => a.cancel()); wipe.getAnimations().forEach(a => a.cancel());
     content.classList.remove('wiping');
     busy = false;
     if (queued) { queued = false; const n = parse(); if (n.name !== cur.name || n.args.join('/') !== cur.args.join('/')) route(); }
   };
+  a1.onfinish = finish;
+  setTimeout(finish, D + 250);
 }
 
 /* ---------- ustawienia (zapamiętywane w przeglądarce) ---------- */

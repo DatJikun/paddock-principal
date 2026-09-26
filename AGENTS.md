@@ -19,6 +19,14 @@ people, where history can be changed. The owner (DatJikun) reviews; agents build
   PR description says what changed, why, and what was NOT done.
 - Don't refactor or "improve" code outside the issue's scope — note it in the PR.
 
+## UI work
+- Current UI state and the owner's full feedback live in `ui/HANDOFF_UI.md`. Read it
+  before touching `ui/`. Its §3 rules (no filler captions, segmented info, no
+  over-wide layouts, confirm buttons, heavier screen transitions) are binding.
+- The `impeccable` skill lives in `.claude/skills` and `.cursor/skills`. It expects
+  a *visual* `DESIGN.md` at the repo root, but our `DESIGN.md` is the game-design
+  document: never let a tool overwrite or "regenerate" it.
+
 ## Hard rules
 - **Invariants in TECH §3 are non-negotiable**: no game logic in UI, determinism,
   isolated RNG streams, truth vs knowledge, passive Spy, stable IDs.
@@ -31,4 +39,4 @@ people, where history can be changed. The owner (DatJikun) reviews; agents build
 - **Bug fixes start with a failing test** that reproduces the bug.
 - Small, focused commits and PRs with a clear "why". Do not mix unrelated changes.
 - Do not commit generated caches (`data/cache/`), saves (`*.paddock`) or
-  third-party data whose license has not been checked (TECH §6.1).
+  third-party data. Jolpica/Ergast data is CC BY-NC-SA and stays local (PP-041).

@@ -486,6 +486,45 @@ Pomysły ze starego GDD V4, dopasowane do obecnego projektu.
 
 ---
 
-## 16. Później (faza 7+)
+## 16. Później (faza 7+): świat endurance i GT
 
-Serie juniorskie jako prawdziwa ścieżka rozwoju, Le Mans / WEC / GT (drabina klas, zespoły z kilkoma programami, realistyczne zasady wejścia na wyścigi 24h), tryb proceduralny od zera, tryb wyzwań, edytor bazy.
+Wcześniejsza wizja właściciela (2026-06-27). Była flagowa w starej wersji gry, a teraz czeka na fazę 7+ na tym samym silniku.
+
+### 16.1. Drabina klas i serie
+- **Drabina:** GT4 → GT3 → LMP2 → Hypercar. GT3 jest sercem, bo ta klasa jeździ w GTWC, w IMSA (GTD), w WEC (LMGT3) i w NLS.
+- **Prawdziwe serie:** WEC (Hypercar + LMGT3, Le Mans), IMSA (GTP, LMP2, GTD Pro, GTD: Daytona, Sebring, Petit Le Mans), GT World Challenge (Spa 24h), Intercontinental GT Challenge, Nürburgring NLS (N24), ELMS i Asian LMS jako zaplecze, serie GT4.
+- **Kategorie kierowców FIA** (Platinum, Gold, Silver, Bronze) przekładają się na klasy składów (Pro, Pro-Am, Silver Cup, Bronze Cup, Gold Cup, Am), a te decydują, gdzie zespół może startować.
+- **Kilka programów naraz:** zespół (głównie fabryczny) może prowadzić auta w kilku seriach i klasach, jeśli go stać. Ludzie i infrastruktura są wspólne, operacje wyścigowe osobne dla każdego programu.
+- **Wspólny kalendarz „weekend po weekendzie”:** ścigają się te programy, które mają wyścig w danym tygodniu (u nas dzień po dniu, PP-016).
+
+### 16.2. Wejście na wielkie wyścigi 24h (każdy działa inaczej)
+| Wyścig | Organizator | Stawka | Wejście z zewnątrz | Warunek | Zaplecze |
+|---|---|---|---|---|---|
+| Le Mans | ACO | ~62 | komisja selekcyjna, bardzo mało miejsc | pełny sezon WEC albo wygrana w serii zaplecza | ELMS, Asian LMS, zaproszenia z IMSA |
+| Nürburgring 24h | ADAC | 130–160 | otwarta rejestracja | licencja Nordschleife (poziomy A–C, doświadczenie z NLS) | NLS |
+| Spa 24h | SRO | 65–76 | otwarte, ale z pierwszeństwem dla stałych zespołów | auto GT3 + oceny kierowców FIA | GTWC Endurance Cup |
+| Daytona 24h | IMSA | ~60 | ograniczone, drożej, bez wsparcia serii | członkostwo IMSA + auto GT3; GTD wymaga amatora | pełny sezon IMSA |
+
+**Mechaniki:**
+- **Le Mans:** kilka ścieżek wejścia. Pełny sezon WEC jest najpewniejszy, wygrana w ELMS lub Asian LMS daje automatyczne zaproszenie, a samodzielna aplikacja ma małą szansę, zależną od prestiżu i relacji z producentem. Jest lista rezerwowa.
+- **Nürburgring:** najłatwiej wejść, ale kierowcy muszą zebrać doświadczenie „licencji Ringu” w NLS. Klasa SP9 (czołowe GT3) wymaga licencji A.
+- **Spa:** najbardziej otwarte. Wejście się kupuje, a oceny kierowców wyznaczają klasę.
+- **Daytona:** wejście jest związane z sezonem IMSA. Test „Roar Before the 24” jest obowiązkowy.
+- **Wspólna ekonomia prestiżu:** prestiż liczony osobno dla każdego wyścigu, niezależnie od klasyfikacji mistrzostw. Dobry wynik na jednym klasyku otwiera drzwi do innych (np. wygrana w Spa sprawia, że ACO poważniej traktuje zespół).
+
+### 16.3. Partnerstwo z producentem GT3 (specyfikacja właściciela)
+- **Zakup auta:** nowe ~€400–600 tys., używane ~€150–250 tys. Zmiana marki albo aktualizacja auta oznacza ponowny zakup.
+- **Cztery poziomy wsparcia:**
+  - 0: brak wsparcia, pełne ceny katalogowe;
+  - 1: klient, 5–10% rabatu na części, dokumentacja, kilka dni testów, obowiązkowe barwy marki;
+  - 2: zespół wspierany, 10–20% rabatu, pierwszeństwo w pakietach EVO, inżynierowie fabryczni na 1–2 wyścigach, dotowani kierowcy fabryczni;
+  - 3: partner fabryczny, do 5 inżynierów na weekend, nowości jako pierwszy, kierowcy opłacani przez producenta; najwyżej 1–2 zespoły na markę, **nie da się go kupić**.
+- **Zmienne umowy:** poziom, relacja 0–100, rabat, dni fabryczne, kolejność pakietów EVO, dostęp do kierowców fabrycznych, obowiązki marketingowe, premie za wyniki w prestiżowych wyścigach, wyłączność.
+- **Części jako główny koszt bieżący.** Rabat z poziomu wsparcia naprawdę ma znaczenie dla zespołów, które często rozbijają auta. Orientacyjne ceny: zderzak €2–5 tys., maska €9 tys., hamulce €7–8 tys. na oś, skrzynia ~€50 tys.
+- **Relacja z producentem:**
+  - rośnie: wyniki, zwłaszcza w prestiżowych wyścigach, mistrzostwa, lata z marką, terminowe płatności, udział w testach;
+  - spada: słabe wyniki, jazda autem rywala, skandale, zaległości.
+- **Wycofanie się producenta:** wszyscy jego klienci spadają na poziom 0, części są dostępne jeszcze 5–8 lat, a auto starzeje się konkurencyjnie.
+
+### 16.4. Inne
+Serie juniorskie jako prawdziwa ścieżka rozwoju (przesuwa punkt wejścia, PP-018), tryb proceduralny od zera, tryb wyzwań, edytor bazy, paczka fikcyjna. Na dalszą przyszłość: silnik projektowany tak, żeby dało się dodać też inne dyscypliny, np. owale (NASCAR) albo motocykle (MotoGP), co wynika ze starego GDD.

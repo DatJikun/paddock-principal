@@ -195,3 +195,5 @@ Szczegóły w DESIGN §6.1, §6.3 i §10.
 - Gwiazdki pochodzą z wiedzy zespołu, a nie z prawdy symulacji: przy obcych kierowcach to pasmo (np. 3–4★), a potencjał pokazują gwiazdki „duchy”.
 - Rynek filtruje i sortuje po gwiazdkach, tak jak w Ping-Pong Managerze.
 
+**PP-041: Dane historyczne z Jolpica-F1 (CC BY-NC-SA 4.0) nie trafiają do repo.** Pipeline jest w repo, a bazę każdy buduje lokalnie. Wydanie komercyjne wymaga własnej, niezależnie zebranej bazy faktów albo zgody właściciela danych. Decyzja przed fazą wydania (ROADMAP, otwarte pytania).
+

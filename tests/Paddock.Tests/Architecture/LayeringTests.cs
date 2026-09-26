@@ -16,6 +16,9 @@ public class LayeringTests
             .Where(name => name is not null && name.StartsWith("Paddock.", StringComparison.Ordinal))
             .ToList();
         Assert.Empty(paddockReferences);
+        Assert.DoesNotContain(
+            typeof(Xoshiro256StarStar).Assembly.GetReferencedAssemblies(),
+            assembly => assembly.Name == "System.Text.Json");
     }
 
     [Fact]

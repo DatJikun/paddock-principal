@@ -1,0 +1,1054 @@
+[
+  {
+    "id": "rear_engine",
+    "name": "Rear engine (engine behind the driver)",
+    "area": "chassis",
+    "first_used": {
+      "season": 1957,
+      "team": "cooper",
+      "car": "Cooper T43",
+      "source": "https://en.wikipedia.org/wiki/Cooper_Car_Company",
+      "note": "First world championship start was Jack Brabham at the 1957 Monaco Grand Prix. The first win was Stirling Moss in Rob Walker's Cooper T43 at the 1958 Argentine Grand Prix. Jolpica records that win under constructorId cooper."
+    },
+    "widespread_by": 1961,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1934,
+      "reason": "The Auto Union Type A raced on 27 May 1934 at the AVUS with its engine behind the driver. The layout was already a grand prix practice, not a material that arrived with Cooper.",
+      "source": "https://www.audi.com/en/press-releases/how-the-silver-arrow-legend-was-born-1166"
+    },
+    "effect_summary": "Puts the mass near the middle of the car. That improves traction and agility and lets the car be lighter than a long front-engined machine. The driver sits ahead of the fuel and the engine, which later becomes the basis of every other chassis idea in this catalogue.",
+    "confidence": "high",
+    "notes": "widespread_by 1961 is the first season of the 1.5-litre formula, when rear engines were the normal championship layout and Ferrari's 156 joined them. It was not literally universal: the front-engined Ferguson P99 started the 1961 British Grand Prix."
+  },
+  {
+    "id": "space_frame",
+    "name": "Multi-tube space frame",
+    "area": "chassis",
+    "first_used": {
+      "season": 1954,
+      "team": "mercedes",
+      "car": "Mercedes-Benz W196",
+      "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_W196",
+      "note": "The W196 is a documented small-tube space frame and raced from the 1954 French Grand Prix. It is not claimed here as the first tubular chassis in the championship. Ladder frames and simpler tube frames were already normal, and the line between those and a true space frame is fuzzy."
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1950,
+      "reason": "Multi-tube chassis were already in use when the world championship started. A single pre-1950 first year was not established.",
+      "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_W196"
+    },
+    "effect_summary": "A web of small tubes carries the suspension, engine and driver without a heavy separate ladder. It is light and easy for a small shop to repair, but it is less stiff than a stressed-skin shell and it leaves the driver inside a cage of tubes rather than a closed cell.",
+    "confidence": "medium"
+  },
+  {
+    "id": "aluminium_monocoque",
+    "name": "Aluminium monocoque",
+    "area": "chassis",
+    "first_used": {
+      "season": 1962,
+      "team": "lotus-climax",
+      "car": "Lotus 25",
+      "source": "https://en.wikipedia.org/wiki/Lotus_25",
+      "note": "Debuted at the 1962 Dutch Grand Prix. Jolpica's constructorId for Lotus in that race is lotus-climax, not team_lotus. Chapman described the tub as a stressed twin-tube structure rather than a fully closed shell."
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1961,
+      "reason": "The Lotus 25 project began in November 1961. Riveted aluminium stressed skins were already aircraft practice, so the limit was design time, not a missing alloy.",
+      "source": "https://www.motorsportmagazine.com/archive/article/may-2002/27/a-new-frame-of-referance/"
+    },
+    "effect_summary": "The skin of the cockpit carries the loads, so the car is stiffer and usually lighter than a space frame of the same size. The side boxes can be the fuel tanks. A stiffer chassis makes the suspension and, later, the aerodynamics more predictable. It is harder for a customer team to repair than a tube frame.",
+    "confidence": "high",
+    "notes": "Spread through the 1960s. A single season when it became universal was not pinned, so widespread_by is null."
+  },
+  {
+    "id": "front_wing",
+    "name": "Front wing",
+    "area": "aero",
+    "first_used": {
+      "season": 1968,
+      "team": "lotus-ford",
+      "car": "Lotus 49B",
+      "source": "https://en.wikipedia.org/wiki/1968_Monaco_Grand_Prix",
+      "note": "The 1968 Monaco Grand Prix page calls this the first championship race with wings and credits the Lotus 49B with a front wing. Motor Sport treats those Monaco pieces as winglets, and the first full inverted aerofoil as the Ferrari rear wing at Spa two weeks later. Jolpica's constructorId for Lotus in 1968 is lotus-ford."
+    },
+    "widespread_by": 1969,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1966,
+      "reason": "Jim Hall's Chaparral sports cars were already racing with wings in 1966. The aerofoil itself was not an F1 invention.",
+      "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/f1-sprouts-wings/"
+    },
+    "effect_summary": "A front aerofoil adds downforce on the front axle, which gives a nose that will turn in, at the cost of drag. It has to be balanced against the rear wing or the car understeers or oversteers. From 1969 the wing had to be fixed to the sprung body rather than to the suspension.",
+    "confidence": "medium"
+  },
+  {
+    "id": "rear_wing",
+    "name": "Rear wing",
+    "area": "aero",
+    "first_used": {
+      "season": 1968,
+      "team": "ferrari",
+      "car": "Ferrari 312",
+      "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/f1-sprouts-wings/",
+      "note": "Spa on 9 June 1968. Ferrari ran a high inverted aerofoil on Chris Amon's car and Brabham ran a strut-mounted wing as well. Amon took pole with the wing fitted; Ickx qualified the sister car without it."
+    },
+    "widespread_by": 1969,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1966,
+      "reason": "Chaparral sports cars raced with a driver-adjustable rear wing from 1966, so an inverted aerofoil was already proven outside Formula One.",
+      "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/f1-sprouts-wings/"
+    },
+    "effect_summary": "Turns the top speed of the car into grip at the rear axle. More wing angle is more downforce and more drag, so teams trade straight-line speed against corner speed. Once rear downforce exists, the floor, the diffuser and the front wing are all attempts to use it or to balance it.",
+    "confidence": "high"
+  },
+  {
+    "id": "high_wings",
+    "name": "High suspension-mounted wings",
+    "area": "aero",
+    "first_used": {
+      "season": 1968,
+      "team": "ferrari",
+      "car": "Ferrari 312",
+      "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/f1-sprouts-wings/",
+      "note": "The Spa Ferrari aerofoil was mounted high, on struts, in the Chaparral manner. Through late 1968 and early 1969 those wings grew taller and were often attached to the unsprung suspension."
+    },
+    "widespread_by": 1969,
+    "banned": [
+      {
+        "from": 1969,
+        "note": "After failures at the 1969 Spanish Grand Prix, aerodynamic devices had to be fixed to a sprung part of the car, and height and width limits removed the tall unsprung wings. Ferrari records a brief ban at Barcelona followed by a return under tighter limits. The regulations history groups this rule inside a 1966-1969 block, so the year is 1969 and the exact CSI meeting is the Monaco weekend.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [
+      "rear_wing"
+    ],
+    "earliest_plausible": {
+      "season": 1966,
+      "reason": "The high, hub-mounted, driver-adjustable Chaparral wing was already racing in sports cars in 1966.",
+      "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/f1-sprouts-wings/"
+    },
+    "effect_summary": "A wing mounted to the uprights loads the tyres directly and can be stood up in clean air. The struts were too slender for the load. When one failed, the car lost its downforce at once. The ban did not remove wings. It forced them onto the sprung chassis, lower and fixed.",
+    "confidence": "medium"
+  },
+  {
+    "id": "side_radiators",
+    "name": "Side radiators",
+    "area": "chassis",
+    "first_used": {
+      "season": 1970,
+      "team": "team_lotus",
+      "car": "Lotus 72",
+      "source": "https://en.wikipedia.org/wiki/Lotus_72",
+      "note": "Race debut at the 1970 Spanish Grand Prix at Jarama. The water radiators sat in ducts beside the cockpit instead of in the nose. Jolpica's constructorId for this Lotus is team_lotus."
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1970,
+      "reason": "Side radiators were already used under full-body sports prototypes. The 72 was the first championship single-seater documented here with that layout. No earlier single-seater season was established.",
+      "source": "https://www.motorsportmagazine.com/archive/article/may-1970/30/notes-on-the-cars-at-jarama-3/"
+    },
+    "effect_summary": "Clears the nose for a low chisel shape and moves cooling mass backward. The driver is out of the hot airflow. The side ducts become the later sidepods, which is the volume ground effect and the diffuser then exploit. The cost is more pipework and a car that is sensitive to how those ducts are blocked.",
+    "confidence": "high",
+    "notes": "Adoption through the mid-1970s was not pinned to one season, so widespread_by is null."
+  },
+  {
+    "id": "ground_effect",
+    "name": "Ground effect (venturi sidepods and skirts)",
+    "area": "aero",
+    "first_used": {
+      "season": 1977,
+      "team": "team_lotus",
+      "car": "Lotus 78",
+      "source": "https://en.wikipedia.org/wiki/Lotus_78",
+      "note": "Debuted at the 1977 Argentine Grand Prix. Shaped sidepod underfloors with brushes, then sliding skirts. The Lotus 79 of 1978 was the first ground-effect car to win the championship."
+    },
+    "widespread_by": 1979,
+    "banned": [
+      {
+        "from": 1981,
+        "note": "Sliding skirts were banned and a 6 cm ground clearance was required. Teams got around it, and rigid skirts were allowed again for 1982.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      },
+      {
+        "from": 1983,
+        "note": "A flat undertray was required between the inner faces of the wheels, and skirts went with it. Shaped venturi tunnels of this type ended.",
+        "source": "https://www.formula1.com/en/latest/article/re-writing-the-f1-rule-book-part-1-from-wing-cars-to-flat-bottoms.EJZ73Lnn0c6EgcMKMAWOU"
+      }
+    ],
+    "prerequisites": [
+      "rear_wing"
+    ],
+    "earliest_plausible": {
+      "season": 1975,
+      "reason": "Chapman gave Tony Rudd a written ground-effect brief in August 1975, and the car was testing in secret by mid-1976. The wing-in-ground principle was already known; the open-wheel sealing was the unsolved part.",
+      "source": "https://www.motorsportmagazine.com/archive/article/february-2020/111/lotus-78-2/"
+    },
+    "effect_summary": "The underbody becomes a huge wing and sucks the car down, so cornering grip rises sharply for as long as the skirts seal. Ride height has to be held in a narrow window or the downforce collapses. The loads punish suspension, skirts and drivers, and a dominant version of it invites a ban. Drag is lower than trying to find the same grip from wings alone.",
+    "confidence": "high"
+  },
+  {
+    "id": "fan_car",
+    "name": "Fan car",
+    "area": "aero",
+    "first_used": {
+      "season": 1978,
+      "team": "brabham",
+      "car": "Brabham BT46B",
+      "source": "https://en.wikipedia.org/wiki/Brabham_BT46",
+      "note": "Raced once, the 1978 Swedish Grand Prix, which Niki Lauda won. The fan was driven by the engine and was presented as a radiator extractor that also sucked the underside."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 1978,
+        "note": "The Anderstorp win was left to stand and a CSI measurement treated the fan as legal that weekend. The same accounts say the loophole was then closed and Brabham withdrew the car under pressure from the other constructors. It did not race again. Sources disagree on how formal the ban was.",
+        "source": "https://en.wikipedia.org/wiki/Brabham_BT46"
+      }
+    ],
+    "prerequisites": [
+      "ground_effect"
+    ],
+    "earliest_plausible": {
+      "season": 1977,
+      "reason": "A fan-assisted underside was already on Tyrrell's drawing board in late 1977, and the Chaparral 2J sports car had used a skirted fan in 1970. The Brabham was the version that won a grand prix.",
+      "source": "https://www.autosport.com/f1/news/brabhams-one-hit-wonder-f1/6506138/"
+    },
+    "effect_summary": "A fan keeps sucking the floor even when the car is slow, so downforce does not depend on speed the way a venturi does. It costs engine power to drive the fan, and other teams treated it as a movable aerodynamic device. It was never copied in a race because it disappeared after one win.",
+    "confidence": "medium"
+  },
+  {
+    "id": "six_wheeler",
+    "name": "Six-wheeler",
+    "area": "chassis",
+    "first_used": {
+      "season": 1976,
+      "team": "tyrrell",
+      "car": "Tyrrell P34",
+      "source": "https://en.wikipedia.org/wiki/Tyrrell_P34",
+      "note": "Derek Gardner's car, with four 10-inch front wheels. First raced at the 1976 Spanish Grand Prix. Jody Scheckter won the 1976 Swedish Grand Prix. Tyrrell dropped the idea after 1977."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 1983,
+        "note": "Cars with more than four wheels were banned, together with four-wheel drive. That also stopped the later March and Williams six-wheel test cars, which had four driven rear wheels and did not race.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1975,
+      "reason": "Gardner started the P34 in 1975. The small front tyres were a special Goodyear order, so the idea was feasible once a tyre maker would build them.",
+      "source": "https://en.wikipedia.org/wiki/Tyrrell_P34"
+    },
+    "effect_summary": "Four small front tyres cut the frontal area and can increase the rubber on the road. The gain depends on a tyre supplier being willing to make odd sizes. On a bumpy track the four contact patches do not all touch at once, so grip comes and goes. It adds uprights, brakes and unsprung mass.",
+    "confidence": "high"
+  },
+  {
+    "id": "turbo",
+    "name": "Turbocharged engine",
+    "area": "engine",
+    "first_used": {
+      "season": 1977,
+      "team": "renault",
+      "car": "Renault RS01",
+      "source": "https://en.wikipedia.org/wiki/Renault_RS01",
+      "note": "Jean-Pierre Jabouille at the 1977 British Grand Prix. A 1.5-litre Renault-Gordini V6 with a single turbo. The first turbo win was the 1979 French Grand Prix, by then in the RS10, not the RS01."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 1989,
+        "note": "Normally aspirated 3.5-litre engines only from 1989. A single turbo returned in 2014 as part of the hybrid power unit. That later turbo is part of mgu_h and mgu_k, not a repeal recorded here as a second first_used.",
+        "source": "https://www.racefans.net/2007/03/29/banned-turbos/"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1966,
+      "reason": "From 1966 the championship allowed a 1.5-litre forced-induction engine beside the 3-litre normally aspirated formula. Turbocharging was already a known way to do that, including at Indianapolis before Renault's F1 car.",
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+    },
+    "effect_summary": "Boost multiplies the power of a small engine, with a lag before the boost arrives and a sharp step when it does. Early Renaults broke often, so the power came with poor reliability and a heavy iron block. Fuel consumption is high. By the mid-1980s the power was far above the normally aspirated cars, and so was the cost.",
+    "confidence": "high",
+    "notes": "Nearly the whole competitive grid was turbocharged by 1986, with Tyrrell still on a normally aspirated engine into the middle of the decade. widespread_by is left null rather than given a guessed year."
+  },
+  {
+    "id": "carbon_monocoque",
+    "name": "Carbon-fibre monocoque",
+    "area": "chassis",
+    "first_used": {
+      "season": 1981,
+      "team": "mclaren",
+      "car": "McLaren MP4/1",
+      "source": "https://en.wikipedia.org/wiki/McLaren_MP4/1",
+      "note": "John Barnard's carbon-composite tub, built with Hercules in the United States. The results table shows the race debut at the 1981 Argentine Grand Prix, round 3. The Lotus 88 also had a composite chassis at the 1981 United States Grand Prix West but was banned that weekend and did not race. The Wikipedia infobox says Monaco; the race table says Argentina. Argentina is used here."
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [
+      "aluminium_monocoque"
+    ],
+    "earliest_plausible": {
+      "season": 1975,
+      "reason": "Carbon-fibre structural parts had already been raced in 1975, on the rear wing supports of the Embassy Hill. A full tub needed an autoclave process McLaren did not yet have in Britain, which is why the first shells were cured at Hercules.",
+      "source": "https://en.wikipedia.org/wiki/McLaren_MP4/1"
+    },
+    "effect_summary": "Much stiffer and lighter than an aluminium tub, and it holds together in an accident that would have opened a metal chassis. John Watson walked away from a 1981 Monza crash that tore the engine off the tub. It raises the cost and needs specialist manufacture, and it becomes the survival cell later rules are written around.",
+    "confidence": "high",
+    "notes": "Rivals adopted carbon through the early and mid-1980s. No single universal season was sourced, so widespread_by is null."
+  },
+  {
+    "id": "carbon_brakes",
+    "name": "Carbon-carbon brakes",
+    "area": "chassis",
+    "first_used": {
+      "season": 1976,
+      "team": "brabham",
+      "car": "Brabham BT45",
+      "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/f1-innovations-brabhams-carbon-brake-revolution/",
+      "note": "Gordon Murray's Brabham is credited with the first grand prix use, at the 1976 German Grand Prix, after John Surtees tested prototypes in the winter of 1975-76. A contemporary Motor Sport note from that Nürburgring meeting puts the carbon inserts on the spare BT45/1 rather than clearly on the raced cars. Carlos Pace called them spongy. Treat the 1976 race use as disputed."
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1975,
+      "reason": "Surtees tested prototype carbon discs in the winter of 1975-76. The material came from aerospace carbon-carbon brakes, including the Concorde's, so it was not invented for Formula One.",
+      "source": "https://www.motorsportmagazine.com/archive/article/june-1999/112/carbon-carbon-brakes/"
+    },
+    "effect_summary": "Carbon discs are lighter than steel and work at temperatures that would fade a metal disc, so stopping power from high speed gets better as they heat up. They are poor when cold, they can fail suddenly if the disc warps, and early ones felt spongy. Once they work, steel brakes are heavier for the same stopping.",
+    "confidence": "low"
+  },
+  {
+    "id": "semi_automatic_gearbox",
+    "name": "Semi-automatic gearbox",
+    "area": "electronics",
+    "first_used": {
+      "season": 1989,
+      "team": "ferrari",
+      "car": "Ferrari 640",
+      "source": "https://en.wikipedia.org/wiki/Ferrari_640",
+      "note": "John Barnard's electro-hydraulic paddle shift. Nigel Mansell won the debut, the 1989 Brazilian Grand Prix. The car was unreliable after that."
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1988,
+      "reason": "Ferrari tested the 639 prototype, which carried the paddle-shift gearbox, in 1988. The 640 was the 1989 race car. 1988 is a tested prototype, not a claimed materials limit further back.",
+      "source": "https://en.wikipedia.org/wiki/Ferrari_640"
+    },
+    "effect_summary": "The driver changes gear with a paddle and keeps both hands on the wheel. A shift is faster and more repeatable than a manual H-pattern, which is lap time, and a bad shift no longer breaks the engine as easily. Early systems still failed and cost races. The gearbox and its hydraulics become a reliability and cost item of their own.",
+    "confidence": "high",
+    "notes": "Fully automatic gearboxes, as distinct from a driver-requested paddle shift, were banned again for 2004. See launch_control. This entry is the paddle-shift gearbox, which stayed legal."
+  },
+  {
+    "id": "active_suspension",
+    "name": "Active suspension",
+    "area": "chassis",
+    "first_used": {
+      "season": 1983,
+      "team": "team_lotus",
+      "car": "Lotus 92",
+      "source": "https://www.racefans.net/2007/05/17/banned-active-suspension/",
+      "note": "The Lotus 92 raced with an active system at the 1983 Brazilian Grand Prix and the United States Grand Prix West, then the idea was parked. The Lotus 99T ran it for the 1987 season and won with Ayrton Senna. Williams made the dominant version on the FW14B in 1992 and the FW15C in 1993."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 1994,
+        "note": "Banned with the other electronic driver aids. The FIA's stated concerns were cornering speed, cost and cars that misbehaved if the system failed.",
+        "source": "https://www.racefans.net/2007/05/17/banned-active-suspension/"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1983,
+      "reason": "Lotus had been measuring ride on the Type 78 from the end of 1977, but a controllable suspension was not raced until the Type 92 in 1983. The 1977 work was instrumentation, not the device.",
+      "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/rise-active-suspension/"
+    },
+    "effect_summary": "The car holds a target ride height and attitude instead of pitching and rolling on springs, so the floor and wings stay in their working window. That is free downforce relative to a passive car, at the cost of hydraulic power, weight, complexity and a failure mode that can dump the car onto the track. It also lets a team retune understeer and oversteer without a mechanical rebuild.",
+    "confidence": "medium",
+    "notes": "Not universal even in 1993. The small teams did not all have it, so widespread_by is null."
+  },
+  {
+    "id": "traction_control",
+    "name": "Traction control",
+    "area": "electronics",
+    "first_used": {
+      "season": 1990,
+      "team": "ferrari",
+      "car": null,
+      "source": "https://www.motorsportmagazine.com/archive/article/june-1993/26/traction-control-and-abs/",
+      "note": "Motor Sport, writing in 1993, says traction control first appeared in 1990 and that Ferrari had it working within a fortnight of that year's Italian Grand Prix. No chassis name is given. Williams has described a simpler system on the 1992 FW14B in Patrick Head's own words. Hidden software makes the first race uncertain."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 1994,
+        "note": "Banned with active suspension, launch control and ABS. Allowed again from the 2001 Spanish Grand Prix because the FIA said it could not police the ban.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      },
+      {
+        "from": 2008,
+        "note": "Banned again by making every team use a standard ECU, so a private engine map could no longer hide it.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1990,
+      "reason": "The 1990 Ferrari account is the earliest season named by a contemporary-style retrospective. Wheel-speed measurement and electronic ignition already existed; the uncertain part is who switched it on first.",
+      "source": "https://www.motorsportmagazine.com/archive/article/june-1993/26/traction-control-and-abs/"
+    },
+    "effect_summary": "The engine cuts power when a driven wheel spins, so the driver can apply the throttle earlier, especially in the wet, and the tyres last longer. It removes a skill. It is almost invisible from outside, which is why bans failed until the ECU was standardised. Reliability of the engine can improve because it is no longer driven into wheelspin.",
+    "confidence": "low"
+  },
+  {
+    "id": "launch_control",
+    "name": "Launch control",
+    "area": "electronics",
+    "first_used": {
+      "season": 2001,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "Named as re-allowed, with traction control and fully automatic transmissions, from the 2001 Spanish Grand Prix. The 1994 ban shows some form already existed, but no first car was identified. A second ban, of launch control and fully automatic gearboxes only, came in for 2004 while traction control continued."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 1994,
+        "note": "Included in the electronic driver-aid ban. It returned, in the regulations' own wording, from the 2001 Spanish Grand Prix.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      },
+      {
+        "from": 2004,
+        "note": "Launch control and fully automatic transmissions banned again. Traction control was left legal until the 2008 standard ECU.",
+        "source": "https://www.autosport.com/f1/news/the-full-fia-announcement-on-the-2004-rules-5062829/5062829/"
+      }
+    ],
+    "prerequisites": [
+      "traction_control"
+    ],
+    "earliest_plausible": {
+      "season": 1992,
+      "reason": "Williams has described the 1992 traction control as software that applied power better than the driver, including at the start. A separately named launch-control device was not identified before the 1994 ban.",
+      "source": "https://www.motorsport.com/f1/news/mansell-williams-record-tech-1992-987313/1382865/"
+    },
+    "effect_summary": "Holds the engine at a set speed and feeds in the clutch so the start is repeatable. It is worth positions on the first lap and it flattens the difference between drivers. It needs a traction-control map and a clutch the computer can slip. When it is banned, the start is a driver skill again and a source of reliability mistakes.",
+    "confidence": "low"
+  },
+  {
+    "id": "abs",
+    "name": "Anti-lock brakes",
+    "area": "electronics",
+    "first_used": {
+      "season": 1993,
+      "team": "williams",
+      "car": "Williams FW15C",
+      "source": "https://www.motorsportmagazine.com/archive/article/june-1993/26/traction-control-and-abs/",
+      "note": "In June 1993 Motor Sport said Williams and Benetton had tested ABS and that Williams was preparing to run it in qualifying at the Canadian Grand Prix. A confirmed race start was not found. The FW15C is the 1993 Williams. Treat race use as unconfirmed."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 1994,
+        "note": "Banned with the other electronic driver aids and, unlike traction control, not re-allowed later.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1993,
+      "reason": "Road-car ABS was older, but the earliest Formula One use named in the sources checked is the 1993 Williams test programme. A race debut was not confirmed.",
+      "source": "https://www.motorsportmagazine.com/archive/article/june-1993/26/traction-control-and-abs/"
+    },
+    "effect_summary": "Releases brake pressure when a wheel locks, so the driver can brake later without a flat spot, especially in traffic or in the wet. A failed sensor can remove the brakes entirely, which is the failure mode testers reported. It never became normal equipment before the 1994 ban.",
+    "confidence": "low"
+  },
+  {
+    "id": "power_steering",
+    "name": "Power steering",
+    "area": "chassis",
+    "first_used": {
+      "season": null,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "No first team or season was established. A claim that the 1988 Ligier JS31 introduced it was not corroborated and is not used. By 2002 the regulations history records a ban on electronic power steering, which implies assistance was already in use. Hydraulic assistance is not described as banned."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 2002,
+        "note": "Electronic power steering banned. The same page does not ban hydraulic assistance.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1926,
+      "reason": "Francis W. Davis demonstrated a practical power-steering system in 1926. Chrysler sold the first mass-produced passenger-car system, Hydraguide, on the 1951 Imperial. Formula One was not waiting on the mechanism. The open question is which team first accepted the loss of feel.",
+      "source": "https://en.wikipedia.org/wiki/Power_steering"
+    },
+    "effect_summary": "Reduces the steering load once front tyres and downforce make the wheel too heavy to place precisely for a full race. Hydraulic assistance keeps some road feel. Electric assistance was later banned. The system is another hydraulic consumer and another thing to fail, and too much assistance hides the limit of the front tyre.",
+    "confidence": "low"
+  },
+  {
+    "id": "telemetry",
+    "name": "Telemetry",
+    "area": "electronics",
+    "first_used": {
+      "season": null,
+      "team": null,
+      "car": null,
+      "source": "https://www.mclaren.com/racing/team/a-brief-history-of-computing-in-f1-1052199/",
+      "note": "McLaren dates its first telemetry to 1975, on an IndyCar, not a Formula One car: data stored on board and downloaded in the garage. The same account says early Formula One systems were store-and-download, one lap at a time. A first Formula One race was not named."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 2003,
+        "note": "Bi-directional telemetry was banned. One-way data off the car is not described as banned.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1975,
+      "reason": "McLaren was already logging 14 channels in 1975 on its IndyCar. The sensors and the recording existed. The missing fact is the first Formula One use.",
+      "source": "https://www.mclaren.com/racing/team/a-brief-history-of-computing-in-f1-1052199/"
+    },
+    "effect_summary": "The pits can see speeds, temperatures and driver inputs instead of relying on the driver's memory. That speeds up setup and finds failures before they become retirements. Two-way telemetry, where the pits also change the car, was banned from 2003. Live one-way data remains a staff and infrastructure cost.",
+    "confidence": "low"
+  },
+  {
+    "id": "cfd",
+    "name": "Computational fluid dynamics",
+    "area": "other",
+    "first_used": {
+      "season": null,
+      "team": "benetton",
+      "car": null,
+      "source": "https://www.autosport.com/f1/news/how-a-dynamic-design-tool-has-grown-in-f1-importance/10441847/",
+      "note": "Willem Toet describes Benetton, in the late 1980s, using a panel-method code on a Sun workstation to look at rear-wing surface pressures. He does not give a season or a car. This is a design tool, not a part fitted for a race. Jolpica constructorId benetton exists."
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1981,
+      "reason": "Toet dates the first commercial general-purpose code, Phoenics, to 1981. Teams were not yet using it. A 3D method paper existed from 1967, which is earlier than a tool a team could buy.",
+      "source": "https://www.autosport.com/f1/news/how-a-dynamic-design-tool-has-grown-in-f1-importance/10441847/"
+    },
+    "effect_summary": "Lets a team test a shape without building it or booking the wind tunnel, so aero development gets faster and the tunnel is used on fewer ideas. Early panel methods only saw surface flow and were two-dimensional. Useful results needed turbulence models that arrived later. It becomes a computing-cost item, and from 2008 the hours were limited by rule.",
+    "confidence": "low",
+    "notes": "Toet places the next step, commercial RANS codes, in the early 1990s, still without one season. The 2010 Virgin is described as the first car designed only with CFD. That is not used as first_used."
+  },
+  {
+    "id": "driver_simulator",
+    "name": "Driver-in-the-loop simulator",
+    "area": "other",
+    "first_used": {
+      "season": null,
+      "team": null,
+      "car": null,
+      "source": "https://motorsport.nextgen-auto.com/en/formula-1/LRGP-The-first-Driver-in-the-Loop-simulator-at-Enstone,32776.html",
+      "note": "In November 2011 James Allison said offline lap simulation had already been used for about a quarter of a century, and that Enstone's first driver-in-the-loop simulator was still being built for 2012. He does not name the first team to put a driver in the loop. No first_used team is asserted."
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1986,
+      "reason": "Allison's 'quarter of a century' before 2011 points at about 1986 for mathematical lap simulation, not for a driver-in-the-loop rig. 1986 is that arithmetic, not a documented installation date.",
+      "source": "https://motorsport.nextgen-auto.com/en/formula-1/LRGP-The-first-Driver-in-the-Loop-simulator-at-Enstone,32776.html"
+    },
+    "effect_summary": "A driver can try setup and learn a circuit when track testing is banned or rationed. It needs a vehicle model good enough that the driver's comments transfer to the real car. It is an infrastructure cost, it consumes simulator staff, and a bad model teaches the wrong setup. It does not itself change the lap; it changes how fast the team learns.",
+    "confidence": "low"
+  },
+  {
+    "id": "seven_post_rig",
+    "name": "Seven-post rig",
+    "area": "other",
+    "first_used": {
+      "season": null,
+      "team": null,
+      "car": null,
+      "source": "https://www.theguardian.com/sport/2003/apr/03/formulaone.alanhenry",
+      "note": "Alan Henry wrote in April 2003 that most teams could already replay each circuit's bumps on a seven-post rig: four wheel pads plus three rams for pitch and roll. He names no first team and no first year."
+    },
+    "widespread_by": 2003,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 2003,
+      "reason": "2003 is a year when the rig was already common, not a materials limit and not a first installation. Four-post suspension rigs are older; a first seven-post season was not found.",
+      "source": "https://www.theguardian.com/sport/2003/apr/03/formulaone.alanhenry"
+    },
+    "effect_summary": "Replays a circuit's bumps on the real suspension without travelling, so ride, damping and platform control can be set before the car leaves the factory. It removes the driver from that part of development. It is an expensive fixed installation and it only helps if the bump data and the aero loads in the model are honest.",
+    "confidence": "low",
+    "notes": "widespread_by 2003 means 'most teams had one by then', which is what the source says. It is not a first-use year."
+  },
+  {
+    "id": "raised_nose",
+    "name": "Raised nose",
+    "area": "aero",
+    "first_used": {
+      "season": 1990,
+      "team": "tyrrell",
+      "car": "Tyrrell 019",
+      "source": "https://www.autosport.com/f1/news/the-completely-mad-nose-job-that-transformed-f1-design-5113514/5113514/",
+      "note": "Harvey Postlethwaite and Jean-Claude Migeot. Raced from the 1990 San Marino Grand Prix at Imola, the third round. Anhedral front wing under a nose that fed the flat floor."
+    },
+    "widespread_by": 1996,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1989,
+      "reason": "The high nose was tried in the wind tunnel on the preceding 018 after Postlethwaite and Migeot arrived from Ferrari in 1989. The 019 was that idea built into a car.",
+      "source": "https://en.wikipedia.org/wiki/Tyrrell_019"
+    },
+    "effect_summary": "A high nose lets more air under the flat floor, so the diffuser works harder, which is downforce with little extra drag. The front wing then has to hang down on anhedral supports to stay near the ground. Later safety rules forced the nose down again, in steps, because a high nose was a bad thing to be hit by.",
+    "confidence": "high",
+    "notes": "Autosport says Benetton, Jordan and Footwork had raised noses in 1991 and that every car had some version by the end of 1996. The concept was not banned. Nose-height rules later changed for safety and are not recorded here as a ban on the idea."
+  },
+  {
+    "id": "double_diffuser",
+    "name": "Double diffuser",
+    "area": "aero",
+    "first_used": {
+      "season": 2009,
+      "team": "brawn",
+      "car": "Brawn BGP 001",
+      "source": "https://www.autosport.com/f1/news/banned-the-double-diffuser-that-triggered-an-f1-development-race-4982556/4982556/",
+      "note": "Brawn, Toyota and Williams all started 2009 with a double diffuser. Brawn's was the one that won. Protested at the Australian Grand Prix and declared legal. Others copied it during the season."
+    },
+    "widespread_by": 2009,
+    "banned": [
+      {
+        "from": 2011,
+        "note": "The loophole was closed for 2011. The FIA left the designs legal through 2009 and 2010.",
+        "source": "https://www.autosport.com/f1/news/banned-the-double-diffuser-that-triggered-an-f1-development-race-4982556/4982556/"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 2008,
+      "reason": "The three 2009 cars were designed against the published 2009 rules over the winter. A single month in 2008 was not pinned, so 2008 is the design year rather than a sourced first drawing.",
+      "source": "https://www.autosport.com/f1/news/banned-the-double-diffuser-that-triggered-an-f1-development-race-4982556/4982556/"
+    },
+    "effect_summary": "A second, higher diffuser channel adds rear downforce the 2009 rules had tried to cut. Teams without it spend the season copying it, which is a development-rate tax. It also dirties the wake, so the car behind loses downforce. It is a reading of a rule, not a new physical principle, and it goes away when the rule is rewritten.",
+    "confidence": "high"
+  },
+  {
+    "id": "f_duct",
+    "name": "F-duct",
+    "area": "aero",
+    "first_used": {
+      "season": 2010,
+      "team": "mclaren",
+      "car": "McLaren MP4-25",
+      "source": "https://www.formula1.com/en/latest/article/5-f1-innovations-that-caught-rival-teams-napping.2xbXomVUAOVTpEyYpW9ata",
+      "note": "McLaren's in-house name was RW80. The driver covered a cockpit hole with a knee or leg to switch a duct that stalled the rear wing on the straights. On the car from the 2010 Bahrain Grand Prix."
+    },
+    "widespread_by": 2010,
+    "banned": [
+      {
+        "from": 2011,
+        "note": "Driver-operated duct stalling of the rear wing was banned. The drag-reduction job passed to DRS.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [
+      "rear_wing"
+    ],
+    "earliest_plausible": {
+      "season": 2009,
+      "reason": "The MP4-25 was designed for the 2010 season, so the duct existed as a design before its first race. The month that design started was not pinned.",
+      "source": "https://www.formula1.com/en/latest/article/5-f1-innovations-that-caught-rival-teams-napping.2xbXomVUAOVTpEyYpW9ata"
+    },
+    "effect_summary": "Stalls the rear wing on the straight, so the car gains top speed and then has the wing back for the corner. The driver has to hold a hole shut, which is awkward and was copied in ways that took a hand off the wheel. It is free lap time until it is banned, and it does not work if the duct switch is slow.",
+    "confidence": "high",
+    "notes": "widespread_by 2010 means several rivals copied it during that season, not that every car had it at round 1."
+  },
+  {
+    "id": "blown_diffuser",
+    "name": "Exhaust-blown diffuser",
+    "area": "aero",
+    "first_used": {
+      "season": 2010,
+      "team": "red_bull",
+      "car": "Red Bull RB6",
+      "source": "https://www.motorsport.com/f1/news/retro-f1-tech-the-big-shake-ups-of-the-2000s-874524/874524/",
+      "note": "This entry is the 2010-11 off-throttle blown diffuser, identified with Red Bull. Exhausts aimed at a diffuser were already used in the early 1980s; no season or car for that earlier practice was verified, so it is not given as first_used."
+    },
+    "widespread_by": 2011,
+    "banned": [
+      {
+        "from": 2012,
+        "note": "Exhaust tailpipes were raised from the 2011 British Grand Prix to cut the blowing, and the off-throttle blown diffuser did not continue under the 2012 rules. The 2011 change was an in-season restriction, not a clean season-start ban.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": null,
+      "reason": "Hot-exhaust blowing of a diffuser is reported for the early 1980s, but no season was verified in this pass, so no earlier year is asserted.",
+      "source": "https://www.motorsport.com/f1/news/retro-f1-tech-the-big-shake-ups-of-the-2000s-874524/874524/"
+    },
+    "effect_summary": "Exhaust gas keeps feeding the diffuser even when the driver lifts, so rear downforce does not fall off in the corner. Off-throttle maps burn fuel to keep the gas flowing, which hurts economy and reliability and makes the throttle response unnatural. When the exhaust is moved away from the floor, the downforce disappears and the car has to be rebalanced.",
+    "confidence": "low"
+  },
+  {
+    "id": "kers",
+    "name": "KERS",
+    "area": "engine",
+    "first_used": {
+      "season": 2009,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "Optional kinetic energy recovery in the 2009 technical regulations, about 60 kW and a limited energy release per lap. Several teams ran it and the champions (Brawn) did not. A single first chassis was not established. Teams agreed not to use it in 2010. It returned in 2011 and was replaced by the 2014 power unit."
+    },
+    "widespread_by": 2011,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 2008,
+      "reason": "KERS was written into the 2009 rules, so the hardware was being built before the first 2009 race. The year the rule was first published was not separately pinned; 2008 is the design winter, not a sourced announcement date.",
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+    },
+    "effect_summary": "Stores energy from braking and releases it as a short burst of power, which is an overtaking and defending tool. The 2009 systems were heavy, so some teams preferred the ballast. It adds cost, cooling and a failure that can be a shock or a fire. It does not ban itself; it is replaced by the larger hybrid system.",
+    "confidence": "medium",
+    "notes": "The 2010 absence was a teams' agreement, not a regulation ban, so it is not in banned."
+  },
+  {
+    "id": "mgu_k",
+    "name": "MGU-K",
+    "area": "engine",
+    "first_used": {
+      "season": 2014,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "Mandatory part of the 2014 1.6-litre V6 turbo hybrid. The regulations history describes it as KERS integrated into the power unit. Every 2014 car had one, so no single team is credited."
+    },
+    "widespread_by": 2014,
+    "banned": [],
+    "prerequisites": [
+      "kers"
+    ],
+    "earliest_plausible": {
+      "season": 2009,
+      "reason": "The job, recovering kinetic energy at the crank or the rear axle, is what KERS already did in 2009. The 2014 unit is larger and mandatory, not a new physical principle.",
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+    },
+    "effect_summary": "A motor-generator on the drivetrain harvests under braking and deploys extra power. From 2014 it is worth a large share of the lap and it punishes a driver who wastes the battery. It adds weight, cooling and a deployment strategy. From 2026 the rules make it a still larger share of the power and add an overtake mode. The MGU-H removal does not remove this unit.",
+    "confidence": "high"
+  },
+  {
+    "id": "mgu_h",
+    "name": "MGU-H",
+    "area": "engine",
+    "first_used": {
+      "season": 2014,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "The heat-recovery motor on the turbo shaft, part of the same 2014 power unit as the MGU-K. Mandatory for every car, so no single team is credited."
+    },
+    "widespread_by": 2014,
+    "banned": [
+      {
+        "from": 2026,
+        "note": "Removed from the power unit. The MGU-K remains and is enlarged. The 2026 cars are shorter on ground-effect floor and use active aerodynamics instead of DRS.",
+        "source": "https://www.formula1.com/en/latest/article/the-beginners-guide-to-the-2026-regulations.6j0tS0hrHG2T01tpmK6XYz"
+      }
+    ],
+    "prerequisites": [
+      "turbo"
+    ],
+    "earliest_plausible": {
+      "season": 2009,
+      "reason": "A racing turbo and a racing energy-recovery motor had both already existed by 2009. Combining them on the turbo shaft was not seen before 2014. No earlier experiment was verified.",
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+    },
+    "effect_summary": "Harvests exhaust energy and can spin the turbo to kill lag, so the power delivery is smoother than a 1980s turbo and the electrical share of the lap grows. It is expensive, fragile and hard for a new engine maker to copy, which is why it was dropped for 2026. Losing it gives the lag back and moves the performance fight onto the MGU-K and the fuel.",
+    "confidence": "medium"
+  },
+  {
+    "id": "drs",
+    "name": "DRS",
+    "area": "aero",
+    "first_used": {
+      "season": 2011,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "Driver-adjustable rear wing, mandatory in the rules from the 2011 Australian Grand Prix. Free in practice and qualifying. In the race it opened only in zones, and only when the car behind was within one second. No single team invented a private version that raced first; it was a standard device."
+    },
+    "widespread_by": 2011,
+    "banned": [
+      {
+        "from": 2026,
+        "note": "Dropped. Its job passes to full-time active aerodynamics and to an electrical overtake mode.",
+        "source": "https://www.formula1.com/en/latest/article/the-beginners-guide-to-the-2026-regulations.6j0tS0hrHG2T01tpmK6XYz"
+      }
+    ],
+    "prerequisites": [
+      "rear_wing"
+    ],
+    "earliest_plausible": {
+      "season": 1968,
+      "reason": "The Ferrari 312 of 1968 already had a rear aerofoil whose incidence the driver could change. DRS is a regulated, zone-limited version of a driver-movable wing, not a new mechanism.",
+      "source": "https://www.ferrari.com/en-EN/formula1/312-f1-68"
+    },
+    "effect_summary": "Opens a flap in the rear wing to cut drag on a straight, which is a passing tool when the car behind is close enough. It does almost nothing for the car in front, so it manufactures overtakes rather than raw pace. It is useless in the wet when it is disabled, and it becomes a balance problem if it fails to close under braking.",
+    "confidence": "high"
+  },
+  {
+    "id": "halo",
+    "name": "Halo",
+    "area": "safety",
+    "first_used": {
+      "season": 2018,
+      "team": null,
+      "car": null,
+      "source": "https://www.formula1.com/en/latest/article/what-are-the-new-f1-technical-rules-for-2018.5O1O0FJG6ICMowOmAY0Y8w",
+      "note": "Mandatory cockpit protection from the 2018 season. The core structure is specified; teams may add a small aerodynamic surface. Every car carries it, so no team is credited as first."
+    },
+    "widespread_by": 2018,
+    "banned": [],
+    "prerequisites": [
+      "survival_cell"
+    ],
+    "earliest_plausible": {
+      "season": 2016,
+      "reason": "The first halo tests were in 2016, with further tests in July 2017. The device was feasible once those crash structures had been built, which is earlier than the 2018 mandate and later than a vague claim that any roll hoop would do.",
+      "source": "https://en.wikipedia.org/wiki/Halo_(safety_device)"
+    },
+    "effect_summary": "A titanium structure over the cockpit deflects a wheel or debris away from the driver's head. It adds weight, which the minimum weight was raised to cover, and it changes how the driver gets out. It does not add pace. Teams spend a little aero work hiding its cost. It needs a survival cell strong enough to take the loads at the mountings.",
+    "confidence": "high"
+  },
+  {
+    "id": "ground_effect_floor_2022",
+    "name": "Ground-effect floor (2022 venturi tunnels)",
+    "area": "aero",
+    "first_used": {
+      "season": 2022,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "The 2022 rules made the underbody the main source of downforce, with venturi tunnels and no bargeboards. Mandatory for every car from the 2022 Bahrain Grand Prix. This is not the 1977 skirted sidepod. The tunnels are shaped by the rule and they are not sealed by sliding skirts."
+    },
+    "widespread_by": 2022,
+    "banned": [],
+    "prerequisites": [
+      "ground_effect"
+    ],
+    "earliest_plausible": {
+      "season": 1977,
+      "reason": "The venturi underbody was raced on the Lotus 78 in 1977. The 2022 floor is that physics without the old sliding skirts, drawn to a regulation shape. It could not be raced between 1983 and 2021 because the flat-bottom rule forbade it.",
+      "source": "https://en.wikipedia.org/wiki/Lotus_78"
+    },
+    "effect_summary": "Most of the downforce comes from the floor rather than from wings, and the wake behind the car is cleaner, which is meant to let a following car keep its grip. The floor has to run close to the ground. When it stalls or porpoises, the downforce oscillates and the car is uncomfortable and inconsistent. Setup is about ride height and floor sealing, not only wing angle.",
+    "confidence": "high",
+    "notes": "The 2026 rules reduce this floor rather than ban ground effect outright. That reduction is recorded on active_aero_2026's sources, not as a ban here, because a shorter tunnel is still a venturi floor."
+  },
+  {
+    "id": "active_aero_2026",
+    "name": "Active aerodynamics (2026)",
+    "area": "aero",
+    "first_used": {
+      "season": 2026,
+      "team": null,
+      "car": null,
+      "source": "https://www.formula1.com/en/latest/article/the-beginners-guide-to-the-2026-regulations.6j0tS0hrHG2T01tpmK6XYz",
+      "note": "Mandatory from the 2026 season. Front and rear wing elements move between a high-downforce corner mode and a low-drag straight mode. The 2026 Australian Grand Prix was the first championship round. Every car has it, so no team is credited."
+    },
+    "widespread_by": 2026,
+    "banned": [],
+    "prerequisites": [
+      "drs"
+    ],
+    "earliest_plausible": {
+      "season": 1968,
+      "reason": "A driver-adjustable rear aerofoil already raced on the Ferrari 312 in 1968. The 2026 system adds the front wing and makes the mode change part of the ordinary lap, under a standard control, rather than a private duct.",
+      "source": "https://www.ferrari.com/en-EN/formula1/312-f1-68"
+    },
+    "effect_summary": "The wings open on the straight and close for the corner, so the car can have both top speed and corner grip without a separate overtaking zone. DRS as a catch-up device goes away. An electrical overtake mode sits beside it. If the wings are in the wrong mode, the car is either slow on the straight or light in the corner. It is a standard system, so the advantage is in how well it is integrated, not in having it.",
+    "confidence": "high"
+  },
+  {
+    "id": "slick_tyres",
+    "name": "Slick tyres",
+    "area": "tyres",
+    "first_used": {
+      "season": 1971,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+      "note": "Firestone introduced slick tyres at the 1971 Spanish Grand Prix. No single constructor is credited, because the supplier fitted more than one team. Ferrari's Jacky Ickx is reported on them that weekend; that was not checked against a tyre-allocation list and is not stored as the team."
+    },
+    "widespread_by": null,
+    "banned": [
+      {
+        "from": 1998,
+        "note": "Dry tyres had to be grooved from 1998. Slicks were allowed again from 2009.",
+        "source": "https://en.wikipedia.org/wiki/Formula_One_tyres"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1971,
+      "reason": "A Firestone test immediately before the 1971 Spanish Grand Prix found a treadless tyre faster. Earlier slick use outside Formula One was not dated here.",
+      "source": "https://automobilist.com/en-us/blogs/stories/formula-1-tyre-evolution"
+    },
+    "effect_summary": "A treadless dry tyre puts more rubber on the road and does not squirm the way a tread block does, so mechanical grip rises. The car slides less and the tyre overheats differently. In the wet a slick has no voids to clear water, so treaded wets stay a separate tyre. Grooves were later cut into this construction to slow the cars.",
+    "confidence": "high",
+    "notes": "How fast the whole grid left treaded dry tyres in 1971 was not pinned, so widespread_by is null."
+  },
+  {
+    "id": "radial_tyres",
+    "name": "Radial tyres",
+    "area": "tyres",
+    "first_used": {
+      "season": 1977,
+      "team": "renault",
+      "car": "Renault RS01",
+      "source": "https://www.motorsportmagazine.com/archive/article/november-2000/47/michelin-f1-radial/",
+      "note": "Michelin entered with Renault in 1977 and brought radial construction while Goodyear was still on crossplies. The first Michelin win cited by that account is Carlos Reutemann's Ferrari at the 1978 Brazilian Grand Prix. The 1977 Renault is the first car, not the first winner."
+    },
+    "widespread_by": 1984,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1960,
+      "reason": "Motor Sport places the road-car radial shift in the 1960s and does not give a single year. 1960 is the start of that decade, not a date Michelin tested a racing radial.",
+      "source": "https://www.motorsportmagazine.com/archive/article/november-2000/47/michelin-f1-radial/"
+    },
+    "effect_summary": "A radial carcass keeps the tread flatter on the road than a crossply, so the contact patch is more consistent and the tyre can be softer. It changes how the sidewall rolls and how the suspension must be set. Teams on the other construction lose grip until their supplier follows. Goodyear's first radial slick was for 1984, which is the widespread_by year.",
+    "confidence": "high"
+  },
+  {
+    "id": "grooved_tyres",
+    "name": "Grooved dry tyres",
+    "area": "tyres",
+    "first_used": {
+      "season": 1998,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/Formula_One_tyres",
+      "note": "Mandatory dry-weather grooves from 1998: three in the front and four in the rear, later four all round, each a minimum depth. A supplier rule, not a team invention. Goodyear left and Bridgestone remained. Every car ran them."
+    },
+    "widespread_by": 1998,
+    "banned": [
+      {
+        "from": 2009,
+        "note": "Slicks were allowed again. Grooves were no longer required on the dry tyre.",
+        "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+      }
+    ],
+    "prerequisites": [
+      "slick_tyres"
+    ],
+    "earliest_plausible": {
+      "season": 1971,
+      "reason": "Once a slick existed, a groove was a cut in it, not a new material. Treaded dry tyres were the norm before 1971. 1998 is when the championship required grooves in order to cut grip.",
+      "source": "https://en.wikipedia.org/wiki/Formula_One_tyres"
+    },
+    "effect_summary": "Grooves reduce the rubber on the road, so cornering speeds fall and the tyre slides more. The car is harder to judge at the limit and more punishing of a lock-up. It is a safety rule, not a performance gain. Teams still spend their development on the remaining contact patch. When slicks return, the same chassis ideas are suddenly worth more grip.",
+    "confidence": "high"
+  },
+  {
+    "id": "refuelling_rig",
+    "name": "In-race refuelling rig",
+    "area": "other",
+    "first_used": {
+      "season": 1994,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "In-race refuelling returned for 1994 after a ban that had started in 1984. The 1994 equipment is the pressurised rig, with crews in fireproof suits. No single team owned it; the grid used it. Fuel stops also existed before 1984, including the turbo years, and that earlier equipment was not given a first car here."
+    },
+    "widespread_by": 1994,
+    "banned": [
+      {
+        "from": 2010,
+        "note": "In-race refuelling banned again. Cars start with enough fuel for the distance. The stated reasons were pit-lane fires and cost.",
+        "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/f1-in-reverse-again-v8s-and-refuelling-set-to-come-back-from-bans/"
+      }
+    ],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1950,
+      "reason": "Cars already stopped for fuel in the early championship. The 1994 rig is a faster, pressurised version of an old pit stop, not a new ability to put fuel in a car.",
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations"
+    },
+    "effect_summary": "A short fuel load makes the car faster, so the race becomes a sequence of pit stops and the rig has to be fast and safe. A slow or failed connection loses the strategy, and a fire is a crew and driver hazard, as at the 1994 German Grand Prix. Banning it forces a heavier race car and removes that strategic lever. The rig and the extra pit crew are a cost.",
+    "confidence": "medium"
+  },
+  {
+    "id": "survival_cell",
+    "name": "Survival cell",
+    "area": "safety",
+    "first_used": {
+      "season": 1981,
+      "team": null,
+      "car": null,
+      "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+      "note": "The 1981 rules extended the survival cell to in front of the driver's feet. This is the regulated safety cell, not the 1962 aluminium monocoque and not only the 1981 carbon tub. It applied to every car. Later years added crash tests, side intrusion panels and higher cockpit sides. Those later steps are not separate entries."
+    },
+    "widespread_by": 1981,
+    "banned": [],
+    "prerequisites": [
+      "aluminium_monocoque"
+    ],
+    "earliest_plausible": {
+      "season": 1962,
+      "reason": "The Lotus 25 already put the driver in a stressed cockpit structure. The 1981 rule extended and defined that cell. The material change to carbon is a different entry.",
+      "source": "https://en.wikipedia.org/wiki/Lotus_25"
+    },
+    "effect_summary": "The driver sits in a structure that is tested to survive a frontal and side impact, with the feet inside it rather than ahead of a thin nose. It adds weight and it limits how far forward the pedals and the front wing can be packaged. It is the object the halo, the headrest and the side-impact panels attach to. It does not add pace. It is what decides whether a crash is a retirement or a career-ending injury.",
+    "confidence": "high"
+  },
+  {
+    "id": "hans",
+    "name": "HANS device",
+    "area": "safety",
+    "first_used": {
+      "season": 2003,
+      "team": null,
+      "car": null,
+      "source": "https://www.fia.com/news/legacy-safety-how-fia-responded-tragedy-imola-1994-and-launched-drive-safer-racing",
+      "note": "Mandatory for every driver from the 2003 season. The FIA shows it being demonstrated with Felipe Massa in 2002. It tethers the helmet to the shoulders so the neck is not loaded in a frontal impact."
+    },
+    "widespread_by": 2003,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 2002,
+      "reason": "2002 is the year the FIA was demonstrating the device in Formula One, not the year it was invented. Use in other series is acknowledged by that history and was not given a sourced first season here.",
+      "source": "https://www.fia.com/news/legacy-safety-how-fia-responded-tragedy-imola-1994-and-launched-drive-safer-racing"
+    },
+    "effect_summary": "Limits how far the head can travel in a frontal stop, which is the injury that a lap belt does not prevent. It needs a compatible helmet and seat. It does not change lap time. Drivers notice it on comfort and on how they turn their head. It is personal equipment, not a car part, so a team adopts it by fitting the seat and the belts.",
+    "confidence": "high",
+    "notes": "earliest_plausible is an F1 demonstration year. The Hubbard and Downing design is older. No patent or first sportscar season was verified, so none is stated."
+  }
+]

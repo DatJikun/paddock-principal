@@ -6,6 +6,7 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
@@ -16,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Paddock.Domain\Paddock.Domain.csproj" />
     <ProjectReference Include="..\..\src\Paddock.Data\Paddock.Data.csproj" />
+    <ProjectReference Include="..\..\src\Paddock.Persistence\Paddock.Persistence.csproj" />
     <ProjectReference Include="..\..\tools\Paddock.DataPipeline\Paddock.DataPipeline.csproj" />
     <ProjectReference Include="..\..\tools\Paddock.SimRunner\Paddock.SimRunner.csproj" />
   </ItemGroup>

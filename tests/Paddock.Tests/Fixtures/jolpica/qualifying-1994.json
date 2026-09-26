@@ -1,0 +1,51 @@
+{
+  "MRData": {
+    "limit": "1",
+    "offset": "0",
+    "total": "26",
+    "RaceTable": {
+      "season": "1994",
+      "round": "1",
+      "Races": [
+        {
+          "season": "1994",
+          "round": "1",
+          "url": "https://en.wikipedia.org/wiki/1994_Brazilian_Grand_Prix",
+          "raceName": "Brazilian Grand Prix",
+          "Circuit": {
+            "circuitId": "interlagos",
+            "circuitName": "Autódromo José Carlos Pace",
+            "Location": {
+              "lat": "-23.7036",
+              "long": "-46.6997",
+              "locality": "São Paulo",
+              "country": "Brazil"
+            }
+          },
+          "date": "1994-03-27",
+          "QualifyingResults": [
+            {
+              "number": "2",
+              "position": "1",
+              "Driver": {
+                "driverId": "senna",
+                "url": "http://en.wikipedia.org/wiki/Ayrton_Senna",
+                "givenName": "Ayrton",
+                "familyName": "Senna",
+                "dateOfBirth": "1960-03-21",
+                "nationality": "Brazilian"
+              },
+              "Constructor": {
+                "constructorId": "williams",
+                "url": "https://en.wikipedia.org/wiki/Williams_Racing",
+                "name": "Williams",
+                "nationality": "British"
+              },
+              "Q1": "1:15.962"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

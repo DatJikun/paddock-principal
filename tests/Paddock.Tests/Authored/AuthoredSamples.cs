@@ -24,7 +24,7 @@ internal static class AuthoredSamples
             "from": 1950,
             "to": null,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Covers the whole window."
           }
         ]
@@ -60,7 +60,7 @@ internal static class AuthoredSamples
                     "braking": 0.25
                   },
                   "confidence": "high",
-                  "source": "fixture",
+                  "source": "https://example.com/fixture",
                   "notes": "fixture"
                 }
               ]
@@ -87,7 +87,7 @@ internal static class AuthoredSamples
             "from": 1950,
             "to": null,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Still valid."
           },
           {
@@ -96,7 +96,7 @@ internal static class AuthoredSamples
             "from": 1950,
             "to": null,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Not in the catalog."
           }
         ]
@@ -133,7 +133,7 @@ internal static class AuthoredSamples
             "from": 1950,
             "to": null,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Enum value is not in the catalog list."
           },
           {
@@ -142,7 +142,7 @@ internal static class AuthoredSamples
             "from": 1950,
             "to": null,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Bool value is not in the catalog list."
           }
         ]
@@ -156,7 +156,7 @@ internal static class AuthoredSamples
             "from": 1950,
             "to": 1960,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Stops at 1960."
           },
           {
@@ -165,7 +165,7 @@ internal static class AuthoredSamples
             "from": 1960,
             "to": 1960,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Overlaps 1960."
           },
           {
@@ -174,7 +174,7 @@ internal static class AuthoredSamples
             "from": 1962,
             "to": null,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Leaves 1961 uncovered."
           },
           {
@@ -183,7 +183,7 @@ internal static class AuthoredSamples
             "from": 1970,
             "to": 1960,
             "confidence": "high",
-            "source": "fixture",
+            "source": "https://example.com/fixture",
             "notes": "Ends before it starts."
           }
         ]
@@ -217,7 +217,7 @@ internal static class AuthoredSamples
                     "braking": 0.5
                   },
                   "confidence": "high",
-                  "source": "fixture",
+                  "source": "https://example.com/fixture",
                   "notes": "Weights sum to 2."
                 }
               ]
@@ -265,7 +265,7 @@ internal static class AuthoredSamples
                     "extra": 0.0
                   },
                   "confidence": "high",
-                  "source": "fixture",
+                  "source": "https://example.com/fixture",
                   "notes": "Unknown profile property."
                 }
               ]

@@ -3,12 +3,13 @@ using System.Globalization;
 namespace Paddock.Data.Authored;
 
 /// <summary>
-/// Checks authored regulations and tracks. Every violation is returned; the first failure does not stop the rest.
-/// The covered window is 1950–2026. A timeline <c>to</c> of null stays open through 2026.
+/// Checks authored regulations, tracks, technologies, teams and staff.
+/// Every violation is returned; the first failure does not stop the rest.
+/// The covered window is 1950–2026. A timeline or lineage <c>to</c> of null stays open through 2026.
 /// Number dimensions have no catalog value list (the files use both kilograms and the token "unknown"), so only
 /// enum and bool dimensions are checked against that list.
 /// </summary>
-public static class AuthoredDataValidator
+public static partial class AuthoredDataValidator
 {
     public const int FirstSeason = 1950;
     public const int LastSeason = 2026;
@@ -105,6 +106,7 @@ public static class AuthoredDataValidator
                 $"race {entry.Season.ToString(CultureInfo.InvariantCulture)} round {entry.Round.ToString(CultureInfo.InvariantCulture)} points at missing layout '{entry.LayoutId}'"));
         }
 
+        AppendTechnologiesTeamsAndStaff(errors, data);
         return errors;
     }
 

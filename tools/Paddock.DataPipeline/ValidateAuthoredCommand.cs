@@ -104,6 +104,12 @@ public static class ValidateAuthoredCommand
         stdout.WriteLine("circuits: " + data.Circuits.Circuits.Count.ToString(CultureInfo.InvariantCulture));
         stdout.WriteLine("layouts: " + layoutCount.ToString(CultureInfo.InvariantCulture));
         stdout.WriteLine("race map entries: " + data.RaceLayoutMap.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("technologies: " + data.Technologies.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("engine entries: " + data.Engines.Entries.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("constructors: " + data.ConstructorIds.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("lineages: " + data.Lineage.Lineages.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("founder organizations: " + data.Founders.Organizations.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("staff: " + data.Staff.Count.ToString(CultureInfo.InvariantCulture));
         foreach (var error in errors)
         {
             stdout.WriteLine("error: " + error.Message);

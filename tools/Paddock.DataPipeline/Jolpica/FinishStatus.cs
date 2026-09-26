@@ -50,6 +50,7 @@ public static class FinishStatus
         "Turbo",
         "Ignition",
         "Oil leak",
+        "Overheating",
         "Throttle",
         "Halfshaft",
         "Wheel",

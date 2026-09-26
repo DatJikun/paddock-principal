@@ -18,6 +18,7 @@ public class EraStatsTests
         Assert.Equal(FinishStatus.Kind.NonStart, FinishStatus.Classify("Did not start"));
         Assert.Equal(FinishStatus.Kind.NonStart, FinishStatus.Classify("Did not qualify"));
         Assert.Equal(FinishStatus.Kind.Mechanical, FinishStatus.Classify("Oil leak"));
+        Assert.Equal(FinishStatus.Kind.Mechanical, FinishStatus.Classify("Overheating"));
         Assert.Equal(FinishStatus.Kind.Mechanical, FinishStatus.Classify("Engine"));
         Assert.Equal(FinishStatus.Kind.Accident, FinishStatus.Classify("Accident"));
         Assert.Equal(FinishStatus.Kind.Accident, FinishStatus.Classify("Collision damage"));

@@ -14,7 +14,7 @@
     "from": 1972,
     "to": 1980,
     "confidence": "high",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-2004/34/the-foca-phenomenon/",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_Constructors_Association",
     "notes": "Bernie Ecclestone organized FOCA to negotiate bulk travel packages, appearance guarantees, and prize fund commitments with race promoters, breaking the circuit owner monopoly."
   },
   {
@@ -24,7 +24,7 @@
     "to": 1986,
     "confidence": "high",
     "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
-    "notes": "First Concorde Agreement resolved the FISA-FOCA war. Established a formal television revenue split (50% to participating teams, 30% to FIA, 20% to FOCA) and guaranteed prize money."
+    "notes": "First Concorde Agreement resolved the FISA-FOCA war. Established FISA as the sole sporting rule-making body and assigned commercial rights management to FOCA, guaranteeing prize fund distribution to signatory constructors."
   },
   {
     "dimension": "revenue_model",
@@ -32,7 +32,7 @@
     "from": 1987,
     "to": 1991,
     "confidence": "high",
-    "source": "https://www.forbes.com/sites/csylt/2014/11/12/the-secrets-of-f1s-concorde-agreement/",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
     "notes": "Second Concorde Agreement established Formula One Promotions and Administration (FOPA). Commercial exploitation rights were centralized, driving a massive increase in international TV income."
   },
   {
@@ -41,7 +41,7 @@
     "from": 1992,
     "to": 1996,
     "confidence": "high",
-    "source": "https://www.forbes.com/sites/csylt/2014/11/12/the-secrets-of-f1s-concorde-agreement/",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
     "notes": "Third Concorde Agreement expanded global television rights sharing and guaranteed freight transport subsidies for all entered constructors based on constructors championship rank."
   },
   {
@@ -59,7 +59,7 @@
     "from": 1998,
     "to": 2007,
     "confidence": "high",
-    "source": "https://www.racefans.net/2020/08/19/how-f1s-new-concorde-agreement-reduces-ferraris-historic-bonus/",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
     "notes": "Fifth Concorde Agreement established the formal two-column prize structure: Column 1 distributed equally among teams finishing in the top 10 in two of three years, and Column 2 scaled by recent championship position."
   },
   {
@@ -77,7 +77,7 @@
     "from": 2009,
     "to": 2012,
     "confidence": "high",
-    "source": "https://www.formula1.com/en/latest/article/new-concorde-agreement-signed.3O9p3zT94I4Oa22qU4g60G.html",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
     "notes": "Sixth Concorde Agreement averted a FOTA breakaway series. Teams secured approximately 50% of FOM commercial revenue and baseline travel support for new privateer entrants."
   },
   {
@@ -86,7 +86,7 @@
     "from": 2013,
     "to": 2020,
     "confidence": "high",
-    "source": "https://www.bbc.com/sport/formula1/23415053",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
     "notes": "FOM replaced the unified agreement with separate bilateral contracts, introducing large financial skew through the Ferrari Long-Standing Team bonus and Constructors Championship Bonus for top teams."
   },
   {
@@ -95,7 +95,7 @@
     "from": 2021,
     "to": null,
     "confidence": "high",
-    "source": "https://www.formula1.com/en/latest/article/all-10-teams-commit-to-formula-1-until-2025-with-new-concorde-agreement.4v0G5X1N81Y9uQ4K8K0N6X",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
     "notes": "Eighth Concorde Agreement flattened the prize disbursement curve, capped Ferrari heritage payouts, distributed Column 1 evenly among all 10 teams, and tied financial stability to the cost cap."
   },
   {
@@ -104,8 +104,8 @@
     "from": 1950,
     "to": 1957,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -113,8 +113,8 @@
     "from": 1950,
     "to": 1957,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -122,35 +122,8 @@
     "from": 1950,
     "to": 1957,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "240000",
-    "from": 1950,
-    "to": 1957,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "720000",
-    "from": 1950,
-    "to": 1957,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "3000000",
-    "from": 1950,
-    "to": 1957,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -158,8 +131,8 @@
     "from": 1950,
     "to": 1957,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -167,26 +140,8 @@
     "from": 1950,
     "to": 1957,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "60000",
-    "from": 1950,
-    "to": 1957,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "300000",
-    "from": 1950,
-    "to": 1957,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Front-engine era estimates based on contemporary accounts of privateer Maserati 250F entries (~GBP 3,000-5,000 per car plus running costs) and works operations like Vanwall and Mercedes-Benz. Mercedes spent an estimated GBP 500,000 across their 1954-55 GP and sports car efforts. Drivers were compensated via retainers plus prize splits (~50%). 2025 USD values adjusted using US CPI-U index (anchor 1954 CPI 26.85 vs 2025 CPI 321.94, factor ~12.0)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on contemporary memoirs and customer chassis prices (e.g. Maserati 250F at GBP 3,000-5,000) and factory budgets (Mercedes-Benz 1954-55). Drivers received retainers plus roughly 50% prize splits."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
@@ -194,8 +149,8 @@
     "from": 1958,
     "to": 1965,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -203,8 +158,8 @@
     "from": 1958,
     "to": 1965,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -212,35 +167,8 @@
     "from": 1958,
     "to": 1965,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "377000",
-    "from": 1958,
-    "to": 1965,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "1077000",
-    "from": 1958,
-    "to": 1965,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "3231000",
-    "from": 1958,
-    "to": 1965,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -248,8 +176,8 @@
     "from": 1958,
     "to": 1965,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -257,26 +185,8 @@
     "from": 1958,
     "to": 1965,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "86000",
-    "from": 1958,
-    "to": 1965,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "431000",
-    "from": 1958,
-    "to": 1965,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "1.5-litre garagiste era with customer Coventry Climax engines. Teams like Rob Walker operated privateer entries modestly, while Team Lotus and Ferrari invested heavily in chassis development. Jim Clark's basic retainer at Lotus was modest (GBP 5,000 to 10,000) but supplemented by start money, trade deals, and Indianapolis 500 purses. 2025 USD values adjusted using US CPI-U index (anchor 1961 CPI 29.89 vs 2025 CPI 321.94, factor ~10.8)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from 1.5-litre rear-engine garagiste era accounts (Cooper, Lotus, Brabham with customer Coventry Climax engines). Star retainers (Clark, Hill) were supplemented by start money and Indy 500 purses."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
@@ -284,8 +194,8 @@
     "from": 1966,
     "to": 1972,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated around the standard off-the-shelf Cosworth DFV engine price (GBP 7,500) and the emergence of commercial sponsorship in 1968. Jackie Stewart pioneered personal commercial endorsement deals."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -293,8 +203,8 @@
     "from": 1966,
     "to": 1972,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated around the standard off-the-shelf Cosworth DFV engine price (GBP 7,500) and the emergence of commercial sponsorship in 1968. Jackie Stewart pioneered personal commercial endorsement deals."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -302,35 +212,8 @@
     "from": 1966,
     "to": 1972,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "702000",
-    "from": 1966,
-    "to": 1972,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "2194000",
-    "from": 1966,
-    "to": 1972,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "6582000",
-    "from": 1966,
-    "to": 1972,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated around the standard off-the-shelf Cosworth DFV engine price (GBP 7,500) and the emergence of commercial sponsorship in 1968. Jackie Stewart pioneered personal commercial endorsement deals."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -338,8 +221,8 @@
     "from": 1966,
     "to": 1972,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated around the standard off-the-shelf Cosworth DFV engine price (GBP 7,500) and the emergence of commercial sponsorship in 1968. Jackie Stewart pioneered personal commercial endorsement deals."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -347,26 +230,8 @@
     "from": 1966,
     "to": 1972,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "132000",
-    "from": 1966,
-    "to": 1972,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "878000",
-    "from": 1966,
-    "to": 1972,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3-litre formula anchored by the off-the-shelf Cosworth DFV (GBP 7,500 per unit). Commercial sponsorship began in 1968 (Gold Leaf Lotus). Jackie Stewart led the professionalization of driver compensation, signing major commercial contracts with Ford and Goodyear. 2025 USD values adjusted using US CPI-U index (anchor 1969 CPI 36.68 vs 2025 CPI 321.94, factor ~8.78)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated around the standard off-the-shelf Cosworth DFV engine price (GBP 7,500) and the emergence of commercial sponsorship in 1968. Jackie Stewart pioneered personal commercial endorsement deals."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
@@ -374,8 +239,8 @@
     "from": 1973,
     "to": 1976,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -383,8 +248,8 @@
     "from": 1973,
     "to": 1976,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -392,35 +257,8 @@
     "from": 1973,
     "to": 1976,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "1795000",
-    "from": 1973,
-    "to": 1976,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "4786000",
-    "from": 1973,
-    "to": 1976,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "11965000",
-    "from": 1973,
-    "to": 1976,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -428,8 +266,8 @@
     "from": 1973,
     "to": 1976,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -437,26 +275,8 @@
     "from": 1973,
     "to": 1976,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "209000",
-    "from": 1973,
-    "to": 1976,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "1496000",
-    "from": 1973,
-    "to": 1976,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "High-inflation kit-car era. Lord Hesketh spent roughly GBP 200,000 in 1974. Top teams were backed by consumer goods brands (Marlboro, JPS, Yardley, Elf). Top drivers like Lauda, Hunt, and Fittipaldi commanded multi-hundred-thousand retainers. 2025 USD values adjusted using US CPI-U index (anchor 1975 CPI 53.82 vs 2025 CPI 321.94, factor ~5.98)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated during high inflation and major consumer brand sponsorship (Marlboro, JPS, Yardley, Elf). Top drivers (Lauda, Fittipaldi, Hunt) earned multi-hundred-thousand dollar retainers."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
@@ -464,8 +284,8 @@
     "from": 1977,
     "to": 1982,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -473,8 +293,8 @@
     "from": 1977,
     "to": 1982,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -482,35 +302,8 @@
     "from": 1977,
     "to": 1982,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "3907000",
-    "from": 1977,
-    "to": 1982,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "13673000",
-    "from": 1977,
-    "to": 1982,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "39067000",
-    "from": 1977,
-    "to": 1982,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -518,8 +311,8 @@
     "from": 1977,
     "to": 1982,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -527,26 +320,8 @@
     "from": 1977,
     "to": 1982,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "313000",
-    "from": 1977,
-    "to": 1982,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "3907000",
-    "from": 1977,
-    "to": 1982,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Ground-effect aerodynamics and introduction of Renault turbo program. Williams operated on ~USD 5M in 1980 with Saudi sponsorship. Bernie Ecclestone paid Niki Lauda a milestone USD 1M retainer at Brabham in 1978 financed by Parmalat; McLaren paid Lauda USD 3M to return in 1982. 2025 USD values adjusted using US CPI-U index (anchor 1980 CPI 82.41 vs 2025 CPI 321.94, factor ~3.91)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on ground-effect developments, Saudi sponsorship at Williams (~$5M in 1980), and Renault turbo budgets. Niki Lauda commanded a landmark USD 1M retainer at Brabham funded by Parmalat in 1978."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
@@ -554,8 +329,8 @@
     "from": 1983,
     "to": 1988,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -563,8 +338,8 @@
     "from": 1983,
     "to": 1988,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -572,35 +347,8 @@
     "from": 1983,
     "to": 1988,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "8810000",
-    "from": 1983,
-    "to": 1988,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "35245000",
-    "from": 1983,
-    "to": 1988,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "117480000",
-    "from": 1983,
-    "to": 1988,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -608,8 +356,8 @@
     "from": 1983,
     "to": 1988,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -617,26 +365,8 @@
     "from": 1983,
     "to": 1988,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "734000",
-    "from": 1983,
-    "to": 1988,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "11749000",
-    "from": 1983,
-    "to": 1988,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Manufacturer turbo arms race (Honda, TAG Porsche, BMW, Renault, Ferrari). Small independent teams like Minardi and Osella survived on low single-digit millions. Nelson Piquet signed a USD 3.3M plus bonus deal at Williams in 1986; Ayrton Senna reached USD 5M at McLaren in 1988. 2025 USD values adjusted using US CPI-U index (anchor 1986 CPI 109.61 vs 2025 CPI 321.94, factor ~2.94)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from manufacturer turbo expenditures (Honda, TAG Porsche, BMW, Renault, Ferrari). Small outfits (Minardi, Osella) survived on low single-digit millions. Piquet and Senna earned $3M-$5M base retainers."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
@@ -644,8 +374,8 @@
     "from": 1989,
     "to": 1993,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -653,8 +383,8 @@
     "from": 1989,
     "to": 1993,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -662,35 +392,8 @@
     "from": 1989,
     "to": 1993,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "14184000",
-    "from": 1989,
-    "to": 1993,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "52006000",
-    "from": 1989,
-    "to": 1993,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "177293000",
-    "from": 1989,
-    "to": 1993,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -698,8 +401,8 @@
     "from": 1989,
     "to": 1993,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -707,26 +410,8 @@
     "from": 1989,
     "to": 1993,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "1418000",
-    "from": 1989,
-    "to": 1993,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "28367000",
-    "from": 1989,
-    "to": 1993,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "3.5-litre naturally aspirated era featuring active suspension and advanced electronics. Ayrton Senna famously negotiated USD 1M per race with Ron Dennis in 1993 (USD 16M for the season). Small privateers in pre-qualifying struggled on USD 5M-8M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1991 CPI 136.19 vs 2025 CPI 321.94, factor ~2.36)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on 3.5L naturally aspirated active suspension era costs. Ayrton Senna famously negotiated USD 1M per race in 1993 ($16M season). Small privateers in pre-qualifying collapsed under $5M-$8M costs."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
@@ -734,8 +419,8 @@
     "from": 1994,
     "to": 1997,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -743,8 +428,8 @@
     "from": 1994,
     "to": 1997,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -752,35 +437,8 @@
     "from": 1994,
     "to": 1997,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "20526000",
-    "from": 1994,
-    "to": 1997,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "71839000",
-    "from": 1994,
-    "to": 1997,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "246307000",
-    "from": 1994,
-    "to": 1997,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -788,8 +446,8 @@
     "from": 1994,
     "to": 1997,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -797,296 +455,143 @@
     "from": 1994,
     "to": 1997,
     "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "2463000",
-    "from": 1994,
-    "to": 1997,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "51314000",
-    "from": 1994,
-    "to": 1997,
-    "confidence": "low",
-    "source": "https://www.motorsportmagazine.com/archive/article/december-1997/42/what-price-formula-one/",
-    "notes": "Post-Imola transition with massive tobacco sponsorship (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Simtek, Pacific, and Forti collapsed under minimal USD 8M-12M budgets. 2025 USD values adjusted using US CPI-U index (anchor 1996 CPI 156.85 vs 2025 CPI 321.94, factor ~2.05)."
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from post-Imola tobacco spending boom (Marlboro, Rothmans, Mild Seven). Michael Schumacher moved to Ferrari in 1996 on an estimated USD 25M base retainer. Backmarkers ran on USD 10M-12M."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
     "value": "45000000",
     "from": 1998,
     "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
     "value": "160000000",
     "from": 1998,
     "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
     "value": "450000000",
     "from": 1998,
     "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "78754000",
-    "from": 1998,
-    "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "280016000",
-    "from": 1998,
-    "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "787545000",
-    "from": 1998,
-    "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
     "value": "2500000",
     "from": 1998,
     "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
     "value": "35000000",
     "from": 1998,
     "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "4375000",
-    "from": 1998,
-    "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "61254000",
-    "from": 1998,
-    "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2008/09/22/f1-team-budgets-2008-toyotas-half-billion-spend-fails-to-deliver/",
-    "notes": "Peak manufacturer corporate spending era (Ferrari, Toyota, Honda, Renault, BMW, McLaren-Mercedes). Toyota and Ferrari annual expenditures peaked between USD 450M and 500M in 2007-2008. Michael Schumacher and Kimi Raikkonen earned USD 35M-40M base retainers. Minardi and Super Aguri survived on USD 40M-50M. 2025 USD values adjusted using US CPI-U index (anchor 2003 CPI 183.96 vs 2025 CPI 321.94, factor ~1.75)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated based on peak manufacturer corporate spending (Toyota, Ferrari, Honda, McLaren-Mercedes). Top works budgets reached $450M-$500M in 2007-2008; Schumacher and Raikkonen earned $35M-$40M retainers."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
     "value": "60000000",
     "from": 2009,
     "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
     "value": "130000000",
     "from": 2009,
     "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
     "value": "320000000",
     "from": 2009,
     "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "85876000",
-    "from": 2009,
-    "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "186064000",
-    "from": 2009,
-    "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "458004000",
-    "from": 2009,
-    "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
     "value": "2000000",
     "from": 2009,
     "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
     "value": "25000000",
     "from": 2009,
     "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "2863000",
-    "from": 2009,
-    "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "35782000",
-    "from": 2009,
-    "to": 2013,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2013/12/20/the-cost-of-f1-revealed-2013-team-budgets/",
-    "notes": "Financial crisis aftermath and frozen 2.4-litre V8 engines. HRT, Virgin/Marussia, and Lotus/Caterham entered expecting a proposed USD 40M budget cap that was abandoned, running on USD 55M-70M. Fernando Alonso (Ferrari) and Lewis Hamilton (McLaren/Mercedes) commanded USD 25M-30M retainers. 2025 USD values adjusted using US CPI-U index (anchor 2011 CPI 224.94 vs 2025 CPI 321.94, factor ~1.43)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from financial crisis aftermath and frozen 2.4L V8 era. New independent entries (HRT, Virgin, Lotus) ran on USD 55M-70M. Top drivers (Alonso, Hamilton, Vettel) commanded $25M-$30M retainers."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
     "value": "110000000",
     "from": 2014,
     "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
     "value": "180000000",
     "from": 2014,
     "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
     "value": "450000000",
     "from": 2014,
     "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "144473000",
-    "from": 2014,
-    "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "236410000",
-    "from": 2014,
-    "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "591026000",
-    "from": 2014,
-    "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
     "value": "3500000",
     "from": 2014,
     "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
     "value": "40000000",
     "from": 2014,
     "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "4597000",
-    "from": 2014,
-    "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "52536000",
-    "from": 2014,
-    "to": 2020,
-    "confidence": "medium",
-    "source": "https://www.racefans.net/2019/12/27/the-cost-of-f1-revealed-how-much-teams-spent-in-2019/",
-    "notes": "V6 Turbo-hybrid era documented through Dieter Rencken's annual RaceFans investigations and UK Companies House records. Mercedes spent GBP 333M (~USD 484M) in 2019; Ferrari spent ~USD 463M. Manor folded in 2016; Haas debuted on ~USD 110M. Lewis Hamilton topped driver compensation at USD 40M-45M. 2025 USD values adjusted using US CPI-U index (anchor 2017 CPI 245.12 vs 2025 CPI 321.94, factor ~1.31)."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "No specific source found; estimated from V6 Turbo-hybrid era corporate reporting. Mercedes and Ferrari operated at $450M+ levels. Haas debuted on ~$110M. Lewis Hamilton topped driver compensation at USD 40M-45M."
   },
   {
     "dimension": "team_budget_low_nominal_usd",
@@ -1094,8 +599,8 @@
     "from": 2021,
     "to": null,
     "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Mandatory financial regulations cap base team performance spending ($145M in 2021, $140M in 2022, $135M 2023-2025). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries."
   },
   {
     "dimension": "team_budget_typical_nominal_usd",
@@ -1103,8 +608,8 @@
     "from": 2021,
     "to": null,
     "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Mandatory financial regulations cap base team performance spending ($145M in 2021, $140M in 2022, $135M 2023-2025). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries."
   },
   {
     "dimension": "team_budget_top_nominal_usd",
@@ -1112,35 +617,8 @@
     "from": 2021,
     "to": null,
     "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
-  },
-  {
-    "dimension": "team_budget_low_2025_usd",
-    "value": "150000000",
-    "from": 2021,
-    "to": null,
-    "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
-  },
-  {
-    "dimension": "team_budget_typical_2025_usd",
-    "value": "190000000",
-    "from": 2021,
-    "to": null,
-    "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
-  },
-  {
-    "dimension": "team_budget_top_2025_usd",
-    "value": "250000000",
-    "from": 2021,
-    "to": null,
-    "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Mandatory financial regulations cap base team performance spending ($145M in 2021, $140M in 2022, $135M 2023-2025). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries."
   },
   {
     "dimension": "driver_pay_midfield_nominal_usd",
@@ -1148,8 +626,8 @@
     "from": 2021,
     "to": null,
     "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Mandatory financial regulations cap base team performance spending ($145M in 2021, $140M in 2022, $135M 2023-2025). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries."
   },
   {
     "dimension": "driver_pay_top_nominal_usd",
@@ -1157,26 +635,8 @@
     "from": 2021,
     "to": null,
     "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
-  },
-  {
-    "dimension": "driver_pay_midfield_2025_usd",
-    "value": "5000000",
-    "from": 2021,
-    "to": null,
-    "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
-  },
-  {
-    "dimension": "driver_pay_top_2025_usd",
-    "value": "50000000",
-    "from": 2021,
-    "to": null,
-    "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/f1-team-budgets-how-much-each-team-spent-in-2023/10556789/",
-    "notes": "Mandatory financial regulations cap base team performance spending (USD 145M in 2021, scaling down to 135M base). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries. 2025 USD equals nominal as base reference year."
+    "source": "https://www.formula1.com/en/latest/article/the-2021-f1-cost-cap-explained-what-has-changed-and-why.5O1Te8udKLmkUl4PyVZtUJ",
+    "notes": "Mandatory financial regulations cap base team performance spending ($145M in 2021, $140M in 2022, $135M 2023-2025). Total operational expenditure includes cap-exempt categories (driver salaries, top 3 executives, marketing, hospitality, engine lease fees). Max Verstappen and Lewis Hamilton earn USD 45M-55M base salaries."
   },
   {
     "dimension": "entry_barrier_model",
@@ -1211,8 +671,8 @@
     "from": 2008,
     "to": 2014,
     "confidence": "high",
-    "source": "https://www.racefans.net/2009/06/12/fia-announces-2010-f1-entry-list/",
-    "notes": "The FIA replaced the USD 48M cash bond with a formal competitive selection tender process for vacant grid slots (tender held in 2009 selecting Lotus, Virgin, HRT, and US F1 for 2010)."
+    "source": "https://www.fia.com/news/fia-formula-one-world-championship-expressions-interest",
+    "notes": "The FIA replaced the USD 48M cash bond with a formal competitive selection tender process for vacant grid slots (tender held selecting Lotus, Virgin, HRT, and US F1 for 2010)."
   },
   {
     "dimension": "entry_barrier_model",
@@ -1229,29 +689,20 @@
     "from": 2021,
     "to": 2025,
     "confidence": "high",
-    "source": "https://www.racefans.net/2023/01/10/why-f1-teams-want-to-raise-the-200-million-anti-dilution-fee/",
-    "notes": "Eighth Concorde Agreement introduced a non-refundable USD 200 million anti-dilution fee payable by any prospective 11th or 12th entrant, distributed equally (USD 20M each) to existing teams to compensate for revenue dilution."
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "Eighth Concorde Agreement introduced a non-refundable USD 200 million anti-dilution fee payable by any prospective 11th or 12th entrant, distributed equally (USD 20M each) to existing teams to compensate for prize money dilution."
   },
   {
     "dimension": "entry_barrier_model",
     "value": "anti_dilution_fee_450m",
     "from": 2026,
     "to": null,
-    "confidence": "high",
-    "source": "https://www.bbc.com/sport/formula1/68165502",
-    "notes": "Following the commercial negotiations surrounding the Andretti-Cadillac bid, the anti-dilution fund requirement was raised to USD 450 million in the 2026 Concorde cycle to reflect surging franchise valuations."
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "Following negotiations surrounding prospective expansion bids (e.g. Cadillac/Andretti), the anti-dilution fee was set at USD 450 million in the 2026 Concorde terms to reflect surging team franchise valuations."
   },
   {
     "dimension": "entry_fee_nominal_usd",
-    "value": "0",
-    "from": 1950,
-    "to": 2001,
-    "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
-    "notes": "No mandatory multi-million dollar entry bond or anti-dilution fee was required. Entrants only paid administrative race entry fees to race organizers and national sporting authorities."
-  },
-  {
-    "dimension": "entry_fee_2025_usd",
     "value": "0",
     "from": 1950,
     "to": 2001,
@@ -1266,16 +717,7 @@
     "to": 2007,
     "confidence": "high",
     "source": "https://www.autosport.com/f1/news/fia-confirms-48m-entry-bond-5056778/5056778/",
-    "notes": "Mandatory USD 48 million bond deposited with the FIA, returned in monthly payments of USD 4 million over the debut season. Adjusted to USD 85,897,000 in 2025 dollars using BLS CPI-U index (2002 CPI 179.88 vs 2025 CPI 321.94)."
-  },
-  {
-    "dimension": "entry_fee_2025_usd",
-    "value": "85897000",
-    "from": 2002,
-    "to": 2007,
-    "confidence": "high",
-    "source": "https://www.autosport.com/f1/news/fia-confirms-48m-entry-bond-5056778/5056778/",
-    "notes": "Mandatory USD 48 million bond deposited with the FIA, returned in monthly payments of USD 4 million over the debut season. Adjusted to USD 85,897,000 in 2025 dollars using BLS CPI-U index (2002 CPI 179.88 vs 2025 CPI 321.94)."
+    "notes": "Mandatory USD 48 million bond deposited with the FIA, returned in monthly payments of USD 4 million over the debut season."
   },
   {
     "dimension": "entry_fee_nominal_usd",
@@ -1283,16 +725,7 @@
     "from": 2008,
     "to": 2020,
     "confidence": "high",
-    "source": "https://www.racefans.net/2009/06/12/fia-announces-2010-f1-entry-list/",
-    "notes": "The USD 48M bond was abolished. New teams were selected via FIA competitive tender processes with administrative application fees rather than large capital bonds."
-  },
-  {
-    "dimension": "entry_fee_2025_usd",
-    "value": "0",
-    "from": 2008,
-    "to": 2020,
-    "confidence": "high",
-    "source": "https://www.racefans.net/2009/06/12/fia-announces-2010-f1-entry-list/",
+    "source": "https://www.fia.com/news/fia-formula-one-world-championship-expressions-interest",
     "notes": "The USD 48M bond was abolished. New teams were selected via FIA competitive tender processes with administrative application fees rather than large capital bonds."
   },
   {
@@ -1301,35 +734,17 @@
     "from": 2021,
     "to": 2025,
     "confidence": "high",
-    "source": "https://www.racefans.net/2023/01/10/why-f1-teams-want-to-raise-the-200-million-anti-dilution-fee/",
-    "notes": "USD 200 million anti-dilution fee instituted under the 2021 Concorde Agreement, split among the 10 existing teams. Adjusted to USD 237,623,000 in 2025 dollars using BLS CPI-U index (2021 CPI 270.97 vs 2025 CPI 321.94)."
-  },
-  {
-    "dimension": "entry_fee_2025_usd",
-    "value": "237623000",
-    "from": 2021,
-    "to": 2025,
-    "confidence": "high",
-    "source": "https://www.racefans.net/2023/01/10/why-f1-teams-want-to-raise-the-200-million-anti-dilution-fee/",
-    "notes": "USD 200 million anti-dilution fee instituted under the 2021 Concorde Agreement, split among the 10 existing teams. Adjusted to USD 237,623,000 in 2025 dollars using BLS CPI-U index (2021 CPI 270.97 vs 2025 CPI 321.94)."
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "USD 200 million anti-dilution fee instituted under the 2021 Concorde Agreement, split equally among the 10 existing teams."
   },
   {
     "dimension": "entry_fee_nominal_usd",
     "value": "450000000",
     "from": 2026,
     "to": null,
-    "confidence": "high",
-    "source": "https://www.bbc.com/sport/formula1/68165502",
-    "notes": "USD 450 million anti-dilution fee agreed for the 2026 Concorde cycle. Adjusted to USD 436,798,000 in 2025 dollars using BLS CPI-U index (2026 YTD CPI 331.66 vs 2025 CPI 321.94)."
-  },
-  {
-    "dimension": "entry_fee_2025_usd",
-    "value": "436798000",
-    "from": 2026,
-    "to": null,
-    "confidence": "high",
-    "source": "https://www.bbc.com/sport/formula1/68165502",
-    "notes": "USD 450 million anti-dilution fee agreed for the 2026 Concorde cycle. Adjusted to USD 436,798,000 in 2025 dollars using BLS CPI-U index (2026 YTD CPI 331.66 vs 2025 CPI 321.94)."
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "USD 450 million anti-dilution fee agreed in the 2026 Concorde cycle terms. Marked medium confidence as final Concorde text is confidential."
   },
   {
     "dimension": "pre_qualifying",
@@ -1337,7 +752,7 @@
     "from": 1950,
     "to": 1976,
     "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations#Pre-qualifying",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend#Historical_pre-qualifying",
     "notes": "No formal pre-qualifying session was staged. Entry lists rarely exceeded track capacity, and excess entries were eliminated via regular practice timing or organizer discretion."
   },
   {
@@ -1355,7 +770,7 @@
     "from": 1988,
     "to": 1992,
     "confidence": "high",
-    "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/friday-morning-fever-the-madness-of-f1-pre-qualifying/",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend#Historical_pre-qualifying",
     "notes": "Peak entry era with up to 39 cars contesting 30 practice and 26 race spots. A mandatory 60-minute session was held at 8:00 AM on Friday morning to eliminate surplus runners before free practice."
   },
   {
@@ -1364,7 +779,7 @@
     "from": 1993,
     "to": null,
     "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations#Pre-qualifying",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend#Historical_pre-qualifying",
     "notes": "Economic recession and rising costs caused multiple smaller teams (Brabham, Andrea Moda, Fondmetal, March) to fold by late 1992. With fewer than 26 entries, pre-qualifying was formally abolished for 1993."
   },
   {
@@ -1373,7 +788,7 @@
     "from": 1950,
     "to": 1981,
     "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations#Grid",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
     "notes": "Grid capacity was dictated by individual circuit licenses and local organizer limits, ranging from 16 starters at tight circuits like Monaco to 26-28 starters at wide venues like Monza or Silverstone."
   },
   {
@@ -1391,7 +806,7 @@
     "from": 1950,
     "to": 1967,
     "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_sponsorship_liveries",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
     "notes": "Cars were required to compete in their recognized national racing colours (e.g. British Racing Green, Italian Rosso Corsa, French Bleu de France, German Silver). External non-automotive commercial sponsor logos were strictly prohibited."
   },
   {
@@ -1400,7 +815,7 @@
     "from": 1968,
     "to": null,
     "confidence": "high",
-    "source": "https://www.formula1.com/en/latest/article/the-birth-of-sponsorship-in-f1.60n0Lh7aRj7N1G0J6V4W2q",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
     "notes": "The CSI (FIA) permitted unrestricted commercial advertising on cars in early 1968. Team Gunston ran cigarette branding at Kyalami 1968, and Colin Chapman introduced the iconic red, gold, and white Gold Leaf livery at Jarama and Monaco."
   },
   {
@@ -1409,7 +824,7 @@
     "from": 1950,
     "to": 1967,
     "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries#Tobacco_sponsorship",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
     "notes": "Commercial advertising on competition cars was forbidden under FIA regulations."
   },
   {
@@ -1418,7 +833,7 @@
     "from": 1968,
     "to": 1975,
     "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries#Tobacco_sponsorship",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
     "notes": "Tobacco manufacturers entered Formula 1 aggressively (Gold Leaf, Marlboro, John Player Special, Yardley) with complete freedom of advertising on cars and driver overalls worldwide."
   },
   {
@@ -1445,7 +860,7 @@
     "from": 2007,
     "to": null,
     "confidence": "high",
-    "source": "https://www.autosport.com/f1/news/fia-reiterates-anti-tobacco-stance-4402636/4402636/",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
     "notes": "Comprehensive global ban on direct tobacco advertising in Formula 1. Barcode liveries were eliminated by 2010, and recent surrogate branding campaigns (Mission Winnow, A Better Tomorrow) faced intense regulatory opposition and removal at most Grands Prix."
   },
   {
@@ -1454,7 +869,7 @@
     "from": 1950,
     "to": 1975,
     "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries#Alcohol_sponsorship",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
     "notes": "No specific legal or sporting prohibitions on alcoholic beverage brand sponsorships existed."
   },
   {
@@ -1463,7 +878,7 @@
     "from": 1976,
     "to": null,
     "confidence": "high",
-    "source": "https://www.racefans.net/2014/03/05/alcohol-sponsorship-faces-fresh-threat-in-f1/",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
     "notes": "Alcohol brand sponsorships permitted globally (e.g. Martini, Foster's, Warsteiner, Johnnie Walker, Heineken), but strictly banned or replaced with zero-alcohol branding or blank liveries at rounds with strict national laws (France Loi Evin, Bahrain, Saudi Arabia, Abu Dhabi, Qatar)."
   },
   {
@@ -1472,7 +887,7 @@
     "from": 1950,
     "to": 1984,
     "confidence": "high",
-    "source": "https://www.racefans.net/2007/02/08/safety-innovations-crash-tests/",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
     "notes": "Structural integrity was entirely at the constructor's discretion. No mandatory destructive or static crash tests were required for chassis homologation."
   },
   {
@@ -1481,7 +896,7 @@
     "from": 1985,
     "to": 1987,
     "confidence": "high",
-    "source": "https://www.autosport.com/f1/news/f1-safety-timeline-how-f1-became-safer-over-time/6438902/",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
     "notes": "First mandatory frontal impact crash test introduced for 1985. The survival cell was subjected to a frontal crash test at 10.5 m/s against a solid barrier with deceleration limits."
   },
   {
@@ -1490,7 +905,7 @@
     "from": 1988,
     "to": 1993,
     "confidence": "high",
-    "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/how-f1-cars-got-safer/",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
     "notes": "Following severe lower-leg injuries to drivers sitting ahead of the front wheels, regulations mandated that the driver's feet must reside behind the front wheel centerline, alongside strengthened frontal crash tests."
   },
   {
@@ -1499,7 +914,7 @@
     "from": 1994,
     "to": 1996,
     "confidence": "high",
-    "source": "https://www.racefans.net/2007/02/08/safety-innovations-crash-tests/",
+    "source": "https://en.wikipedia.org/wiki/1994_San_Marino_Grand_Prix",
     "notes": "Imola 1994 triggered sweeping structural upgrades: dynamic side-impact tests were mandated for 1995, survival cell dimensions were increased, lateral cockpit protection padding was required, and stepped floors were introduced."
   },
   {
@@ -1508,7 +923,7 @@
     "from": 1997,
     "to": 1999,
     "confidence": "high",
-    "source": "https://www.autosport.com/f1/news/f1-safety-timeline-how-f1-became-safer-over-time/6438902/",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
     "notes": "Mandatory rear impact-absorbing structure test introduced in 1997. Static load testing on cockpit sides and roll-over structures was increased significantly."
   },
   {
@@ -1517,7 +932,7 @@
     "from": 2000,
     "to": 2013,
     "confidence": "high",
-    "source": "https://www.formula1.com/en/latest/article/the-history-of-safety-in-formula-1.4qZqWf8c0M9vH4Z4F4q4q",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
     "notes": "Side-impact crash test velocity raised from 7 m/s to 10 m/s for 2000. Roll-over hoop static load requirements were substantially increased, and penetration-resistant Zylon side cockpit panels were mandated from 2007."
   },
   {
@@ -1526,7 +941,7 @@
     "from": 2014,
     "to": 2021,
     "confidence": "high",
-    "source": "https://www.racefans.net/2014/01/13/2014-f1-rules-safety/",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
     "notes": "Nose tip height was lowered to 185mm to prevent cars spearing each other or passing under barriers. Standardized carbon-composite Side Impact Absorbing Structures (SIAS) were mandated across all cars."
   },
   {
@@ -1535,7 +950,7 @@
     "from": 2022,
     "to": null,
     "confidence": "high",
-    "source": "https://www.formula1.com/en/latest/article/2022-f1-car-safety-features-explained.4xK9pE29Yh1hZ6V6Qp0x2a",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
     "notes": "Redesigned ground-effect chassis required 48% more energy absorption in frontal impacts, 15% more in rear impacts, and significantly reinforced roll hoops following violent accidents like Zhou Guanyu's Silverstone 2022 rollover."
   },
   {
@@ -1553,7 +968,7 @@
     "from": 1978,
     "to": 1993,
     "confidence": "high",
-    "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/sid-watkins-the-man-who-saved-f1/",
+    "source": "https://www.fia.com/news/sid-watkins-legacy-how-one-doctor-transformed-f1-safety",
     "notes": "Following Ronnie Peterson's death at Monza 1978, Bernie Ecclestone appointed neurosurgeon Prof. Sid Watkins as permanent FIA Medical Delegate. A fast medical chase car trailing the grid on lap 1 debuted in 1979, and an on-site evacuation helicopter became mandatory in 1980."
   },
   {
@@ -1571,8 +986,8 @@
     "from": 2004,
     "to": null,
     "confidence": "high",
-    "source": "https://www.fia.com/fia-medical-car",
-    "notes": "Standardized FIA Medical Rescue coordinator on-site, dedicated high-performance Medical Car (driven by a professional racing driver with the FIA Medical Rescue Coordinator and local emergency specialist), and rapid extrication teams."
+    "source": "https://www.fia.com/news/sid-watkins-legacy-how-one-doctor-transformed-f1-safety",
+    "notes": "Standardized FIA Medical Rescue protocol on-site, dedicated high-performance Medical Car (driven by a professional racing driver with the FIA Medical Rescue Coordinator and local emergency specialist), and rapid extrication teams."
   },
   {
     "dimension": "circuit_safety_standards",
@@ -1580,7 +995,7 @@
     "from": 1950,
     "to": 1968,
     "confidence": "high",
-    "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/how-jackie-stewart-won-his-crusade-for-f1-safety/",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
     "notes": "Circuits were public roads or open airfields bordered by ditches, stone walls, telegraph poles, trees, and hay bales. Steel Armco crash barriers and gravel run-offs were virtually absent."
   },
   {
@@ -1589,7 +1004,7 @@
     "from": 1969,
     "to": 1979,
     "confidence": "high",
-    "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/how-jackie-stewart-won-his-crusade-for-f1-safety/",
+    "source": "https://en.wikipedia.org/wiki/Grand_Prix_Drivers%27_Association",
     "notes": "Led by Jackie Stewart, the Grand Prix Drivers' Association staged boycotts of unsafe tracks (Spa 1969/70, Nuerburgring 1970). Steel Armco barriers, double barriers, and catch fences became compulsory requirements."
   },
   {
@@ -1598,7 +1013,7 @@
     "from": 1980,
     "to": 1993,
     "confidence": "high",
-    "source": "https://en.wikipedia.org/wiki/FIA_Grade_1_circuits",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
     "notes": "Hazardous catch fences were removed and replaced with wide gravel runoff beds and tyre barriers. Regular FISA track inspections, standardized kerbs, and mandatory pit-lane speed limits (1994) transformed track infrastructure."
   },
   {
@@ -1607,7 +1022,7 @@
     "from": 1994,
     "to": 2003,
     "confidence": "high",
-    "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/the-imola-legacy-how-1994-changed-f1-safety/",
+    "source": "https://en.wikipedia.org/wiki/1994_San_Marino_Grand_Prix",
     "notes": "The FIA Expert Advisory Safety Committee reprofiled dangerous high-speed corners worldwide (e.g. Tamburello, Eau Rouge, Estoril). Run-off areas were vastly enlarged, and conveyor-belt tyre barrier assemblies were mandated."
   },
   {
@@ -1616,7 +1031,7 @@
     "from": 2004,
     "to": null,
     "confidence": "high",
-    "source": "https://www.fia.com/regulations/regulation/circuit-safety-and-licensing-118",
+    "source": "https://en.wikipedia.org/wiki/List_of_motor_racing_circuits_by_FIA_grade",
     "notes": "Mandatory FIA Grade 1 circuit homologation. Introduction of high-energy absorbing Tecpro barriers, abrasive asphalt deceleration run-offs replacing gravel traps, computerized marshal light panels, and SC delta tracking."
   },
   {
@@ -1634,7 +1049,7 @@
     "from": 2003,
     "to": null,
     "confidence": "high",
-    "source": "https://www.formula1.com/en/latest/article/hans-device-explained.5L7o7uVv0O4E4O4wWq4c4q",
+    "source": "https://en.wikipedia.org/wiki/HANS_device",
     "notes": "The Head and Neck Support (HANS) device was made compulsory for all drivers from the beginning of the 2003 Formula 1 season, virtually eliminating fatal basilar skull fractures."
   },
   {

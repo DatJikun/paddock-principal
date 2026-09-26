@@ -48,33 +48,6 @@
     "gameplay_effect": "Benchmark annual operating budget for a championship-contending works or top-tier team in current-year nominal USD."
   },
   {
-    "id": "team_budget_low_2025_usd",
-    "category": "economic",
-    "name": "Backmarker team operating budget (2025 USD)",
-    "type": "number",
-    "values": null,
-    "unit": "usd",
-    "gameplay_effect": "Benchmark annual operating budget for backmarker entrants adjusted to constant 2025 USD via the US CPI-U index."
-  },
-  {
-    "id": "team_budget_typical_2025_usd",
-    "category": "economic",
-    "name": "Midfield team operating budget (2025 USD)",
-    "type": "number",
-    "values": null,
-    "unit": "usd",
-    "gameplay_effect": "Benchmark annual operating budget for a competitive midfield team adjusted to constant 2025 USD via the US CPI-U index."
-  },
-  {
-    "id": "team_budget_top_2025_usd",
-    "category": "economic",
-    "name": "Front-runner team operating budget (2025 USD)",
-    "type": "number",
-    "values": null,
-    "unit": "usd",
-    "gameplay_effect": "Benchmark annual operating budget for a championship-contending team adjusted to constant 2025 USD via the US CPI-U index."
-  },
-  {
     "id": "driver_pay_midfield_nominal_usd",
     "category": "economic",
     "name": "Midfield driver salary (nominal USD)",
@@ -91,24 +64,6 @@
     "values": null,
     "unit": "usd",
     "gameplay_effect": "Typical annual base retainer commanded by a premier race winner or World Champion driver in current-year nominal USD."
-  },
-  {
-    "id": "driver_pay_midfield_2025_usd",
-    "category": "economic",
-    "name": "Midfield driver salary (2025 USD)",
-    "type": "number",
-    "values": null,
-    "unit": "usd",
-    "gameplay_effect": "Typical annual base retainer paid to an established midfield driver adjusted to constant 2025 USD via the US CPI-U index."
-  },
-  {
-    "id": "driver_pay_top_2025_usd",
-    "category": "economic",
-    "name": "Top driver salary (2025 USD)",
-    "type": "number",
-    "values": null,
-    "unit": "usd",
-    "gameplay_effect": "Typical annual base retainer commanded by a premier driver adjusted to constant 2025 USD via the US CPI-U index."
   },
   {
     "id": "commercial_liveries",
@@ -174,15 +129,6 @@
     "values": null,
     "unit": "usd",
     "gameplay_effect": "Mandatory cash fee, bond deposit, or anti-dilution fund required from a new entrant in nominal USD."
-  },
-  {
-    "id": "entry_fee_2025_usd",
-    "category": "entry",
-    "name": "Mandatory new entrant fee or bond (2025 USD)",
-    "type": "number",
-    "values": null,
-    "unit": "usd",
-    "gameplay_effect": "Mandatory cash fee or bond required from a new entrant adjusted to constant 2025 USD via the US CPI-U index."
   },
   {
     "id": "pre_qualifying",

@@ -1,0 +1,4907 @@
+{
+  "notes": "World Championship races only, as listed by Jolpica-F1, 1950 through the 2026 rounds Jolpica already publishes. A new layout_id is a configuration change that would move a lap profile: a section added or removed, a chicane inserted, or a cited length change of about 0.05 km that lines up with a known rebuild. Smaller infobox differences stay on one layout and are described in that layout's notes. profile_guess weights are estimates for later calibration and sum to 1. corners is null: one agreed corner count was not established for every version. years_used_in_f1 lists seasons that actually held a championship race on that layout. circuit_id is the Jolpica circuitId. country is ISO 3166-1 alpha-3.",
+  "character_tags": [
+    {
+      "id": "street",
+      "meaning": "Walls, parks or public roads, with little runoff."
+    },
+    {
+      "id": "high_speed",
+      "meaning": "Most of the lap is fast corners."
+    },
+    {
+      "id": "technical",
+      "meaning": "Precision and many direction changes matter more than pure speed."
+    },
+    {
+      "id": "bumpy",
+      "meaning": "The surface, camber or crests are part of driving the lap."
+    },
+    {
+      "id": "altitude",
+      "meaning": "Thin air changes power and cooling."
+    },
+    {
+      "id": "oval",
+      "meaning": "A banked oval, or a layout that includes one."
+    },
+    {
+      "id": "long",
+      "meaning": "The lap is much longer than a typical 5 km grand prix."
+    },
+    {
+      "id": "dangerous",
+      "meaning": "In this era the layout itself was a known safety problem."
+    },
+    {
+      "id": "flowing",
+      "meaning": "A rhythm of medium and fast corners, rather than stop-start."
+    }
+  ],
+  "circuits": [
+    {
+      "circuit_id": "adelaide",
+      "name": "Adelaide Street Circuit",
+      "country": "AUS",
+      "layouts": [
+        {
+          "layout_id": "adelaide_1985",
+          "years_used_in_f1": [
+            1985,
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993,
+            1994,
+            1995
+          ],
+          "length_km": 3.78,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.15,
+            "low_speed": 0.35,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1985_Australian_Grand_Prix",
+          "notes": "Park streets around the Adelaide lake. One 1986 page rounds the lap to 3.779 km; the other ten years say 3.780."
+        }
+      ]
+    },
+    {
+      "circuit_id": "ain-diab",
+      "name": "Ain Diab",
+      "country": "MAR",
+      "layouts": [
+        {
+          "layout_id": "ain-diab_1958",
+          "years_used_in_f1": [
+            1958
+          ],
+          "length_km": 7.618,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.35,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1958_Moroccan_Grand_Prix",
+          "notes": "One-off public-road race at Casablanca. The lap length is on the 1958 race page; the corner mix is only broadly a fast road circuit."
+        }
+      ]
+    },
+    {
+      "circuit_id": "aintree",
+      "name": "Aintree",
+      "country": "GBR",
+      "layouts": [
+        {
+          "layout_id": "aintree_1955",
+          "years_used_in_f1": [
+            1955,
+            1957,
+            1959,
+            1961,
+            1962
+          ],
+          "length_km": 4.828,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.4,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1955_British_Grand_Prix",
+          "notes": "The Grand Prix course beside the Aintree horse track, cited at 4.828 km for every championship visit."
+        }
+      ]
+    },
+    {
+      "circuit_id": "albert_park",
+      "name": "Albert Park Grand Prix Circuit",
+      "country": "AUS",
+      "layouts": [
+        {
+          "layout_id": "albert_park_1996",
+          "years_used_in_f1": [
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019
+          ],
+          "length_km": 5.303,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.2,
+            "low_speed": 0.3,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1996_Australian_Grand_Prix",
+          "notes": "Lakeside park circuit. 1996-97 pages say 5.302 km and the rest of this era 5.303. The 2022 rebuild is a separate layout."
+        },
+        {
+          "layout_id": "albert_park_2022",
+          "years_used_in_f1": [
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.278,
+          "corners": null,
+          "character": [
+            "street",
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.28,
+            "low_speed": 0.22,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2022_Australian_Grand_Prix",
+          "notes": "Several slow corners were removed for the 2022 return, so the lap is shorter and faster than the 1996-2019 course. 2026 is included because the round is back at Albert Park and no further rebuild was found."
+        }
+      ]
+    },
+    {
+      "circuit_id": "americas",
+      "name": "Circuit of the Americas",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "americas_2012",
+          "years_used_in_f1": [
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.513,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.3,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2012_United_States_Grand_Prix",
+          "notes": "One Grand Prix layout since the first race. The 2026 round has no race article yet and stays on this layout."
+        }
+      ]
+    },
+    {
+      "circuit_id": "anderstorp",
+      "name": "Scandinavian Raceway",
+      "country": "SWE",
+      "layouts": [
+        {
+          "layout_id": "anderstorp_1973",
+          "years_used_in_f1": [
+            1973,
+            1974,
+            1975,
+            1976,
+            1977,
+            1978
+          ],
+          "length_km": 4.018,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.4,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1973_Swedish_Grand_Prix",
+          "notes": "Flat Scandinavian Raceway. 1973-77 pages say 4.018 km; 1978 says 4.031 km, too small a step for a second layout."
+        }
+      ]
+    },
+    {
+      "circuit_id": "avus",
+      "name": "AVUS",
+      "country": "DEU",
+      "layouts": [
+        {
+          "layout_id": "avus_1959",
+          "years_used_in_f1": [
+            1959
+          ],
+          "length_km": 8.3,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.55,
+            "high_speed": 0.2,
+            "low_speed": 0.05,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1959_German_Grand_Prix",
+          "notes": "Autobahn straights joined by a brick banking at the north end. Almost no slow corners."
+        }
+      ]
+    },
+    {
+      "circuit_id": "bahrain",
+      "name": "Bahrain International Circuit",
+      "country": "BHR",
+      "layouts": [
+        {
+          "layout_id": "bahrain_2004",
+          "years_used_in_f1": [
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025
+          ],
+          "length_km": 5.412,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.3,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2004_Bahrain_Grand_Prix",
+          "notes": "The usual Grand Prix layout, including the 2020 Bahrain Grand Prix. The 2004 page says 5.417 km and every later GP-layout page says 5.412. The 2010 endurance lap and the 2020 outer lap are separate layouts."
+        },
+        {
+          "layout_id": "bahrain_2010",
+          "years_used_in_f1": [
+            2010
+          ],
+          "length_km": 6.299,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.35,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2010_Bahrain_Grand_Prix",
+          "notes": "The 2010 race used the longer endurance loop, not the Grand Prix loop."
+        },
+        {
+          "layout_id": "bahrain_2020_outer",
+          "years_used_in_f1": [
+            2020
+          ],
+          "length_km": 3.543,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.15,
+            "low_speed": 0.35,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2020_Sakhir_Grand_Prix",
+          "notes": "Outer loop used only for the 2020 Sakhir Grand Prix, the day after the Grand Prix layout race at the same venue."
+        }
+      ]
+    },
+    {
+      "circuit_id": "baku",
+      "name": "Baku City Circuit",
+      "country": "AZE",
+      "layouts": [
+        {
+          "layout_id": "baku_2016",
+          "years_used_in_f1": [
+            2016,
+            2017,
+            2018,
+            2019,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 6.003,
+          "corners": null,
+          "character": [
+            "street",
+            "high_speed",
+            "long"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.25,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2016_European_Grand_Prix",
+          "notes": "Castle section is slow and the run to the turn 1 kink is a long blast. Length is stable across every visit."
+        }
+      ]
+    },
+    {
+      "circuit_id": "boavista",
+      "name": "Circuito da Boavista",
+      "country": "PRT",
+      "layouts": [
+        {
+          "layout_id": "boavista_1958",
+          "years_used_in_f1": [
+            1958,
+            1960
+          ],
+          "length_km": 7.4,
+          "corners": null,
+          "character": [
+            "street",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.2,
+            "low_speed": 0.25,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1958_Portuguese_Grand_Prix",
+          "notes": "Public-road circuit around the Boavista avenues in Porto, used twice at the same cited length."
+        }
+      ]
+    },
+    {
+      "circuit_id": "brands_hatch",
+      "name": "Brands Hatch",
+      "country": "GBR",
+      "layouts": [
+        {
+          "layout_id": "brands_hatch_1964",
+          "years_used_in_f1": [
+            1964,
+            1966,
+            1968,
+            1970,
+            1972,
+            1974,
+            1976,
+            1978,
+            1980,
+            1982,
+            1983,
+            1984,
+            1985,
+            1986
+          ],
+          "length_km": 4.206,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.35,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1964_British_Grand_Prix",
+          "notes": "Grand Prix loop in the woods. Pages through 1972 cite about 4.26 km and from 1974 cite 4.206 km. The step is only about 60 metres and no named rebuild was confirmed, so it stays one layout at the later figure."
+        }
+      ]
+    },
+    {
+      "circuit_id": "bremgarten",
+      "name": "Circuit Bremgarten",
+      "country": "CHE",
+      "layouts": [
+        {
+          "layout_id": "bremgarten_1950",
+          "years_used_in_f1": [
+            1950,
+            1951,
+            1952,
+            1953,
+            1954
+          ],
+          "length_km": 7.28,
+          "corners": null,
+          "character": [
+            "technical",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.3,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1950_Swiss_Grand_Prix",
+          "notes": "Forest road circuit outside Bern, the same 7.280 km lap for every Swiss Grand Prix in the championship."
+        }
+      ]
+    },
+    {
+      "circuit_id": "buddh",
+      "name": "Buddh International Circuit",
+      "country": "IND",
+      "layouts": [
+        {
+          "layout_id": "buddh_2011",
+          "years_used_in_f1": [
+            2011,
+            2012,
+            2013
+          ],
+          "length_km": 5.125,
+          "corners": null,
+          "character": [
+            "high_speed"
+          ],
+          "profile_guess": {
+            "straights": 0.4,
+            "high_speed": 0.25,
+            "low_speed": 0.1,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2011_Indian_Grand_Prix",
+          "notes": "Long straight into a slow hairpin, then a flowing back section. One layout for all three races."
+        }
+      ]
+    },
+    {
+      "circuit_id": "catalunya",
+      "name": "Circuit de Barcelona-Catalunya",
+      "country": "ESP",
+      "layouts": [
+        {
+          "layout_id": "catalunya_1991",
+          "years_used_in_f1": [
+            1991,
+            1992,
+            1993
+          ],
+          "length_km": 4.747,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.3,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1991_Spanish_Grand_Prix",
+          "notes": "Original Montmeló Grand Prix course, before the 1994 tyre chicane and the 1995 revision."
+        },
+        {
+          "layout_id": "catalunya_1994",
+          "years_used_in_f1": [
+            1994
+          ],
+          "length_km": 4.745,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.22,
+            "low_speed": 0.28,
+            "braking": 0.28
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1994_Spanish_Grand_Prix",
+          "notes": "A temporary tyre chicane was put in at the Nissan corner after Imola. The cited length barely moved, so the profile shift is an estimate of that one slow corner."
+        },
+        {
+          "layout_id": "catalunya_1995",
+          "years_used_in_f1": [
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002,
+            2003
+          ],
+          "length_km": 4.73,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.3,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1995_Spanish_Grand_Prix",
+          "notes": "Nissan tyre chicane gone. Early pages say 4.727 km, later ones 4.730. La Caixa was still the long corner."
+        },
+        {
+          "layout_id": "catalunya_2004",
+          "years_used_in_f1": [
+            2004,
+            2005,
+            2006
+          ],
+          "length_km": 4.627,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.22,
+            "low_speed": 0.28,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2004_Spanish_Grand_Prix",
+          "notes": "La Caixa was tightened into a slow hairpin, which shortened the lap."
+        },
+        {
+          "layout_id": "catalunya_2007",
+          "years_used_in_f1": [
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020
+          ],
+          "length_km": 4.655,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.2,
+            "low_speed": 0.28,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2007_Spanish_Grand_Prix",
+          "notes": "A chicane was added before the last corner. This is the layout used through 2020."
+        },
+        {
+          "layout_id": "catalunya_2021",
+          "years_used_in_f1": [
+            2021,
+            2022
+          ],
+          "length_km": 4.675,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.22,
+            "low_speed": 0.26,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2021_Spanish_Grand_Prix",
+          "notes": "Turn 10 was opened out again while the final chicane stayed. Pages cite 4.675 km."
+        },
+        {
+          "layout_id": "catalunya_2023",
+          "years_used_in_f1": [
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 4.657,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.28,
+            "low_speed": 0.22,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2023_Spanish_Grand_Prix",
+          "notes": "The final chicane was removed, so the last sector is fast again even though the lap length is close to the 2007-2020 figure. Includes the 2026 Barcelona Grand Prix."
+        }
+      ]
+    },
+    {
+      "circuit_id": "charade",
+      "name": "Charade Circuit",
+      "country": "FRA",
+      "layouts": [
+        {
+          "layout_id": "charade_1965",
+          "years_used_in_f1": [
+            1965,
+            1969,
+            1970,
+            1972
+          ],
+          "length_km": 8.055,
+          "corners": null,
+          "character": [
+            "bumpy",
+            "long",
+            "dangerous",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.4,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1965_French_Grand_Prix",
+          "notes": "Public-road lap on the volcanic hills above Clermont-Ferrand. Same cited length for all four races."
+        }
+      ]
+    },
+    {
+      "circuit_id": "dallas",
+      "name": "Fair Park",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "dallas_1984",
+          "years_used_in_f1": [
+            1984
+          ],
+          "length_km": 3.901,
+          "corners": null,
+          "character": [
+            "street",
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.1,
+            "high_speed": 0.1,
+            "low_speed": 0.4,
+            "braking": 0.4
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1984_Dallas_Grand_Prix",
+          "notes": "One-off Fair Park street race. The surface broke up in the heat, which is why bumpy is tagged."
+        }
+      ]
+    },
+    {
+      "circuit_id": "detroit",
+      "name": "Detroit Street Circuit",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "detroit_1982",
+          "years_used_in_f1": [
+            1982
+          ],
+          "length_km": 4.168,
+          "corners": null,
+          "character": [
+            "street",
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.1,
+            "low_speed": 0.4,
+            "braking": 0.35
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1982_Detroit_Grand_Prix",
+          "notes": "First downtown Detroit course, cited longer than the revised streets used from 1983."
+        },
+        {
+          "layout_id": "detroit_1983",
+          "years_used_in_f1": [
+            1983,
+            1984,
+            1985,
+            1986
+          ],
+          "length_km": 4.12,
+          "corners": null,
+          "character": [
+            "street",
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.1,
+            "low_speed": 0.4,
+            "braking": 0.35
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1983_Detroit_Grand_Prix",
+          "notes": "Shortened street loop used for four seasons. The exact blocks that moved are not re-described here."
+        },
+        {
+          "layout_id": "detroit_1987",
+          "years_used_in_f1": [
+            1987,
+            1988
+          ],
+          "length_km": 4.023,
+          "corners": null,
+          "character": [
+            "street",
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.12,
+            "high_speed": 0.1,
+            "low_speed": 0.4,
+            "braking": 0.38
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1987_Detroit_Grand_Prix",
+          "notes": "Another shortening for the last two Detroit races, down to 4.023 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "dijon",
+      "name": "Dijon-Prenois",
+      "country": "FRA",
+      "layouts": [
+        {
+          "layout_id": "dijon_1974",
+          "years_used_in_f1": [
+            1974
+          ],
+          "length_km": 3.289,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.25,
+            "low_speed": 0.3,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1974_French_Grand_Prix",
+          "notes": "The short Prenois course, used only for the 1974 French Grand Prix, before the circuit was extended."
+        },
+        {
+          "layout_id": "dijon_1977",
+          "years_used_in_f1": [
+            1977,
+            1979,
+            1981,
+            1982,
+            1984
+          ],
+          "length_km": 3.801,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.4,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1977_French_Grand_Prix",
+          "notes": "The extended course, including the long uphill straight. Stable length from 1977 through 1984."
+        }
+      ]
+    },
+    {
+      "circuit_id": "donington",
+      "name": "Donington Park",
+      "country": "GBR",
+      "layouts": [
+        {
+          "layout_id": "donington_1993",
+          "years_used_in_f1": [
+            1993
+          ],
+          "length_km": 4.023,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.35,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1993_European_Grand_Prix",
+          "notes": "The Grand Prix loop used for the one-off 1993 European Grand Prix."
+        }
+      ]
+    },
+    {
+      "circuit_id": "essarts",
+      "name": "Rouen-Les-Essarts",
+      "country": "FRA",
+      "layouts": [
+        {
+          "layout_id": "essarts_1952",
+          "years_used_in_f1": [
+            1952
+          ],
+          "length_km": 5.1,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "dangerous",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.4,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1952_French_Grand_Prix",
+          "notes": "Shorter Rouen road course, before the later extension down the hill."
+        },
+        {
+          "layout_id": "essarts_1957",
+          "years_used_in_f1": [
+            1957,
+            1962,
+            1964,
+            1968
+          ],
+          "length_km": 6.542,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "dangerous",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.4,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1957_French_Grand_Prix",
+          "notes": "Extended Essarts course at 6.542 km for 1957, 1962, 1964 and 1968."
+        }
+      ]
+    },
+    {
+      "circuit_id": "estoril",
+      "name": "Autódromo do Estoril",
+      "country": "PRT",
+      "layouts": [
+        {
+          "layout_id": "estoril_1984",
+          "years_used_in_f1": [
+            1984,
+            1985,
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996
+          ],
+          "length_km": 4.35,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.3,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1984_Portuguese_Grand_Prix",
+          "notes": "One Grand Prix course. 1984-93 pages say 4.350 km and 1994-96 say 4.360 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "fuji",
+      "name": "Fuji Speedway",
+      "country": "JPN",
+      "layouts": [
+        {
+          "layout_id": "fuji_1976",
+          "years_used_in_f1": [
+            1976,
+            1977
+          ],
+          "length_km": 4.359,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.35,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1976_Japanese_Grand_Prix",
+          "notes": "The old Fuji Grand Prix course, with the long start straight."
+        },
+        {
+          "layout_id": "fuji_2007",
+          "years_used_in_f1": [
+            2007,
+            2008
+          ],
+          "length_km": 4.563,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.3,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2007_Japanese_Grand_Prix",
+          "notes": "Rebuilt course used for the 2007 and 2008 Japanese Grands Prix, longer than the 1970s lap."
+        }
+      ]
+    },
+    {
+      "circuit_id": "galvez",
+      "name": "Autódromo Juan y Oscar Gálvez",
+      "country": "ARG",
+      "layouts": [
+        {
+          "layout_id": "galvez_1953",
+          "years_used_in_f1": [
+            1953,
+            1954,
+            1955,
+            1956,
+            1957,
+            1958,
+            1960
+          ],
+          "length_km": 3.912,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.25,
+            "low_speed": 0.3,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1953_Argentine_Grand_Prix",
+          "notes": "Circuit No. 2. The 1954 race ran the same roads in the opposite direction."
+        },
+        {
+          "layout_id": "galvez_1972",
+          "years_used_in_f1": [
+            1972,
+            1973
+          ],
+          "length_km": 3.346,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.2,
+            "low_speed": 0.35,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1972_Argentine_Grand_Prix",
+          "notes": "The short No. 9 course. Race pages cite about 3.346 km."
+        },
+        {
+          "layout_id": "galvez_1974",
+          "years_used_in_f1": [
+            1974,
+            1975,
+            1977,
+            1978,
+            1979,
+            1980,
+            1981
+          ],
+          "length_km": 5.968,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long"
+          ],
+          "profile_guess": {
+            "straights": 0.4,
+            "high_speed": 0.3,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/Autodromo_Juan_y_Oscar_Galvez",
+          "notes": "The long No. 15 course, with the lake loop taken flat. The circuit history and the 1974 and 1981 race pages put this layout at 5.968 km. The 1977-1980 race pages print 5.810 km but still show the No. 15 map, so those years stay here. The kilometre clash is why confidence is medium."
+        },
+        {
+          "layout_id": "galvez_1995",
+          "years_used_in_f1": [
+            1995,
+            1996,
+            1997,
+            1998
+          ],
+          "length_km": 4.259,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.2,
+            "low_speed": 0.35,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1995_Argentine_Grand_Prix",
+          "notes": "Twisty No. 6 course with the Senna S, used for the 1995-1998 return."
+        }
+      ]
+    },
+    {
+      "circuit_id": "george",
+      "name": "Prince George Circuit",
+      "country": "ZAF",
+      "layouts": [
+        {
+          "layout_id": "george_1962",
+          "years_used_in_f1": [
+            1962,
+            1963,
+            1965
+          ],
+          "length_km": 3.92,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.35,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1962_South_African_Grand_Prix",
+          "notes": "Prince George circuit at East London, the same cited length for all three championship races."
+        }
+      ]
+    },
+    {
+      "circuit_id": "hockenheimring",
+      "name": "Hockenheimring",
+      "country": "DEU",
+      "layouts": [
+        {
+          "layout_id": "hockenheimring_1970",
+          "years_used_in_f1": [
+            1970,
+            1977,
+            1978,
+            1979,
+            1980,
+            1981
+          ],
+          "length_km": 6.79,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.5,
+            "high_speed": 0.28,
+            "low_speed": 0.05,
+            "braking": 0.17
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1970_German_Grand_Prix",
+          "notes": "Forest circuit with two chicanes on the long straights and the Ostkurve still a fast corner. The 1970 and 1977-1981 pages agree on 6.790 km."
+        },
+        {
+          "layout_id": "hockenheimring_1982",
+          "years_used_in_f1": [
+            1982,
+            1983,
+            1984,
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001
+          ],
+          "length_km": 6.823,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long"
+          ],
+          "profile_guess": {
+            "straights": 0.42,
+            "high_speed": 0.22,
+            "low_speed": 0.08,
+            "braking": 0.28
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1982_German_Grand_Prix",
+          "notes": "A chicane was added at the Ostkurve for 1982, rebuilt slower for 1992, and the other chicanes were tightened for 1994. Pages move from 6.802 km to 6.825 km across that span. One profile covers those chicane revisions because the lap stayed a long forest blast plus the stadium."
+        },
+        {
+          "layout_id": "hockenheimring_2002",
+          "years_used_in_f1": [
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2008,
+            2010,
+            2012,
+            2014,
+            2016,
+            2018,
+            2019
+          ],
+          "length_km": 4.574,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.25,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2002_German_Grand_Prix",
+          "notes": "The 2002 cut-down circuit. The forest loop was replaced by a short stadium lap with one long straight."
+        }
+      ]
+    },
+    {
+      "circuit_id": "hungaroring",
+      "name": "Hungaroring",
+      "country": "HUN",
+      "layouts": [
+        {
+          "layout_id": "hungaroring_1986",
+          "years_used_in_f1": [
+            1986,
+            1987,
+            1988
+          ],
+          "length_km": 4.014,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.12,
+            "high_speed": 0.22,
+            "low_speed": 0.36,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1986_Hungarian_Grand_Prix",
+          "notes": "Original dusty course, before the first-corner chicane."
+        },
+        {
+          "layout_id": "hungaroring_1989",
+          "years_used_in_f1": [
+            1989,
+            1990,
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002
+          ],
+          "length_km": 3.968,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.12,
+            "high_speed": 0.2,
+            "low_speed": 0.36,
+            "braking": 0.32
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1989_Hungarian_Grand_Prix",
+          "notes": "First corner turned into a chicane, which shortened the lap. Later pages drift from 3.968 km up to 3.975 km."
+        },
+        {
+          "layout_id": "hungaroring_2003",
+          "years_used_in_f1": [
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 4.381,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.22,
+            "low_speed": 0.33,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2003_Hungarian_Grand_Prix",
+          "notes": "The 2003 reprofile lengthened the lap to 4.381 km and that figure has held since, including 2026."
+        }
+      ]
+    },
+    {
+      "circuit_id": "imola",
+      "name": "Autodromo Enzo e Dino Ferrari",
+      "country": "ITA",
+      "layouts": [
+        {
+          "layout_id": "imola_1980",
+          "years_used_in_f1": [
+            1980
+          ],
+          "length_km": 5.0,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.35,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1980_Italian_Grand_Prix",
+          "notes": "The 1980 page cites an even 5.000 km, 40 metres short of the 1981-1994 figure. Treated as its own year because the step is stable afterwards, not because a named corner change was re-checked."
+        },
+        {
+          "layout_id": "imola_1981",
+          "years_used_in_f1": [
+            1981,
+            1982,
+            1983,
+            1984,
+            1985,
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993,
+            1994
+          ],
+          "length_km": 5.04,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "dangerous",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.4,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1981_San_Marino_Grand_Prix",
+          "notes": "Fast Tamburello and Villeneuve, before they were made into chicanes. Every page in this span says 5.040 km."
+        },
+        {
+          "layout_id": "imola_1995",
+          "years_used_in_f1": [
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2020,
+            2021,
+            2022,
+            2024,
+            2025
+          ],
+          "length_km": 4.933,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.32,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1995_San_Marino_Grand_Prix",
+          "notes": "Chicanes replaced the flat-out Tamburello and Villeneuve kinks. Pages cite 4.895 km in 1995, 4.892 in 1996, about 4.93 through 2006, and 4.909 for 2020-2025. Those tens of metres stay on one post-1994 layout."
+        }
+      ]
+    },
+    {
+      "circuit_id": "indianapolis",
+      "name": "Indianapolis Motor Speedway",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "indianapolis_1950",
+          "years_used_in_f1": [
+            1950,
+            1951,
+            1952,
+            1953,
+            1954,
+            1955,
+            1956,
+            1957,
+            1958,
+            1959,
+            1960
+          ],
+          "length_km": 4.023,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "oval"
+          ],
+          "profile_guess": {
+            "straights": 0.4,
+            "high_speed": 0.45,
+            "low_speed": 0.0,
+            "braking": 0.15
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/Indianapolis_Motor_Speedway",
+          "notes": "The 2.5 mile (4.023 km) rectangular oval. Championship rounds in these years were the Indianapolis 500. The race articles use an Indy 500 infobox with no course-length field, so the length is the oval's standard dimension."
+        },
+        {
+          "layout_id": "indianapolis_2000",
+          "years_used_in_f1": [
+            2000,
+            2001,
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2007
+          ],
+          "length_km": 4.192,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.2,
+            "low_speed": 0.25,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2000_United_States_Grand_Prix",
+          "notes": "Infield road course used for the United States Grand Prix. Pages say 4.192 km, with 4.195 km in 2004 and 2006."
+        }
+      ]
+    },
+    {
+      "circuit_id": "interlagos",
+      "name": "Autódromo José Carlos Pace",
+      "country": "BRA",
+      "layouts": [
+        {
+          "layout_id": "interlagos_1973",
+          "years_used_in_f1": [
+            1973,
+            1974,
+            1975,
+            1976,
+            1977,
+            1979,
+            1980
+          ],
+          "length_km": 7.96,
+          "corners": null,
+          "character": [
+            "bumpy",
+            "long",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.35,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1973_Brazilian_Grand_Prix",
+          "notes": "The original long Interlagos lap. 1973-79 pages say 7.960 km. The 1980 page says 7.874 km and is kept here because the shortened modern course did not arrive until 1990."
+        },
+        {
+          "layout_id": "interlagos_1990",
+          "years_used_in_f1": [
+            1990,
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996,
+            1997,
+            1998
+          ],
+          "length_km": 4.325,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.25,
+            "low_speed": 0.3,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1990_Brazilian_Grand_Prix",
+          "notes": "The shortened Grand Prix course. 1990-95 pages say 4.325 km and 1996-98 say 4.292 km, folded into this layout ahead of the 1999 figure."
+        },
+        {
+          "layout_id": "interlagos_1999",
+          "years_used_in_f1": [
+            1999,
+            2000,
+            2001,
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 4.309,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.28,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1999_Brazilian_Grand_Prix",
+          "notes": "The current anti-clockwise lap at 4.309 km, from 1999 through the 2026 race. The 2026 Brazilian Grand Prix had no article yet."
+        }
+      ]
+    },
+    {
+      "circuit_id": "istanbul",
+      "name": "Istanbul Park",
+      "country": "TUR",
+      "layouts": [
+        {
+          "layout_id": "istanbul_2005",
+          "years_used_in_f1": [
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2020,
+            2021
+          ],
+          "length_km": 5.338,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.3,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2005_Turkish_Grand_Prix",
+          "notes": "One layout. The 2005 page says 5.340 km and the later pages 5.338."
+        }
+      ]
+    },
+    {
+      "circuit_id": "jacarepagua",
+      "name": "Autódromo Internacional Nelson Piquet",
+      "country": "BRA",
+      "layouts": [
+        {
+          "layout_id": "jacarepagua_1978",
+          "years_used_in_f1": [
+            1978,
+            1981,
+            1982,
+            1983,
+            1984,
+            1985,
+            1986,
+            1987,
+            1988,
+            1989
+          ],
+          "length_km": 5.031,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.3,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1978_Brazilian_Grand_Prix",
+          "notes": "Nelson Piquet circuit at Rio, cited at 5.031 km for every championship race."
+        }
+      ]
+    },
+    {
+      "circuit_id": "jarama",
+      "name": "Jarama",
+      "country": "ESP",
+      "layouts": [
+        {
+          "layout_id": "jarama_1968",
+          "years_used_in_f1": [
+            1968,
+            1970,
+            1972,
+            1974,
+            1976,
+            1977,
+            1978,
+            1979
+          ],
+          "length_km": 3.404,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.2,
+            "low_speed": 0.35,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1968_Spanish_Grand_Prix",
+          "notes": "Tight Jarama Grand Prix course at 3.404 km."
+        },
+        {
+          "layout_id": "jarama_1981",
+          "years_used_in_f1": [
+            1981
+          ],
+          "length_km": 3.312,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.2,
+            "low_speed": 0.35,
+            "braking": 0.3
+          },
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/1981_Spanish_Grand_Prix",
+          "notes": "The 1981 page alone cites 3.312 km, about 90 metres shorter. No named section change was confirmed, so this split may be a measurement quirk."
+        }
+      ]
+    },
+    {
+      "circuit_id": "jeddah",
+      "name": "Jeddah Corniche Circuit",
+      "country": "SAU",
+      "layouts": [
+        {
+          "layout_id": "jeddah_2021",
+          "years_used_in_f1": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025
+          ],
+          "length_km": 6.174,
+          "corners": null,
+          "character": [
+            "street",
+            "high_speed",
+            "long"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.35,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2021_Saudi_Arabian_Grand_Prix",
+          "notes": "Very fast street course along the corniche. The cited length does not change across 2021-2025."
+        }
+      ]
+    },
+    {
+      "circuit_id": "jerez",
+      "name": "Circuito de Jerez",
+      "country": "ESP",
+      "layouts": [
+        {
+          "layout_id": "jerez_1986",
+          "years_used_in_f1": [
+            1986,
+            1987,
+            1988,
+            1989,
+            1990
+          ],
+          "length_km": 4.218,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.3,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1986_Spanish_Grand_Prix",
+          "notes": "Original Jerez Grand Prix course."
+        },
+        {
+          "layout_id": "jerez_1994",
+          "years_used_in_f1": [
+            1994,
+            1997
+          ],
+          "length_km": 4.428,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.28,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1994_European_Grand_Prix",
+          "notes": "A new section lengthened the lap to 4.428 km for the 1994 and 1997 races."
+        }
+      ]
+    },
+    {
+      "circuit_id": "kyalami",
+      "name": "Kyalami",
+      "country": "ZAF",
+      "layouts": [
+        {
+          "layout_id": "kyalami_1967",
+          "years_used_in_f1": [
+            1967,
+            1968,
+            1969,
+            1970,
+            1971,
+            1972,
+            1973,
+            1974,
+            1975,
+            1976,
+            1977,
+            1978,
+            1979,
+            1980,
+            1982,
+            1983,
+            1984,
+            1985
+          ],
+          "length_km": 4.104,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "altitude",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.35,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1967_South_African_Grand_Prix",
+          "notes": "The old high-veld circuit. The 1967 page says 4.094 km and 1968-85 say 4.104. Altitude is the point of the place, not a later rebuild."
+        },
+        {
+          "layout_id": "kyalami_1992",
+          "years_used_in_f1": [
+            1992,
+            1993
+          ],
+          "length_km": 4.261,
+          "corners": null,
+          "character": [
+            "technical",
+            "altitude"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.25,
+            "low_speed": 0.3,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1992_South_African_Grand_Prix",
+          "notes": "Rebuilt, shorter-feeling Grand Prix course run the other way, used in 1992 and 1993."
+        }
+      ]
+    },
+    {
+      "circuit_id": "las_vegas",
+      "name": "Las Vegas Street Circuit",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "las_vegas_1981",
+          "years_used_in_f1": [
+            1981,
+            1982
+          ],
+          "length_km": 3.65,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.1,
+            "low_speed": 0.4,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1981_Caesars_Palace_Grand_Prix",
+          "notes": "Caesars Palace car-park circuit, anti-clockwise, the same length for both years. This is not the later Strip circuit, which has its own Jolpica id."
+        }
+      ]
+    },
+    {
+      "circuit_id": "lemans",
+      "name": "Le Mans",
+      "country": "FRA",
+      "layouts": [
+        {
+          "layout_id": "lemans_1967",
+          "years_used_in_f1": [
+            1967
+          ],
+          "length_km": 4.43,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.3,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1967_French_Grand_Prix",
+          "notes": "The 1967 French Grand Prix used the Bugatti circuit, not the full 24-hour road course."
+        }
+      ]
+    },
+    {
+      "circuit_id": "long_beach",
+      "name": "Long Beach",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "long_beach_1976",
+          "years_used_in_f1": [
+            1976,
+            1977,
+            1978,
+            1979,
+            1980,
+            1981
+          ],
+          "length_km": 3.251,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.15,
+            "low_speed": 0.35,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1976_United_States_Grand_Prix_West",
+          "notes": "The first waterfront street course, stable at 3.251 km for six seasons."
+        },
+        {
+          "layout_id": "long_beach_1982",
+          "years_used_in_f1": [
+            1982
+          ],
+          "length_km": 3.428,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.15,
+            "low_speed": 0.32,
+            "braking": 0.35
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1982_United_States_Grand_Prix_West",
+          "notes": "A longer downtown route for one year."
+        },
+        {
+          "layout_id": "long_beach_1983",
+          "years_used_in_f1": [
+            1983
+          ],
+          "length_km": 3.275,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.15,
+            "low_speed": 0.35,
+            "braking": 0.35
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1983_United_States_Grand_Prix_West",
+          "notes": "Shortened again for the last Long Beach championship race."
+        }
+      ]
+    },
+    {
+      "circuit_id": "losail",
+      "name": "Lusail International Circuit",
+      "country": "QAT",
+      "layouts": [
+        {
+          "layout_id": "losail_2021",
+          "years_used_in_f1": [
+            2021
+          ],
+          "length_km": 5.38,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.35,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/2021_Qatar_Grand_Prix",
+          "notes": "First Lusail Grand Prix, cited at 5.380 km. The 2023 pages are longer, so this year is not merged with them."
+        },
+        {
+          "layout_id": "losail_2023",
+          "years_used_in_f1": [
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.419,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.28,
+            "high_speed": 0.32,
+            "low_speed": 0.18,
+            "braking": 0.22
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/2023_Qatar_Grand_Prix",
+          "notes": "From 2023 the pages cite 5.419 km. The corner that moved was not re-checked beyond that length step. The 2026 round has no article yet and stays here."
+        }
+      ]
+    },
+    {
+      "circuit_id": "madring",
+      "name": "Madring",
+      "country": "ESP",
+      "layouts": [
+        {
+          "layout_id": "madring_2026",
+          "years_used_in_f1": [
+            2026
+          ],
+          "length_km": 5.414,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.15,
+            "low_speed": 0.35,
+            "braking": 0.35
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/2026_Spanish_Grand_Prix",
+          "notes": "New Madrid street circuit, first used for the 2026 Spanish Grand Prix. The length is on that race page. The profile is a street-circuit estimate, not a measured sector split."
+        }
+      ]
+    },
+    {
+      "circuit_id": "magny_cours",
+      "name": "Circuit de Nevers Magny-Cours",
+      "country": "FRA",
+      "layouts": [
+        {
+          "layout_id": "magny_cours_1991",
+          "years_used_in_f1": [
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002
+          ],
+          "length_km": 4.251,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.22,
+            "low_speed": 0.32,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1991_French_Grand_Prix",
+          "notes": "Original Nevers Grand Prix course. 1991-99 pages say 4.250 km and 2000-02 say 4.251."
+        },
+        {
+          "layout_id": "magny_cours_2003",
+          "years_used_in_f1": [
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008
+          ],
+          "length_km": 4.411,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.22,
+            "low_speed": 0.3,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2003_French_Grand_Prix",
+          "notes": "From 2003 the cited lap is 4.411 km, about 160 metres longer, and it stays there through 2008."
+        }
+      ]
+    },
+    {
+      "circuit_id": "marina_bay",
+      "name": "Marina Bay Street Circuit",
+      "country": "SGP",
+      "layouts": [
+        {
+          "layout_id": "marina_bay_2008",
+          "years_used_in_f1": [
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2022
+          ],
+          "length_km": 5.063,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.12,
+            "high_speed": 0.1,
+            "low_speed": 0.4,
+            "braking": 0.38
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2008_Singapore_Grand_Prix",
+          "notes": "Full bayfront street lap. Pages move between 5.063 km and 5.073 km across 2008-2022, which is kept as one layout."
+        },
+        {
+          "layout_id": "marina_bay_2023",
+          "years_used_in_f1": [
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 4.94,
+          "corners": null,
+          "character": [
+            "street",
+            "high_speed",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.15,
+            "low_speed": 0.32,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2023_Singapore_Grand_Prix",
+          "notes": "A section of the bayfront was removed, cutting the lap to about 4.94 km. The 2025 page says 4.927 km. The 2026 round has no article yet and stays on this shorter course."
+        }
+      ]
+    },
+    {
+      "circuit_id": "miami",
+      "name": "Miami International Autodrome",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "miami_2022",
+          "years_used_in_f1": [
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.412,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.22,
+            "low_speed": 0.28,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2022_Miami_Grand_Prix",
+          "notes": "Fake-marina street course around the Hard Rock Stadium complex. One cited length, including 2026."
+        }
+      ]
+    },
+    {
+      "circuit_id": "monaco",
+      "name": "Circuit de Monaco",
+      "country": "MCO",
+      "layouts": [
+        {
+          "layout_id": "monaco_1950",
+          "years_used_in_f1": [
+            1950,
+            1955,
+            1956,
+            1957,
+            1958,
+            1959,
+            1960,
+            1961,
+            1962,
+            1963,
+            1964,
+            1965,
+            1966,
+            1967,
+            1968,
+            1969,
+            1970,
+            1971,
+            1972
+          ],
+          "length_km": 3.145,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.08,
+            "high_speed": 0.12,
+            "low_speed": 0.45,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1950_Monaco_Grand_Prix",
+          "notes": "Harbour circuit before the swimming-pool complex. The 1950 page says 3.180 km and 1955-72 say 3.145."
+        },
+        {
+          "layout_id": "monaco_1973",
+          "years_used_in_f1": [
+            1973,
+            1974,
+            1975
+          ],
+          "length_km": 3.278,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.08,
+            "high_speed": 0.1,
+            "low_speed": 0.45,
+            "braking": 0.37
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1973_Monaco_Grand_Prix",
+          "notes": "The swimming-pool section was added, lengthening the lap."
+        },
+        {
+          "layout_id": "monaco_1976",
+          "years_used_in_f1": [
+            1976,
+            1977,
+            1978,
+            1979,
+            1980,
+            1981,
+            1982,
+            1983,
+            1984,
+            1985
+          ],
+          "length_km": 3.312,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.08,
+            "high_speed": 0.1,
+            "low_speed": 0.45,
+            "braking": 0.37
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1976_Monaco_Grand_Prix",
+          "notes": "Revised swimming-pool sequence at 3.312 km."
+        },
+        {
+          "layout_id": "monaco_1986",
+          "years_used_in_f1": [
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996
+          ],
+          "length_km": 3.328,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.08,
+            "high_speed": 0.08,
+            "low_speed": 0.46,
+            "braking": 0.38
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1986_Monaco_Grand_Prix",
+          "notes": "The Nouvelle chicane was added at the harbour exit."
+        },
+        {
+          "layout_id": "monaco_1997",
+          "years_used_in_f1": [
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002
+          ],
+          "length_km": 3.37,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.08,
+            "high_speed": 0.08,
+            "low_speed": 0.46,
+            "braking": 0.38
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1997_Monaco_Grand_Prix",
+          "notes": "Harbour and swimming-pool revisions. Pages say 3.360 km in 1997, 3.367 in 1998-99 and 3.370 in 2000-02."
+        },
+        {
+          "layout_id": "monaco_2003",
+          "years_used_in_f1": [
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 3.337,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.08,
+            "high_speed": 0.08,
+            "low_speed": 0.46,
+            "braking": 0.38
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2003_Monaco_Grand_Prix",
+          "notes": "Another swimming-pool revision. 2003-14 pages say 3.340 km and from 2015 they say 3.337, including 2026."
+        }
+      ]
+    },
+    {
+      "circuit_id": "monsanto",
+      "name": "Monsanto Park Circuit",
+      "country": "PRT",
+      "layouts": [
+        {
+          "layout_id": "monsanto_1959",
+          "years_used_in_f1": [
+            1959
+          ],
+          "length_km": 5.44,
+          "corners": null,
+          "character": [
+            "street",
+            "technical",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.2,
+            "low_speed": 0.3,
+            "braking": 0.3
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1959_Portuguese_Grand_Prix",
+          "notes": "One-off park roads in Lisbon. Length is on the 1959 race page; the profile is a rough street-circuit estimate."
+        }
+      ]
+    },
+    {
+      "circuit_id": "montjuic",
+      "name": "Montjuïc",
+      "country": "ESP",
+      "layouts": [
+        {
+          "layout_id": "montjuic_1969",
+          "years_used_in_f1": [
+            1969,
+            1971,
+            1973,
+            1975
+          ],
+          "length_km": 3.791,
+          "corners": null,
+          "character": [
+            "street",
+            "technical",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.2,
+            "low_speed": 0.3,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1969_Spanish_Grand_Prix",
+          "notes": "Park roads on the Montjuïc hill. 1969-73 pages say 3.791 km and 1975 says 3.790."
+        }
+      ]
+    },
+    {
+      "circuit_id": "monza",
+      "name": "Autodromo Nazionale di Monza",
+      "country": "ITA",
+      "layouts": [
+        {
+          "layout_id": "monza_1950",
+          "years_used_in_f1": [
+            1950,
+            1951,
+            1952,
+            1953,
+            1954
+          ],
+          "length_km": 6.3,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.4,
+            "low_speed": 0.1,
+            "braking": 0.15
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1950_Italian_Grand_Prix",
+          "notes": "Road course before the banking was used for the championship, cited at 6.300 km."
+        },
+        {
+          "layout_id": "monza_1955",
+          "years_used_in_f1": [
+            1955,
+            1956,
+            1960,
+            1961
+          ],
+          "length_km": 10.0,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "oval",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.5,
+            "low_speed": 0.05,
+            "braking": 0.15
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1955_Italian_Grand_Prix",
+          "notes": "Combined road course and banked oval, a 10 km lap. Used in 1955-56 and again in 1960-61."
+        },
+        {
+          "layout_id": "monza_1957",
+          "years_used_in_f1": [
+            1957,
+            1958,
+            1959,
+            1962,
+            1963,
+            1964,
+            1965,
+            1966,
+            1967,
+            1968,
+            1969,
+            1970,
+            1971
+          ],
+          "length_km": 5.75,
+          "corners": null,
+          "character": [
+            "high_speed"
+          ],
+          "profile_guess": {
+            "straights": 0.45,
+            "high_speed": 0.35,
+            "low_speed": 0.05,
+            "braking": 0.15
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1957_Italian_Grand_Prix",
+          "notes": "Road course without the banking and without chicanes, the slipstream Monza. 1960-61 are on the combined layout instead. Every remaining year in this span says 5.750 km."
+        },
+        {
+          "layout_id": "monza_1972",
+          "years_used_in_f1": [
+            1972,
+            1973,
+            1974,
+            1975,
+            1976,
+            1977,
+            1978,
+            1979,
+            1981,
+            1982,
+            1983,
+            1984,
+            1985,
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993
+          ],
+          "length_km": 5.8,
+          "corners": null,
+          "character": [
+            "high_speed"
+          ],
+          "profile_guess": {
+            "straights": 0.4,
+            "high_speed": 0.25,
+            "low_speed": 0.1,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1972_Italian_Grand_Prix",
+          "notes": "Chicanes at the first corner and at Ascari. Pages say 5.775 km in 1972-73, 5.780 in 1974-75 and 5.800 from 1976."
+        },
+        {
+          "layout_id": "monza_1994",
+          "years_used_in_f1": [
+            1994,
+            1995
+          ],
+          "length_km": 5.834,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.32,
+            "high_speed": 0.2,
+            "low_speed": 0.18,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1994_Italian_Grand_Prix",
+          "notes": "Extra slow chicanes for two seasons after Imola. Both pages say 5.834 km."
+        },
+        {
+          "layout_id": "monza_1996",
+          "years_used_in_f1": [
+            1996,
+            1997,
+            1998,
+            1999
+          ],
+          "length_km": 5.77,
+          "corners": null,
+          "character": [
+            "high_speed"
+          ],
+          "profile_guess": {
+            "straights": 0.4,
+            "high_speed": 0.25,
+            "low_speed": 0.1,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1996_Italian_Grand_Prix",
+          "notes": "Those extra chicanes are gone and the pages sit at 5.770 km, a little shorter than the 1976-93 figure, until the 2000 rebuild."
+        },
+        {
+          "layout_id": "monza_2000",
+          "years_used_in_f1": [
+            2000,
+            2001,
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.793,
+          "corners": null,
+          "character": [
+            "high_speed"
+          ],
+          "profile_guess": {
+            "straights": 0.38,
+            "high_speed": 0.22,
+            "low_speed": 0.12,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2000_Italian_Grand_Prix",
+          "notes": "Reprofiled first and second chicanes. Every page from 2000 through 2026 says 5.793 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "mosport",
+      "name": "Mosport International Raceway",
+      "country": "CAN",
+      "layouts": [
+        {
+          "layout_id": "mosport_1967",
+          "years_used_in_f1": [
+            1967,
+            1969,
+            1971,
+            1972,
+            1973,
+            1974,
+            1976,
+            1977
+          ],
+          "length_km": 3.957,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.4,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1967_Canadian_Grand_Prix",
+          "notes": "Natural-terrain Canadian course, cited at 3.957 km whenever the championship visited."
+        }
+      ]
+    },
+    {
+      "circuit_id": "mugello",
+      "name": "Autodromo Internazionale del Mugello",
+      "country": "ITA",
+      "layouts": [
+        {
+          "layout_id": "mugello_2020",
+          "years_used_in_f1": [
+            2020
+          ],
+          "length_km": 5.245,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.45,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2020_Tuscan_Grand_Prix",
+          "notes": "One-off 2020 Tuscan Grand Prix on the Grand Prix course, a fast rolling lap."
+        }
+      ]
+    },
+    {
+      "circuit_id": "nivelles",
+      "name": "Nivelles-Baulers",
+      "country": "BEL",
+      "layouts": [
+        {
+          "layout_id": "nivelles_1972",
+          "years_used_in_f1": [
+            1972,
+            1974
+          ],
+          "length_km": 3.72,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.3,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1972_Belgian_Grand_Prix",
+          "notes": "Flat purpose-built circuit near Brussels, 3.720 km for both championship races."
+        }
+      ]
+    },
+    {
+      "circuit_id": "nurburgring",
+      "name": "Nürburgring",
+      "country": "DEU",
+      "layouts": [
+        {
+          "layout_id": "nurburgring_1951",
+          "years_used_in_f1": [
+            1951,
+            1952,
+            1953,
+            1954,
+            1956,
+            1957,
+            1958,
+            1961,
+            1962,
+            1963,
+            1964,
+            1965,
+            1966,
+            1967,
+            1968,
+            1969,
+            1971,
+            1972,
+            1973,
+            1974,
+            1975,
+            1976
+          ],
+          "length_km": 22.835,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "bumpy",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.35,
+            "low_speed": 0.2,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1976_German_Grand_Prix",
+          "notes": "Nordschleife. Pages through 1966 say 22.810 km. From 1967, after the pits and start moved, they say 22.835 km. The mountain lap is the same layout for the race engine."
+        },
+        {
+          "layout_id": "nurburgring_1984",
+          "years_used_in_f1": [
+            1984,
+            1985,
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001
+          ],
+          "length_km": 4.556,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.32,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1984_European_Grand_Prix",
+          "notes": "The first Grand Prix circuit, the GP-Strecke, not the Nordschleife. 1984-85 pages say 4.542 km and 1995-2001 say 4.556."
+        },
+        {
+          "layout_id": "nurburgring_2002",
+          "years_used_in_f1": [
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2009,
+            2011,
+            2013,
+            2020
+          ],
+          "length_km": 5.148,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.28,
+            "low_speed": 0.28,
+            "braking": 0.26
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2002_European_Grand_Prix",
+          "notes": "The Mercedes-Arena complex was added and the lap grew to 5.148 km. That figure holds through the 2020 Eifel Grand Prix."
+        }
+      ]
+    },
+    {
+      "circuit_id": "okayama",
+      "name": "Okayama International Circuit",
+      "country": "JPN",
+      "layouts": [
+        {
+          "layout_id": "okayama_1994",
+          "years_used_in_f1": [
+            1994,
+            1995
+          ],
+          "length_km": 3.703,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.12,
+            "high_speed": 0.25,
+            "low_speed": 0.33,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1994_Pacific_Grand_Prix",
+          "notes": "TI Circuit Aida, a short technical lap. 1994 says 3.703 km and 1995 says 3.704."
+        }
+      ]
+    },
+    {
+      "circuit_id": "pedralbes",
+      "name": "Circuit de Pedralbes",
+      "country": "ESP",
+      "layouts": [
+        {
+          "layout_id": "pedralbes_1951",
+          "years_used_in_f1": [
+            1951,
+            1954
+          ],
+          "length_km": 6.316,
+          "corners": null,
+          "character": [
+            "street",
+            "high_speed",
+            "long"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.25,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1951_Spanish_Grand_Prix",
+          "notes": "Public roads in the Pedralbes district of Barcelona, the same cited length in 1951 and 1954. The profile is an estimate from a long street lap."
+        }
+      ]
+    },
+    {
+      "circuit_id": "pescara",
+      "name": "Pescara Circuit",
+      "country": "ITA",
+      "layouts": [
+        {
+          "layout_id": "pescara_1957",
+          "years_used_in_f1": [
+            1957
+          ],
+          "length_km": 25.579,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.4,
+            "high_speed": 0.35,
+            "low_speed": 0.1,
+            "braking": 0.15
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1957_Pescara_Grand_Prix",
+          "notes": "Public-road triangle on the Adriatic, the longest lap in the championship, cited at 25.579 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "phoenix",
+      "name": "Phoenix street circuit",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "phoenix_1989",
+          "years_used_in_f1": [
+            1989,
+            1990
+          ],
+          "length_km": 3.8,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.15,
+            "high_speed": 0.1,
+            "low_speed": 0.4,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1989_United_States_Grand_Prix",
+          "notes": "Downtown street course at 3.800 km."
+        },
+        {
+          "layout_id": "phoenix_1991",
+          "years_used_in_f1": [
+            1991
+          ],
+          "length_km": 3.721,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.12,
+            "high_speed": 0.1,
+            "low_speed": 0.42,
+            "braking": 0.36
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1991_United_States_Grand_Prix",
+          "notes": "The last Phoenix race is cited at 3.721 km, a shorter downtown loop than 1989-90."
+        }
+      ]
+    },
+    {
+      "circuit_id": "portimao",
+      "name": "Autódromo Internacional do Algarve",
+      "country": "PRT",
+      "layouts": [
+        {
+          "layout_id": "portimao_2020",
+          "years_used_in_f1": [
+            2020,
+            2021
+          ],
+          "length_km": 4.653,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.35,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2020_Portuguese_Grand_Prix",
+          "notes": "Algarve circuit, blind crests and a bumpy surface. Both championship visits cite 4.653 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "red_bull_ring",
+      "name": "Red Bull Ring",
+      "country": "AUT",
+      "layouts": [
+        {
+          "layout_id": "red_bull_ring_1970",
+          "years_used_in_f1": [
+            1970,
+            1971,
+            1972,
+            1973,
+            1974,
+            1975,
+            1976
+          ],
+          "length_km": 5.911,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "dangerous",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.45,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1970_Austrian_Grand_Prix",
+          "notes": "The original Österreichring, a fast valley lap with very little braking. The Jolpica id is red_bull_ring for this circuit as well."
+        },
+        {
+          "layout_id": "red_bull_ring_1977",
+          "years_used_in_f1": [
+            1977,
+            1978,
+            1979,
+            1980,
+            1981,
+            1982,
+            1983,
+            1984,
+            1985,
+            1986,
+            1987
+          ],
+          "length_km": 5.942,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.4,
+            "low_speed": 0.12,
+            "braking": 0.26
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1977_Austrian_Grand_Prix",
+          "notes": "From 1977 the pages move to 5.942 km and stay there. That matches a chicane being added on the old Österreichring. The corner name is not repeated here."
+        },
+        {
+          "layout_id": "red_bull_ring_1997",
+          "years_used_in_f1": [
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002,
+            2003,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 4.318,
+          "corners": null,
+          "character": [
+            "high_speed"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.3,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1997_Austrian_Grand_Prix",
+          "notes": "The shortened A1-Ring, later renamed the Red Bull Ring. Pages cite 4.318 km to 4.326 km between 1997 and 2026, which is one short layout."
+        }
+      ]
+    },
+    {
+      "circuit_id": "reims",
+      "name": "Reims-Gueux",
+      "country": "FRA",
+      "layouts": [
+        {
+          "layout_id": "reims_1950",
+          "years_used_in_f1": [
+            1950,
+            1951
+          ],
+          "length_km": 7.815,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.5,
+            "high_speed": 0.3,
+            "low_speed": 0.05,
+            "braking": 0.15
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1950_French_Grand_Prix",
+          "notes": "The shorter public-road triangle. 1950 says 7.815 km and 1951 says 7.816."
+        },
+        {
+          "layout_id": "reims_1953",
+          "years_used_in_f1": [
+            1953,
+            1954,
+            1956,
+            1958,
+            1959,
+            1960,
+            1961,
+            1963,
+            1966
+          ],
+          "length_km": 8.302,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.5,
+            "high_speed": 0.3,
+            "low_speed": 0.05,
+            "braking": 0.15
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1953_French_Grand_Prix",
+          "notes": "The extended road circuit. Pages alternate between about 8.302 km and 8.348 km with no third configuration described, so those years share one layout at 8.302 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "ricard",
+      "name": "Circuit Paul Ricard",
+      "country": "FRA",
+      "layouts": [
+        {
+          "layout_id": "ricard_1971",
+          "years_used_in_f1": [
+            1971,
+            1973,
+            1975,
+            1976,
+            1978,
+            1980,
+            1982,
+            1983,
+            1985
+          ],
+          "length_km": 5.81,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.35,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1971_French_Grand_Prix",
+          "notes": "The long Castellet course. 1971-82 pages say 5.809 km and 1983-85 say 5.810."
+        },
+        {
+          "layout_id": "ricard_1986",
+          "years_used_in_f1": [
+            1986,
+            1987,
+            1988,
+            1989,
+            1990
+          ],
+          "length_km": 3.813,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.25,
+            "low_speed": 0.3,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1986_French_Grand_Prix",
+          "notes": "The short club circuit used while the full course was off the championship. 1986 says 3.812 km and 1987-90 say 3.813."
+        },
+        {
+          "layout_id": "ricard_2018",
+          "years_used_in_f1": [
+            2018,
+            2019,
+            2021,
+            2022
+          ],
+          "length_km": 5.842,
+          "corners": null,
+          "character": [
+            "high_speed"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.25,
+            "low_speed": 0.12,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2018_French_Grand_Prix",
+          "notes": "The long course returned with a chicane on the Mistral straight, cited at 5.842 km. That braking zone is why it is not the 1971 layout."
+        }
+      ]
+    },
+    {
+      "circuit_id": "riverside",
+      "name": "Riverside International Raceway",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "riverside_1960",
+          "years_used_in_f1": [
+            1960
+          ],
+          "length_km": 5.271,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.3,
+            "high_speed": 0.35,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1960_United_States_Grand_Prix",
+          "notes": "One United States Grand Prix on the Riverside road course. Length is on the 1960 race page; the profile is a fast-road estimate."
+        }
+      ]
+    },
+    {
+      "circuit_id": "rodriguez",
+      "name": "Autódromo Hermanos Rodríguez",
+      "country": "MEX",
+      "layouts": [
+        {
+          "layout_id": "rodriguez_1963",
+          "years_used_in_f1": [
+            1963,
+            1964,
+            1965,
+            1966,
+            1967,
+            1968,
+            1969,
+            1970
+          ],
+          "length_km": 5.0,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "altitude"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.3,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1963_Mexican_Grand_Prix",
+          "notes": "The original Magdalena Mixhuca lap, an even 5.000 km, already at Mexico City's altitude."
+        },
+        {
+          "layout_id": "rodriguez_1986",
+          "years_used_in_f1": [
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992
+          ],
+          "length_km": 4.421,
+          "corners": null,
+          "character": [
+            "technical",
+            "altitude"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.25,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1986_Mexican_Grand_Prix",
+          "notes": "Rebuilt Grand Prix course at 4.421 km."
+        },
+        {
+          "layout_id": "rodriguez_2015",
+          "years_used_in_f1": [
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 4.304,
+          "corners": null,
+          "character": [
+            "technical",
+            "altitude"
+          ],
+          "profile_guess": {
+            "straights": 0.28,
+            "high_speed": 0.22,
+            "low_speed": 0.22,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2015_Mexican_Grand_Prix",
+          "notes": "The baseball-stadium redesign, 4.304 km, from 2015 through 2026. The 2026 page did not exist yet."
+        }
+      ]
+    },
+    {
+      "circuit_id": "sebring",
+      "name": "Sebring International Raceway",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "sebring_1959",
+          "years_used_in_f1": [
+            1959
+          ],
+          "length_km": 8.36,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy",
+            "long"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.25,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1959_United_States_Grand_Prix",
+          "notes": "The airfield circuit used for the 1959 United States Grand Prix, cited at 8.360 km. Which of Sebring's internal options that was, beyond the race-page length, was not pinned down, so the profile is rough."
+        }
+      ]
+    },
+    {
+      "circuit_id": "sepang",
+      "name": "Sepang International Circuit",
+      "country": "MYS",
+      "layouts": [
+        {
+          "layout_id": "sepang_1999",
+          "years_used_in_f1": [
+            1999,
+            2000,
+            2001,
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2026
+          ],
+          "length_km": 5.543,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.28,
+            "high_speed": 0.27,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1999_Malaysian_Grand_Prix",
+          "notes": "One Grand Prix layout. The 1999 page says 5.542 km and later pages, including the 2026 race held here under the name Bahrain Grand Prix in Malaysia, say 5.543."
+        }
+      ]
+    },
+    {
+      "circuit_id": "shanghai",
+      "name": "Shanghai International Circuit",
+      "country": "CHN",
+      "layouts": [
+        {
+          "layout_id": "shanghai_2004",
+          "years_used_in_f1": [
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.451,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.28,
+            "high_speed": 0.22,
+            "low_speed": 0.22,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2004_Chinese_Grand_Prix",
+          "notes": "One layout for every Chinese Grand Prix, including 2026. The long back straight is the main overtaking place; the rest is a tight snail."
+        }
+      ]
+    },
+    {
+      "circuit_id": "silverstone",
+      "name": "Silverstone Circuit",
+      "country": "GBR",
+      "layouts": [
+        {
+          "layout_id": "silverstone_1950",
+          "years_used_in_f1": [
+            1950,
+            1951
+          ],
+          "length_km": 4.649,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.45,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1950_British_Grand_Prix",
+          "notes": "Original airfield circuit, fast Woodcote, cited at 4.649 km."
+        },
+        {
+          "layout_id": "silverstone_1952",
+          "years_used_in_f1": [
+            1952,
+            1953,
+            1954,
+            1956,
+            1958,
+            1960,
+            1963,
+            1965,
+            1967,
+            1969,
+            1971,
+            1973
+          ],
+          "length_km": 4.711,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.45,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1952_British_Grand_Prix",
+          "notes": "Revised airfield lap without a Woodcote chicane. 1952-58 pages say 4.7105 km and 1960-73 say 4.711."
+        },
+        {
+          "layout_id": "silverstone_1975",
+          "years_used_in_f1": [
+            1975,
+            1977,
+            1979,
+            1981,
+            1983,
+            1985
+          ],
+          "length_km": 4.719,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.4,
+            "low_speed": 0.13,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1975_British_Grand_Prix",
+          "notes": "A chicane was added at Woodcote. Pages say 4.718 or 4.719 km."
+        },
+        {
+          "layout_id": "silverstone_1987",
+          "years_used_in_f1": [
+            1987,
+            1988,
+            1989,
+            1990
+          ],
+          "length_km": 4.778,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.4,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1987_British_Grand_Prix",
+          "notes": "The Bridge corner was replaced by a slower complex. All four pages say 4.778 km."
+        },
+        {
+          "layout_id": "silverstone_1991",
+          "years_used_in_f1": [
+            1991,
+            1992,
+            1993
+          ],
+          "length_km": 5.226,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.4,
+            "low_speed": 0.15,
+            "braking": 0.23
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1991_British_Grand_Prix",
+          "notes": "Major extension to 5.226 km, the longest of the pre-Arena Silverstone laps."
+        },
+        {
+          "layout_id": "silverstone_1994",
+          "years_used_in_f1": [
+            1994,
+            1995,
+            1996
+          ],
+          "length_km": 5.057,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.32,
+            "low_speed": 0.22,
+            "braking": 0.28
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1994_British_Grand_Prix",
+          "notes": "Safety chicanes after Imola shortened that extension. 1994-95 say 5.057 km and 1996 says 5.072."
+        },
+        {
+          "layout_id": "silverstone_1997",
+          "years_used_in_f1": [
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2009
+          ],
+          "length_km": 5.141,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.4,
+            "low_speed": 0.18,
+            "braking": 0.22
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1997_British_Grand_Prix",
+          "notes": "The settled 1990s loop. 1997-2001 say 5.140 km and 2002-09 say 5.141."
+        },
+        {
+          "layout_id": "silverstone_2010",
+          "years_used_in_f1": [
+            2010
+          ],
+          "length_km": 5.901,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.42,
+            "low_speed": 0.16,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2010_British_Grand_Prix",
+          "notes": "The Arena infield was used, but the start was still on the old pit straight. One year only, at 5.901 km."
+        },
+        {
+          "layout_id": "silverstone_2011",
+          "years_used_in_f1": [
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.891,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.43,
+            "low_speed": 0.15,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2011_British_Grand_Prix",
+          "notes": "New pit straight between Club and Abbey. Every page from 2011 through 2026 says 5.891 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "sochi",
+      "name": "Sochi Autodrom",
+      "country": "RUS",
+      "layouts": [
+        {
+          "layout_id": "sochi_2014",
+          "years_used_in_f1": [
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021
+          ],
+          "length_km": 5.848,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.15,
+            "low_speed": 0.3,
+            "braking": 0.33
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2014_Russian_Grand_Prix",
+          "notes": "Olympic-park street course, a long lap with a lot of 90-degree corners. One cited length."
+        }
+      ]
+    },
+    {
+      "circuit_id": "spa",
+      "name": "Circuit de Spa-Francorchamps",
+      "country": "BEL",
+      "layouts": [
+        {
+          "layout_id": "spa_1950",
+          "years_used_in_f1": [
+            1950,
+            1951,
+            1952,
+            1953,
+            1954,
+            1955,
+            1956,
+            1958,
+            1960,
+            1961,
+            1962,
+            1963,
+            1964,
+            1965,
+            1966,
+            1967,
+            1968,
+            1970
+          ],
+          "length_km": 14.12,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.35,
+            "high_speed": 0.4,
+            "low_speed": 0.1,
+            "braking": 0.15
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1950_Belgian_Grand_Prix",
+          "notes": "The old public-road triangle through the villages. 1950-56 and 1965-67 pages say 14.120 km; the other years in this span say 14.100. Same roads."
+        },
+        {
+          "layout_id": "spa_1983",
+          "years_used_in_f1": [
+            1983,
+            1985,
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993
+          ],
+          "length_km": 6.94,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.28,
+            "high_speed": 0.42,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1983_Belgian_Grand_Prix",
+          "notes": "The permanent circuit that cut out the old road loops, with Eau Rouge still flat-out and the old Bus Stop. Every page says 6.940 km."
+        },
+        {
+          "layout_id": "spa_1994",
+          "years_used_in_f1": [
+            1994
+          ],
+          "length_km": 7.001,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.25,
+            "low_speed": 0.2,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1994_Belgian_Grand_Prix",
+          "notes": "A temporary slow chicane replaced Eau Rouge for this one race. The page cites 7.001 km. It was gone the next year."
+        },
+        {
+          "layout_id": "spa_1995",
+          "years_used_in_f1": [
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002,
+            2004,
+            2005
+          ],
+          "length_km": 6.968,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.28,
+            "high_speed": 0.4,
+            "low_speed": 0.1,
+            "braking": 0.22
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1995_Belgian_Grand_Prix",
+          "notes": "Eau Rouge restored. 1995-2002 pages say 6.968 km. 2004-05 say 6.976 km after the new pit building, which is not treated as a new corner profile. There was no 2003 or 2006 Belgian Grand Prix."
+        },
+        {
+          "layout_id": "spa_2007",
+          "years_used_in_f1": [
+            2007,
+            2008,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 7.004,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "long",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.28,
+            "high_speed": 0.38,
+            "low_speed": 0.12,
+            "braking": 0.22
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2007_Belgian_Grand_Prix",
+          "notes": "The Bus Stop was rebuilt into a tighter final chicane. Pages from 2007 through 2026 say 7.004 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "suzuka",
+      "name": "Suzuka Circuit",
+      "country": "JPN",
+      "layouts": [
+        {
+          "layout_id": "suzuka_1987",
+          "years_used_in_f1": [
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001,
+            2002
+          ],
+          "length_km": 5.86,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.42,
+            "low_speed": 0.18,
+            "braking": 0.22
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1987_Japanese_Grand_Prix",
+          "notes": "Figure-eight with the 130R still a flat-out corner. Pages say 5.859 or 5.860 km through 2001. The 2002 page says 5.821 km and is kept here because the well-known chicane arrived for 2003."
+        },
+        {
+          "layout_id": "suzuka_2003",
+          "years_used_in_f1": [
+            2003,
+            2004,
+            2005,
+            2006,
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.807,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.38,
+            "low_speed": 0.18,
+            "braking": 0.26
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2003_Japanese_Grand_Prix",
+          "notes": "A chicane was added in the last sector and the lap settled at 5.807 km, including 2026."
+        }
+      ]
+    },
+    {
+      "circuit_id": "tremblant",
+      "name": "Circuit Mont-Tremblant",
+      "country": "CAN",
+      "layouts": [
+        {
+          "layout_id": "tremblant_1968",
+          "years_used_in_f1": [
+            1968,
+            1970
+          ],
+          "length_km": 4.265,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.35,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1968_Canadian_Grand_Prix",
+          "notes": "Mont-Tremblant road course, 4.265 km for both Canadian Grands Prix held there."
+        }
+      ]
+    },
+    {
+      "circuit_id": "valencia",
+      "name": "Valencia Street Circuit",
+      "country": "ESP",
+      "layouts": [
+        {
+          "layout_id": "valencia_2008",
+          "years_used_in_f1": [
+            2008,
+            2009,
+            2010,
+            2011,
+            2012
+          ],
+          "length_km": 5.419,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.15,
+            "low_speed": 0.3,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2008_European_Grand_Prix",
+          "notes": "Harbour street course, the same 5.419 km for all five European Grands Prix."
+        }
+      ]
+    },
+    {
+      "circuit_id": "vegas",
+      "name": "Las Vegas Strip Street Circuit",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "vegas_2023",
+          "years_used_in_f1": [
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 6.201,
+          "corners": null,
+          "character": [
+            "street",
+            "high_speed",
+            "long"
+          ],
+          "profile_guess": {
+            "straights": 0.4,
+            "high_speed": 0.2,
+            "low_speed": 0.15,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2023_Las_Vegas_Grand_Prix",
+          "notes": "The Strip street circuit, a long lap with one very long straight. Not the 1981 Caesars Palace car park. The 2026 round has no article yet and stays at 6.201 km."
+        }
+      ]
+    },
+    {
+      "circuit_id": "villeneuve",
+      "name": "Circuit Gilles Villeneuve",
+      "country": "CAN",
+      "layouts": [
+        {
+          "layout_id": "villeneuve_1978",
+          "years_used_in_f1": [
+            1978,
+            1979
+          ],
+          "length_km": 4.5,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.2,
+            "low_speed": 0.3,
+            "braking": 0.3
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1978_Canadian_Grand_Prix",
+          "notes": "The first Ile Notre-Dame course, cited at 4.500 km."
+        },
+        {
+          "layout_id": "villeneuve_1980",
+          "years_used_in_f1": [
+            1980,
+            1981,
+            1982,
+            1983,
+            1984,
+            1985,
+            1986,
+            1988,
+            1989,
+            1990
+          ],
+          "length_km": 4.41,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.22,
+            "low_speed": 0.28,
+            "braking": 0.28
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1980_Canadian_Grand_Prix",
+          "notes": "Revised island lap. 1980-86 pages say 4.410 km and 1988-90 say 4.390. There was no 1987 Canadian Grand Prix."
+        },
+        {
+          "layout_id": "villeneuve_1991",
+          "years_used_in_f1": [
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996,
+            1997,
+            1998,
+            1999,
+            2000,
+            2001
+          ],
+          "length_km": 4.421,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.2,
+            "low_speed": 0.28,
+            "braking": 0.3
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1991_Canadian_Grand_Prix",
+          "notes": "Pages sit between 4.421 km and 4.450 km, including a slightly longer 1994 citation. Kept as one layout until the 2002 pit-straight change."
+        },
+        {
+          "layout_id": "villeneuve_2002",
+          "years_used_in_f1": [
+            2002,
+            2003,
+            2004,
+            2005,
+            2006,
+            2007,
+            2008,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 4.361,
+          "corners": null,
+          "character": [
+            "street",
+            "high_speed",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.22,
+            "low_speed": 0.25,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2002_Canadian_Grand_Prix",
+          "notes": "The wall and the pit straight were revised and the lap settled at 4.361 km through 2026."
+        }
+      ]
+    },
+    {
+      "circuit_id": "watkins_glen",
+      "name": "Watkins Glen",
+      "country": "USA",
+      "layouts": [
+        {
+          "layout_id": "watkins_glen_1961",
+          "years_used_in_f1": [
+            1961,
+            1962,
+            1965,
+            1966,
+            1967,
+            1968,
+            1969,
+            1970
+          ],
+          "length_km": 3.78,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.38,
+            "low_speed": 0.18,
+            "braking": 0.22
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1961_United_States_Grand_Prix",
+          "notes": "The short Glen course. 1963-64 are on the shorter citation above. The other years through 1970 say 3.780 km."
+        },
+        {
+          "layout_id": "watkins_glen_1963",
+          "years_used_in_f1": [
+            1963,
+            1964
+          ],
+          "length_km": 3.701,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.35,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/1963_United_States_Grand_Prix",
+          "notes": "These two pages alone cite 3.701 km, between years that cite 3.780 km. No named rebuild was confirmed, so the split may be a measurement difference."
+        },
+        {
+          "layout_id": "watkins_glen_1971",
+          "years_used_in_f1": [
+            1971,
+            1972,
+            1973,
+            1974,
+            1975,
+            1976,
+            1977,
+            1978,
+            1979,
+            1980
+          ],
+          "length_km": 5.435,
+          "corners": null,
+          "character": [
+            "technical",
+            "long",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.35,
+            "low_speed": 0.18,
+            "braking": 0.22
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1971_United_States_Grand_Prix",
+          "notes": "The Boot extension, a much longer lap at 5.435 km for 1971-80."
+        }
+      ]
+    },
+    {
+      "circuit_id": "yas_marina",
+      "name": "Yas Marina Circuit",
+      "country": "ARE",
+      "layouts": [
+        {
+          "layout_id": "yas_marina_2009",
+          "years_used_in_f1": [
+            2009,
+            2010,
+            2011,
+            2012,
+            2013,
+            2014,
+            2015,
+            2016,
+            2017,
+            2018,
+            2019,
+            2020
+          ],
+          "length_km": 5.554,
+          "corners": null,
+          "character": [
+            "street",
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.15,
+            "low_speed": 0.3,
+            "braking": 0.35
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2009_Abu_Dhabi_Grand_Prix",
+          "notes": "Original course with the hotel hairpin and the long loop under the hotel."
+        },
+        {
+          "layout_id": "yas_marina_2021",
+          "years_used_in_f1": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 5.281,
+          "corners": null,
+          "character": [
+            "street",
+            "high_speed",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.28,
+            "high_speed": 0.28,
+            "low_speed": 0.18,
+            "braking": 0.26
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2021_Abu_Dhabi_Grand_Prix",
+          "notes": "The hairpin and hotel loop were cut, leaving a shorter and faster lap at 5.281 km. The 2026 round has no article yet and stays here."
+        }
+      ]
+    },
+    {
+      "circuit_id": "yeongam",
+      "name": "Korean International Circuit",
+      "country": "KOR",
+      "layouts": [
+        {
+          "layout_id": "yeongam_2010",
+          "years_used_in_f1": [
+            2010,
+            2011,
+            2012,
+            2013
+          ],
+          "length_km": 5.615,
+          "corners": null,
+          "character": [
+            "technical"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.22,
+            "low_speed": 0.28,
+            "braking": 0.28
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2010_Korean_Grand_Prix",
+          "notes": "Korean International Circuit. The 2010 page says 5.615 km and 2011-13 say 5.621."
+        }
+      ]
+    },
+    {
+      "circuit_id": "zandvoort",
+      "name": "Circuit Park Zandvoort",
+      "country": "NLD",
+      "layouts": [
+        {
+          "layout_id": "zandvoort_1952",
+          "years_used_in_f1": [
+            1952,
+            1953,
+            1955,
+            1958,
+            1959,
+            1960,
+            1961,
+            1962,
+            1963,
+            1964,
+            1965,
+            1968,
+            1969,
+            1970,
+            1971
+          ],
+          "length_km": 4.193,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.4,
+            "low_speed": 0.16,
+            "braking": 0.22
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1952_Dutch_Grand_Prix",
+          "notes": "The classic dunes circuit. 1966-67 are on the odd citation above. The other years through 1971 say 4.193 km."
+        },
+        {
+          "layout_id": "zandvoort_1966",
+          "years_used_in_f1": [
+            1966,
+            1967
+          ],
+          "length_km": 4.252,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.22,
+            "high_speed": 0.38,
+            "low_speed": 0.18,
+            "braking": 0.22
+          },
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/1966_Dutch_Grand_Prix",
+          "notes": "Only these two pages cite 4.252 km, with 4.193 km on either side. What was rebuilt for those two years was not confirmed."
+        },
+        {
+          "layout_id": "zandvoort_1973",
+          "years_used_in_f1": [
+            1973,
+            1974,
+            1975,
+            1976,
+            1977,
+            1978,
+            1979
+          ],
+          "length_km": 4.226,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.2,
+            "high_speed": 0.35,
+            "low_speed": 0.2,
+            "braking": 0.25
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1973_Dutch_Grand_Prix",
+          "notes": "From 1973 the pages move to 4.226 km and stay there through 1979. The step is small but it does not revert, so it is kept as its own era."
+        },
+        {
+          "layout_id": "zandvoort_1980",
+          "years_used_in_f1": [
+            1980,
+            1981,
+            1982,
+            1983,
+            1984,
+            1985
+          ],
+          "length_km": 4.252,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.32,
+            "low_speed": 0.22,
+            "braking": 0.28
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1980_Dutch_Grand_Prix",
+          "notes": "Another stable step, to 4.252 km for the last six championship visits of the old circuit. A chicane-era reading is likely, but the corner is not named here."
+        },
+        {
+          "layout_id": "zandvoort_2021",
+          "years_used_in_f1": [
+            2021,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026
+          ],
+          "length_km": 4.259,
+          "corners": null,
+          "character": [
+            "technical",
+            "bumpy",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.35,
+            "low_speed": 0.22,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2021_Dutch_Grand_Prix",
+          "notes": "The banked 2021 rebuild. The length is close to the 1980s figure, but the corners are new. Includes 2026."
+        }
+      ]
+    },
+    {
+      "circuit_id": "zeltweg",
+      "name": "Zeltweg",
+      "country": "AUT",
+      "layouts": [
+        {
+          "layout_id": "zeltweg_1964",
+          "years_used_in_f1": [
+            1964
+          ],
+          "length_km": 3.186,
+          "corners": null,
+          "character": [
+            "high_speed",
+            "bumpy",
+            "dangerous"
+          ],
+          "profile_guess": {
+            "straights": 0.4,
+            "high_speed": 0.3,
+            "low_speed": 0.1,
+            "braking": 0.2
+          },
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/1964_Austrian_Grand_Prix",
+          "notes": "Rough airfield circuit used for the one 1964 Austrian Grand Prix, not the later Spielberg track."
+        }
+      ]
+    },
+    {
+      "circuit_id": "zolder",
+      "name": "Zolder",
+      "country": "BEL",
+      "layouts": [
+        {
+          "layout_id": "zolder_1973",
+          "years_used_in_f1": [
+            1973,
+            1975,
+            1976,
+            1977,
+            1978,
+            1979,
+            1980,
+            1981,
+            1982,
+            1984
+          ],
+          "length_km": 4.262,
+          "corners": null,
+          "character": [
+            "technical",
+            "flowing"
+          ],
+          "profile_guess": {
+            "straights": 0.18,
+            "high_speed": 0.28,
+            "low_speed": 0.28,
+            "braking": 0.26
+          },
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/1973_Belgian_Grand_Prix",
+          "notes": "One Grand Prix course. The 1973 page says 4.220 km and 1975-84 say 4.262 km. That single-year step was not confirmed as a new section, so it stays on this layout at the later figure."
+        }
+      ]
+    }
+  ]
+}

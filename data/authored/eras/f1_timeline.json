@@ -49,9 +49,9 @@
     "value": "concorde_4_interim",
     "from": 1997,
     "to": 1997,
-    "confidence": "medium",
-    "source": "https://www.grandprix.com/news/concorde-agreement-signed.html",
-    "notes": "Fourth Concorde Agreement signed initially by FIA, FOM, and a subset of teams. McLaren, Williams, and Tyrrell initially held out before terms were agreed for the subsequent long-term accord."
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "Fourth Concorde Agreement signed in 1997 (Williams, McLaren, Tyrrell held out until 1998, establishing Fifth Concorde Agreement running through 2007). Continued commercial rights framework via Formula One Administration."
   },
   {
     "dimension": "revenue_model",
@@ -67,9 +67,9 @@
     "value": "concorde_mou_interim",
     "from": 2008,
     "to": 2008,
-    "confidence": "medium",
-    "source": "https://www.autosport.com/f1/news/teams-sign-new-concorde-agreement-4433068/4433068/",
-    "notes": "Interim transition year following the expiry of the 1998 accord. Teams operated under a Memorandum of Understanding and established FOTA to demand greater commercial transparency."
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Concorde_Agreement",
+    "notes": "Sixth Concorde Agreement (2008–2012) signed by teams to ensure championship stability, formalizing commercial revenues and team payouts through 2012."
   },
   {
     "dimension": "revenue_model",
@@ -662,8 +662,8 @@
     "from": 2002,
     "to": 2007,
     "confidence": "high",
-    "source": "https://www.autosport.com/f1/news/fia-confirms-48m-entry-bond-5056778/5056778/",
-    "notes": "FIA introduced a mandatory USD 48 million cash bond for new entrants to prove financial viability, returned in monthly installments over their first racing season. Designed to prevent insolvent entrants, it effectively froze out new teams."
+    "source": "https://en.wikipedia.org/wiki/Super_Aguri_F1",
+    "notes": "FIA and Concorde Agreement mandated a $48 million entry bond for new teams, returned with interest across early seasons to deter non-serious entrants."
   },
   {
     "dimension": "entry_barrier_model",
@@ -671,17 +671,17 @@
     "from": 2008,
     "to": 2014,
     "confidence": "high",
-    "source": "https://www.fia.com/news/fia-formula-one-world-championship-expressions-interest",
-    "notes": "The FIA replaced the USD 48M cash bond with a formal competitive selection tender process for vacant grid slots (tender held selecting Lotus, Virgin, HRT, and US F1 for 2010)."
+    "source": "https://en.wikipedia.org/wiki/2010_Formula_One_World_Championship",
+    "notes": "FIA selection process and tender calls to expand the grid to 13 teams, accepting Lotus Racing, Virgin Racing, and HRT/Campos for 2010."
   },
   {
     "dimension": "entry_barrier_model",
     "value": "fia_call_for_expressions_of_interest",
     "from": 2015,
     "to": 2020,
-    "confidence": "high",
-    "source": "https://www.fia.com/news/fia-formula-one-world-championship-expressions-interest",
-    "notes": "FIA opened formal Expression of Interest windows for prospective constructors. Haas Formula was evaluated and granted entry under this process in 2014 for their 2016 debut."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Haas_F1_Team",
+    "notes": "no specific source found; Haas was granted entry following FIA tender/call for expressions of interest issued in 2013-2014, debuting in 2016"
   },
   {
     "dimension": "entry_barrier_model",
@@ -716,17 +716,17 @@
     "from": 2002,
     "to": 2007,
     "confidence": "high",
-    "source": "https://www.autosport.com/f1/news/fia-confirms-48m-entry-bond-5056778/5056778/",
-    "notes": "Mandatory USD 48 million bond deposited with the FIA, returned in monthly payments of USD 4 million over the debut season."
+    "source": "https://en.wikipedia.org/wiki/Super_Aguri_F1",
+    "notes": "$48 million bond instituted to verify new team solvency and commitment, refundable over initial seasons."
   },
   {
     "dimension": "entry_fee_nominal_usd",
     "value": "0",
     "from": 2008,
     "to": 2020,
-    "confidence": "high",
-    "source": "https://www.fia.com/news/fia-formula-one-world-championship-expressions-interest",
-    "notes": "The USD 48M bond was abolished. New teams were selected via FIA competitive tender processes with administrative application fees rather than large capital bonds."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/2010_Formula_One_World_Championship",
+    "notes": "no specific source found; no multi-million anti-dilution fee required during 2008-2020 tender selections beyond standard annual FIA entry/superlicence fees"
   },
   {
     "dimension": "entry_fee_nominal_usd",
@@ -761,8 +761,8 @@
     "from": 1977,
     "to": 1987,
     "confidence": "high",
-    "source": "https://www.motorsportmagazine.com/archive/article/august-1977/22/the-british-grand-prix-12/",
-    "notes": "Held irregularly at over-subscribed European rounds (e.g. Silverstone 1977, Monaco 1979) on Thursday or early Friday morning for non-FOCA or lowest-scoring entrants to reach official practice limits."
+    "source": "https://en.wikipedia.org/wiki/1977_British_Grand_Prix",
+    "notes": "Pre-qualifying introduced at the 1977 British Grand Prix to filter non-FOCA entrants and large entry lists; used ad-hoc across 1977-1987 when grid limits were exceeded."
   },
   {
     "dimension": "pre_qualifying",
@@ -841,9 +841,9 @@
     "value": "national_restrictions_mosaic",
     "from": 1976,
     "to": 2004,
-    "confidence": "high",
-    "source": "https://www.grandprix.com/news/tobacco-ban-comes-into-force.html",
-    "notes": "A complex mosaic of national restrictions developed, beginning with West Germany (1976), France (Loi Evin 1991), and the UK. Teams ran modified liveries (barcodes, driver first names, clever wordplay) in restricted countries while maintaining full branding elsewhere."
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_sponsorship_liveries",
+    "notes": "no specific source found; national bans began emerging in individual countries (e.g. West Germany in 1976) requiring alternate non-tobacco liveries during the late 20th century"
   },
   {
     "dimension": "tobacco_advertising",
@@ -968,8 +968,8 @@
     "from": 1978,
     "to": 1993,
     "confidence": "high",
-    "source": "https://www.fia.com/news/sid-watkins-legacy-how-one-doctor-transformed-f1-safety",
-    "notes": "Following Ronnie Peterson's death at Monza 1978, Bernie Ecclestone appointed neurosurgeon Prof. Sid Watkins as permanent FIA Medical Delegate. A fast medical chase car trailing the grid on lap 1 debuted in 1979, and an on-site evacuation helicopter became mandatory in 1980."
+    "source": "https://en.wikipedia.org/wiki/Sid_Watkins",
+    "notes": "Bernie Ecclestone appointed Professor Sid Watkins as official FIA Medical Delegate in 1978, introducing mandatory medical car following the field on lap 1 and medical evacuation protocols."
   },
   {
     "dimension": "medical_service_standard",
@@ -977,8 +977,8 @@
     "from": 1994,
     "to": 2003,
     "confidence": "high",
-    "source": "https://www.fia.com/news/sid-watkins-legacy-how-one-doctor-transformed-f1-safety",
-    "notes": "Comprehensive trackside medical centres equipped with dedicated resuscitation bays, surgical stabilization equipment, and direct helicopter air-corridors to regional trauma hospitals became strictly mandatory at all circuits."
+    "source": "https://en.wikipedia.org/wiki/Sid_Watkins",
+    "notes": "Following the 1994 Imola fatalities, FIA Advisory Expert Group under Prof. Sid Watkins mandated standardized on-site medical centres, cutting-edge resuscitation equipment, and unified trackside medical standards."
   },
   {
     "dimension": "medical_service_standard",
@@ -986,8 +986,8 @@
     "from": 2004,
     "to": null,
     "confidence": "high",
-    "source": "https://www.fia.com/news/sid-watkins-legacy-how-one-doctor-transformed-f1-safety",
-    "notes": "Standardized FIA Medical Rescue protocol on-site, dedicated high-performance Medical Car (driven by a professional racing driver with the FIA Medical Rescue Coordinator and local emergency specialist), and rapid extrication teams."
+    "source": "https://en.wikipedia.org/wiki/Sid_Watkins",
+    "notes": "In 2004, the FIA Institute for Motor Sport Safety was founded (presided over by Sid Watkins), standardizing permanent medical centres, trauma teams, and extrication training."
   },
   {
     "dimension": "circuit_safety_standards",

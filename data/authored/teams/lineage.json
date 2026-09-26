@@ -1,0 +1,355 @@
+{
+  "notes": "Organizations that continued through a rename or a sale, using Jolpica constructorId values. from and to are the seasons that id is listed by Jolpica for that step. to is null when the entry is still active in 2026. The same constructorId can return later in the line (sauber, renault, arrows). A reused id that is a different organization is not linked. Left out on purpose: 1950-1951 Alfa Romeo, 1979-1985 Autodelta, and the 2019-2023 Alfa Romeo name; 1959-1960 Aston Martin and the 2021 Aston Martin entry; 1964-1968 Honda and the 2006-2008 Honda entry; 1954-1955 Mercedes and the 2010 Mercedes entry; the 1977-1985 Renault works team and the Enstone Renault team; Team Lotus, Lotus Racing / Caterham, and Lotus F1; Frank Williams Racing Cars, Iso-Marlboro, and Wolf; the Jolpica id lola, which covers several entrants; and chains that were not established from the pages used here (Osella to Fondmetal, Onyx / Monteverdi, Shadow to Arrows). how_it_ended is worded from the cited English Wikipedia page.",
+  "lineages": [
+    {
+      "lineage_id": "tyrrell-mercedes",
+      "entries": [
+        {
+          "constructorId": "tyrrell",
+          "from": 1970,
+          "to": 1998,
+          "how_it_ended": "bought by British American Tobacco in 1997 and raced its last season as Tyrrell in 1998",
+          "source": "https://en.wikipedia.org/wiki/Tyrrell_Racing"
+        },
+        {
+          "constructorId": "bar",
+          "from": 1999,
+          "to": 2005,
+          "how_it_ended": "Honda bought the remaining share in 2005 and the team raced as Honda from 2006",
+          "source": "https://en.wikipedia.org/wiki/British_American_Racing"
+        },
+        {
+          "constructorId": "honda",
+          "from": 2006,
+          "to": 2008,
+          "how_it_ended": "management buy-out by Ross Brawn, which raced as Brawn GP in 2009",
+          "source": "https://en.wikipedia.org/wiki/British_American_Racing",
+          "notes": "This honda id is the former BAR team. It is not the Honda works team of 1964-1968."
+        },
+        {
+          "constructorId": "brawn",
+          "from": 2009,
+          "to": 2009,
+          "how_it_ended": "Mercedes-Benz and Aabar bought a 75.1 percent stake in November 2009",
+          "source": "https://en.wikipedia.org/wiki/Brawn_GP"
+        },
+        {
+          "constructorId": "mercedes",
+          "from": 2010,
+          "to": null,
+          "how_it_ended": null,
+          "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_in_Formula_One",
+          "notes": "The 2010 entry is the former Brawn team. It is not the 1954-1955 Mercedes works team."
+        }
+      ]
+    },
+    {
+      "lineage_id": "toleman-alpine",
+      "entries": [
+        {
+          "constructorId": "toleman",
+          "from": 1981,
+          "to": 1985,
+          "how_it_ended": "sold to the Benetton Group",
+          "source": "https://en.wikipedia.org/wiki/Toleman"
+        },
+        {
+          "constructorId": "benetton",
+          "from": 1986,
+          "to": 2001,
+          "how_it_ended": "purchased by Renault in 2000 and raced as Renault from 2002",
+          "source": "https://en.wikipedia.org/wiki/Benetton_Formula"
+        },
+        {
+          "constructorId": "renault",
+          "from": 2002,
+          "to": 2011,
+          "how_it_ended": "renamed Lotus F1 Team for 2012",
+          "source": "https://en.wikipedia.org/wiki/Lotus_F1",
+          "notes": "Enstone team only. The 1977-1985 Renault works team is a different organization. In 2011 this entry raced as Lotus Renault GP without a Jolpica id change."
+        },
+        {
+          "constructorId": "lotus_f1",
+          "from": 2012,
+          "to": 2015,
+          "how_it_ended": "sold back to Renault on 18 December 2015",
+          "source": "https://en.wikipedia.org/wiki/Lotus_F1",
+          "notes": "Not Team Lotus (1954-1994) and not Lotus Racing / Caterham."
+        },
+        {
+          "constructorId": "renault",
+          "from": 2016,
+          "to": 2020,
+          "how_it_ended": "rebranded as Alpine for 2021",
+          "source": "https://en.wikipedia.org/wiki/Alpine_F1_Team"
+        },
+        {
+          "constructorId": "alpine",
+          "from": 2021,
+          "to": null,
+          "how_it_ended": null,
+          "source": "https://en.wikipedia.org/wiki/Alpine_F1_Team"
+        }
+      ]
+    },
+    {
+      "lineage_id": "jordan-aston-martin",
+      "entries": [
+        {
+          "constructorId": "jordan",
+          "from": 1991,
+          "to": 2005,
+          "how_it_ended": "sold to the Midland Group and renamed Midland for 2006",
+          "source": "https://en.wikipedia.org/wiki/Jordan_Grand_Prix"
+        },
+        {
+          "constructorId": "mf1",
+          "from": 2006,
+          "to": 2006,
+          "how_it_ended": "sold to Spyker during 2006; the last three Grands Prix were entered as Spyker MF1",
+          "source": "https://en.wikipedia.org/wiki/Midland_F1_Racing"
+        },
+        {
+          "constructorId": "spyker_mf1",
+          "from": 2006,
+          "to": 2006,
+          "how_it_ended": "continued in 2007 as Spyker F1",
+          "source": "https://en.wikipedia.org/wiki/Midland_F1_Racing"
+        },
+        {
+          "constructorId": "spyker",
+          "from": 2007,
+          "to": 2007,
+          "how_it_ended": "sold to Vijay Mallya and renamed Force India",
+          "source": "https://en.wikipedia.org/wiki/Spyker_F1"
+        },
+        {
+          "constructorId": "force_india",
+          "from": 2008,
+          "to": 2018,
+          "how_it_ended": "put into administration in July 2018; the assets were bought by Racing Point UK and the constructor entry became Racing Point in 2019",
+          "source": "https://en.wikipedia.org/wiki/Force_India"
+        },
+        {
+          "constructorId": "racing_point",
+          "from": 2019,
+          "to": 2020,
+          "how_it_ended": "rebranded as Aston Martin for 2021",
+          "source": "https://en.wikipedia.org/wiki/Racing_Point_F1_Team"
+        },
+        {
+          "constructorId": "aston_martin",
+          "from": 2021,
+          "to": null,
+          "how_it_ended": null,
+          "source": "https://en.wikipedia.org/wiki/Aston_Martin_in_Formula_One",
+          "notes": "Lawrence Stroll's team, the former Racing Point entry. It is not the David Brown Aston Martin team of 1959-1960."
+        }
+      ]
+    },
+    {
+      "lineage_id": "minardi-rb",
+      "entries": [
+        {
+          "constructorId": "minardi",
+          "from": 1985,
+          "to": 2005,
+          "how_it_ended": "sold to Red Bull in 2005 and renamed Scuderia Toro Rosso",
+          "source": "https://en.wikipedia.org/wiki/Minardi",
+          "notes": "Paul Stoddart bought the team in 2001. That sale did not change the Jolpica id."
+        },
+        {
+          "constructorId": "toro_rosso",
+          "from": 2006,
+          "to": 2019,
+          "how_it_ended": "rebranded Scuderia AlphaTauri for 2020",
+          "source": "https://en.wikipedia.org/wiki/Scuderia_AlphaTauri"
+        },
+        {
+          "constructorId": "alphatauri",
+          "from": 2020,
+          "to": 2023,
+          "how_it_ended": "rebranded RB for 2024",
+          "source": "https://en.wikipedia.org/wiki/Scuderia_AlphaTauri"
+        },
+        {
+          "constructorId": "rb",
+          "from": 2024,
+          "to": null,
+          "how_it_ended": null,
+          "source": "https://en.wikipedia.org/wiki/Racing_Bulls",
+          "notes": "The page says the commercial name became Racing Bulls in 2025. Jolpica's constructorId remains rb through 2026."
+        }
+      ]
+    },
+    {
+      "lineage_id": "sauber-audi",
+      "entries": [
+        {
+          "constructorId": "sauber",
+          "from": 1993,
+          "to": 2005,
+          "how_it_ended": "purchased by BMW in 2005 and raced as BMW Sauber from 2006",
+          "source": "https://en.wikipedia.org/wiki/Sauber_Motorsport"
+        },
+        {
+          "constructorId": "bmw_sauber",
+          "from": 2006,
+          "to": 2009,
+          "how_it_ended": "sold back to Peter Sauber after the 2009 season",
+          "source": "https://en.wikipedia.org/wiki/Sauber_Motorsport"
+        },
+        {
+          "constructorId": "sauber",
+          "from": 2010,
+          "to": 2018,
+          "how_it_ended": "renamed Alfa Romeo Racing for 2019",
+          "source": "https://en.wikipedia.org/wiki/Sauber_Motorsport",
+          "notes": "Alfa Romeo was a title sponsor in 2018 while the Jolpica id was still sauber. Finn Rausing bought a controlling stake in 2016; the id did not change."
+        },
+        {
+          "constructorId": "alfa",
+          "from": 2019,
+          "to": 2023,
+          "how_it_ended": "Alfa Romeo ended the sponsorship after 2023 and the id returned to sauber",
+          "source": "https://en.wikipedia.org/wiki/Alfa_Romeo_in_Formula_One",
+          "notes": "A commercial renaming of Sauber. Not the 1950-1951 works team and not the 1979-1985 Autodelta team. The page says Alfa Romeo had no technical involvement."
+        },
+        {
+          "constructorId": "sauber",
+          "from": 2024,
+          "to": 2025,
+          "how_it_ended": "purchased by Audi, which took the entry as a manufacturer team in 2026",
+          "source": "https://en.wikipedia.org/wiki/Sauber_Motorsport"
+        },
+        {
+          "constructorId": "audi",
+          "from": 2026,
+          "to": null,
+          "how_it_ended": null,
+          "source": "https://en.wikipedia.org/wiki/Audi_in_Formula_One",
+          "notes": "Formed by Audi's acquisition of Sauber. Not the pre-war Auto Union team."
+        }
+      ]
+    },
+    {
+      "lineage_id": "stewart-red-bull",
+      "entries": [
+        {
+          "constructorId": "stewart",
+          "from": 1997,
+          "to": 1999,
+          "how_it_ended": "bought outright by Ford at the end of 1999 and renamed Jaguar Racing",
+          "source": "https://en.wikipedia.org/wiki/Stewart_Grand_Prix"
+        },
+        {
+          "constructorId": "jaguar",
+          "from": 2000,
+          "to": 2004,
+          "how_it_ended": "sold to Red Bull GmbH in 2004 and rebranded Red Bull Racing for 2005",
+          "source": "https://en.wikipedia.org/wiki/Stewart_Grand_Prix"
+        },
+        {
+          "constructorId": "red_bull",
+          "from": 2005,
+          "to": null,
+          "how_it_ended": null,
+          "source": "https://en.wikipedia.org/wiki/Red_Bull_Racing"
+        }
+      ]
+    },
+    {
+      "lineage_id": "lotus-racing-caterham",
+      "entries": [
+        {
+          "constructorId": "lotus_racing",
+          "from": 2010,
+          "to": 2011,
+          "how_it_ended": "continued as Caterham from 2012",
+          "source": "https://en.wikipedia.org/wiki/Caterham_F1",
+          "notes": "Tony Fernandes's team. Not Team Lotus and not the Enstone Lotus F1 Team."
+        },
+        {
+          "constructorId": "caterham",
+          "from": 2012,
+          "to": 2014,
+          "how_it_ended": "entered administration in October 2014 and was removed from the 2015 entry list",
+          "source": "https://en.wikipedia.org/wiki/Caterham_F1"
+        }
+      ]
+    },
+    {
+      "lineage_id": "virgin-manor",
+      "entries": [
+        {
+          "constructorId": "virgin",
+          "from": 2010,
+          "to": 2011,
+          "how_it_ended": "the entry continued as Marussia",
+          "source": "https://en.wikipedia.org/wiki/Virgin_Racing",
+          "notes": "Entered as Manor Grand Prix, then renamed Virgin Racing at the end of 2009."
+        },
+        {
+          "constructorId": "marussia",
+          "from": 2012,
+          "to": 2014,
+          "how_it_ended": "the entry continued as Manor",
+          "source": "https://en.wikipedia.org/wiki/Marussia_F1"
+        },
+        {
+          "constructorId": "manor",
+          "from": 2015,
+          "to": 2016,
+          "how_it_ended": "John Booth and Graeme Lowdon left the Formula One project at the end of 2015; the introduction does not say how the 2016 entry ended",
+          "source": "https://en.wikipedia.org/wiki/Manor_Motorsport"
+        }
+      ]
+    },
+    {
+      "lineage_id": "arrows-footwork",
+      "entries": [
+        {
+          "constructorId": "arrows",
+          "from": 1978,
+          "to": 1990,
+          "how_it_ended": "renamed Footwork for 1991",
+          "source": "https://en.wikipedia.org/wiki/Footwork_Arrows"
+        },
+        {
+          "constructorId": "footwork",
+          "from": 1991,
+          "to": 1996,
+          "how_it_ended": "Wataru Ohashi withdrew his backing and the name reverted to Arrows",
+          "source": "https://en.wikipedia.org/wiki/Footwork_Arrows"
+        },
+        {
+          "constructorId": "arrows",
+          "from": 1997,
+          "to": 2002,
+          "how_it_ended": "last race was the 2002 German Grand Prix",
+          "source": "https://en.wikipedia.org/wiki/Arrows_Grand_Prix_International"
+        }
+      ]
+    },
+    {
+      "lineage_id": "ligier-prost",
+      "entries": [
+        {
+          "constructorId": "ligier",
+          "from": 1976,
+          "to": 1996,
+          "how_it_ended": "the entry continued as Prost Grand Prix",
+          "source": "https://en.wikipedia.org/wiki/Equipe_Ligier",
+          "notes": "The infobox gives Prost Grand Prix as the next name. The introduction does not describe the terms of the transfer."
+        },
+        {
+          "constructorId": "prost",
+          "from": 1997,
+          "to": 2001,
+          "how_it_ended": "last season was 2001; the last race was the 2001 Japanese Grand Prix",
+          "source": "https://en.wikipedia.org/wiki/Prost_Grand_Prix"
+        }
+      ]
+    }
+  ]
+}

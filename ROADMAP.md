@@ -92,6 +92,7 @@ Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyśc
 1. **Rozwój auta: czy gracz wybiera konkretne projekty, czy tylko podział zasobów?** Propozycja właściciela: projekty wybierają inżynierowie, a gracz dostaje w skrzynce prośby typu „jeszcze 2 tygodnie, jesteśmy blisko przełomu” (HANDOFF_UI §4). Do decyzji przed przebudową ekranu „Auto i rozwój”.
 2. **Czy szef zespołu, gracz i AI, ma atrybuty?** Obecnie DESIGN §6.2 mówi „tak”, a właściciel pyta, czy to potrzebne.
 3. **Dane do wydania komercyjnego (PP-041):** Jolpica to CC BY-NC-SA 4.0. Na Steam trzeba własnej bazy albo zgody. Decyzja do podjęcia przed fazą wydania.
-4. **Kalibracja ocen:** ile lat przed debiutem kierowca trafia do puli talentów (fazy 1 i 4).
+4. **Technologie: drzewko czy przełomy od ludzi?** Właściciel nie chce drzewka, bo gracz mógłby je „zrushować”. Propozycja: brak drzewka; pomysły zgłaszają inżynierowie (szansa zależy od ich innowacyjności), obowiązuje okno gotowości epoki (można wyprzedzić historię o kilka lat, nie o dekadę), jest ryzyko porażki, rywale kopiują, a dominującą technologię FIA może zakazać. Czeka na potwierdzenie; zmienia PP-009 i DESIGN §4.2. Research #12 to katalog z polem `earliest_plausible`, przydatny w obu wariantach.
+5. **Kalibracja ocen:** ile lat przed debiutem kierowca trafia do puli talentów (fazy 1 i 4).
 
 Rozstrzygnięte 2026-09-25: wiedza o przyszłości (PP-018), tylko mistrzostwa F1 na start (PP-018), własne silniki (PP-019), backend przed UI (PP-020), dwa języki (PP-021), publiczne repo (PP-022).

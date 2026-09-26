@@ -10,12 +10,13 @@
       "concorde_1_fisa_foca_split",
       "concorde_2_fopa_expansion",
       "concorde_3_commercial_growth",
-      "concorde_4_interim",
-      "concorde_5_columns_structure",
+      "concorde_4_1997",
+      "concorde_5_1998",
       "concorde_mou_interim",
       "concorde_6_fota_accord",
-      "bilateral_agreements_ccb",
-      "concorde_8_cost_cap_equitable"
+      "bilateral_agreements",
+      "concorde_8_cost_cap_equitable",
+      "concorde_9_2026"
     ],
     "unit": null,
     "gameplay_effect": "Governs how Grand Prix income, television broadcasting revenue, and prize fund money are collected and distributed to participating teams."
@@ -87,7 +88,7 @@
       "unrestricted",
       "national_restrictions_mosaic",
       "eu_ban_and_global_phaseout",
-      "full_ban"
+      "direct_logos_ended_surrogates_remain"
     ],
     "unit": null,
     "gameplay_effect": "Controls the legality and restrictions surrounding tobacco company sponsorships, which historically formed the bulk of team commercial revenue."
@@ -138,7 +139,7 @@
     "values": [
       "none",
       "ad_hoc_elimination",
-      "mandatory_friday_prequalifying"
+      "reintroduced_prequalifying"
     ],
     "unit": null,
     "gameplay_effect": "Controls whether early morning pre-qualifying sessions are staged to eliminate surplus entrants before official practice and qualifying."
@@ -149,8 +150,8 @@
     "name": "Maximum starting grid capacity",
     "type": "enum",
     "values": [
-      "circuit_specific_limit_16_to_28",
-      "standard_26_cars"
+      "no_single_championship_cap",
+      "cap_revised_in_1993"
     ],
     "unit": null,
     "gameplay_effect": "Sets the maximum number of cars permitted to take the start of a Grand Prix."
@@ -162,13 +163,13 @@
     "type": "enum",
     "values": [
       "none",
-      "frontal_impact_survival_cell",
-      "feet_behind_axle_and_frontal",
-      "post_imola_monocoque_reinforcements",
-      "rear_and_dynamic_side_impact",
-      "strengthened_side_and_rollhoop",
-      "hybrid_era_low_nose_and_side_impact_spars",
-      "increased_energy_absorption_2022"
+      "frontal_impact_test",
+      "feet_behind_axle_and_static_cell",
+      "rear_impact_survival_cell",
+      "side_impact_tests",
+      "higher_energy_side_impact",
+      "stronger_rear_structure",
+      "ground_effect_era_tests"
     ],
     "unit": null,
     "gameplay_effect": "Governs mandatory structural impact verification tests required before a new chassis design can be homologated for competition."
@@ -181,8 +182,9 @@
     "values": [
       "basic_local_first_aid",
       "permanent_medical_delegate_and_chase_car",
-      "mandatory_circuit_medical_centre_and_helo",
-      "modern_fia_emergency_protocol"
+      "mandatory_medevac_and_inspector",
+      "fia_approved_medical_centres",
+      "fia_institute_for_motor_sport_safety"
     ],
     "unit": null,
     "gameplay_effect": "Dictates the quality and speed of emergency medical response, including medical chase cars, permanent trauma facilities, and helicopter evacuation."
@@ -194,10 +196,11 @@
     "type": "enum",
     "values": [
       "natural_road_unprotected",
-      "gpda_protests_and_armco_mandate",
-      "fisa_inspections_and_gravel_runoffs",
-      "post_imola_circuit_reprofiling_and_barriers",
-      "fia_grade_1_tecpro_and_asphalt_runoffs"
+      "gpda_circuit_boycotts",
+      "interim_before_catch_fence_ban",
+      "catch_fencing_banned",
+      "post_imola_layout_changes",
+      "fia_grade_one_required"
     ],
     "unit": null,
     "gameplay_effect": "Governs circuit barrier technology, runoff dimensions, and mandatory track safety licensing standards."

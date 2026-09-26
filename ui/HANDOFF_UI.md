@@ -126,7 +126,7 @@ Dla nowej sesji (Opus 5.5, wyższy effort). Przeczytaj w całości, zanim zaczni
 - **„Pula talentów”** i „najciekawsi według skauta” nie są klikalne. Mają prowadzić do profili i do puli.
 - **Dwóch juniorów (Daly, South) wygląda na „wklejonych”.** Brakuje kontekstu, czym jest ich miejsce: slot? program? Przeprojektować tak, żeby było jasne, co to jest akademia, ile ma miejsc i jaki jest status każdego juniora, **bez dopisków-tłumaczeń**. Ma to wynikać ze struktury UI.
 
-### Auto i rozwój: propozycja zmiany systemu (do omówienia z właścicielem)
+### Auto i rozwój: propozycja zmiany systemu (PRZYJĘTA jako PP-043)
 Właściciel zastanawia się, czy **gracz nie powinien w ogóle wybierać konkretnych części**.
 - Gracz ustala tylko **podział zasobów** (bieżące auto / konto rozwoju / przyszły rok, ewentualnie priorytety obszarów).
 - O konkretnych projektach (silnik, zawieszenie itd.) **decydują inżynierowie**, na podstawie tego, kogo zatrudniono, ich doświadczenia, stażu w zespole i fazy adaptacji do struktury zespołu.
@@ -214,7 +214,9 @@ Opcjonalne. „Jak się nie przydadzą, to luz.”
 
 ---
 
-## 7. Następny temat właściciela: system awatarów (zgłoszony 2026-09-26)
+## 7. System awatarów (zgłoszony 2026-09-26, ODŁOŻONY)
+
+**Stan 2026-09-26:** właściciel odłożył temat, bo kolejne próby nie wyszły. Nie zaczynaj go bez jego wyraźnej prośby.
 
 Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloton Managerze żadna się nie udała (`experiments/avatar_prototype` w repo Pelotona), w Ping-Pong Managerze na 4/10 (`tools/avatar-preview.html`, `tests/avatars.test.js`). Przed startem obejrzyj oba repozytoria i nazwij, co tam nie zagrało.
 

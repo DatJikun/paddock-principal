@@ -89,11 +89,11 @@ Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyśc
 
 ## Otwarte pytania
 
-1. **Rozwój auta: czy gracz wybiera konkretne projekty, czy tylko podział zasobów?** Propozycja właściciela: projekty wybierają inżynierowie, a gracz dostaje w skrzynce prośby typu „jeszcze 2 tygodnie, jesteśmy blisko przełomu” (HANDOFF_UI §4). Do decyzji przed przebudową ekranu „Auto i rozwój”.
-2. **Czy szef zespołu, gracz i AI, ma atrybuty?** Obecnie DESIGN §6.2 mówi „tak”, a właściciel pyta, czy to potrzebne.
+1. **Czy właściciel albo prezes zespołu (zarząd, DESIGN §15) ma atrybuty?** Szef zespołu ma (PP-044); przy właścicielu właściciel gry jeszcze nie zdecydował.
+2. **System awatarów: odłożony.** Dotychczasowe próby (Peloton, Ping-Pong, brief w HANDOFF_UI §7) nie dały zadowalającego wyniku. Wracamy później.
 3. **Dane do wydania komercyjnego (PP-041):** Jolpica to CC BY-NC-SA 4.0. Na Steam trzeba własnej bazy albo zgody. Decyzja do podjęcia przed fazą wydania.
 4. **Kalibracja ocen:** ile lat przed debiutem kierowca trafia do puli talentów (fazy 1 i 4).
 
-Rozstrzygnięte 2026-09-26: technologie jako przełomy od ludzi, bez drzewka (PP-042).
+Rozstrzygnięte 2026-09-26: technologie jako przełomy od ludzi, bez drzewka (PP-042); rozwój auta z dwiema ścieżkami, MVP z autonomicznymi inżynierami (PP-043); szef zespołu ma atrybuty (PP-044).
 
 Rozstrzygnięte 2026-09-25: wiedza o przyszłości (PP-018), tylko mistrzostwa F1 na start (PP-018), własne silniki (PP-019), backend przed UI (PP-020), dwa języki (PP-021), publiczne repo (PP-022).

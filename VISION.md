@@ -205,3 +205,14 @@ Szczegóły w DESIGN §6.1, §6.3 i §10.
 
 Szczegóły w DESIGN §4.2.
 
+### Przyjęte 2026-09-26 (dziesiąta runda)
+
+**PP-043: Rozwój auta ma dwie ścieżki, a MVP zaczyna od autonomicznych inżynierów** (rozwija PP-029 i PP-032).
+- **Ścieżka A, autonomiczna (MVP):** gracz ustala podział zasobów (bieżące auto / konto rozwoju / przyszły rok, opcjonalnie priorytety obszarów). Konkretne projekty wybierają inżynierowie według swoich atrybutów, doświadczenia, stażu i adaptacji w zespole. Gdy gracz zmienia podział, inżynierowie mogą odpowiedzieć w skrzynce („jeszcze 2 tygodnie, jesteśmy blisko przełomu”). Gracz trzyma się planu albo tnie projekt.
+- **Ścieżka B, ręczna (później):** gracz sam wybiera projekty. To opcjonalny moduł włączany w ustawieniach kariery.
+- **Technicznie to ta sama logika co u AI:** zespoły AI i tak potrzebują inżynierów, którzy sami wybierają projekty. Ścieżka A to ta logika zastosowana do zespołu gracza, więc MVP nie wymaga osobnego systemu. Ścieżka B to tylko inne źródło decyzji o projekcie.
+
+Szczegóły w DESIGN §5.3.
+
+**PP-044: Szef zespołu ma atrybuty** (potwierdza DESIGN §6.2). Dotyczy gracza i szefów AI: negocjacje, zarządzanie ludźmi, polityka, biznes. Czy atrybuty ma też właściciel albo prezes zespołu (zarząd, §15), jest nadal otwarte (ROADMAP, otwarte pytania).
+

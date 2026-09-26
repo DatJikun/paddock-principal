@@ -202,6 +202,12 @@ Do tego technologie, które zespół opanował dzięki przełomom (§4.2). **Jak
 
 Decyzja „czekać czy wdrażać” to kompromis: wcześniejsze wdrożenie daje punkty teraz, ale kosztuje zrozumienie i ryzyko. Podział zasobów między poprawki bieżącego auta, konto rozwoju i projekt nowej koncepcji ustawiasz sam albo zostawiasz dyrektorowi technicznemu (PP-029).
 
+**Kto wybiera projekty (PP-043).** Są dwie ścieżki, a gra zaczyna od pierwszej:
+- **Autonomiczni inżynierowie (MVP):** gracz ustala tylko podział zasobów, a konkretne projekty wybierają inżynierowie (jak w zespołach AI). Na zmianę podziału mogą odpowiedzieć w skrzynce, np. „dajcie nam jeszcze 2 tygodnie” albo „kończymy, zaraz produkcja”. Gracz trzyma się planu albo tnie projekt.
+- **Ręczny wybór projektów (moduł na później):** gracz sam wybiera projekty. Włączany w ustawieniach kariery.
+
+Obie ścieżki korzystają z tego samego modelu projektu. Różni je tylko to, kto podejmuje decyzję. Wybór inżyniera zapisuje się w `DecisionTrace` jak każda decyzja AI.
+
 **Ilu ludzi i jak dobrzy (zasada ogólna dla rozwoju):** liczba ludzi przypisanych do projektu decyduje o **czasie**. O **jakości** decydują kluczowi ludzie, infrastruktura i budżet. Dorzucenie 50 inżynierów skraca projekt, ale nie robi z przeciętnej koncepcji genialnej.
 
 **Nowe auto startuje z części własnego potencjału.** Z koncepcji na przyszły rok samochód dostaje na start tylko pewien procent sufitu, a resztę trzeba wyrobić rozwojem w sezonie. Filozofia projektu przesuwa ten kompromis:

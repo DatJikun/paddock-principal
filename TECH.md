@@ -101,7 +101,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Dane autorskie w repo** (tworzone przez nas, można commitować):
   - `data/authored/regulations/`: `catalog.json` z 41 wymiarami, `f1_timeline.json` (1950–2026), `other_series_ideas.json`;
   - `data/authored/tracks/`: `circuits.json` z torami i wersjami układów oraz profilami, `race_layout_map.json` z przypisaniem każdego wyścigu do układu.
-- **Importer:** `tools/Paddock.DataPipeline` z komendami `fetch --from 1950 --to 2025`, `normalize`, `summary`. Pobiera nie więcej niż ~450 zapytań na godzinę (limit Jolpica: 500/h), wznawia pracę z cache i ponawia zapytania przy błędach.
+- **Importer:** `tools/Paddock.DataPipeline` z komendami `fetch --from 1950 --to 2025`, `normalize`, `summary`, `stats`. `stats` zapisuje raport epok do `data/cache/reports/` (poza repo). Pobiera nie więcej niż ~450 zapytań na godzinę (limit Jolpica: 500/h), wznawia pracę z cache i ponawia zapytania przy błędach.
 
 ### 6.2. Save (`.paddock` = SQLite, tryb WAL)
 - **Główne tabele:** `meta` (wersja schematu, hash bazy, master seed, stan RNG, data gry), `people`, `person_attributes`, `organizations`, `org_lineage`, `contracts`, `cars`, `seasons`, `race_results`, `standings`, `chronicle` (rozbieżności), `hall_of_fame`, `inbox`, `decision_traces`.

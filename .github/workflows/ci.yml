@@ -29,3 +29,6 @@ jobs:
 
       - name: Test
         run: dotnet test --configuration Release --no-build
+
+      - name: Validate authored data
+        run: dotnet run --project tools/Paddock.DataPipeline --configuration Release --no-build -- validate-authored

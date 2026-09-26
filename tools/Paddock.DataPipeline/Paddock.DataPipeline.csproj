@@ -4,5 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Paddock.Application\Paddock.Application.csproj" />
+    <ProjectReference Include="..\..\src\Paddock.Data\Paddock.Data.csproj" />
   </ItemGroup>
 </Project>

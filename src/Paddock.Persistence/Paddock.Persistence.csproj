@@ -2,4 +2,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Paddock.Domain\Paddock.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Paddock.Tests" />
+  </ItemGroup>
 </Project>

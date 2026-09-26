@@ -16,6 +16,9 @@ public class LayeringTests
             .Where(name => name is not null && name.StartsWith("Paddock.", StringComparison.Ordinal))
             .ToList();
         Assert.Empty(paddockReferences);
+        Assert.DoesNotContain(
+            typeof(Xoshiro256StarStar).Assembly.GetReferencedAssemblies(),
+            assembly => assembly.Name == "System.Text.Json");
     }
 
     [Fact]
@@ -27,7 +30,7 @@ public class LayeringTests
         Assert.Equal(["Paddock.Domain"], ProjectReferences("src/Paddock.Data/Paddock.Data.csproj"));
         Assert.Equal(["Paddock.Application"], ProjectReferences("src/Paddock.Desktop/Paddock.Desktop.csproj"));
         Assert.Equal(["Paddock.Application"], ProjectReferences("tools/Paddock.SimRunner/Paddock.SimRunner.csproj"));
-        Assert.Equal(["Paddock.Application"], ProjectReferences("tools/Paddock.DataPipeline/Paddock.DataPipeline.csproj"));
+        Assert.Equal(["Paddock.Application", "Paddock.Data"], ProjectReferences("tools/Paddock.DataPipeline/Paddock.DataPipeline.csproj"));
     }
 
     private static List<string> ProjectReferences(string relativeCsproj)

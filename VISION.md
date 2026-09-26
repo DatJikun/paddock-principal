@@ -90,7 +90,7 @@ Oba warianty korzystają z tego samego wyliczonego profilu kierowcy.
 
 **PP-008: Epoki są danymi.** Przepisy sportowe i techniczne, punktacja (w tym zasada N najlepszych wyników i dzielenie punktów przy zmianie kierowcy), bezpieczeństwo, awaryjność i ekonomia to wpisy osi czasu, a nie stałe w kodzie.
 
-**PP-009: Technologie to drzewo z historycznymi datami jako punktem odniesienia dla AI.** Gracz (i AI) może wprowadzić technologię wcześniej albo później niż w rzeczywistości. Przykłady: silnik centralny, efekt przyziemny, turbo, monokok z włókna węglowego, półautomatyczna skrzynia.
+**PP-009: ~~Technologie to drzewo z historycznymi datami jako punktem odniesienia dla AI.~~** Zastąpione przez PP-042. Gracz (i AI) może wprowadzić technologię wcześniej albo później niż w rzeczywistości. Przykłady: silnik centralny, efekt przyziemny, turbo, monokok z włókna węglowego, półautomatyczna skrzynia.
 
 **PP-010: ~~Pieniądz to indeks epoki bez automatycznej inflacji.~~** Zastąpione przez PP-025.
 
@@ -196,4 +196,12 @@ Szczegóły w DESIGN §6.1, §6.3 i §10.
 - Rynek filtruje i sortuje po gwiazdkach, tak jak w Ping-Pong Managerze.
 
 **PP-041: Dane historyczne z Jolpica-F1 (CC BY-NC-SA 4.0) nie trafiają do repo.** Pipeline jest w repo, a bazę każdy buduje lokalnie. Wydanie komercyjne wymaga własnej, niezależnie zebranej bazy faktów albo zgody właściciela danych. Decyzja przed fazą wydania (ROADMAP, otwarte pytania).
+
+**PP-042: Przełomy technologiczne od ludzi zamiast drzewka** (zastępuje PP-009).
+- Nie ma drzewka i nie da się niczego „zrushować” pieniędzmi.
+- Pomysły zgłaszają inżynierowie. Ich atrybut innowacyjność decyduje o częstotliwości i średniej jakości pomysłów, ale rozkład ma długi ogon: słaby inżynier może rzadko trafić coś genialnego.
+- Wykonanie zależy od precyzji, działu i infrastruktury, a pomysł może nie wypalić.
+- Obowiązuje okno gotowości epoki (można wyprzedzić historię o kilka lat, nie o dekadę). Rywale kopiują, FIA może zakazać.
+
+Szczegóły w DESIGN §4.2.
 

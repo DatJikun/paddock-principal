@@ -113,8 +113,26 @@ Pełną oś czasu budujemy w fazie 1 razem z danymi (**zadanie badawcze dla Grok
 
 **Polityka regulaminowa:** w erach, w których zespoły współdecydują o przepisach (np. Komisja F1), zmiany są proponowane i głosowane. Zespoły głosują zgodnie z własnym interesem, a gracz może lobbować; atrybut szefa „polityka” ma tu znaczenie. W trybie historycznym prawdziwe zmiany przychodzą jako propozycje (PP-004).
 
-### 4.2. Drzewo technologii (PP-009)
-Technologie mają prawdziwą datę wprowadzenia. Dla AI to punkt odniesienia, a gracz może ją wyprzedzić albo się spóźnić.
+### 4.2. Przełomy technologiczne od ludzi (PP-042, zastępuje PP-009)
+
+**Nie ma drzewka technologii ani ekranu z technologiami do kupienia.** Nie da się niczego przyspieszyć samymi pieniędzmi.
+
+**Skąd biorą się przełomy:**
+1. **Pomysł.** Inżynierowie (projektanci, dyrektor techniczny, aerodynamicy, projektanci silników) mają atrybut **innowacyjność**.
+   - Decyduje on, *jak często* ktoś wpada na pomysł i *jak dobry jest średnio* ten pomysł.
+   - Rozkład ma **długi ogon**: przeciętny inżynier raz na wiele lat może trafić coś wielkiego. Najlepsi mają przewagę, ale nie monopol.
+   - Pomysł przychodzi jako wiadomość w skrzynce, np. „Gardner: mam pomysł na sześć kół”, z opisem, szacunkiem kosztu i niepewnością.
+2. **Decyzja gracza:** inwestować czy nie. To zakład z niepewnym wynikiem, a nie zakup.
+3. **Wykonanie.** Ile osiągów pomysł naprawdę da, zależy od precyzji projektanta, działu, infrastruktury i budżetu. Słaby zespół z genialnym pomysłem wyciśnie z niego mniej. Pomysł może też nie wypalić.
+4. **Świat reaguje:**
+   - rywale kopiują to, co widać (PP-028), a lepsze zespoły często robią to lepiej;
+   - technologia, która zbyt mocno dominuje, może zostać zakazana przez FIA (propozycja zakazu przychodzi jako głosowanie w skrzynce).
+
+**Okno gotowości epoki:** każda technologia ma najwcześniejszy realny rok, zależny od materiałów i wiedzy (`earliest_plausible` w katalogu `data/authored/tech/`). Można wyprzedzić historię o kilka lat, ale nie o dekadę. Prawdziwe daty wprowadzenia są punktem odniesienia dla AI i dla siły historii (§2.3).
+
+**Historie, które z tego wynikają:** nieznany inżynier wymyśla przełom, jego innowacyjność i reputacja rosną, a wielkie zespoły zaczynają go podkupywać. Tak buduje się dynastię od zera.
+
+Przykłady z historii (katalog, nie drzewko):
 
 | Technologia | Prawdziwy debiut | Efekt |
 |---|---|---|
@@ -127,10 +145,6 @@ Technologie mają prawdziwą datę wprowadzenia. Dla AI to punkt odniesienia, a 
 | Półautomatyczna skrzynia | Ferrari 640 (1989) | czas okrążenia, niezawodność |
 | Aktywne zawieszenie | Lotus 1987, Williams 1992, zakaz 1994 | docisk i przyczepność mechaniczna |
 | Hybryda | KERS 2009, jednostki napędowe 2014 | moc, koszty |
-
-Technologia wymaga badań (personel i pieniądze) i ma ryzyko porażki.
-
-**Kopiowanie wynika z ludzi, a nie z systemu szpiegowskiego** (PP-028). Inżynierowie podpatrują widoczne rozwiązania rywali (skrzydła, podłoga, koncepcja). Szansa i tempo skopiowania zależą od ich umiejętności analizy i kreatywności oraz od tego, jak bardzo rozwiązanie jest widoczne: skrzydło widać, mapowanie silnika nie. Wiedzę przenoszą też **ludzie zmieniający zespół**, bo projektant przechodzący do rywala zabiera doświadczenie z poprzedniej koncepcji. Osobnego systemu szpiegostwa nie ma. **Zakazy reagują na świat:** propozycja zakazu pojawia się, gdy dana technologia zbyt mocno dominuje w *Twoim* świecie, a nie w tym prawdziwym roku.
 
 ### 4.3. Nieskończona infrastruktura (PP-026)
 Nie ma końca drzewka. **W 1972 nie może być endgame'u.** Trzy mechanizmy:
@@ -169,7 +183,7 @@ Projekt roczny to zestaw decyzji na osiach, w których **każdy biegun ma swoją
 
 **Dopasowanie kierowcy do auta:** każdy kierowca ma preferencje prowadzenia (np. balans: podsterowność ↔ nadsterowność, trakcja: miękka ↔ ostra). Koncepcja auta ma swoją charakterystykę, a rozjazd kosztuje tempo i pewność siebie. Mistrz może być przeciętny w aucie, które mu nie leży. To jednocześnie decyzja projektowa („budujemy auto pod naszą gwiazdę czy pod partnera?”) i transferowa.
 
-Do tego wybrane technologie z drzewa (§4.2). **Jakość wykonania** zależy od personelu (§6.2), infrastruktury (§4.3) i budżetu. Kierowca z dobrą informacją zwrotną pomaga rozwijać auto w sezonie.
+Do tego technologie, które zespół opanował dzięki przełomom (§4.2). **Jakość wykonania** zależy od personelu (§6.2), infrastruktury (§4.3) i budżetu. Kierowca z dobrą informacją zwrotną pomaga rozwijać auto w sezonie.
 
 ### 5.3. Rozwój: potencjał koncepcji, konto rozwoju, moment wdrożenia (PP-032)
 

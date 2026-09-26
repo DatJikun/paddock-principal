@@ -1,0 +1,1640 @@
+[
+  {
+    "id": "bell_2016_top50",
+    "title": "Bell, Smith, Sabel and Jones: driver residuals, 1950-2014, Schumacher split",
+    "year_published": 2016,
+    "method": "statistical_model",
+    "method_note": "Cross-classified multilevel model of standardised points per race from 1950 to 2014, with separate driver, team and team-year effects. This is appendix Table A9 of the accepted manuscript, which treats Michael Schumacher's pre-2006 and post-2010 spells as two drivers. Only the pre-2006 spell is inside the top 50.",
+    "source": "https://eprints.whiterose.ac.uk/id/eprint/96995/14/WRRO_96995.pdf",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 2,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 3,
+        "name": "Michael Schumacher (pre-2006)",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 4,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 5,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      },
+      {
+        "rank": 6,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 7,
+        "name": "Nelson Piquet",
+        "driverId": "piquet"
+      },
+      {
+        "rank": 8,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 9,
+        "name": "Emerson Fittipaldi",
+        "driverId": "emerson_fittipaldi"
+      },
+      {
+        "rank": 10,
+        "name": "Sebastian Vettel",
+        "driverId": "vettel"
+      },
+      {
+        "rank": 11,
+        "name": "Christian Fittipaldi",
+        "driverId": "fittipaldi"
+      },
+      {
+        "rank": 12,
+        "name": "Lewis Hamilton",
+        "driverId": "hamilton"
+      },
+      {
+        "rank": 13,
+        "name": "Graham Hill",
+        "driverId": "hill"
+      },
+      {
+        "rank": 14,
+        "name": "Dan Gurney",
+        "driverId": "gurney"
+      },
+      {
+        "rank": 15,
+        "name": "Jody Scheckter",
+        "driverId": "scheckter"
+      },
+      {
+        "rank": 16,
+        "name": "Jenson Button",
+        "driverId": "button"
+      },
+      {
+        "rank": 17,
+        "name": "Marc Surer",
+        "driverId": "surer"
+      },
+      {
+        "rank": 18,
+        "name": "Damon Hill",
+        "driverId": "damon_hill"
+      },
+      {
+        "rank": 19,
+        "name": "Louis Rosier",
+        "driverId": "rosier"
+      },
+      {
+        "rank": 20,
+        "name": "Elio de Angelis",
+        "driverId": "angelis"
+      },
+      {
+        "rank": 21,
+        "name": "Ronnie Peterson",
+        "driverId": "peterson"
+      },
+      {
+        "rank": 22,
+        "name": "Nino Farina",
+        "driverId": "farina"
+      },
+      {
+        "rank": 23,
+        "name": "Nick Heidfeld",
+        "driverId": "heidfeld"
+      },
+      {
+        "rank": 24,
+        "name": "Pedro Rodriguez",
+        "driverId": "rodriguez"
+      },
+      {
+        "rank": 25,
+        "name": "John Watson",
+        "driverId": "watson"
+      },
+      {
+        "rank": 26,
+        "name": "Robert Kubica",
+        "driverId": "kubica"
+      },
+      {
+        "rank": 27,
+        "name": "Carlos Reutemann",
+        "driverId": "reutemann"
+      },
+      {
+        "rank": 28,
+        "name": "Tom Pryce",
+        "driverId": "pryce"
+      },
+      {
+        "rank": 29,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 30,
+        "name": "Martin Brundle",
+        "driverId": "brundle"
+      },
+      {
+        "rank": 31,
+        "name": "Rubens Barrichello",
+        "driverId": "barrichello"
+      },
+      {
+        "rank": 32,
+        "name": "Daniel Ricciardo",
+        "driverId": "ricciardo"
+      },
+      {
+        "rank": 33,
+        "name": "Alan Jones",
+        "driverId": "jones"
+      },
+      {
+        "rank": 34,
+        "name": "Kimi Raikkonen",
+        "driverId": "raikkonen"
+      },
+      {
+        "rank": 35,
+        "name": "Patrick Depailler",
+        "driverId": "depailler"
+      },
+      {
+        "rank": 36,
+        "name": "Carlos Pace",
+        "driverId": "pace"
+      },
+      {
+        "rank": 37,
+        "name": "Richie Ginther",
+        "driverId": "ginther"
+      },
+      {
+        "rank": 38,
+        "name": "Denny Hulme",
+        "driverId": "hulme"
+      },
+      {
+        "rank": 39,
+        "name": "Thierry Boutsen",
+        "driverId": "boutsen"
+      },
+      {
+        "rank": 40,
+        "name": "Mike Hawthorn",
+        "driverId": "hawthorn"
+      },
+      {
+        "rank": 41,
+        "name": "Jean-Pierre Beltoise",
+        "driverId": "beltoise"
+      },
+      {
+        "rank": 42,
+        "name": "Heinz-Harald Frentzen",
+        "driverId": "frentzen"
+      },
+      {
+        "rank": 43,
+        "name": "Prince Bira",
+        "driverId": "bira"
+      },
+      {
+        "rank": 44,
+        "name": "Keke Rosberg",
+        "driverId": "keke_rosberg"
+      },
+      {
+        "rank": 45,
+        "name": "Clay Regazzoni",
+        "driverId": "regazzoni"
+      },
+      {
+        "rank": 46,
+        "name": "Luigi Fagioli",
+        "driverId": "fagioli"
+      },
+      {
+        "rank": 47,
+        "name": "Jack Brabham",
+        "driverId": "jack_brabham"
+      },
+      {
+        "rank": 48,
+        "name": "Jacques Villeneuve",
+        "driverId": "villeneuve"
+      },
+      {
+        "rank": 49,
+        "name": "Nico Rosberg",
+        "driverId": "rosberg"
+      },
+      {
+        "rank": 50,
+        "name": "Phil Hill",
+        "driverId": "phil_hill"
+      }
+    ]
+  },
+  {
+    "id": "eichenberger_stadelmann_2009_top50",
+    "title": "Eichenberger and Stadelmann: driver coefficients, 1950-2006",
+    "year_published": 2009,
+    "method": "statistical_model",
+    "method_note": "Regression of finishing position on driver and car-year effects through 2006, only for drivers with at least 40 starts. The order is the preferred specification, column 1 of Table 1, where a lower coefficient is a better rank. The discussion calls Ayrton Senna 25th; the table labels him 26th, and this file follows the table.",
+    "source": "https://www.unifr.ch/finwiss/de/assets/public/research/academic%20publications/Who%20ist%20the%20best%20formula%201%20driver.pdf",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 2,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 3,
+        "name": "Michael Schumacher",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 4,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 5,
+        "name": "Mike Hawthorn",
+        "driverId": "hawthorn"
+      },
+      {
+        "rank": 6,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 7,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 8,
+        "name": "Graham Hill",
+        "driverId": "hill"
+      },
+      {
+        "rank": 9,
+        "name": "Emerson Fittipaldi",
+        "driverId": "emerson_fittipaldi"
+      },
+      {
+        "rank": 10,
+        "name": "Jacky Ickx",
+        "driverId": "ickx"
+      },
+      {
+        "rank": 11,
+        "name": "Kimi Räikkönen",
+        "driverId": "raikkonen"
+      },
+      {
+        "rank": 12,
+        "name": "Jochen Rindt",
+        "driverId": "rindt"
+      },
+      {
+        "rank": 13,
+        "name": "Dan Gurney",
+        "driverId": "gurney"
+      },
+      {
+        "rank": 14,
+        "name": "James Hunt",
+        "driverId": "hunt"
+      },
+      {
+        "rank": 15,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 16,
+        "name": "Nick Heidfeld",
+        "driverId": "heidfeld"
+      },
+      {
+        "rank": 17,
+        "name": "Ronnie Peterson",
+        "driverId": "peterson"
+      },
+      {
+        "rank": 18,
+        "name": "Elio de Angelis",
+        "driverId": "angelis"
+      },
+      {
+        "rank": 19,
+        "name": "Pedro Rodriguez",
+        "driverId": "rodriguez"
+      },
+      {
+        "rank": 20,
+        "name": "Phil Hill",
+        "driverId": "phil_hill"
+      },
+      {
+        "rank": 21,
+        "name": "Jenson Button",
+        "driverId": "button"
+      },
+      {
+        "rank": 22,
+        "name": "Richie Ginther",
+        "driverId": "ginther"
+      },
+      {
+        "rank": 23,
+        "name": "Erik Comas",
+        "driverId": "comas"
+      },
+      {
+        "rank": 24,
+        "name": "Maurice Trintignant",
+        "driverId": "trintignant"
+      },
+      {
+        "rank": 25,
+        "name": "Denny Hulme",
+        "driverId": "hulme"
+      },
+      {
+        "rank": 26,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      },
+      {
+        "rank": 27,
+        "name": "Mark Webber",
+        "driverId": "webber"
+      },
+      {
+        "rank": 28,
+        "name": "Jean Behra",
+        "driverId": "behra"
+      },
+      {
+        "rank": 29,
+        "name": "François Cevert",
+        "driverId": "cevert"
+      },
+      {
+        "rank": 30,
+        "name": "Harry Schell",
+        "driverId": "schell"
+      },
+      {
+        "rank": 31,
+        "name": "Carlos Reutemann",
+        "driverId": "reutemann"
+      },
+      {
+        "rank": 32,
+        "name": "John Watson",
+        "driverId": "watson"
+      },
+      {
+        "rank": 33,
+        "name": "Chris Amon",
+        "driverId": "amon"
+      },
+      {
+        "rank": 34,
+        "name": "Mario Andretti",
+        "driverId": "mario_andretti"
+      },
+      {
+        "rank": 35,
+        "name": "Damon Hill",
+        "driverId": "damon_hill"
+      },
+      {
+        "rank": 36,
+        "name": "John Surtees",
+        "driverId": "surtees"
+      },
+      {
+        "rank": 37,
+        "name": "Marc Surer",
+        "driverId": "surer"
+      },
+      {
+        "rank": 38,
+        "name": "Rubens Barrichello",
+        "driverId": "barrichello"
+      },
+      {
+        "rank": 39,
+        "name": "Mika Häkkinen",
+        "driverId": "hakkinen"
+      },
+      {
+        "rank": 40,
+        "name": "Bruce McLaren",
+        "driverId": "mclaren"
+      },
+      {
+        "rank": 41,
+        "name": "Eddie Irvine",
+        "driverId": "irvine"
+      },
+      {
+        "rank": 42,
+        "name": "Keke Rosberg",
+        "driverId": "keke_rosberg"
+      },
+      {
+        "rank": 43,
+        "name": "Arturo Merzario",
+        "driverId": "merzario"
+      },
+      {
+        "rank": 44,
+        "name": "David Coulthard",
+        "driverId": "coulthard"
+      },
+      {
+        "rank": 45,
+        "name": "Jacques Laffite",
+        "driverId": "laffite"
+      },
+      {
+        "rank": 46,
+        "name": "Jacques Villeneuve",
+        "driverId": "villeneuve"
+      },
+      {
+        "rank": 47,
+        "name": "Jack Brabham",
+        "driverId": "jack_brabham"
+      },
+      {
+        "rank": 48,
+        "name": "Nelson Piquet",
+        "driverId": "piquet"
+      },
+      {
+        "rank": 49,
+        "name": "Roy Salvadori",
+        "driverId": "salvadori"
+      },
+      {
+        "rank": 50,
+        "name": "Juan Pablo Montoya",
+        "driverId": "montoya"
+      }
+    ]
+  },
+  {
+    "id": "f1metrics_2019_top50",
+    "title": "f1metrics top 100, first 50, peak three-year performance",
+    "year_published": 2019,
+    "method": "statistical_model",
+    "method_note": "Model of points per counting race from 1950 to 2019, with driver, team, season, age and experience effects, plus a customer-car factor for 1950-1980. Counting races leave out mechanical and similar non-driver retirements. Drivers are ordered by their best three-year stretch. The page ranks 100; the first 50 are stored.",
+    "source": "https://f1metrics.wordpress.com/2019/11/22/the-f1metrics-top-100/",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Michael Schumacher",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 2,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 3,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 4,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 5,
+        "name": "Alberto Ascari",
+        "driverId": "ascari"
+      },
+      {
+        "rank": 6,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 7,
+        "name": "Lewis Hamilton",
+        "driverId": "hamilton"
+      },
+      {
+        "rank": 8,
+        "name": "Sebastian Vettel",
+        "driverId": "vettel"
+      },
+      {
+        "rank": 9,
+        "name": "Max Verstappen",
+        "driverId": "max_verstappen"
+      },
+      {
+        "rank": 10,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 11,
+        "name": "Jenson Button",
+        "driverId": "button"
+      },
+      {
+        "rank": 12,
+        "name": "Niki Lauda",
+        "driverId": "lauda"
+      },
+      {
+        "rank": 13,
+        "name": "Carlos Sainz Jr.",
+        "driverId": "sainz"
+      },
+      {
+        "rank": 14,
+        "name": "Sergio Pérez",
+        "driverId": "perez"
+      },
+      {
+        "rank": 15,
+        "name": "Daniel Ricciardo",
+        "driverId": "ricciardo"
+      },
+      {
+        "rank": 16,
+        "name": "Kimi Räikkönen",
+        "driverId": "raikkonen"
+      },
+      {
+        "rank": 17,
+        "name": "Nico Hülkenberg",
+        "driverId": "hulkenberg"
+      },
+      {
+        "rank": 18,
+        "name": "Nico Rosberg",
+        "driverId": "rosberg"
+      },
+      {
+        "rank": 19,
+        "name": "Jochen Rindt",
+        "driverId": "rindt"
+      },
+      {
+        "rank": 20,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 21,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      },
+      {
+        "rank": 22,
+        "name": "Esteban Ocon",
+        "driverId": "ocon"
+      },
+      {
+        "rank": 23,
+        "name": "Robert Kubica",
+        "driverId": "kubica"
+      },
+      {
+        "rank": 24,
+        "name": "Heinz-Harald Frentzen",
+        "driverId": "frentzen"
+      },
+      {
+        "rank": 25,
+        "name": "Rubens Barrichello",
+        "driverId": "barrichello"
+      },
+      {
+        "rank": 26,
+        "name": "Felipe Massa",
+        "driverId": "massa"
+      },
+      {
+        "rank": 27,
+        "name": "Kevin Magnussen",
+        "driverId": "kevin_magnussen"
+      },
+      {
+        "rank": 28,
+        "name": "Valtteri Bottas",
+        "driverId": "bottas"
+      },
+      {
+        "rank": 29,
+        "name": "James Hunt",
+        "driverId": "hunt"
+      },
+      {
+        "rank": 30,
+        "name": "Nick Heidfeld",
+        "driverId": "heidfeld"
+      },
+      {
+        "rank": 31,
+        "name": "Romain Grosjean",
+        "driverId": "grosjean"
+      },
+      {
+        "rank": 32,
+        "name": "Emerson Fittipaldi",
+        "driverId": "emerson_fittipaldi"
+      },
+      {
+        "rank": 33,
+        "name": "Eddie Irvine",
+        "driverId": "irvine"
+      },
+      {
+        "rank": 34,
+        "name": "Elio de Angelis",
+        "driverId": "angelis"
+      },
+      {
+        "rank": 35,
+        "name": "Jacques Laffite",
+        "driverId": "laffite"
+      },
+      {
+        "rank": 36,
+        "name": "Nelson Piquet",
+        "driverId": "piquet"
+      },
+      {
+        "rank": 37,
+        "name": "Jacques Villeneuve",
+        "driverId": "villeneuve"
+      },
+      {
+        "rank": 38,
+        "name": "Jarno Trulli",
+        "driverId": "trulli"
+      },
+      {
+        "rank": 39,
+        "name": "Giuseppe Farina",
+        "driverId": "farina"
+      },
+      {
+        "rank": 40,
+        "name": "Keke Rosberg",
+        "driverId": "keke_rosberg"
+      },
+      {
+        "rank": 41,
+        "name": "Juan Pablo Montoya",
+        "driverId": "montoya"
+      },
+      {
+        "rank": 42,
+        "name": "Ronnie Peterson",
+        "driverId": "peterson"
+      },
+      {
+        "rank": 43,
+        "name": "Marcus Ericsson",
+        "driverId": "ericsson"
+      },
+      {
+        "rank": 44,
+        "name": "Alan Jones",
+        "driverId": "jones"
+      },
+      {
+        "rank": 45,
+        "name": "Mika Häkkinen",
+        "driverId": "hakkinen"
+      },
+      {
+        "rank": 46,
+        "name": "Lance Stroll",
+        "driverId": "stroll"
+      },
+      {
+        "rank": 47,
+        "name": "John Watson",
+        "driverId": "watson"
+      },
+      {
+        "rank": 48,
+        "name": "Nigel Mansell",
+        "driverId": "mansell"
+      },
+      {
+        "rank": 49,
+        "name": "Graham Hill",
+        "driverId": "hill"
+      },
+      {
+        "rank": 50,
+        "name": "Jean-Eric Vergne",
+        "driverId": "vergne"
+      }
+    ]
+  },
+  {
+    "id": "fivethirtyeight_2018_elo_best_five_seasons",
+    "title": "FiveThirtyEight Elo, best five consecutive seasons",
+    "year_published": 2018,
+    "method": "statistical_model",
+    "method_note": "Elo ratings from head-to-head results since 1950. The order is the average Elo across each driver's best five consecutive seasons, with a minimum share of that season's races. The table on the page has 30 drivers.",
+    "source": "https://web.archive.org/web/20190401163015/https://fivethirtyeight.com/features/formula-one-racing/",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      },
+      {
+        "rank": 2,
+        "name": "Michael Schumacher",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 3,
+        "name": "Lewis Hamilton",
+        "driverId": "hamilton"
+      },
+      {
+        "rank": 4,
+        "name": "Sebastian Vettel",
+        "driverId": "vettel"
+      },
+      {
+        "rank": 5,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 6,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 7,
+        "name": "Mika Hakkinen",
+        "driverId": "hakkinen"
+      },
+      {
+        "rank": 8,
+        "name": "Niki Lauda",
+        "driverId": "lauda"
+      },
+      {
+        "rank": 9,
+        "name": "Damon Hill",
+        "driverId": "damon_hill"
+      },
+      {
+        "rank": 10,
+        "name": "David Coulthard",
+        "driverId": "coulthard"
+      },
+      {
+        "rank": 11,
+        "name": "Nico Rosberg",
+        "driverId": "rosberg"
+      },
+      {
+        "rank": 12,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 13,
+        "name": "Nelson Piquet",
+        "driverId": "piquet"
+      },
+      {
+        "rank": 14,
+        "name": "Riccardo Patrese",
+        "driverId": "patrese"
+      },
+      {
+        "rank": 15,
+        "name": "Rubens Barrichello",
+        "driverId": "barrichello"
+      },
+      {
+        "rank": 16,
+        "name": "Gerhard Berger",
+        "driverId": "berger"
+      },
+      {
+        "rank": 17,
+        "name": "James Hunt",
+        "driverId": "hunt"
+      },
+      {
+        "rank": 18,
+        "name": "Mark Webber",
+        "driverId": "webber"
+      },
+      {
+        "rank": 19,
+        "name": "Alberto Ascari",
+        "driverId": "ascari"
+      },
+      {
+        "rank": 20,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 21,
+        "name": "Graham Hill",
+        "driverId": "hill"
+      },
+      {
+        "rank": 22,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 23,
+        "name": "Mario Andretti",
+        "driverId": "mario_andretti"
+      },
+      {
+        "rank": 24,
+        "name": "Jean Alesi",
+        "driverId": "alesi"
+      },
+      {
+        "rank": 25,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 26,
+        "name": "Juan Pablo Montoya",
+        "driverId": "montoya"
+      },
+      {
+        "rank": 27,
+        "name": "Jacques Villeneuve",
+        "driverId": "villeneuve"
+      },
+      {
+        "rank": 28,
+        "name": "Carlos Reutemann",
+        "driverId": "reutemann"
+      },
+      {
+        "rank": 29,
+        "name": "John Surtees",
+        "driverId": "surtees"
+      },
+      {
+        "rank": 30,
+        "name": "Nigel Mansell",
+        "driverId": "mansell"
+      }
+    ]
+  },
+  {
+    "id": "autosport_2009_drivers_poll",
+    "title": "Autosport greatest F1 drivers, poll of world championship drivers",
+    "year_published": 2009,
+    "method": "poll",
+    "method_note": "In December 2009 Autosport asked 217 world-championship drivers for a personal top 10 and scored the ballots from 10 points down to 1, with a countback on ties. Voters defined greatest for themselves, and the vote covered the world championship from 1950. These 40 names are the order on the Motorsport Retro page; each rank was the same driver on the archived Autosport minisite page for that place.",
+    "source": "https://www.motorsportretro.com/2009/12/greatest-f1-drivers/",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      },
+      {
+        "rank": 2,
+        "name": "Michael Schumacher",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 3,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 4,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 5,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 6,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 7,
+        "name": "Niki Lauda",
+        "driverId": "lauda"
+      },
+      {
+        "rank": 8,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 9,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 10,
+        "name": "Gilles Villeneuve",
+        "driverId": "gilles_villeneuve"
+      },
+      {
+        "rank": 11,
+        "name": "Nigel Mansell",
+        "driverId": "mansell"
+      },
+      {
+        "rank": 12,
+        "name": "Emerson Fittipaldi",
+        "driverId": "emerson_fittipaldi"
+      },
+      {
+        "rank": 13,
+        "name": "Nelson Piquet Sr.",
+        "driverId": "piquet"
+      },
+      {
+        "rank": 14,
+        "name": "Jochen Rindt",
+        "driverId": "rindt"
+      },
+      {
+        "rank": 15,
+        "name": "Mika Hakkinen",
+        "driverId": "hakkinen"
+      },
+      {
+        "rank": 16,
+        "name": "Alberto Ascari",
+        "driverId": "ascari"
+      },
+      {
+        "rank": 17,
+        "name": "Lewis Hamilton",
+        "driverId": "hamilton"
+      },
+      {
+        "rank": 18,
+        "name": "Jack Brabham",
+        "driverId": "jack_brabham"
+      },
+      {
+        "rank": 19,
+        "name": "Ronnie Peterson",
+        "driverId": "peterson"
+      },
+      {
+        "rank": 20,
+        "name": "Mario Andretti",
+        "driverId": "mario_andretti"
+      },
+      {
+        "rank": 21,
+        "name": "Graham Hill",
+        "driverId": "hill"
+      },
+      {
+        "rank": 22,
+        "name": "Kimi Raikkonen",
+        "driverId": "raikkonen"
+      },
+      {
+        "rank": 23,
+        "name": "John Surtees",
+        "driverId": "surtees"
+      },
+      {
+        "rank": 24,
+        "name": "James Hunt",
+        "driverId": "hunt"
+      },
+      {
+        "rank": 25,
+        "name": "Keke Rosberg",
+        "driverId": "keke_rosberg"
+      },
+      {
+        "rank": 26,
+        "name": "Sebastian Vettel",
+        "driverId": "vettel"
+      },
+      {
+        "rank": 27,
+        "name": "Jose Froilan Gonzalez",
+        "driverId": "gonzalez"
+      },
+      {
+        "rank": 28,
+        "name": "Dan Gurney",
+        "driverId": "gurney"
+      },
+      {
+        "rank": 29,
+        "name": "Francois Cevert",
+        "driverId": "cevert"
+      },
+      {
+        "rank": 30,
+        "name": "Jenson Button",
+        "driverId": "button"
+      },
+      {
+        "rank": 31,
+        "name": "Alan Jones",
+        "driverId": "jones"
+      },
+      {
+        "rank": 32,
+        "name": "Giuseppe Farina",
+        "driverId": "farina"
+      },
+      {
+        "rank": 33,
+        "name": "Phil Hill",
+        "driverId": "phil_hill"
+      },
+      {
+        "rank": 34,
+        "name": "Carlos Reutemann",
+        "driverId": "reutemann"
+      },
+      {
+        "rank": 35,
+        "name": "Stefan Bellof",
+        "driverId": "bellof"
+      },
+      {
+        "rank": 36,
+        "name": "Clay Regazzoni",
+        "driverId": "regazzoni"
+      },
+      {
+        "rank": 37,
+        "name": "Gerhard Berger",
+        "driverId": "berger"
+      },
+      {
+        "rank": 38,
+        "name": "Jean Behra",
+        "driverId": "behra"
+      },
+      {
+        "rank": 39,
+        "name": "Riccardo Patrese",
+        "driverId": "patrese"
+      },
+      {
+        "rank": 40,
+        "name": "Jacky Ickx",
+        "driverId": "ickx"
+      }
+    ]
+  },
+  {
+    "id": "bbc_2012_f1_team_top20",
+    "title": "BBC F1 team combined top 20",
+    "year_published": 2012,
+    "method": "expert_panel",
+    "method_note": "In 2012 each member of the BBC F1 team wrote a personal top 20 since 1950, and those lists were combined into one order. The places here are the ones stated on the 8 March 2012 article.",
+    "source": "https://www.bbc.com/sport/formula1/17299158",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      },
+      {
+        "rank": 2,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 3,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 4,
+        "name": "Michael Schumacher",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 5,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 6,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 7,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 8,
+        "name": "Sebastian Vettel",
+        "driverId": "vettel"
+      },
+      {
+        "rank": 9,
+        "name": "Niki Lauda",
+        "driverId": "lauda"
+      },
+      {
+        "rank": 10,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 11,
+        "name": "Alberto Ascari",
+        "driverId": "ascari"
+      },
+      {
+        "rank": 12,
+        "name": "Gilles Villeneuve",
+        "driverId": "gilles_villeneuve"
+      },
+      {
+        "rank": 13,
+        "name": "Nigel Mansell",
+        "driverId": "mansell"
+      },
+      {
+        "rank": 14,
+        "name": "Mika Hakkinen",
+        "driverId": "hakkinen"
+      },
+      {
+        "rank": 15,
+        "name": "Lewis Hamilton",
+        "driverId": "hamilton"
+      },
+      {
+        "rank": 16,
+        "name": "Nelson Piquet",
+        "driverId": "piquet"
+      },
+      {
+        "rank": 17,
+        "name": "Emerson Fittipaldi",
+        "driverId": "emerson_fittipaldi"
+      },
+      {
+        "rank": 18,
+        "name": "Jack Brabham",
+        "driverId": "jack_brabham"
+      },
+      {
+        "rank": 19,
+        "name": "Graham Hill",
+        "driverId": "hill"
+      },
+      {
+        "rank": 20,
+        "name": "Jochen Rindt",
+        "driverId": "rindt"
+      }
+    ]
+  },
+  {
+    "id": "motorsport_com_2026_journalist_ballot",
+    "title": "Motorsport.com journalist ballot of 25",
+    "year_published": 2026,
+    "method": "expert_panel",
+    "method_note": "Ten journalists from Motorsport, Autosport and Yahoo Sports each ranked 25 drivers. A first-place vote scored 25 points, then 24, down to 1. Lewis Hamilton and Michael Schumacher finished level, so both are stored at rank 1 and the next published place is 3. Further down, level scores were still printed as distinct places, and those printed places are kept.",
+    "source": "https://www.motorsport.com/f1/news/the-25-greatest-formula-1-drivers-of-all-time-ranked/10845607/",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Lewis Hamilton",
+        "driverId": "hamilton"
+      },
+      {
+        "rank": 1,
+        "name": "Michael Schumacher",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 3,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      },
+      {
+        "rank": 4,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 5,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 6,
+        "name": "Max Verstappen",
+        "driverId": "max_verstappen"
+      },
+      {
+        "rank": 7,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 8,
+        "name": "Niki Lauda",
+        "driverId": "lauda"
+      },
+      {
+        "rank": 9,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 10,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 11,
+        "name": "Sebastian Vettel",
+        "driverId": "vettel"
+      },
+      {
+        "rank": 12,
+        "name": "Alberto Ascari",
+        "driverId": "ascari"
+      },
+      {
+        "rank": 13,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 14,
+        "name": "Graham Hill",
+        "driverId": "hill"
+      },
+      {
+        "rank": 15,
+        "name": "Jack Brabham",
+        "driverId": "jack_brabham"
+      },
+      {
+        "rank": 16,
+        "name": "Nigel Mansell",
+        "driverId": "mansell"
+      },
+      {
+        "rank": 17,
+        "name": "Mika Hakkinen",
+        "driverId": "hakkinen"
+      },
+      {
+        "rank": 18,
+        "name": "Emerson Fittipaldi",
+        "driverId": "emerson_fittipaldi"
+      },
+      {
+        "rank": 19,
+        "name": "Nelson Piquet",
+        "driverId": "piquet"
+      },
+      {
+        "rank": 20,
+        "name": "Kimi Raikkonen",
+        "driverId": "raikkonen"
+      },
+      {
+        "rank": 21,
+        "name": "Mario Andretti",
+        "driverId": "mario_andretti"
+      },
+      {
+        "rank": 22,
+        "name": "Jochen Rindt",
+        "driverId": "rindt"
+      },
+      {
+        "rank": 23,
+        "name": "Gilles Villeneuve",
+        "driverId": "gilles_villeneuve"
+      },
+      {
+        "rank": 24,
+        "name": "John Surtees",
+        "driverId": "surtees"
+      },
+      {
+        "rank": 25,
+        "name": "Jenson Button",
+        "driverId": "button"
+      }
+    ]
+  },
+  {
+    "id": "motorsport_magazine_2025_top15",
+    "title": "Motor Sport Magazine top 15 F1 drivers",
+    "year_published": 2025,
+    "method": "journalist_list",
+    "method_note": "The magazine's own order of 15 drivers, published in July 2025 and described as its judgement after an internal debate. It is not a scored ballot.",
+    "source": "https://www.motorsportmagazine.com/articles/single-seaters/f1/the-15-best-f1-drivers-of-all-time/",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 2,
+        "name": "Lewis Hamilton",
+        "driverId": "hamilton"
+      },
+      {
+        "rank": 3,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      },
+      {
+        "rank": 4,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 5,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 6,
+        "name": "Michael Schumacher",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 7,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 8,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 9,
+        "name": "Max Verstappen",
+        "driverId": "max_verstappen"
+      },
+      {
+        "rank": 10,
+        "name": "Niki Lauda",
+        "driverId": "lauda"
+      },
+      {
+        "rank": 11,
+        "name": "Alberto Ascari",
+        "driverId": "ascari"
+      },
+      {
+        "rank": 12,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 13,
+        "name": "Graham Hill",
+        "driverId": "hill"
+      },
+      {
+        "rank": 14,
+        "name": "John Surtees",
+        "driverId": "surtees"
+      },
+      {
+        "rank": 15,
+        "name": "Gilles Villeneuve",
+        "driverId": "gilles_villeneuve"
+      }
+    ]
+  },
+  {
+    "id": "f1metrics_2019_decade_1950s",
+    "title": "f1metrics best two-year peaks inside the 1950s",
+    "year_published": 2019,
+    "method": "statistical_model",
+    "method_note": "Same 2019 f1metrics model as the all-time list. Inside one decade the order is each driver's best two consecutive seasons, and a season counts only with at least two counting races. Only places the article states in order are stored. Fangio is named before Ascari as the two drivers clear of everyone else; Moss is then called third, and Farina and González fourth and fifth. Places 1 and 2 follow that naming order, which is not printed as ordinals.",
+    "source": "https://f1metrics.wordpress.com/2019/11/22/the-f1metrics-top-100/",
+    "confidence": "medium",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 2,
+        "name": "Alberto Ascari",
+        "driverId": "ascari"
+      },
+      {
+        "rank": 3,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      },
+      {
+        "rank": 4,
+        "name": "Giuseppe Farina",
+        "driverId": "farina"
+      },
+      {
+        "rank": 5,
+        "name": "José Froilán González",
+        "driverId": "gonzalez"
+      }
+    ]
+  },
+  {
+    "id": "f1metrics_2019_decade_1960s",
+    "title": "f1metrics best two-year peaks inside the 1960s",
+    "year_published": 2019,
+    "method": "statistical_model",
+    "method_note": "Same 2019 f1metrics model as the all-time list. Inside one decade the order is each driver's best two consecutive seasons, and a season counts only with at least two counting races. Only places the article states in order are stored. The article orders only the first three, naming them respectively. A later group is listed without an internal order and is not stored.",
+    "source": "https://f1metrics.wordpress.com/2019/11/22/the-f1metrics-top-100/",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Jim Clark",
+        "driverId": "clark"
+      },
+      {
+        "rank": 2,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 3,
+        "name": "Stirling Moss",
+        "driverId": "moss"
+      }
+    ]
+  },
+  {
+    "id": "f1metrics_2019_decade_1970s",
+    "title": "f1metrics best two-year peaks inside the 1970s",
+    "year_published": 2019,
+    "method": "statistical_model",
+    "method_note": "Same 2019 f1metrics model as the all-time list. Inside one decade the order is each driver's best two consecutive seasons, and a season counts only with at least two counting races. Only places the article states in order are stored. The article calls Stewart the best of the decade, Lauda second, and Hunt and Fittipaldi third and fourth. No further places are numbered.",
+    "source": "https://f1metrics.wordpress.com/2019/11/22/the-f1metrics-top-100/",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Jackie Stewart",
+        "driverId": "stewart"
+      },
+      {
+        "rank": 2,
+        "name": "Niki Lauda",
+        "driverId": "lauda"
+      },
+      {
+        "rank": 3,
+        "name": "James Hunt",
+        "driverId": "hunt"
+      },
+      {
+        "rank": 4,
+        "name": "Emerson Fittipaldi",
+        "driverId": "emerson_fittipaldi"
+      }
+    ]
+  },
+  {
+    "id": "f1metrics_2019_decade_1980s",
+    "title": "f1metrics best two-year peaks inside the 1980s",
+    "year_published": 2019,
+    "method": "statistical_model",
+    "method_note": "Same 2019 f1metrics model as the all-time list. Inside one decade the order is each driver's best two consecutive seasons, and a season counts only with at least two counting races. Only places the article states in order are stored. The article says Prost was the stronger of the Prost-Senna pair in this decade and places the next group behind Senna, so these two places are inferred from that comparison rather than printed as first and second.",
+    "source": "https://f1metrics.wordpress.com/2019/11/22/the-f1metrics-top-100/",
+    "confidence": "medium",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Alain Prost",
+        "driverId": "prost"
+      },
+      {
+        "rank": 2,
+        "name": "Ayrton Senna",
+        "driverId": "senna"
+      }
+    ]
+  },
+  {
+    "id": "f1metrics_2019_decade_2000s",
+    "title": "f1metrics best two-year peaks inside the 2000s",
+    "year_published": 2019,
+    "method": "statistical_model",
+    "method_note": "Same 2019 f1metrics model as the all-time list. Inside one decade the order is each driver's best two consecutive seasons, and a season counts only with at least two counting races. Only places the article states in order are stored. The article ranks Schumacher first, Alonso second, Räikkönen third, Button immediately behind Räikkönen, and Hamilton fifth.",
+    "source": "https://f1metrics.wordpress.com/2019/11/22/the-f1metrics-top-100/",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Michael Schumacher",
+        "driverId": "michael_schumacher"
+      },
+      {
+        "rank": 2,
+        "name": "Fernando Alonso",
+        "driverId": "alonso"
+      },
+      {
+        "rank": 3,
+        "name": "Kimi Räikkönen",
+        "driverId": "raikkonen"
+      },
+      {
+        "rank": 4,
+        "name": "Jenson Button",
+        "driverId": "button"
+      },
+      {
+        "rank": 5,
+        "name": "Lewis Hamilton",
+        "driverId": "hamilton"
+      }
+    ]
+  }
+]

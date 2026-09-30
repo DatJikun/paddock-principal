@@ -214,9 +214,9 @@ Opcjonalne. „Jak się nie przydadzą, to luz.”
 
 ---
 
-## 7. System awatarów (zgłoszony 2026-09-26, ODŁOŻONY)
+## 7. System awatarów (zgłoszony 2026-09-26, wznowiony 2026-09-30: pixel art)
 
-**Stan 2026-09-26:** właściciel odłożył temat, bo kolejne próby nie wyszły. Nie zaczynaj go bez jego wyraźnej prośby.
+**Stan 2026-09-30:** właściciel wznowił temat i wybrał pixel art. Jest prototyp systemu w trzech gęstościach, który czeka na wybór jednej z nich (pod koniec tej sekcji).
 
 Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloton Managerze żadna się nie udała (`experiments/avatar_prototype` w repo Pelotona), w Ping-Pong Managerze na 4/10 (`tools/avatar-preview.html`, `tests/avatars.test.js`). Przed startem obejrzyj oba repozytoria i nazwij, co tam nie zagrało.
 
@@ -232,6 +232,88 @@ Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloto
 - Rozmiary: wiersz tabeli 32–40 px, karta, profil.
 - Prawdziwe osoby dostają twarz generowaną **„w duchu”** cech (wiek, kolor włosów, zarost), a nie próbę portretu. Prawo do wizerunku: żadnego odwzorowania prawdziwych twarzy.
 - Test: arkusz kontaktowy ze 100 losowymi twarzami do oceny właściciela (różnorodność, brak „klonów”).
+
+**Decyzje właściciela (2026-09-30):**
+- **Styl: pixel art.** Kadr to głowa z ramionami: kołnierz kombinezonu albo marynarka w barwach zespołu.
+- **Zakres:** kierowcy i sztab (personel, właściciel, menedżer).
+- **Edycja:** części jako tekstowe siatki plus edytor w przeglądarce.
+- **Gęstość:** przed wyborem pokazać 16, 24 i 32 na tych samych osobach.
+
+**Co nie zagrało w poprzednich próbach:**
+- **Peloton** (płaski wektor 512 px):
+  - wszyscy mają tę samą głowę w innej fryzurze, więc wyglądają jak klony;
+  - twarz jest mała w kadrze;
+  - zarost wygląda jak plama;
+  - gładkie cieniowanie wygląda jak zdjęcie wklejone w plakat.
+- **Ping-Pong** (4/10):
+  - twarz zajmuje około 1/3 okrągłego kadru;
+  - głowy są prostokątne, a włosy wyglądają jak czapka;
+  - pojawiają się przypadkowe detale (opaski, język);
+  - karnacja zależy od kraju, z „żółtym” odcieniem dla Azji, co jest stereotypem.
+- **Wnioski dla tego systemu:**
+  - ciasny kadr: głowa zajmuje 55–60% szerokości;
+  - jedna naturalna skala karnacji dla wszystkich; kraj zmienia tylko wagi losowania, a rozkłady się nakładają;
+  - zmienna sylwetka: 5 kształtów głowy × szerokość × uszy;
+  - fryzury i zarost tylko z danej epoki;
+  - klony sprawdza test.
+
+**Jak to działa** (`ui/prototype/js/faces/`):
+- **Pliki:**
+  - `pixelfaces.js`: silnik (parser, wybór części, paleta, składanie, SVG);
+  - `lib16.js`, `lib24.js`, `lib32.js`: biblioteki części; format i role kolorów są opisane w nagłówku `lib24.js`;
+  - `people.js`: osoby z prototypu, barwy kombinezonów 1976, wygląd prawdziwych ludzi „w duchu”;
+  - `avatars.html`: arkusz oceny;
+  - `avatar-editor.html`: edytor;
+  - `check.js`: test.
+- **Część** to siatka znaków pod nagłówkiem `== slot/nazwa @x,y mirror era:1970-1987 w:2 role:driver`:
+  - jeden znak to jedna rola koloru (skóra, włosy, barwa 1 zespołu…);
+  - `mirror` oznacza, że rysuje się lewą połowę, a prawa powstaje z odbicia.
+- **Tożsamość na całe życie:** kształt głowy, oczy, nos, usta, uszy, karnacja, kolor i struktura włosów, wiek siwienia, łysienia i zmarszczek.
+- **Wygląd zależny od epoki:**
+  - fryzura, zarost i okulary losowane w oknie mody co 6 lat, przesuniętym per osoba;
+  - strój zależny od roli i roku.
+- **Wiek na twarzy:**
+  - siwienie (broda szybciej niż włosy);
+  - 3 stopnie łysienia (maski ścierające włosy);
+  - 3 stopnie zmarszczek;
+  - okulary od pewnego wieku, dobranego per osoba.
+- **Prawdziwi ludzie:** `LOOKS` w `people.js` zawiera tylko kolor włosów, zarost i czasem fryzurę epoki. To wpisy z pamięci, do weryfikacji.
+- **Rozmiary:** piksel gry to zawsze całkowita liczba pikseli ekranu.
+
+  | Miejsce | Kadr | 16 | 24 | 32 |
+  |---|---|---|---|---|
+  | wiersz tabeli | głowa | 36 px | 32 px | 40 px |
+  | skrzynka | głowa | 48 px | 48 px | 40 px |
+  | karta | całość | 80 px | 96 px | 96 px |
+  | profil | całość | 144 px | 144 px | 128 px |
+  | zarząd | całość | 160 px | 168 px | 160 px |
+- **Ustawienia → Awatary:** przełącza 16 / 24 / 32 / inicjały w całym prototypie.
+- **Edytor:**
+  - malujesz lewym przyciskiem myszy, gumka jest pod prawym, Ctrl+Z cofa;
+  - podgląd pokazuje 8 osób o różnych karnacjach;
+  - zmiany zapisują się jako szkic w przeglądarce i od razu widać je na arkuszu;
+  - „Pobierz plik” daje gotowy `libNN.js` do podmiany w repo, a „Kopiuj część” daje tekst do wklejenia agentowi.
+- **Test:** `node ui/prototype/js/faces/check.js`. Sprawdza:
+  - poprawność bibliotek;
+  - że sylwetki dochodzą do osi;
+  - te same nazwy części w każdej gęstości;
+  - determinizm;
+  - najwyżej 1 klon na 100 osób;
+  - że każda część jest osiągalna;
+  - stałą tożsamość przy starzeniu.
+
+  CI jeszcze go nie uruchamia (CI jest tylko .NET).
+
+**Do decyzji właściciela:**
+1. **Gęstość:** 16, 24 czy 32. Porównanie jest w `avatars.html`, w sekcji „Te same osoby”. Po wyborze pozostałe dwie biblioteki znikają, a dopracowujemy jedną.
+2. **Tło awatara:** jasne (obecne) czy w barwach zespołu.
+3. **Skład:** numer kierowcy jest teraz znaczkiem na twarzy. Zostaje tak, czy wraca sam numer?
+
+**Czego NIE zrobiono:**
+- Tylko mężczyźni. Kierowczynie (np. Lombardi w 1976) wymagają osobnych części.
+- Cieniowanie jest symetryczne, bo wynika z odbicia połowy. Światło z jednej strony wymaga pełnych siatek głów.
+- Barwy kombinezonów 1976 są z pamięci, przybliżone.
+- To prototyp. W grze trzeba wziąć strumień losowości z `Paddock.Core`: prototyp używa FNV-1a z mulberry32, a nie Xoshiro (INV-002). Silnik i format bibliotek przenoszą się 1:1.
 
 ---
 

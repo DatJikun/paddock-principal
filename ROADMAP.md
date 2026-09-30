@@ -17,6 +17,7 @@
 - [x] Pełna runda uwag właściciela do prototypu: **`ui/HANDOFF_UI.md`** (zasady plus uwagi ekran po ekranie). **Następny krok UI zaczyna się od tego pliku.**
 - [ ] System komponentów po uwagach: zakładki/przełącznik, status, segmentowane pola, `plural()`, flagi SVG, cięższe przejścia, „Potwierdź”.
 - [ ] Przebudowa ekranów z listy w HANDOFF_UI §6.
+- [ ] Awatary pixel art (HANDOFF_UI §7): prototyp w 16/24/32 z edytorem części jest gotowy. Czeka na wybór gęstości przez właściciela.
 - Po fazie 5 z tych komponentów składamy prawdziwe ekrany (faza 6).
 
 ## Faza 1: Pipeline danych historycznych (test wykonalności)

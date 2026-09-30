@@ -218,7 +218,7 @@ Opcjonalne. „Jak się nie przydadzą, to luz.”
 
 **Stan 2026-09-30:** właściciel wznowił temat i wybrał pixel art. Jest prototyp systemu w trzech gęstościach, który czeka na wybór jednej z nich (pod koniec tej sekcji).
 
-Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloton Managerze żadna się nie udała (`experiments/avatar_prototype` w repo Pelotona), w Ping-Pong Managerze na 4/10 (`tools/avatar-preview.html`, `tests/avatars.test.js`). Przed startem obejrzyj oba repozytoria i nazwij, co tam nie zagrało.
+Właściciel chce ładne awatary.
 
 **Decyzje właściciela (2026-09-26):**
 - **Bez kasku.** Kask nie jest wizerunkiem kierowcy.
@@ -238,24 +238,14 @@ Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloto
 - **Zakres:** kierowcy i sztab (personel, właściciel, menedżer).
 - **Edycja:** części jako tekstowe siatki plus edytor w przeglądarce.
 - **Gęstość:** przed wyborem pokazać 16, 24 i 32 na tych samych osobach.
+- **Stare próby z Peloton i Ping-Pong Managera były kiepskie. Nie traktuj ich jako punktu odniesienia i nie oglądaj ich.**
 
-**Co nie zagrało w poprzednich próbach:**
-- **Peloton** (płaski wektor 512 px):
-  - wszyscy mają tę samą głowę w innej fryzurze, więc wyglądają jak klony;
-  - twarz jest mała w kadrze;
-  - zarost wygląda jak plama;
-  - gładkie cieniowanie wygląda jak zdjęcie wklejone w plakat.
-- **Ping-Pong** (4/10):
-  - twarz zajmuje około 1/3 okrągłego kadru;
-  - głowy są prostokątne, a włosy wyglądają jak czapka;
-  - pojawiają się przypadkowe detale (opaski, język);
-  - karnacja zależy od kraju, z „żółtym” odcieniem dla Azji, co jest stereotypem.
-- **Wnioski dla tego systemu:**
-  - ciasny kadr: głowa zajmuje 55–60% szerokości;
-  - jedna naturalna skala karnacji dla wszystkich; kraj zmienia tylko wagi losowania, a rozkłady się nakładają;
-  - zmienna sylwetka: 5 kształtów głowy × szerokość × uszy;
-  - fryzury i zarost tylko z danej epoki;
-  - klony sprawdza test.
+**Zasady rysunku:**
+- ciasny kadr: głowa zajmuje 55–60% szerokości;
+- jedna naturalna skala karnacji dla wszystkich; kraj zmienia tylko wagi losowania, a rozkłady się nakładają;
+- zmienna sylwetka: 5 kształtów głowy × szerokość × uszy;
+- fryzury i zarost tylko z danej epoki;
+- klony sprawdza test.
 
 **Jak to działa** (`ui/prototype/js/faces/`):
 - **Pliki:**

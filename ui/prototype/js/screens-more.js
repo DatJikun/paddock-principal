@@ -7,7 +7,7 @@ S.personel = () => {
   const staffName = id => (DB.staff.find(s => s.id === id) || {}).name;
   return head('Personel', UI.fields([{ k: 'Kluczowe osoby', v: DB.staff.length, num: 1 }, { k: 'Pracownicy działów', v: people, num: 1 }, { k: 'Koszt miesięcznie', v: UI.money(Math.round(monthly)), num: 1 }]), UI.btn('Zatrudnij', { href: '#/rynek', cls: 'primary' })) +
   `<div class="staff-grid">
-  ${UI.panel('Kluczowi ludzie', `<table class="table"><thead><tr><th>Osoba</th><th>Ocena</th><th>Atrybuty</th><th class="c">Kontrakt</th></tr></thead><tbody>${DB.staff.map(s => `<tr class="go-row" data-href="#/osoba/${s.id}"><td><a class="person" href="#/osoba/${s.id}"><span class="av">${UI.initials(s.name)}</span><div><b>${s.name}</b><small>${UI.flag(s.nat)} ${s.role}</small></div></a></td><td>${UI.stars(s.stars)}</td>
+  ${UI.panel('Kluczowi ludzie', `<table class="table"><thead><tr><th>Osoba</th><th>Ocena</th><th>Atrybuty</th><th class="c">Kontrakt</th></tr></thead><tbody>${DB.staff.map(s => `<tr class="go-row" data-href="#/osoba/${s.id}"><td><a class="person" href="#/osoba/${s.id}">${UI.av(s.name)}<div><b>${s.name}</b><small>${UI.flag(s.nat)} ${s.role}</small></div></a></td><td>${UI.stars(s.stars)}</td>
     <td><div class="sattrs">${s.attrs.slice(0, 3).map(([k, v]) => `<span>${k} ${UI.attr(v)}</span>`).join('')}</div></td><td class="c num ${s.contract.to === 1976 ? 'bad' : ''}">${s.contract.to}</td></tr>`).join('')}</tbody></table>`, { cls: 'tbl' })}
   ${UI.panel('Działy', `<table class="table depts"><thead><tr><th>Dział</th><th class="c">Ludzie</th><th class="c">Jakość</th><th class="r">Koszt</th></tr></thead><tbody>${DB.departments.map(d => `<tr>
     <td><b>${d.name}</b><small class="dhead">${d.head ? `<a href="#/osoba/${d.head}">${staffName(d.head)}</a>` : UI.st('Brak szefa', 'warn')}</small></td>
@@ -21,7 +21,7 @@ S.osoba = (id) => {
   const s = DB.staff.find(x => x.id === id) || DB.staff[0];
   const drv = s.driver ? DB.drivers.find(d => d.id === s.driver) : null;
   return `<div class="profile">
-    <section class="panel hero staff"><div class="num-big"><span>${UI.initials(s.name)}</span></div>
+    <section class="panel hero staff"><div class="num-big">${UI.portrait(s.name, 'profile') || `<span>${UI.initials(s.name)}</span>`}</div>
       <div class="hero-main"><h1 class="screen">${s.name}</h1>
         ${UI.fields([{ k: 'Narodowość', v: `${UI.flag(s.nat, 'md')} ${FLAGS.name(s.nat)}` }, { k: 'Wiek', v: `${s.age} lat`, num: 1 }, { k: 'Rola', v: s.role }, { k: 'W zespole od', v: s.since, num: 1 }], 'mid')}</div>
       <div class="hero-side">${UI.fields([{ k: 'Ocena', v: UI.stars(s.stars).replace('class="stars"', 'class="stars lg"') }, { k: 'Morale', v: s.mood }, drv ? { k: 'Kierowca', v: `<a href="#/kierowca/${drv.id}">${drv.name}</a>` } : null])}
@@ -38,13 +38,13 @@ S.osoba = (id) => {
 S.akademia = () => {
   const ac = DB.academy, free = ac.slots - ac.juniors.length;
   const slot = j => `<section class="panel slot"><header><div class="slot-no meta">Miejsce ${ac.juniors.indexOf(j) + 1}</div>${UI.st(j.status[0], j.status[1])}</header>
-    <div class="body"><a class="person big" href="#/kierowca/${j.id}"><span class="av">${UI.initials(j.name)}</span><div><b>${j.name}</b><small>${UI.flag(j.nat)} ${j.age} lat · ${j.series}</small></div></a>
+    <div class="body"><a class="person big" href="#/kierowca/${j.id}">${UI.av(j.name, null, 'big')}<div><b>${j.name}</b><small>${UI.flag(j.nat)} ${j.age} lat · ${j.series}</small></div></a>
       ${UI.fields([{ k: 'Ocena', v: UI.stars(j.stars, j.pot) }, { k: 'W akademii', v: `${j.since}–${j.to}`, num: 1 }, { k: 'Koszt', v: `${UI.money(j.cost)}/rok`, num: 1 }], 'row1')}
       ${UI.fields(j.season.map(([k, v]) => ({ k, v, num: 1 })), 'boxed center')}
       <div class="next"><span class="meta">Następny krok</span><b>${j.next}</b></div></div></section>`;
   return head('Akademia', UI.fields([{ k: 'Miejsca', v: `${ac.juniors.length} z ${ac.slots}`, num: 1 }, { k: 'Koszt roczny', v: UI.money(ac.juniors.reduce((a, j) => a + j.cost, 0)), num: 1 }])) +
   `<div class="acad-grid">${ac.juniors.map(slot).join('')}${free ? `<section class="panel slot empty-slot"><header><div class="slot-no meta">Miejsce ${ac.slots}</div>${UI.st('Wolne')}</header><div class="body"><div class="plus">+</div></div></section>` : ''}
-    ${UI.panel('Pula talentów', `<table class="table tight"><thead><tr><th>Kierowca</th><th class="c">Wiek</th><th>Seria</th><th>Ocena</th><th>Potencjał</th><th class="c">Wiedza</th></tr></thead><tbody>${ac.pool.map(p => `<tr class="go-row" data-href="#/kierowca/${p.id}"><td><a class="person" href="#/kierowca/${p.id}"><span class="av">${UI.initials(p.name)}</span><div><b>${p.name}</b><small>${UI.flag(p.nat)} ${FLAGS.name(p.nat)}</small></div></a></td><td class="c num">${p.age}</td><td>${p.team}</td><td>${UI.stars(p.band[0], 0, p.band)}</td><td>${UI.stars(0, p.pot)}</td><td class="c num">${p.known}%</td></tr>`).join('')}</tbody></table>`, { cls: 'tbl pool' })}</div>`;
+    ${UI.panel('Pula talentów', `<table class="table tight"><thead><tr><th>Kierowca</th><th class="c">Wiek</th><th>Seria</th><th>Ocena</th><th>Potencjał</th><th class="c">Wiedza</th></tr></thead><tbody>${ac.pool.map(p => `<tr class="go-row" data-href="#/kierowca/${p.id}"><td><a class="person" href="#/kierowca/${p.id}">${UI.av(p.name)}<div><b>${p.name}</b><small>${UI.flag(p.nat)} ${FLAGS.name(p.nat)}</small></div></a></td><td class="c num">${p.age}</td><td>${p.team}</td><td>${UI.stars(p.band[0], 0, p.band)}</td><td>${UI.stars(0, p.pot)}</td><td class="c num">${p.known}%</td></tr>`).join('')}</tbody></table>`, { cls: 'tbl pool' })}</div>`;
 };
 
 /* ============ AUTO I ROZWÓJ (bez zmian systemu: czeka na decyzję o PP) ============ */
@@ -128,7 +128,7 @@ S.finanse = () => {
 S.zarzad = () => {
   const b = DB.board, o = b.owner;
   return `<div class="board">
-    <section class="panel owner"><div class="portrait">${UI.initials(o.name)}</div>
+    <section class="panel owner"><div class="portrait${UI.portrait(o.name) ? ' pf' : ''}">${UI.portrait(o.name) || UI.initials(o.name)}</div>
       <div class="owner-main"><span class="meta">${o.role}</span><h1>${o.name}</h1>
         ${UI.fields([{ k: 'Narodowość', v: `${UI.flag(o.nat, 'md')} ${FLAGS.name(o.nat)}` }, { k: 'Wiek', v: `${o.age} lat`, num: 1 }, { k: 'Zespół od', v: o.since, num: 1 }, { k: 'Nastrój', v: UI.st(b.mood[0], b.mood[1]) }, { k: 'Zaufanie do Ciebie', v: `${b.trust}/100`, num: 1 }], 'mid')}
         <blockquote>„${o.quote}”</blockquote></div></section>
@@ -153,7 +153,7 @@ S.rynek.after = () => {
   const val = (r, k) => k === 'stars' ? r.band[1] + r.band[0] / 10 : k === 'mood' ? moodRank[r.mood] : r[k];
   const prev = () => {
     const m = DB.market.find(x => x.id === MKT.sel) || DB.market[0];
-    document.getElementById('mkt-prev').innerHTML = `<div class="body"><a class="person big" href="#/kierowca/${m.id}"><span class="av">${UI.initials(m.name)}</span><div><b>${m.name}</b><small>${UI.flag(m.nat)} ${m.age} lat · ${m.team}</small></div></a>
+    document.getElementById('mkt-prev').innerHTML = `<div class="body"><a class="person big" href="#/kierowca/${m.id}">${UI.av(m.name, null, 'big')}<div><b>${m.name}</b><small>${UI.flag(m.nat)} ${m.age} lat · ${m.team}</small></div></a>
       ${UI.fields([{ k: 'Ocena', v: UI.stars(m.band[0], m.pot, m.band) }, { k: 'Wiedza skauta', v: m.known + '%', num: 1 }], 'row1')}
       ${UI.fields([{ k: 'Kontrakt do', v: m.to, num: 1 }, { k: 'Oczekiwana pensja', v: UI.money(m.salary), num: 1 }], 'boxed eq')}
       <div class="row1">${UI.st(m.mood, moodTone(m.mood))}</div>
@@ -162,7 +162,7 @@ S.rynek.after = () => {
   const draw = () => {
     const rows = DB.market.filter(r => r.band[1] >= MKT.min && r.name.toLowerCase().includes(MKT.q))
       .sort((a, b) => { const x = val(a, MKT.key), y = val(b, MKT.key); return (x > y ? 1 : x < y ? -1 : 0) * (MKT.asc ? 1 : -1); });
-    tb.innerHTML = rows.map(r => `<tr class="go-row ${r.id === MKT.sel ? 'sel' : ''}" data-id="${r.id}"><td><div class="person"><span class="av">${UI.initials(r.name)}</span><div><b>${r.name}</b><small>${UI.flag(r.nat)} ${FLAGS.name(r.nat)}</small></div></div></td><td class="c num">${r.age}</td><td>${r.team}</td>
+    tb.innerHTML = rows.map(r => `<tr class="go-row ${r.id === MKT.sel ? 'sel' : ''}" data-id="${r.id}"><td><div class="person">${UI.av(r.name)}<div><b>${r.name}</b><small>${UI.flag(r.nat)} ${FLAGS.name(r.nat)}</small></div></div></td><td class="c num">${r.age}</td><td>${r.team}</td>
       <td>${UI.stars(r.band[0], 0, r.band)}</td><td>${UI.stars(0, r.pot)}</td><td class="c num ${r.to === 1976 ? 'good' : ''}">${r.to}</td><td class="r num">${UI.money(r.salary)}</td><td>${UI.st(r.mood, moodTone(r.mood))}</td></tr>`).join('');
     document.querySelectorAll('#mkt th[data-sort]').forEach(th => { th.classList.toggle('sorted', th.dataset.sort === MKT.key); th.classList.toggle('asc', th.dataset.sort === MKT.key && MKT.asc); });
   };
@@ -215,7 +215,7 @@ S.kronika = () => head('Kronika') +
 S.menedzer = () => {
   const m = DB.manager;
   return `<div class="profile">
-    <section class="panel hero staff"><div class="num-big"><span>MW</span></div>
+    <section class="panel hero staff"><div class="num-big">${UI.portrait('M. Wojnar', 'profile') || '<span>MW</span>'}</div>
       <div class="hero-main"><h1 class="screen">${m.name}</h1>${UI.fields([{ k: 'Narodowość', v: `${UI.flag(m.nat, 'md')} ${FLAGS.name(m.nat)}` }, { k: 'Wiek', v: `${m.age} lat`, num: 1 }, { k: 'Rola', v: 'Szef zespołu' }, { k: 'Zespół', v: 'Elf Team Tyrrell' }], 'mid')}</div>
       <div class="hero-side">${UI.fields([{ k: 'Reputacja', v: `${m.rep}/100`, num: 1 }, { k: 'Wyścigi', v: 22, num: 1 }, { k: 'Wygrane', v: 1, num: 1 }])}</div></section>
     <div class="grid" style="grid-template-columns:1fr 1fr 1fr">
@@ -231,6 +231,7 @@ S.ustawienia = () => head('Ustawienia') +
     <div class="srow"><b>Kolory interfejsu</b>${UI.tabs('set-style', [['era', 'Barwy epoki'], ['team', 'Barwy zespołu']], PREF.style)}</div>
     <div class="srow"><b>Skórka epoki</b>${UI.tabs('set-skin', [['auto', 'Automatycznie'], ['1970', 'Lata 70.'], ['1990', 'Lata 90.', { disabled: 1 }], ['2020', 'Lata 20.', { disabled: 1 }]], PREF.skin)}</div>
     <div class="srow"><b>Podgląd zespołu</b><div class="sw">${[['tyrrell', '#1f4f9a', '#e03a3e'], ['lotus', '#16130e', '#c9a24a'], ['ferrari', '#c4161c', '#f5c518']].map(([k, a, b]) => `<button data-team="${k}" class="${PREF.team === k ? 'on' : ''}" style="background:linear-gradient(135deg,${a} 50%,${b} 50%)" aria-label="${k}"></button>`).join('')}</div></div>
+    <div class="srow"><b>Awatary</b>${UI.tabs('set-faces', [['16', '16 px'], ['24', '24 px'], ['32', '32 px'], ['off', 'Inicjały']], PREF.faces)}</div>
     <div class="srow"><b>Animowane tło</b>${UI.tabs('set-air', [['on', 'Włączone'], ['off', 'Wyłączone']], PREF.air)}</div>
   </div>`)}
   ${UI.panel('Rozgrywka', `<div class="body set">

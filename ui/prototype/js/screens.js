@@ -25,7 +25,7 @@ const teamName = k => (DB.teams[k] || { name: k }).name;
 const driverHref = id => DB.drivers.find(d => d.id === id) || DB.market.find(d => d.id === id) || DB.academy.pool.find(d => d.id === id) ? `#/kierowca/${id}` : null;
 const nameLink = (id, name) => { const h = driverHref(id); return h ? `<a class="plain" href="${h}">${name}</a>` : name; };
 const mailRow = (m, sel) => `<a class="mail ${m.decision && !STATE.decisions[m.id] ? 'decision' : ''} ${m.unread ? '' : 'read'} ${sel ? 'sel' : ''}" href="#/skrzynka/${m.id}">
-  <span class="av">${m.av}</span><div><div class="from">${m.from}${m.due && !STATE.decisions[m.id] ? UI.st('do ' + m.due, 'bad', true) : ''}</div><div class="t">${m.title}</div></div>
+  ${UI.av(m.from, m.av)}<div><div class="from">${m.from}${m.due && !STATE.decisions[m.id] ? UI.st('do ' + m.due, 'bad', true) : ''}</div><div class="t">${m.title}</div></div>
   ${m.unread ? '<span class="unread" aria-label="nieprzeczytana"></span>' : `<span class="when">${m.when}</span>`}</a>`;
 
 /* sylwetka toru: zamknięta krzywa Catmulla-Roma przez punkty */
@@ -62,7 +62,7 @@ S.pulpit = () => {
       <a class="panel race" href="#/wyscig/9">
         <div class="race-top"><div><h1>Brands Hatch</h1><div class="where">${UI.flag('GBR', 'md')} GP Wielkiej Brytanii · Niedziela, 18 lipca</div></div>${trackSvg('brands_hatch', 'dash-map')}</div>
         ${UI.fields([{ k: 'Okrążenia', v: '76', num: 1 }, { k: 'Długość', v: '4,206 km', num: 1 }, { k: 'Deszcz', v: '20%', num: 1 }, { k: 'Dopasowanie auta', v: '4. z 16', num: 1, cls: 'good' }], 'facts')}
-        <div class="voice"><span class="av">DG</span><div><p>„Tor nam leży: dużo hamowania i ciasnych nawrotów. Tracimy tylko na długiej prostej. Realnie walczymy o podium.”</p>
+        <div class="voice">${UI.av('Derek Gardner', 'DG', 'big')}<div><p>„Tor nam leży: dużo hamowania i ciasnych nawrotów. Tracimy tylko na długiej prostej. Realnie walczymy o podium.”</p>
           <small>Derek Gardner · prognoza <b>P3–P6</b></small></div></div>
         ${UI.fields(DB.car.sectors.map(([k, p]) => ({ k, v: `<span style="color:${UI.rankColor(p, 16, 34)}">${p}. w stawce</span>`, num: 1 })), 'sectors eq')}
       </a>
@@ -98,7 +98,7 @@ S.skrzynka = (id) => {
   const count = k => DB.inbox.filter(m => k === 'all' || m.kind === k).length;
   return head('Skrzynka', '', UI.tabs('box', [['all', `Wszystkie ${count('all')}`], ['decyzje', `Decyzje ${count('decyzje')}`], ['raporty', `Raporty ${count('raporty')}`], ['media', `Media ${count('media')}`]], 'all')) +
   `<div class="mailbox instant"><section class="panel list">${DB.inbox.map(m => `<div data-kind="${m.kind}">${mailRow(m, m.id === cur.id)}</div>`).join('')}</section>
-   <section class="panel reader"><div class="rhead"><span class="av big">${cur.av}</span><div><div class="muted">${cur.from} · ${cur.when}</div><h2>${cur.title}</h2></div></div>
+   <section class="panel reader"><div class="rhead">${UI.av(cur.from, cur.av, 'big', 'big')}<div><div class="muted">${cur.from} · ${cur.when}</div><h2>${cur.title}</h2></div></div>
      <p class="letter">${cur.body}</p>${cur.link ? `<a class="btn sm" href="${cur.link[0]}" style="margin-top:16px">${cur.link[1]}${UI.icon(A, 16)}</a>` : ''}${opts}</section></div>`;
 };
 S.skrzynka.after = (id) => {
@@ -177,7 +177,7 @@ S.klasyfikacje = (series = 'f1') => {
 const AT = DB.attrs;
 S.kierowcy = () => head('Kierowcy', UI.fields([{ k: 'Wyścigowi', v: '2', num: 1 }, { k: 'Testowi', v: '1', num: 1 }]), UI.btn('Porównaj', { href: '#/porownaj/scheckter/depailler' }) + UI.btn('Szukaj na rynku', { href: '#/rynek', cls: 'primary' })) +
   UI.panel('Skład', `<table class="table squad"><thead><tr><th>Kierowca</th><th>Ocena</th>${AT.map(a => `<th class="c" title="${a[1]}">${a[2]}</th>`).join('')}<th>Forma</th><th class="c">Kontrakt</th></tr></thead><tbody>
-  ${DB.drivers.map(d => `<tr class="go-row" data-href="#/kierowca/${d.id}"><td><div class="person"><span class="av">${d.no}</span><div><b>${d.name}</b><small>${UI.flag(d.nat)} ${d.age} l. · ${d.role}</small></div></div></td>
+  ${DB.drivers.map(d => `<tr class="go-row" data-href="#/kierowca/${d.id}"><td><div class="person">${UI.av(d.name, d.no, 'row', '', d.no)}<div><b>${d.name}</b><small>${UI.flag(d.nat)} ${d.age} l. · ${d.role}</small></div></div></td>
     <td>${UI.stars(d.stars, d.pot)}</td>${AT.map(a => `<td class="c">${UI.attr(d.attrs[a[0]])}</td>`).join('')}<td>${d.form}</td><td class="c num ${d.contract.to === 1976 ? 'bad' : ''}">${d.contract.to}</td></tr>`).join('')}
   </tbody></table>`, { cls: 'tbl' });
 
@@ -188,7 +188,7 @@ S.kierowca = (id) => {
   const d = own, words = PREF.numbers === 'off';
   const season = DB.seasonOf(d.id);
   const attrs = words
-    ? `<div class="voices">${(d.voices || [['TW', 'Tom Walsh', 'Inżynier wyścigowy', 'Za wcześnie, żeby coś powiedzieć. Dajcie mu kilka testów.']]).map(v => `<div class="vq"><span class="av">${v[0]}</span><div><p>„${v[3]}”</p><small>${v[1]} · ${v[2]}</small></div></div>`).join('')}</div>`
+    ? `<div class="voices">${(d.voices || [['TW', 'Tom Walsh', 'Inżynier wyścigowy', 'Za wcześnie, żeby coś powiedzieć. Dajcie mu kilka testów.']]).map(v => `<div class="vq">${UI.av(v[1], v[0])}<div><p>„${v[3]}”</p><small>${v[1]} · ${v[2]}</small></div></div>`).join('')}</div>`
     : `<div class="attrs">${AT.map(a => { const v = d.attrs[a[0]]; return `<div class="arow"><span>${a[1]}</span>${UI.attr(v)}<div class="bar thin"><i style="width:${v * 5}%;background:${v >= 17 ? 'var(--good)' : 'var(--ink)'}"></i></div></div>`; }).join('')}</div>`;
   const strip = `<div class="season-strip"><span class="meta">Sezon 1976</span><div class="rs">${season.map((p, i) => `<a href="#/wyscig/${i + 1}" class="r ${p === 1 ? 'win' : p === 'DNF' ? 'dnf' : p && p <= 3 ? 'pod' : p && p <= 6 ? 'pts' : ''}" title="${DB.calendar[i][2]}"><span class="meta">${DB.calendar[i][1]}</span><b class="num">${p === null ? '—' : p === 'DNF' ? 'DNF' : p}</b></a>`).join('')}${DB.calendar.slice(8).map((c, k) => `<span class="r fut" title="${c[2]}"><span class="meta">${c[1]}</span><b>·</b></span>`).join('')}</div></div>`;
   const c = d.career;
@@ -219,7 +219,7 @@ function foreignProfile(id) {
   const attrs = DB.scouted(m.id, (m.band[0] + m.band[1]) / 2, m.known);
   const inMarket = DB.market.includes(m);
   return `<div class="profile">
-    <section class="panel hero foreign"><div class="num-big"><span>${UI.initials(m.name)}</span></div>
+    <section class="panel hero foreign"><div class="num-big">${UI.portrait(m.name, 'profile') || `<span>${UI.initials(m.name)}</span>`}</div>
       <div class="hero-main"><h1 class="screen">${m.name}</h1>
         ${UI.fields([{ k: 'Narodowość', v: `${UI.flag(m.nat, 'md')} ${FLAGS.name(m.nat)}` }, { k: 'Wiek', v: `${m.age} lat`, num: 1 }, { k: 'Obecnie', v: m.team }, { k: 'Wiedza skauta', v: `${m.known}%`, num: 1 }], 'mid')}</div>
       <div class="hero-side">${UI.fields([{ k: 'Ocena', v: UI.stars(m.band[0], m.pot, m.band).replace('class="stars"', 'class="stars lg"') }, inMarket ? { k: 'Nastawienie', v: UI.st(m.mood, moodTone(m.mood)) } : { k: 'Seria', v: m.team }])}
@@ -262,7 +262,7 @@ S.porownaj = (ia = 'scheckter', ib = 'depailler', tab = 'attr') => {
       row('Średnia pozycja startowa', avg(ga), avg(gb), 'lo', f1), row('Średnia pozycja na mecie', avg(sa), avg(sb), 'lo', f1), row('Nieukończone', sa.filter(x => x === 'DNF').length, sb.filter(x => x === 'DNF').length, 'lo')].join(''),
     pojedynki: [row('Kwalifikacje', q[0], q[1]), row('Wyścigi', r[0], r[1]), row('Różnica w kwalifikacjach', '−0,21 s', '+0,21 s', 'none'), row('Wyścigi w deszczu', 0, 2)].join(''),
   };
-  const side = (d, cls) => `<a class="cmp-side ${cls}" href="#/kierowca/${d.id}"><span class="face">${UI.initials(d.name)}<i>${d.no}</i></span><div><h2>${d.name}</h2>${UI.fields([{ k: 'Kraj', v: UI.flag(d.nat, 'md') + ' ' + d.nat }, { k: 'Wiek', v: d.age, num: 1 }, { k: 'Ocena', v: UI.stars(d.stars, d.pot) }])}</div></a>`;
+  const side = (d, cls) => `<a class="cmp-side ${cls}" href="#/kierowca/${d.id}"><span class="face${UI.portrait(d.name, 'card') ? ' pf' : ''}">${UI.portrait(d.name, 'card') || UI.initials(d.name)}<i>${d.no}</i></span><div><h2>${d.name}</h2>${UI.fields([{ k: 'Kraj', v: UI.flag(d.nat, 'md') + ' ' + d.nat }, { k: 'Wiek', v: d.age, num: 1 }, { k: 'Ocena', v: UI.stars(d.stars, d.pot) }])}</div></a>`;
   return head('Porównanie', '', UI.btn('Skład', { href: '#/kierowcy', icon: UI.back })) +
   `<section class="panel cmp" data-scope>
     <div class="cmp-top">${side(a, 'l')}<div class="cmp-mid">${UI.tabs('cmp', [['attr', 'Atrybuty'], ['kariera', 'Kariera'], ['sezon', 'Sezon 1976'], ['pojedynki', 'Pojedynki']], tab)}</div>${side(b, 'r')}</div>

@@ -59,6 +59,13 @@ const UI = {
     return `<div class="bar"><i style="width:${w}%;background:${UI.rankColor(pos, of)}"></i></div>`;
   },
   initials(n) { return n.split(' ').filter(x => /^[A-ZŁŚŻ]/.test(x)).map(x => x[0]).slice(0, 2).join('').toUpperCase(); },
+  /* awatar: twarz pixel-art (js/faces) albo inicjały; fb = tekst, gdy osoby nie ma w danych lub twarze są wyłączone */
+  av(who, fb, kind = 'row', cls = '', badge) {
+    const f = window.FACES && FACES.html(who, kind);
+    return f ? `<span class="av pf ${cls}">${f}${badge != null ? `<i>${badge}</i>` : ''}</span>` : `<span class="av ${cls}">${fb ?? UI.initials(who)}</span>`;
+  },
+  /* portret na profilu i w zarządzie; null = zostają inicjały */
+  portrait(who, kind = 'hero') { return window.FACES ? FACES.html(who, kind) : null; },
 
   /* ---------- flagi (sprite w flags.js) ---------- */
   flag(c, cls = '') {

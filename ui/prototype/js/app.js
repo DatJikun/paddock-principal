@@ -57,7 +57,7 @@ function drawTop() {
   const goSub = blocking ? `<small><i class="blk"></i>Decyzja: ${blocking.from}</small>` : t.weekend ? '<small>Weekend wyścigowy</small>' : `<small>Do ${STATE.next().short}</small>`;
   document.getElementById('top').innerHTML = `
     <div class="hud">
-      <a class="cell me" href="#/menedzer"><span class="av">MW</span><span><b>M. Wojnar</b><small>Szef zespołu</small></span></a>
+      <a class="cell me" href="#/menedzer">${UI.av('M. Wojnar', 'MW')}<span><b>M. Wojnar</b><small>Szef zespołu</small></span></a>
       <a class="cell" href="#/finanse"><span class="meta">Wolne środki</span><span class="num v good">${UI.money(DB.money.free)}</span></a>
       <a class="cell" href="#/finanse"><span class="meta">Gotówka</span><span class="num v">${UI.money(DB.money.cash)}</span></a>
     </div>
@@ -157,7 +157,7 @@ function sweep(r) {
 }
 
 /* ---------- ustawienia (zapamiętywane w przeglądarce) ---------- */
-const PREF = { style: 'era', team: 'tyrrell', air: 'on', numbers: 'on', skin: 'auto', speed: '10', pits: 'strateg', lang: 'pl' };
+const PREF = { style: 'era', team: 'tyrrell', air: 'on', numbers: 'on', skin: 'auto', speed: '10', pits: 'strateg', lang: 'pl', faces: '24' };
 try { Object.assign(PREF, JSON.parse(localStorage.getItem('pp-proto') || '{}')); } catch (e) {}
 const NAMES = { tyrrell: ['Elf Team', 'Tyrrell'], lotus: ['John Player', 'Team Lotus'], ferrari: ['Scuderia', 'Ferrari'] };
 function applyPrefs() {
@@ -171,7 +171,7 @@ function syncSettings() {}
 
 document.addEventListener('tab', e => {
   const { group, value } = e.detail;
-  if (group.startsWith('set-')) { PREF[group.slice(4)] = value; applyPrefs(); }
+  if (group.startsWith('set-')) { PREF[group.slice(4)] = value; applyPrefs(); if (group === 'set-faces') drawTop(); }
 });
 document.addEventListener('click', e => {
   const tab = e.target.closest('.tabs button');

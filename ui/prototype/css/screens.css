@@ -347,3 +347,9 @@ details.fin[open] .chev{transform:rotate(90deg)}
   .num-big{width:130px}
   .profile .hero{background:linear-gradient(105deg,var(--t1) 0 130px,color-mix(in oklab,var(--card) 90%,transparent) 130px)}
 }
+
+/* awatary pixel-art w dużych rozmiarach */
+.num-big svg.pf{margin-left:-10px;border-radius:14px}
+.face.pf,.portrait.pf{width:auto;height:auto;background:none;box-shadow:none}
+.face.pf svg{border-radius:16px}
+.portrait.pf svg{border-radius:22px;box-shadow:0 0 0 6px var(--card),0 0 0 7.5px var(--ink)}

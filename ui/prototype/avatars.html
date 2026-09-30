@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paddock Principal · twarze</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/faces.css">
+</head>
+<body>
+<header class="bar">
+  <h1>Twarze</h1>
+  <div class="ctl" id="ctl-size"><span class="meta">Gęstość</span><div class="seg" data-k="size"><button data-v="16">16</button><button data-v="24">24</button><button data-v="32">32</button></div></div>
+  <div class="ctl"><span class="meta">Rok</span><div class="year"><input type="range" id="year" min="1950" max="2026" step="1"><b id="year-v" class="num"></b></div></div>
+  <div class="ctl"><span class="meta">Losowanie</span><button class="btn" id="reroll">Nowe twarze</button></div>
+  <div class="ctl" id="draft" hidden><span class="meta">Szkic z edytora</span><b class="warn" id="draft-v"></b></div>
+  <a class="btn ghost" href="avatar-editor.html">Edytor części</a>
+  <a class="btn ghost" href="index.html#/kierowcy">Prototyp</a>
+</header>
+<main>
+  <section id="cmp" class="block"><h2>Te same osoby, trzy gęstości</h2><div class="cmp" id="cmp-grid"></div></section>
+  <section class="block"><h2>Arkusz 100</h2><div class="stats" id="sheet-stats"></div><div class="sheet" id="sheet"></div></section>
+  <section class="block"><h2>Starzenie</h2><div class="rows" id="aging"></div></section>
+  <section class="block"><h2>Epoki</h2><div class="rows" id="eras"></div></section>
+  <section class="block two">
+    <div><h2>Zespoły 1976</h2><div class="strip" id="teams"></div></div>
+    <div><h2>Sztab</h2><div class="strip" id="staff"></div></div>
+  </section>
+  <section class="block"><h2>Rozmiary w interfejsie</h2><div class="sizes" id="sizes"></div></section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/faces/pixelfaces.js"></script>
+<script src="js/faces/lib16.js"></script>
+<script src="js/faces/lib24.js"></script>
+<script src="js/faces/lib32.js"></script>
+<script src="js/faces/people.js"></script>
+<script src="js/faces/gallery.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paddock Principal · edytor twarzy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/faces.css">
+</head>
+<body class="ed">
+<header class="bar">
+  <h1>Edytor części</h1>
+  <div class="ctl"><span class="meta">Gęstość</span><div class="seg" id="size"><button data-v="16">16</button><button data-v="24">24</button><button data-v="32">32</button></div></div>
+  <div class="ctl"><span class="meta">Szkic</span><div class="draft"><b id="draft-st"></b><button class="btn ghost sm" id="reset">Przywróć plik</button></div></div>
+  <a class="btn ghost" href="avatars.html">Arkusz twarzy</a>
+</header>
+<main class="ed-main">
+  <nav class="parts" id="parts"></nav>
+  <section class="block canvas-wrap">
+    <div class="ed-head">
+      <div class="fld"><span class="meta">Część</span><span class="v" id="part-id"></span></div>
+      <label class="fld"><span class="meta">Tagi</span><input id="tags" spellcheck="false"></label>
+      <label class="chk"><input type="checkbox" id="mirror"> Lustro</label>
+      <label class="chk"><input type="checkbox" id="flip"> Odbicie</label>
+    </div>
+    <canvas id="cv"></canvas>
+    <div class="ed-tools">
+      <button class="btn ghost sm" id="dup">Duplikuj</button>
+      <button class="btn ghost sm" id="new">Nowa część</button>
+      <button class="btn ghost sm" id="del">Usuń</button>
+      <span class="meta keys">LPM maluje · PPM gumka · Ctrl+Z cofnij</span>
+    </div>
+  </section>
+  <aside class="side">
+    <section class="block"><h2>Kolory</h2><div class="pal" id="pal"></div></section>
+    <section class="block"><h2>Podgląd</h2><div class="strip" id="prev"></div><div class="strip small" id="prev-row"></div></section>
+    <section class="block"><h2>Tekst</h2><textarea id="txt" spellcheck="false"></textarea>
+      <div class="ed-tools"><button class="btn sm" id="copy">Kopiuj część</button><button class="btn ghost sm" id="dl">Pobierz plik</button></div>
+      <pre class="errs" id="errs"></pre></section>
+  </aside>
+</main>
+<script src="js/faces/pixelfaces.js"></script>
+<script src="js/faces/lib16.js"></script>
+<script src="js/faces/lib24.js"></script>
+<script src="js/faces/lib32.js"></script>
+<script src="js/faces/editor.js"></script>
+</body>
+</html>

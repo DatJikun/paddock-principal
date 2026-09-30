@@ -1,0 +1,98 @@
+/* Arkusz twarzy i edytor części: te same tokeny co prototyp (skórka 1976, Tyrrell). */
+:root{--ink:#231710;--ink2:#5b4a3d;--ink3:#7d6a5a;--paper:#efe5d1;--card:#fbf5e9;--rule:rgba(35,23,16,.14);--t1:#1f4f9a;--t2:#e03a3e;--hi:#e2572b;--good:#23863a;--bad:#c23a1f;
+  --display:'Big Shoulders Display',sans-serif;--ui:'Archivo',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.45 var(--ui)}
+button,input,select,textarea{font:inherit;color:inherit}
+.meta{font:600 12.5px var(--ui);letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)}
+.num{font-weight:600;font-feature-settings:"tnum" 1}
+.good{color:var(--good)}.bad{color:var(--bad)}
+h1{font:900 44px/.9 var(--display);text-transform:uppercase}
+h2{font:900 24px/1 var(--display);text-transform:uppercase;margin-bottom:14px}
+svg.pf{display:block}
+
+/* pasek sterowania */
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap;padding:18px 28px;background:color-mix(in oklab,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1.5px solid var(--ink)}
+.ctl{display:grid;gap:6px}
+.seg{display:flex;border:1.5px solid var(--ink);border-radius:12px;overflow:hidden}
+.seg button{border:0;background:var(--card);padding:7px 16px;font-weight:600;cursor:pointer;min-width:52px}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button.on{background:var(--ink);color:var(--card)}
+.year{display:flex;align-items:center;gap:12px}
+.year input{width:260px;accent-color:var(--t1)}
+.year b{font:900 26px/1 var(--display);min-width:3.2ch}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border:1.5px solid var(--ink);border-radius:12px;background:var(--t1);color:#fff;font-weight:600;text-decoration:none;cursor:pointer;box-shadow:0 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+.btn.ghost{background:var(--card);color:var(--ink)}
+.bar .btn.ghost:first-of-type{margin-left:auto}
+
+main{padding:26px 28px 60px;display:grid;gap:22px;max-width:1500px}
+.block{background:var(--card);border:1.5px solid var(--ink);border-radius:22px;padding:20px 24px}
+.block.two{display:grid;grid-template-columns:auto auto;gap:40px;justify-content:start}
+
+/* twarz w ramce */
+.f{display:grid;justify-items:center;gap:5px}
+.f svg,.pair svg,.size svg{border-radius:9px;background:color-mix(in oklab,var(--t1) 9%,var(--card));box-shadow:inset 0 0 0 1px var(--rule)}
+.f figcaption{font:600 12.5px var(--ui);color:var(--ink3);font-feature-settings:"tnum" 1}
+
+/* porównanie gęstości */
+.cmp{display:grid;grid-template-columns:auto repeat(3,auto);gap:10px 34px;align-items:center;justify-content:start}
+.cmp-h{align-self:end}
+.who{display:grid}
+.who b{font-weight:600}
+.who span{color:var(--ink3);font-size:13px}
+.pair{display:flex;align-items:flex-end;gap:12px}
+
+.stats{display:flex;gap:0;margin-bottom:16px}
+.fld{display:grid;gap:2px;padding:0 22px;border-left:1px solid var(--rule)}
+.fld:first-child{padding-left:0;border-left:0}
+.fld .v{font-size:20px}
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,96px);gap:14px 12px}
+.rows{display:grid;gap:14px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.strip{display:flex;gap:12px;flex-wrap:wrap}
+.sizes{display:grid;gap:18px}
+.size{display:grid;gap:8px}
+
+@media (max-width:700px){
+  .bar{padding:14px 16px;gap:16px}.year input{width:160px}
+  main{padding:16px}.block{padding:16px}.block.two{grid-template-columns:1fr}
+  .cmp{gap:10px 14px}
+}
+
+/* ---------- edytor części ---------- */
+.warn{color:#b77a0f}
+.btn.sm{padding:6px 12px;font-size:14px}
+.draft{display:flex;align-items:center;gap:12px}
+.draft b{font-weight:600;font-size:14px}
+.ed-main{display:grid;grid-template-columns:200px auto minmax(340px,1fr);align-items:start;max-width:none}
+.parts{position:sticky;top:110px;max-height:calc(100vh - 130px);overflow:auto;display:grid;gap:12px;padding-right:6px}
+.grp{display:grid;gap:2px}
+.grp .meta{margin-bottom:3px}
+.grp button{display:flex;justify-content:space-between;align-items:baseline;gap:8px;text-align:left;border:0;background:none;padding:4px 10px;border-radius:8px;cursor:pointer;font-weight:500}
+.grp button small{color:var(--ink3);font-size:11.5px;font-feature-settings:"tnum" 1}
+.grp button:hover{background:rgba(35,23,16,.06)}
+.grp button.on{background:var(--ink);color:var(--card)}
+.grp button.on small{color:inherit;opacity:.7}
+.canvas-wrap{display:grid;gap:14px;justify-items:start}
+.ed-head{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+.ed-head .v{font:900 22px/1 var(--display);text-transform:uppercase}
+.ed-head input:not([type]){border:1.5px solid var(--ink);border-radius:10px;background:var(--card);padding:6px 10px;width:260px;font-family:ui-monospace,monospace;font-size:13.5px}
+.chk{display:flex;align-items:center;gap:6px;font-weight:600;padding-bottom:6px}
+#cv{border:1.5px solid var(--ink);border-radius:6px;cursor:crosshair;touch-action:none;image-rendering:pixelated}
+.ed-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.keys{margin-left:6px}
+.side{display:grid;gap:16px}
+.side .block{padding:16px 18px}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px}
+.pal button{display:grid;grid-template-columns:22px 14px 1fr;align-items:center;gap:7px;border:1.5px solid transparent;border-radius:8px;background:none;padding:3px 6px;cursor:pointer;text-align:left;font-size:12.5px}
+.pal button i{width:22px;height:22px;border-radius:5px;box-shadow:inset 0 0 0 1px var(--rule)}
+.pal button b{font-family:ui-monospace,monospace;font-size:14px}
+.pal button span{color:var(--ink2);line-height:1.15}
+.pal button.on{border-color:var(--ink);background:rgba(35,23,16,.05)}
+.strip.small{margin-top:12px}
+#prev svg,#prev-row svg{border-radius:8px;background:color-mix(in oklab,var(--t1) 9%,var(--card));box-shadow:inset 0 0 0 1px var(--rule)}
+#txt{width:100%;min-height:220px;border:1.5px solid var(--ink);border-radius:10px;background:#fffdf7;padding:10px 12px;font:13.5px/1.3 ui-monospace,monospace;resize:vertical;margin-bottom:10px}
+.errs{color:var(--bad);font-size:12.5px;white-space:pre-wrap;margin-top:8px}
+.errs:empty{display:none}
+@media (max-width:1200px){.ed-main{grid-template-columns:1fr}.parts{position:static;max-height:none;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}

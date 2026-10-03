@@ -123,7 +123,7 @@ public sealed partial class WorldRepository
         return counters;
     }
 
-    private static WorldState ReadWorld(SqliteConnection connection, SaveMeta meta)
+    private WorldState ReadWorld(SqliteConnection connection, SaveMeta meta)
     {
         var date = new GameDate(meta.CurrentGameDate.Year, meta.CurrentGameDate.Month, meta.CurrentGameDate.Day);
         var counters = ReadCounters(connection);
@@ -167,7 +167,43 @@ public sealed partial class WorldRepository
         }
 
         var ids = new IdAllocator(counters["person"], counters["organization"], counters["contract"], issued);
-        return WorldState.Restore(date, ids, persons, organizations, contracts, knowledge);
+        return WorldState.Restore(date, ids, persons, organizations, contracts, knowledge, ReadSections(connection));
+    }
+
+    private List<IWorldSection> ReadSections(SqliteConnection connection)
+    {
+        var registered = new List<(string Name, int Version)>();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT name, schema_version FROM world_sections ORDER BY name";
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                registered.Add((reader.GetString(0), ToInt(reader.GetInt64(1))));
+            }
+        }
+
+        var sections = new List<IWorldSection>(registered.Count);
+        foreach (var (name, version) in registered)
+        {
+            var store = _sectionStores.FirstOrDefault(candidate => candidate.SectionName == name)
+                ?? throw new InvalidDataException($"The save holds section '{name}' and this build has no store for it.");
+            if (version > store.SchemaVersion)
+            {
+                throw new InvalidDataException(
+                    $"Section '{name}' was saved with schema version {version}, newer than this build's {store.SchemaVersion}.");
+            }
+
+            var section = store.Load(connection, version);
+            if (section.Name != name)
+            {
+                throw new InvalidDataException($"The store for '{name}' returned section '{section.Name}'.");
+            }
+
+            sections.Add(section);
+        }
+
+        return sections;
     }
 
     private static List<Person> ReadPersons(SqliteConnection connection)

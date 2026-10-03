@@ -118,5 +118,15 @@
   "world.init.gap.lineage_truncated": "Łańcuchy ciągłości urwane, bo id konstruktora się powtarza (ciągłość:konstruktor)",
   "world.init.gap.reference_season_clamped": "Lata startu po ostatnim sezonie danych autorskich (użyto zespołów z ostatniego sezonu)",
   "world.init.error.invalid_config": "Konfiguracja kariery jest nieprawidłowa: {codes}.",
-  "world.init.error.unknown_player_team": "Zespół {team} nie istniał w roku {year}."
+  "world.init.error.unknown_player_team": "Zespół {team} nie istniał w roku {year}.",
+  "inbox.error.itemUnknown": "Taka wiadomość nie istnieje.",
+  "inbox.error.itemClosed": "Ta wiadomość jest już zamknięta.",
+  "inbox.error.notADecision": "Ta wiadomość jest informacją i nie wymaga decyzji.",
+  "inbox.error.optionUnknown": "Ta opcja nie jest dostępna dla tej wiadomości.",
+  "inbox.error.decisionCannotBeDismissed": "Decyzji nie można odrzucić. Wybierz jedną z opcji.",
+  "inbox.error.notYetLapsed": "Ta wiadomość jest jeszcze ważna.",
+  "inbox.status.open": "Otwarta",
+  "inbox.status.resolved": "Rozstrzygnięta",
+  "inbox.status.dismissed": "Odrzucona",
+  "inbox.status.expired": "Wygasła"
 }

@@ -118,5 +118,15 @@
   "world.init.gap.lineage_truncated": "Lineage chains cut short because a constructor id repeats (lineage:constructor)",
   "world.init.gap.reference_season_clamped": "Start years after the last authored season (the last season's teams were used)",
   "world.init.error.invalid_config": "The career configuration is not valid: {codes}.",
-  "world.init.error.unknown_player_team": "The team {team} did not exist in {year}."
+  "world.init.error.unknown_player_team": "The team {team} did not exist in {year}.",
+  "inbox.error.itemUnknown": "That inbox item does not exist.",
+  "inbox.error.itemClosed": "That inbox item is already closed.",
+  "inbox.error.notADecision": "That inbox item is information and has nothing to decide.",
+  "inbox.error.optionUnknown": "That option is not offered for this item.",
+  "inbox.error.decisionCannotBeDismissed": "A decision cannot be dismissed. Choose one of its options.",
+  "inbox.error.notYetLapsed": "That inbox item is still valid.",
+  "inbox.status.open": "Open",
+  "inbox.status.resolved": "Decided",
+  "inbox.status.dismissed": "Dismissed",
+  "inbox.status.expired": "Lapsed"
 }

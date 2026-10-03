@@ -7,6 +7,7 @@ internal static class Program
         {
             "toy" => ToyCommand.Execute(args, Console.Out, Console.Error),
             "vote-sim" => VoteSimCommand.Execute(args, Console.Out, Console.Error),
+            RaceReplayCommand.Name => RaceReplayCommand.Execute(args, Console.Out, Console.Error),
             I18nCheckCommand.Name => I18nCheckCommand.Execute(args, Console.Out, Console.Error),
             _ => RngCommand.Execute(args, Console.Out, Console.Error),
         };

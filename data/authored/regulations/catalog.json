@@ -581,5 +581,127 @@
     ],
     "unit": null,
     "gameplay_effect": "Raises the car's safety level and, with the halo, adds weight and a visibility constraint."
+  },
+  {
+    "id": "race_distance_rule",
+    "category": "sporting",
+    "name": "Scheduled race distance",
+    "type": "enum",
+    "values": [
+      "unknown",
+      "min_300km_or_two_hours",
+      "standard_305km",
+      "least_laps_over_305km",
+      "least_laps_over_305km_monaco_260"
+    ],
+    "unit": null,
+    "gameplay_effect": "Sets how many laps are scheduled before a time cap or a stoppage shortens the race."
+  },
+  {
+    "id": "race_time_cap",
+    "category": "sporting",
+    "name": "Race time cap",
+    "type": "enum",
+    "values": [
+      "unknown",
+      "two_hour_elapsed_limit",
+      "two_hour_clock_does_not_freeze",
+      "two_hour_clock_and_four_hour_cap",
+      "two_hours_plus_suspension_to_three_hours"
+    ],
+    "unit": null,
+    "gameplay_effect": "Stops the race when the time cap is reached, even if the scheduled laps are not done."
+  },
+  {
+    "id": "classification_threshold",
+    "category": "sporting",
+    "name": "Distance required to be classified",
+    "type": "enum",
+    "values": [
+      "unknown",
+      "ninety_percent_of_winner_laps_rounded_down"
+    ],
+    "unit": null,
+    "gameplay_effect": "Drops a car from the classification, and so from points, when it has not completed enough of the winner's laps."
+  },
+  {
+    "id": "qualifying_time_cutoff",
+    "category": "sporting",
+    "name": "Qualifying time cutoff",
+    "type": "enum",
+    "values": [
+      "none",
+      "within_107_of_pole",
+      "within_107_of_fastest_q1",
+      "within_107_of_fastest_q1_unless_wet"
+    ],
+    "unit": null,
+    "gameplay_effect": "Keeps a car off the grid when its qualifying lap is too slow, unless the stewards make an exception."
+  },
+  {
+    "id": "pre_qualifying_session",
+    "category": "sporting",
+    "name": "Pre-qualifying session",
+    "type": "enum",
+    "values": [
+      "no_regular_session",
+      "four_fastest_advance",
+      "not_held"
+    ],
+    "unit": null,
+    "gameplay_effect": "Adds an early session that can stop the slowest entries from reaching qualifying."
+  },
+  {
+    "id": "maximum_grid",
+    "category": "sporting",
+    "name": "Championship grid or entry cap",
+    "type": "enum",
+    "values": [
+      "no_single_cap_confirmed",
+      "twenty_six",
+      "twenty_five_then_twenty_six"
+    ],
+    "unit": null,
+    "gameplay_effect": "Caps how many cars may be admitted or may start, separate from a slow-lap cutoff."
+  },
+  {
+    "id": "race_start_procedure",
+    "category": "sporting",
+    "name": "Race start procedure",
+    "type": "enum",
+    "values": [
+      "unknown",
+      "safety_car_parade_until_imola",
+      "formation_lap_then_standing_start"
+    ],
+    "unit": null,
+    "gameplay_effect": "Chooses whether the race begins from a standing grid after a formation lap."
+  },
+  {
+    "id": "red_flag_restart",
+    "category": "sporting",
+    "name": "Red-flag restart",
+    "type": "enum",
+    "values": [
+      "unknown",
+      "grid_restart_if_before_three_quarters",
+      "resume_behind_safety_car",
+      "pit_lane_then_resume"
+    ],
+    "unit": null,
+    "gameplay_effect": "Decides how a stopped race is restarted, and from which order."
+  },
+  {
+    "id": "sunday_warmup",
+    "category": "sporting",
+    "name": "Race-day warm-up session",
+    "type": "enum",
+    "values": [
+      "unknown",
+      "thirty_minute_race_day",
+      "none"
+    ],
+    "unit": null,
+    "gameplay_effect": "Gives the team a short race-morning run to adjust the car after qualifying."
   }
 ]

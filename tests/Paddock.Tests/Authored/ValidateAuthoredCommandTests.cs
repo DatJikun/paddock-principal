@@ -21,8 +21,8 @@ public class ValidateAuthoredCommandTests
         Assert.Equal(
             [
                 "authored data: ok",
-                "catalog dimensions: 41",
-                "timeline periods: 232",
+                "catalog dimensions: 50",
+                "timeline periods: 266",
                 "other series ideas: 23",
                 "circuits: 78",
                 "layouts: 156",

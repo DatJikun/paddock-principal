@@ -86,6 +86,19 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Tick dnia:** `AdvanceDay` przetwarza kolejkę zaplanowanych zdarzeń danego dnia: kontrakty, rozwój, finanse, harmonogram ludzi, propozycje historyczne, zdarzenia życiowe. Dni bez zdarzeń są prawie darmowe, co pozwala przewijać tygodnie.
 - **Pipeline komendy:** walidacja → (dla AI) `DecisionTrace` → wykonanie → zdarzenia domenowe. Odrzucona komenda nie zmienia stanu i zwraca powód, który UI pokazuje graczowi.
 
+### 5.1. Wielu graczy (PP-045)
+
+**Zasada:** jeden świat liczony w jednym miejscu (u hosta). Gra jednoosobowa to po prostu host bez gości.
+
+- **Menedżerowie od pierwszego dnia:** każda komenda niesie `managerId`, a każde zapytanie zwraca widok jednego menedżera (jego skrzynka, jego wiedza o świecie). Rdzeń nigdy nie zakłada, że człowiek jest jeden.
+- **Bramka gotowości:** `AdvanceDay` rusza dopiero, gdy wszyscy ludzie zgłoszą gotowość. Sprawa blokująca czas (negocjacje, decyzja w skrzynce) u jednego gracza zatrzymuje czas dla wszystkich i jest widoczna jako „czekamy na …”.
+- **Kolejność komend:** komendy graczy trafiają do jednej kolejki u hosta w ustalonym porządku (dzień, numer zgłoszenia), więc przebieg jest deterministyczny i da się go odtworzyć z zapisu.
+- **Sieć:** most JSON z §1.2 działa przez WebSocket. Goście łączą się z hostem, wysyłają komendy i dostają DTO swojego widoku. Gość nie ma własnej symulacji, więc nie może się „rozjechać” ze światem.
+- **Wyścig na żywo:** silnik wyścigu produkuje strumień zdarzeń (okrążenia, pit-stopy, incydenty). Host odtwarza go w tempie oglądania i rozsyła wszystkim, a polecenia z boksu wracają jako komendy z numerem okrążenia.
+- **Łączenie przez internet:** na start bezpośrednie połączenie z hostem (przekierowanie portu albo sieć typu Tailscale/ZeroTier). Gdyby to było za trudne dla znajomych, można dodać serwer pośredniczący. Decyzja w fazie 6.
+- **Zapis:** zapis gry istnieje tylko u hosta. Goście zapisują jedynie swoje ustawienia.
+- **Nie robimy:** gry korespondencyjnej, wspólnego zespołu z podziałem ról, kont i matchmakingu.
+
 ---
 
 ## 6. Dane świata i zapis

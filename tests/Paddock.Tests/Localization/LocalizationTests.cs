@@ -1,3 +1,4 @@
+using Paddock.Application.Commands;
 using Paddock.Application.Localization;
 using Paddock.SimRunner;
 
@@ -5,7 +6,7 @@ namespace Paddock.Tests.Localization;
 
 public class LocalizationTests
 {
-    private static string I18nDir() => Path.Combine(RepoPaths.Root(), "data", "i18n");
+    private static string StringsDir() => Path.Combine(RepoPaths.Root(), "strings");
 
     private static IReadOnlyDictionary<string, object?> Args(params (string Name, object? Value)[] pairs) =>
         pairs.ToDictionary(p => p.Name, p => p.Value);
@@ -178,10 +179,42 @@ public class LocalizationTests
     public void EveryKeyReferencedInSourceExistsInBothFiles()
     {
         var src = Path.Combine(RepoPaths.Root(), "src");
-        var catalog = TranslationLoader.LoadDirectory(I18nDir());
+        var catalog = TranslationLoader.LoadDirectory(StringsDir());
         var authored = TranslationKeyScanner.ScanAuthoredErrorCodes(src);
         Assert.True(authored.Count >= 28, "expected the authored validator codes to be found");
         Assert.Empty(I18nChecker.CheckKeysPresent(catalog, TranslationKeyScanner.ScanDirectory(src).Concat(authored)));
+    }
+
+    [Fact]
+    public void ScannerCoversCommandAndReadyGateKeys()
+    {
+        var src = Path.Combine(RepoPaths.Root(), "src");
+        var scanned = TranslationKeyScanner.ScanDirectory(src).Select(k => k.Key).ToHashSet(StringComparer.Ordinal);
+        string[] expected =
+        [
+            TranslationKeys.ManagerUnknown,
+            TranslationKeys.UnknownCommand,
+            TranslationKeys.HumansNotReady,
+            TranslationKeys.BlockingItem,
+            TranslationKeys.WaitingFor,
+        ];
+        Assert.All(expected, key => Assert.Contains(key, scanned));
+    }
+
+    [Fact]
+    public void OneCatalogHoldsEveryKeyFamily()
+    {
+        var catalog = TranslationLoader.LoadDirectory(StringsDir());
+        foreach (var language in new[] { Language.Pl, Language.En })
+        {
+            var keys = catalog.Entries(language).Keys;
+            foreach (var prefix in new[] { "authored.error.", "config.error.", "command.", "ready.", "people." })
+            {
+                Assert.Contains(keys, key => key.StartsWith(prefix, StringComparison.Ordinal));
+            }
+        }
+
+        Assert.False(Directory.Exists(Path.Combine(RepoPaths.Root(), "data", "i18n")), "data/i18n was merged into strings/");
     }
 
     [Fact]
@@ -206,12 +239,12 @@ public class LocalizationTests
     public void I18nCheckCommandFailsOnBrokenFiles()
     {
         var root = Path.Combine(Path.GetTempPath(), "pp-i18n-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(Path.Combine(root, "data", "i18n"));
+        Directory.CreateDirectory(Path.Combine(root, "strings"));
         Directory.CreateDirectory(Path.Combine(root, "src"));
         try
         {
-            File.WriteAllText(Path.Combine(root, "data", "i18n", "pl.json"), """{ "a": "x" }""");
-            File.WriteAllText(Path.Combine(root, "data", "i18n", "en.json"), """{ "b": "x" }""");
+            File.WriteAllText(Path.Combine(root, "strings", "pl.json"), """{ "a": "x" }""");
+            File.WriteAllText(Path.Combine(root, "strings", "en.json"), """{ "b": "x" }""");
             var stderr = new StringWriter();
             var code = I18nCheckCommand.Execute(["i18n-check", "--root", root], new StringWriter(), stderr);
             Assert.Equal(1, code);

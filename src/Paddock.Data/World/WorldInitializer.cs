@@ -1,0 +1,1037 @@
+using System.Globalization;
+using System.Text;
+using Paddock.Data.Authored;
+using Paddock.Domain.Career;
+using Paddock.Domain.People;
+using Paddock.Domain.Random;
+using Paddock.Domain.Time;
+using Paddock.Domain.World;
+
+namespace Paddock.Data.World;
+
+/// <summary>
+/// Optional inputs of <see cref="WorldInitializer.Create"/>. Without names the fixture name table is used
+/// (R12 names are not wired yet). Without constructor names an organization is named after its id.
+/// </summary>
+public sealed record WorldInitOptions(
+    INameSource? Names = null,
+    INameBlocklist? Blocklist = null,
+    IReadOnlyDictionary<string, string>? ConstructorNames = null);
+
+/// <summary>
+/// Builds the <see cref="WorldState"/> of a career start (T20): organizations with lineage and engine
+/// suppliers, key staff, and drivers by <see cref="PeopleSource"/>. Pure: no I/O, no clock, only the
+/// <c>People</c> RNG stream derived from the master seed. Same seed, config, data and provider give the same
+/// <see cref="WorldState.StateHash"/>. Numbers that are guesses are in <see cref="WorldInitEstimates"/>.
+/// </summary>
+public static class WorldInitializer
+{
+    public static WorldInitResult Create(
+        CareerConfig config,
+        AuthoredData data,
+        IPeopleProvider people,
+        ulong masterSeed,
+        WorldInitOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(people);
+        var validation = config.Validate();
+        if (!validation.IsValid)
+        {
+            throw new WorldInitException(
+                WorldInitErrorCodes.InvalidConfig,
+                validation.Errors.Select(error => error.Code).ToArray());
+        }
+
+        return new Builder(config, data, people, masterSeed, options ?? new WorldInitOptions()).Build();
+    }
+
+    private sealed record TeamPlan(
+        string Id,
+        int FromYear,
+        int? ToYear,
+        int FoundedYear,
+        string? Country,
+        bool FoundedFromData);
+
+    private sealed record StaffSlot(string PersonId, StaffMember Member, OrganizationId Organization, StaffRole Role);
+
+    private sealed class Builder
+    {
+        private static readonly StringComparer Ordinal = StringComparer.Ordinal;
+
+        private readonly CareerConfig _config;
+        private readonly AuthoredData _data;
+        private readonly IPeopleProvider _provider;
+        private readonly INameSource _names;
+        private readonly INameBlocklist _blocklist;
+        private readonly IReadOnlyDictionary<string, string>? _constructorNames;
+        private readonly RngStream _people;
+        private readonly int _start;
+        private readonly int _reference;
+        private readonly SortedDictionary<string, SortedSet<string>> _gaps = new(Ordinal);
+        private readonly Dictionary<string, TeamPlan> _currentTeams = new(Ordinal);
+        private readonly Dictionary<string, OrganizationId> _teamIds = new(Ordinal);
+        private readonly Dictionary<string, OrganizationId> _supplierIds = new(Ordinal);
+        private readonly HashSet<string> _staffedOrganizations = new(Ordinal);
+        private readonly HashSet<string> _realIds = new(Ordinal);
+        private readonly List<PersonId> _pool = [];
+        private readonly List<EngineSupplyLink> _supplies = [];
+        private WorldState _world;
+        private int _dissolvedTeams;
+        private int _links;
+        private int _racingDrivers;
+        private int _staffPeople;
+
+        public Builder(CareerConfig config, AuthoredData data, IPeopleProvider provider, ulong masterSeed, WorldInitOptions options)
+        {
+            _config = config;
+            _data = data;
+            _provider = provider;
+            _names = options.Names ?? new FixtureNameSource();
+            _blocklist = options.Blocklist ?? EmptyNameBlocklist.Instance;
+            _constructorNames = options.ConstructorNames;
+            _start = config.StartYear;
+            var lastAuthored = data.Engines.Entries.Count == 0 ? _start : data.Engines.Entries.Max(entry => entry.Year);
+            _reference = Math.Min(_start, lastAuthored);
+            _people = RngStream.Derive(masterSeed, RngStreamName.People, _start);
+            _world = WorldState.At(GameDate.SeasonStart(_start));
+        }
+
+        public WorldInitResult Build()
+        {
+            if (_reference != _start)
+            {
+                Gap(WorldInitGapCodes.ReferenceSeasonClamped, Number(_start));
+            }
+
+            PlanCurrentTeams();
+            var player = ValidatePlayerTeam();
+            AddCurrentTeams();
+            AddLineage();
+            AddSuppliers();
+            player = AddPlayerTeam(player);
+
+            switch (_config.PeopleSource)
+            {
+                case PeopleSource.FullyGenerated:
+                    AddGeneratedDrivers();
+                    break;
+                default:
+                    AddKnownDrivers();
+                    break;
+            }
+
+            var slots = StaffSlots();
+            if (_config.PeopleSource == PeopleSource.FullyGenerated)
+            {
+                AddGeneratedStaff(slots);
+            }
+            else
+            {
+                AddKnownStaff(slots);
+            }
+
+            ReportTeamsWithoutStaff();
+            return new WorldInitResult(_world, Report(), _pool.ToArray(), player, _supplies.ToArray());
+        }
+
+        // ---------------------------------------------------------------- organizations
+
+        private void PlanCurrentTeams()
+        {
+            var ids = _data.Engines.Entries
+                .Where(entry => entry.Year == _reference)
+                .Select(entry => entry.ConstructorId)
+                .Distinct(Ordinal)
+                .OrderBy(id => id, Ordinal);
+            foreach (var id in ids)
+            {
+                var (from, to) = SpanOf(id, _reference);
+                var founded = FoundedYear(id, from);
+                _currentTeams[id] = new TeamPlan(id, from, to, founded.Year, CountryOf(id, from), !founded.FromFounders);
+            }
+        }
+
+        private OrganizationId ValidatePlayerTeam()
+        {
+            if (string.Equals(_config.PlayerTeam, CareerConfig.NewTeam, StringComparison.Ordinal))
+            {
+                return default;
+            }
+
+            if (!_currentTeams.ContainsKey(_config.PlayerTeam))
+            {
+                throw new WorldInitException(
+                    WorldInitErrorCodes.UnknownPlayerTeam,
+                    [_config.PlayerTeam, Number(_reference)]);
+            }
+
+            return OrganizationId.Real(_config.PlayerTeam);
+        }
+
+        private void AddCurrentTeams()
+        {
+            foreach (var plan in _currentTeams.Values.OrderBy(team => team.Id, Ordinal))
+            {
+                AddTeam(plan, dissolvedYear: null);
+                if (plan.FoundedFromData)
+                {
+                    Gap(WorldInitGapCodes.OrganizationFoundedFromData, plan.Id);
+                }
+            }
+        }
+
+        private void AddTeam(TeamPlan plan, int? dissolvedYear)
+        {
+            var founded = GameDate.SeasonStart(plan.FoundedYear);
+            GameDate? dissolved = dissolvedYear is int year ? GameDate.SeasonEnd(year) : null;
+            var name = NameOf(plan.Id);
+            var spec = new OrganizationSpec(
+                OrganizationKind.Team,
+                true,
+                plan.Id,
+                founded,
+                dissolved,
+                WorldInitEstimates.PlaceholderBudget,
+                [new OrganizationNameSpan(name, founded, dissolved)]);
+            (_world, var id) = _world.AddOrganization(spec);
+            _teamIds[plan.Id] = id;
+        }
+
+        private void AddLineage()
+        {
+            var lineageIds = _data.LineageSpans
+                .Select(span => span.LineageId)
+                .Distinct(Ordinal)
+                .OrderBy(id => id, Ordinal);
+            foreach (var lineageId in lineageIds)
+            {
+                var chain = TeamLineage.Chain(lineageId, _data.LineageSpans);
+                var currentIndexes = new List<int>();
+                for (var i = 0; i < chain.Count; i++)
+                {
+                    if (Covers(chain[i], _reference) && _currentTeams.ContainsKey(chain[i].ConstructorId))
+                    {
+                        currentIndexes.Add(i);
+                    }
+                }
+
+                if (currentIndexes.Count == 0)
+                {
+                    continue;
+                }
+
+                var members = new List<(LineageSpan Span, bool Current)>();
+                for (var j = currentIndexes[0] - 1; j >= 0; j--)
+                {
+                    var earlier = chain[j];
+                    if (_teamIds.ContainsKey(earlier.ConstructorId) || earlier.ToYear is not int last || last >= _reference)
+                    {
+                        Gap(WorldInitGapCodes.LineageTruncated, lineageId + ":" + earlier.ConstructorId);
+                        break;
+                    }
+
+                    var founded = FoundedYear(earlier.ConstructorId, earlier.FromYear);
+                    AddTeam(
+                        new TeamPlan(earlier.ConstructorId, earlier.FromYear, last, founded.Year, CountryOf(earlier.ConstructorId, earlier.FromYear), !founded.FromFounders),
+                        last);
+                    _dissolvedTeams++;
+                    members.Insert(0, (earlier, false));
+                }
+
+                foreach (var index in currentIndexes)
+                {
+                    members.Add((chain[index], true));
+                }
+
+                for (var k = 1; k < members.Count; k++)
+                {
+                    var (before, _) = members[k - 1];
+                    var (after, afterCurrent) = members[k];
+                    GameDate? to = afterCurrent ? null : GameDate.SeasonEnd(after.ToYear!.Value);
+                    _world = _world.LinkLineage(
+                        _teamIds[before.ConstructorId],
+                        _teamIds[after.ConstructorId],
+                        GameDate.SeasonStart(after.FromYear),
+                        to);
+                    _links++;
+                }
+            }
+        }
+
+        private void AddSuppliers()
+        {
+            var firstYear = new Dictionary<string, int>(Ordinal);
+            foreach (var entry in _data.Engines.Entries)
+            {
+                if (entry.Year > _reference)
+                {
+                    continue;
+                }
+
+                var slug = Slug(entry.Supplier);
+                if (slug.Length == 0)
+                {
+                    continue;
+                }
+
+                firstYear[slug] = firstYear.TryGetValue(slug, out var known) ? Math.Min(known, entry.Year) : entry.Year;
+            }
+
+            var today = _data.Engines.Entries
+                .Where(entry => entry.Year == _reference)
+                .OrderBy(entry => entry.ConstructorId, Ordinal)
+                .ThenBy(entry => entry.Supplier, Ordinal)
+                .ThenBy(entry => entry.EngineName, Ordinal)
+                .ToArray();
+            foreach (var entry in today)
+            {
+                var slug = Slug(entry.Supplier);
+                if (slug.Length == 0 || string.Equals(slug, "unknown", StringComparison.Ordinal))
+                {
+                    Gap(WorldInitGapCodes.SupplierUnknown, entry.ConstructorId);
+                    continue;
+                }
+
+                if (!_supplierIds.TryGetValue(slug, out var supplierId))
+                {
+                    var founded = GameDate.SeasonStart(firstYear[slug]);
+                    var spec = new OrganizationSpec(
+                        OrganizationKind.EngineSupplier,
+                        true,
+                        SupplierIdText(slug),
+                        founded,
+                        null,
+                        WorldInitEstimates.PlaceholderBudget,
+                        [new OrganizationNameSpan(entry.Supplier.Trim(), founded, null)]);
+                    (_world, supplierId) = _world.AddOrganization(spec);
+                    _supplierIds[slug] = supplierId;
+                    Gap(WorldInitGapCodes.SupplierFoundedFromData, supplierId.Value);
+                }
+
+                _supplies.Add(new EngineSupplyLink(
+                    _teamIds[entry.ConstructorId],
+                    supplierId,
+                    entry.EngineName,
+                    entry.Type));
+            }
+        }
+
+        private OrganizationId AddPlayerTeam(OrganizationId existing)
+        {
+            if (existing.IsAssigned)
+            {
+                return existing;
+            }
+
+            var founded = GameDate.SeasonStart(_start);
+            var spec = new OrganizationSpec(
+                OrganizationKind.Team,
+                false,
+                null,
+                founded,
+                null,
+                WorldInitEstimates.PlaceholderBudget,
+                [new OrganizationNameSpan(CareerConfig.NewTeam, founded, null)]);
+            (_world, var id) = _world.AddOrganization(spec);
+            return id;
+        }
+
+        private (int From, int? To) SpanOf(string constructorId, int year)
+        {
+            foreach (var span in _data.LineageSpans)
+            {
+                if (string.Equals(span.ConstructorId, constructorId, StringComparison.Ordinal) && Covers(span, year))
+                {
+                    return (span.FromYear, span.ToYear);
+                }
+            }
+
+            foreach (var organization in _data.Founders.Organizations)
+            {
+                foreach (var entry in organization.ConstructorEntries)
+                {
+                    if (string.Equals(entry.ConstructorId, constructorId, StringComparison.Ordinal)
+                        && entry.From <= year && year <= entry.To)
+                    {
+                        return (entry.From, entry.To);
+                    }
+                }
+            }
+
+            var seasons = _data.Engines.Entries
+                .Where(entry => string.Equals(entry.ConstructorId, constructorId, StringComparison.Ordinal))
+                .Select(entry => entry.Year)
+                .ToHashSet();
+            var from = year;
+            while (seasons.Contains(from - 1))
+            {
+                from--;
+            }
+
+            return (from, null);
+        }
+
+        private (int Year, bool FromFounders) FoundedYear(string constructorId, int spanFrom)
+        {
+            foreach (var organization in _data.Founders.Organizations)
+            {
+                foreach (var entry in organization.ConstructorEntries)
+                {
+                    if (!string.Equals(entry.ConstructorId, constructorId, StringComparison.Ordinal)
+                        || entry.From > spanFrom || spanFrom > entry.To)
+                    {
+                        continue;
+                    }
+
+                    var year = organization.From == spanFrom && organization.Founded is int founded
+                        ? Math.Min(founded, spanFrom)
+                        : spanFrom;
+                    return (year, true);
+                }
+            }
+
+            return (spanFrom, false);
+        }
+
+        private string? CountryOf(string constructorId, int spanFrom)
+        {
+            foreach (var organization in _data.Founders.Organizations)
+            {
+                foreach (var entry in organization.ConstructorEntries)
+                {
+                    if (string.Equals(entry.ConstructorId, constructorId, StringComparison.Ordinal)
+                        && entry.From <= spanFrom && spanFrom <= entry.To)
+                    {
+                        return organization.Country;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private string NameOf(string constructorId)
+        {
+            if (_constructorNames is not null
+                && _constructorNames.TryGetValue(constructorId, out var name)
+                && !string.IsNullOrWhiteSpace(name))
+            {
+                return name.Trim();
+            }
+
+            Gap(WorldInitGapCodes.OrganizationNameFromId, constructorId);
+            return PrettifyId(constructorId);
+        }
+
+        // ---------------------------------------------------------------- drivers
+
+        private void AddKnownDrivers()
+        {
+            var fallbackCount = new SortedSet<string>(Ordinal);
+            foreach (var record in _provider.Drivers.OrderBy(driver => driver.DriverId, Ordinal))
+            {
+                var racingSeat = SeatOf(record);
+                var racing = racingSeat is not null;
+                var inPool = !racing
+                    && record.PoolEntryYear is int entry && entry <= _start
+                    && record.FirstSeason is int debut && debut > _start;
+                if (!racing && !inPool)
+                {
+                    continue;
+                }
+
+                if (!TryBirth(record.BirthDate, record.BornYear, record.DriverId, WorldInitGapCodes.DriverBirthEstimated, out var birth))
+                {
+                    Gap(WorldInitGapCodes.DriverSkippedNoBirth, record.DriverId);
+                    continue;
+                }
+
+                if (_realIds.Contains(record.DriverId))
+                {
+                    Gap(WorldInitGapCodes.IdCollision, record.DriverId);
+                    continue;
+                }
+
+                var nationality = NationalityOrUnknown(record.Nationality, record.DriverId);
+                var band = racing ? WorldInitEstimates.RacingKnownQuality : WorldInitEstimates.PoolKnownQuality;
+                var identity = new KnownPersonIdentity(record.DriverId, record.GivenName, record.FamilyName, birth, nationality);
+                var truth = KnownTruth(identity, record.DriverId, band, fallbackCount);
+                var spec = new PersonSpec(
+                    record.GivenName,
+                    record.FamilyName,
+                    ToGameDate(birth),
+                    nationality,
+                    true,
+                    record.DriverId,
+                    [PersonRole.Driver],
+                    truth);
+                (_world, var id) = _world.AddPerson(spec);
+                _realIds.Add(record.DriverId);
+
+                if (racingSeat is DriverSeat seat)
+                {
+                    if (_teamIds.TryGetValue(seat.ConstructorId, out var team) && _currentTeams.ContainsKey(seat.ConstructorId))
+                    {
+                        AddDriverContract(id, team, string.Equals(seat.Role, ScheduleRolesSubstitute, StringComparison.Ordinal)
+                            ? SeatStatus.Reserve
+                            : WorldInitEstimates.DefaultSeatStatus);
+                    }
+                    else
+                    {
+                        Gap(WorldInitGapCodes.DriverConstructorAbsent, record.DriverId + "@" + seat.ConstructorId);
+                    }
+                }
+                else
+                {
+                    _pool.Add(id);
+                }
+            }
+
+            foreach (var id in fallbackCount)
+            {
+                Gap(WorldInitGapCodes.DriversWithoutRatings, id);
+            }
+        }
+
+        private const string ScheduleRolesSubstitute = Paddock.Data.Historical.ScheduleRoles.Substitute;
+
+        private DriverSeat? SeatOf(RealDriverRecord record)
+        {
+            DriverSeat? best = null;
+            foreach (var seat in record.Seats)
+            {
+                if (seat.Season != _start)
+                {
+                    continue;
+                }
+
+                if (best is null || CompareSeats(seat, best) < 0)
+                {
+                    best = seat;
+                }
+            }
+
+            return best;
+        }
+
+        private static int CompareSeats(DriverSeat left, DriverSeat right)
+        {
+            var substitute = IsSubstitute(left).CompareTo(IsSubstitute(right));
+            if (substitute != 0)
+            {
+                return substitute;
+            }
+
+            var round = left.FirstRound.CompareTo(right.FirstRound);
+            return round != 0 ? round : string.CompareOrdinal(left.ConstructorId, right.ConstructorId);
+        }
+
+        private static bool IsSubstitute(DriverSeat seat) =>
+            string.Equals(seat.Role, ScheduleRolesSubstitute, StringComparison.Ordinal);
+
+        private PersonTruth KnownTruth(KnownPersonIdentity identity, string driverId, QualityBand band, SortedSet<string> unrated)
+        {
+            if (_config.PeopleSource != PeopleSource.RealNamesRandomSkills)
+            {
+                var rating = _provider.RatingFor(driverId, _start);
+                if (rating is not null)
+                {
+                    return PersonTruth.FromDriver(rating.Current, rating.Potential);
+                }
+
+                unrated.Add(driverId);
+                return Randomized(identity, WorldInitEstimates.UnratedFallbackStrength, band);
+            }
+
+            return Randomized(identity, WorldInitEstimates.RandomizedSkillStrength, band);
+        }
+
+        private PersonTruth Randomized(KnownPersonIdentity identity, int strength, QualityBand band)
+        {
+            var generator = new DriverGenerator(new StableIdAllocator(_world.Ids.NextPerson), _names, _blocklist);
+            var driver = generator.RandomizeKnownPerson(_people, _start, identity, strength, band);
+            return PersonTruth.FromDriver(driver.Attributes, driver.PotentialAttributes);
+        }
+
+        private void AddGeneratedDrivers()
+        {
+            var seatCounts = SeatCounts();
+            var grid = 0;
+            foreach (var team in _currentTeams.Values.OrderBy(plan => plan.Id, Ordinal))
+            {
+                var seats = seatCounts.TryGetValue(team.Id, out var known) ? known : WorldInitEstimates.DefaultSeatsPerTeam;
+                for (var seat = 1; seat <= seats; seat++)
+                {
+                    var band = PickBand("init:grid:" + team.Id + ":" + Number(seat), WorldInitEstimates.GridQualityWeights);
+                    var id = AddGeneratedDriver(band, team.Country);
+                    AddDriverContract(id, _teamIds[team.Id], WorldInitEstimates.DefaultSeatStatus);
+                    grid++;
+                }
+            }
+
+            var poolSize = (grid * WorldInitEstimates.PoolPercentOfGrid + 99) / 100;
+            for (var i = 1; i <= poolSize; i++)
+            {
+                var band = PickBand("init:pool:" + Number(i), WorldInitEstimates.PoolQualityWeights);
+                _pool.Add(AddGeneratedDriver(band, null));
+            }
+        }
+
+        private Dictionary<string, int> SeatCounts()
+        {
+            var counts = new Dictionary<string, HashSet<string>>(Ordinal);
+            foreach (var record in _provider.Drivers)
+            {
+                foreach (var seat in record.Seats)
+                {
+                    if (seat.Season != _start || string.Equals(seat.Role, ScheduleRolesSubstitute, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    if (!counts.TryGetValue(seat.ConstructorId, out var drivers))
+                    {
+                        drivers = new HashSet<string>(Ordinal);
+                        counts[seat.ConstructorId] = drivers;
+                    }
+
+                    drivers.Add(record.DriverId);
+                }
+            }
+
+            return counts.ToDictionary(pair => pair.Key, pair => pair.Value.Count, Ordinal);
+        }
+
+        private PersonId AddGeneratedDriver(QualityBand band, string? homeCountry)
+        {
+            var generator = new DriverGenerator(new StableIdAllocator(_world.Ids.NextPerson), _names, _blocklist);
+            var request = GenerationRequest.ForNew(band, NationalityWeights(homeCountry), _start);
+            var driver = generator.Generate(_people, _start, request);
+            var spec = new PersonSpec(
+                driver.GivenName,
+                driver.FamilyName,
+                ToGameDate(driver.BirthDate),
+                driver.Nationality,
+                false,
+                null,
+                [PersonRole.Driver],
+                PersonTruth.FromDriver(driver.Attributes, driver.PotentialAttributes));
+            (_world, var id) = _world.AddPerson(spec);
+            if (!string.Equals(id.Value, driver.Id, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException("Generated person id " + driver.Id + " does not match the world id " + id.Value + ".");
+            }
+
+            return id;
+        }
+
+        private void AddDriverContract(PersonId person, OrganizationId team, SeatStatus status)
+        {
+            var spec = new ContractSpec(
+                person,
+                team,
+                ContractRole.Driver(status),
+                GameDate.SeasonStart(_start),
+                GameDate.SeasonEnd(_start + WorldInitEstimates.InitialContractSeasons - 1),
+                WorldInitEstimates.PlaceholderSalary,
+                true,
+                null,
+                null);
+            (_world, _) = _world.AddContract(spec);
+            _racingDrivers++;
+        }
+
+        private QualityBand PickBand(string tag, (QualityBand Band, int Weight)[] weights)
+        {
+            var total = weights.Sum(weight => weight.Weight);
+            var roll = _people.DeriveChild(tag).NextInt(0, total);
+            var cursor = 0;
+            foreach (var (band, weight) in weights)
+            {
+                cursor += weight;
+                if (roll < cursor)
+                {
+                    return band;
+                }
+            }
+
+            throw new InvalidOperationException("Quality weights did not cover the roll.");
+        }
+
+        private static NationalityWeight[] NationalityWeights(string? homeCountry)
+        {
+            var home = string.IsNullOrWhiteSpace(homeCountry) ? null : homeCountry.Trim().ToUpperInvariant();
+            var weights = new List<NationalityWeight>();
+            foreach (var code in WorldInitEstimates.GeneratedNationalities)
+            {
+                weights.Add(new NationalityWeight(
+                    code,
+                    string.Equals(code, home, StringComparison.Ordinal) ? WorldInitEstimates.HomeCountryWeight : 1));
+            }
+
+            if (home is not null && !WorldInitEstimates.GeneratedNationalities.Contains(home, Ordinal))
+            {
+                weights.Add(new NationalityWeight(home, WorldInitEstimates.HomeCountryWeight));
+            }
+
+            return weights.ToArray();
+        }
+
+        // ---------------------------------------------------------------- staff
+
+        private List<StaffSlot> StaffSlots()
+        {
+            var slots = new List<StaffSlot>();
+            var seen = new HashSet<string>(Ordinal);
+            foreach (var member in _data.Staff.OrderBy(staff => staff.Id, Ordinal))
+            {
+                foreach (var stint in member.Career)
+                {
+                    if (stint.From > stint.To || stint.From > _reference || _reference > stint.To)
+                    {
+                        continue;
+                    }
+
+                    OrganizationId organization = default;
+                    var found = false;
+                    if (stint.Series is null)
+                    {
+                        found = _currentTeams.ContainsKey(stint.Org) && _teamIds.TryGetValue(stint.Org, out organization);
+                    }
+                    else if (string.Equals(stint.Series, "engine_supplier", StringComparison.Ordinal))
+                    {
+                        found = _supplierIds.TryGetValue(Slug(stint.Org), out organization);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    if (!found)
+                    {
+                        Gap(WorldInitGapCodes.StaffOrganizationAbsent, member.Id + "@" + stint.Org);
+                        continue;
+                    }
+
+                    if (!TryMapRole(stint.Role, out var role))
+                    {
+                        Gap(WorldInitGapCodes.StaffUnmappedRole, member.Id + ":" + stint.Role + "@" + stint.Org);
+                        continue;
+                    }
+
+                    if (seen.Add(member.Id + "|" + organization.Value + "|" + role))
+                    {
+                        slots.Add(new StaffSlot(member.Id, member, organization, role));
+                    }
+                }
+            }
+
+            return slots;
+        }
+
+        private void AddKnownStaff(List<StaffSlot> slots)
+        {
+            foreach (var group in slots.GroupBy(slot => slot.PersonId, Ordinal).OrderBy(group => group.Key, Ordinal))
+            {
+                var member = group.First().Member;
+                if (_realIds.Contains(member.Id))
+                {
+                    Gap(WorldInitGapCodes.IdCollision, member.Id);
+                    continue;
+                }
+
+                var born = StaffBirth(member);
+                var roles = group.Select(slot => slot.Role).Distinct().OrderBy(role => (int)role).ToArray();
+                var (given, family) = SplitName(member.Name);
+                var nationality = NationalityOrUnknown(member.Nationality, member.Id);
+                var attributes = new List<NamedAttribute>();
+                foreach (var role in roles)
+                {
+                    foreach (var key in StaffCatalogue.AttributeKeys(role))
+                    {
+                        if (attributes.All(attribute => !string.Equals(attribute.Key, key, StringComparison.Ordinal)))
+                        {
+                            attributes.Add(new NamedAttribute(key, WorldInitEstimates.UnratedStaffAttribute));
+                        }
+                    }
+                }
+
+                var spec = new PersonSpec(
+                    given,
+                    family,
+                    born,
+                    nationality,
+                    true,
+                    member.Id,
+                    roles.Select(PersonRole.Staff).ToArray(),
+                    new PersonTruth(attributes, attributes));
+                (_world, var id) = _world.AddPerson(spec);
+                _realIds.Add(member.Id);
+                _staffPeople++;
+                Gap(WorldInitGapCodes.StaffWithoutRatings, member.Id);
+                foreach (var slot in group)
+                {
+                    AddStaffContract(id, slot.Organization, slot.Role);
+                }
+            }
+        }
+
+        private void AddGeneratedStaff(List<StaffSlot> slots)
+        {
+            var countries = _currentTeams.Values.ToDictionary(plan => plan.Id, plan => plan.Country, Ordinal);
+            var unique = slots
+                .Select(slot => (slot.Organization, slot.Role))
+                .Distinct()
+                .OrderBy(slot => slot.Organization.Value, Ordinal)
+                .ThenBy(slot => (int)slot.Role);
+            foreach (var (organization, role) in unique)
+            {
+                if (StaffCatalogue.AvailableFrom(role) > _start)
+                {
+                    Gap(WorldInitGapCodes.StaffRoleUnavailable, organization.Value + ":" + role);
+                    continue;
+                }
+
+                countries.TryGetValue(organization.Value, out var country);
+                var generator = new StaffGenerator(new StableIdAllocator(_world.Ids.NextPerson), _names, _blocklist);
+                var request = GenerationRequest.ForNew(
+                    WorldInitEstimates.GeneratedStaffQuality,
+                    NationalityWeights(country),
+                    _start);
+                var staff = generator.Generate(_people, _start, role, request);
+                var attributes = staff.Attributes.ToList();
+                if (attributes.All(attribute => !string.Equals(attribute.Key, StaffCatalogue.InnovationKey, StringComparison.Ordinal)))
+                {
+                    attributes.Add(new NamedAttribute(StaffCatalogue.InnovationKey, staff.Innovation));
+                }
+
+                var spec = new PersonSpec(
+                    staff.GivenName,
+                    staff.FamilyName,
+                    ToGameDate(staff.BirthDate),
+                    staff.Nationality,
+                    false,
+                    null,
+                    [PersonRole.Staff(role)],
+                    new PersonTruth(attributes, attributes));
+                (_world, var id) = _world.AddPerson(spec);
+                if (!string.Equals(id.Value, staff.Id, StringComparison.Ordinal))
+                {
+                    throw new InvalidOperationException("Generated person id " + staff.Id + " does not match the world id " + id.Value + ".");
+                }
+
+                _staffPeople++;
+                AddStaffContract(id, organization, role);
+            }
+        }
+
+        private void AddStaffContract(PersonId person, OrganizationId organization, StaffRole role)
+        {
+            var spec = new ContractSpec(
+                person,
+                organization,
+                ContractRole.Staff(role),
+                GameDate.SeasonStart(_start),
+                GameDate.SeasonEnd(_start + WorldInitEstimates.InitialContractSeasons - 1),
+                WorldInitEstimates.PlaceholderSalary,
+                false,
+                null,
+                null);
+            (_world, _) = _world.AddContract(spec);
+            _staffedOrganizations.Add(organization.Value);
+        }
+
+        private GameDate StaffBirth(StaffMember member)
+        {
+            if (member.Born is not null
+                && DateOnly.TryParseExact(member.Born, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            {
+                return ToGameDate(date);
+            }
+
+            Gap(WorldInitGapCodes.StaffBirthEstimated, member.Id);
+            return GameDate.SeasonStart(_start - WorldInitEstimates.EstimatedStaffAge);
+        }
+
+        private void ReportTeamsWithoutStaff()
+        {
+            foreach (var plan in _currentTeams.Values)
+            {
+                if (!_staffedOrganizations.Contains(plan.Id))
+                {
+                    Gap(WorldInitGapCodes.TeamsWithoutStaff, plan.Id);
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------- shared helpers
+
+        private bool TryBirth(DateOnly? date, int? year, string id, string estimatedCode, out DateOnly birth)
+        {
+            if (date is DateOnly exact)
+            {
+                birth = exact;
+                return true;
+            }
+
+            if (year is int known && known >= GenerationEstimates.MinBirthYear && known <= GenerationEstimates.MaxBirthYear)
+            {
+                birth = new DateOnly(known, WorldInitEstimates.EstimatedBirthMonth, WorldInitEstimates.EstimatedBirthDay);
+                Gap(estimatedCode, id);
+                return true;
+            }
+
+            birth = default;
+            return false;
+        }
+
+        private string NationalityOrUnknown(string? nationality, string id)
+        {
+            if (string.IsNullOrWhiteSpace(nationality))
+            {
+                Gap(WorldInitGapCodes.NationalityMissing, id);
+                return WorldInitEstimates.UnknownNationality;
+            }
+
+            return nationality.Trim();
+        }
+
+        private void Gap(string code, string subject)
+        {
+            if (!_gaps.TryGetValue(code, out var subjects))
+            {
+                subjects = new SortedSet<string>(Ordinal);
+                _gaps[code] = subjects;
+            }
+
+            subjects.Add(subject);
+        }
+
+        private WorldInitReport Report()
+        {
+            var organizations = _world.Organizations;
+            var persons = _world.Persons;
+            var counts = new WorldInitCounts(
+                Teams: organizations.Count(organization => organization.Kind == OrganizationKind.Team && organization.Dissolved is null),
+                DissolvedTeams: _dissolvedTeams,
+                EngineSuppliers: organizations.Count(organization => organization.Kind == OrganizationKind.EngineSupplier),
+                RacingDrivers: _racingDrivers,
+                PoolDrivers: _pool.Count,
+                StaffPeople: _staffPeople,
+                Contracts: _world.Contracts.Count,
+                RealPersons: persons.Count(person => person.IsReal),
+                GeneratedPersons: persons.Count(person => !person.IsReal),
+                LineageLinks: _links);
+            var gaps = _gaps
+                .Where(pair => pair.Value.Count > 0)
+                .Select(pair => new WorldInitGap(pair.Key, pair.Value.ToArray()))
+                .ToArray();
+            return new WorldInitReport(_start, _reference, _config.PeopleSource, counts, gaps);
+        }
+
+        private static bool Covers(LineageSpan span, int season) =>
+            span.FromYear <= season && (span.ToYear is null || season <= span.ToYear.Value);
+
+        private static GameDate ToGameDate(DateOnly date) => new(date.Year, date.Month, date.Day);
+
+        private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
+
+        private static bool TryMapRole(string role, out StaffRole mapped)
+        {
+            switch (role)
+            {
+                case "technical_director":
+                    mapped = StaffRole.TechnicalDirector;
+                    return true;
+                case "team_principal":
+                    mapped = StaffRole.TeamPrincipal;
+                    return true;
+                case "chief_designer":
+                    mapped = StaffRole.ChiefDesigner;
+                    return true;
+                case "head_of_aero":
+                    mapped = StaffRole.HeadOfAerodynamics;
+                    return true;
+                case "race_engineer":
+                    mapped = StaffRole.RaceEngineer;
+                    return true;
+                case "engine_designer":
+                    mapped = StaffRole.EngineDesigner;
+                    return true;
+                default:
+                    mapped = default;
+                    return false;
+            }
+        }
+
+        private static string SupplierIdText(string slug) => "supplier:" + slug;
+
+        private static string Slug(string text)
+        {
+            var builder = new StringBuilder(text.Length);
+            var pendingSeparator = false;
+            foreach (var character in text.Trim())
+            {
+                if (char.IsLetterOrDigit(character))
+                {
+                    if (pendingSeparator && builder.Length > 0)
+                    {
+                        builder.Append('_');
+                    }
+
+                    pendingSeparator = false;
+                    builder.Append(char.ToLowerInvariant(character));
+                }
+                else
+                {
+                    pendingSeparator = true;
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        private static string PrettifyId(string id)
+        {
+            var words = id.Split(['_', '-'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (words.Length == 0)
+            {
+                return id;
+            }
+
+            return string.Join(' ', words.Select(word => char.ToUpperInvariant(word[0]) + word[1..]));
+        }
+
+        private static readonly string[] NameSuffixes = ["Junior", "Júnior", "Jr", "Jr.", "Sr", "Sr.", "Filho"];
+
+        private static (string Given, string Family) SplitName(string full)
+        {
+            var tokens = full.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (tokens.Length == 0)
+            {
+                throw new ArgumentException("A staff member has no name.", nameof(full));
+            }
+
+            if (tokens.Length == 1)
+            {
+                return (tokens[0], tokens[0]);
+            }
+
+            var familyStart = tokens.Length - 1;
+            if (NameSuffixes.Contains(tokens[familyStart], Ordinal) && familyStart > 1)
+            {
+                familyStart--;
+            }
+
+            while (familyStart > 1 && char.IsLower(tokens[familyStart - 1][0]))
+            {
+                familyStart--;
+            }
+
+            return (string.Join(' ', tokens[..familyStart]), string.Join(' ', tokens[familyStart..]));
+        }
+    }
+}

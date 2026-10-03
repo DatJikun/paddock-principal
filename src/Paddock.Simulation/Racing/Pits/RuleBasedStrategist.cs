@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using Paddock.Domain.Random;
+using Paddock.Domain.Spy;
 using Paddock.Simulation.Racing.Tyres;
 
 namespace Paddock.Simulation.Racing.Pits;
@@ -59,12 +60,14 @@ public sealed class RuleBasedStrategist : IRaceStrategist
     private readonly StrategyCalculators _calculators;
     private readonly RngStream _stream;
     private readonly StrategistOptions _options;
+    private readonly StrategistTracing? _tracing;
 
     /// <param name="skill">0 to 100.</param>
     /// <param name="calculators">Tyre loss and fuel mass, see <see cref="StrategyCalculators"/>.</param>
     /// <param name="aiDecisionsRaceStream">The race's <c>AiDecisions</c> stream (<see cref="DeriveRaceStream"/>); it is not advanced.</param>
     /// <param name="options">Search limits; the defaults when null.</param>
-    public RuleBasedStrategist(int skill, StrategyCalculators calculators, RngStream aiDecisionsRaceStream, StrategistOptions? options = null)
+    /// <param name="tracing">Where to record a <see cref="DecisionTrace"/> per decision; none when null. Passive: it changes no decision and uses no RNG.</param>
+    public RuleBasedStrategist(int skill, StrategyCalculators calculators, RngStream aiDecisionsRaceStream, StrategistOptions? options = null, StrategistTracing? tracing = null)
     {
         ArgumentNullException.ThrowIfNull(calculators);
         ArgumentNullException.ThrowIfNull(calculators.TyreLossSeconds);
@@ -84,6 +87,7 @@ public sealed class RuleBasedStrategist : IRaceStrategist
         _skill = skill;
         _calculators = calculators;
         _stream = aiDecisionsRaceStream;
+        _tracing = tracing;
     }
 
     /// <summary>The strategist's skill, 0 to 100.</summary>
@@ -105,7 +109,7 @@ public sealed class RuleBasedStrategist : IRaceStrategist
         var noiseSd = PitConstants.PlanNoiseSdSecondsAtSkill0 * unskilled;
         var belief = Math.Exp(PitConstants.WearBeliefSdAtSkill0 * unskilled * Gaussian.FromUniforms(rng.NextDouble(), rng.NextDouble()));
 
-        var options = new List<(string Id, double Utility, ImmutableArray<StrategyFactor> Factors, Candidate Best)>();
+        var options = new List<(string Id, double Utility, IReadOnlyList<TraceFactor> Factors, Candidate Best)>();
         var index = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var candidate in planner.Candidates())
         {
@@ -144,39 +148,48 @@ public sealed class RuleBasedStrategist : IRaceStrategist
             : string.Create(
                 CultureInfo.InvariantCulture,
                 $"best {chosen.Id} ({chosen.Utility:F2} s), runner-up {runnerUp.Id} ({runnerUp.Utility:F2} s), skill {_skill}");
-        var record = new StrategyDecisionRecord(
-            carId,
-            snapshot.Lap,
-            _skill,
-            "lap_check",
-            [.. options.Select(o => new StrategyOption(o.Id, o.Utility, o.Factors))],
-            chosen.Id,
-            reason);
+        if (_tracing is { Sink.IsEnabled: true } tracing)
+        {
+            // Built only from values already computed above; no RNG, no state (INV-006).
+            tracing.Sink.Record(new DecisionTrace(
+                tracing.Weekend,
+                tracing.DeciderId,
+                _skill,
+                string.Create(CultureInfo.InvariantCulture, $"lap_check:{carId}:lap:{snapshot.Lap}"),
+                [.. options.Select(o => new TraceOption(o.Id, o.Utility, o.Factors, PlayerVisible: true))],
+                chosen.Id,
+                reason,
+                PlayerReason: null,
+                IsKeyDecision: false,
+                TruthContext: new Dictionary<string, string>()));
+        }
 
         var best = chosen.Best;
         if (best.PitNow)
         {
-            return new StrategyDecision(StrategyAction.PitNow, snapshot.Rules.TyreChangeAllowed ? best.FirstCompound : null, best.FirstStopRefuelKg, best.SwapFirst, best.Pace, record);
+            return new StrategyDecision(StrategyAction.PitNow, snapshot.Rules.TyreChangeAllowed ? best.FirstCompound : null, best.FirstStopRefuelKg, best.SwapFirst, best.Pace);
         }
 
         return best.Pace == snapshot.Car.PaceMode
-            ? new StrategyDecision(StrategyAction.StayOut, null, 0, false, snapshot.Car.PaceMode, record)
-            : new StrategyDecision(StrategyAction.ChangePace, null, 0, false, best.Pace, record);
+            ? new StrategyDecision(StrategyAction.StayOut, null, 0, false, snapshot.Car.PaceMode)
+            : new StrategyDecision(StrategyAction.ChangePace, null, 0, false, best.Pace);
     }
 
-    private static ImmutableArray<StrategyFactor> Factors(PlanCost cost, double noise)
+    private static IReadOnlyList<TraceFactor> Factors(PlanCost cost, double noise)
     {
-        var factors = ImmutableArray.CreateBuilder<StrategyFactor>(9);
-        factors.Add(new StrategyFactor("tyre_loss", -cost.Tyre));
-        factors.Add(new StrategyFactor("fuel_mass", -cost.Mass));
-        factors.Add(new StrategyFactor("pace_mode", -cost.Pace));
-        factors.Add(new StrategyFactor("stops", -cost.Stops));
-        factors.Add(new StrategyFactor("position_risk", -cost.Position));
-        factors.Add(new StrategyFactor("driver_fatigue", -cost.Fatigue));
-        factors.Add(new StrategyFactor("rain_mismatch", -cost.Rain));
-        factors.Add(new StrategyFactor("infeasible", -cost.Infeasible));
-        factors.Add(new StrategyFactor("perception_noise", -noise));
-        return factors.MoveToImmutable();
+        // The strategist's own misjudgement is not something the player's pit wall can see.
+        return
+        [
+            new TraceFactor("tyre_loss", -cost.Tyre, PlayerVisible: true),
+            new TraceFactor("fuel_mass", -cost.Mass, PlayerVisible: true),
+            new TraceFactor("pace_mode", -cost.Pace, PlayerVisible: true),
+            new TraceFactor("stops", -cost.Stops, PlayerVisible: true),
+            new TraceFactor("position_risk", -cost.Position, PlayerVisible: true),
+            new TraceFactor("driver_fatigue", -cost.Fatigue, PlayerVisible: true),
+            new TraceFactor("rain_mismatch", -cost.Rain, PlayerVisible: true),
+            new TraceFactor("infeasible", -cost.Infeasible, PlayerVisible: true),
+            new TraceFactor("perception_noise", -noise, PlayerVisible: false),
+        ];
     }
 
     private static void Check(KnowledgeSnapshot s)

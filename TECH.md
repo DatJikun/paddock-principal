@@ -155,6 +155,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Dwa poziomy wglądu:**
   - Spy deweloperski (SimRunner, flaga `--spy`) widzi wszystko;
   - „Dlaczego” dla gracza jest filtrowane przez `AccessContext`: raporty inżynierów, słowa agentów, komunikaty radiowe.
+- **Warstwy:** typy trace'a (`DecisionTrace`, `TraceOption`, `TraceFactor`, `WeekendKey`) i `ITraceSink` z `NullSink`/`MemorySink` leżą w `Paddock.Domain.Spy`, żeby AI w `Paddock.Simulation` mogło zapisywać trace bez referencji do Application. W Application zostają filtrowanie przez `AccessContext` (`WhyView`) oraz `FileSink`/JSON. `DecisionTrace.Who` to stabilne ID aktora jako `string`.
 - **Retencja:** bufor w RAM na bieżący weekend. W save zostają tylko kluczowe decyzje (transfery, tytuły, duże awarie), a resztę można zrzucić do pliku na żądanie.
 
 ---

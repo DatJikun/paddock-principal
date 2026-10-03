@@ -1,6 +1,4 @@
-using Paddock.Application.Access;
-
-namespace Paddock.Application.Spy;
+namespace Paddock.Domain.Spy;
 
 /// <summary>Race weekend a trace belongs to; the RAM buffer keeps one weekend at a time (TECH §7).</summary>
 public readonly record struct WeekendKey(int Season, int Round);
@@ -15,7 +13,7 @@ public sealed record TraceOption(string Id, double Utility, IReadOnlyList<TraceF
 /// Why an actor decided what it decided (TECH §7). Immutable; building one must never touch RNG or
 /// simulation state (INV-005, INV-006).
 /// </summary>
-/// <param name="Who">The deciding manager.</param>
+/// <param name="Who">Stable id of the deciding actor (a manager id's value); a string so Domain and Simulation need no Application type.</param>
 /// <param name="Level">Competence tier of the decider (estimate, to be calibrated).</param>
 /// <param name="Trigger">What prompted the decision.</param>
 /// <param name="Options">Everything considered, with utilities and factor breakdowns.</param>
@@ -26,7 +24,7 @@ public sealed record TraceOption(string Id, double Utility, IReadOnlyList<TraceF
 /// <param name="TruthContext">Simulation truth behind the decision. Developer only, never shown to managers.</param>
 public sealed record DecisionTrace(
     WeekendKey Weekend,
-    ManagerId Who,
+    string Who,
     int Level,
     string Trigger,
     IReadOnlyList<TraceOption> Options,

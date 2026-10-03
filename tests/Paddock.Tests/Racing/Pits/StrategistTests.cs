@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using Paddock.Domain.Random;
+using Paddock.Domain.Spy;
 using Paddock.Simulation.Racing.Pits;
 using Paddock.Simulation.Racing.Tyres;
 using Paddock.Simulation.Racing.Weather;
@@ -12,6 +13,32 @@ public class StrategistTests
 {
     private static RuleBasedStrategist Strategist(int season, int skill = 100, ulong seed = PitTestKit.Seed, StrategistOptions? options = null) =>
         new(skill, PitTestKit.T30Calculators(season), RuleBasedStrategist.DeriveRaceStream(seed, season, 1), options);
+
+    private sealed record Traced(StrategyDecision Decision, DecisionTrace Trace);
+
+    /// <summary>A strategist wired to a <see cref="MemorySink"/>, to read back the trace of a decision.</summary>
+    private sealed class Rig
+    {
+        public Rig(int season, int skill = 100, ulong seed = PitTestKit.Seed, StrategistOptions? options = null)
+        {
+            Strategist = new RuleBasedStrategist(
+                skill,
+                PitTestKit.T30Calculators(season),
+                RuleBasedStrategist.DeriveRaceStream(seed, season, 1),
+                options,
+                new StrategistTracing(Sink, new WeekendKey(season, 1), "strategist-1"));
+        }
+
+        public MemorySink Sink { get; } = new();
+
+        public RuleBasedStrategist Strategist { get; }
+
+        public Traced Decide(KnowledgeSnapshot snapshot)
+        {
+            var decision = Strategist.Decide(snapshot);
+            return new Traced(decision, Sink.Traces[^1]);
+        }
+    }
 
     // ---- INV-003: the snapshot holds knowledge only ----
 
@@ -128,11 +155,10 @@ public class StrategistTests
     [Fact]
     public void Decision_ListsOptionsWithUtilities_AndChoosesTheBest()
     {
-        var decision = Strategist(2012, skill: 70).Decide(MidRaceSnapshot());
-        var record = decision.Record;
+        var record = new Rig(2012, skill: 70).Decide(MidRaceSnapshot()).Trace;
 
-        Assert.True(record.Options.Length >= 4);
-        Assert.Equal(record.Options.Length, record.Options.Select(o => o.Id).Distinct().Count());
+        Assert.True(record.Options.Count >= 4);
+        Assert.Equal(record.Options.Count, record.Options.Select(o => o.Id).Distinct().Count());
         Assert.Contains(record.Options, o => o.Id.StartsWith("stay_out/", StringComparison.Ordinal));
         Assert.Contains(record.Options, o => o.Id.StartsWith("pit_now/", StringComparison.Ordinal));
         Assert.All(record.Options, o => Assert.True(double.IsFinite(o.Utility)));
@@ -140,15 +166,18 @@ public class StrategistTests
         var best = record.Options.MaxBy(o => o.Utility)!;
         Assert.Equal(best.Id, record.ChosenOptionId);
         Assert.False(string.IsNullOrWhiteSpace(record.Reason));
-        Assert.Equal("car-1", record.CarId);
-        Assert.Equal(12, record.Lap);
-        Assert.Equal(70, record.Skill);
+        Assert.Equal("lap_check:car-1:lap:12", record.Trigger);
+        Assert.Equal(70, record.Level);
+        Assert.Equal("strategist-1", record.Who);
+        Assert.Equal(new WeekendKey(2012, 1), record.Weekend);
+        Assert.Empty(record.TruthContext);
+        Assert.False(record.IsKeyDecision);
     }
 
     [Fact]
     public void OptionFactors_SumToTheUtility_AndNameTheirTerms()
     {
-        var record = Strategist(2012, skill: 40).Decide(MidRaceSnapshot()).Record;
+        var record = new Rig(2012, skill: 40).Decide(MidRaceSnapshot()).Trace;
 
         foreach (var option in record.Options)
         {
@@ -170,8 +199,8 @@ public class StrategistTests
     public void ASkilledStrategist_HasNoPerceptionNoise_ARawOneDoes()
     {
         var snapshot = MidRaceSnapshot();
-        var exact = Strategist(2012, skill: 100).Decide(snapshot).Record;
-        var rough = Strategist(2012, skill: 0).Decide(snapshot).Record;
+        var exact = new Rig(2012, skill: 100).Decide(snapshot).Trace;
+        var rough = new Rig(2012, skill: 0).Decide(snapshot).Trace;
 
         Assert.All(exact.Options, o => Assert.Equal(0, o.Factors.Single(f => f.Name == "perception_noise").Contribution));
         Assert.Contains(rough.Options, o => o.Factors.Single(f => f.Name == "perception_noise").Contribution != 0);
@@ -193,25 +222,103 @@ public class StrategistTests
     {
         var stream = RuleBasedStrategist.DeriveRaceStream(PitTestKit.Seed, 2012, 1);
         var before = stream.State;
-        var strategist = new RuleBasedStrategist(30, PitTestKit.T30Calculators(2012), stream);
+        var sink = new MemorySink();
+        var strategist = new RuleBasedStrategist(30, PitTestKit.T30Calculators(2012), stream, null, new StrategistTracing(sink, new WeekendKey(2012, 1), "strategist-1"));
         var snapshot = MidRaceSnapshot();
 
-        var first = strategist.Decide(snapshot);
-        var second = strategist.Decide(snapshot);
-        var other = new RuleBasedStrategist(30, PitTestKit.T30Calculators(2012), RuleBasedStrategist.DeriveRaceStream(PitTestKit.Seed, 2012, 1)).Decide(snapshot);
+        var first = TracedDecision(strategist, sink, snapshot);
+        var second = TracedDecision(strategist, sink, snapshot);
+        var other = new Rig(2012, skill: 30).Decide(snapshot);
 
-        Assert.Equal(first.Summary, second.Summary);
+        Assert.Equal(first.Decision.Summary, second.Decision.Summary);
         Assert.Equal(Describe(first), Describe(second));
         Assert.Equal(Describe(first), Describe(other));
         Assert.Equal(before, stream.State);
+    }
+
+    private static Traced TracedDecision(RuleBasedStrategist strategist, MemorySink sink, KnowledgeSnapshot snapshot) =>
+        new(strategist.Decide(snapshot), sink.Traces[^1]);
+
+    [Fact]
+    public void Tracing_IsPassive_DecisionsAndStreamAreTheSameWithAnySink()
+    {
+        var snapshots = new[]
+        {
+            MidRaceSnapshot(),
+            MidRaceSnapshot(lap: 30, age: 30),
+            PitTestKit.Snapshot(2012, 40, 40, PitTestKit.Car("C4", age: 39, fuel: 5, used: ["C3", "C4"])),
+        };
+
+        foreach (var skill in new[] { 0, 35, 100 })
+        {
+            var calc = PitTestKit.T30Calculators(2012);
+            var untracedStream = RuleBasedStrategist.DeriveRaceStream(PitTestKit.Seed, 2012, 1);
+            var nullStream = RuleBasedStrategist.DeriveRaceStream(PitTestKit.Seed, 2012, 1);
+            var memoryStream = RuleBasedStrategist.DeriveRaceStream(PitTestKit.Seed, 2012, 1);
+            var untouched = untracedStream.State;
+            var memory = new MemorySink();
+            var untraced = new RuleBasedStrategist(skill, calc, untracedStream);
+            var withNull = new RuleBasedStrategist(skill, calc, nullStream, null, new StrategistTracing(NullSink.Instance, new WeekendKey(2012, 1), "s"));
+            var withMemory = new RuleBasedStrategist(skill, calc, memoryStream, null, new StrategistTracing(memory, new WeekendKey(2012, 1), "s"));
+
+            foreach (var snapshot in snapshots)
+            {
+                var plain = untraced.Decide(snapshot);
+                Assert.Equal(plain, withNull.Decide(snapshot));
+                Assert.Equal(plain, withMemory.Decide(snapshot));
+            }
+
+            Assert.Equal(snapshots.Length, memory.Traces.Count);
+            Assert.Equal(untouched, untracedStream.State);
+            Assert.Equal(untouched, nullStream.State);
+            Assert.Equal(untouched, memoryStream.State);
+        }
+    }
+
+    [Fact]
+    public void Tracing_IsSkippedForADisabledSink_AndRecordsOneTracePerDecisionOtherwise()
+    {
+        var disabled = new CountingSink(enabled: false);
+        var enabled = new CountingSink(enabled: true);
+        var calc = PitTestKit.T30Calculators(2012);
+        var snapshot = MidRaceSnapshot();
+
+        new RuleBasedStrategist(50, calc, RuleBasedStrategist.DeriveRaceStream(1, 2012, 1), null, new StrategistTracing(disabled, new WeekendKey(2012, 1), "s")).Decide(snapshot);
+        new RuleBasedStrategist(50, calc, RuleBasedStrategist.DeriveRaceStream(1, 2012, 1), null, new StrategistTracing(enabled, new WeekendKey(2012, 1), "s")).Decide(snapshot);
+
+        Assert.Equal(0, disabled.Count);
+        Assert.Equal(1, enabled.Count);
+    }
+
+    [Fact]
+    public void Trace_HidesPerceptionNoiseFromThePlayer_AndGivesNoPlayerText()
+    {
+        var trace = new Rig(2012, skill: 20).Decide(MidRaceSnapshot()).Trace;
+
+        Assert.Null(trace.PlayerReason);
+        Assert.All(trace.Options, o =>
+        {
+            Assert.True(o.PlayerVisible);
+            Assert.False(o.Factors.Single(f => f.Name == "perception_noise").PlayerVisible);
+            Assert.All(o.Factors.Where(f => f.Name != "perception_noise"), f => Assert.True(f.PlayerVisible));
+        });
+    }
+
+    private sealed class CountingSink(bool enabled) : ITraceSink
+    {
+        public int Count { get; private set; }
+
+        public bool IsEnabled => enabled;
+
+        public void Record(DecisionTrace trace) => Count++;
     }
 
     [Fact]
     public void DifferentSeeds_GiveDifferentNoise_ForAWeakStrategist()
     {
         var snapshot = MidRaceSnapshot();
-        var a = Strategist(2012, skill: 0, seed: 1).Decide(snapshot);
-        var b = Strategist(2012, skill: 0, seed: 2).Decide(snapshot);
+        var a = new Rig(2012, skill: 0, seed: 1).Decide(snapshot);
+        var b = new Rig(2012, skill: 0, seed: 2).Decide(snapshot);
 
         Assert.NotEqual(Describe(a), Describe(b));
     }
@@ -219,18 +326,18 @@ public class StrategistTests
     [Fact]
     public void TwoCars_HaveIndependentNoise_AndNeitherDependsOnTheOther()
     {
-        var strategist = Strategist(2012, skill: 10);
+        var rig = new Rig(2012, skill: 10);
         var carA = MidRaceSnapshot();
         var carB = carA with { Car = carA.Car with { CarId = "car-2" } };
 
-        var alone = Describe(strategist.Decide(carA));
-        _ = strategist.Decide(carB);
-        Assert.Equal(alone, Describe(strategist.Decide(carA)));
-        Assert.NotEqual(Describe(strategist.Decide(carA)), Describe(strategist.Decide(carB)));
+        var alone = Describe(rig.Decide(carA));
+        _ = rig.Decide(carB);
+        Assert.Equal(alone, Describe(rig.Decide(carA)));
+        Assert.NotEqual(Describe(rig.Decide(carA)), Describe(rig.Decide(carB)));
     }
 
-    private static string Describe(StrategyDecision decision) =>
-        decision.Summary + "|" + string.Join(";", decision.Record.Options.Select(o => o.Id + "=" + o.Utility.ToString("R", System.Globalization.CultureInfo.InvariantCulture)));
+    private static string Describe(Traced traced) =>
+        traced.Decision.Summary + "|" + string.Join(";", traced.Trace.Options.Select(o => o.Id + "=" + o.Utility.ToString("R", System.Globalization.CultureInfo.InvariantCulture)));
 
     // ---- Rules ----
 
@@ -282,19 +389,19 @@ public class StrategistTests
     {
         for (var lap = 1; lap < 40; lap += 3)
         {
-            var decision = Strategist(2005, skill: 20).Decide(PitTestKit.Snapshot(2005, lap, 40, PitTestKit.Car("grooved.medium", age: lap - 1, fuel: 70, burn: 1.5)));
-            Assert.Null(decision.CompoundId);
-            Assert.DoesNotContain(decision.Record.Options, o => o.Id.StartsWith("pit_now/", StringComparison.Ordinal) && !o.Id.StartsWith("pit_now/keep/", StringComparison.Ordinal));
+            var traced = new Rig(2005, skill: 20).Decide(PitTestKit.Snapshot(2005, lap, 40, PitTestKit.Car("grooved.medium", age: lap - 1, fuel: 70, burn: 1.5)));
+            Assert.Null(traced.Decision.CompoundId);
+            Assert.DoesNotContain(traced.Trace.Options, o => o.Id.StartsWith("pit_now/", StringComparison.Ordinal) && !o.Id.StartsWith("pit_now/keep/", StringComparison.Ordinal));
         }
     }
 
     [Fact]
     public void OnTheLastLap_ThereIsNoStop()
     {
-        var decision = Strategist(2012, skill: 0).Decide(PitTestKit.Snapshot(2012, 40, 40, PitTestKit.Car("C4", age: 39, fuel: 5, used: ["C3", "C4"])));
+        var traced = new Rig(2012, skill: 0).Decide(PitTestKit.Snapshot(2012, 40, 40, PitTestKit.Car("C4", age: 39, fuel: 5, used: ["C3", "C4"])));
 
-        Assert.NotEqual(StrategyAction.PitNow, decision.Action);
-        Assert.DoesNotContain(decision.Record.Options, o => o.Id.StartsWith("pit_now/", StringComparison.Ordinal));
+        Assert.NotEqual(StrategyAction.PitNow, traced.Decision.Action);
+        Assert.DoesNotContain(traced.Trace.Options, o => o.Id.StartsWith("pit_now/", StringComparison.Ordinal));
     }
 
     // ---- Driver swap ----
@@ -303,25 +410,26 @@ public class StrategistTests
     public void ATiredDriver_InASharedCar_IsSwapped()
     {
         var calc = PitTestKit.T30Calculators(1955);
-        var strategist = new RuleBasedStrategist(100, calc, RuleBasedStrategist.DeriveRaceStream(1, 1955, 1));
+        var sink = new MemorySink();
+        var strategist = new RuleBasedStrategist(100, calc, RuleBasedStrategist.DeriveRaceStream(1, 1955, 1), null, new StrategistTracing(sink, new WeekendKey(1955, 1), "s"));
         var snapshot = PitTestKit.Snapshot(1955, 61, 100, PitTestKit.Car("treaded.hard", age: 60, fuel: 90, burn: 1.2, canSwap: true, driverStint: 100));
 
         var decision = strategist.Decide(snapshot);
 
         Assert.Equal(StrategyAction.PitNow, decision.Action);
         Assert.True(decision.SwapDriver);
-        Assert.Contains(decision.Record.Options, o => o.Id.EndsWith("/swap", StringComparison.Ordinal));
+        Assert.Contains(sink.Traces[^1].Options, o => o.Id.EndsWith("/swap", StringComparison.Ordinal));
     }
 
     [Fact]
     public void SwapOptions_AreOnlyOfferedWhereTheRulesAndTheCarAllowThem()
     {
-        var modern = Strategist(2012, skill: 100).Decide(PitTestKit.Snapshot(2012, 10, 40, PitTestKit.Car("C4", canSwap: true, driverStint: 50)));
-        Assert.DoesNotContain(modern.Record.Options, o => o.Id.EndsWith("/swap", StringComparison.Ordinal));
+        var modern = new Rig(2012, skill: 100).Decide(PitTestKit.Snapshot(2012, 10, 40, PitTestKit.Car("C4", canSwap: true, driverStint: 50)));
+        Assert.DoesNotContain(modern.Trace.Options, o => o.Id.EndsWith("/swap", StringComparison.Ordinal));
 
-        var soloOld = new RuleBasedStrategist(100, PitTestKit.T30Calculators(1955), RuleBasedStrategist.DeriveRaceStream(1, 1955, 1))
+        var soloOld = new Rig(1955, skill: 100, seed: 1)
             .Decide(PitTestKit.Snapshot(1955, 10, 100, PitTestKit.Car("treaded.hard", canSwap: false, driverStint: 50)));
-        Assert.DoesNotContain(soloOld.Record.Options, o => o.Id.EndsWith("/swap", StringComparison.Ordinal));
+        Assert.DoesNotContain(soloOld.Trace.Options, o => o.Id.EndsWith("/swap", StringComparison.Ordinal));
     }
 
     // ---- Pace mode ----
@@ -368,8 +476,8 @@ public class StrategistTests
         var dry = PitTestKit.Snapshot(2012, 6, 40, PitTestKit.Car("C4", age: 5, fuel: 70), compounds: PitTestKit.Compounds(2012, withWet: true), forecast: Forecast(0.0));
         var none = dry with { Forecast = null };
 
-        Assert.DoesNotContain(Strategist(2012).Decide(dry).Record.Options, o => o.Id.Contains("/wet/", StringComparison.Ordinal));
-        Assert.DoesNotContain(Strategist(2012).Decide(none).Record.Options, o => o.Id.Contains("/wet/", StringComparison.Ordinal));
+        Assert.DoesNotContain(new Rig(2012).Decide(dry).Trace.Options, o => o.Id.Contains("/wet/", StringComparison.Ordinal));
+        Assert.DoesNotContain(new Rig(2012).Decide(none).Trace.Options, o => o.Id.Contains("/wet/", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -378,7 +486,7 @@ public class StrategistTests
         var free = MidRaceSnapshot();
         var pressed = free with { Gaps = new VisibleGaps(5, 20, 3) };
 
-        double PositionRisk(KnowledgeSnapshot s) => Strategist(2012).Decide(s).Record.Options
+        double PositionRisk(KnowledgeSnapshot s) => new Rig(2012).Decide(s).Trace.Options
             .Where(o => o.Id.StartsWith("pit_now/", StringComparison.Ordinal))
             .Max(o => o.Factors.Single(f => f.Name == "position_risk").Contribution);
 

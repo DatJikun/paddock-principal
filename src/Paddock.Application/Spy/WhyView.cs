@@ -1,4 +1,5 @@
 using Paddock.Application.Access;
+using Paddock.Domain.Spy;
 
 namespace Paddock.Application.Spy;
 
@@ -32,7 +33,7 @@ public sealed record WhyView(
         if (context.Kind == AccessKind.Developer)
         {
             return new WhyView(
-                trace.Who,
+                new ManagerId(trace.Who),
                 trace.ChosenOptionId,
                 trace.Reason,
                 trace.Options
@@ -41,7 +42,7 @@ public sealed record WhyView(
                 new Dictionary<string, string>(trace.TruthContext));
         }
 
-        if (context.Manager != trace.Who)
+        if (context.Manager is not { } manager || !string.Equals(manager.Value, trace.Who, StringComparison.Ordinal))
         {
             return null;
         }
@@ -49,7 +50,7 @@ public sealed record WhyView(
         var visible = trace.Options.Where(o => o.PlayerVisible).ToArray();
         var chosenVisible = visible.Any(o => string.Equals(o.Id, trace.ChosenOptionId, StringComparison.Ordinal));
         return new WhyView(
-            trace.Who,
+            new ManagerId(trace.Who),
             chosenVisible ? trace.ChosenOptionId : null,
             trace.PlayerReason,
             visible

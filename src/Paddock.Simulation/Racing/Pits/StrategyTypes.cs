@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Paddock.Domain.Spy;
 using Paddock.Simulation.Racing.Weather;
 
 namespace Paddock.Simulation.Racing.Pits;
@@ -95,32 +96,14 @@ public enum StrategyAction
     ChangePace,
 }
 
-/// <summary>One term of an option's utility, in seconds (negative is a cost).</summary>
-public sealed record StrategyFactor(string Name, double Contribution);
-
-/// <summary>One option the strategist considered. <see cref="Utility"/> is minus the perceived time lost over the rest of the race, seconds (higher is better).</summary>
-public sealed record StrategyOption(string Id, double Utility, ImmutableArray<StrategyFactor> Factors);
-
 /// <summary>
-/// Why a strategist decided what it decided: every option with its utility and factors (TECH §7, so Spy can explain it).
-/// Integration point: this record is shaped like the <c>TraceOption</c> / <c>TraceFactor</c> / <c>DecisionTrace</c> of
-/// Application.Spy (which this project cannot reference); the race loop's adapter maps one to the other.
+/// Where a strategist records its <see cref="Paddock.Domain.Spy.DecisionTrace"/>s (TECH §7). Tracing is passive (INV-006): the
+/// strategist builds a trace only when the sink is enabled, from values it has already computed, and never touches RNG for it.
 /// </summary>
-/// <param name="CarId">The car the decision was for.</param>
-/// <param name="Lap">The lap it was made on.</param>
-/// <param name="Skill">The strategist's skill, 0 to 100.</param>
-/// <param name="Trigger">What prompted the decision (a regular lap check).</param>
-/// <param name="Options">Everything considered, in a fixed order.</param>
-/// <param name="ChosenOptionId">Id of the option with the highest utility.</param>
-/// <param name="Reason">Developer-facing text; not for the player.</param>
-public sealed record StrategyDecisionRecord(
-    string CarId,
-    int Lap,
-    int Skill,
-    string Trigger,
-    ImmutableArray<StrategyOption> Options,
-    string ChosenOptionId,
-    string Reason);
+/// <param name="Sink">Receives one trace per decision.</param>
+/// <param name="Weekend">The race weekend the decisions belong to.</param>
+/// <param name="DeciderId">Stable id of the deciding actor (the team's strategist or its principal).</param>
+public sealed record StrategistTracing(ITraceSink Sink, WeekendKey Weekend, string DeciderId);
 
 /// <summary>
 /// The decision of a strategist for one lap. Swapping the driver is a <see cref="StrategyAction.PitNow"/> with
@@ -131,14 +114,12 @@ public sealed record StrategyDecisionRecord(
 /// <param name="RefuelKg">Fuel to put in when pitting, kg; 0 for none (always 0 where refuelling is banned).</param>
 /// <param name="SwapDriver">Change the driver in this stop.</param>
 /// <param name="Pace">The pace mode from this lap on (a stop is made at the end of the lap).</param>
-/// <param name="Record">The options considered.</param>
 public sealed record StrategyDecision(
     StrategyAction Action,
     string? CompoundId,
     double RefuelKg,
     bool SwapDriver,
-    PaceMode Pace,
-    StrategyDecisionRecord Record)
+    PaceMode Pace)
 {
     /// <summary>A canonical text of the decision, for logs and for comparing decisions.</summary>
     public string Summary => Action switch

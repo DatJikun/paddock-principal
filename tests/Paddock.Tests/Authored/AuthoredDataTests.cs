@@ -12,8 +12,8 @@ public class AuthoredDataTests
         var errors = AuthoredDataValidator.Validate(data);
 
         Assert.True(errors.Count == 0, string.Join('\n', errors.Select(error => error.Code + ": " + error.Message)));
-        Assert.Equal(41, data.Catalog.Count);
-        Assert.Equal(232, data.Timeline.Count);
+        Assert.Equal(50, data.Catalog.Count);
+        Assert.Equal(266, data.Timeline.Count);
         Assert.Equal(23, data.OtherSeriesIdeas.Count);
         Assert.Equal(78, data.Circuits.Circuits.Count);
         Assert.Equal(156, data.Layouts.Count);

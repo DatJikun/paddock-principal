@@ -64,7 +64,7 @@ public class WorldStateHashTests
         Assert.NotEqual(baseline, world.WithDate(Opening.AddDays(1)).StateHash());
     }
 
-    private static WorldState Build(bool reversed)
+    internal static WorldState Build(bool reversed)
     {
         var world = WorldState.At(Opening);
         var specs = new[] { ("fangio", "Juan", "Fangio", 10), ("farina", "Nino", "Farina", 8) };

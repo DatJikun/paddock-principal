@@ -23,11 +23,33 @@ public sealed partial class WorldRepository
     private static readonly string[] WorldCounters = ["person", "organization", "contract"];
 
     private readonly SaveFile _file;
+    private readonly IReadOnlyList<ISectionStore> _sectionStores;
 
     public WorldRepository(SaveFile file)
+        : this(file, SectionStores.Production)
+    {
+    }
+
+    /// <summary>
+    /// A repository that saves the world sections through <paramref name="sectionStores"/>. A world holding a section that
+    /// has no store here is refused at save time and a save that holds one is refused at load time (see <see cref="ISectionStore"/>).
+    /// </summary>
+    public WorldRepository(SaveFile file, IReadOnlyList<ISectionStore> sectionStores)
     {
         ArgumentNullException.ThrowIfNull(file);
+        ArgumentNullException.ThrowIfNull(sectionStores);
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var store in sectionStores)
+        {
+            ArgumentNullException.ThrowIfNull(store);
+            if (!names.Add(store.SectionName))
+            {
+                throw new ArgumentException($"Two stores handle section '{store.SectionName}'.", nameof(sectionStores));
+            }
+        }
+
         _file = file;
+        _sectionStores = sectionStores;
     }
 
     /// <summary>True once a world has been saved. A save migrated from V001 or V002 has none.</summary>
@@ -49,9 +71,11 @@ public sealed partial class WorldRepository
     {
         ArgumentNullException.ThrowIfNull(world);
         RequireStable(world, stableDate);
+        RequireStorableSections(world);
         InTransaction(transaction =>
         {
             WriteWorld(transaction, world);
+            WriteSections(transaction, world);
             _file.RecordSavePoint(transaction, ToDateOnly(stableDate));
         });
     }
@@ -62,9 +86,11 @@ public sealed partial class WorldRepository
         ArgumentNullException.ThrowIfNull(snapshot);
         RequireStable(snapshot.World, stableDate);
         RequireConsistent(snapshot);
+        RequireStorableSections(snapshot.World);
         InTransaction(transaction =>
         {
             WriteWorld(transaction, snapshot.World);
+            WriteSections(transaction, snapshot.World);
             WriteSchedule(transaction, snapshot);
             _file.RecordSavePoint(transaction, ToDateOnly(stableDate));
         });
@@ -75,6 +101,47 @@ public sealed partial class WorldRepository
         if (world.CurrentDate != stableDate)
         {
             throw new UnstableSaveException(stableDate, world.CurrentDate);
+        }
+    }
+
+    private void RequireStorableSections(WorldState world)
+    {
+        foreach (var section in world.Sections)
+        {
+            var store = _sectionStores.FirstOrDefault(candidate => candidate.SectionName == section.Name)
+                ?? throw new InvalidOperationException(
+                    $"The world holds section '{section.Name}' and this repository has no store for it, so it cannot be saved.");
+            if (section.SchemaVersion != store.SchemaVersion)
+            {
+                throw new InvalidOperationException(
+                    $"Section '{section.Name}' has schema version {section.SchemaVersion} but its store writes {store.SchemaVersion}.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Replaces the stored sections: every store is asked to replace its rows (an absent section clears them),
+    /// then the registry lists the sections the world holds.
+    /// </summary>
+    private void WriteSections(SqliteTransaction transaction, WorldState world)
+    {
+        var connection = transaction.Connection!;
+        Execute(connection, transaction, "DELETE FROM world_sections");
+        foreach (var store in _sectionStores)
+        {
+            var section = world.Section(store.SectionName);
+            store.Replace(connection, transaction, section);
+            if (section is null)
+            {
+                continue;
+            }
+
+            using var insert = connection.CreateCommand();
+            insert.Transaction = transaction;
+            insert.CommandText = "INSERT INTO world_sections (name, schema_version) VALUES ($name, $version)";
+            insert.Parameters.AddWithValue("$name", section.Name);
+            insert.Parameters.AddWithValue("$version", (long)section.SchemaVersion);
+            insert.ExecuteNonQuery();
         }
     }
 

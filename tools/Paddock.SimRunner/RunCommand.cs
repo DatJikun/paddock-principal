@@ -124,7 +124,12 @@ public static class RunCommand
             var provider = LoadProvider(root, schedulePath, driversPath);
             var created = WorldInitializer.Create(config, data, provider, seed.Value);
             var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed.Value);
-            var session = new CareerSession(created.World, seed.Value, created.TalentPool, arrivals);
+            var session = new CareerSession(
+                created.World,
+                seed.Value,
+                created.TalentPool,
+                arrivals,
+                new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
             var result = CareerHost.Run(session, to.Value);
             Print(result, strings, preset, config.PeopleSource.ToString(), from.Value, to.Value, seed.Value, stdout);
             if (savePath is not null)

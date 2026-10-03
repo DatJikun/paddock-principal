@@ -68,6 +68,23 @@ public class WorldMigrationTests : IDisposable
     }
 
     [Fact]
+    public void V005SaveMigratesToV006WithAnEmptyRetirementColumn()
+    {
+        var path = NewPath();
+        using (SaveFile.Create(path, WorldFixtures.Meta(), [.. SaveMigrations.Production.Take(5)]))
+        {
+        }
+
+        Assert.DoesNotContain("retired_on", PersonColumns(path));
+        using (var opened = SaveFile.Open(path))
+        {
+            Assert.Equal(SaveMigrations.CurrentVersion, opened.ReadMeta().SchemaVersion);
+        }
+
+        Assert.Contains("retired_on", PersonColumns(path));
+    }
+
+    [Fact]
     public void FreshSavesCarryTheWorldTablesAndTheirIndexes()
     {
         var path = NewPath();
@@ -151,6 +168,21 @@ public class WorldMigrationTests : IDisposable
         }.ToString());
         connection.Open();
         return connection;
+    }
+
+    private static List<string> PersonColumns(string path)
+    {
+        using var raw = Open(path, SqliteOpenMode.ReadOnly);
+        using var command = raw.CreateCommand();
+        command.CommandText = "SELECT name FROM pragma_table_info('persons')";
+        using var reader = command.ExecuteReader();
+        var names = new List<string>();
+        while (reader.Read())
+        {
+            names.Add(reader.GetString(0));
+        }
+
+        return names;
     }
 
     private static List<string> Tables(string path)

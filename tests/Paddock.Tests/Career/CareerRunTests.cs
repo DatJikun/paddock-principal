@@ -21,7 +21,7 @@ public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "23b52097744f25d090133286d1218730a6e1d50a5ff1d19d2e5ecf37bbddf58a";
+    private const string StoredWorldHash = "df5d2d4f1de60f1f0a8b6daec4a800ce208017fb48f01ca60ffa8e7093426897";
 
     private const string StoredRetired = "chief,leap,vet";
 
@@ -57,6 +57,26 @@ public class CareerRunTests
         Assert.DoesNotContain(session.TalentPool, id => id.Value == "vet");
         Assert.DoesNotContain(session.Retired, id => id.Value == "kid");
         Assert.Equal(new GameDate(1950, 1, 2), session.Date);
+    }
+
+    [Fact]
+    public void ARealPersonWhoRetiresStaysInTheWorldAndRetirementShowsInTheStateHash()
+    {
+        // TECH 6.2: real people always stay. Retirement is a fact of the world, so it is in the hash (and the save).
+        var opening = WorldAt(new GameDate(1950, 1, 1));
+        var session = new CareerSession(
+            opening,
+            Seed,
+            [PersonId.Real("vet")],
+            [],
+            new CareerSessionOptions { GeneratedIntakePerSeason = 0 });
+        session.LiveDay();
+
+        Assert.Contains(session.Retired, id => id.Value == "vet");
+        Assert.Contains(session.World.Persons, person => person.Id.Value == "vet");
+        Assert.NotEqual(
+            opening.WithDate(session.World.CurrentDate).StateHash(),
+            session.World.StateHash());
     }
 
     [Fact]
@@ -189,6 +209,113 @@ public class CareerRunTests
     }
 
     [Fact]
+    public void ARetireeKeepsTheirRecordAndTheirDateThroughASaveAndLoad()
+    {
+        var session = Session(Seed, intake: 0, arrivals: []);
+        CareerHost.Run(session, 1950);
+        var directory = Directory.CreateTempSubdirectory("paddock-retiree-");
+        try
+        {
+            var path = Path.Combine(directory.FullName, "career.paddock");
+            CareerSaveWriter.Write(
+                path,
+                session,
+                CareerConfig.FromPreset(CareerPreset.Chaos).WithStartYear(1950),
+                "alpha",
+                new string('a', 64),
+                "fixture 1950");
+            using var save = SaveFile.Open(path);
+            var loaded = new WorldRepository(save).LoadWorld();
+
+            Assert.Equal(session.World.StateHash(), loaded.StateHash());
+            Assert.Equal(new GameDate(1950, 1, 1), loaded.GetPerson(PersonId.Real("vet")).RetiredOn);
+            Assert.Null(loaded.GetPerson(PersonId.Real("kid")).RetiredOn);
+            Assert.Equal(
+                session.Retired.Select(id => id.Value),
+                loaded.Persons.Where(person => person.IsRetired).Select(person => person.Id.Value));
+        }
+        finally
+        {
+            Directory.Delete(directory.FullName, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ARealPersonWithAKnownLastSeasonRetiresAtItsEndNotByTheAgeCurve()
+    {
+        var session = WithLastSeasons(new Dictionary<string, int> { ["vet"] = 1952, ["kid"] = 1951 }, arrivals: []);
+        while (session.Date < new GameDate(1952, 12, 31))
+        {
+            session.LiveDay();
+            Assert.DoesNotContain(session.Retired, id => id.Value == "vet");
+        }
+
+        Assert.Equal(new GameDate(1951, 12, 31), session.World.GetPerson(PersonId.Real("kid")).RetiredOn);
+        session.LiveDay();
+        Assert.Equal(new GameDate(1952, 12, 31), session.World.GetPerson(PersonId.Real("vet")).RetiredOn);
+        Assert.DoesNotContain(session.TalentPool, id => id.Value == "vet");
+        Assert.Contains(session.Retired, id => id.Value == "chief");
+    }
+
+    [Fact]
+    public void ALastSeasonBeforeTheRunOpenedMeansLeavingAtTheEndOfTheFirstSeason()
+    {
+        var session = WithLastSeasons(new Dictionary<string, int> { ["kid"] = 1940 }, arrivals: []);
+        while (session.Date < new GameDate(1950, 12, 31))
+        {
+            session.LiveDay();
+        }
+
+        Assert.Null(session.World.GetPerson(PersonId.Real("kid")).RetiredOn);
+        session.LiveDay();
+        Assert.Equal(new GameDate(1950, 12, 31), session.World.GetPerson(PersonId.Real("kid")).RetiredOn);
+    }
+
+    [Fact]
+    public void ARealArrivalWithAKnownLastSeasonRetiresAtItsEnd()
+    {
+        var arrival = new ScheduledArrival(
+            new GameDate(1951, 1, 1),
+            Person("rookie", "Rookie", "Driver", new GameDate(1938, 4, 4), driver: true));
+        var session = WithLastSeasons(new Dictionary<string, int> { ["rookie"] = 1952 }, [arrival]);
+        while (session.Date < new GameDate(1953, 1, 1))
+        {
+            session.LiveDay();
+        }
+
+        Assert.Equal(new GameDate(1952, 12, 31), session.World.GetPerson(PersonId.Real("rookie")).RetiredOn);
+        Assert.DoesNotContain(session.TalentPool, id => id.Value == "rookie");
+    }
+
+    [Fact]
+    public void ARetireeLosesTheirContractAndItsExpiryIsNotRecorded()
+    {
+        var session = WithLastSeasons(new Dictionary<string, int> { ["kid"] = 1950 }, arrivals: []);
+        while (session.Date < new GameDate(1951, 1, 2))
+        {
+            session.LiveDay();
+        }
+
+        Assert.Equal(new GameDate(1950, 12, 31), session.World.GetPerson(PersonId.Real("kid")).RetiredOn);
+        Assert.Empty(session.World.Contracts);
+        Assert.Equal(0, session.ContractExpiries);
+    }
+
+    [Fact]
+    public void LastSeasonsComeFromTheSeatsAndSkipDriversWhoseLastSeatIsTheEndOfTheData()
+    {
+        var provider = new ListProvider(
+            Seated("early", 1962, 1960),
+            Seated("mid", 1965),
+            Seated("end", 1970, 1971),
+            Seated("pool"));
+
+        var last = LastSeasons.From(provider);
+
+        Assert.Equal(new Dictionary<string, int> { ["early"] = 1962, ["mid"] = 1965 }, last);
+    }
+
+    [Fact]
     public void ScheduleListsOnlyFutureRealDrivers()
     {
         var world = WorldState.At(new GameDate(1950, 1, 1));
@@ -211,6 +338,16 @@ public class CareerRunTests
             world,
             Seed));
     }
+
+    private static CareerSession WithLastSeasons(IReadOnlyDictionary<string, int> lastSeasons, IReadOnlyList<ScheduledArrival> arrivals) =>
+        new(WorldAt(new GameDate(1950, 1, 1)), Seed, [PersonId.Real("vet")], arrivals, new CareerSessionOptions
+        {
+            GeneratedIntakePerSeason = 0,
+            LastSeasons = lastSeasons,
+        });
+
+    private static RealDriverRecord Seated(string id, params int[] seasons) =>
+        new(id, "Given", "Family", new DateOnly(1930, 1, 1), 1930, "GBR", 1950, 1948, seasons.Select(season => new DriverSeat(season, "alpha", 1, "race")).ToArray());
 
     private static DecadeRun RunDecade(ulong seed)
     {

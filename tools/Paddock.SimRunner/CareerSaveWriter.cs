@@ -9,8 +9,9 @@ namespace Paddock.SimRunner;
 
 /// <summary>
 /// Writes the world, the day-clock queue, and the AI manager through T19.
-/// Emitted day events are not kept (the queue holds only the future). Retirement and the talent pool
-/// are not fields of <see cref="Paddock.Domain.World.WorldState"/>, so a loaded save does not restore them.
+/// Emitted day events are not kept (the queue holds only the future). Retirement is part of the world
+/// (<c>persons.retired_on</c>), so a loaded save has it. The talent pool is not a field of
+/// <see cref="Paddock.Domain.World.WorldState"/>, so a loaded save does not restore it.
 /// RNG stream states are not in the V003 snapshot either.
 /// </summary>
 public static class CareerSaveWriter

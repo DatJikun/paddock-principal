@@ -237,6 +237,26 @@ public class VotedRegulationsTests
     }
 
     [Fact]
+    public void ProposalsNeverUseTheUnknownSentinelAsATargetValue()
+    {
+        var specs = Specs;
+        var ruleSet = Data.Value.RuleSetFor(1990);
+        Assert.Contains(specs, s => s.Kind == RuleDimensionKind.Choice && s.Values.Contains("unknown"));
+        for (ulong seed = 0; seed < 500; seed++)
+        {
+            var rng = ProposalGenerator.StreamFor(seed, 1991);
+            var proposals = ProposalGenerator.Generate(
+                ruleSet,
+                specs,
+                ["t1"],
+                [],
+                new ProposalGeneratorOptions(ProposalsPerSeason: specs.Count),
+                rng);
+            Assert.DoesNotContain(proposals, p => p.ProposedValue == "unknown");
+        }
+    }
+
+    [Fact]
     public void RejectedProposalsAreNotRepeatedWithinMemoryWindowButReturnAfterIt()
     {
         var specs = new List<RuleDimensionSpec> { new("a", ["x", "y"]) };

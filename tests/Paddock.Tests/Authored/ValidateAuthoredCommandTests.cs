@@ -27,6 +27,12 @@ public class ValidateAuthoredCommandTests
                 "circuits: 78",
                 "layouts: 156",
                 "race map entries: 1172",
+                "technologies: 40",
+                "engine entries: 1287",
+                "constructors: 213",
+                "lineages: 10",
+                "founder organizations: 51",
+                "staff: 182",
             ],
             Lines(stdout));
     }

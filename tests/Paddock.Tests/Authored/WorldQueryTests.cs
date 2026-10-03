@@ -37,4 +37,73 @@ public class WorldQueryTests
 
         Assert.Contains("99", ex.Message, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void EnginesFor_ReturnsEverySupplyForThatTeamSeason()
+    {
+        IReadOnlyList<EngineSupply> supplies =
+        [
+            new("mclaren", 1988, "Honda", "Honda RA168E", "partner"),
+            new("mclaren", 1987, "Porsche", "TAG TTE PO1", "partner"),
+            new("williams", 1988, "Judd", "Judd CV", "customer"),
+            new("mclaren", 1988, "Honda", "Honda RA168E spare", "works"),
+        ];
+
+        var found = EngineBook.EnginesFor("mclaren", 1988, supplies);
+
+        Assert.Equal(2, found.Count);
+        Assert.All(found, supply => Assert.Equal("Honda", supply.Supplier));
+        Assert.Empty(EngineBook.EnginesFor("ferrari", 1988, supplies));
+    }
+
+    [Fact]
+    public void LineageOf_ReturnsTheIdOrNone()
+    {
+        IReadOnlyList<LineageSpan> spans =
+        [
+            new("tyrrell-mercedes", "tyrrell", 1970, 1998),
+            new("tyrrell-mercedes", "mercedes", 2010, null),
+        ];
+
+        Assert.Null(TeamLineage.LineageOf("tyrrell", 1969, spans));
+        Assert.Equal("tyrrell-mercedes", TeamLineage.LineageOf("tyrrell", 1975, spans));
+        Assert.Equal("tyrrell-mercedes", TeamLineage.LineageOf("mercedes", 2015, spans));
+    }
+
+    [Fact]
+    public void LineageOf_ThrowsWhenTwoLineagesCoverTheSeason()
+    {
+        IReadOnlyList<LineageSpan> spans =
+        [
+            new("alpha", "cooper", 1950, 1960),
+            new("beta", "cooper", 1955, 1965),
+        ];
+
+        var ex = Assert.Throws<InvalidOperationException>(() => TeamLineage.LineageOf("cooper", 1958, spans));
+
+        Assert.Contains("cooper", ex.Message, StringComparison.Ordinal);
+        Assert.Contains("1958", ex.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void StaffAt_ReturnsEachStintCoveringTheSeason()
+    {
+        IReadOnlyList<StaffAssignment> assignments =
+        [
+            new("gordon_murray", "mclaren", "technical_director", 1987, 1991),
+            new("ron_dennis", "mclaren", "owner", 1981, 2009),
+            new("ron_dennis", "mclaren", "team_principal", 1981, 2009),
+            new("gordon_murray", "brabham", "chief_designer", 1969, 1986),
+        ];
+
+        var found = StaffBook.StaffAt("mclaren", 1988, assignments);
+
+        Assert.Equal(
+            [
+                new StaffAssignment("gordon_murray", "mclaren", "technical_director", 1987, 1991),
+                new StaffAssignment("ron_dennis", "mclaren", "owner", 1981, 2009),
+                new StaffAssignment("ron_dennis", "mclaren", "team_principal", 1981, 2009),
+            ],
+            found);
+    }
 }

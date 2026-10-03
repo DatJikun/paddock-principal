@@ -216,3 +216,12 @@ Szczegóły w DESIGN §5.3.
 
 **PP-044: Szef zespołu ma atrybuty** (potwierdza DESIGN §6.2). Dotyczy gracza i szefów AI: negocjacje, zarządzanie ludźmi, polityka, biznes. Czy atrybuty ma też właściciel albo prezes zespołu (zarząd, §15), jest nadal otwarte (ROADMAP, otwarte pytania).
 
+### Przyjęte 2026-10-03 (jedenasta runda)
+
+**PP-045: Multiplayer online dla znajomych.**
+- Kilku ludzi gra w jednym świecie, a każdy prowadzi własny zespół. Wspólnego zespołu z podziałem ról na razie nie ma.
+- **Wspólna data:** czas rusza dopiero wtedy, gdy wszyscy klikną „Dalej”. Pulpit działa jak w grze dla jednego gracza, a sprawa wymagająca decyzji (np. negocjacje) zatrzymuje czas dla wszystkich.
+- **Wyścig oglądany razem na żywo.** Wszyscy widzą ten sam przebieg w tym samym tempie, a każdy wydaje polecenia swojemu zespołowi.
+- **Model techniczny: host i goście.** Symulację liczy wyłącznie komputer hosta. Goście wysyłają tylko swoje decyzje i dostają z powrotem stan świata widziany przez swój zespół (prawda kontra wiedza, INV-004). Szczegóły w TECH §5.1.
+- **Kolejność:** rdzeń od fazy 2 obsługuje wielu menedżerów, a sieć i rozgrywka online powstają razem z prawdziwym UI (faza 6). Multiplayer w samej konsoli nie ma sensu.
+

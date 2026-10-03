@@ -51,12 +51,14 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - Solucja .NET 10 (TECH §2); przeniesienie z Pelotona determinizmu, RNG, zapisu SQLite, migracji i kalendarza.
 - Osoby, organizacje (z linią następstwa), tory z wersjami, kontrakty, oś czasu epok, harmonogram ludzi, tick dnia.
 - SimRunner: przebieg bez wyścigów.
+- Pod multiplayer (PP-045): komendy i widoki z `managerId`, bramka gotowości przed `AdvanceDay`, jedna kolejka komend. Sieci jeszcze nie ma.
 
 **Bramka:** 1950→2026 w SimRunnerze. Ludzie pojawiają się, starzeją i odchodzą, zapis pozostaje mały, a wynik jest deterministyczny.
 
 ## Faza 3: Silnik wyścigu dla wielu epok
 - Model okrążeń parametryzowany epoką, strategia sztabu, awaryjność, pogoda, incydenty i kontuzje.
 - Race Spy od pierwszego dnia.
+- Wyścig jako strumień zdarzeń, który da się odtwarzać w tempie oglądania (potrzebne do wspólnego oglądania online, PP-045).
 - Test wierności historii: 1950–1960, a potem kolejne dekady.
 
 **Bramka (grywalności):** czytasz relację wyścigu z 1955 i z 1988. Czuć różnicę epok, a wyniki są wiarygodne.
@@ -81,6 +83,9 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 ## Faza 6: UI (HTML/TS/Svelte w Photino)
 - Most JSON, tryb deweloperski w przeglądarce, zrzuty ekranu do przeglądu.
 - Prawdziwe ekrany z design systemu (tor równoległy): gęste tabele, ekran wyścigu, kronika, onboarding.
+- **Multiplayer online (PP-045):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo.
+
+**Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.
 
 ## Faza 7+: Rozszerzenia
 Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyścigi 24h z wcześniejszych ustaleń), tryb proceduralny od zera, wyzwania, edytor bazy, paczka fikcyjna, wydanie.

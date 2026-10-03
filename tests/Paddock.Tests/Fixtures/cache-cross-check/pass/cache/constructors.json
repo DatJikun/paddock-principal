@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "constructors": [
+    {
+      "constructorId": "alfa",
+      "name": "Alfa Romeo",
+      "nationality": "Italian",
+      "url": "https://example.com/alfa"
+    },
+    {
+      "constructorId": "ferrari",
+      "name": "Ferrari",
+      "nationality": "Italian",
+      "url": "https://example.com/ferrari"
+    },
+    {
+      "constructorId": "did_not_race",
+      "name": "Did Not Race",
+      "nationality": "British",
+      "url": "https://example.com/did_not_race"
+    }
+  ]
+}

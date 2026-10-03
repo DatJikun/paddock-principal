@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "races": [
+    {
+      "season": 1950,
+      "round": 1,
+      "name": "British Grand Prix",
+      "circuitId": "silverstone",
+      "date": "1950-05-13",
+      "time": null,
+      "url": "https://example.com/1950/1",
+      "isIndianapolis500": false
+    },
+    {
+      "season": 1950,
+      "round": 2,
+      "name": "Monaco Grand Prix",
+      "circuitId": "silverstone",
+      "date": "1950-05-13",
+      "time": null,
+      "url": "https://example.com/1950/2",
+      "isIndianapolis500": false
+    }
+  ]
+}

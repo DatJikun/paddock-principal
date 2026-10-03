@@ -1,0 +1,38 @@
+{
+  "notes": "fixture",
+  "character_tags": [
+    {
+      "id": "street",
+      "meaning": "Walls and little runoff."
+    }
+  ],
+  "circuits": [
+    {
+      "circuit_id": "test",
+      "name": "Test Circuit",
+      "country": "GBR",
+      "layouts": [
+        {
+          "layout_id": "test_1950",
+          "years_used_in_f1": [
+            1950
+          ],
+          "length_km": 5.0,
+          "corners": null,
+          "character": [
+            "street"
+          ],
+          "profile_guess": {
+            "straights": 0.25,
+            "high_speed": 0.25,
+            "low_speed": 0.25,
+            "braking": 0.25
+          },
+          "confidence": "high",
+          "source": "https://example.com/fixture",
+          "notes": "fixture"
+        }
+      ]
+    }
+  ]
+}

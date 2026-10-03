@@ -1,0 +1,10 @@
+{
+  "command.managerUnknown": "Nieznany menedżer: {managerId}.",
+  "command.renameManager.empty": "Imię menedżera nie może być puste.",
+  "command.setTeamNote.empty": "Notatka zespołu nie może być pusta.",
+  "command.setTeamNote.teamRequired": "Notatka zespołu wymaga wskazania zespołu.",
+  "command.unknown": "Nieznana komenda: {command}.",
+  "ready.blockingItem": "Nierozstrzygnięta sprawa zatrzymuje czas.",
+  "ready.humansNotReady": "Czas ruszy, gdy każdy ludzki menedżer będzie gotowy.",
+  "ready.waitingFor": "Czekamy na {manager}."
+}

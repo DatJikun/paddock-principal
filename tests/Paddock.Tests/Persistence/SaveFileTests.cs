@@ -24,7 +24,7 @@ public class SaveFileTests : IDisposable
         using (var created = SaveFile.Create(path, meta))
         {
             written = created.ReadMeta();
-            Assert.Equal(2, written.SchemaVersion);
+            Assert.Equal(3, written.SchemaVersion);
             Assert.Equal(meta.CareerName, written.CareerName);
             Assert.Equal(meta.ManagerName, written.ManagerName);
             Assert.Equal(meta.PlayerTeamId, written.PlayerTeamId);
@@ -96,26 +96,26 @@ public class SaveFileTests : IDisposable
         var path = NewPath();
         using (var created = SaveFile.Create(path, SampleMeta()))
         {
-            Assert.Equal(2, created.ReadMeta().SchemaVersion);
+            Assert.Equal(3, created.ReadMeta().SchemaVersion);
         }
 
-        var v3 = new NoOpV003();
-        var migrations = new ISaveMigration[] { new V001_Initial(), new V002_CareerConfig(), v3 };
+        var v4 = new NoOpV004();
+        var migrations = new ISaveMigration[] { new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), v4 };
         using (var first = SaveFile.Open(path, migrations))
         {
-            Assert.Equal(1, v3.Calls);
-            Assert.Equal(3, first.ReadMeta().SchemaVersion);
+            Assert.Equal(1, v4.Calls);
+            Assert.Equal(4, first.ReadMeta().SchemaVersion);
         }
 
         using var second = SaveFile.Open(path, migrations);
-        Assert.Equal(1, v3.Calls);
-        Assert.Equal(3, second.ReadMeta().SchemaVersion);
+        Assert.Equal(1, v4.Calls);
+        Assert.Equal(4, second.ReadMeta().SchemaVersion);
     }
 
     [Fact]
     public void NewerSchemaIsRefusedWithoutChangingTheSave()
     {
-        Assert.Equal(2, SaveMigrations.CurrentVersion);
+        Assert.Equal(3, SaveMigrations.CurrentVersion);
         var path = NewPath();
         using (var created = SaveFile.Create(path, SampleMeta()))
         {
@@ -123,18 +123,18 @@ public class SaveFileTests : IDisposable
         }
 
         SaveMeta upgradedMeta;
-        using (var upgraded = SaveFile.Open(path, [new V001_Initial(), new V002_CareerConfig(), new NoOpV003()]))
+        using (var upgraded = SaveFile.Open(path, [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), new NoOpV004()]))
         {
             upgradedMeta = upgraded.ReadMeta();
-            Assert.Equal(3, upgradedMeta.SchemaVersion);
+            Assert.Equal(4, upgradedMeta.SchemaVersion);
         }
 
         var exception = Assert.Throws<SaveSchemaTooNewException>(() => SaveFile.Open(path));
-        Assert.Equal(3, exception.FileSchemaVersion);
-        Assert.Equal(2, exception.SupportedSchemaVersion);
+        Assert.Equal(4, exception.FileSchemaVersion);
+        Assert.Equal(3, exception.SupportedSchemaVersion);
         Assert.Equal(Path.GetFullPath(path), exception.Path);
 
-        using var again = SaveFile.Open(path, [new V001_Initial(), new V002_CareerConfig(), new NoOpV003()]);
+        using var again = SaveFile.Open(path, [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), new NoOpV004()]);
         Assert.Equal(upgradedMeta, again.ReadMeta());
     }
 
@@ -149,9 +149,9 @@ public class SaveFileTests : IDisposable
             written = created.ReadMeta();
         }
 
-        var migration = new CorruptThenFailV003();
+        var migration = new CorruptThenFailV004();
         var exception = Assert.Throws<InvalidOperationException>(() =>
-            SaveFile.Open(path, [new V001_Initial(), new V002_CareerConfig(), migration]));
+            SaveFile.Open(path, [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), migration]));
         Assert.Equal("migration failed", exception.Message);
         Assert.Equal(1, migration.RowsUpdated);
 
@@ -174,7 +174,7 @@ public class SaveFileTests : IDisposable
         using (var opened = SaveFile.Open(path))
         {
             var read = opened.ReadMeta();
-            Assert.Equal(2, read.SchemaVersion);
+            Assert.Equal(3, read.SchemaVersion);
             Assert.Equal(CareerConfig.FromPreset(CareerPreset.Balanced), read.CareerConfig);
             Assert.Equal(meta.CareerName, read.CareerName);
             Assert.Equal(meta.ManagerName, read.ManagerName);
@@ -190,7 +190,7 @@ public class SaveFileTests : IDisposable
         }
 
         using var again = SaveFile.Open(path);
-        Assert.Equal(2, again.ReadMeta().SchemaVersion);
+        Assert.Equal(3, again.ReadMeta().SchemaVersion);
         Assert.Equal(CareerConfig.FromPreset(CareerPreset.Chaos), again.ReadMeta().CareerConfig);
     }
 
@@ -322,9 +322,9 @@ public class SaveFileTests : IDisposable
         return connection;
     }
 
-    private sealed class NoOpV003 : ISaveMigration
+    private sealed class NoOpV004 : ISaveMigration
     {
-        public int Version => 3;
+        public int Version => 4;
 
         public int Calls { get; private set; }
 
@@ -334,9 +334,9 @@ public class SaveFileTests : IDisposable
         }
     }
 
-    private sealed class CorruptThenFailV003 : ISaveMigration
+    private sealed class CorruptThenFailV004 : ISaveMigration
     {
-        public int Version => 3;
+        public int Version => 4;
 
         public int RowsUpdated { get; private set; }
 

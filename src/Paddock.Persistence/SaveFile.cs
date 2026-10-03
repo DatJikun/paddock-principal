@@ -567,6 +567,38 @@ public sealed class SaveFile : IDisposable
         }
     }
 
+    internal SqliteConnection Connection
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _connection;
+        }
+    }
+
+    internal SqliteTransaction BeginTransaction()
+    {
+        ThrowIfDisposed();
+        return _connection.BeginTransaction();
+    }
+
+    internal static void RollbackQuietly(SqliteTransaction transaction) => TryRollback(transaction);
+
+    /// <summary>Moves the header to a saved day boundary. Runs in the caller's transaction.</summary>
+    internal void RecordSavePoint(SqliteTransaction transaction, DateOnly gameDate)
+    {
+        ThrowIfDisposed();
+        using var command = _connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = "UPDATE meta SET current_game_date = $currentGameDate, saved_at_utc = $savedAt WHERE id = 1";
+        command.Parameters.Add("$currentGameDate", SqliteType.Text).Value = FormatGameDate(gameDate);
+        command.Parameters.Add("$savedAt", SqliteType.Text).Value = FormatTimestamp(DateTimeOffset.UtcNow);
+        if (command.ExecuteNonQuery() != 1)
+        {
+            throw new InvalidDataException("Save meta row is missing.");
+        }
+    }
+
     private void ThrowIfDisposed()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);

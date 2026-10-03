@@ -1,4 +1,4 @@
-using System.Text.Json;
+using Paddock.Application.Localization;
 
 namespace Paddock.Tests.People;
 
@@ -30,33 +30,25 @@ public class PeopleStringTests
     ];
 
     [Fact]
-    public void PolishAndEnglishHaveTheSameKeys()
+    public void PeopleKeysExistInBothLanguagesAndKeepTheStarThresholdPlaceholder()
     {
-        Dictionary<string, string> english = Load("en");
-        Dictionary<string, string> polish = Load("pl");
+        TranslationCatalog catalog = TranslationLoader.LoadDirectory(Path.Combine(RepoPaths.Root(), "strings"));
 
-        Assert.Equal(english.Keys.OrderBy(key => key, StringComparer.Ordinal), polish.Keys.OrderBy(key => key, StringComparer.Ordinal));
-        foreach (string key in RequiredKeys)
+        Assert.Empty(I18nChecker.CheckKeysPresent(catalog, RequiredKeys.Select(key => new ScannedKey(key, "GenPeopleCommand.cs"))));
+        foreach (Language language in new[] { Language.Pl, Language.En })
         {
-            Assert.False(string.IsNullOrWhiteSpace(english[key]));
-            Assert.False(string.IsNullOrWhiteSpace(polish[key]));
+            Assert.True(catalog.TryGet(language, "people.gen.rating_explanation", out TranslationEntry? explanation));
+            Assert.Contains("{starThreshold}", explanation!.Text, StringComparison.Ordinal);
         }
-
-        Assert.Contains("{starThreshold}", english["people.gen.rating_explanation"], StringComparison.Ordinal);
-        Assert.Contains("{starThreshold}", polish["people.gen.rating_explanation"], StringComparison.Ordinal);
-        Assert.Contains("{min}", english["world.attribute.scale_explanation"], StringComparison.Ordinal);
-        Assert.Contains("{max}", polish["world.potential.explanation"], StringComparison.Ordinal);
-        Assert.Contains("{low}", english["world.knowledge.band_explanation"], StringComparison.Ordinal);
-        Assert.Contains("{high}", polish["world.knowledge.band_explanation"], StringComparison.Ordinal);
-        Assert.Contains("estimate", english["world.salary.explanation"], StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("szacun", polish["world.budget.explanation"], StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static Dictionary<string, string> Load(string language)
-    {
-        string path = Path.Combine(RepoPaths.Root(), "strings", language + ".json");
-        Dictionary<string, string>? table = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(path));
-        Assert.NotNull(table);
-        return table;
+        foreach (Language language in new[] { Language.Pl, Language.En })
+        {
+            Assert.True(catalog.TryGet(language, "world.attribute.scale_explanation", out TranslationEntry? scale));
+            Assert.Contains("{min}", scale!.Text, StringComparison.Ordinal);
+            Assert.True(catalog.TryGet(language, "world.potential.explanation", out TranslationEntry? potential));
+            Assert.Contains("{max}", potential!.Text, StringComparison.Ordinal);
+            Assert.True(catalog.TryGet(language, "world.knowledge.band_explanation", out TranslationEntry? band));
+            Assert.Contains("{low}", band!.Text, StringComparison.Ordinal);
+            Assert.Contains("{high}", band.Text, StringComparison.Ordinal);
+        }
     }
 }

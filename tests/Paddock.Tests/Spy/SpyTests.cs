@@ -1,5 +1,6 @@
 using Paddock.Application.Access;
 using Paddock.Application.Spy;
+using Paddock.Domain.Spy;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.Spy;
@@ -49,7 +50,7 @@ public class SpyTests
         ToyDecisionLoop.Run(5, 1, memory);
         var trace = Assert.Single(memory.Traces);
 
-        Assert.Equal(Toy, trace.Who);
+        Assert.Equal(Toy.Value, trace.Who);
         Assert.Equal(3, trace.Options.Count);
         Assert.All(trace.Options, o => Assert.Equal(2, o.Factors.Count));
         var best = trace.Options.MaxBy(o => o.Utility)!;
@@ -134,6 +135,40 @@ public class SpyTests
         Assert.Equal(trace.PlayerReason, view.Reason);
         Assert.NotEqual(trace.Reason, view.Reason);
         Assert.All(view.Options, o => Assert.Equal(["raw-draw"], o.Factors.Select(f => f.Name)));
+    }
+
+    [Fact]
+    public void WhyViewUtilityDoesNotLeakHiddenFactors()
+    {
+        var baseTrace = FirstTrace();
+        var trace = baseTrace with
+        {
+            Options =
+            [
+                .. baseTrace.Options.Select((o, i) => o with
+                {
+                    Utility = 0.6 + i,
+                    Factors =
+                    [
+                        new TraceFactor("raw-draw", 0.5, PlayerVisible: true),
+                        new TraceFactor("hidden-bias", 0.1 + i, PlayerVisible: false),
+                    ],
+                }),
+            ],
+        };
+
+        foreach (var context in new[] { AccessContext.ForManager(Toy), AccessContext.ForAi(Toy) })
+        {
+            var view = WhyView.For(context, trace)!;
+            Assert.All(view.Options, o =>
+            {
+                // Utility - visible factors must reveal nothing about the hidden factor.
+                Assert.Equal(o.Factors.Sum(f => f.Contribution), o.Utility, 9);
+            });
+        }
+
+        var developer = WhyView.For(AccessContext.Developer, trace)!;
+        Assert.Equal(trace.Options.Select(o => o.Utility), developer.Options.Select(o => o.Utility));
     }
 
     [Fact]

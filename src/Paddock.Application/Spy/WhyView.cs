@@ -1,4 +1,5 @@
 using Paddock.Application.Access;
+using Paddock.Domain.Spy;
 
 namespace Paddock.Application.Spy;
 
@@ -20,7 +21,8 @@ public sealed record WhyView(
 
     /// <summary>
     /// Developer: everything. Manager or AI: only their own decisions, and only fields marked player-visible
-    /// (no truth context, no developer reason, no hidden options or factors). Returns null when the
+    /// (no truth context, no developer reason, no hidden options or factors; an option's utility is
+    /// the sum of its visible factors only). Returns null when the
     /// context may not see the trace at all.
     /// </summary>
     public static WhyView? For(AccessContext context, DecisionTrace trace)
@@ -31,7 +33,7 @@ public sealed record WhyView(
         if (context.Kind == AccessKind.Developer)
         {
             return new WhyView(
-                trace.Who,
+                new ManagerId(trace.Who),
                 trace.ChosenOptionId,
                 trace.Reason,
                 trace.Options
@@ -40,7 +42,7 @@ public sealed record WhyView(
                 new Dictionary<string, string>(trace.TruthContext));
         }
 
-        if (context.Manager != trace.Who)
+        if (context.Manager is not { } manager || !string.Equals(manager.Value, trace.Who, StringComparison.Ordinal))
         {
             return null;
         }
@@ -48,14 +50,16 @@ public sealed record WhyView(
         var visible = trace.Options.Where(o => o.PlayerVisible).ToArray();
         var chosenVisible = visible.Any(o => string.Equals(o.Id, trace.ChosenOptionId, StringComparison.Ordinal));
         return new WhyView(
-            trace.Who,
+            new ManagerId(trace.Who),
             chosenVisible ? trace.ChosenOptionId : null,
             trace.PlayerReason,
             visible
-                .Select(o => new WhyOption(
-                    o.Id,
-                    o.Utility,
-                    o.Factors.Where(f => f.PlayerVisible).Select(f => new WhyFactor(f.Name, f.Contribution)).ToArray()))
+                .Select(o =>
+                {
+                    var factors = o.Factors.Where(f => f.PlayerVisible).Select(f => new WhyFactor(f.Name, f.Contribution)).ToArray();
+                    // The trace utility includes hidden factors; showing it would let a manager recover them (INV-003).
+                    return new WhyOption(o.Id, factors.Sum(f => f.Contribution), factors);
+                })
                 .ToArray(),
             NoTruth);
     }

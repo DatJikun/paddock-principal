@@ -1,6 +1,6 @@
 using System.Globalization;
-using Paddock.Application.Access;
 using Paddock.Domain.Random;
+using Paddock.Domain.Spy;
 
 namespace Paddock.Application.Spy;
 
@@ -24,7 +24,7 @@ public static class ToyDecisionLoop
         ArgumentNullException.ThrowIfNull(sink);
 
         var rng = RngStreams.Derive(seed, RngStreamName.AiDecisions, Season);
-        var manager = new ManagerId("toy-manager");
+        const string manager = "toy-manager";
         ulong state = 14695981039346656037UL;
 
         for (var step = 0; step < steps; step++)
@@ -55,7 +55,7 @@ public static class ToyDecisionLoop
         return new ToyResult(state, rng.State);
     }
 
-    private static DecisionTrace BuildTrace(ManagerId manager, int step, double[] utilities, int best)
+    private static DecisionTrace BuildTrace(string manager, int step, double[] utilities, int best)
     {
         var options = new TraceOption[utilities.Length];
         for (var i = 0; i < utilities.Length; i++)

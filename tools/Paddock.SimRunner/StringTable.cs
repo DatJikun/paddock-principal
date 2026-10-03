@@ -1,16 +1,19 @@
-using System.Text.Json;
+using Paddock.Application.Localization;
 
 namespace Paddock.SimRunner;
 
+/// <summary>Plain-text view of <c>strings/&lt;language&gt;.json</c> for CLI output; plural entries are skipped.</summary>
 public static class StringTable
 {
     public static IReadOnlyDictionary<string, string> Load(string language)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(language);
         string path = Find("strings/" + language + ".json");
-        string json = File.ReadAllText(path);
-        Dictionary<string, string>? map = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-        if (map is null || map.Count == 0)
+        IReadOnlyDictionary<string, TranslationEntry> entries = TranslationLoader.LoadFile(path);
+        Dictionary<string, string> map = entries
+            .Where(entry => !entry.Value.IsPlural)
+            .ToDictionary(entry => entry.Key, entry => entry.Value.Text!, StringComparer.Ordinal);
+        if (map.Count == 0)
         {
             throw new InvalidOperationException("String table '" + language + "' is empty.");
         }

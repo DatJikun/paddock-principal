@@ -5,7 +5,7 @@ namespace Paddock.Application.Localization;
 public sealed class LocalizationLoadException(string message) : Exception(message);
 
 /// <summary>
-/// Loads <c>data/i18n/pl.json</c> and <c>data/i18n/en.json</c>.
+/// Loads <c>strings/pl.json</c> and <c>strings/en.json</c>, the single translation catalog (TECH 6.3).
 /// <para>
 /// Format: one flat JSON object. Each property name is a dotted key (<c>authored.error.gap</c>); there is
 /// no nesting. A value is either a string (<c>"Hello {driver}"</c>) or a plural object whose properties

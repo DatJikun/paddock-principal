@@ -9,7 +9,7 @@ public static class I18nChecker
         TranslationCatalog catalog;
         try
         {
-            catalog = TranslationLoader.LoadDirectory(Path.Combine(repoRoot, "data", "i18n"));
+            catalog = TranslationLoader.LoadDirectory(Path.Combine(repoRoot, "strings"));
         }
         catch (LocalizationLoadException ex)
         {

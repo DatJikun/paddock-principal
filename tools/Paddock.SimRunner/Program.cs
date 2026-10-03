@@ -13,13 +13,14 @@ internal static class Program
             RaceReplayCommand.Name => RaceReplayCommand.Execute(args, Console.Out, Console.Error),
             I18nCheckCommand.Name => I18nCheckCommand.Execute(args, Console.Out, Console.Error),
             InitWorldCommand.Name => InitWorldCommand.Execute(args, Console.Out, Console.Error),
+            RunCommand.Name => RunCommand.Execute(args, Console.Out, Console.Error),
             _ => Unknown(args[0]),
         };
 
     private static int Unknown(string command)
     {
         Console.Error.WriteLine(
-            "Unknown command: " + command + ". Expected: rng, gen-people, toy, vote-sim, config, race-replay, i18n-check, init-world.");
+            "Unknown command: " + command + ". Expected: rng, gen-people, toy, vote-sim, config, race-replay, i18n-check, init-world, run.");
         return 1;
     }
 }

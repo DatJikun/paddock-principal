@@ -31,7 +31,10 @@ public class LayeringTests
         Assert.Equal(["Paddock.Domain"], ProjectReferences("src/Paddock.Persistence/Paddock.Persistence.csproj"));
         Assert.Equal(["Paddock.Domain"], ProjectReferences("src/Paddock.Data/Paddock.Data.csproj"));
         Assert.Equal(["Paddock.Application"], ProjectReferences("src/Paddock.Desktop/Paddock.Desktop.csproj"));
-        Assert.Equal(["Paddock.Application", "Paddock.Data"], ProjectReferences("tools/Paddock.SimRunner/Paddock.SimRunner.csproj"));
+        // SimRunner is the composition root that opens a .paddock file. It writes the snapshot; it does not apply game rules.
+        Assert.Equal(
+            ["Paddock.Application", "Paddock.Data", "Paddock.Persistence"],
+            ProjectReferences("tools/Paddock.SimRunner/Paddock.SimRunner.csproj"));
         Assert.Equal(["Paddock.Application", "Paddock.Data"], ProjectReferences("tools/Paddock.DataPipeline/Paddock.DataPipeline.csproj"));
     }
 

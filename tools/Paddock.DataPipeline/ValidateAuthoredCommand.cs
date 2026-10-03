@@ -159,6 +159,9 @@ public static class ValidateAuthoredCommand
         stdout.WriteLine("lineages: " + data.Lineage.Lineages.Count.ToString(CultureInfo.InvariantCulture));
         stdout.WriteLine("founder organizations: " + data.Founders.Organizations.Count.ToString(CultureInfo.InvariantCulture));
         stdout.WriteLine("staff: " + data.Staff.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("era catalog dimensions: " + data.EraCatalog.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("era timeline periods: " + data.EraTimeline.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("cpi years: " + data.CpiYears.Count.ToString(CultureInfo.InvariantCulture));
         foreach (var error in errors)
         {
             stdout.WriteLine("error: " + error.Message);

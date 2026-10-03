@@ -33,6 +33,9 @@ public class ValidateAuthoredCommandTests
                 "lineages: 10",
                 "founder organizations: 51",
                 "staff: 182",
+                "era catalog dimensions: 18",
+                "era timeline periods: 125",
+                "cpi years: 77",
             ],
             Lines(stdout));
     }

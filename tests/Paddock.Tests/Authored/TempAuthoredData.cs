@@ -12,7 +12,10 @@ internal sealed class TempAuthoredData : IDisposable
         string? engines = null,
         string? lineage = null,
         string? founders = null,
-        string? staff = null)
+        string? staff = null,
+        string? eraCatalog = null,
+        string? eraTimeline = null,
+        string? cpi = null)
     {
         Root = Path.Combine(Path.GetTempPath(), "paddock-authored-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "regulations"));
@@ -20,6 +23,7 @@ internal sealed class TempAuthoredData : IDisposable
         Directory.CreateDirectory(Path.Combine(Root, "authored", "tech"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "teams"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "people"));
+        Directory.CreateDirectory(Path.Combine(Root, "authored", "eras"));
         Write("authored/regulations/catalog.json", catalog ?? AuthoredSamples.Catalog);
         Write("authored/regulations/f1_timeline.json", timeline ?? AuthoredSamples.Timeline);
         Write("authored/regulations/other_series_ideas.json", ideas ?? AuthoredSamples.Ideas);
@@ -30,6 +34,9 @@ internal sealed class TempAuthoredData : IDisposable
         Write("authored/teams/lineage.json", lineage ?? AuthoredWorldSamples.Lineage);
         Write("authored/teams/founders.json", founders ?? AuthoredWorldSamples.Founders);
         Write("authored/people/staff.json", staff ?? AuthoredWorldSamples.Staff);
+        Write("authored/eras/catalog.json", eraCatalog ?? EraSamples.Catalog);
+        Write("authored/eras/f1_timeline.json", eraTimeline ?? EraSamples.Timeline);
+        Write("authored/eras/cpi_us.json", cpi ?? EraSamples.CpiJson(EraSamples.ClosedCpi()));
     }
 
     public string Root { get; }

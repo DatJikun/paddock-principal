@@ -24,7 +24,7 @@ public static class ProposalGenerator
 
     /// <summary>
     /// Proposals for <paramref name="ruleSet"/>'s next season: distinct dimensions, bounded steps from
-    /// the current value, always valid for the catalog, never a recently rejected (dimension, value).
+    /// the current value, always valid for the catalog, never a recently rejected (dimension, value), never the "unknown" data-gap sentinel.
     /// Dimensions whose current value is not a catalog value (e.g. "unknown") are not touched.
     /// </summary>
     public static IReadOnlyList<RuleProposal> Generate(
@@ -112,14 +112,18 @@ public static class ProposalGenerator
 
             if (spec.Values.Count == 2)
             {
-                yield return spec.Values[1 - index];
+                if (!IsDataGap(spec.Values[1 - index]))
+                {
+                    yield return spec.Values[1 - index];
+                }
+
                 yield break;
             }
 
             for (var delta = -maxStep; delta <= maxStep; delta++)
             {
                 var target = index + delta;
-                if (delta != 0 && target >= 0 && target < spec.Values.Count)
+                if (delta != 0 && target >= 0 && target < spec.Values.Count && !IsDataGap(spec.Values[target]))
                 {
                     yield return spec.Values[target];
                 }
@@ -143,6 +147,9 @@ public static class ProposalGenerator
             }
         }
     }
+
+    /// <summary>"unknown" marks a gap in the data, not a rule; it is never a proposal target.</summary>
+    private static bool IsDataGap(string value) => string.Equals(value, "unknown", StringComparison.Ordinal);
 
     private static int IndexOf(IReadOnlyList<string> values, string value)
     {

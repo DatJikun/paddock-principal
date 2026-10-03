@@ -60,6 +60,26 @@ public class CareerRunTests
     }
 
     [Fact]
+    public void ARealPersonWhoRetiresStaysInTheWorldAndRetirementShowsInTheStateHash()
+    {
+        // TECH 6.2: real people always stay. Retirement is a fact of the world, so it is in the hash (and the save).
+        var opening = WorldAt(new GameDate(1950, 1, 1));
+        var session = new CareerSession(
+            opening,
+            Seed,
+            [PersonId.Real("vet")],
+            [],
+            new CareerSessionOptions { GeneratedIntakePerSeason = 0 });
+        session.LiveDay();
+
+        Assert.Contains(session.Retired, id => id.Value == "vet");
+        Assert.Contains(session.World.Persons, person => person.Id.Value == "vet");
+        Assert.NotEqual(
+            opening.WithDate(session.World.CurrentDate).StateHash(),
+            session.World.StateHash());
+    }
+
+    [Fact]
     public void LeapDayBirthdayIsObservedOn28FebruaryInACommonYear()
     {
         var session = Session(Seed, intake: 0, arrivals: []);

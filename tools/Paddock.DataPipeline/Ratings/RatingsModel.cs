@@ -73,7 +73,8 @@ public static class RatingsModel
     public const double DefaultLambdaCTime = 1.0;
     public const double DefaultLambdaCurve = 3.0;
     public const int MaxIterations = 500;
-    public const double ConvergenceTolerance = 1e-8;
+    public const double ConvergenceTolerance = 1e-6;
+    public const double LossStallTolerance = 1e-12;
 
     /// <summary>
     /// Extracts pairwise duels. Teammate duels (same constructor) are always produced. With
@@ -384,6 +385,7 @@ public static class RatingsModel
             var sNew = new double[n];
             var gNew = new double[n];
             var lineSearchSucceeded = false;
+            var acceptedLoss = currentLoss;
 
             for (var ls = 0; ls < 40; ls++)
             {
@@ -397,6 +399,7 @@ public static class RatingsModel
                 if (newLoss <= currentLoss + c1 * alpha * dirDotGrad)
                 {
                     lineSearchSucceeded = true;
+                    acceptedLoss = newLoss;
                     break;
                 }
 
@@ -409,7 +412,11 @@ public static class RatingsModel
             }
 
             currentMaxGrad = InfinityNorm(gNew);
-            if (currentMaxGrad < ConvergenceTolerance)
+
+            // The loss is flat along weakly identified directions (driver skill vs. car effect), where the
+            // gradient norm shrinks slowly: also stop when a full step no longer changes the loss.
+            var lossStalled = currentLoss - acceptedLoss <= LossStallTolerance * (1.0 + Math.Abs(currentLoss));
+            if (currentMaxGrad < ConvergenceTolerance || lossStalled)
             {
                 converged = true;
                 Array.Copy(sNew, s, n);
@@ -491,11 +498,15 @@ public static class RatingsModel
             var ul = x[l] + (lc >= 0 ? x[lc] : 0.0);
             var diff = uw - ul;
 
-            loss -= weight * LogSigmoid(diff);
+            // One exp per duel: sigmoid and log-sigmoid share e = exp(-|diff|).
+            var e = Math.Exp(-Math.Abs(diff));
+            var log1pE = Math.Log(1.0 + e);
+            loss += weight * (diff >= 0.0 ? log1pE : log1pE - diff);
 
             if (grad is not null)
             {
-                var gFactor = weight * (Sigmoid(diff) - 1.0);
+                var sig = diff >= 0.0 ? 1.0 / (1.0 + e) : e / (1.0 + e);
+                var gFactor = weight * (sig - 1.0);
                 grad[w] += gFactor;
                 grad[l] -= gFactor;
                 if (wc >= 0)
@@ -671,18 +682,6 @@ public static class RatingsModel
         {
             var z = Math.Exp(x);
             return z / (1.0 + z);
-        }
-    }
-
-    private static double LogSigmoid(double x)
-    {
-        if (x >= 0.0)
-        {
-            return -Math.Log(1.0 + Math.Exp(-x));
-        }
-        else
-        {
-            return x - Math.Log(1.0 + Math.Exp(x));
         }
     }
 

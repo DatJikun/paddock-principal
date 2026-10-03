@@ -396,21 +396,6 @@ public static partial class AuthoredDataValidator
         }
     }
 
-    private static bool IsAbsoluteHttps(string source)
-    {
-        if (string.IsNullOrWhiteSpace(source))
-        {
-            return false;
-        }
-
-        if (!Uri.TryCreate(source, UriKind.Absolute, out var uri))
-        {
-            return false;
-        }
-
-        return uri.Scheme == Uri.UriSchemeHttps && !string.IsNullOrEmpty(uri.Host);
-    }
-
     private static bool ContainsOrdinal(IReadOnlyList<string>? values, string candidate)
     {
         if (values is null)

@@ -1,0 +1,11 @@
+[
+  {
+    "dimension": "tobacco_advertising",
+    "value": "unrestricted",
+    "from": 1950,
+    "to": null,
+    "confidence": "high",
+    "source": "https://example.com/era",
+    "notes": "Covers the whole window."
+  }
+]

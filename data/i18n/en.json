@@ -27,5 +27,13 @@
   "authored.error.staff-born": "Implausible birth year: {detail}",
   "authored.error.inverted-career": "Career ends before it starts: {detail}",
   "authored.error.staff-role": "Unknown staff role: {detail}",
-  "authored.error.source-url": "Source URL is missing or invalid: {detail}"
+  "authored.error.source-url": "Source URL is missing or invalid: {detail}",
+  "authored.error.era-unknown-dimension": "Unknown era dimension: {detail}",
+  "authored.error.era-enum-value": "Invalid era value: {detail}",
+  "authored.error.era-gap": "Gap in the era timeline: {detail}",
+  "authored.error.era-overlap": "Overlapping era periods: {detail}",
+  "authored.error.era-inverted-period": "Era period ends before it starts: {detail}",
+  "authored.error.era-source-url": "Era or CPI source URL is missing or invalid: {detail}",
+  "authored.error.era-cpi-year": "CPI year is missing, duplicated, or out of range: {detail}",
+  "authored.error.era-cpi-partial": "CPI year past the base year must be marked partial: {detail}"
 }

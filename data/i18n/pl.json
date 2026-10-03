@@ -27,5 +27,13 @@
   "authored.error.staff-born": "Nieprawdopodobny rok urodzenia: {detail}",
   "authored.error.inverted-career": "Kariera kończy się przed swoim początkiem: {detail}",
   "authored.error.staff-role": "Nieznana rola w personelu: {detail}",
-  "authored.error.source-url": "Brakuje adresu źródła albo jest nieprawidłowy: {detail}"
+  "authored.error.source-url": "Brakuje adresu źródła albo jest nieprawidłowy: {detail}",
+  "authored.error.era-unknown-dimension": "Nieznany wymiar epoki: {detail}",
+  "authored.error.era-enum-value": "Niedozwolona wartość epoki: {detail}",
+  "authored.error.era-gap": "Luka na osi czasu epoki: {detail}",
+  "authored.error.era-overlap": "Okresy epoki nakładają się na siebie: {detail}",
+  "authored.error.era-inverted-period": "Okres epoki kończy się przed swoim początkiem: {detail}",
+  "authored.error.era-source-url": "Brakuje adresu źródła epoki albo CPI, albo jest nieprawidłowy: {detail}",
+  "authored.error.era-cpi-year": "Rok CPI brakuje, powtarza się albo jest poza zakresem: {detail}",
+  "authored.error.era-cpi-partial": "Rok CPI po roku bazowym musi być oznaczony jako niepełny: {detail}"
 }

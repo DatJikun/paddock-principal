@@ -24,6 +24,9 @@ public class AuthoredDataTests
         Assert.Equal(10, data.Lineage.Lineages.Count);
         Assert.Equal(51, data.Founders.Organizations.Count);
         Assert.Equal(182, data.Staff.Count);
+        Assert.Equal(18, data.EraCatalog.Count);
+        Assert.Equal(125, data.EraTimeline.Count);
+        Assert.Equal(77, data.CpiYears.Count);
     }
 
     [Fact]
@@ -71,6 +74,50 @@ public class AuthoredDataTests
         {
             Assert.Contains(data.Technologies, item => item.Id == prerequisite);
         }
+    }
+
+    [Fact]
+    public void EraSet_For_1975_StillAllowsTobaccoSponsorship_And_2010_EndsDirectLogos()
+    {
+        var data = LoadRepo();
+        var in1975 = data.EraSetFor(1975);
+        var in2010 = data.EraSetFor(2010);
+
+        Assert.Equal(1975, in1975.Season);
+        Assert.Equal(data.EraDimensionIds, in1975.Values.Keys);
+        // 1973–2006 is the national-restrictions mosaic: tobacco sponsorship is still allowed, with local bans.
+        Assert.Equal("national_restrictions_mosaic", in1975.Value("tobacco_advertising"));
+        // From 2008 direct cigarette logos are gone. 2010 sits in that band.
+        Assert.Equal("direct_logos_ended_surrogates_remain", in2010.Value("tobacco_advertising"));
+        Assert.Equal(
+            in1975.Value("tobacco_advertising"),
+            EraSet.For(1975, data.EraDimensionIds, data.EraPeriods).Value("tobacco_advertising"));
+    }
+
+    [Fact]
+    public void CostCap_IsAbsentIn1990_AndPresentIn2022()
+    {
+        var data = LoadRepo();
+
+        // The team cost cap is the regulations dimension budget_cap_usd_million.
+        Assert.Equal("none", data.RuleSetFor(1990).Value("budget_cap_usd_million"));
+        Assert.Equal("base_140", data.RuleSetFor(2022).Value("budget_cap_usd_million"));
+        // The era revenue model names the Concorde agreement that introduced the cap.
+        Assert.Equal("concorde_2_fopa_expansion", data.EraSetFor(1990).Value("revenue_model"));
+        Assert.Equal("concorde_8_cost_cap_equitable", data.EraSetFor(2022).Value("revenue_model"));
+    }
+
+    [Fact]
+    public void Cpi_ToUsd2025_RoundTripsTheBaseYear_UsingTheFileIndexes()
+    {
+        var book = LoadRepo().CpiBook;
+        const decimal nominal = 1_000_000m;
+
+        Assert.Equal(24.067m, book.Index(1950));
+        Assert.Equal(321.943m, book.Index(CpiBook.BaseYear));
+        Assert.Equal(331.655m, book.Index(2026));
+        Assert.Equal(nominal, book.ToUsd2025(nominal, CpiBook.BaseYear));
+        Assert.Equal(nominal * 321.943m / 24.067m, book.ToUsd2025(nominal, 1950));
     }
 
     [Fact]

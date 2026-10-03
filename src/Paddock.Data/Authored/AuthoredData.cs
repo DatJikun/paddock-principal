@@ -3,7 +3,7 @@ using Paddock.Domain.World;
 namespace Paddock.Data.Authored;
 
 /// <summary>
-/// Authored regulations, tracks, technologies, teams and staff loaded from <c>data/authored</c>.
+/// Authored regulations, tracks, technologies, teams, staff, and eras loaded from <c>data/authored</c>.
 /// </summary>
 public sealed class AuthoredData
 {
@@ -17,7 +17,10 @@ public sealed class AuthoredData
         EnginesFile engines,
         LineageFile lineage,
         FoundersFile founders,
-        IReadOnlyList<StaffMember> staff)
+        IReadOnlyList<StaffMember> staff,
+        IReadOnlyList<CatalogDimension> eraCatalog,
+        IReadOnlyList<TimelinePeriod> eraTimeline,
+        IReadOnlyList<CpiYear> cpiYears)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(timeline);
@@ -29,6 +32,9 @@ public sealed class AuthoredData
         ArgumentNullException.ThrowIfNull(lineage);
         ArgumentNullException.ThrowIfNull(founders);
         ArgumentNullException.ThrowIfNull(staff);
+        ArgumentNullException.ThrowIfNull(eraCatalog);
+        ArgumentNullException.ThrowIfNull(eraTimeline);
+        ArgumentNullException.ThrowIfNull(cpiYears);
 
         Catalog = catalog;
         Timeline = timeline;
@@ -40,10 +46,18 @@ public sealed class AuthoredData
         Lineage = lineage;
         Founders = founders;
         Staff = staff;
+        EraCatalog = eraCatalog;
+        EraTimeline = eraTimeline;
+        CpiYears = cpiYears;
         DimensionIds = catalog.Select(dimension => dimension.Id).ToArray();
         Periods = timeline
             .Select(period => new RulePeriod(period.Dimension, period.Value, period.From, period.To))
             .ToArray();
+        EraDimensionIds = eraCatalog.Select(dimension => dimension.Id).ToArray();
+        EraPeriods = eraTimeline
+            .Select(period => new RulePeriod(period.Dimension, period.Value, period.From, period.To))
+            .ToArray();
+        CpiBook = new CpiBook(cpiYears.Select(row => new CpiObservation(row.Year, row.Cpi)).ToArray());
         Layouts = circuits.Circuits
             .SelectMany(circuit => circuit.Layouts.Select(layout => new TrackLayout(
                 layout.LayoutId,
@@ -103,9 +117,21 @@ public sealed class AuthoredData
 
     public IReadOnlySet<string> ConstructorIds { get; }
 
+    public IReadOnlyList<CatalogDimension> EraCatalog { get; }
+
+    public IReadOnlyList<TimelinePeriod> EraTimeline { get; }
+
+    public IReadOnlyList<CpiYear> CpiYears { get; }
+
     public IReadOnlyList<string> DimensionIds { get; }
 
     public IReadOnlyList<RulePeriod> Periods { get; }
+
+    public IReadOnlyList<string> EraDimensionIds { get; }
+
+    public IReadOnlyList<RulePeriod> EraPeriods { get; }
+
+    public CpiBook CpiBook { get; }
 
     public IReadOnlyList<TrackLayout> Layouts { get; }
 
@@ -118,6 +144,8 @@ public sealed class AuthoredData
     public IReadOnlyList<StaffAssignment> StaffAssignments { get; }
 
     public RuleSet RuleSetFor(int season) => RuleSet.For(season, DimensionIds, Periods);
+
+    public EraSet EraSetFor(int season) => EraSet.For(season, EraDimensionIds, EraPeriods);
 
     public TrackLayout LayoutFor(int season, int round) =>
         RaceCalendar.LayoutFor(season, round, Layouts, RaceAssignments);

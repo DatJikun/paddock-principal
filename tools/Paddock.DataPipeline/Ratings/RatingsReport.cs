@@ -7,7 +7,9 @@ public sealed record RatingsReportDocument(
     IReadOnlyList<DecadeTopEntry> TopByDecade,
     IReadOnlyList<ReferenceComparisonReport> ReferenceComparisons,
     IReadOnlyList<DriverDataSummary> InsufficientDataDrivers,
-    IReadOnlyList<DisconnectedDriverSummary> DisconnectedDrivers);
+    IReadOnlyList<DisconnectedDriverSummary> DisconnectedDrivers,
+    IReadOnlyList<DecadeCarEffects> CarEffectsByDecade,
+    IReadOnlyList<DriverRatingEntry> DriverRatings);
 
 public sealed record RatingsFitSummary(
     int RacesCount,
@@ -25,7 +27,14 @@ public sealed record RatingsFitSummary(
     double WRace,
     double WQuali,
     double LambdaTime,
-    double Lambda0);
+    double Lambda0,
+    int CrossRaceDuels,
+    int CrossQualifyingDuels,
+    int CarSeasonsCount,
+    double LambdaC0,
+    double LambdaCTime,
+    double? WCross,
+    double LambdaCurve);
 
 public sealed record DriverRankingEntry(
     int Rank,
@@ -35,7 +44,45 @@ public sealed record DriverRankingEntry(
     double PeakSe,
     string PeakYears,
     int TotalDuels,
-    bool ShortCareer);
+    bool ShortCareer,
+    double PeakValue,
+    int Overall,
+    double Stars);
+
+/// <summary>Constructor-season car effect from the fit (<c>Key</c> is the lineage key).</summary>
+public sealed record CarEffect(string Key, int Season, double Effect, double Se);
+
+public sealed record CarEffectEntry(string ConstructorKey, double MeanEffect, int SeasonsCount);
+
+public sealed record DecadeCarEffects(
+    int DecadeStart,
+    IReadOnlyList<CarEffectEntry> Top,
+    IReadOnlyList<CarEffectEntry> Bottom);
+
+public sealed record SeasonRating(int Season, double Value, int Overall);
+
+/// <summary>
+/// Overall 1-100 and stars 0-5 are percentile mappings with guessed anchors (see <see cref="RatingsMapping"/>).
+/// <c>RatingBySeason</c> maps each season's (smoothed) value to an overall within that season's ranked field.
+/// </summary>
+public sealed record DriverRatingEntry(
+    int Rank,
+    string DriverId,
+    string Name,
+    int Overall,
+    double Stars,
+    double Percentile,
+    double PeakValue,
+    CareerCurve? Curve,
+    IReadOnlyList<SeasonRating> RatingBySeason);
+
+/// <summary>Everything produced by one fit; used by the report builder and by tests.</summary>
+public sealed record RatingsModelRun(
+    IReadOnlyList<Duel> Duels,
+    IReadOnlyList<DriverSeasonParam> Parameters,
+    OptimizationResult Fit,
+    IReadOnlyDictionary<string, FittedDriverMetrics> DriverMetrics,
+    IReadOnlyList<CarEffect> CarEffects);
 
 public sealed record DecadeTopEntry(
     int DecadeStart,

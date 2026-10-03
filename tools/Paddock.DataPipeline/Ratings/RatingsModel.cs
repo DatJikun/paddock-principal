@@ -16,7 +16,8 @@ public readonly record struct Duel(
     string WinnerDriverId,
     string LoserDriverId,
     double Weight,
-    DuelKind Kind);
+    DuelKind Kind,
+    string? LoserConstructorId = null);
 
 public sealed record DriverSeasonParam(
     string DriverId,
@@ -33,7 +34,20 @@ public sealed record OptimizationResult(
     double[] Se,
     int Iterations,
     bool Converged,
-    double MaxGradient);
+    double MaxGradient,
+    double[]? C = null,
+    double[]? CSe = null);
+
+/// <summary>A constructor-season car-effect parameter; <c>Key</c> is the lineage key.</summary>
+public sealed record CarSeasonParam(string Key, int Season, int Index);
+
+/// <summary>Car-effect side of the v1 model: parameters, time links and penalties.</summary>
+public sealed record CarModel(
+    IReadOnlyList<CarSeasonParam> Params,
+    IReadOnlyList<TimeLink> Links,
+    IReadOnlyDictionary<(string ConstructorId, int Season), int> IndexByConstructorSeason,
+    double LambdaC0,
+    double LambdaCTime);
 
 public sealed record FittedDriverMetrics(
     string DriverId,
@@ -53,16 +67,31 @@ public static class RatingsModel
     public const double DefaultWQuali = 1.0;
     public const double DefaultLambdaTime = 2.0;
     public const double DefaultLambda0 = 0.01;
-    public const int MaxIterations = 500;
-    public const double ConvergenceTolerance = 1e-8;
 
+    // v1 constants. All are estimates until calibrated on the real data.
+    public const double DefaultLambdaC0 = 0.05;
+    public const double DefaultLambdaCTime = 1.0;
+    public const double DefaultLambdaCurve = 3.0;
+    public const int MaxIterations = 500;
+    public const double ConvergenceTolerance = 1e-6;
+    public const double LossStallTolerance = 1e-12;
+
+    /// <summary>
+    /// Extracts pairwise duels. Teammate duels (same constructor) are always produced. With
+    /// <paramref name="includeCross"/>, every pair of drivers from different constructors in the same race also
+    /// produces a duel (race and grid) with weight <c>wCross</c>, which is <c>1 / (fieldSize - 1)</c> by default
+    /// (<paramref name="wCross"/> overrides it), so one race does not count as ~190 independent facts.
+    /// Both kinds use the same filters: no Indianapolis 500, no shared drives, no non-starts.
+    /// </summary>
     public static List<Duel> ExtractDuels(
         IEnumerable<HistoricalRace> races,
         IEnumerable<HistoricalResult> results,
         int fromYear,
         int toYear,
         double wRace = DefaultWRace,
-        double wQuali = DefaultWQuali)
+        double wQuali = DefaultWQuali,
+        bool includeCross = false,
+        double? wCross = null)
     {
         ArgumentNullException.ThrowIfNull(races);
         ArgumentNullException.ThrowIfNull(results);
@@ -91,70 +120,50 @@ public static class RatingsModel
                 .OrderBy(r => r.DriverId, StringComparer.Ordinal)
                 .ToList();
 
-            if (driversInCar.Count < 2)
-            {
-                continue;
-            }
-
-            var season = group.Key.Season;
-            var round = group.Key.Round;
-            var constructorId = group.Key.ConstructorId;
-
             for (var i = 0; i < driversInCar.Count; i++)
             {
                 for (var j = i + 1; j < driversInCar.Count; j++)
                 {
-                    var a = driversInCar[i];
-                    var b = driversInCar[j];
+                    AddPairDuels(duels, driversInCar[i], driversInCar[j], wRace, wQuali, cross: false);
+                }
+            }
+        }
 
-                    // Race duel logic
-                    var isClassifiedA = a.IsClassified && FinishStatus.Classify(a.Status) == FinishStatus.Kind.ClassifiedFinish;
-                    var isClassifiedB = b.IsClassified && FinishStatus.Classify(b.Status) == FinishStatus.Kind.ClassifiedFinish;
+        if (includeCross)
+        {
+            var races2 = validResults
+                .GroupBy(r => (r.Season, r.Round))
+                .OrderBy(g => g.Key.Season)
+                .ThenBy(g => g.Key.Round);
 
-                    if (isClassifiedA && isClassifiedB)
-                    {
-                        if (a.Position < b.Position)
-                        {
-                            duels.Add(new Duel(season, round, constructorId, a.DriverId, b.DriverId, wRace, DuelKind.Race));
-                        }
-                        else if (b.Position < a.Position)
-                        {
-                            duels.Add(new Duel(season, round, constructorId, b.DriverId, a.DriverId, wRace, DuelKind.Race));
-                        }
-                    }
-                    else if (isClassifiedA && !isClassifiedB)
-                    {
-                        if (FinishStatus.Classify(b.Status) == FinishStatus.Kind.Accident)
-                        {
-                            duels.Add(new Duel(season, round, constructorId, a.DriverId, b.DriverId, wRace, DuelKind.Race));
-                        }
-                    }
-                    else if (!isClassifiedA && isClassifiedB)
-                    {
-                        if (FinishStatus.Classify(a.Status) == FinishStatus.Kind.Accident)
-                        {
-                            duels.Add(new Duel(season, round, constructorId, b.DriverId, a.DriverId, wRace, DuelKind.Race));
-                        }
-                    }
+            foreach (var race in races2)
+            {
+                var field = race
+                    .OrderBy(r => r.ConstructorId, StringComparer.Ordinal)
+                    .ThenBy(r => r.DriverId, StringComparer.Ordinal)
+                    .ToList();
 
-                    // Qualifying duel logic
-                    if (a.Grid > 0 && b.Grid > 0)
+                var factor = wCross ?? (field.Count > 1 ? 1.0 / (field.Count - 1) : 1.0);
+
+                for (var i = 0; i < field.Count; i++)
+                {
+                    for (var j = i + 1; j < field.Count; j++)
                     {
-                        if (a.Grid < b.Grid)
+                        var a = field[i];
+                        var b = field[j];
+                        if (string.Equals(a.ConstructorId, b.ConstructorId, StringComparison.Ordinal)
+                            || string.Equals(a.DriverId, b.DriverId, StringComparison.Ordinal))
                         {
-                            duels.Add(new Duel(season, round, constructorId, a.DriverId, b.DriverId, wQuali, DuelKind.Qualifying));
+                            continue;
                         }
-                        else if (b.Grid < a.Grid)
-                        {
-                            duels.Add(new Duel(season, round, constructorId, b.DriverId, a.DriverId, wQuali, DuelKind.Qualifying));
-                        }
+
+                        AddPairDuels(duels, a, b, wRace * factor, wQuali * factor, cross: true);
                     }
                 }
             }
         }
 
-        // Sort duels deterministically before fitting:
-        // (season, round, constructorId, driverId)
+        // Sort duels deterministically before fitting.
         duels.Sort((d1, d2) =>
         {
             var cmp = d1.Season.CompareTo(d2.Season);
@@ -162,6 +171,8 @@ public static class RatingsModel
             cmp = d1.Round.CompareTo(d2.Round);
             if (cmp != 0) return cmp;
             cmp = string.Compare(d1.ConstructorId, d2.ConstructorId, StringComparison.Ordinal);
+            if (cmp != 0) return cmp;
+            cmp = string.Compare(d1.LoserConstructorId, d2.LoserConstructorId, StringComparison.Ordinal);
             if (cmp != 0) return cmp;
             cmp = ((int)d1.Kind).CompareTo((int)d2.Kind);
             if (cmp != 0) return cmp;
@@ -173,6 +184,74 @@ public static class RatingsModel
         return duels;
     }
 
+    private static void AddPairDuels(
+        List<Duel> duels,
+        HistoricalResult a,
+        HistoricalResult b,
+        double wRace,
+        double wQuali,
+        bool cross)
+    {
+        void Emit(HistoricalResult winner, HistoricalResult loser, double weight, DuelKind kind)
+        {
+            duels.Add(new Duel(
+                winner.Season,
+                winner.Round,
+                winner.ConstructorId,
+                winner.DriverId,
+                loser.DriverId,
+                weight,
+                kind,
+                cross ? loser.ConstructorId : null));
+        }
+
+        // Race duel logic
+        var isClassifiedA = a.IsClassified && FinishStatus.Classify(a.Status) == FinishStatus.Kind.ClassifiedFinish;
+        var isClassifiedB = b.IsClassified && FinishStatus.Classify(b.Status) == FinishStatus.Kind.ClassifiedFinish;
+
+        if (isClassifiedA && isClassifiedB)
+        {
+            if (a.Position < b.Position)
+            {
+                Emit(a, b, wRace, DuelKind.Race);
+            }
+            else if (b.Position < a.Position)
+            {
+                Emit(b, a, wRace, DuelKind.Race);
+            }
+        }
+        else if (isClassifiedA && !isClassifiedB)
+        {
+            if (FinishStatus.Classify(b.Status) == FinishStatus.Kind.Accident)
+            {
+                Emit(a, b, wRace, DuelKind.Race);
+            }
+        }
+        else if (!isClassifiedA && isClassifiedB)
+        {
+            if (FinishStatus.Classify(a.Status) == FinishStatus.Kind.Accident)
+            {
+                Emit(b, a, wRace, DuelKind.Race);
+            }
+        }
+
+        // Qualifying duel logic (grid)
+        if (a.Grid > 0 && b.Grid > 0)
+        {
+            if (a.Grid < b.Grid)
+            {
+                Emit(a, b, wQuali, DuelKind.Qualifying);
+            }
+            else if (b.Grid < a.Grid)
+            {
+                Emit(b, a, wQuali, DuelKind.Qualifying);
+            }
+        }
+    }
+
+    /// <summary>
+    /// v0 entry point: driver-season skills only (no car effect). Kept so v0 behaviour stays reproducible.
+    /// </summary>
     public static OptimizationResult Fit(
         IReadOnlyList<Duel> duels,
         IReadOnlyList<DriverSeasonParam> parameters,
@@ -180,14 +259,31 @@ public static class RatingsModel
         double lambdaTime = DefaultLambdaTime,
         double lambda0 = DefaultLambda0)
     {
+        return Fit(duels, parameters, timeLinks, lambdaTime, lambda0, null);
+    }
+
+    /// <summary>
+    /// v1 fit: utility = s[d,t] + c[k,t]. Identifiability of s and c comes from teammate duels (the car
+    /// cancels), driver transfers between constructors, and the ridge terms (lambdaC0 on c, lambda0 on s).
+    /// </summary>
+    public static OptimizationResult Fit(
+        IReadOnlyList<Duel> duels,
+        IReadOnlyList<DriverSeasonParam> parameters,
+        IReadOnlyList<TimeLink> timeLinks,
+        double lambdaTime,
+        double lambda0,
+        CarModel? car)
+    {
         ArgumentNullException.ThrowIfNull(duels);
         ArgumentNullException.ThrowIfNull(parameters);
         ArgumentNullException.ThrowIfNull(timeLinks);
 
         var pCount = parameters.Count;
+        var cCount = car?.Params.Count ?? 0;
+        var n = pCount + cCount;
         if (pCount == 0)
         {
-            return new OptimizationResult([], [], 0, true, 0.0);
+            return new OptimizationResult([], [], 0, true, 0.0, [], []);
         }
 
         var paramIndex = new Dictionary<(string DriverId, int Season), int>(pCount);
@@ -196,26 +292,62 @@ public static class RatingsModel
             paramIndex[(parameters[i].DriverId, parameters[i].Season)] = i;
         }
 
-        var duelEntries = new (int WinnerIndex, int LoserIndex, double Weight)[duels.Count];
+        var pairs = new Pair[duels.Count];
         for (var i = 0; i < duels.Count; i++)
         {
             var d = duels[i];
-            duelEntries[i] = (
+            var wCar = -1;
+            var lCar = -1;
+            if (car is not null && d.LoserConstructorId is not null)
+            {
+                wCar = pCount + car.IndexByConstructorSeason[(d.ConstructorId, d.Season)];
+                lCar = pCount + car.IndexByConstructorSeason[(d.LoserConstructorId, d.Season)];
+            }
+
+            pairs[i] = new Pair(
                 paramIndex[(d.WinnerDriverId, d.Season)],
                 paramIndex[(d.LoserDriverId, d.Season)],
+                wCar,
+                lCar,
                 d.Weight);
         }
 
-        var s = new double[pCount];
-        var g = new double[pCount];
+        var links = new List<Link>(timeLinks.Count + (car?.Links.Count ?? 0));
+        foreach (var l in timeLinks)
+        {
+            links.Add(new Link(l.CurrentIndex, l.PreviousIndex, lambdaTime / l.GapYears));
+        }
 
-        ComputeLossAndGradient(s, duelEntries, timeLinks, lambdaTime, lambda0, out _, g);
+        var ridge = new double[n];
+        for (var i = 0; i < pCount; i++)
+        {
+            ridge[i] = lambda0;
+        }
+
+        if (car is not null)
+        {
+            foreach (var l in car.Links)
+            {
+                links.Add(new Link(pCount + l.CurrentIndex, pCount + l.PreviousIndex, car.LambdaCTime / l.GapYears));
+            }
+
+            for (var i = 0; i < cCount; i++)
+            {
+                ridge[pCount + i] = car.LambdaC0;
+            }
+        }
+
+        var problem = new Problem(pairs, links.ToArray(), ridge);
+
+        var s = new double[n];
+        var g = new double[n];
+
+        ComputeLossAndGradient(s, problem, out _, g);
 
         var initialMaxGrad = InfinityNorm(g);
         if (initialMaxGrad < ConvergenceTolerance)
         {
-            var initialSe = ComputeStandardErrors(s, duelEntries, timeLinks, lambdaTime, lambda0);
-            return new OptimizationResult(s, initialSe, 0, true, initialMaxGrad);
+            return Finish(s, ComputeStandardErrors(s, problem), pCount, 0, true, initialMaxGrad);
         }
 
         const int mHistory = 10;
@@ -239,33 +371,35 @@ public static class RatingsModel
                 sHistory.Clear();
                 yHistory.Clear();
                 rhoHistory.Clear();
-                for (var i = 0; i < pCount; i++)
+                for (var i = 0; i < n; i++)
                 {
                     dir[i] = -g[i];
                 }
                 dirDotGrad = Dot(dir, g);
             }
 
-            ComputeLossAndGradient(s, duelEntries, timeLinks, lambdaTime, lambda0, out var currentLoss, null);
+            ComputeLossAndGradient(s, problem, out var currentLoss, null);
 
             var alpha = 1.0;
             const double c1 = 1e-4;
-            var sNew = new double[pCount];
-            var gNew = new double[pCount];
+            var sNew = new double[n];
+            var gNew = new double[n];
             var lineSearchSucceeded = false;
+            var acceptedLoss = currentLoss;
 
             for (var ls = 0; ls < 40; ls++)
             {
-                for (var i = 0; i < pCount; i++)
+                for (var i = 0; i < n; i++)
                 {
                     sNew[i] = s[i] + alpha * dir[i];
                 }
 
-                ComputeLossAndGradient(sNew, duelEntries, timeLinks, lambdaTime, lambda0, out var newLoss, gNew);
+                ComputeLossAndGradient(sNew, problem, out var newLoss, gNew);
 
                 if (newLoss <= currentLoss + c1 * alpha * dirDotGrad)
                 {
                     lineSearchSucceeded = true;
+                    acceptedLoss = newLoss;
                     break;
                 }
 
@@ -278,16 +412,20 @@ public static class RatingsModel
             }
 
             currentMaxGrad = InfinityNorm(gNew);
-            if (currentMaxGrad < ConvergenceTolerance)
+
+            // The loss is flat along weakly identified directions (driver skill vs. car effect), where the
+            // gradient norm shrinks slowly: also stop when a full step no longer changes the loss.
+            var lossStalled = currentLoss - acceptedLoss <= LossStallTolerance * (1.0 + Math.Abs(currentLoss));
+            if (currentMaxGrad < ConvergenceTolerance || lossStalled)
             {
                 converged = true;
-                Array.Copy(sNew, s, pCount);
+                Array.Copy(sNew, s, n);
                 break;
             }
 
-            var sDiff = new double[pCount];
-            var yDiff = new double[pCount];
-            for (var i = 0; i < pCount; i++)
+            var sDiff = new double[n];
+            var yDiff = new double[n];
+            for (var i = 0; i < n; i++)
             {
                 sDiff[i] = sNew[i] - s[i];
                 yDiff[i] = gNew[i] - g[i];
@@ -308,113 +446,137 @@ public static class RatingsModel
                 rhoHistory.Add(1.0 / sy);
             }
 
-            Array.Copy(sNew, s, pCount);
-            Array.Copy(gNew, g, pCount);
+            Array.Copy(sNew, s, n);
+            Array.Copy(gNew, g, n);
         }
 
-        var se = ComputeStandardErrors(s, duelEntries, timeLinks, lambdaTime, lambda0);
-        return new OptimizationResult(s, se, iterations, converged, currentMaxGrad);
+        return Finish(s, ComputeStandardErrors(s, problem), pCount, iterations, converged, currentMaxGrad);
     }
 
+    private static OptimizationResult Finish(double[] x, double[] se, int pCount, int iterations, bool converged, double maxGrad)
+    {
+        return new OptimizationResult(
+            x[..pCount],
+            se[..pCount],
+            iterations,
+            converged,
+            maxGrad,
+            x[pCount..],
+            se[pCount..]);
+    }
+
+    private readonly record struct Pair(int W, int L, int WCar, int LCar, double Weight);
+
+    private readonly record struct Link(int Cur, int Prev, double Coef);
+
+    private sealed record Problem(Pair[] Duels, Link[] Links, double[] Ridge);
+
     private static void ComputeLossAndGradient(
-        double[] s,
-        (int WinnerIndex, int LoserIndex, double Weight)[] duels,
-        IReadOnlyList<TimeLink> timeLinks,
-        double lambdaTime,
-        double lambda0,
+        double[] x,
+        Problem problem,
         out double loss,
         double[]? grad)
     {
-        var pCount = s.Length;
+        var n = x.Length;
         loss = 0.0;
 
-        if (grad is not null)
+        var ridge = problem.Ridge;
+        for (var i = 0; i < n; i++)
         {
-            Array.Clear(grad, 0, pCount);
-            for (var i = 0; i < pCount; i++)
+            loss += ridge[i] * x[i] * x[i];
+            if (grad is not null)
             {
-                grad[i] = 2.0 * lambda0 * s[i];
+                grad[i] = 2.0 * ridge[i] * x[i];
             }
         }
 
-        var regLoss = 0.0;
-        for (var i = 0; i < pCount; i++)
-        {
-            regLoss += s[i] * s[i];
-        }
-        loss += lambda0 * regLoss;
-
+        var duels = problem.Duels;
         for (var i = 0; i < duels.Length; i++)
         {
-            var (w, l, weight) = duels[i];
-            var diff = s[w] - s[l];
+            var (w, l, wc, lc, weight) = duels[i];
+            var uw = x[w] + (wc >= 0 ? x[wc] : 0.0);
+            var ul = x[l] + (lc >= 0 ? x[lc] : 0.0);
+            var diff = uw - ul;
 
-            loss -= weight * LogSigmoid(diff);
+            // One exp per duel: sigmoid and log-sigmoid share e = exp(-|diff|).
+            var e = Math.Exp(-Math.Abs(diff));
+            var log1pE = Math.Log(1.0 + e);
+            loss += weight * (diff >= 0.0 ? log1pE : log1pE - diff);
 
             if (grad is not null)
             {
-                var sig = Sigmoid(diff);
+                var sig = diff >= 0.0 ? 1.0 / (1.0 + e) : e / (1.0 + e);
                 var gFactor = weight * (sig - 1.0);
                 grad[w] += gFactor;
                 grad[l] -= gFactor;
+                if (wc >= 0)
+                {
+                    grad[wc] += gFactor;
+                }
+
+                if (lc >= 0)
+                {
+                    grad[lc] -= gFactor;
+                }
             }
         }
 
-        for (var i = 0; i < timeLinks.Count; i++)
+        var links = problem.Links;
+        for (var i = 0; i < links.Length; i++)
         {
-            var link = timeLinks[i];
-            var penaltyCoeff = lambdaTime / link.GapYears;
-            var delta = s[link.CurrentIndex] - s[link.PreviousIndex];
+            var (cur, prev, coef) = links[i];
+            var delta = x[cur] - x[prev];
 
-            loss += penaltyCoeff * delta * delta;
+            loss += coef * delta * delta;
 
             if (grad is not null)
             {
-                var term = 2.0 * penaltyCoeff * delta;
-                grad[link.CurrentIndex] += term;
-                grad[link.PreviousIndex] -= term;
+                var term = 2.0 * coef * delta;
+                grad[cur] += term;
+                grad[prev] -= term;
             }
         }
     }
 
-    private static double[] ComputeStandardErrors(
-        double[] s,
-        (int WinnerIndex, int LoserIndex, double Weight)[] duels,
-        IReadOnlyList<TimeLink> timeLinks,
-        double lambdaTime,
-        double lambda0)
+    private static double[] ComputeStandardErrors(double[] x, Problem problem)
     {
-        var pCount = s.Length;
-        var hDiag = new double[pCount];
+        var n = x.Length;
+        var hDiag = new double[n];
 
-        for (var i = 0; i < pCount; i++)
+        for (var i = 0; i < n; i++)
         {
-            hDiag[i] = 2.0 * lambda0;
+            hDiag[i] = 2.0 * problem.Ridge[i];
         }
 
-        for (var i = 0; i < duels.Length; i++)
+        foreach (var (w, l, wc, lc, weight) in problem.Duels)
         {
-            var (w, l, weight) = duels[i];
-            var diff = s[w] - s[l];
+            var diff = x[w] + (wc >= 0 ? x[wc] : 0.0) - x[l] - (lc >= 0 ? x[lc] : 0.0);
             var sig = Sigmoid(diff);
             var hTerm = weight * sig * (1.0 - sig);
             hDiag[w] += hTerm;
             hDiag[l] += hTerm;
+            if (wc >= 0)
+            {
+                hDiag[wc] += hTerm;
+            }
+
+            if (lc >= 0)
+            {
+                hDiag[lc] += hTerm;
+            }
         }
 
-        for (var i = 0; i < timeLinks.Count; i++)
+        foreach (var (cur, prev, coef) in problem.Links)
         {
-            var link = timeLinks[i];
-            var hTerm = 2.0 * (lambdaTime / link.GapYears);
-            hDiag[link.CurrentIndex] += hTerm;
-            hDiag[link.PreviousIndex] += hTerm;
+            hDiag[cur] += 2.0 * coef;
+            hDiag[prev] += 2.0 * coef;
         }
 
-        var se = new double[pCount];
-        for (var i = 0; i < pCount; i++)
+        var se = new double[n];
+        for (var i = 0; i < n; i++)
         {
-            // Uncertainty: se[d,t] = 1 / sqrt(H[d,t][d,t]), the inverse square root
-            // of the Hessian diagonal at the optimum (an approximation).
+            // Uncertainty: se = 1 / sqrt(H[i][i]), the inverse square root of the Hessian diagonal
+            // at the optimum (an approximation that ignores off-diagonal terms).
             se[i] = 1.0 / Math.Sqrt(Math.Max(hDiag[i], 1e-12));
         }
 
@@ -523,18 +685,6 @@ public static class RatingsModel
         }
     }
 
-    private static double LogSigmoid(double x)
-    {
-        if (x >= 0.0)
-        {
-            return -Math.Log(1.0 + Math.Exp(-x));
-        }
-        else
-        {
-            return x - Math.Log(1.0 + Math.Exp(x));
-        }
-    }
-
     public static List<List<string>> FindComponents(IEnumerable<Duel> duels, IEnumerable<string> allDrivers)
     {
         var adjacency = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
@@ -606,6 +756,12 @@ public static class RatingsModel
 
         foreach (var d in duels)
         {
+            if (d.LoserConstructorId is not null)
+            {
+                // Cross-constructor duels feed the fit but are not "teammate evidence" for the ranked set.
+                continue;
+            }
+
             if (d.Kind == DuelKind.Race)
             {
                 raceCounts[d.WinnerDriverId] = raceCounts.GetValueOrDefault(d.WinnerDriverId) + 1;

@@ -24,6 +24,10 @@ public static class RatingsCommand
             "--w-quali",
             "--lambda-time",
             "--lambda-0",
+            "--lambda-c0",
+            "--lambda-c-time",
+            "--w-cross",
+            "--lambda-curve",
         };
 
         if (!CommandArgs.TryParse(args, start: 1, allowed, stderr, out var options, out _))
@@ -59,9 +63,30 @@ public static class RatingsCommand
         if (options.ContainsKey("--lambda-time") && !TryDouble(options, "--lambda-time", stderr, out lambdaTime)) return 1;
         if (options.ContainsKey("--lambda-0") && !TryDouble(options, "--lambda-0", stderr, out lambda0)) return 1;
 
-        if (wRace < 0 || wQuali < 0 || lambdaTime < 0 || lambda0 <= 0)
+        var lambdaC0 = RatingsModel.DefaultLambdaC0;
+        var lambdaCTime = RatingsModel.DefaultLambdaCTime;
+        var lambdaCurve = RatingsModel.DefaultLambdaCurve;
+        double? wCross = null;
+
+        if (options.ContainsKey("--lambda-c0") && !TryDouble(options, "--lambda-c0", stderr, out lambdaC0)) return 1;
+        if (options.ContainsKey("--lambda-c-time") && !TryDouble(options, "--lambda-c-time", stderr, out lambdaCTime)) return 1;
+        if (options.ContainsKey("--lambda-curve") && !TryDouble(options, "--lambda-curve", stderr, out lambdaCurve)) return 1;
+        if (options.ContainsKey("--w-cross"))
+        {
+            if (!TryDouble(options, "--w-cross", stderr, out var wCrossValue)) return 1;
+            wCross = wCrossValue;
+        }
+
+        if (wRace < 0 || wQuali < 0 || lambdaTime < 0 || lambda0 <= 0
+            || lambdaCTime < 0 || lambdaCurve < 0 || (wCross is < 0))
         {
             stderr.WriteLine("Weights and penalties must be positive (lambda-0 must be strictly positive).");
+            return 1;
+        }
+
+        if (lambdaC0 <= 0)
+        {
+            stderr.WriteLine("--lambda-c0 must be strictly positive (it provides car-effect identifiability).");
             return 1;
         }
 
@@ -94,9 +119,16 @@ public static class RatingsCommand
         }
 
         IReadOnlyList<ReferenceRankingDocument> refRankings = [];
+        var lineage = ConstructorLineageMap.Empty;
         try
         {
             var repoRoot = JolpicaCache.FindRepoRoot();
+            var lineagePath = Path.Combine(repoRoot, "data", "authored", "teams", "lineage.json");
+            if (File.Exists(lineagePath))
+            {
+                lineage = ConstructorLineageMap.Parse(File.ReadAllText(lineagePath));
+            }
+
             var refPath = Path.Combine(repoRoot, "data", "authored", "ratings", "reference_rankings.json");
             if (File.Exists(refPath))
             {
@@ -122,7 +154,12 @@ public static class RatingsCommand
             wRace,
             wQuali,
             lambdaTime,
-            lambda0);
+            lambda0,
+            lambdaC0,
+            lambdaCTime,
+            wCross,
+            lambdaCurve,
+            lineage);
 
         var reportsDir = StatsCommand.ReportsDirectory(cacheRoot);
         Directory.CreateDirectory(reportsDir);
@@ -150,26 +187,27 @@ public static class RatingsCommand
         return 0;
     }
 
-    public static RatingsReportDocument BuildReport(
+    /// <summary>
+    /// Fits the v1 model (driver skill + car effect) and returns every intermediate artifact. Pure and
+    /// deterministic: same input gives identical output.
+    /// </summary>
+    public static RatingsModelRun RunModel(
         IReadOnlyList<HistoricalRace> races,
         IReadOnlyList<HistoricalResult> results,
-        IReadOnlyList<HistoricalDriver> drivers,
-        IReadOnlyList<ReferenceRankingDocument> referenceRankings,
         int fromYear,
         int toYear,
         double wRace = RatingsModel.DefaultWRace,
         double wQuali = RatingsModel.DefaultWQuali,
         double lambdaTime = RatingsModel.DefaultLambdaTime,
-        double lambda0 = RatingsModel.DefaultLambda0)
+        double lambda0 = RatingsModel.DefaultLambda0,
+        double lambdaC0 = RatingsModel.DefaultLambdaC0,
+        double lambdaCTime = RatingsModel.DefaultLambdaCTime,
+        double? wCross = null,
+        ConstructorLineageMap? lineage = null)
     {
-        var driverNames = drivers.ToDictionary(
-            d => d.DriverId,
-            d => string.IsNullOrWhiteSpace(d.GivenName) && string.IsNullOrWhiteSpace(d.FamilyName)
-                ? d.DriverId
-                : $"{d.GivenName} {d.FamilyName}".Trim(),
-            StringComparer.Ordinal);
+        lineage ??= ConstructorLineageMap.Empty;
 
-        var duels = RatingsModel.ExtractDuels(races, results, fromYear, toYear, wRace, wQuali);
+        var duels = RatingsModel.ExtractDuels(races, results, fromYear, toYear, wRace, wQuali, includeCross: true, wCross);
 
         var distinctParams = duels
             .Select(d => (d.WinnerDriverId, d.Season))
@@ -183,8 +221,6 @@ public static class RatingsCommand
             .Select((p, idx) => new DriverSeasonParam(p.Item1, p.Season, idx))
             .ToList();
 
-        var paramByDriverAndSeason = parameters.ToDictionary(p => (p.DriverId, p.Season), p => p.Index);
-
         var timeLinks = new List<TimeLink>();
         var driverSeasonsGrouped = parameters
             .GroupBy(p => p.DriverId)
@@ -196,28 +232,111 @@ public static class RatingsCommand
             {
                 var prev = list[i - 1];
                 var curr = list[i];
-                var gap = curr.Season - prev.Season;
-                timeLinks.Add(new TimeLink(curr.Index, prev.Index, gap));
+                timeLinks.Add(new TimeLink(curr.Index, prev.Index, curr.Season - prev.Season));
             }
         }
 
+        // Car-effect parameters: one per (lineage key, season) that appears in a cross-constructor duel.
+        var carSeasonKeys = duels
+            .Where(d => d.LoserConstructorId is not null)
+            .SelectMany(d => new[] { (d.ConstructorId, d.Season), (d.LoserConstructorId!, d.Season) })
+            .Distinct()
+            .Select(x => (Raw: x.Item1, x.Season, Key: lineage.Resolve(x.Item1, x.Season)))
+            .ToList();
+
+        var carParams = carSeasonKeys
+            .Select(x => (x.Key, x.Season))
+            .Distinct()
+            .OrderBy(x => x.Season)
+            .ThenBy(x => x.Key, StringComparer.Ordinal)
+            .Select((x, idx) => new CarSeasonParam(x.Key, x.Season, idx))
+            .ToList();
+
+        var carIndexByKeySeason = carParams.ToDictionary(p => (p.Key, p.Season), p => p.Index);
+        var carIndexByConstructor = carSeasonKeys.ToDictionary(
+            x => (x.Raw, x.Season),
+            x => carIndexByKeySeason[(x.Key, x.Season)]);
+
+        var carLinks = new List<TimeLink>();
+        foreach (var group in carParams.GroupBy(p => p.Key, StringComparer.Ordinal))
+        {
+            var ordered = group.OrderBy(p => p.Season).ToList();
+            for (var i = 1; i < ordered.Count; i++)
+            {
+                carLinks.Add(new TimeLink(ordered[i].Index, ordered[i - 1].Index, ordered[i].Season - ordered[i - 1].Season));
+            }
+        }
+
+        var car = new CarModel(carParams, carLinks, carIndexByConstructor, lambdaC0, lambdaCTime);
+
+        var fit = RatingsModel.Fit(duels, parameters, timeLinks, lambdaTime, lambda0, car);
+        var metrics = RatingsModel.CalculateDriverMetrics(duels, parameters, fit);
+
+        var carEffects = carParams
+            .Select(p => new CarEffect(p.Key, p.Season, fit.C![p.Index], fit.CSe![p.Index]))
+            .ToList();
+
+        return new RatingsModelRun(duels, parameters, fit, metrics, carEffects);
+    }
+
+    public static RatingsReportDocument BuildReport(
+        IReadOnlyList<HistoricalRace> races,
+        IReadOnlyList<HistoricalResult> results,
+        IReadOnlyList<HistoricalDriver> drivers,
+        IReadOnlyList<ReferenceRankingDocument> referenceRankings,
+        int fromYear,
+        int toYear,
+        double wRace = RatingsModel.DefaultWRace,
+        double wQuali = RatingsModel.DefaultWQuali,
+        double lambdaTime = RatingsModel.DefaultLambdaTime,
+        double lambda0 = RatingsModel.DefaultLambda0,
+        double lambdaC0 = RatingsModel.DefaultLambdaC0,
+        double lambdaCTime = RatingsModel.DefaultLambdaCTime,
+        double? wCross = null,
+        double lambdaCurve = RatingsModel.DefaultLambdaCurve,
+        ConstructorLineageMap? lineage = null)
+    {
+        var driverNames = drivers.ToDictionary(
+            d => d.DriverId,
+            d => string.IsNullOrWhiteSpace(d.GivenName) && string.IsNullOrWhiteSpace(d.FamilyName)
+                ? d.DriverId
+                : $"{d.GivenName} {d.FamilyName}".Trim(),
+            StringComparer.Ordinal);
+
+        var birthYears = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var d in drivers)
+        {
+            if (d.DateOfBirth is { Length: >= 4 } dob
+                && int.TryParse(dob.AsSpan(0, 4), NumberStyles.None, CultureInfo.InvariantCulture, out var year))
+            {
+                birthYears[d.DriverId] = year;
+            }
+        }
+
+        var run = RunModel(races, results, fromYear, toYear, wRace, wQuali, lambdaTime, lambda0, lambdaC0, lambdaCTime, wCross, lineage);
+        var duels = run.Duels;
+        var parameters = run.Parameters;
+        var fitResult = run.Fit;
+        var driverMetrics = run.DriverMetrics;
+
+        // Connectivity and the ranked set stay defined by the teammate graph, as in v0.
+        var teammateDuels = duels.Where(d => d.LoserConstructorId is null).ToList();
         var allDriverIds = parameters.Select(p => p.DriverId).Distinct(StringComparer.Ordinal).ToList();
-        var components = RatingsModel.FindComponents(duels, allDriverIds);
+        var components = RatingsModel.FindComponents(teammateDuels, allDriverIds);
 
         var largestComponentSet = components.Count > 0
             ? new HashSet<string>(components[0], StringComparer.Ordinal)
             : new HashSet<string>(StringComparer.Ordinal);
 
-        var fitResult = RatingsModel.Fit(duels, parameters, timeLinks, lambdaTime, lambda0);
-        var driverMetrics = RatingsModel.CalculateDriverMetrics(duels, parameters, fitResult);
-
-        var raceDuelsCount = duels.Count(d => d.Kind == DuelKind.Race);
-        var qualiDuelsCount = duels.Count(d => d.Kind == DuelKind.Qualifying);
+        var raceDuelsCount = teammateDuels.Count(d => d.Kind == DuelKind.Race);
+        var qualiDuelsCount = teammateDuels.Count(d => d.Kind == DuelKind.Qualifying);
+        var crossRaceDuels = duels.Count(d => d.LoserConstructorId is not null && d.Kind == DuelKind.Race);
+        var crossQualiDuels = duels.Count(d => d.LoserConstructorId is not null && d.Kind == DuelKind.Qualifying);
         var racesCount = races.Count(r => r.Season >= fromYear && r.Season <= toYear && !r.IsIndianapolis500);
 
         var fitSummary = new RatingsFitSummary(
             RacesCount: racesCount,
-            TotalDuels: duels.Count,
+            TotalDuels: teammateDuels.Count,
             RaceDuels: raceDuelsCount,
             QualifyingDuels: qualiDuelsCount,
             DriverSeasonsCount: parameters.Count,
@@ -231,21 +350,76 @@ public static class RatingsCommand
             WRace: wRace,
             WQuali: wQuali,
             LambdaTime: lambdaTime,
-            Lambda0: lambda0);
+            Lambda0: lambda0,
+            CrossRaceDuels: crossRaceDuels,
+            CrossQualifyingDuels: crossQualiDuels,
+            CarSeasonsCount: run.CarEffects.Count,
+            LambdaC0: lambdaC0,
+            LambdaCTime: lambdaCTime,
+            WCross: wCross,
+            LambdaCurve: lambdaCurve);
 
-        // Drivers in largest component with >= 20 duels
+        // Career curves for every driver with enough seasons (v1 peak = smoothed peak, v0 3-season peak otherwise).
+        var curves = new Dictionary<string, CareerCurve?>(StringComparer.Ordinal);
+        foreach (var m in driverMetrics.Values)
+        {
+            curves[m.DriverId] = RatingsCurveModel.Build(
+                m.Seasons,
+                birthYears.TryGetValue(m.DriverId, out var by) ? by : null,
+                lambdaCurve);
+        }
+
+        double PeakValueOf(FittedDriverMetrics m) => curves[m.DriverId]?.PeakValue ?? m.CareerPeak;
+
+        // Drivers in largest component with >= 20 teammate duels
         var rankedMetrics = driverMetrics.Values
             .Where(m => largestComponentSet.Contains(m.DriverId) && m.TotalDuels >= 20)
-            .OrderByDescending(m => m.CareerPeak)
+            .OrderByDescending(PeakValueOf)
             .ThenByDescending(m => m.TotalDuels)
             .ThenBy(m => m.DriverId, StringComparer.Ordinal)
             .ToList();
 
+        var sortedPeaks = rankedMetrics.Select(PeakValueOf).OrderBy(v => v).ToList();
+
         var rankedList = new List<DriverRankingEntry>(rankedMetrics.Count);
+        var ratingEntries = new List<DriverRatingEntry>(rankedMetrics.Count);
+
+        // Era-relative per-season values: smoothed where a curve exists, raw skill otherwise.
+        var seasonValues = new Dictionary<int, List<double>>();
+        double SeasonValue(FittedDriverMetrics m, int season, double raw)
+        {
+            var curve = curves[m.DriverId];
+            return curve?.Smoothed.First(s => s.Season == season).Value ?? raw;
+        }
+
+        foreach (var m in rankedMetrics)
+        {
+            foreach (var (season, skill, _) in m.Seasons)
+            {
+                if (!seasonValues.TryGetValue(season, out var list))
+                {
+                    list = [];
+                    seasonValues[season] = list;
+                }
+
+                list.Add(SeasonValue(m, season, skill));
+            }
+        }
+
+        foreach (var list in seasonValues.Values)
+        {
+            list.Sort();
+        }
+
         for (var i = 0; i < rankedMetrics.Count; i++)
         {
             var m = rankedMetrics[i];
             var name = driverNames.GetValueOrDefault(m.DriverId, m.DriverId);
+            var peak = PeakValueOf(m);
+            var percentile = RatingsMapping.Percentile(peak, sortedPeaks);
+            var overall = RatingsMapping.Overall(percentile);
+            var stars = RatingsMapping.Stars(percentile);
+
             rankedList.Add(new DriverRankingEntry(
                 Rank: i + 1,
                 DriverId: m.DriverId,
@@ -254,7 +428,29 @@ public static class RatingsCommand
                 PeakSe: m.PeakSe,
                 PeakYears: m.PeakYears,
                 TotalDuels: m.TotalDuels,
-                ShortCareer: m.ShortCareer));
+                ShortCareer: m.ShortCareer,
+                PeakValue: peak,
+                Overall: overall,
+                Stars: stars));
+
+            var bySeason = new List<SeasonRating>(m.Seasons.Count);
+            foreach (var (season, skill, _) in m.Seasons)
+            {
+                var value = SeasonValue(m, season, skill);
+                var seasonPercentile = RatingsMapping.Percentile(value, seasonValues[season]);
+                bySeason.Add(new SeasonRating(season, value, RatingsMapping.Overall(seasonPercentile)));
+            }
+
+            ratingEntries.Add(new DriverRatingEntry(
+                Rank: i + 1,
+                DriverId: m.DriverId,
+                Name: name,
+                Overall: overall,
+                Stars: stars,
+                Percentile: percentile,
+                PeakValue: peak,
+                Curve: curves[m.DriverId],
+                RatingBySeason: bySeason));
         }
 
         var top50 = rankedList.Take(50).ToList();
@@ -264,6 +460,7 @@ public static class RatingsCommand
         var startDecade = (fromYear / 10) * 10;
         var endDecade = (toYear / 10) * 10;
         var topByDecade = new List<DecadeTopEntry>();
+        var carByDecade = new List<DecadeCarEffects>();
 
         for (var dec = startDecade; dec <= endDecade; dec += 10)
         {
@@ -309,9 +506,30 @@ public static class RatingsCommand
             {
                 topByDecade.Add(new DecadeTopEntry(decStart, top10));
             }
+
+            var carsInDecade = run.CarEffects
+                .Where(c => c.Season >= decStart && c.Season <= decEnd)
+                .GroupBy(c => c.Key, StringComparer.Ordinal)
+                .Select(g => new CarEffectEntry(g.Key, g.Average(c => c.Effect), g.Count()))
+                .ToList();
+
+            if (carsInDecade.Count > 0)
+            {
+                var top = carsInDecade
+                    .OrderByDescending(c => c.MeanEffect)
+                    .ThenBy(c => c.ConstructorKey, StringComparer.Ordinal)
+                    .Take(5)
+                    .ToList();
+                var bottom = carsInDecade
+                    .OrderBy(c => c.MeanEffect)
+                    .ThenBy(c => c.ConstructorKey, StringComparer.Ordinal)
+                    .Take(5)
+                    .ToList();
+                carByDecade.Add(new DecadeCarEffects(decStart, top, bottom));
+            }
         }
 
-        // Comparison with reference rankings
+        // Comparison with reference rankings (ranks follow the v1 peak)
         var refComparisons = new List<ReferenceComparisonReport>();
         foreach (var refRank in referenceRankings)
         {
@@ -358,7 +576,7 @@ public static class RatingsCommand
                 TopDisagreements: disagreements));
         }
 
-        // Insufficient data drivers (< 20 duels in largest component)
+        // Insufficient data drivers (< 20 teammate duels in largest component)
         var insufficientData = driverMetrics.Values
             .Where(m => largestComponentSet.Contains(m.DriverId) && m.TotalDuels < 20)
             .OrderByDescending(m => m.TotalDuels)
@@ -400,7 +618,9 @@ public static class RatingsCommand
             TopByDecade: topByDecade,
             ReferenceComparisons: refComparisons,
             InsufficientDataDrivers: insufficientData,
-            DisconnectedDrivers: disconnected);
+            DisconnectedDrivers: disconnected,
+            CarEffectsByDecade: carByDecade,
+            DriverRatings: ratingEntries);
     }
 
     private static bool TryInt(Dictionary<string, string> options, string flag, TextWriter stderr, out int val)

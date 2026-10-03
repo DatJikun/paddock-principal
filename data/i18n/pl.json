@@ -35,5 +35,17 @@
   "authored.error.era-inverted-period": "Okres epoki kończy się przed swoim początkiem: {detail}",
   "authored.error.era-source-url": "Brakuje adresu źródła epoki albo CPI, albo jest nieprawidłowy: {detail}",
   "authored.error.era-cpi-year": "Rok CPI brakuje, powtarza się albo jest poza zakresem: {detail}",
-  "authored.error.era-cpi-partial": "Rok CPI po roku bazowym musi być oznaczony jako niepełny: {detail}"
+  "authored.error.era-cpi-partial": "Rok CPI po roku bazowym musi być oznaczony jako niepełny: {detail}",
+  "config.error.people_source": "Nieznane źródło ludzi.",
+  "config.error.rules_source": "Nieznane źródło reguł.",
+  "config.error.ai_behavior": "Nieznane zachowanie AI.",
+  "config.error.fatality_level": "Nieznany poziom wypadków śmiertelnych.",
+  "config.error.history_strength_range": "Siła historii musi być od {min} do {max}.",
+  "config.error.randomness_range": "Losowość musi być od {min} do {max}.",
+  "config.error.start_year_min": "Kariera nie może zacząć się przed {year}.",
+  "config.error.player_team_required": "Wybierz zespół.",
+  "config.error.replay_needs_historical_rules": "Odtwarzanie historii wymaga historycznych reguł.",
+  "config.error.replay_needs_real_people": "Odtwarzanie historii wymaga prawdziwych ludzi.",
+  "config.error.late_start_needs_generated_people": "Start po {year} wymaga w pełni generowanych ludzi.",
+  "config.warning.history_strength_with_pure_random": "Siła historii nic nie zmienia, gdy AI jest czysto losowe."
 }

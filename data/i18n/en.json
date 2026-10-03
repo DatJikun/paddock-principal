@@ -35,5 +35,17 @@
   "authored.error.era-inverted-period": "Era period ends before it starts: {detail}",
   "authored.error.era-source-url": "Era or CPI source URL is missing or invalid: {detail}",
   "authored.error.era-cpi-year": "CPI year is missing, duplicated, or out of range: {detail}",
-  "authored.error.era-cpi-partial": "CPI year past the base year must be marked partial: {detail}"
+  "authored.error.era-cpi-partial": "CPI year past the base year must be marked partial: {detail}",
+  "config.error.people_source": "Unknown people source.",
+  "config.error.rules_source": "Unknown rules source.",
+  "config.error.ai_behavior": "Unknown AI behavior.",
+  "config.error.fatality_level": "Unknown fatality level.",
+  "config.error.history_strength_range": "History strength must be from {min} to {max}.",
+  "config.error.randomness_range": "Randomness must be from {min} to {max}.",
+  "config.error.start_year_min": "The career cannot start before {year}.",
+  "config.error.player_team_required": "Choose a team.",
+  "config.error.replay_needs_historical_rules": "Replaying history needs historical rules.",
+  "config.error.replay_needs_real_people": "Replaying history needs real people.",
+  "config.error.late_start_needs_generated_people": "A start after {year} needs fully generated people.",
+  "config.warning.history_strength_with_pure_random": "History strength is unused while AI is purely random."
 }

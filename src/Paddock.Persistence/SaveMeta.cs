@@ -1,3 +1,5 @@
+using Paddock.Domain.Career;
+
 namespace Paddock.Persistence;
 
 /// <summary>
@@ -15,12 +17,14 @@ public sealed record SaveMeta
         string playerTeamId,
         DateOnly currentGameDate,
         string worldDataHash,
-        ulong masterSeed)
+        ulong masterSeed,
+        CareerConfig careerConfig)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(careerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(managerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(playerTeamId);
         ArgumentException.ThrowIfNullOrWhiteSpace(worldDataHash);
+        ArgumentNullException.ThrowIfNull(careerConfig);
 
         CareerName = careerName;
         ManagerName = managerName;
@@ -28,6 +32,7 @@ public sealed record SaveMeta
         CurrentGameDate = currentGameDate;
         WorldDataHash = worldDataHash;
         MasterSeed = masterSeed;
+        CareerConfig = careerConfig;
     }
 
     public int SchemaVersion { get; init; }
@@ -47,4 +52,6 @@ public sealed record SaveMeta
     public string WorldDataHash { get; }
 
     public ulong MasterSeed { get; }
+
+    public CareerConfig CareerConfig { get; }
 }

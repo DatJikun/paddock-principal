@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.Data.Sqlite;
+using Paddock.Domain.Career;
 using Paddock.Domain.Random;
 
 namespace Paddock.Persistence;
@@ -21,11 +22,15 @@ public sealed class SaveFile : IDisposable
         _connection = connection;
     }
 
-    public static SaveFile Create(string path, SaveMeta meta)
+    public static SaveFile Create(string path, SaveMeta meta) =>
+        Create(path, meta, SaveMigrations.Production);
+
+    internal static SaveFile Create(string path, SaveMeta meta, IReadOnlyList<ISaveMigration> migrations)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         ArgumentNullException.ThrowIfNull(meta);
-        MigrationList.Validate(SaveMigrations.Production);
+        ArgumentNullException.ThrowIfNull(migrations);
+        MigrationList.Validate(migrations);
 
         var fullPath = Path.GetFullPath(path);
         var directory = Path.GetDirectoryName(fullPath);
@@ -45,7 +50,7 @@ public sealed class SaveFile : IDisposable
         {
             connection = OpenConnection(fullPath, SqliteOpenMode.ReadWriteCreate);
             Configure(connection);
-            CreateSchemaAndMeta(connection, meta, SaveMigrations.Production);
+            CreateSchemaAndMeta(connection, meta, migrations);
             return new SaveFile(connection);
         }
         catch
@@ -90,7 +95,7 @@ public sealed class SaveFile : IDisposable
         using var command = _connection.CreateCommand();
         command.CommandText = """
             SELECT schema_version, created_at_utc, saved_at_utc, career_name, manager_name,
-                   player_team_id, current_game_date, world_data_hash, master_seed
+                   player_team_id, current_game_date, world_data_hash, master_seed, career_config
             FROM meta
             WHERE id = 1
             """;
@@ -106,7 +111,8 @@ public sealed class SaveFile : IDisposable
             reader.GetString(5),
             ParseGameDate(reader.GetString(6)),
             reader.GetString(7),
-            ParseMasterSeed(reader.GetString(8)))
+            ParseMasterSeed(reader.GetString(8)),
+            ReadCareerConfig(reader.GetValue(9)))
         {
             SchemaVersion = ReadVersion(reader.GetValue(0)),
             CreatedAtUtc = ParseTimestamp(reader.GetString(1)),
@@ -166,6 +172,33 @@ public sealed class SaveFile : IDisposable
         }
 
         return RngStateCodec.Deserialize(payload);
+    }
+
+    public void WriteCareerConfig(CareerConfig config)
+    {
+        ThrowIfDisposed();
+        ArgumentNullException.ThrowIfNull(config);
+        var payload = config.ToCanonicalJson();
+
+        using var transaction = _connection.BeginTransaction();
+        try
+        {
+            using var command = _connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = "UPDATE meta SET career_config = $payload WHERE id = 1";
+            command.Parameters.Add("$payload", SqliteType.Text).Value = payload;
+            if (command.ExecuteNonQuery() != 1)
+            {
+                throw new InvalidDataException("Save meta row is missing.");
+            }
+
+            transaction.Commit();
+        }
+        catch
+        {
+            TryRollback(transaction);
+            throw;
+        }
     }
 
     public void Dispose()
@@ -287,9 +320,21 @@ public sealed class SaveFile : IDisposable
         DateTimeOffset now)
     {
         var timestamp = FormatTimestamp(now);
+        var includeConfig = ColumnExists(connection, transaction, "meta", "career_config");
         using var command = connection.CreateCommand();
         command.Transaction = transaction;
-        command.CommandText = """
+        command.CommandText = includeConfig
+            ? """
+            INSERT INTO meta (
+                id, schema_version, created_at_utc, saved_at_utc,
+                career_name, manager_name, player_team_id, current_game_date,
+                world_data_hash, master_seed, rng_states, career_config)
+            VALUES (
+                1, $schemaVersion, $createdAt, $savedAt,
+                $careerName, $managerName, $playerTeamId, $currentGameDate,
+                $worldDataHash, $masterSeed, NULL, $careerConfig)
+            """
+            : """
             INSERT INTO meta (
                 id, schema_version, created_at_utc, saved_at_utc,
                 career_name, manager_name, player_team_id, current_game_date,
@@ -308,6 +353,10 @@ public sealed class SaveFile : IDisposable
         command.Parameters.Add("$currentGameDate", SqliteType.Text).Value = FormatGameDate(meta.CurrentGameDate);
         command.Parameters.Add("$worldDataHash", SqliteType.Text).Value = meta.WorldDataHash;
         command.Parameters.Add("$masterSeed", SqliteType.Text).Value = meta.MasterSeed.ToString(CultureInfo.InvariantCulture);
+        if (includeConfig)
+        {
+            command.Parameters.Add("$careerConfig", SqliteType.Text).Value = meta.CareerConfig.ToCanonicalJson();
+        }
         if (command.ExecuteNonQuery() != 1)
         {
             throw new InvalidDataException("Save meta row was not inserted.");
@@ -346,6 +395,30 @@ public sealed class SaveFile : IDisposable
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT schema_version FROM meta WHERE id = 1";
         return ReadVersion(command.ExecuteScalar());
+    }
+
+    private static CareerConfig ReadCareerConfig(object? value)
+    {
+        if (value is not string payload || payload.Length == 0)
+        {
+            throw new InvalidDataException("Career config payload is malformed.");
+        }
+
+        return CareerConfigCodec.Read(payload);
+    }
+
+    private static bool ColumnExists(
+        SqliteConnection connection,
+        SqliteTransaction transaction,
+        string table,
+        string column)
+    {
+        using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = "SELECT 1 FROM pragma_table_info($table) WHERE name = $column";
+        command.Parameters.Add("$table", SqliteType.Text).Value = table;
+        command.Parameters.Add("$column", SqliteType.Text).Value = column;
+        return command.ExecuteScalar() is not null;
     }
 
     private static bool TableExists(SqliteConnection connection, string name)

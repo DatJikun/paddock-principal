@@ -16,6 +16,22 @@ public class TranslationCatalogTests
         TranslationKeys.BlockingItem,
         TranslationKeys.HumansNotReady,
         TranslationKeys.WaitingFor,
+        "people.gen.column.born",
+        "people.gen.column.id",
+        "people.gen.column.name",
+        "people.gen.column.nationality",
+        "people.gen.column.overall",
+        "people.gen.column.personality",
+        "people.gen.column.potential",
+        "people.gen.rating_explanation",
+        "people.personality.ambitious",
+        "people.personality.loyal",
+        "people.personality.mentor",
+        "people.personality.mercenary",
+        "people.personality.prestige",
+        "people.personality.seeks_security",
+        "people.personality.short_term",
+        "people.personality.team_player",
     ];
 
     [Fact]

@@ -1,6 +1,6 @@
 # Paddock Principal — ROADMAP
 
-**Status:** aktualne na 2026-09-26
+**Status:** aktualne na 2026-10-03
 **Zasada:** każda faza kończy się bramką, czyli czymś, co da się uruchomić i ocenić. Poza fazą 0 nie ma faz „tylko dokumentacja”.
 
 ---
@@ -26,7 +26,10 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - [x] #1 T1: solucja .NET 10, deterministyczny generator losowości (Xoshiro256**, strumienie), CI. Zmergowane.
 - [x] #2 R1: katalog 41 wymiarów regulaminu i oś czasu 1950–2026 (`data/authored/regulations/`). Zmergowane.
 - [x] #3 R2: 78 torów, 156 wersji układów, 1172 wyścigi przypisane do układów (`data/authored/tracks/`). Zmergowane.
-- [ ] #4 T2: importer Jolpica-F1 (PR #8). Czeka na zakończenie pobierania (limit API ~450 zapytań/h) i wynik `summary`.
+- [x] #4 T2 importer Jolpica-F1, T3 loader danych autorskich, T4 szkielet zapisu SQLite, T5 statystyki epok, T6 dane zespołów/technologii/personelu, T7 podgląd danych, T8 oceny v0 (porównania z partnerem). R3–R7 zmergowane.
+- [ ] Pełne pobieranie Jolpica (limit API ~450 zapytań/h) trwa; po nim `ratings` na prawdziwych danych i kalibracja v0.
+- [ ] Tryby gry jako osie (PP-046): `CareerConfig` (T21), generator ludzi (T13), harmonogram historyczny (T12), zdarzenia zespołów (R11).
+- [ ] Wcześniej zaczęte zadania fazy 2 (decyzja właściciela, PP-046): domena świata (T15), tick dnia (T16), kolejka komend (T17), SimRunner (T18), zapis encji (T19), inicjalizator świata (T20).
 - [ ] Model ocen kierowców (Claude), patrz niżej.
 - [ ] Oś czasu epok, drzewo technologii, kluczowy personel (`data/authored/`).
 - [ ] Raport do oceny właściciela (bramka).

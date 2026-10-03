@@ -13,6 +13,7 @@ public sealed partial class WorldState
     private readonly SortedDictionary<string, Organization> _organizations;
     private readonly SortedDictionary<string, Contract> _contracts;
     private readonly SortedDictionary<string, PersonKnowledge> _knowledge;
+    private readonly SortedDictionary<string, IWorldSection> _sections;
 
     private WorldState(
         GameDate currentDate,
@@ -20,7 +21,8 @@ public sealed partial class WorldState
         SortedDictionary<string, Person> persons,
         SortedDictionary<string, Organization> organizations,
         SortedDictionary<string, Contract> contracts,
-        SortedDictionary<string, PersonKnowledge> knowledge)
+        SortedDictionary<string, PersonKnowledge> knowledge,
+        SortedDictionary<string, IWorldSection> sections)
     {
         CurrentDate = currentDate;
         Ids = ids;
@@ -28,6 +30,7 @@ public sealed partial class WorldState
         _organizations = organizations;
         _contracts = contracts;
         _knowledge = knowledge;
+        _sections = sections;
     }
 
     public static WorldState At(GameDate currentDate) => new(
@@ -36,7 +39,8 @@ public sealed partial class WorldState
         new SortedDictionary<string, Person>(StringComparer.Ordinal),
         new SortedDictionary<string, Organization>(StringComparer.Ordinal),
         new SortedDictionary<string, Contract>(StringComparer.Ordinal),
-        new SortedDictionary<string, PersonKnowledge>(StringComparer.Ordinal));
+        new SortedDictionary<string, PersonKnowledge>(StringComparer.Ordinal),
+        new SortedDictionary<string, IWorldSection>(StringComparer.Ordinal));
 
     public GameDate CurrentDate { get; }
 
@@ -50,8 +54,59 @@ public sealed partial class WorldState
 
     public IReadOnlyList<PersonKnowledge> Knowledge => _knowledge.Values.ToArray();
 
+    /// <summary>The sections later systems keep in the world, in ordinal order of their names.</summary>
+    public IReadOnlyList<IWorldSection> Sections => _sections.Values.ToArray();
+
+    /// <summary>The section with that name, or null when the world has none.</summary>
+    public IWorldSection? Section(string name)
+    {
+        SectionNames.Require(name, nameof(name));
+        return _sections.TryGetValue(name, out var section) ? section : null;
+    }
+
+    /// <summary>The section with that name as <typeparamref name="T"/>, or null when the world has none.</summary>
+    public T? Section<T>(string name)
+        where T : class, IWorldSection
+    {
+        var section = Section(name);
+        if (section is null)
+        {
+            return null;
+        }
+
+        return section as T
+            ?? throw new InvalidOperationException($"Section '{name}' is a {section.GetType().Name}, not a {typeof(T).Name}.");
+    }
+
+    /// <summary>Adds the section, or replaces the one with the same name.</summary>
+    public WorldState WithSection(IWorldSection section)
+    {
+        ArgumentNullException.ThrowIfNull(section);
+        SectionNames.Require(section.Name, nameof(section));
+        ArgumentOutOfRangeException.ThrowIfLessThan(section.SchemaVersion, 1);
+        var sections = new SortedDictionary<string, IWorldSection>(_sections, StringComparer.Ordinal)
+        {
+            [section.Name] = section,
+        };
+        return new WorldState(CurrentDate, Ids, _persons, _organizations, _contracts, _knowledge, sections);
+    }
+
+    /// <summary>Drops the section. A world without sections hashes exactly as it did before sections existed.</summary>
+    public WorldState WithoutSection(string name)
+    {
+        SectionNames.Require(name, nameof(name));
+        if (!_sections.ContainsKey(name))
+        {
+            return this;
+        }
+
+        var sections = new SortedDictionary<string, IWorldSection>(_sections, StringComparer.Ordinal);
+        sections.Remove(name);
+        return new WorldState(CurrentDate, Ids, _persons, _organizations, _contracts, _knowledge, sections);
+    }
+
     public WorldState WithDate(GameDate currentDate) =>
-        new(currentDate, Ids, _persons, _organizations, _contracts, _knowledge);
+        new(currentDate, Ids, _persons, _organizations, _contracts, _knowledge, _sections);
 
     public Person GetPerson(PersonId id) => RequirePerson(id);
 
@@ -91,7 +146,7 @@ public sealed partial class WorldState
             spec.Truth);
         var persons = Clone(_persons);
         persons.Add(id.Value, person);
-        return (new WorldState(CurrentDate, ids, persons, _organizations, _contracts, _knowledge), id);
+        return (new WorldState(CurrentDate, ids, persons, _organizations, _contracts, _knowledge, _sections), id);
     }
 
     /// <summary>
@@ -120,7 +175,7 @@ public sealed partial class WorldState
             }
         }
 
-        return new WorldState(CurrentDate, Ids, persons, _organizations, contracts, knowledge);
+        return new WorldState(CurrentDate, Ids, persons, _organizations, contracts, knowledge, _sections);
     }
 
     /// <summary>
@@ -142,7 +197,7 @@ public sealed partial class WorldState
             }
         }
 
-        return new WorldState(CurrentDate, Ids, persons, _organizations, contracts, _knowledge);
+        return new WorldState(CurrentDate, Ids, persons, _organizations, contracts, _knowledge, _sections);
     }
 
     public (WorldState State, OrganizationId Id) AddOrganization(OrganizationSpec spec)
@@ -160,7 +215,7 @@ public sealed partial class WorldState
             []);
         var organizations = Clone(_organizations);
         organizations.Add(id.Value, organization);
-        return (new WorldState(CurrentDate, ids, _persons, organizations, _contracts, _knowledge), id);
+        return (new WorldState(CurrentDate, ids, _persons, organizations, _contracts, _knowledge, _sections), id);
     }
 
     /// <summary>
@@ -200,7 +255,7 @@ public sealed partial class WorldState
             }
         }
 
-        return new WorldState(CurrentDate, Ids, _persons, organizations, _contracts, knowledge);
+        return new WorldState(CurrentDate, Ids, _persons, organizations, _contracts, knowledge, _sections);
     }
 
     public WorldState LinkLineage(OrganizationId predecessor, OrganizationId successor, GameDate from, GameDate? to)
@@ -230,7 +285,7 @@ public sealed partial class WorldState
         var organizations = Clone(_organizations);
         organizations[predecessor.Value] = before.WithLineage(Append(before.Lineage, new LineageLink(successor, LineageDirection.Successor, from, to)));
         organizations[successor.Value] = after.WithLineage(Append(after.Lineage, new LineageLink(predecessor, LineageDirection.Predecessor, from, to)));
-        return new WorldState(CurrentDate, Ids, _persons, organizations, _contracts, _knowledge);
+        return new WorldState(CurrentDate, Ids, _persons, organizations, _contracts, _knowledge, _sections);
     }
 
     /// <summary>
@@ -301,7 +356,7 @@ public sealed partial class WorldState
 
         var contracts = Clone(_contracts);
         contracts.Add(id.Value, contract);
-        return (new WorldState(CurrentDate, ids, _persons, _organizations, contracts, _knowledge), id);
+        return (new WorldState(CurrentDate, ids, _persons, _organizations, contracts, _knowledge, _sections), id);
     }
 
     /// <summary>Drops the contract. The id stays issued.</summary>
@@ -310,7 +365,7 @@ public sealed partial class WorldState
         RequireContract(id);
         var contracts = Clone(_contracts);
         contracts.Remove(id.Value);
-        return new WorldState(CurrentDate, Ids, _persons, _organizations, contracts, _knowledge);
+        return new WorldState(CurrentDate, Ids, _persons, _organizations, contracts, _knowledge, _sections);
     }
 
     public WorldState SetKnowledge(PersonKnowledge knowledge)
@@ -320,7 +375,7 @@ public sealed partial class WorldState
         RequirePerson(knowledge.SubjectId);
         var beliefs = Clone(_knowledge);
         beliefs[KnowledgeKey(knowledge.ObserverId, knowledge.SubjectId)] = knowledge;
-        return new WorldState(CurrentDate, Ids, _persons, _organizations, _contracts, beliefs);
+        return new WorldState(CurrentDate, Ids, _persons, _organizations, _contracts, beliefs, _sections);
     }
 
     private Person RequirePerson(PersonId id)

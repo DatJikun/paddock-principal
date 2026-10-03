@@ -12,7 +12,9 @@ public sealed partial class WorldState
     /// The same contents always hash the same, including across processes.
     /// </summary>
     /// <remarks>
-    /// Format name: <c>paddock-world/1</c>.
+    /// Format name: <c>paddock-world/1</c> for a world without sections, <c>paddock-world/2</c> for a world with at least one.
+    /// Version 2 is version 1 with the first line changed and the <c>sections</c> block (last in the list below) appended,
+    /// so a world with no sections hashes exactly as before sections existed.
     /// The digest is SHA-256 over the UTF-8 bytes of the text produced below.
     /// Each line ends with LF. A string is <c>length:text</c>, where length is <see cref="string.Length"/>
     /// (UTF-16 code units). Stored strings contain no control characters, so a line stays one line.
@@ -73,7 +75,11 @@ public sealed partial class WorldState
     /// potential-band &lt;0|1&gt;
     /// potential-low &lt;int&gt;                  (only when potential-band is 1)
     /// potential-high &lt;int&gt;                 (only when potential-band is 1)
+    /// sections &lt;count&gt;                     (only in paddock-world/2)
+    /// section &lt;len&gt;:&lt;name&gt; &lt;schemaVersion&gt;
+    /// body &lt;len&gt;:&lt;text&gt;                    (the section's own canonical text, written through CanonicalWriter)
     /// </code>
+    /// Sections follow ordinal order of the name. The body is length-prefixed, so its own lines cannot be confused with these.
     /// One changed attribute changes this digest.
     /// </remarks>
     public string StateHash()
@@ -85,8 +91,8 @@ public sealed partial class WorldState
 
     private string CanonicalText()
     {
-        var canon = new Canon();
-        canon.Line("paddock-world/1");
+        var canon = new CanonicalWriter();
+        canon.Line(_sections.Count == 0 ? "paddock-world/1" : "paddock-world/2");
         canon.TextLine("date", CurrentDate.ToString());
         canon.Line(
             "ids person "
@@ -225,62 +231,22 @@ public sealed partial class WorldState
             }
         }
 
+        if (_sections.Count > 0)
+        {
+            canon.Count("sections", _sections.Count);
+            foreach (var section in _sections.Values)
+            {
+                var body = new CanonicalWriter();
+                section.WriteCanonical(body);
+                canon.Begin("section");
+                canon.Field(section.Name);
+                canon.Space();
+                canon.Raw(section.SchemaVersion.ToString(CultureInfo.InvariantCulture));
+                canon.End();
+                canon.TextLine("body", body.ToString());
+            }
+        }
+
         return canon.ToString();
-    }
-
-    private sealed class Canon
-    {
-        private readonly StringBuilder _builder = new();
-
-        public void Line(string text)
-        {
-            _builder.Append(text);
-            _builder.Append('\n');
-        }
-
-        public void Count(string label, int count) =>
-            Line(label + " " + count.ToString(CultureInfo.InvariantCulture));
-
-        public void Number(string label, long value) =>
-            Line(label + " " + value.ToString(CultureInfo.InvariantCulture));
-
-        public void Flag(string label, bool value) => Line(label + " " + (value ? "1" : "0"));
-
-        public void TextLine(string label, string value)
-        {
-            Begin(label);
-            Field(value);
-            End();
-        }
-
-        public void TextNumber(string label, string value, int number)
-        {
-            Begin(label);
-            Field(value);
-            Space();
-            Raw(number.ToString(CultureInfo.InvariantCulture));
-            End();
-        }
-
-        public void Begin(string label)
-        {
-            _builder.Append(label);
-            _builder.Append(' ');
-        }
-
-        public void Field(string value)
-        {
-            _builder.Append(value.Length.ToString(CultureInfo.InvariantCulture));
-            _builder.Append(':');
-            _builder.Append(value);
-        }
-
-        public void Space() => _builder.Append(' ');
-
-        public void Raw(string text) => _builder.Append(text);
-
-        public void End() => _builder.Append('\n');
-
-        public override string ToString() => _builder.ToString();
     }
 }

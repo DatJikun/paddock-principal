@@ -8,7 +8,8 @@ public sealed partial class WorldState
     /// Rebuilds a state from stored parts, for example when a save is loaded. The parts are checked the way
     /// the editing methods would have checked them: every id was issued, references resolve, no person holds two
     /// overlapping exclusive contracts, lineage links are reciprocal and form chains. Nothing is allocated, so the
-    /// <paramref name="ids"/> counters and issued list come back exactly as saved (INV-009).
+    /// <paramref name="ids"/> counters and issued list come back exactly as saved (INV-009). Sections are taken as given,
+    /// because only their owner can check them; names must be valid and unique.
     /// </summary>
     public static WorldState Restore(
         GameDate currentDate,
@@ -16,7 +17,8 @@ public sealed partial class WorldState
         IEnumerable<Person> persons,
         IEnumerable<Organization> organizations,
         IEnumerable<Contract> contracts,
-        IEnumerable<PersonKnowledge> knowledge)
+        IEnumerable<PersonKnowledge> knowledge,
+        IEnumerable<IWorldSection>? sections = null)
     {
         ArgumentNullException.ThrowIfNull(ids);
         ArgumentNullException.ThrowIfNull(persons);
@@ -126,7 +128,19 @@ public sealed partial class WorldState
             }
         }
 
-        return new WorldState(currentDate, ids, personMap, organizationMap, contractMap, knowledgeMap);
+        var sectionMap = new SortedDictionary<string, IWorldSection>(StringComparer.Ordinal);
+        foreach (var section in sections ?? [])
+        {
+            ArgumentNullException.ThrowIfNull(section);
+            SectionNames.Require(section.Name, nameof(sections));
+            ArgumentOutOfRangeException.ThrowIfLessThan(section.SchemaVersion, 1);
+            if (!sectionMap.TryAdd(section.Name, section))
+            {
+                throw new InvalidOperationException($"Section '{section.Name}' appears twice.");
+            }
+        }
+
+        return new WorldState(currentDate, ids, personMap, organizationMap, contractMap, knowledgeMap, sectionMap);
     }
 
     private static void RequireIssued(IdAllocator ids, string canonical)

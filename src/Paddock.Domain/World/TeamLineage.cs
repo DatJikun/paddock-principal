@@ -45,6 +45,40 @@ public static class TeamLineage
         return found;
     }
 
+    /// <summary>
+    /// Constructor steps of one lineage, earliest season first.
+    /// Spans that start in the same year keep their input order, which is the authored file order.
+    /// An unknown lineage id returns an empty list.
+    /// </summary>
+    public static IReadOnlyList<LineageSpan> Chain(string lineageId, IReadOnlyList<LineageSpan> spans)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(lineageId);
+        ArgumentNullException.ThrowIfNull(spans);
+
+        var indexed = new List<(LineageSpan Span, int Index)>();
+        for (var i = 0; i < spans.Count; i++)
+        {
+            if (string.Equals(spans[i].LineageId, lineageId, StringComparison.Ordinal))
+            {
+                indexed.Add((spans[i], i));
+            }
+        }
+
+        indexed.Sort(static (left, right) =>
+        {
+            var year = left.Span.FromYear.CompareTo(right.Span.FromYear);
+            return year != 0 ? year : left.Index.CompareTo(right.Index);
+        });
+
+        var chain = new LineageSpan[indexed.Count];
+        for (var i = 0; i < indexed.Count; i++)
+        {
+            chain[i] = indexed[i].Span;
+        }
+
+        return chain;
+    }
+
     private static bool Covers(LineageSpan span, int season)
     {
         if (span.ToYear is int toYear && span.FromYear > toYear)

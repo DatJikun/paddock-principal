@@ -22,5 +22,10 @@
   "people.personality.short_term": "Short-term",
   "people.personality.ambitious": "Ambitious",
   "people.personality.mentor": "Mentor",
-  "people.personality.team_player": "Team player"
+  "people.personality.team_player": "Team player",
+  "world.attribute.scale_explanation": "Attributes are whole numbers from {min} to {max}. They are estimates until they are calibrated.",
+  "world.knowledge.band_explanation": "A band ({low}–{high}) is what one organization believes about an attribute, not the true value. Both ends are whole numbers on the attribute scale, and the band can be wrong.",
+  "world.potential.explanation": "Potential is the hidden ceiling of an attribute: a whole number from {min} to {max}, never below the current value. An organization sees a band, not this ceiling. The ceiling is an estimate.",
+  "world.salary.explanation": "Salary is a whole number of nominal currency units on the contract. It is a placeholder estimate until the economy is calibrated.",
+  "world.budget.explanation": "Budget is a whole-number placeholder estimate for an organization's nominal money. It is not a calibrated season budget."
 }

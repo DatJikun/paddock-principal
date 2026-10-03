@@ -22,6 +22,11 @@ public class PeopleStringTests
         "people.personality.ambitious",
         "people.personality.mentor",
         "people.personality.team_player",
+        "world.attribute.scale_explanation",
+        "world.knowledge.band_explanation",
+        "world.potential.explanation",
+        "world.salary.explanation",
+        "world.budget.explanation",
     ];
 
     [Fact]
@@ -39,6 +44,12 @@ public class PeopleStringTests
 
         Assert.Contains("{starThreshold}", english["people.gen.rating_explanation"], StringComparison.Ordinal);
         Assert.Contains("{starThreshold}", polish["people.gen.rating_explanation"], StringComparison.Ordinal);
+        Assert.Contains("{min}", english["world.attribute.scale_explanation"], StringComparison.Ordinal);
+        Assert.Contains("{max}", polish["world.potential.explanation"], StringComparison.Ordinal);
+        Assert.Contains("{low}", english["world.knowledge.band_explanation"], StringComparison.Ordinal);
+        Assert.Contains("{high}", polish["world.knowledge.band_explanation"], StringComparison.Ordinal);
+        Assert.Contains("estimate", english["world.salary.explanation"], StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("szacun", polish["world.budget.explanation"], StringComparison.OrdinalIgnoreCase);
     }
 
     private static Dictionary<string, string> Load(string language)

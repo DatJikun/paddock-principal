@@ -32,6 +32,11 @@ public class TranslationCatalogTests
         "people.personality.seeks_security",
         "people.personality.short_term",
         "people.personality.team_player",
+        "world.attribute.scale_explanation",
+        "world.budget.explanation",
+        "world.knowledge.band_explanation",
+        "world.potential.explanation",
+        "world.salary.explanation",
     ];
 
     [Fact]

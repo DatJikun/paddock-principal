@@ -27,8 +27,9 @@ public enum SharedDriveRule
     SharedEqually,
 
     /// <summary>
-    /// A shared drive does not split points. ASSUMPTION: the car's points go in full to the car's primary driver
-    /// (the entry's driver) and the partners score nothing. The data says only that points were no longer split.
+    /// A shared drive scores no points: every driver of a car with more than one driver gets nothing.
+    /// The car's points are still computed and still go to its constructor (ESTIMATE: whether the constructor
+    /// should keep them is not stated by the data; confirm).
     /// </summary>
     NotShared,
 }

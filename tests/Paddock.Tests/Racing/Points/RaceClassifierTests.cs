@@ -209,18 +209,32 @@ public class RaceClassifierTests
     }
 
     [Fact]
-    public void SharedDrive1957_StillSplits_And1958_PaysThePrimaryDriverOnly()
+    public void SharedDrive1957_StillSplits_And1958_ScoresNoPointsForAnyDriverOfTheCar()
     {
-        var order = new[] { Car("a", 50, partners: "a2") };
+        var order = new[] { Car("a", 50, partners: "a2"), Car("b", 50) };
 
         var split = RaceClassifier.Classify(Rules(1957), order, new RaceContext(50));
-        var whole = RaceClassifier.Classify(Rules(1958), order, new RaceContext(50));
+        var none = RaceClassifier.Classify(Rules(1958), order, new RaceContext(50));
 
         Assert.Equal(4m, PointsOf(split, "a2"));
-        Assert.Equal(8m, PointsOf(whole, "a"));
-        Assert.Equal(0m, PointsOf(whole, "a2"));
-        Assert.Null(whole.DriverScores.Single(score => score.DriverId == "a2").Position);
-        Assert.Equal(8m, ConstructorPointsOf(whole, "a-team")); // the constructor scores the whole car
+        Assert.Equal(0m, PointsOf(none, "a"));
+        Assert.Equal(0m, PointsOf(none, "a2"));
+        Assert.All(["a", "a2"], id => Assert.Null(none.DriverScores.Single(score => score.DriverId == id).Position));
+        Assert.Equal(6m, PointsOf(none, "b")); // second place still pays: the shared car keeps its position
+        Assert.Equal(8m, ConstructorPointsOf(none, "a-team")); // constructor points are left as they are (to confirm)
+    }
+
+    [Fact]
+    public void SharedDrive1958_ASoloCarOfTheSameDriverStillScores()
+    {
+        // "x" drives his own car and also takes over a teammate's: only the solo car pays him.
+        var race = RaceClassifier.Classify(
+            Rules(1958),
+            [Car("a", 50, partners: "x"), Car("x", 50)],
+            new RaceContext(50));
+
+        Assert.Equal(0m, PointsOf(race, "a"));
+        Assert.Equal(6m, PointsOf(race, "x"));
     }
 
     [Fact]

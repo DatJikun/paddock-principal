@@ -24,7 +24,7 @@ public static class RaceClassifier
     /// Classified cars take positions 1..n in the given order; the rest follow.</item>
     /// <item>Points by classified position; the fastest-lap point (divided between tied cars) when the rule and its conditions allow;
     /// everything doubled in a double-points finale.</item>
-    /// <item>Shared drive: split equally between the drivers of the car, or paid to the primary driver only.</item>
+    /// <item>Shared drive: split equally between the drivers of the car, or (from 1958) no driver of it scores.</item>
     /// <item>Constructors: every classified car, or only the best-placed one, or nothing.</item>
     /// </list>
     /// A driver who appears in more than one car (primary in one, partner in another) keeps only his best share and best position.
@@ -120,9 +120,11 @@ public static class RaceClassifier
 
             for (var d = 0; d < drivers.Count; d++)
             {
-                var split = rules.SharedDrive == SharedDriveRule.SharedEqually;
-                var share = split ? carPoints / drivers.Count : (d == 0 ? carPoints : 0m);
-                int? driverPosition = classified[i] && (split || d == 0) ? position[i] : null;
+                // Shared car: split equally, or (from 1958) no driver of it scores at all.
+                var shared = drivers.Count > 1;
+                var scores = !shared || rules.SharedDrive == SharedDriveRule.SharedEqually;
+                var share = scores ? carPoints / drivers.Count : 0m;
+                int? driverPosition = classified[i] && scores ? position[i] : null;
                 AddDriver(driverPoints, driverOrder, drivers[d], share, driverPosition);
             }
         }

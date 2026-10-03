@@ -1,0 +1,54 @@
+{
+  "notes": "fixture",
+  "supply_types": [
+    {
+      "id": "works",
+      "meaning": "The constructor's own organization built the engine."
+    },
+    {
+      "id": "customer",
+      "meaning": "An outside supplier."
+    },
+    {
+      "id": "partner",
+      "meaning": "Factory supply."
+    },
+    {
+      "id": "badged",
+      "meaning": "The entered name is not the designer."
+    },
+    {
+      "id": "unknown",
+      "meaning": "Supplier or engine not established."
+    }
+  ],
+  "entries": [
+    {
+      "constructorId": "alfa",
+      "year": 1950,
+      "supplier": "Fixture",
+      "engine_name": "Fixture",
+      "type": "customer",
+      "confidence": "high",
+      "source": "https://example.com/fixture"
+    },
+    {
+      "constructorId": "ferrari",
+      "year": 1950,
+      "supplier": "Fixture",
+      "engine_name": "Fixture",
+      "type": "customer",
+      "confidence": "high",
+      "source": "https://example.com/fixture"
+    },
+    {
+      "constructorId": "folded_team",
+      "year": 1950,
+      "supplier": "Fixture",
+      "engine_name": "Fixture",
+      "type": "customer",
+      "confidence": "high",
+      "source": "https://example.com/fixture"
+    }
+  ]
+}

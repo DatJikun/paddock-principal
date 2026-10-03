@@ -1,0 +1,27 @@
+{
+  "notes": "fixture",
+  "organizations": [
+    {
+      "organization_id": "ferrari",
+      "season_count": 1,
+      "from": 1950,
+      "to": 1950,
+      "constructor_entries": [
+        {
+          "constructorId": "ferrari",
+          "from": 1950,
+          "to": 1950
+        }
+      ],
+      "founded": 1950,
+      "founders": [
+        "Fixture Founder"
+      ],
+      "country": "ITA",
+      "base_city": "Milan",
+      "confidence": "high",
+      "source": "https://example.com/fixture",
+      "notes": "fixture"
+    }
+  ]
+}

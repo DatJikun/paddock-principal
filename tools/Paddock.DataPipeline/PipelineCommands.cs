@@ -12,6 +12,7 @@ public static class PipelineCommands
           summary [--cache <dir>] [--from <year>] [--to <year>]
           stats [--cache <dir>] [--from <year>] [--to <year>]
           ratings [--cache <dir>] [--from <year>] [--to <year>] [--w-race <float>] [--w-quali <float>] [--lambda-time <float>] [--lambda-0 <float>]
+          schedule [--cache <dir>] [--pool-lead-years <years>]
         """;
 
     public static async Task<int> ExecuteAsync(
@@ -59,6 +60,8 @@ public static class PipelineCommands
                     return StatsCommand.Execute(args, stdout, stderr);
                 case "ratings":
                     return RatingsCommand.Execute(args, stdout, stderr);
+                case "schedule":
+                    return ScheduleCommand.Execute(args, stdout, stderr);
                 default:
                     stderr.WriteLine($"Unknown command: {args[0]}");
                     stderr.WriteLine(Usage);

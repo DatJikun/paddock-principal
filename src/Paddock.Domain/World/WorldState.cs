@@ -178,6 +178,28 @@ public sealed partial class WorldState
         return new WorldState(CurrentDate, Ids, persons, _organizations, contracts, knowledge, _sections);
     }
 
+    /// <summary>
+    /// Marks the person retired on <paramref name="on"/> and ends their contracts by removing them (the contract ids stay
+    /// issued). The person stays in the world with their truth and knowledge about them. Retiring twice is refused.
+    /// </summary>
+    public WorldState RetirePerson(PersonId id, GameDate on)
+    {
+        var person = RequirePerson(id);
+        var retired = person.Retire(on);
+        var persons = Clone(_persons);
+        persons[id.Value] = retired;
+        var contracts = Clone(_contracts);
+        foreach (var contract in _contracts.Values)
+        {
+            if (contract.PersonId == id)
+            {
+                contracts.Remove(contract.Id.Value);
+            }
+        }
+
+        return new WorldState(CurrentDate, Ids, persons, _organizations, contracts, _knowledge, _sections);
+    }
+
     public (WorldState State, OrganizationId Id) AddOrganization(OrganizationSpec spec)
     {
         ArgumentNullException.ThrowIfNull(spec);
@@ -305,7 +327,11 @@ public sealed partial class WorldState
     public (WorldState State, ContractId Id) AddContract(ContractSpec spec)
     {
         ArgumentNullException.ThrowIfNull(spec);
-        RequirePerson(spec.PersonId);
+        if (RequirePerson(spec.PersonId).IsRetired)
+        {
+            throw new InvalidOperationException($"Person '{spec.PersonId}' has retired and cannot sign a contract.");
+        }
+
         RequireOrganization(spec.OrganizationId);
         var (ids, id) = Ids.AllocateContract();
         var contract = new Contract(

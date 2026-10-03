@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using Paddock.Domain.Time;
 
 namespace Paddock.Domain.World;
 
@@ -35,6 +36,7 @@ public sealed partial class WorldState
     /// family &lt;len&gt;:&lt;name&gt;
     /// born &lt;len&gt;:&lt;date&gt;
     /// nationality &lt;len&gt;:&lt;text&gt;
+    /// retired &lt;len&gt;:&lt;date&gt;         (only for a retired person; an active person has no such line)
     /// roles &lt;count&gt;
     /// role &lt;len&gt;:&lt;driver or staff:RoleName&gt;
     /// attributes &lt;count&gt;
@@ -115,6 +117,11 @@ public sealed partial class WorldState
             canon.TextLine("family", person.FamilyName);
             canon.TextLine("born", person.BirthDate.ToString());
             canon.TextLine("nationality", person.Nationality);
+            if (person.RetiredOn is GameDate retiredOn)
+            {
+                canon.TextLine("retired", retiredOn.ToString());
+            }
+
             canon.Count("roles", person.Roles.Count);
             foreach (var role in person.Roles)
             {

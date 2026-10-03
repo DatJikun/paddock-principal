@@ -137,6 +137,40 @@ public class SpyTests
     }
 
     [Fact]
+    public void WhyViewUtilityDoesNotLeakHiddenFactors()
+    {
+        var baseTrace = FirstTrace();
+        var trace = baseTrace with
+        {
+            Options =
+            [
+                .. baseTrace.Options.Select((o, i) => o with
+                {
+                    Utility = 0.6 + i,
+                    Factors =
+                    [
+                        new TraceFactor("raw-draw", 0.5, PlayerVisible: true),
+                        new TraceFactor("hidden-bias", 0.1 + i, PlayerVisible: false),
+                    ],
+                }),
+            ],
+        };
+
+        foreach (var context in new[] { AccessContext.ForManager(Toy), AccessContext.ForAi(Toy) })
+        {
+            var view = WhyView.For(context, trace)!;
+            Assert.All(view.Options, o =>
+            {
+                // Utility - visible factors must reveal nothing about the hidden factor.
+                Assert.Equal(o.Factors.Sum(f => f.Contribution), o.Utility, 9);
+            });
+        }
+
+        var developer = WhyView.For(AccessContext.Developer, trace)!;
+        Assert.Equal(trace.Options.Select(o => o.Utility), developer.Options.Select(o => o.Utility));
+    }
+
+    [Fact]
     public void WhyViewHidesInvisibleOptionsAndTheChoiceIfItIsHidden()
     {
         var trace = FirstTrace() with

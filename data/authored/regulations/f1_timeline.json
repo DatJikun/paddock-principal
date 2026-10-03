@@ -114,7 +114,7 @@
     "to": null,
     "confidence": "high",
     "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
-    "notes": "From 1958 a shared drive no longer split points. Changing drivers mid-race stopped being a way to score."
+    "notes": "From 1958 a shared drive scored no points: a car driven by more than one driver was awarded no points to any of its drivers. Changing drivers mid-race stopped being a way to score."
   },
   {
     "dimension": "results_counted",

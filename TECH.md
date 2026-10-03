@@ -123,6 +123,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 
 ### 6.2. Save (`.paddock` = SQLite, tryb WAL)
 - **Główne tabele:** `meta` (wersja schematu, hash bazy, master seed, stan RNG, data gry), `people`, `person_attributes`, `organizations`, `org_lineage`, `contracts`, `cars`, `seasons`, `race_results`, `standings`, `chronicle` (rozbieżności), `hall_of_fame`, `inbox`, `decision_traces`.
+- **Świat w zapisie (V003, T19):** `persons`, `person_roles`, `person_attributes` (prawda i sufit w jednym wierszu), `organizations`, `org_names`, `org_lineage` (jedna krawędź na wiersz), `contracts`, `knowledge` i `knowledge_bands` (przekonania organizacji, tylko przedziały), `id_counters` i `retired_ids` (ID nigdy nie wracają, INV-009), `scheduled_events`, `managers`, `command_log`. Warstwa zapisu nie interpretuje ładunku zdarzeń ani komend: trzyma typ i tekst, a właściciel (Simulation, Application) go koduje. `WorldRepository` zapisuje i wczytuje świat w jednej transakcji, a zapis jest dozwolony tylko na granicy dnia (INV-007): świat z inną datą niż podana granica jest odrzucany przed zapisem. Limity rozmiaru i czasu w teście `WorldSizeTests` to ESTYMATY, nie skalibrowane cele.
 - **Migracje:** wersjonowane skrypty w kodzie, stosowane w jednej transakcji przy wczytaniu.
 - **Kompaktowanie (koniec sezonu):**
   - usuwamy dane okrążeń i szczegółowe ślady Spy;

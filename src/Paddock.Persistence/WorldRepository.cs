@@ -343,7 +343,12 @@ public sealed partial class WorldRepository
 
         using var counters = new Insert(connection, transaction, "id_counters", "name", "next_value");
         counters.Run("event_id", snapshot.NextEventId);
-        counters.Run("event_sequence", snapshot.NextEventSequence);
+        // The queue's first insertion sequence is 0, and the column rejects 0. A missing row loads as 0.
+        if (snapshot.NextEventSequence > 0)
+        {
+            counters.Run("event_sequence", snapshot.NextEventSequence);
+        }
+
         counters.Run("submission", snapshot.NextSubmissionNumber);
     }
 

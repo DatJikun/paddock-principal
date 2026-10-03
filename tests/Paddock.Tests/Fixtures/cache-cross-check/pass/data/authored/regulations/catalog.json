@@ -1,0 +1,14 @@
+[
+  {
+    "id": "points_scale",
+    "category": "sporting",
+    "name": "Points",
+    "type": "enum",
+    "values": [
+      "a",
+      "b"
+    ],
+    "unit": null,
+    "gameplay_effect": "Sets the points scale."
+  }
+]

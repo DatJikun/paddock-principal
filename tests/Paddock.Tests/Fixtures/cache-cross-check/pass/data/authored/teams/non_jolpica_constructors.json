@@ -1,0 +1,10 @@
+{
+  "notes": "Fixture id that never entered the championship under this id.",
+  "entries": [
+    {
+      "constructorId": "folded_team",
+      "reason": "Hand-authored id with no Jolpica constructorId.",
+      "source": "https://example.com/fixture"
+    }
+  ]
+}

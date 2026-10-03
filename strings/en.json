@@ -1,0 +1,10 @@
+{
+  "command.managerUnknown": "Unknown manager: {managerId}.",
+  "command.renameManager.empty": "A manager name cannot be empty.",
+  "command.setTeamNote.empty": "A team note cannot be empty.",
+  "command.setTeamNote.teamRequired": "A team note needs a team.",
+  "command.unknown": "Unknown command: {command}.",
+  "ready.blockingItem": "An unresolved matter is holding the clock.",
+  "ready.humansNotReady": "Time advances when every human manager is ready.",
+  "ready.waitingFor": "Waiting for {manager}."
+}

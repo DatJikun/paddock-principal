@@ -45,6 +45,7 @@ Ustawienia przy tworzeniu kariery. Presety mają nazwy (np. **„Najbardziej his
 - **Siła historii (0–100%):** jak chętnie aktorzy AI realizują propozycje historyczne (§2.4), gdy są sensowne.
   - Przy 100% świat bez udziału gracza idzie torem prawdziwej historii, a rozjeżdża się tam, gdzie gracz zainterweniuje. Jeśli zabierzesz Mercedesowi miejsce dla Hamiltona, Mercedes weźmie np. Alonso.
   - Przy 0% jest czysta symulacja.
+- **Osie trybu (PP-046):** ludzie (trajektoria / prawdziwy potencjał / prawdziwe nazwiska z losowymi umiejętnościami / w pełni generowani), przepisy (historyczne / głosowane co sezon), zachowanie AI (odtwarza historię / reaguje na sytuację / czysta losowość). Presety składają te osie, a ręczna zmiana jest zawsze możliwa.
 - **Suwak losowości:** rozwój, forma, awarie.
 - **Śmiertelność** (PP-006), **rok startu**, **zespół** (istniejący albo własny, §3).
 

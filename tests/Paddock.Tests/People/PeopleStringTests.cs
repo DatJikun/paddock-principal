@@ -22,6 +22,11 @@ public class PeopleStringTests
         "people.personality.ambitious",
         "people.personality.mentor",
         "people.personality.team_player",
+        "world.attribute.scale_explanation",
+        "world.knowledge.band_explanation",
+        "world.potential.explanation",
+        "world.salary.explanation",
+        "world.budget.explanation",
     ];
 
     [Fact]
@@ -34,6 +39,16 @@ public class PeopleStringTests
         {
             Assert.True(catalog.TryGet(language, "people.gen.rating_explanation", out TranslationEntry? explanation));
             Assert.Contains("{starThreshold}", explanation!.Text, StringComparison.Ordinal);
+        }
+        foreach (Language language in new[] { Language.Pl, Language.En })
+        {
+            Assert.True(catalog.TryGet(language, "world.attribute.scale_explanation", out TranslationEntry? scale));
+            Assert.Contains("{min}", scale!.Text, StringComparison.Ordinal);
+            Assert.True(catalog.TryGet(language, "world.potential.explanation", out TranslationEntry? potential));
+            Assert.Contains("{max}", potential!.Text, StringComparison.Ordinal);
+            Assert.True(catalog.TryGet(language, "world.knowledge.band_explanation", out TranslationEntry? band));
+            Assert.Contains("{low}", band!.Text, StringComparison.Ordinal);
+            Assert.Contains("{high}", band.Text, StringComparison.Ordinal);
         }
     }
 }

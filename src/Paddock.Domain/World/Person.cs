@@ -1,0 +1,150 @@
+using Paddock.Domain.People;
+using Paddock.Domain.Time;
+
+namespace Paddock.Domain.World;
+
+/// <summary>
+/// Input for <see cref="WorldState.AddPerson"/>. The world assigns the id.
+/// </summary>
+public sealed class PersonSpec
+{
+    public PersonSpec(
+        string givenName,
+        string familyName,
+        GameDate birthDate,
+        string nationality,
+        bool isReal,
+        string? realId,
+        IReadOnlyList<PersonRole> roles,
+        PersonTruth truth)
+    {
+        GivenName = DisplayText.Require(givenName, nameof(givenName));
+        FamilyName = DisplayText.Require(familyName, nameof(familyName));
+        if (birthDate.Year < GenerationEstimates.MinBirthYear || birthDate.Year > GenerationEstimates.MaxBirthYear)
+        {
+            throw new ArgumentOutOfRangeException(nameof(birthDate), birthDate, "Birth year is outside the supported range.");
+        }
+
+        BirthDate = birthDate;
+        Nationality = DisplayText.Require(nationality, nameof(nationality));
+        if (isReal == string.IsNullOrWhiteSpace(realId))
+        {
+            throw new ArgumentException(
+                "A real person needs an authored id, and a generated person must not have one.",
+                nameof(realId));
+        }
+
+        IsReal = isReal;
+        RealId = isReal ? IdText.RequireReal(realId!, nameof(realId)) : null;
+        ArgumentNullException.ThrowIfNull(roles);
+        ArgumentNullException.ThrowIfNull(truth);
+        Roles = roles;
+        Truth = truth;
+    }
+
+    public string GivenName { get; }
+
+    public string FamilyName { get; }
+
+    public GameDate BirthDate { get; }
+
+    public string Nationality { get; }
+
+    public bool IsReal { get; }
+
+    public string? RealId { get; }
+
+    public IReadOnlyList<PersonRole> Roles { get; }
+
+    public PersonTruth Truth { get; }
+}
+
+/// <summary>
+/// A person in the world: identity, roles held, and simulation truth.
+/// Knowledge about this person is stored per organization, not here.
+/// </summary>
+public sealed class Person
+{
+    public Person(
+        PersonId id,
+        string givenName,
+        string familyName,
+        GameDate birthDate,
+        string nationality,
+        bool isReal,
+        IReadOnlyList<PersonRole> roles,
+        PersonTruth truth)
+    {
+        if (!id.IsAssigned)
+        {
+            throw new ArgumentException("Person id is unassigned.", nameof(id));
+        }
+
+        if (id.IsReal != isReal)
+        {
+            throw new ArgumentException("IsReal does not match the id.", nameof(isReal));
+        }
+
+        Id = id;
+        GivenName = DisplayText.Require(givenName, nameof(givenName));
+        FamilyName = DisplayText.Require(familyName, nameof(familyName));
+        if (birthDate.Year < GenerationEstimates.MinBirthYear || birthDate.Year > GenerationEstimates.MaxBirthYear)
+        {
+            throw new ArgumentOutOfRangeException(nameof(birthDate), birthDate, "Birth year is outside the supported range.");
+        }
+
+        BirthDate = birthDate;
+        Nationality = DisplayText.Require(nationality, nameof(nationality));
+        IsReal = isReal;
+        Roles = CanonicalRoles(roles);
+        Truth = truth ?? throw new ArgumentNullException(nameof(truth));
+    }
+
+    public PersonId Id { get; }
+
+    public string GivenName { get; }
+
+    public string FamilyName { get; }
+
+    public string Name => GivenName + " " + FamilyName;
+
+    public GameDate BirthDate { get; }
+
+    public string Nationality { get; }
+
+    public bool IsReal { get; }
+
+    public IReadOnlyList<PersonRole> Roles { get; }
+
+    public PersonTruth Truth { get; }
+
+    private static PersonRole[] CanonicalRoles(IReadOnlyList<PersonRole> roles)
+    {
+        ArgumentNullException.ThrowIfNull(roles);
+        if (roles.Count == 0)
+        {
+            throw new ArgumentException("A person holds at least one role.", nameof(roles));
+        }
+
+        var copy = new PersonRole[roles.Count];
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        for (var i = 0; i < roles.Count; i++)
+        {
+            var role = roles[i];
+            if (!role.IsAssigned)
+            {
+                throw new ArgumentException("A role is unassigned.", nameof(roles));
+            }
+
+            if (!seen.Add(role.ToString()))
+            {
+                throw new ArgumentException("Duplicate role '" + role + "'.", nameof(roles));
+            }
+
+            copy[i] = role;
+        }
+
+        Array.Sort(copy, static (left, right) => string.CompareOrdinal(left.ToString(), right.ToString()));
+        return copy;
+    }
+}

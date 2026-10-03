@@ -3,10 +3,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Paddock.Application.Career;
+using Paddock.Application.Pool;
 using Paddock.Data.Authored;
 using Paddock.Data.Historical;
 using Paddock.Data.World;
 using Paddock.Domain.Career;
+using Paddock.Domain.Pool;
 using Paddock.Simulation.Career;
 
 namespace Paddock.SimRunner;
@@ -178,7 +180,18 @@ public static class RunCommand
             ("staffFrom", Number(CareerDayEstimates.StaffRetirementFromAge)),
             ("staffCertain", Number(CareerDayEstimates.StaffRetirementCertainAge)),
             ("entryDate", CareerDayEstimates.PoolEntryDateText()),
-            ("intake", Number(CareerDayEstimates.GeneratedIntakePerSeason))));
+            ("poolTarget", Number(PoolEstimates.TargetSize))));
+        stdout.WriteLine(Fill(
+            strings.Required(PoolKeys.Estimates),
+            ("entryDate", CareerDayEstimates.PoolEntryDateText()),
+            ("target", Number(PoolEstimates.TargetSize)),
+            ("maxSeasons", Number(PoolEstimates.MaxSeasonsInPool)),
+            ("maxAge", Number(PoolEstimates.MaxAge)),
+            ("rate", Number(PoolEstimates.DevelopmentRatePercent)),
+            ("luckMin", Number(PoolEstimates.LuckMinPercent)),
+            ("luckMax", Number(PoolEstimates.LuckMaxPercent)),
+            ("cheapSpeed", Number(PoolEstimates.CheapSlowSpeedPercent)),
+            ("fastSpeed", Number(PoolEstimates.ExpensiveFastSpeedPercent))));
         stdout.WriteLine(strings.Required(CareerRunText.HashNote));
         stdout.WriteLine(Fill(
             strings.Required(CareerRunText.Ai),

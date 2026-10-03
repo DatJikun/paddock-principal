@@ -74,7 +74,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 ## 4. Determinizm i RNG
 
 - **Master seed na karierę.** Każdy strumień ma ziarno wyprowadzone przez `hash(master, nazwaStrumienia, sezon, [runda])`. Dzięki temu dodatkowy rzut w jednym systemie nie przesuwa innych, a wynik sezonu X nie zależy od tego, ile losowań zużył sezon X−1.
-- **Strumienie:** `Weather`, `LapNoise`, `Incidents`, `Failures`, `PitStops`, `Market`, `AiDecisions`, `People` (generator i rozwój), `History` (ocena propozycji historycznych), `LifeEvents`, `Regulations` (propozycje i głosowania zmian regulaminu w trybie `VotedEachSeason`).
+- **Strumienie:** `Weather`, `LapNoise`, `Incidents`, `Failures`, `PitStops`, `Market`, `AiDecisions`, `People` (generator i rozwój), `History` (ocena propozycji historycznych), `LifeEvents`, `Regulations` (propozycje i głosowania zmian regulaminu w trybie `VotedEachSeason`), `Scouting` (szum obserwacji skautów, T40; osobno od `People`, żeby dodatkowy scouting nie przesuwał rozwoju ani fillerów).
 - **Generator:** Xoshiro256** z jawnym stanem zapisywanym w save.
 - **Liczby:** `double`. Gwarancja determinizmu obejmuje ten sam build na x64. Arytmetykę stałoprzecinkową rozważymy tylko wtedy, gdy testy regresji to wymuszą.
 - **Test regresji:** SimRunner przelicza N sezonów i porównuje hash stanu z zapisanym wzorcem.

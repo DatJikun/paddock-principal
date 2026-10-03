@@ -1,0 +1,464 @@
+[
+  {
+    "year": 1950,
+    "cpi": 1,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1951,
+    "cpi": 2,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1952,
+    "cpi": 3,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1953,
+    "cpi": 4,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1954,
+    "cpi": 5,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1955,
+    "cpi": 6,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1956,
+    "cpi": 7,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1957,
+    "cpi": 8,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1958,
+    "cpi": 9,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1959,
+    "cpi": 10,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1960,
+    "cpi": 11,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1961,
+    "cpi": 12,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1962,
+    "cpi": 13,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1963,
+    "cpi": 14,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1964,
+    "cpi": 15,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1965,
+    "cpi": 16,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1966,
+    "cpi": 17,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1967,
+    "cpi": 18,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1968,
+    "cpi": 19,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1969,
+    "cpi": 20,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1970,
+    "cpi": 21,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1971,
+    "cpi": 22,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1972,
+    "cpi": 23,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1973,
+    "cpi": 24,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1974,
+    "cpi": 25,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1975,
+    "cpi": 26,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1976,
+    "cpi": 27,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1977,
+    "cpi": 28,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1978,
+    "cpi": 29,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1979,
+    "cpi": 30,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1980,
+    "cpi": 31,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1981,
+    "cpi": 32,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1982,
+    "cpi": 33,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1983,
+    "cpi": 34,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1984,
+    "cpi": 35,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1985,
+    "cpi": 36,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1986,
+    "cpi": 37,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1987,
+    "cpi": 38,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1988,
+    "cpi": 39,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1989,
+    "cpi": 40,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1990,
+    "cpi": 41,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1991,
+    "cpi": 42,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1992,
+    "cpi": 43,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1993,
+    "cpi": 44,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1994,
+    "cpi": 45,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1995,
+    "cpi": 46,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1996,
+    "cpi": 47,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1997,
+    "cpi": 48,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1998,
+    "cpi": 49,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 1999,
+    "cpi": 50,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2000,
+    "cpi": 51,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2001,
+    "cpi": 52,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2002,
+    "cpi": 53,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2003,
+    "cpi": 54,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2004,
+    "cpi": 55,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2005,
+    "cpi": 56,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2006,
+    "cpi": 57,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2007,
+    "cpi": 58,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2008,
+    "cpi": 59,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2009,
+    "cpi": 60,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2010,
+    "cpi": 61,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2011,
+    "cpi": 62,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2012,
+    "cpi": 63,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2013,
+    "cpi": 64,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2014,
+    "cpi": 65,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2015,
+    "cpi": 66,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2016,
+    "cpi": 67,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2017,
+    "cpi": 68,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2018,
+    "cpi": 69,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2019,
+    "cpi": 70,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2020,
+    "cpi": 71,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2021,
+    "cpi": 72,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2022,
+    "cpi": 73,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2023,
+    "cpi": 74,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2024,
+    "cpi": 75,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2025,
+    "cpi": 76,
+    "partial": false,
+    "source": "https://example.com/cpi"
+  },
+  {
+    "year": 2026,
+    "cpi": 77,
+    "partial": true,
+    "source": "https://example.com/cpi"
+  }
+]

@@ -6,5 +6,21 @@
   "command.unknown": "Unknown command: {command}.",
   "ready.blockingItem": "An unresolved matter is holding the clock.",
   "ready.humansNotReady": "Time advances when every human manager is ready.",
-  "ready.waitingFor": "Waiting for {manager}."
+  "ready.waitingFor": "Waiting for {manager}.",
+  "people.gen.rating_explanation": "Overall is the era-weighted sum of the attributes (each 1–20), scaled to 1–100. Potential is the hidden ceiling and is never below overall. A person counts as a star at potential {starThreshold} or higher. Weights, age bands, and this threshold are estimates and can be edited without changing the generator.",
+  "people.gen.column.id": "id",
+  "people.gen.column.name": "name",
+  "people.gen.column.nationality": "nationality",
+  "people.gen.column.born": "born",
+  "people.gen.column.overall": "overall",
+  "people.gen.column.potential": "potential",
+  "people.gen.column.personality": "personality",
+  "people.personality.seeks_security": "Seeks security",
+  "people.personality.mercenary": "Mercenary",
+  "people.personality.loyal": "Loyal",
+  "people.personality.prestige": "Prestige",
+  "people.personality.short_term": "Short-term",
+  "people.personality.ambitious": "Ambitious",
+  "people.personality.mentor": "Mentor",
+  "people.personality.team_player": "Team player"
 }

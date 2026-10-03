@@ -1,5 +1,7 @@
 using System.Xml.Linq;
 using Paddock.Domain.Random;
+using Paddock.Domain.Spy;
+using Paddock.Simulation.Racing.Pits;
 
 namespace Paddock.Tests.Architecture;
 
@@ -29,8 +31,22 @@ public class LayeringTests
         Assert.Equal(["Paddock.Domain"], ProjectReferences("src/Paddock.Persistence/Paddock.Persistence.csproj"));
         Assert.Equal(["Paddock.Domain"], ProjectReferences("src/Paddock.Data/Paddock.Data.csproj"));
         Assert.Equal(["Paddock.Application"], ProjectReferences("src/Paddock.Desktop/Paddock.Desktop.csproj"));
-        Assert.Equal(["Paddock.Application"], ProjectReferences("tools/Paddock.SimRunner/Paddock.SimRunner.csproj"));
+        Assert.Equal(["Paddock.Application", "Paddock.Data"], ProjectReferences("tools/Paddock.SimRunner/Paddock.SimRunner.csproj"));
         Assert.Equal(["Paddock.Application", "Paddock.Data"], ProjectReferences("tools/Paddock.DataPipeline/Paddock.DataPipeline.csproj"));
+    }
+
+    [Fact]
+    public void TraceTypesLiveInDomainSoSimulationAiCanRecordThem()
+    {
+        var domain = typeof(Xoshiro256StarStar).Assembly;
+        foreach (var type in new[] { typeof(DecisionTrace), typeof(TraceOption), typeof(TraceFactor), typeof(WeekendKey), typeof(ITraceSink), typeof(NullSink), typeof(MemorySink) })
+        {
+            Assert.Same(domain, type.Assembly);
+            Assert.Equal("Paddock.Domain.Spy", type.Namespace);
+        }
+
+        var simulation = typeof(RuleBasedStrategist).Assembly;
+        Assert.DoesNotContain(simulation.GetReferencedAssemblies(), assembly => assembly.Name == "Paddock.Application");
     }
 
     private static List<string> ProjectReferences(string relativeCsproj)

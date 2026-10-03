@@ -1,0 +1,46 @@
+[
+  {
+    "id": "rear_engine",
+    "name": "Rear engine",
+    "area": "chassis",
+    "first_used": {
+      "season": 1950,
+      "team": "alfa",
+      "car": "158",
+      "source": "https://example.com/fixture",
+      "note": "fixture"
+    },
+    "widespread_by": 1950,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": 1950,
+      "reason": "fixture",
+      "source": "https://example.com/fixture"
+    },
+    "effect_summary": "fixture",
+    "confidence": "high"
+  },
+  {
+    "id": "cfd",
+    "name": "CFD",
+    "area": "other",
+    "first_used": {
+      "season": null,
+      "team": null,
+      "car": null,
+      "source": "https://example.com/fixture",
+      "note": "fixture"
+    },
+    "widespread_by": null,
+    "banned": [],
+    "prerequisites": [],
+    "earliest_plausible": {
+      "season": null,
+      "reason": "fixture",
+      "source": "https://example.com/fixture"
+    },
+    "effect_summary": "fixture",
+    "confidence": "high"
+  }
+]

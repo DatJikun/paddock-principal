@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "results": [
+    {
+      "season": 1950,
+      "round": 1,
+      "driverId": "fangio",
+      "constructorId": "alfa",
+      "carNumber": "1",
+      "position": 1,
+      "positionText": "1",
+      "status": "Finished",
+      "points": 8,
+      "grid": 1,
+      "laps": 70,
+      "time": null,
+      "timeMillis": null,
+      "isClassified": true,
+      "isDisqualified": false,
+      "isSharedDrive": false
+    },
+    {
+      "season": 1950,
+      "round": 2,
+      "driverId": "farina",
+      "constructorId": "ferrari",
+      "carNumber": "1",
+      "position": 1,
+      "positionText": "1",
+      "status": "Finished",
+      "points": 8,
+      "grid": 1,
+      "laps": 70,
+      "time": null,
+      "timeMillis": null,
+      "isClassified": true,
+      "isDisqualified": false,
+      "isSharedDrive": false
+    }
+  ]
+}

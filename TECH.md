@@ -74,7 +74,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 ## 4. Determinizm i RNG
 
 - **Master seed na karierę.** Każdy strumień ma ziarno wyprowadzone przez `hash(master, nazwaStrumienia, sezon, [runda])`. Dzięki temu dodatkowy rzut w jednym systemie nie przesuwa innych, a wynik sezonu X nie zależy od tego, ile losowań zużył sezon X−1.
-- **Strumienie:** `Weather`, `LapNoise`, `Incidents`, `Failures`, `PitStops`, `Market`, `AiDecisions`, `People` (generator i rozwój), `History` (ocena propozycji historycznych), `LifeEvents`.
+- **Strumienie:** `Weather`, `LapNoise`, `Incidents`, `Failures`, `PitStops`, `Market`, `AiDecisions`, `People` (generator i rozwój), `History` (ocena propozycji historycznych), `LifeEvents`, `Regulations` (propozycje i głosowania zmian regulaminu w trybie `VotedEachSeason`).
 - **Generator:** Xoshiro256** z jawnym stanem zapisywanym w save.
 - **Liczby:** `double`. Gwarancja determinizmu obejmuje ten sam build na x64. Arytmetykę stałoprzecinkową rozważymy tylko wtedy, gdy testy regresji to wymuszą.
 - **Test regresji:** SimRunner przelicza N sezonów i porównuje hash stanu z zapisanym wzorcem.
@@ -155,6 +155,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Dwa poziomy wglądu:**
   - Spy deweloperski (SimRunner, flaga `--spy`) widzi wszystko;
   - „Dlaczego” dla gracza jest filtrowane przez `AccessContext`: raporty inżynierów, słowa agentów, komunikaty radiowe.
+- **Warstwy:** typy trace'a (`DecisionTrace`, `TraceOption`, `TraceFactor`, `WeekendKey`) i `ITraceSink` z `NullSink`/`MemorySink` leżą w `Paddock.Domain.Spy`, żeby AI w `Paddock.Simulation` mogło zapisywać trace bez referencji do Application. W Application zostają filtrowanie przez `AccessContext` (`WhyView`) oraz `FileSink`/JSON. `DecisionTrace.Who` to stabilne ID aktora jako `string`.
 - **Retencja:** bufor w RAM na bieżący weekend. W save zostają tylko kluczowe decyzje (transfery, tytuły, duże awarie), a resztę można zrzucić do pliku na żądanie.
 
 ---

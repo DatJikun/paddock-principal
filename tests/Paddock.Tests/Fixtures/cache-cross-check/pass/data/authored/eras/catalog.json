@@ -1,0 +1,14 @@
+[
+  {
+    "id": "tobacco_advertising",
+    "category": "commercial",
+    "name": "Tobacco",
+    "type": "enum",
+    "values": [
+      "unrestricted",
+      "banned"
+    ],
+    "unit": null,
+    "gameplay_effect": "Tobacco sponsorship."
+  }
+]

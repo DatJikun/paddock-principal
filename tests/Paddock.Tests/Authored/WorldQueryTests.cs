@@ -1,3 +1,4 @@
+using System.Globalization;
 using Paddock.Domain.World;
 
 namespace Paddock.Tests.Authored;
@@ -105,5 +106,65 @@ public class WorldQueryTests
                 new StaffAssignment("ron_dennis", "mclaren", "team_principal", 1981, 2009),
             ],
             found);
+    }
+
+    [Fact]
+    public void EraSet_For_ThrowsWhenTwoPeriodsCoverTheSeason()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() => EraSet.For(
+            1975,
+            ["tobacco_advertising"],
+            [
+                new RulePeriod("tobacco_advertising", "unrestricted", 1950, null),
+                new RulePeriod("tobacco_advertising", "banned", 1970, 1980),
+            ]));
+
+        Assert.Contains("tobacco_advertising", ex.Message, StringComparison.Ordinal);
+        Assert.Contains("1975", ex.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ToUsd2025_ScalesByTheIndexRatio_AndRoundTripsTheBaseYear()
+    {
+        var book = new CpiBook(
+        [
+            new CpiObservation(1950, 24.067m),
+            new CpiObservation(CpiBook.BaseYear, 321.943m),
+        ]);
+
+        Assert.Equal(50m, book.ToUsd2025(50m, CpiBook.BaseYear));
+        Assert.Equal(50m * 321.943m / 24.067m, book.ToUsd2025(50m, 1950));
+    }
+
+    [Fact]
+    public void ToUsd2025_ThrowsWhenTheYearIsMissingOrNotPositive()
+    {
+        var missing = new CpiBook([new CpiObservation(CpiBook.BaseYear, 100m)]);
+        var missingYear = Assert.Throws<InvalidOperationException>(() => missing.ToUsd2025(1m, 1950));
+        Assert.Contains("1950", missingYear.Message, StringComparison.Ordinal);
+
+        var zero = new CpiBook(
+        [
+            new CpiObservation(1950, 0m),
+            new CpiObservation(CpiBook.BaseYear, 100m),
+        ]);
+        var zeroIndex = Assert.Throws<InvalidOperationException>(() => zero.ToUsd2025(1m, 1950));
+        Assert.Contains("positive", zeroIndex.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ToUsd2025_ThrowsWhenTheYearIsListedTwice()
+    {
+        var book = new CpiBook(
+        [
+            new CpiObservation(CpiBook.BaseYear, 100m),
+            new CpiObservation(CpiBook.BaseYear, 110m),
+        ]);
+
+        var ex = Assert.Throws<InvalidOperationException>(() => book.ToUsd2025(1m, CpiBook.BaseYear));
+        Assert.Contains(
+            CpiBook.BaseYear.ToString(CultureInfo.InvariantCulture),
+            ex.Message,
+            StringComparison.Ordinal);
     }
 }

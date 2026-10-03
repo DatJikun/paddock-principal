@@ -225,3 +225,14 @@ Szczegóły w DESIGN §5.3.
 - **Model techniczny: host i goście.** Symulację liczy wyłącznie komputer hosta. Goście wysyłają tylko swoje decyzje i dostają z powrotem stan świata widziany przez swój zespół (prawda kontra wiedza, INV-004). Szczegóły w TECH §5.1.
 - **Kolejność:** rdzeń od fazy 2 obsługuje wielu menedżerów, a sieć i rozgrywka online powstają razem z prawdziwym UI (faza 6). Multiplayer w samej konsoli nie ma sensu.
 
+### Przyjęte 2026-10-03 (dwunasta runda)
+
+**PP-046: Tryby gry to niezależne osie, a presety je składają** (rozwija DESIGN §2.3, nie zmienia PP-004, PP-005 ani PP-018).
+- **Oś „Ludzie”:** (a) prawdziwa trajektoria, (b) prawdziwy potencjał (może się zmienić), (c) prawdziwe nazwiska z losowymi potencjałami i skillami, (d) w pełni generowani. Generator (strumień `People`) obsługuje (c) i (d) oraz świat po 2026.
+- **Oś „Przepisy”:** (a) historyczne, (b) głosowane co sezon (jak w Motorsport Managerze: zespoły głosują zgodnie z własnym interesem, DESIGN §4.1). Proceduralna oś czasu to tylko ta druga opcja.
+- **Oś „Zachowanie AI”:** (a) odtwarza historię, czyli prawdziwe transfery, wejścia i wyjścia zespołów, i rozjeżdża się dopiero po ingerencji gracza (siła historii 100%), (b) reaguje na bieżącą sytuację, co daje efekt motyla, (c) czysta losowość. AI nadal nie zna przyszłości (D-010); odtwarzanie historii to scenariusz zdarzeń, a nie wiedza.
+- **Reszta:** suwaki losowości i śmiertelności, rok startu, zespół (DESIGN §2.3).
+- **Presety:** *Najbardziej historyczny* = trajektoria + historyczne przepisy + AI odtwarza historię. *Zbalansowany* (domyślny, „normalny”) = prawdziwy potencjał + historyczne przepisy + AI reaguje. *Chaos* = dowolna kombinacja osi, np. prawdziwe nazwiska z losowymi umiejętnościami i głosowanymi przepisami, aż po w pełni generowany świat.
+- **Skutek techniczny:** konfiguracja to jeden typ `CareerConfig` zapisywany w `meta`, a każdy system pyta o oś, a nie o nazwę trybu. Fazy 2 i 4 zaczynamy od tego typu.
+- **Uwaga o fazach:** właściciel zdecydował o wcześniejszym zaczęciu wybranych zadań fazy 2 (domena świata, tick dnia, kolejka komend, SimRunner), równolegle z domykaniem fazy 1.
+

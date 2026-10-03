@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace Paddock.Data.Authored;
 
 /// <summary>
-/// Loads authored regulations, tracks, technologies, teams and staff.
+/// Loads authored regulations, tracks, technologies, teams, staff, and eras.
 /// Unknown JSON properties are errors. Every file is attempted so load failures are reported together.
 /// </summary>
 public static class AuthoredDataLoader
@@ -45,6 +45,15 @@ public static class AuthoredDataLoader
         var staff = TryRead<List<StaffMember>>(
             Path.Combine(root, "authored", "people", "staff.json"),
             failures);
+        var eraCatalog = TryRead<List<CatalogDimension>>(
+            Path.Combine(root, "authored", "eras", "catalog.json"),
+            failures);
+        var eraTimeline = TryRead<List<TimelinePeriod>>(
+            Path.Combine(root, "authored", "eras", "f1_timeline.json"),
+            failures);
+        var cpiYears = TryRead<List<CpiYear>>(
+            Path.Combine(root, "authored", "eras", "cpi_us.json"),
+            failures);
 
         if (failures.Count > 0
             || catalog is null
@@ -56,7 +65,10 @@ public static class AuthoredDataLoader
             || engines is null
             || lineage is null
             || founders is null
-            || staff is null)
+            || staff is null
+            || eraCatalog is null
+            || eraTimeline is null
+            || cpiYears is null)
         {
             if (failures.Count == 0)
             {
@@ -76,7 +88,10 @@ public static class AuthoredDataLoader
             engines,
             lineage,
             founders,
-            staff);
+            staff,
+            eraCatalog,
+            eraTimeline,
+            cpiYears);
     }
 
     private static T? TryRead<T>(string path, List<string> failures)

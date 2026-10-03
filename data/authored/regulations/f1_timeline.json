@@ -114,7 +114,7 @@
     "to": null,
     "confidence": "high",
     "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
-    "notes": "From 1958 a shared drive no longer split points. Changing drivers mid-race stopped being a way to score."
+    "notes": "From 1958 a shared drive scored no points: a car driven by more than one driver was awarded no points to any of its drivers. Changing drivers mid-race stopped being a way to score."
   },
   {
     "dimension": "results_counted",
@@ -139,9 +139,9 @@
     "value": "best_5",
     "from": 1955,
     "to": 1957,
-    "confidence": "medium",
+    "confidence": "high",
     "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
-    "notes": "Read as best five from a Wikipedia table rowspan under 1954. Those cells are blank in the converted table, so the count is medium confidence."
+    "notes": "Best five results. The points-table cells for 1955-57 are blank under the 1954 cell that says five, and the Forix best-scores list states five best results for 1954-1957."
   },
   {
     "dimension": "results_counted",
@@ -184,9 +184,9 @@
     "value": "best_5",
     "from": 1962,
     "to": 1962,
-    "confidence": "medium",
-    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
-    "notes": "Taken from the same Wikipedia table rowspan as 1961, so this one season is medium confidence."
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/1962_Formula_One_season",
+    "notes": "The 1962 season page says only the best five results counted. Forix lists 1961-1962 the same way. The points table leaves this cell blank under the 1961 rowspan."
   },
   {
     "dimension": "results_counted",
@@ -528,7 +528,7 @@
     "to": null,
     "confidence": "high",
     "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
-    "notes": "Three knockout segments. The first two races of 2016 tried eliminating a car every 90 seconds, then the sport went back to this format. Session lengths and how many cars drop out change with the grid size."
+    "notes": "Three knockout segments. The first two races of 2016 tried eliminating a car every 90 seconds, then the sport went back to this format. Session lengths and how many cars drop out change with the grid size. With 20 cars the cuts were five per segment. In 2026, with 22 cars, the cuts are six, and Q3 is 13 minutes."
   },
   {
     "dimension": "sprint_format",
@@ -571,9 +571,9 @@
     "value": "friday_sprint_qualifying",
     "from": 2024,
     "to": null,
-    "confidence": "medium",
+    "confidence": "high",
     "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
-    "notes": "Sprint qualifying moved to Friday and the sprint to Saturday, with two parc fermé windows. Treated as still current in 2026 because the race-weekend article describes this shape as the present format; 2025 and 2026 were not checked against a fresh FIA PDF."
+    "notes": "Sprint qualifying is on Friday after the only practice, the sprint is first on Saturday, and Grand Prix qualifying still sets Sunday's grid. Two parc ferme windows. The race-weekend page still describes that shape, including 2026, when six cars drop out of each sprint-qualifying segment instead of five. Sprint points stay on the 2022 scale of 8 down to 1."
   },
   {
     "dimension": "team_orders",
@@ -2086,5 +2086,311 @@
     "confidence": "high",
     "source": "https://en.wikipedia.org/wiki/Formula_One_regulations",
     "notes": "The titanium halo is mandatory in 2018 and still required. It adds mass and closes off some cockpit strikes."
+  },
+  {
+    "dimension": "race_distance_rule",
+    "value": "unknown",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/1958_Formula_One_season",
+    "notes": "The 1958 season page describes a reduction that year, so some longer limit existed before it. The accounts disagree on what that limit was, and no pre-1958 regulation text was opened."
+  },
+  {
+    "dimension": "race_distance_rule",
+    "value": "min_300km_or_two_hours",
+    "from": 1958,
+    "to": 1988,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/1958_Formula_One_season",
+    "notes": "The 1958 season page says the minimum became 300 km or two hours, whichever came first. It also equates 300 km with 190 miles, which is a different length. An Evro extract of a 1950-59 book says the October 1957 CSI meeting set a band of 300 to 500 km or a minimum of two hours. Motor Sport Magazine's 1958 championship page says races were limited to 300 km or two hours. The 1971 regulations history adds a ceiling under 200 miles (320 km). The 1989 season page is where 305 km is described as the new standard."
+  },
+  {
+    "dimension": "race_distance_rule",
+    "value": "standard_305km",
+    "from": 1989,
+    "to": 1997,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/1989_Formula_One_World_Championship",
+    "notes": "The 1989 season page says distances were standardised at 305 km so a race could finish inside two hours. Slower street circuits, Monaco included, could be shorter. That year's races ran from 292 km to 311 km. The least-number-of-laps wording was not in this page."
+  },
+  {
+    "dimension": "race_distance_rule",
+    "value": "least_laps_over_305km",
+    "from": 1998,
+    "to": 2020,
+    "confidence": "medium",
+    "source": "https://web.archive.org/web/19980214231818/http://www3.fia.com/regle/reg_spt/F1spt-a.htm",
+    "notes": "The regulations in force on 1 January 1998, and the 2000 sporting regulations, set the distance as the least number of complete laps over 305 km, with a two-hour flag. Neither text states a 260 km Monaco minimum. Years between those texts and the 2021 regulations are carried because the 2021 text still uses 305 km."
+  },
+  {
+    "dimension": "race_distance_rule",
+    "value": "least_laps_over_305km_monaco_260",
+    "from": 2021,
+    "to": null,
+    "confidence": "high",
+    "source": "https://www.fia.com/sites/default/files/formula_1_-_sporting_regulations_-_2021_-_iss_12_-_2021-11-11.pdf",
+    "notes": "The 2021 and 2025 sporting regulations both say the least number of complete laps over 305 km, except Monaco, which is the least number of complete laps over 260 km. A safety-car formation lap can also shorten the lap count. This pass did not find the first season of the 260 km Monaco sentence; it is absent from the 1998 and 2000 texts that were opened."
+  },
+  {
+    "dimension": "race_time_cap",
+    "value": "unknown",
+    "from": 1950,
+    "to": 1957,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/1958_Formula_One_season",
+    "notes": "The 1958 page introduces a two-hour alternative and does not state the earlier time limit. No pre-1958 regulation text was opened."
+  },
+  {
+    "dimension": "race_time_cap",
+    "value": "two_hour_elapsed_limit",
+    "from": 1958,
+    "to": 2004,
+    "confidence": "medium",
+    "source": "https://web.archive.org/web/19980214231818/http://www3.fia.com/regle/reg_spt/F1spt-a.htm",
+    "notes": "The 1958 season page pairs the new distance with two hours. The 1998 and 2000 regulations show the chequered flag at the end of the lap on which two hours elapse. They do not say whether a red flag pauses that clock. The regulations history says that from 2005 the two-hour clock no longer freezes during a red flag."
+  },
+  {
+    "dimension": "race_time_cap",
+    "value": "two_hour_clock_does_not_freeze",
+    "from": 2005,
+    "to": 2011,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history says that in 2005 the two-hour clock stopped freezing between the parts of a red-flagged race. A separate overall cap is not stated until 2012."
+  },
+  {
+    "dimension": "race_time_cap",
+    "value": "two_hour_clock_and_four_hour_cap",
+    "from": 2012,
+    "to": 2020,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history says that from 2012 a race was capped at four hours including red flags, after the long stoppage at the 2011 Canadian Grand Prix. No repeal was found before the 2021 regulations, which set a three-hour total instead."
+  },
+  {
+    "dimension": "race_time_cap",
+    "value": "two_hours_plus_suspension_to_three_hours",
+    "from": 2021,
+    "to": null,
+    "confidence": "high",
+    "source": "https://www.fia.com/sites/default/files/formula_1_-_sporting_regulations_-_2021_-_iss_12_-_2021-11-11.pdf",
+    "notes": "The 2021 and 2025 sporting regulations add the length of a suspension to the two-hour racing period, up to three hours in total. The flag is shown at the end of the following lap, without exceeding the scheduled laps."
+  },
+  {
+    "dimension": "classification_threshold",
+    "value": "unknown",
+    "from": 1950,
+    "to": 1997,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_World_Championship_points_scoring_systems",
+    "notes": "A 1966 points footnote says a driver who had not completed a specified distance was not classified and did not score. The fraction is not given. No regulation text before 1998 was opened for this rule."
+  },
+  {
+    "dimension": "classification_threshold",
+    "value": "ninety_percent_of_winner_laps_rounded_down",
+    "from": 1998,
+    "to": null,
+    "confidence": "high",
+    "source": "https://web.archive.org/web/19980214231818/http://www3.fia.com/regle/reg_spt/F1spt-a.htm",
+    "notes": "The regulations in force on 1 January 1998 say a car that has covered less than 90 percent of the laps covered by the winner, rounded down to a whole lap, is not classified. The 2000 regulations use the same sentence. The 2025 regulations repeat it for the race and for the sprint. This pass did not find the year the fraction was adopted; 1998 is the earliest text opened that states it."
+  },
+  {
+    "dimension": "qualifying_time_cutoff",
+    "value": "none",
+    "from": 1950,
+    "to": 1995,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/107%_rule",
+    "notes": "The 107 percent rule was proposed for late 1995 and blocked. It applied from the start of 1996."
+  },
+  {
+    "dimension": "qualifying_time_cutoff",
+    "value": "within_107_of_pole",
+    "from": 1996,
+    "to": 2002,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/107%_rule",
+    "notes": "A car whose best qualifying lap was outside 107 percent of pole did not start, unless the stewards allowed it. The 1 January 1998 regulations state that cutoff. The rule stopped applying from the 2002 Japanese Grand Prix, the last round of 2002."
+  },
+  {
+    "dimension": "qualifying_time_cutoff",
+    "value": "none",
+    "from": 2003,
+    "to": 2010,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "The race-weekend page says the cutoff was removed in 2003 because one-lap qualifying made it unworkable. It returned in 2011."
+  },
+  {
+    "dimension": "qualifying_time_cutoff",
+    "value": "within_107_of_fastest_q1",
+    "from": 2011,
+    "to": 2017,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "Reintroduced for 2011. A car eliminated in Q1 had to be within 107 percent of the fastest Q1 time. Stewards could still let a slower car start."
+  },
+  {
+    "dimension": "qualifying_time_cutoff",
+    "value": "within_107_of_fastest_q1_unless_wet",
+    "from": 2018,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "From 2018 a wet qualifying session is not subject to the cutoff. The 2025 sporting regulations still drop a Q1 or sprint-qualifying car that is outside 107 percent of the fastest time in that session, unless the race director has declared the track wet."
+  },
+  {
+    "dimension": "pre_qualifying_session",
+    "value": "no_regular_session",
+    "from": 1950,
+    "to": 1987,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "The race-weekend page mentions pre-qualifying in the late 1970s and says the formal session was brought back in the late 1980s. It does not list the seasons. The 1989 season page says the session was retained from 1988."
+  },
+  {
+    "dimension": "pre_qualifying_session",
+    "value": "four_fastest_advance",
+    "from": 1988,
+    "to": 1992,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/1989_Formula_One_World_Championship",
+    "notes": "The 1989 page says pre-qualifying was kept from 1988. Usually the four fastest cars from that session joined qualifying, and the 26 fastest from qualifying started. The race-weekend page says the session stopped after the 1992 Hungarian Grand Prix."
+  },
+  {
+    "dimension": "pre_qualifying_session",
+    "value": "not_held",
+    "from": 1993,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "The race-weekend page says the session was not run after the 1992 Hungarian Grand Prix. The regulations in force on 1 January 1998 still contain a conditional pre-qualifying article if the entry needs one, so the text had not been deleted by then. No later season was found on that page as having held the session."
+  },
+  {
+    "dimension": "maximum_grid",
+    "value": "no_single_cap_confirmed",
+    "from": 1950,
+    "to": 1987,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "The race-weekend page says the number of cars allowed to start used to vary by circuit, with Monaco often lower. No single championship cap was copied for this span."
+  },
+  {
+    "dimension": "maximum_grid",
+    "value": "twenty_six",
+    "from": 1988,
+    "to": 1992,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "During the formal pre-qualifying years the race-weekend page says thirty cars fought for twenty-six starting places. The 1989 season page says the 26 fastest cars raced."
+  },
+  {
+    "dimension": "maximum_grid",
+    "value": "twenty_five_then_twenty_six",
+    "from": 1993,
+    "to": 1993,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history says the maximum grid was set at 25 cars in 1993 and raised to 26 from the German Grand Prix."
+  },
+  {
+    "dimension": "maximum_grid",
+    "value": "twenty_six",
+    "from": 1994,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://www.fia.com/system/files/documents/fia_2025_formula_1_sporting_regulations_-_issue_4_-_2025-02-26.pdf",
+    "notes": "The 1 January 1998 regulations still speak of 26 cars admitted straight into qualifying. The 2025 sporting regulations, article 8.6, say no more than 26 cars will be admitted to the championship. That is an entry cap, not the number of cars that actually start, and not a per-circuit limit. No change of that 26 was found for the years in between. In 2026 the race-weekend page counts 22 cars entered, inside this cap."
+  },
+  {
+    "dimension": "race_start_procedure",
+    "value": "unknown",
+    "from": 1950,
+    "to": 1993,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "No regulation text was opened for a standing or rolling grand prix start in this span. Indianapolis 500 rounds from 1950 to 1960 are a separate championship event and their start is not copied here."
+  },
+  {
+    "dimension": "race_start_procedure",
+    "value": "safety_car_parade_until_imola",
+    "from": 1994,
+    "to": 1994,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history says the parade lap was to be completed behind the safety car, and that this was abandoned from Imola onwards. It does not describe the replacement procedure."
+  },
+  {
+    "dimension": "race_start_procedure",
+    "value": "formation_lap_then_standing_start",
+    "from": 1995,
+    "to": null,
+    "confidence": "medium",
+    "source": "https://en.wikipedia.org/wiki/Formula_One_race_weekend",
+    "notes": "The race-weekend page describes reconnaissance laps, a formation lap, and a standing start when the five red lights go out. It describes that as the current procedure and does not give an adoption year. It is placed after the 1994 safety-car parade was dropped."
+  },
+  {
+    "dimension": "red_flag_restart",
+    "value": "unknown",
+    "from": 1950,
+    "to": 1999,
+    "confidence": "low",
+    "source": "https://en.wikipedia.org/wiki/List_of_red-flagged_Formula_One_races",
+    "notes": "The red-flag list shows races stopped and sometimes restarted, including full-distance restarts and races decided by adding times together. That list is not one rule. The regulations history's first stated restart procedure in this pass is the 2000 change."
+  },
+  {
+    "dimension": "red_flag_restart",
+    "value": "grid_restart_if_before_three_quarters",
+    "from": 2000,
+    "to": 2004,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history says that in 2000 a race stopped after two laps but before three-quarters distance was restarted from the grid in the order at the end of the lap before the red-flagged lap. Time gaps were voided, and the new distance was the laps remaining minus three. The red-flag list says the older procedure was a restart in race order from the penultimate lap."
+  },
+  {
+    "dimension": "red_flag_restart",
+    "value": "resume_behind_safety_car",
+    "from": 2005,
+    "to": 2014,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/List_of_red-flagged_Formula_One_races",
+    "notes": "From 2005 the red-flag list says a ten-minute warning is given and the race resumes behind the safety car, whatever the distance completed. If it cannot resume, the result is taken at the end of the penultimate lap before the suspension lap. The regulations history says the words changed that year from stopping and restarting to suspending and resuming."
+  },
+  {
+    "dimension": "red_flag_restart",
+    "value": "pit_lane_then_resume",
+    "from": 2015,
+    "to": null,
+    "confidence": "high",
+    "source": "https://en.wikipedia.org/wiki/History_of_Formula_One_regulations",
+    "notes": "The regulations history says that from 2015, in a red flag, the cars go to the pit lane instead of staying on the grid. The red-flag list's current description also sends cars to the pit lane and still resumes behind the safety car when the race continues."
+  },
+  {
+    "dimension": "sunday_warmup",
+    "value": "unknown",
+    "from": 1950,
+    "to": 1997,
+    "confidence": "low",
+    "source": "https://web.archive.org/web/19980214231818/http://www3.fia.com/regle/reg_spt/F1spt-a.htm",
+    "notes": "The regulations in force on 1 January 1998 contain a race-day warm-up, but they do not say when that session began. No earlier text was opened."
+  },
+  {
+    "dimension": "sunday_warmup",
+    "value": "thirty_minute_race_day",
+    "from": 1998,
+    "to": 2002,
+    "confidence": "medium",
+    "source": "https://web.archive.org/web/19980214231818/http://www3.fia.com/regle/reg_spt/F1spt-a.htm",
+    "notes": "Article 121 of the regulations in force on 1 January 1998 is a 30-minute free-practice warm-up on race day, starting four and a half hours before the race. It is carried through 2002 because the session is described as removed for the 2003 season."
+  },
+  {
+    "dimension": "sunday_warmup",
+    "value": "none",
+    "from": 2003,
+    "to": null,
+    "confidence": "high",
+    "source": "https://www.crash.net/f1/news/44763/1/new-f1-timetable-consigns-warm-up-to-history",
+    "notes": "Crash.net reported that the FIA dropped the morning warm-up from the 2003 timetable. That timetable has only the race on Sunday. It still lists a 15-minute Saturday warm-up practice before second qualifying, which is not this race-morning run. No later return of a Sunday warm-up was found."
   }
 ]

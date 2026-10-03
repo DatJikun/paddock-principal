@@ -1,0 +1,17 @@
+{
+  "notes": "fixture",
+  "lineages": [
+    {
+      "lineage_id": "alfa-line",
+      "entries": [
+        {
+          "constructorId": "alfa",
+          "from": 1950,
+          "to": 1950,
+          "how_it_ended": null,
+          "source": "https://example.com/fixture"
+        }
+      ]
+    }
+  ]
+}

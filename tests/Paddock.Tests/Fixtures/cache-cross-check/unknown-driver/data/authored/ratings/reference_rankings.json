@@ -1,0 +1,33 @@
+[
+  {
+    "id": "fixture_list",
+    "title": "Fixture list",
+    "year_published": 1950,
+    "method": "fixture",
+    "method_note": "fixture",
+    "source": "https://example.com/fixture",
+    "confidence": "high",
+    "entries": [
+      {
+        "rank": 1,
+        "name": "Juan Manuel Fangio",
+        "driverId": "fangio"
+      },
+      {
+        "rank": 2,
+        "name": "Giuseppe Farina",
+        "driverId": "farina"
+      },
+      {
+        "rank": 3,
+        "name": "Ghost",
+        "driverId": "ghost"
+      },
+      {
+        "rank": 4,
+        "name": "Unmatched",
+        "driverId": null
+      }
+    ]
+  }
+]

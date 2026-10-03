@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "drivers": [
+    {
+      "driverId": "fangio",
+      "givenName": "Juan Manuel",
+      "familyName": "Fangio",
+      "dateOfBirth": "1911-06-24",
+      "nationality": "Argentine",
+      "code": null,
+      "permanentNumber": null,
+      "url": "https://example.com/fangio"
+    }
+  ]
+}

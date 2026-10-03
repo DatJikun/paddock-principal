@@ -1,0 +1,29 @@
+[
+  {
+    "id": "fixture_engineer",
+    "name": "fixture_engineer",
+    "born": "1911-06-24",
+    "nationality": "ARG",
+    "career": [
+      {
+        "org": "alfa",
+        "role": "designer",
+        "from": 1950,
+        "to": 1950,
+        "source": "https://example.com/fixture"
+      },
+      {
+        "org": "not_a_championship_team",
+        "role": "designer",
+        "from": 1950,
+        "to": 1950,
+        "source": "https://example.com/fixture",
+        "series": "indycar"
+      }
+    ],
+    "notable": [
+      "fixture"
+    ],
+    "confidence": "high"
+  }
+]

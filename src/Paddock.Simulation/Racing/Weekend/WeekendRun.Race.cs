@@ -534,7 +534,7 @@ internal sealed partial class WeekendRun
             {
                 var target = byCar[participant.CarId];
                 involved.Add(target.Car.TapeId);
-                ApplyOutcome(target, participant.Outcome, lap);
+                ApplyOutcome(target, participant.Outcome, lap, time);
             }
 
             if (incident.WorstSeverity != OutcomeSeverity.None)
@@ -564,7 +564,8 @@ internal sealed partial class WeekendRun
         return best;
     }
 
-    private static void ApplyOutcome(LapWork w, IncidentOutcome outcome, int lap)
+    // The incident happens at one instant (the instigator's mid-lap): every car it stops stops then, inside its own lap.
+    private static void ApplyOutcome(LapWork w, IncidentOutcome outcome, int lap, double incidentTime)
     {
         if (w.Retire is not null)
         {
@@ -579,7 +580,7 @@ internal sealed partial class WeekendRun
             case OutcomeSeverity.Retire or OutcomeSeverity.Injury or OutcomeSeverity.Fatal:
                 w.Retire = new RetireInfo(
                     lap,
-                    w.RetireTime,
+                    Math.Clamp(incidentTime, w.StartCum, w.StartCum + w.Natural),
                     RetirementReason.Accident,
                     null,
                     outcome.Injury,

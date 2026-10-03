@@ -89,7 +89,7 @@ public static class SyntheticField
             RaceInputMapping.UniformComponents(car.Reliability),
             new PitCrew(Math.Clamp(75d - (45d * tier) + Wobble(6, 8d), 5, 95)),
             (int)Math.Clamp(80d - (50d * tier) + Wobble(7, 10d), 5, 95),
-            Math.Clamp(1d - (0.3d * tier) + Wobble(8, 0.04d), 0.5, 1d),
+            Math.Clamp(1d - (0.1d * tier) + Wobble(8, 0.02d), 0.8, 1d),
             TyreSupplierProfile.Neutral,
             PartnerTuned: false,
             engine);

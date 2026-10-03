@@ -17,9 +17,9 @@ public class WeekendRunTests
     //   dotnet run --project tools/Paddock.SimRunner -- race --year <year> --round 1 --hash
     // The numbers come from double arithmetic (TECH §4): the guarantee is the same build on x64; a platform whose maths library
     // rounds differently would change them and the test would say so.
-    private const string Golden1955 = "110be3506f9ada7ac30688db0ae2a634228bd25e511e4794d2f2ba588ed2a951";
-    private const string Golden1988 = "f8da3f1c4d7fb2c436cbda09166c70c430257b461e8cfc8d89c1047372fae5a7";
-    private const string Golden2012 = "94d0bfc9463c2d228e3e1b772548b53f7299eb00b876fb28aad46cea19e4342a";
+    private const string Golden1955 = "85012ebb9000cb3f1d1a603b5ce5779d1e2aad7e4dfffe2214529014108af6a0";
+    private const string Golden1988 = "34a1c0648cea7d5a85bdaab78989c2cbf42ab3f32b0226b46bb471deaa920d31";
+    private const string Golden2012 = "11272410aa97a7b654169bca4732297e06a42900cf0b6d4fe5a72cc1a95305bb";
 
     [Theory]
     [InlineData(1955, Golden1955)]

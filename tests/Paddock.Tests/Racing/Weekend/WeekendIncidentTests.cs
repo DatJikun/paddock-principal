@@ -86,6 +86,23 @@ public class WeekendIncidentTests
     }
 
     [Fact]
+    public void AnAccidentRetirement_FollowsItsIncidentOnTheTape()
+    {
+        foreach (var race in FatalitiesOff.Value)
+        {
+            var events = race.Tape.Events;
+            var flag = events.OfType<Finished>().Select(f => f.RaceTime).DefaultIfEmpty(long.MaxValue).Min();
+            foreach (var retirement in events.OfType<Retirement>().Where(r => r.Reason == RetirementReason.Accident && r.RaceTime <= flag))
+            {
+                var incident = events.OfType<Incident>().FirstOrDefault(i => i.Lap == retirement.Lap && i.InvolvedIds.Contains(retirement.DriverId));
+                Assert.NotNull(incident);
+                Assert.True(incident.Seq < retirement.Seq, "the retirement comes before its incident");
+                Assert.True(incident.RaceTime <= retirement.RaceTime);
+            }
+        }
+    }
+
+    [Fact]
     public void AResumedRedFlag_StopsTheClockOfTheRace()
     {
         var race = FatalitiesOn.Value.First(r => r.Neutralisations.Any(n => n is { Kind: NeutralisationKind.RedFlag, RaceResumed: true }));

@@ -1,0 +1,625 @@
+{
+  "method": "Counted from data/authored/safety/incidents.json. entries is the number of incident rows in that season, not the number of championship starts. fatal, serious, career_ending and moderate count rows of that severity only, so a career-ending injury is not also counted as serious. Every season from 1950 through 2026 is listed, including seasons with zeros. No Jolpica cache was present, so race-start denominators were not computed and driverId was left null.",
+  "checklist": {
+    "source": "https://en.wikipedia.org/wiki/List_of_Formula_One_fatalities",
+    "note": "That list was opened and used as the completeness check for fatal Formula One accidents. Its decade totals mix world-championship weekends, tests, some non-championship races and the Indianapolis 500 while it counted toward the title. Rows in this file follow the narrower scope in the research issue, so the two counts are not expected to match."
+  },
+  "seasons": [
+    {
+      "season": 1950,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1951,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1952,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1953,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1954,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1955,
+      "entries": 3,
+      "fatal": 3,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1956,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1957,
+      "entries": 3,
+      "fatal": 3,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1958,
+      "entries": 4,
+      "fatal": 4,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1959,
+      "entries": 4,
+      "fatal": 4,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1960,
+      "entries": 3,
+      "fatal": 3,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1961,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1962,
+      "entries": 2,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 1,
+      "moderate": 0
+    },
+    {
+      "season": 1963,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1964,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1965,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1966,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1967,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1968,
+      "entries": 3,
+      "fatal": 3,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1969,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1970,
+      "entries": 3,
+      "fatal": 3,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1971,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1972,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1973,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1974,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1975,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1976,
+      "entries": 1,
+      "fatal": 0,
+      "serious": 1,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1977,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1978,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1979,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1980,
+      "entries": 2,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 1,
+      "moderate": 0
+    },
+    {
+      "season": 1981,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1982,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1983,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1984,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1985,
+      "entries": 2,
+      "fatal": 2,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1986,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1987,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1988,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1989,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1990,
+      "entries": 1,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 1,
+      "moderate": 0
+    },
+    {
+      "season": 1991,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1992,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1993,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1994,
+      "entries": 4,
+      "fatal": 2,
+      "serious": 2,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1995,
+      "entries": 1,
+      "fatal": 0,
+      "serious": 1,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1996,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1997,
+      "entries": 1,
+      "fatal": 0,
+      "serious": 1,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1998,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 1999,
+      "entries": 1,
+      "fatal": 0,
+      "serious": 1,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2000,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2001,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2002,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2003,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2004,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2005,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2006,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2007,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2008,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2009,
+      "entries": 1,
+      "fatal": 0,
+      "serious": 1,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2010,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2011,
+      "entries": 1,
+      "fatal": 0,
+      "serious": 1,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2012,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2013,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2014,
+      "entries": 1,
+      "fatal": 1,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2015,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2016,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2017,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2018,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2019,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2020,
+      "entries": 1,
+      "fatal": 0,
+      "serious": 1,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2021,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2022,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2023,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2024,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2025,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    },
+    {
+      "season": 2026,
+      "entries": 0,
+      "fatal": 0,
+      "serious": 0,
+      "career_ending": 0,
+      "moderate": 0
+    }
+  ]
+}

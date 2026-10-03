@@ -12,6 +12,7 @@ public static class RngStreamName
     public const string People = "People";
     public const string History = "History";
     public const string LifeEvents = "LifeEvents";
+    public const string Regulations = "Regulations";
 
     public static readonly IReadOnlyList<string> All =
     [
@@ -25,5 +26,6 @@ public static class RngStreamName
         People,
         History,
         LifeEvents,
+        Regulations,
     ];
 }

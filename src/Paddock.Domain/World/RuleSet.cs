@@ -96,6 +96,80 @@ public sealed class RuleSet
         return new RuleSet(season, values);
     }
 
+    /// <summary>
+    /// Produces the rule set of <see cref="Season"/> + 1 with <paramref name="changes"/> applied; this
+    /// instance is not modified. See <see cref="With(IReadOnlyDictionary{string, RuleDimensionSpec}, int, IReadOnlyList{RuleChange})"/>.
+    /// </summary>
+    public RuleSet With(IReadOnlyDictionary<string, RuleDimensionSpec> catalog, params RuleChange[] changes) =>
+        With(catalog, Season + 1, changes);
+
+    /// <summary>
+    /// Produces the rule set of <paramref name="nextSeason"/> with <paramref name="changes"/> applied; this
+    /// instance is not modified. Every change is validated against <paramref name="catalog"/>
+    /// (enum membership, numeric range). Any invalid change rejects the whole call with
+    /// a <see cref="RuleChangeException"/> carrying a <see cref="RuleChangeError"/> code.
+    /// </summary>
+    public RuleSet With(
+        IReadOnlyDictionary<string, RuleDimensionSpec> catalog,
+        int nextSeason,
+        IReadOnlyList<RuleChange> changes)
+    {
+        ArgumentNullException.ThrowIfNull(catalog);
+        ArgumentNullException.ThrowIfNull(changes);
+
+        var next = new Dictionary<string, string>(_values, StringComparer.Ordinal);
+        var touched = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var change in changes)
+        {
+            if (!catalog.TryGetValue(change.DimensionId, out var spec) || !_values.ContainsKey(change.DimensionId))
+            {
+                throw new RuleChangeException(
+                    RuleChangeError.UnknownDimension,
+                    $"Unknown dimension '{change.DimensionId}'.");
+            }
+
+            if (!touched.Add(change.DimensionId))
+            {
+                throw new RuleChangeException(
+                    RuleChangeError.DuplicateDimension,
+                    $"Dimension '{change.DimensionId}' is changed more than once.");
+            }
+
+            Validate(spec, change.NewValue);
+            next[change.DimensionId] = change.NewValue;
+        }
+
+        return new RuleSet(nextSeason, next);
+    }
+
+    private static void Validate(RuleDimensionSpec spec, string? value)
+    {
+        if (spec.Kind == RuleDimensionKind.Choice)
+        {
+            if (value is null || !spec.Values.Contains(value))
+            {
+                throw new RuleChangeException(
+                    RuleChangeError.ValueNotAllowed,
+                    $"'{value}' is not an allowed value of '{spec.Id}'.");
+            }
+
+            return;
+        }
+
+        if (!double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var number)
+            || !double.IsFinite(number))
+        {
+            throw new RuleChangeException(RuleChangeError.NotANumber, $"'{value}' is not a number for '{spec.Id}'.");
+        }
+
+        if (number < spec.Min || number > spec.Max)
+        {
+            throw new RuleChangeException(
+                RuleChangeError.OutOfRange,
+                $"{value} is outside [{spec.Min.ToString(CultureInfo.InvariantCulture)}, {spec.Max.ToString(CultureInfo.InvariantCulture)}] for '{spec.Id}'.");
+        }
+    }
+
     private static bool Covers(RulePeriod period, int season)
     {
         if (period.ToYear is int toYear && period.FromYear > toYear)

@@ -20,7 +20,8 @@ public sealed record WhyView(
 
     /// <summary>
     /// Developer: everything. Manager or AI: only their own decisions, and only fields marked player-visible
-    /// (no truth context, no developer reason, no hidden options or factors). Returns null when the
+    /// (no truth context, no developer reason, no hidden options or factors; an option's utility is
+    /// the sum of its visible factors only). Returns null when the
     /// context may not see the trace at all.
     /// </summary>
     public static WhyView? For(AccessContext context, DecisionTrace trace)
@@ -52,10 +53,12 @@ public sealed record WhyView(
             chosenVisible ? trace.ChosenOptionId : null,
             trace.PlayerReason,
             visible
-                .Select(o => new WhyOption(
-                    o.Id,
-                    o.Utility,
-                    o.Factors.Where(f => f.PlayerVisible).Select(f => new WhyFactor(f.Name, f.Contribution)).ToArray()))
+                .Select(o =>
+                {
+                    var factors = o.Factors.Where(f => f.PlayerVisible).Select(f => new WhyFactor(f.Name, f.Contribution)).ToArray();
+                    // The trace utility includes hidden factors; showing it would let a manager recover them (INV-003).
+                    return new WhyOption(o.Id, factors.Sum(f => f.Contribution), factors);
+                })
                 .ToArray(),
             NoTruth);
     }

@@ -1,0 +1,298 @@
+using System.Globalization;
+using Paddock.Application.Career;
+using Paddock.Data.World;
+using Paddock.Domain.Career;
+using Paddock.Domain.People;
+using Paddock.Domain.Random;
+using Paddock.Domain.Time;
+using Paddock.Domain.World;
+using Paddock.Persistence;
+using Paddock.Simulation.Career;
+using Paddock.SimRunner;
+
+namespace Paddock.Tests.Career;
+
+/// <summary>
+/// The stored world hash is the fixture career on the morning of 1961-01-01 (seed 7, seasons 1950 through 1960).
+/// Update <see cref="StoredWorldHash"/> and <see cref="StoredRetired"/> only by editing them after a reviewed
+/// change to the day rules or the fixture. This test prints the actual values and never writes them.
+/// </summary>
+public class CareerRunTests
+{
+    private const ulong Seed = 7;
+
+    private const string StoredWorldHash = "23b52097744f25d090133286d1218730a6e1d50a5ff1d19d2e5ecf37bbddf58a";
+
+    private const string StoredRetired = "chief,leap,vet";
+
+    [Fact]
+    public void CurveDoesNotDrawOutsideTheWindowAndAgreesWithItself()
+    {
+        var below = RngStreams.Derive(Seed, RngStreamName.LifeEvents, 1950);
+        var before = below.State;
+        Assert.False(RetirementCurve.Retires(CareerDayEstimates.DriverRetirementFromAge - 1, true, below.NextDouble));
+        Assert.Equal(before, below.State);
+
+        var certain = RngStreams.Derive(Seed, RngStreamName.LifeEvents, 1950);
+        var certainBefore = certain.State;
+        Assert.True(RetirementCurve.Retires(CareerDayEstimates.DriverRetirementCertainAge, true, certain.NextDouble));
+        Assert.Equal(certainBefore, certain.State);
+
+        var first = RngStreams.Derive(Seed, RngStreamName.LifeEvents, 1951);
+        var second = RngStreams.Derive(Seed, RngStreamName.LifeEvents, 1951);
+        var age = CareerDayEstimates.DriverRetirementFromAge;
+        Assert.Equal(
+            RetirementCurve.Retires(age, true, first.NextDouble),
+            RetirementCurve.Retires(age, true, second.NextDouble));
+        Assert.NotEqual(RngStreams.Derive(Seed, RngStreamName.LifeEvents, 1951).State, first.State);
+    }
+
+    [Fact]
+    public void CertainBirthdayRetiresAndLeavesThePool()
+    {
+        var session = Session(Seed, intake: 0, arrivals: []);
+        session.LiveDay();
+
+        Assert.Contains(session.Retired, id => id.Value == "vet");
+        Assert.DoesNotContain(session.TalentPool, id => id.Value == "vet");
+        Assert.DoesNotContain(session.Retired, id => id.Value == "kid");
+        Assert.Equal(new GameDate(1950, 1, 2), session.Date);
+    }
+
+    [Fact]
+    public void LeapDayBirthdayIsObservedOn28FebruaryInACommonYear()
+    {
+        var session = Session(Seed, intake: 0, arrivals: []);
+        while (session.Date < new GameDate(1950, 2, 28))
+        {
+            session.LiveDay();
+        }
+
+        Assert.DoesNotContain(session.Retired, id => id.Value == "leap");
+        session.LiveDay();
+        Assert.Contains(session.Retired, id => id.Value == "leap");
+    }
+
+    [Fact]
+    public void LeapDayBirthdayWaitsFor29FebruaryInALeapYear()
+    {
+        var world = WorldAt(new GameDate(1952, 2, 28));
+        var session = new CareerSession(world, Seed, [], [], new CareerSessionOptions { GeneratedIntakePerSeason = 0 });
+        session.LiveDay();
+        Assert.DoesNotContain(session.Retired, id => id.Value == "leap");
+        Assert.Equal(new GameDate(1952, 2, 29), session.Date);
+        session.LiveDay();
+        Assert.Contains(session.Retired, id => id.Value == "leap");
+    }
+
+    [Fact]
+    public void ContractExpiryIsRecordedOnceAndTheContractStays()
+    {
+        var session = Session(Seed, intake: 0, arrivals: []);
+        while (session.Date < new GameDate(1950, 12, 31))
+        {
+            session.LiveDay();
+        }
+
+        Assert.Equal(0, session.ContractExpiries);
+        session.LiveDay();
+        Assert.Equal(1, session.ContractExpiries);
+        session.LiveDay();
+        Assert.Equal(1, session.ContractExpiries);
+        Assert.Single(session.World.Contracts);
+        Assert.Equal(new GameDate(1950, 12, 31), session.World.Contracts[0].End);
+    }
+
+    [Fact]
+    public void ScheduledDriverEntersThePoolOnTheEntryDay()
+    {
+        var arrival = new ScheduledArrival(
+            new GameDate(1950, 1, 3),
+            Person("rookie", "Rookie", "Driver", new GameDate(1938, 4, 4), driver: true));
+        var session = Session(Seed, intake: 0, arrivals: [arrival]);
+        session.LiveDay();
+        session.LiveDay();
+        Assert.Equal(0, session.Intakes);
+        session.LiveDay();
+        Assert.Equal(1, session.Intakes);
+        Assert.Contains(session.World.Persons, person => person.Id.Value == "rookie");
+        Assert.Contains(session.TalentPool, id => id.Value == "rookie");
+    }
+
+    [Fact]
+    public void GeneratedIntakeStartsTheSeasonAfterTheOpeningYear()
+    {
+        var session = Session(Seed, intake: 1, arrivals: []);
+        while (session.Date < new GameDate(1951, 1, 1))
+        {
+            session.LiveDay();
+        }
+
+        var before = session.World.Persons.Count;
+        Assert.Equal(0, session.Intakes);
+        session.LiveDay();
+        Assert.Equal(before + 1, session.World.Persons.Count);
+        Assert.Equal(1, session.Intakes);
+        Assert.Contains(session.TalentPool, id => !id.IsReal);
+    }
+
+    [Fact]
+    public void TwoRunsFrom1950Through1960MatchTheStoredHash()
+    {
+        var left = RunDecade(Seed);
+        var right = RunDecade(Seed);
+        var other = RunDecade(Seed + 1);
+
+        Assert.Equal(left.Hash, right.Hash);
+        Assert.Equal(left.Retired, right.Retired);
+        Assert.NotEqual(left.Hash, other.Hash);
+        Assert.Equal(new GameDate(1961, 1, 1), left.Date);
+        Assert.Equal(11, left.Years);
+        Assert.Equal(0, left.Humans);
+        Assert.Equal(1, left.Ai);
+        Assert.Equal(0, left.Commands);
+        Assert.True(
+            left.Hash == StoredWorldHash && left.Retired == StoredRetired,
+            "actual hash " + left.Hash + " retired " + left.Retired);
+    }
+
+    [Fact]
+    public void SaveRoundTripsTheWorldAndTheAiManager()
+    {
+        var session = Session(Seed, intake: 0, arrivals: []);
+        CareerHost.Run(session, 1950);
+        var directory = Directory.CreateTempSubdirectory("paddock-run-");
+        try
+        {
+            var path = Path.Combine(directory.FullName, "career.paddock");
+            CareerSaveWriter.Write(
+                path,
+                session,
+                CareerConfig.FromPreset(CareerPreset.Chaos).WithStartYear(1950),
+                "alpha",
+                new string('a', 64),
+                "fixture 1950");
+            using var save = SaveFile.Open(path);
+            var loaded = new WorldRepository(save).LoadAll();
+            Assert.Equal(session.World.StateHash(), loaded.World.StateHash());
+            Assert.Equal(session.Date, loaded.World.CurrentDate);
+            Assert.Equal(CareerHost.AiManagerId, Assert.Single(loaded.Managers).Id);
+            Assert.Equal("Ai", loaded.Managers[0].Kind);
+            Assert.Equal((long)session.Clock.NextEventId, loaded.NextEventId);
+            Assert.Equal((long)session.Clock.Queue.NextSequence, loaded.NextEventSequence);
+            Assert.Empty(loaded.CommandLog);
+        }
+        finally
+        {
+            Directory.Delete(directory.FullName, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ScheduleListsOnlyFutureRealDrivers()
+    {
+        var world = WorldState.At(new GameDate(1950, 1, 1));
+        (world, _) = world.AddPerson(Person("already", "Already", "Here", new GameDate(1930, 1, 1), driver: true));
+        var provider = new ListProvider(
+            Driver("future", 1952, new DateOnly(1934, 5, 5)),
+            Driver("already", 1952, new DateOnly(1930, 1, 1)),
+            Driver("opening", 1950, new DateOnly(1928, 1, 1)),
+            Driver("nameless", 1953, null));
+        var config = CareerConfig.FromPreset(CareerPreset.Balanced).WithStartYear(1950);
+
+        var arrivals = TalentIntakeSchedule.AfterStart(config, provider, world, Seed);
+
+        var arrival = Assert.Single(arrivals);
+        Assert.Equal(new GameDate(1952, CareerDayEstimates.PoolEntryMonth, CareerDayEstimates.PoolEntryDay), arrival.On);
+        Assert.Equal("future", arrival.Spec.RealId);
+        Assert.Empty(TalentIntakeSchedule.AfterStart(
+            CareerConfig.FromPreset(CareerPreset.Chaos).WithStartYear(1950),
+            provider,
+            world,
+            Seed));
+    }
+
+    private static DecadeRun RunDecade(ulong seed)
+    {
+        var session = Session(seed, intake: CareerDayEstimates.GeneratedIntakePerSeason, arrivals: []);
+        var result = CareerHost.Run(session, 1960);
+        return new DecadeRun(
+            session.World.StateHash(),
+            string.Join(',', session.Retired.Select(id => id.Value)),
+            session.Date,
+            session.Years.Count,
+            result.HumanManagers,
+            result.AiManagers,
+            result.CommandsDispatched);
+    }
+
+    private static CareerSession Session(ulong seed, int intake, IReadOnlyList<ScheduledArrival> arrivals) =>
+        new(WorldAt(new GameDate(1950, 1, 1)), seed, [PersonId.Real("vet")], arrivals, new CareerSessionOptions
+        {
+            GeneratedIntakePerSeason = intake,
+        });
+
+    private static WorldState WorldAt(GameDate date)
+    {
+        var world = WorldState.At(date);
+        (world, var team) = world.AddOrganization(new OrganizationSpec(
+            OrganizationKind.Team,
+            true,
+            "alpha",
+            new GameDate(1950, 1, 1),
+            null,
+            0,
+            [new OrganizationNameSpan("Alpha", new GameDate(1950, 1, 1), null)]));
+        (world, _) = world.AddPerson(Person("vet", "Vet", "Driver", new GameDate(1900, 1, 1), driver: true));
+        (world, _) = world.AddPerson(Person("kid", "Kid", "Driver", new GameDate(1935, 7, 1), driver: true));
+        (world, _) = world.AddPerson(Person("leap", "Leap", "Driver", new GameDate(1896, 2, 29), driver: true));
+        (world, var chief) = world.AddPerson(Person("chief", "Chief", "Designer", new GameDate(1870, 3, 1), driver: false));
+        (world, _) = world.AddContract(new ContractSpec(
+            PersonId.Real("kid"),
+            team,
+            ContractRole.Driver(SeatStatus.Equal),
+            new GameDate(1950, 1, 1),
+            new GameDate(1950, 12, 31),
+            0,
+            true,
+            null,
+            null));
+        _ = chief;
+        return world;
+    }
+
+    private static PersonSpec Person(string id, string given, string family, GameDate birth, bool driver)
+    {
+        PersonTruth truth;
+        PersonRole[] roles;
+        if (driver)
+        {
+            var flat = new DriverAttributes(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
+            truth = PersonTruth.FromDriver(flat, flat);
+            roles = [PersonRole.Driver];
+        }
+        else
+        {
+            var keys = StaffCatalogue.AttributeKeys(StaffRole.ChiefDesigner);
+            var attributes = keys.Select(key => new NamedAttribute(key, 10)).ToArray();
+            truth = new PersonTruth(attributes, attributes);
+            roles = [PersonRole.Staff(StaffRole.ChiefDesigner)];
+        }
+
+        return new PersonSpec(given, family, birth, "GBR", true, id, roles, truth);
+    }
+
+    private static RealDriverRecord Driver(string id, int entry, DateOnly? birth) =>
+        new(id, "Given", "Family", birth, birth?.Year, "GBR", entry + 2, entry, []);
+
+    private sealed record DecadeRun(string Hash, string Retired, GameDate Date, int Years, int Humans, int Ai, int Commands);
+
+    private sealed class ListProvider : IPeopleProvider
+    {
+        public ListProvider(params RealDriverRecord[] drivers) => Drivers = drivers;
+
+        public IReadOnlyList<RealDriverRecord> Drivers { get; }
+
+        public DriverRating? RatingFor(string driverId, int season) => null;
+    }
+}

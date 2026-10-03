@@ -144,5 +144,11 @@
   "world.init.gap.lineage_truncated": "Łańcuchy ciągłości urwane, bo id konstruktora się powtarza (ciągłość:konstruktor)",
   "world.init.gap.reference_season_clamped": "Lata startu po ostatnim sezonie danych autorskich (użyto zespołów z ostatniego sezonu)",
   "world.init.error.invalid_config": "Konfiguracja kariery jest nieprawidłowa: {codes}.",
-  "world.init.error.unknown_player_team": "Zespół {team} nie istniał w roku {year}."
+  "world.init.error.unknown_player_team": "Zespół {team} nie istniał w roku {year}.",
+  "career.run.title": "{preset} od {from} do {to}, ziarno {seed}, źródło ludzi: {source}.",
+  "career.run.estimates": "Te reguły to szacunki, a nie zmierzone fakty. Kierowca może zakończyć karierę od wieku {driverFrom} lat i zawsze kończy ją w wieku {driverCertain}. Personel może zakończyć karierę od wieku {staffFrom} lat i zawsze kończy ją w wieku {staffCertain}. Szansa w dniu urodzin rośnie równymi krokami od pierwszego z tych wieków i jest pewna przy drugim. Kierowca z harmonogramu wchodzi do puli talentów dnia {entryDate} roku z harmonogramu. Każdy kolejny sezon dodaje do puli {intake} wygenerowanych kierowców. Koniec kontraktu jest tylko odnotowany i nie ma renegocjacji.",
+  "career.run.year": "Sezon {year}: żyjący {alive}, zakończyli karierę {retired}, pula {pool}, kontrakty {contracts}, hash stanu {hash}.",
+  "career.run.hash_note": "Hash stanu to świat rano 1 stycznia po tym sezonie. Liczby żyjących, zakończonych karier i puli są liczone obok; zakończenie kariery i pula nie są polami hasha świata.",
+  "career.run.ai": "Menedżerowie AI: {ai}. Menedżerowie ludzie: {humans}. Bez człowieka dzień nigdy nie jest blokowany.",
+  "career.run.saved": "Zapisano świat do {path}."
 }

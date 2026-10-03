@@ -52,9 +52,14 @@ public sealed partial class WorldState
         {
             ArgumentNullException.ThrowIfNull(contract);
             RequireIssued(ids, contract.Id.Value);
-            if (!personMap.ContainsKey(contract.PersonId.Value))
+            if (!personMap.TryGetValue(contract.PersonId.Value, out var holder))
             {
                 throw new InvalidOperationException($"Contract '{contract.Id}' names unknown person '{contract.PersonId}'.");
+            }
+
+            if (holder.IsRetired)
+            {
+                throw new InvalidOperationException($"Contract '{contract.Id}' belongs to retired person '{contract.PersonId}'.");
             }
 
             if (!organizationMap.ContainsKey(contract.OrganizationId.Value))

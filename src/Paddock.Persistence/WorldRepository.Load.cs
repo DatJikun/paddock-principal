@@ -201,7 +201,7 @@ public sealed partial class WorldRepository
         var persons = new List<Person>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT id, is_real, given_name, family_name, birth_date, nationality FROM persons ORDER BY id";
+            command.CommandText = "SELECT id, is_real, given_name, family_name, birth_date, nationality, retired_on FROM persons ORDER BY id";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -226,7 +226,8 @@ public sealed partial class WorldRepository
                     reader.GetString(5),
                     isReal,
                     personRoles,
-                    new PersonTruth(current, potentials[text])));
+                    new PersonTruth(current, potentials[text]),
+                    reader.IsDBNull(6) ? null : ParseDate(reader.GetString(6))));
             }
         }
 

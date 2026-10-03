@@ -158,7 +158,7 @@ public sealed partial class WorldRepository
 
         var present = new HashSet<string>(StringComparer.Ordinal);
 
-        using (var persons = new Insert(connection, transaction, "persons", "id", "is_real", "given_name", "family_name", "birth_date", "nationality"))
+        using (var persons = new Insert(connection, transaction, "persons", "id", "is_real", "given_name", "family_name", "birth_date", "nationality", "retired_on"))
         using (var roles = new Insert(connection, transaction, "person_roles", "person_id", "role"))
         using (var attributes = new Insert(connection, transaction, "person_attributes", "person_id", "attribute_key", "value", "potential"))
         {
@@ -166,7 +166,7 @@ public sealed partial class WorldRepository
             {
                 var id = person.Id.Value;
                 present.Add(id);
-                persons.Run(id, person.IsReal ? 1L : 0L, person.GivenName, person.FamilyName, person.BirthDate.ToString(), person.Nationality);
+                persons.Run(id, person.IsReal ? 1L : 0L, person.GivenName, person.FamilyName, person.BirthDate.ToString(), person.Nationality, person.RetiredOn?.ToString());
                 foreach (var role in person.Roles)
                 {
                     roles.Run(id, role.ToString());

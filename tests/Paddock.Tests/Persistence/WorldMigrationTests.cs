@@ -32,7 +32,7 @@ public class WorldMigrationTests : IDisposable
 
         using var opened = SaveFile.Open(path);
         var read = opened.ReadMeta();
-        Assert.Equal(3, read.SchemaVersion);
+        Assert.Equal(4, read.SchemaVersion);
         Assert.Equal(meta.CareerName, read.CareerName);
         Assert.Equal(meta.CurrentGameDate, read.CurrentGameDate);
         Assert.Equal(meta.MasterSeed, read.MasterSeed);
@@ -57,14 +57,31 @@ public class WorldMigrationTests : IDisposable
         using (var opened = SaveFile.Open(path))
         {
             var read = opened.ReadMeta();
-            Assert.Equal(3, read.SchemaVersion);
+            Assert.Equal(4, read.SchemaVersion);
             Assert.Equal(meta.CareerConfig, read.CareerConfig);
             Assert.False(new WorldRepository(opened).HasWorld);
         }
 
         AssertEmptyWorldTables(path);
         using var again = SaveFile.Open(path);
-        Assert.Equal(3, again.ReadMeta().SchemaVersion);
+        Assert.Equal(4, again.ReadMeta().SchemaVersion);
+    }
+
+    [Fact]
+    public void V003SaveMigratesToV004WithAnEmptyRetirementColumn()
+    {
+        var path = NewPath();
+        using (SaveFile.Create(path, WorldFixtures.Meta(), [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities()]))
+        {
+        }
+
+        Assert.DoesNotContain("retired_on", PersonColumns(path));
+        using (var opened = SaveFile.Open(path))
+        {
+            Assert.Equal(4, opened.ReadMeta().SchemaVersion);
+        }
+
+        Assert.Contains("retired_on", PersonColumns(path));
     }
 
     [Fact]
@@ -96,16 +113,16 @@ public class WorldMigrationTests : IDisposable
     {
         var path = NewPath();
         var world = WorldFixtures.Small();
-        ISaveMigration[] future = [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), new FutureV004()];
+        ISaveMigration[] future = [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), new V004_PersonRetirement(), new FutureV005()];
         using (var created = SaveFile.Create(path, WorldFixtures.Meta(), future))
         {
-            Assert.Equal(4, created.ReadMeta().SchemaVersion);
+            Assert.Equal(5, created.ReadMeta().SchemaVersion);
             new WorldRepository(created).SaveWorld(world, WorldFixtures.Opening);
         }
 
         var refusal = Assert.Throws<SaveSchemaTooNewException>(() => SaveFile.Open(path));
-        Assert.Equal(4, refusal.FileSchemaVersion);
-        Assert.Equal(3, refusal.SupportedSchemaVersion);
+        Assert.Equal(5, refusal.FileSchemaVersion);
+        Assert.Equal(4, refusal.SupportedSchemaVersion);
 
         using var newer = SaveFile.Open(path, future);
         Assert.Equal(world.StateHash(), new WorldRepository(newer).LoadWorld().StateHash());
@@ -135,7 +152,7 @@ public class WorldMigrationTests : IDisposable
         }
 
         using var retried = SaveFile.Open(path);
-        Assert.Equal(written with { SchemaVersion = 3 }, retried.ReadMeta() with { SavedAtUtc = written.SavedAtUtc });
+        Assert.Equal(written with { SchemaVersion = 4 }, retried.ReadMeta() with { SavedAtUtc = written.SavedAtUtc });
         Assert.Equal(WorldTables.Order(StringComparer.Ordinal), Tables(path).Intersect(WorldTables).Order(StringComparer.Ordinal));
     }
 
@@ -151,6 +168,21 @@ public class WorldMigrationTests : IDisposable
         }.ToString());
         connection.Open();
         return connection;
+    }
+
+    private static List<string> PersonColumns(string path)
+    {
+        using var raw = Open(path, SqliteOpenMode.ReadOnly);
+        using var command = raw.CreateCommand();
+        command.CommandText = "SELECT name FROM pragma_table_info('persons')";
+        using var reader = command.ExecuteReader();
+        var names = new List<string>();
+        while (reader.Read())
+        {
+            names.Add(reader.GetString(0));
+        }
+
+        return names;
     }
 
     private static List<string> Tables(string path)
@@ -179,9 +211,9 @@ public class WorldMigrationTests : IDisposable
         }
     }
 
-    private sealed class FutureV004 : ISaveMigration
+    private sealed class FutureV005 : ISaveMigration
     {
-        public int Version => 4;
+        public int Version => 5;
 
         public void Apply(SqliteConnection connection, SqliteTransaction transaction)
         {

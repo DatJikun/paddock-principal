@@ -128,5 +128,18 @@
   "inbox.status.open": "Open",
   "inbox.status.resolved": "Decided",
   "inbox.status.dismissed": "Dismissed",
-  "inbox.status.expired": "Lapsed"
+  "inbox.status.expired": "Lapsed",
+  "objective.status.open": "In progress",
+  "objective.status.met": "Met",
+  "objective.status.failed": "Failed",
+  "objective.forecast.unknown": "No forecast: the figure is not available yet.",
+  "objective.forecast.onTrack": "On the current trend this objective is met.",
+  "objective.forecast.offTrack": "On the current trend this objective is missed.",
+  "objective.forecast.notProjectable": "This objective is a state to reach, so there is no trend to project.",
+  "objective.predicate.championshipPositionAtMost": "Finish the championship in position {target} or better.",
+  "objective.predicate.podiumsAtLeast": "Score at least {target} podiums.",
+  "objective.predicate.pointsAtLeast": "Score at least {target} points.",
+  "objective.predicate.cashAtLeast": "Hold at least {target} in cash.",
+  "objective.predicate.driverNationalityInLineup": "Field a driver of nationality {nationality}.",
+  "objective.predicate.personFromCountryInLineup": "Have someone from {country} in the lineup."
 }

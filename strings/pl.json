@@ -128,5 +128,18 @@
   "inbox.status.open": "Otwarta",
   "inbox.status.resolved": "Rozstrzygnięta",
   "inbox.status.dismissed": "Odrzucona",
-  "inbox.status.expired": "Wygasła"
+  "inbox.status.expired": "Wygasła",
+  "objective.status.open": "W toku",
+  "objective.status.met": "Spełniony",
+  "objective.status.failed": "Niespełniony",
+  "objective.forecast.unknown": "Brak prognozy: wartość nie jest jeszcze dostępna.",
+  "objective.forecast.onTrack": "Przy obecnym trendzie cel zostanie osiągnięty.",
+  "objective.forecast.offTrack": "Przy obecnym trendzie cel nie zostanie osiągnięty.",
+  "objective.forecast.notProjectable": "Ten cel to stan do osiągnięcia, więc nie ma trendu do prognozy.",
+  "objective.predicate.championshipPositionAtMost": "Zakończ mistrzostwa na pozycji {target} lub wyższej.",
+  "objective.predicate.podiumsAtLeast": "Zdobądź co najmniej {target} podiów.",
+  "objective.predicate.pointsAtLeast": "Zdobądź co najmniej {target} punktów.",
+  "objective.predicate.cashAtLeast": "Utrzymaj co najmniej {target} gotówki.",
+  "objective.predicate.driverNationalityInLineup": "Wystaw kierowcę narodowości {nationality}.",
+  "objective.predicate.personFromCountryInLineup": "Miej w składzie kogoś z kraju {country}."
 }

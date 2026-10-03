@@ -1,5 +1,6 @@
 using System.Globalization;
 using Paddock.Application.Spy;
+using Paddock.Domain.Spy;
 
 namespace Paddock.SimRunner;
 

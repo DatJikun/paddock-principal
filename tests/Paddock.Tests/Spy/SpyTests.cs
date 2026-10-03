@@ -1,5 +1,6 @@
 using Paddock.Application.Access;
 using Paddock.Application.Spy;
+using Paddock.Domain.Spy;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.Spy;
@@ -49,7 +50,7 @@ public class SpyTests
         ToyDecisionLoop.Run(5, 1, memory);
         var trace = Assert.Single(memory.Traces);
 
-        Assert.Equal(Toy, trace.Who);
+        Assert.Equal(Toy.Value, trace.Who);
         Assert.Equal(3, trace.Options.Count);
         Assert.All(trace.Options, o => Assert.Equal(2, o.Factors.Count));
         var best = trace.Options.MaxBy(o => o.Utility)!;

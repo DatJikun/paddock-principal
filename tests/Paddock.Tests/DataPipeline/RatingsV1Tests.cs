@@ -220,6 +220,54 @@ public class RatingsV1Tests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void PlantedStrongDriverInWeakCar_IsRankedAboveWeakDriverInBestCar()
+    {
+        const int seasons = 10;
+        var world = BuildWorld(seed: 21UL, seasons: seasons, carBaseSd: 0.5, planted: true);
+
+        // The raw results mislead: the payer in the +2.0 car finishes ahead of the star in the -2.0 car.
+        double MeanFinish(string id) => world.Results.Where(r => r.DriverId == id).Average(r => (double)r.Position);
+        var starRaw = MeanFinish(PlantedStarId);
+        var payerRaw = MeanFinish(PlantedPayerId);
+        Assert.True(payerRaw < starRaw, $"scenario broken: payer {payerRaw:F1} should finish ahead of star {starRaw:F1} on raw results");
+
+        var run = RatingsCommand.RunModel(world.Races, world.Results, 1, seasons);
+
+        double Peak(string id) => RatingsCurveModel.Build(run.DriverMetrics[id].Seasons, null, RatingsModel.DefaultLambdaCurve)?.PeakValue
+            ?? run.DriverMetrics[id].CareerPeak;
+
+        var starPeak = Peak(PlantedStarId);
+        var payerPeak = Peak(PlantedPayerId);
+        var rankOfStar = run.DriverMetrics.Keys.Count(id => Peak(id) > starPeak) + 1;
+        output.WriteLine($"star fitted peak {starPeak:F2} (rank {rankOfStar}), payer {payerPeak:F2}; raw mean finish star {starRaw:F1} vs payer {payerRaw:F1}");
+
+        Assert.True(starPeak > payerPeak + 1.0, $"star {starPeak:F2} should clearly beat payer {payerPeak:F2}");
+        Assert.True(rankOfStar <= 3, $"star ranked {rankOfStar}, expected top 3");
+
+        // And the model attributes the gap to the cars.
+        double MeanCar(string key) => run.CarEffects.Where(c => c.Key == key).Average(c => c.Effect);
+        var weak = MeanCar("team_9");
+        var strong = MeanCar("team_0");
+        output.WriteLine($"fitted car effect team_9 {weak:F2}, team_0 {strong:F2}");
+        Assert.True(strong - weak > 2.0, $"car gap {strong - weak:F2} too small");
+        var others = Enumerable.Range(1, 8).Select(k => MeanCar($"team_{k}")).ToList();
+        Assert.True(weak < others.Min(), "weakest car must be team_9");
+        Assert.True(strong > others.Max(), "best car must be team_0");
+    }
+
+    [Fact]
+    public void LineageFile_ParsesAndLinksARealRename()
+    {
+        var path = Path.Combine(JolpicaCache.FindRepoRoot(), "data", "authored", "teams", "lineage.json");
+        var map = ConstructorLineageMap.Parse(File.ReadAllText(path));
+
+        // tyrrell 1970-1998 resolves to a lineage key (same key for every season of that entry).
+        var key = map.Resolve("tyrrell", 1970);
+        Assert.Equal(key, map.Resolve("tyrrell", 1998));
+        Assert.NotEqual("tyrrell", key);
+    }
+
+    [Fact]
     public void Determinism_V1ReportIsByteIdentical()
     {
         var world = BuildWorld(seed: 5UL, seasons: 8, carBaseSd: 1.0, racesPerSeason: 6);
@@ -285,6 +333,9 @@ public class RatingsV1Tests(ITestOutputHelper output)
         return driverIds.Select(id => metrics[id].CareerPeak).ToList();
     }
 
+    private const string PlantedStarId = "planted_star";
+    private const string PlantedPayerId = "planted_payer";
+
     private sealed record World(
         List<HistoricalRace> Races,
         List<HistoricalResult> Results,
@@ -304,7 +355,7 @@ public class RatingsV1Tests(ITestOutputHelper output)
     /// utility = skill + car + Gumbel noise. With <paramref name="renameSeason"/> &gt; 0, team_0 is called
     /// team_0_new from that season on.
     /// </summary>
-    private static World BuildWorld(ulong seed, int seasons, double carBaseSd, int racesPerSeason = 16, int renameSeason = 0)
+    private static World BuildWorld(ulong seed, int seasons, double carBaseSd, int racesPerSeason = 16, int renameSeason = 0, bool planted = false)
     {
         var rng = Xoshiro256StarStar.FromSeed(seed);
         const int teams = 10;
@@ -320,6 +371,12 @@ public class RatingsV1Tests(ITestOutputHelper output)
             }
 
             carBase[k] = (n - 6.0) * carBaseSd;
+        }
+
+        if (planted)
+        {
+            carBase[0] = 2.0;
+            carBase[teams - 1] = -2.0;
         }
 
         var races = new List<HistoricalRace>();
@@ -344,9 +401,26 @@ public class RatingsV1Tests(ITestOutputHelper output)
             return pool.Count - 1;
         }
 
+        var starIndex = -1;
+        var payerIndex = -1;
+        if (planted)
+        {
+            // Strong driver (skill +2.0) pinned to the weakest car; weak driver (skill -1.0) pinned to the best car.
+            pool.Add((PlantedStarId, 1, seasons, Enumerable.Repeat(2.0, seasons).ToArray()));
+            starIndex = pool.Count - 1;
+            pool.Add((PlantedPayerId, 1, seasons, Enumerable.Repeat(-1.0, seasons).ToArray()));
+            payerIndex = pool.Count - 1;
+        }
+
         for (var season = 1; season <= seasons; season++)
         {
             active.RemoveAll(i => pool[i].Start + pool[i].Length <= season);
+            if (planted && season == 1)
+            {
+                active.Add(starIndex);
+                active.Add(payerIndex);
+            }
+
             while (active.Count < teams * 2)
             {
                 active.Add(Spawn(season));
@@ -366,6 +440,15 @@ public class RatingsV1Tests(ITestOutputHelper output)
                     var j = (int)(rng.NextDouble() * (i + 1));
                     (active[i], active[j]) = (active[j], active[i]);
                 }
+            }
+
+            if (planted)
+            {
+                // Seats 2k and 2k+1 share team k: star in the last team's first seat, payer in team 0's first seat.
+                var starSeat = active.IndexOf(starIndex);
+                (active[starSeat], active[(teams * 2) - 2]) = (active[(teams * 2) - 2], active[starSeat]);
+                var payerSeat = active.IndexOf(payerIndex);
+                (active[payerSeat], active[0]) = (active[0], active[payerSeat]);
             }
 
             foreach (var idx in active)

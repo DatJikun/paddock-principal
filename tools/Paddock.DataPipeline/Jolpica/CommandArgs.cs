@@ -34,7 +34,7 @@ internal static class CommandArgs
                 continue;
             }
 
-            if (!allowed.Contains(flag) || flag is not ("--from" or "--to" or "--cache"))
+            if (!allowed.Contains(flag))
             {
                 stderr.WriteLine($"Unknown argument: {flag}");
                 return false;

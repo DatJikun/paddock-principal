@@ -6,5 +6,21 @@
   "command.unknown": "Nieznana komenda: {command}.",
   "ready.blockingItem": "Nierozstrzygnięta sprawa zatrzymuje czas.",
   "ready.humansNotReady": "Czas ruszy, gdy każdy ludzki menedżer będzie gotowy.",
-  "ready.waitingFor": "Czekamy na {manager}."
+  "ready.waitingFor": "Czekamy na {manager}.",
+  "people.gen.rating_explanation": "Ocena ogólna to ważona suma atrybutów (każdy od 1 do 20). Wagi zależą od epoki, a wynik jest na skali 1–100. Potencjał to ukryty sufit i nie spada poniżej oceny ogólnej. Od potencjału {starThreshold} w górę osoba liczy się jako gwiazda. Wagi, przedziały wieku i ten próg to szacunki, które da się zmienić bez ruszania generatora.",
+  "people.gen.column.id": "id",
+  "people.gen.column.name": "imię i nazwisko",
+  "people.gen.column.nationality": "narodowość",
+  "people.gen.column.born": "data urodzenia",
+  "people.gen.column.overall": "ocena",
+  "people.gen.column.potential": "potencjał",
+  "people.gen.column.personality": "osobowość",
+  "people.personality.seeks_security": "Szuka bezpieczeństwa",
+  "people.personality.mercenary": "Najemnik",
+  "people.personality.loyal": "Lojalny",
+  "people.personality.prestige": "Prestiż",
+  "people.personality.short_term": "Krótkoterminowy",
+  "people.personality.ambitious": "Ambitny",
+  "people.personality.mentor": "Mentor",
+  "people.personality.team_player": "Gracz zespołowy"
 }

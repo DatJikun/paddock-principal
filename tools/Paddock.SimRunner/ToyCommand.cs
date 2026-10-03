@@ -56,17 +56,33 @@ public static class ToyCommand
             return 1;
         }
 
-        ITraceSink sink = spy ? new MemorySink(Math.Max(1, steps.Value)) : NullSink.Instance;
+        // MemorySink keeps only the current weekend (TECH §7), so --spy collects every trace itself.
+        var collector = spy ? new CollectingSink() : null;
+        ITraceSink sink = collector ?? (ITraceSink)NullSink.Instance;
         var result = ToyDecisionLoop.Run(seed.Value, steps.Value, sink);
         stdout.WriteLine(result.StateHash.ToString(CultureInfo.InvariantCulture));
-        if (sink is MemorySink memory)
+        if (collector is not null)
         {
-            foreach (var trace in memory.Traces)
+            foreach (var trace in collector.Traces)
             {
                 stdout.WriteLine(TraceJson.Serialize(trace));
             }
         }
 
         return 0;
+    }
+
+    /// <summary>Keeps every trace in order, across weekends; passive like every sink (INV-006).</summary>
+    private sealed class CollectingSink : ITraceSink
+    {
+        public List<DecisionTrace> Traces { get; } = [];
+
+        public bool IsEnabled => true;
+
+        public void Record(DecisionTrace trace)
+        {
+            ArgumentNullException.ThrowIfNull(trace);
+            Traces.Add(trace);
+        }
     }
 }

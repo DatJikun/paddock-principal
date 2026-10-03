@@ -183,6 +183,30 @@ public class SpyTests
     }
 
     [Theory]
+    [InlineData(1)]
+    [InlineData(5)]
+    [InlineData(6)]
+    [InlineData(12)]
+    public void ToyCommandSpyPrintsOneTracePerStepAcrossWeekends(int steps)
+    {
+        var plain = new StringWriter();
+        var spied = new StringWriter();
+        var err = new StringWriter();
+        var stepsText = steps.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+        Assert.Equal(0, ToyCommand.Execute(["toy", "--seed", "42", "--steps", stepsText], plain, err));
+        Assert.Equal(0, ToyCommand.Execute(["toy", "--seed", "42", "--steps", stepsText, "--spy"], spied, err));
+
+        var lines = Lines(spied);
+        Assert.Equal(steps + 1, lines.Length);
+        Assert.Equal(Lines(plain)[0], lines[0]);
+        for (var i = 0; i < steps; i++)
+        {
+            Assert.Contains("toy-step-" + i.ToString(System.Globalization.CultureInfo.InvariantCulture), lines[i + 1], StringComparison.Ordinal);
+        }
+    }
+
+    [Theory]
     [InlineData("toy")]
     [InlineData("toy --seed 1")]
     [InlineData("toy --seed x --steps 1")]

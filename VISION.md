@@ -275,3 +275,8 @@ Szczegóły w DESIGN §5.3.
 - **Przejęcie zespołu (po MVP):** przejmujesz wszystko dokładnie tak, jak jest: kontrakty, budżet, długi i zobowiązania. Nic nie jest generowane ani pomijane, bo gracz i AI działają według tych samych zasad.
 - **Prawdziwe wydarzenia z historii zespołów** nie są pokazywane graczowi jako opisy. Świat gry jest wirtualny, a gracz może porównać go z prawdziwą historią sam.
 
+**PP-051: Scenariusze startowe i wydarzenia oskryptowane (pomysł na po MVP).**
+- **Własna baza startowa sezonu:** gracz wybiera sezon startowy (np. 2016) i zmienia w jego bazie, co chce: zespoły, kierowców, kontrakty, siłę aut. Na razie zmiany nanosi Claude na prośbę właściciela, później edytor bazy (faza 7+).
+- **Wydarzenia oskryptowane:** scenariusz może zaplanować zdarzenia w czasie, np. start w 2012, a w 2013–2014 ktoś zauważa Verstappena dzięki wynikom w seriach juniorskich i trafia on do akademii Mercedesa. Wydarzenia działają na zwykłych zasadach świata, tak jak propozycje historyczne (PP-004).
+- **Wiedza AI o historii jako opcja kariery:** to, czy AI odtwarza historię, czy tylko reaguje na sytuację, jest ustawieniem kariery (oś „zachowanie AI”, PP-046). Domyślnie AI ocenia siłę aut tak jak prawdziwy szef zespołu i nie zna przyszłości.
+

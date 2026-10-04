@@ -17,6 +17,12 @@ public static class RngStreamName
     /// <summary>Observation noise of scouting (T40). Kept apart from <see cref="People"/> so extra scouting never moves development draws.</summary>
     public const string Scouting = "Scouting";
 
+    /// <summary>
+    /// Concept ceilings (T41). Kept apart from <see cref="People"/> so approving a car never moves a person,
+    /// and apart from <see cref="Scouting"/> so a ceiling draw never moves an observation.
+    /// </summary>
+    public const string Development = "Development";
+
     public static readonly IReadOnlyList<string> All =
     [
         Weather,
@@ -31,5 +37,6 @@ public static class RngStreamName
         LifeEvents,
         Regulations,
         Scouting,
+        Development,
     ];
 }

@@ -84,6 +84,7 @@ public sealed class CommandCodec
     [
         .. FinanceCommandCodecs.Entries,
         .. ContractCommandCodecs.Entries,
+        .. CarCommandCodecs.Entries,
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",
             command => FlatJson.Write(("itemId", command.ItemId), ("optionId", command.OptionId)),

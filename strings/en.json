@@ -414,5 +414,12 @@
   "finance.reason.salary": "Salary under the contract.",
   "finance.reason.termination": "Compensation for ending a contract early.",
   "finance.view.unknown": "You do not know another organization's finances.",
-  "finance.view.forecast": "Forecast to the end of the season. Uncalibrated ESTIMATE."
+  "finance.view.forecast": "Forecast to the end of the season. Uncalibrated ESTIMATE.",
+  "car.error.notInControl": "You do not run that team.",
+  "car.error.unknownOrganization": "That organization does not exist.",
+  "car.error.notATeam": "Only a team has cars.",
+  "car.error.axisRange": "Each concept axis is between the two poles.",
+  "car.customer.notInMvp": "Customer chassis are not part of this game yet. Every team designs its own two cars.",
+  "car.customer.forbidden": "The regulations do not allow a customer chassis.",
+  "car.rival.noMeasuredGap": "No public pace gap has been measured for this car yet."
 }

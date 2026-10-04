@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edytor torów</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+<div class="app">
+  <main class="stage">
+    <div class="toolbar">
+      <h1>Edytor torów</h1>
+      <div class="seg-ctl" id="tools" role="group" aria-label="Narzędzie">
+        <button data-tool="select" title="Zaznacz i przesuwaj punkty (V). Shift + klik na krzywej wstawia punkt">Wskaż</button>
+        <button data-tool="add" title="Dodawaj punkty na końcu pętli (A)">Dodaj</button>
+        <button data-tool="insert" title="Wstaw punkt na krzywej (I)">Wstaw</button>
+        <button data-tool="bg" title="Przesuwaj obraz tła (B)">Tło</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" id="btnUndo" title="Cofnij (Ctrl+Z)">Cofnij</button>
+      <button class="btn" id="btnRedo" title="Ponów (Ctrl+Y)">Ponów</button>
+      <button class="btn" id="btnFit">Dopasuj widok</button>
+    </div>
+    <div class="canvas-wrap" id="wrap"><canvas id="cv"></canvas></div>
+  </main>
+
+  <aside class="panel" id="panel">
+    <div class="chips" id="chips"></div>
+
+    <section class="seg">
+      <h2>Tor</h2>
+      <label class="field"><span>Identyfikator układu</span>
+        <input id="layoutId" list="layoutList" autocomplete="off" spellcheck="false"></label>
+      <datalist id="layoutList"></datalist>
+      <div class="row">
+        <button class="btn" id="btnOpen">Wczytaj JSON</button>
+        <button class="btn primary" id="btnSave">Zapisz JSON</button>
+        <button class="btn" id="btnNew">Nowy tor</button>
+      </div>
+      <label class="field"><span>Źródło</span><input id="source" spellcheck="false"></label>
+      <label class="field"><span>Notatki</span><input id="notes" spellcheck="false"></label>
+      <input type="file" id="fileJson" accept=".json,application/json" hidden>
+    </section>
+
+    <section class="seg">
+      <h2>Tło i obrys</h2>
+      <div class="row">
+        <button class="btn" id="btnImg">Wczytaj obraz</button>
+        <button class="btn" id="btnImgFit">Dopasuj obraz</button>
+        <button class="btn" id="btnImgClear">Usuń tło</button>
+      </div>
+      <input type="file" id="fileImg" accept="image/*" hidden>
+      <label class="field"><span>Przezroczystość <b id="opVal">50%</b></span>
+        <input type="range" id="imgOpacity" min="0" max="100" value="50"></label>
+      <div class="grid3">
+        <label class="field"><span>Skala (j./px)</span><input type="number" id="imgScale" step="any"></label>
+        <label class="field"><span>Przesunięcie X</span><input type="number" id="imgX" step="any"></label>
+        <label class="field"><span>Przesunięcie Y</span><input type="number" id="imgY" step="any"></label>
+      </div>
+      <div class="grid2">
+        <label class="field"><span>Linia na obrazie</span>
+          <select id="traceMode"><option value="auto">Automatycznie</option><option value="dark">Ciemna</option><option value="light">Jasna</option></select></label>
+        <label class="field"><span>Tolerancja <b id="tolVal">4</b> px</span>
+          <input type="range" id="traceTol" min="1" max="20" step="0.5" value="4"></label>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="btnTrace">Wykryj tor</button>
+        <button class="btn" id="btnReverse">Odwróć kierunek</button>
+        <span class="status" id="traceStatus"></span>
+      </div>
+    </section>
+
+    <section class="seg">
+      <h2>Skala do metrów</h2>
+      <div class="grid2">
+        <label class="field"><span>Długość docelowa (km)</span><input type="number" id="targetKm" step="any" min="0"></label>
+        <button class="btn primary align-end" id="btnScale">Skaluj punkty</button>
+      </div>
+      <div class="kv3">
+        <div><span>Surowa</span><b id="rawLen">-</b></div>
+        <div><span>Docelowa</span><b id="tgtLen">-</b></div>
+        <div><span>Mnożnik</span><b id="scaleF">-</b></div>
+      </div>
+      <div class="row">
+        <button class="btn" id="btnCircuits">Wczytaj circuits.json</button>
+        <span class="status" id="circuitsStatus"></span>
+      </div>
+      <input type="file" id="fileCircuits" accept=".json,application/json" hidden>
+    </section>
+
+    <section class="seg">
+      <h2>Zaznaczony punkt</h2>
+      <div class="grid2">
+        <label class="field"><span>X (m)</span><input type="number" id="ptX" step="any" disabled></label>
+        <label class="field"><span>Y (m)</span><input type="number" id="ptY" step="any" disabled></label>
+      </div>
+      <div class="row">
+        <button class="btn" id="btnDel" disabled>Usuń punkt</button>
+        <button class="btn" id="btnStart" disabled>Ustaw jako start</button>
+      </div>
+    </section>
+
+    <section class="seg">
+      <h2>Analiza <span class="tag" title="Stałe modelu to wartości orientacyjne, do kalibracji">Szacunek</span></h2>
+      <div class="stats" id="stats"></div>
+      <div class="bar" id="shareBar"></div>
+      <div class="legend" id="legend"></div>
+      <h3>Zakręty</h3>
+      <div class="list" id="cornerList"></div>
+      <h3>Strefy hamowania</h3>
+      <div class="list" id="brakeList"></div>
+      <details class="model">
+        <summary>Model samochodu</summary>
+        <div class="grid2">
+          <label class="field"><span>a0 (m/s²)</span><input type="number" step="any" data-cfg="a0"></label>
+          <label class="field"><span>c (1/m)</span><input type="number" step="any" data-cfg="c"></label>
+          <label class="field"><span>Vmax (km/h)</span><input type="number" step="any" data-cfg="vmaxKmh"></label>
+          <label class="field"><span>Przyspieszenie (m/s²)</span><input type="number" step="any" data-cfg="acc"></label>
+          <label class="field"><span>Hamowanie (m/s²)</span><input type="number" step="any" data-cfg="brake"></label>
+        </div>
+      </details>
+    </section>
+  </aside>
+</div>
+<script src="editor.js"></script>
+</body>
+</html>

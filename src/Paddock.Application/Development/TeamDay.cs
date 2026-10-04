@@ -56,6 +56,7 @@ internal sealed class TeamDay
         }
 
         AdvanceProjects();
+        AdvanceProduction();
         DeployReady();
         StartProjects();
         GrowUnderstanding();
@@ -77,10 +78,17 @@ internal sealed class TeamDay
         Commit();
     }
 
-    /// <summary>Deploys a finished concept now, whatever its timing.</summary>
+    /// <summary>Deploys a finished concept now, whatever its timing, with no production. Kept for old callers; see <see cref="StartProductionNow"/>.</summary>
     public void DeployNow(DevProject project)
     {
         Deploy(project);
+        Commit();
+    }
+
+    /// <summary>Commits a finished concept to production now (the principal's decision, or <c>WhenReady</c>).</summary>
+    public void StartProductionNow(DevProject project)
+    {
+        StartProduction(project);
         Commit();
     }
 
@@ -170,6 +178,22 @@ internal sealed class TeamDay
         }
     }
 
+    /// <summary>
+    /// A concept in production goes live on the first day after its last production day, so no race on the finish day or before
+    /// sees it: the car never changes in the middle of a race weekend, whatever the order of the day's steps.
+    /// </summary>
+    private void AdvanceProduction()
+    {
+        foreach (var project in Development.ProjectsOf(_organization).Where(project => project.IsInProduction))
+        {
+            if (project.ProductionEnds is { } ends && Today > ends)
+            {
+                Deploy(project);
+            }
+        }
+    }
+
+    /// <summary>The automatic path: <c>WhenReady</c> commits as soon as the concept is ready, <c>AfterRaces</c> once the races are counted.</summary>
     private void DeployReady()
     {
         foreach (var project in Development.ProjectsOf(_organization).Where(project => project.Status == ProjectStatus.Ready))
@@ -178,9 +202,26 @@ internal sealed class TeamDay
                 || (project.Timing == ConceptTiming.AfterRaces && project.RacesWaited >= project.TimingRaces);
             if (due)
             {
-                Deploy(project);
+                StartProduction(project);
             }
         }
+    }
+
+    /// <summary>Starts production: the old car keeps racing, the cost goes to the ledger now, the concept goes live when production ends.</summary>
+    private void StartProduction(DevProject project)
+    {
+        var plan = ConceptProduction.Plan(_inputs.World, Finance, _organization, project, Today);
+        if (plan.CostCents > 0 && Finance.HasBook(_organization))
+        {
+            Finance = Finance.Post(_organization, Today, LedgerCategories.Development, project.Id, -plan.CostCents, DevelopmentKeys.LedgerProduction);
+        }
+
+        Replace(project with
+        {
+            Status = ProjectStatus.InProduction,
+            ProductionEnds = Today.AddDays(plan.Days),
+            ProductionCostCents = plan.CostCents,
+        });
     }
 
     private void Deploy(DevProject project)

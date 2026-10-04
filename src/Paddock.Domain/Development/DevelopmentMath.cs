@@ -152,6 +152,19 @@ public static class DevelopmentMath
     };
 
     /// <summary>
+    /// Days a committed concept takes before headcount: the base days times the square root of how much bigger the era's team is than
+    /// in 1950, as a stand-in for how complex the car is. ESTIMATE; roughly 40 days in 1955 and 190 in 2025.
+    /// </summary>
+    public static int ConceptProductionDays(int year) =>
+        (int)Math.Round(
+            DevelopmentEstimates.ConceptProductionBaseDays
+            * Math.Sqrt((double)EngineeringCapacity.EraHeadcount(year) / EngineeringCapacity.EraHeadcount(1950)),
+            MidpointRounding.AwayFromZero);
+
+    public static long ProductionCostCents(long developmentCostCents) =>
+        (long)Math.Round(developmentCostCents * DevelopmentEstimates.ConceptProductionCostShare, MidpointRounding.AwayFromZero);
+
+    /// <summary>
     /// Cost of a project: the annual development budget times the plan's share for the kind times the base duration over a year.
     /// It does not depend on headcount, so more engineers finish sooner for the same money.
     /// </summary>

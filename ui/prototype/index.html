@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/screens.css">
-<link rel="stylesheet" href="css/live-race.css">
+<link rel="stylesheet" href="css/race-mode.css">
 </head>
 <body data-team="tyrrell" data-style="era">
 <canvas id="air" aria-hidden="true"></canvas>
@@ -26,14 +26,16 @@
     <div id="wipe" aria-hidden="true"><i></i><i></i><i></i></div>
   </div>
 </div>
+<!-- race mode: own full-screen root; the .app shell above is taken out of the document while it runs -->
+<div id="race-root" hidden></div>
 <script src="js/data.js"></script>
 <script src="js/flags.js"></script>
 <script src="js/ui.js"></script>
-<script src="js/race-sim.js"></script>
 <script src="js/race-map.js"></script>
+<script src="js/race-sim.js"></script>
 <script src="js/screens.js"></script>
 <script src="js/screens-more.js"></script>
-<script src="js/screens-live.js"></script>
+<script src="js/race-mode.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

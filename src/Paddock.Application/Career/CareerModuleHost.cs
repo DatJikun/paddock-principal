@@ -1,3 +1,4 @@
+using Paddock.Application.Board;
 using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
 using Paddock.Application.Inbox;
@@ -39,7 +40,8 @@ public sealed class CareerModuleHost
         ManagerRegistry managers,
         CommandDispatcher dispatcher,
         ManagerId ai,
-        IReadOnlyList<ICareerModule> modules)
+        IReadOnlyList<ICareerModule> modules,
+        CareerInputs? inputs = null)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(managers);
@@ -55,7 +57,7 @@ public sealed class CareerModuleHost
             }
         }
 
-        var context = new CareerModuleContext(session, managers, dispatcher, ai);
+        var context = new CareerModuleContext(session, managers, dispatcher, ai, inputs ?? new CareerInputs());
         var control = new ControlTable();
         AssignAll(control, session, ai);
         var resolvers = new InboxResolvers();
@@ -65,6 +67,13 @@ public sealed class CareerModuleHost
         var inbox = InboxBook.From(session.World, resolvers);
         context.Provide(inbox);
         context.AddFlush(inbox.Into);
+
+        dispatcher.Register(new ResolveInboxItemHandler());
+        dispatcher.Register(new DismissInboxItemHandler());
+        dispatcher.Register(new ExpireInboxItemHandler());
+
+        // An offer that has passed its date lapses by its default option, as a logged command, before anything else is filed today.
+        context.AddMorning(queue => InboxExpiry.EnqueueDue(queue, inbox, session.Date));
 
         foreach (var module in modules)
         {
@@ -99,7 +108,8 @@ public sealed class CareerModuleHost
             world,
             managers,
             _context.TryGet<InboxBook>(),
-            _context.TryGet<ContractBook>());
+            _context.TryGet<ContractBook>(),
+            _context.TryGet<BoardBook>());
     }
 
     /// <summary>Hands new organizations to the AI manager and lets the modules file today's commands.</summary>

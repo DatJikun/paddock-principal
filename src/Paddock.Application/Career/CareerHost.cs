@@ -19,14 +19,27 @@ namespace Paddock.Application.Career;
 /// </summary>
 public sealed class CareerRunResult
 {
-    internal CareerRunResult(CareerSession session, int aiManagers, int humanManagers, int commandsDispatched, CareerHostState host)
+    internal CareerRunResult(
+        CareerSession session,
+        int aiManagers,
+        int humanManagers,
+        int commandsDispatched,
+        CareerHostState host,
+        CareerModuleContext modules)
     {
         Session = session;
         AiManagers = aiManagers;
         HumanManagers = humanManagers;
         CommandsDispatched = commandsDispatched;
         Host = host;
+        Modules = modules;
     }
+
+    /// <summary>
+    /// What the career modules provided for this run (the books, the engines, the shared ports). For tests and tools that read a
+    /// finished run; the state that matters is in <see cref="Session"/> and <see cref="Host"/>.
+    /// </summary>
+    public CareerModuleContext Modules { get; }
 
     public CareerSession Session { get; }
 
@@ -88,25 +101,42 @@ public static class CareerHost
     /// and the submission counter are the saved ones; without it a fresh AI manager is registered.
     /// </summary>
     public static CareerRunResult Run(CareerSession session, int toYear, CareerHostState? resumeFrom) =>
-        Run(session, toYear, resumeFrom, CareerModules.Default);
+        Run(session, toYear, resumeFrom, new CareerRunOptions());
 
     /// <summary>
-    /// The same run with the systems of <paramref name="modules"/>. <see cref="CareerModules.Default"/> is what a career runs;
-    /// another list is for a test that adds one module, or a tool that runs a subset.
+    /// The same run with explicit <paramref name="options"/>: the data inputs a host loaded (eras, sponsors, tiers), and, for a
+    /// test that adds one module or a tool that runs a subset, another module list than <see cref="CareerModules.Default"/>.
     /// </summary>
-    public static CareerRunResult Run(CareerSession session, int toYear, CareerHostState? resumeFrom, IReadOnlyList<ICareerModule> modules)
+    public static CareerRunResult Run(CareerSession session, int toYear, CareerHostState? resumeFrom, CareerRunOptions options)
     {
         ArgumentNullException.ThrowIfNull(session);
-        ArgumentNullException.ThrowIfNull(modules);
-        if (session.Date.Month != 1 || session.Date.Day != 1)
-        {
-            throw new ArgumentException("The run starts on 1 January.", nameof(session));
-        }
 
         // The morning after the last season must still be a calendar date, so the last season cannot be year 9999.
         if (toYear < session.Date.Year || toYear >= GenerationEstimates.MaxSeason)
         {
             throw new ArgumentOutOfRangeException(nameof(toYear), toYear, "The last season is out of range.");
+        }
+
+        return RunUntil(session, GameDate.SeasonStart(toYear + 1), resumeFrom, options);
+    }
+
+    /// <summary>
+    /// Runs every day until the morning of <paramref name="stopOn"/>, which is then the session's date (a morning is a stable point,
+    /// INV-007, so a save can be taken there and resumed with <paramref name="resumeFrom"/>). A new career starts on 1 January;
+    /// a resumed one may start on any morning.
+    /// </summary>
+    public static CareerRunResult RunUntil(CareerSession session, GameDate stopOn, CareerHostState? resumeFrom, CareerRunOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(options);
+        if (resumeFrom is null && (session.Date.Month != 1 || session.Date.Day != 1))
+        {
+            throw new ArgumentException("A new career starts on 1 January.", nameof(session));
+        }
+
+        if (stopOn < session.Date)
+        {
+            throw new ArgumentOutOfRangeException(nameof(stopOn), stopOn, "The run cannot stop before it starts.");
         }
 
         var managers = resumeFrom?.Managers ?? new ManagerRegistry();
@@ -121,13 +151,12 @@ public static class CareerHost
         var fact = new FactKey("career.day");
         var queue = resumeFrom is null ? new CommandQueue() : new CommandQueue(resumeFrom.NextSubmissionNumber);
         var dispatcher = new CommandDispatcher(log: resumeFrom?.Log);
-        var modulesHost = CareerModuleHost.Attach(session, managers, dispatcher, hostId, modules);
+        var modulesHost = CareerModuleHost.Attach(session, managers, dispatcher, hostId, options.Modules, options.Inputs);
         var world = new ClockWorld(session);
         var context = modulesHost.CommandContext(world, managers);
         var gate = new ReadyGate();
-        var end = GameDate.SeasonStart(toYear + 1);
         var commands = 0;
-        while (session.Date < end)
+        while (session.Date < stopOn)
         {
             _ = ai.Perceive(view, fact);
             modulesHost.BeginMorning(queue);
@@ -160,7 +189,8 @@ public static class CareerHost
             ais,
             humans,
             commands,
-            new CareerHostState(managers, dispatcher.Log, queue.NextSubmissionNumber));
+            new CareerHostState(managers, dispatcher.Log, queue.NextSubmissionNumber),
+            modulesHost.Context);
     }
 
     private sealed class ClockWorld : IWorldState

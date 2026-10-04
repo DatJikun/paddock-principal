@@ -39,8 +39,11 @@ public interface ICareerModule
     void Attach(CareerModuleContext context);
 
     /// <summary>
-    /// Sets the module's world sections up for a career that is just starting (never for a resumed one, whose saved world
-    /// already has them). The world is changed through <see cref="CareerModuleContext.Session"/>.
+    /// Called once when a run starts, after every module has attached, for a new career and for a resumed one alike. It sets up
+    /// what the world lacks (the books of a team that has none, the board of a team that has none) and leaves alone what a saved
+    /// world already has, so a resumed career is not changed. It does the work once, directly, because it is the world being set
+    /// up, not a manager acting; anything a manager or the AI does later is a command. The world is changed through
+    /// <see cref="CareerModuleContext.Session"/> or the module's own book.
     /// </summary>
     void Open(CareerModuleContext context);
 }

@@ -1,5 +1,9 @@
 using Paddock.Application.Career;
+using Paddock.Application.Cars;
 using Paddock.Application.Commands;
+using Paddock.Application.Inbox;
+using Paddock.Domain.Cars;
+using Paddock.Domain.Inbox;
 using Paddock.Domain.People;
 using Paddock.Domain.Pool;
 using Paddock.Domain.Time;
@@ -24,7 +28,7 @@ public sealed class CareerModuleTests
         var dummy = new DummyModule(days);
 
         var session = Session();
-        CareerHost.Run(session, 1950, null, [.. CareerModules.Default, dummy]);
+        CareerHost.Run(session, 1950, null, With([.. CareerModules.Default, dummy]));
 
         Assert.Equal(365, days.Count);
         Assert.Equal(new GameDate(1950, 1, 1), days[0]);
@@ -42,7 +46,7 @@ public sealed class CareerModuleTests
         var late = new DummyModule(days, order: 5000, name: "late");
 
         var session = Session();
-        CareerHost.Run(session, 1950, null, [late, .. CareerModules.Default, early]);
+        CareerHost.Run(session, 1950, null, With([late, .. CareerModules.Default, early]));
 
         var orders = session.DayHandlers.Select(handler => handler.Order).ToArray();
         Assert.Equal(orders.Order().ToArray(), orders);
@@ -56,7 +60,7 @@ public sealed class CareerModuleTests
         var session = Session();
 
         Assert.Throws<ArgumentException>(() =>
-            CareerHost.Run(session, 1950, null, [new DummyModule([]), new DummyModule([])]));
+            CareerHost.Run(session, 1950, null, With([new DummyModule([]), new DummyModule([])])));
     }
 
     [Fact]
@@ -66,7 +70,7 @@ public sealed class CareerModuleTests
         CareerModuleContext? kept = null;
         var capture = new CapturingModule(context => kept = context);
 
-        CareerHost.Run(Session(), 1950, null, [capture]);
+        CareerHost.Run(Session(), 1950, null, With([capture]));
 
         Assert.NotNull(kept);
         Assert.Throws<InvalidOperationException>(() => kept!.AddDayHandler(new DummyHandler(late, 1)));
@@ -86,6 +90,48 @@ public sealed class CareerModuleTests
 
         Assert.Equal(CareerModules.Default.Count, CareerModules.Default.Select(module => module.Name).Distinct(StringComparer.Ordinal).Count());
     }
+
+    [Fact]
+    public void ATeamWithNoCarsGetsItsConceptApprovedByTheAiOnTheFirstMorningAsALoggedCommand()
+    {
+        var session = Session();
+
+        var result = CareerHost.RunUntil(session, new GameDate(1950, 1, 3), null, new CareerRunOptions());
+
+        var alpha = OrganizationId.Real("alpha");
+        var cars = session.World.Section<CarsSection>(CarsSection.SectionName)!;
+        Assert.Equal(CarEstimates.CarsPerTeam, cars.Of(alpha).Count);
+        var approval = Assert.Single(result.Host.Log.Entries.OfType<ApproveConceptCommand>());
+        Assert.Equal(CareerHost.AiManagerId, approval.ManagerId.Value);
+        Assert.Equal("alpha", approval.OrganizationId);
+
+        // The cars are there the next morning, so nothing is approved a second time.
+        Assert.Single(result.Host.Log.Entries.OfType<ApproveConceptCommand>());
+    }
+
+    [Fact]
+    public void AnInboxItemPastItsDateIsExpiredByALoggedCommandTheMorningAfter()
+    {
+        var world = Session().World;
+        var today = new GameDate(1950, 1, 1);
+        var draft = new InboxItemDraft("test.notice", "test.subject", null, null, today, null);
+        var (inbox, item) = InboxSection.Empty.Add(CareerHost.AiManagerId, draft, today);
+        var session = new CareerSession(
+            world.WithSection(inbox),
+            7,
+            [],
+            [],
+            new CareerSessionOptions { Pool = new TalentPoolOptions { TargetSize = 0 } });
+
+        var result = CareerHost.RunUntil(session, new GameDate(1950, 1, 4), null, new CareerRunOptions());
+
+        var expiry = Assert.Single(result.Host.Log.Entries.OfType<ExpireInboxItemCommand>());
+        Assert.Equal(item.Id, expiry.ItemId);
+        var after = session.World.Section<InboxSection>(InboxSection.SectionName)!;
+        Assert.Equal(InboxStatus.Expired, after.Find(item.Id)!.Status);
+    }
+
+    private static CareerRunOptions With(IReadOnlyList<ICareerModule> modules) => new() { Modules = modules };
 
     private static CareerSession Session()
     {

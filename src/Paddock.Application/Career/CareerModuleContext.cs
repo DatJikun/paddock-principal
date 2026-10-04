@@ -22,19 +22,24 @@ public sealed class CareerModuleContext
 {
     private readonly CommandDispatcher _dispatcher;
     private readonly Dictionary<Type, object> _services = [];
+    private readonly Dictionary<Type, List<object>> _many = [];
     private readonly List<IDayHandler> _handlers = [];
     private readonly List<Func<WorldState, WorldState>> _flushes = [];
     private readonly List<(int Order, Action<IReadOnlyList<DomainEvent>> Hook)> _afterDay = [];
     private readonly List<Action<CommandQueue>> _morning = [];
     private bool _frozen;
 
-    internal CareerModuleContext(CareerSession session, ManagerRegistry managers, CommandDispatcher dispatcher, ManagerId ai)
+    internal CareerModuleContext(CareerSession session, ManagerRegistry managers, CommandDispatcher dispatcher, ManagerId ai, CareerInputs inputs)
     {
         Session = session;
         Managers = managers;
         _dispatcher = dispatcher;
         Ai = ai;
+        Inputs = inputs;
     }
+
+    /// <summary>The data the host loaded. A member that is null means the host has no such data.</summary>
+    public CareerInputs Inputs { get; }
 
     public CareerSession Session { get; }
 
@@ -79,6 +84,29 @@ public sealed class CareerModuleContext
     public T Require<T>()
         where T : class =>
         TryGet<T>() ?? throw new InvalidOperationException("No module provided a " + typeof(T).Name + ". Is its module in the list?");
+
+    /// <summary>
+    /// Adds one of several services of a kind (every system that owes or earns money adds an <c>ILedgerSource</c>). Read them with
+    /// <see cref="All{T}"/>, at the time they are needed rather than when the module attaches, so the order of the list does not matter.
+    /// </summary>
+    public void Add<T>(T service)
+        where T : class
+    {
+        ArgumentNullException.ThrowIfNull(service);
+        Guard();
+        if (!_many.TryGetValue(typeof(T), out var list))
+        {
+            list = [];
+            _many.Add(typeof(T), list);
+        }
+
+        list.Add(service);
+    }
+
+    /// <summary>Every service added of that kind, in the order they were added.</summary>
+    public IReadOnlyList<T> All<T>()
+        where T : class =>
+        _many.TryGetValue(typeof(T), out var list) ? list.Cast<T>().ToArray() : [];
 
     /// <summary>Registers a command handler. Two handlers for one command type are refused by the dispatcher.</summary>
     public void AddCommandHandler(ICommandHandler handler)

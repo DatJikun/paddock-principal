@@ -179,6 +179,7 @@
   "career.run.year": "Season {year}: alive {alive}, retired {retired}, pool {pool}, contracts {contracts}, signed {signed}, renewed {renewed}, expired {expired}, state hash {hash}.",
   "career.run.hash_note": "The state hash is the world on the morning of 1 January after that season. Alive, retired and pool counts are kept beside it; the talent pool is part of the world hash, retirement is not.",
   "career.run.ai": "AI managers: {ai}. Human managers: {humans}. With no human manager the day is never blocked.",
+  "career.run.economy": "Economy at the end of the run (estimates; the run has no races yet, so each team gets the same placeholder start money every season and no race or sponsor income arrives): {books} teams with books, {insolvent} insolvent, cash from {low} to {high} dollars; {deals} sponsor deals; {boards} boards, {dismissals} dismissals; {cars} cars.",
   "career.run.saved": "Saved the world to {path}.",
   "pool.error.personUnknown": "That person is not in the talent pool.",
   "pool.error.noOrganization": "This manager does not run an organization.",

@@ -31,7 +31,7 @@ public sealed class ContractsModule : CareerModule
         var trace = new MemorySink();
         var environment = new ContractEnvironment(
             new DerivedPersonalitySource(session.Clock.MasterSeed),
-            new FlatCareerPay(),
+            context.Inputs.Pay ?? new FlatCareerPay(),
             context.Require<IOrganizationControl>(),
             payroll: context.TryGet<IPayrollLedger>(),
             trace: trace,

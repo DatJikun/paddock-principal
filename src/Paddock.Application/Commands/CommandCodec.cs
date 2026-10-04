@@ -84,6 +84,9 @@ public sealed class CommandCodec
     /// </summary>
     public static CommandCodec Production { get; } = new(
     [
+        // T44 is merged but not a career module yet (#184). Its codecs stay here until Principal joins CareerModules.Default.
+        // T42 and T43 codecs come from DevelopmentModule and SupplyModule.
+        .. Paddock.Application.Principals.PrincipalCommandCodecs.Entries,
         .. Career.CareerModules.Default.SelectMany(module => module.CommandCodecs),
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",

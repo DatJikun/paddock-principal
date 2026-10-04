@@ -23,6 +23,7 @@ public static class SaveMigrations
         new V015_SupplySection(),
         new V016_DevelopmentSection(),
         new V017_ConceptProduction(),
+        new V018_PrincipalsSection(),
     ];
 
     static SaveMigrations()

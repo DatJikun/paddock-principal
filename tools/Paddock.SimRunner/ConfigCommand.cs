@@ -72,9 +72,9 @@ public static class ConfigCommand
             return 1;
         }
 
-        if (!TryNamed(presetName, out CareerPreset preset) || preset == CareerPreset.Custom)
+        if (!PresetArgument.TryParse(presetName, out var preset))
         {
-            stderr.WriteLine($"Invalid --preset value: {presetName}");
+            stderr.WriteLine(PresetArgument.Invalid(presetName));
             return 1;
         }
 

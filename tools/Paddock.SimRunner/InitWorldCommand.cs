@@ -89,9 +89,9 @@ public static class InitWorldCommand
             return 1;
         }
 
-        if (!TryPreset(preset, out var selected))
+        if (!PresetArgument.TryParse(preset, out var selected))
         {
-            stderr.WriteLine("Invalid --preset value: " + preset);
+            stderr.WriteLine(PresetArgument.Invalid(preset));
             return 1;
         }
 
@@ -267,20 +267,6 @@ public static class InitWorldCommand
         return false;
     }
 
-    private static bool TryPreset(string name, out CareerPreset preset)
-    {
-        foreach (var candidate in Enum.GetValues<CareerPreset>())
-        {
-            if (candidate != CareerPreset.Custom && string.Equals(candidate.ToString(), name, StringComparison.Ordinal))
-            {
-                preset = candidate;
-                return true;
-            }
-        }
-
-        preset = default;
-        return false;
-    }
 
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
 }

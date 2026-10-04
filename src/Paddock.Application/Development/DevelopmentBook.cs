@@ -68,14 +68,18 @@ public sealed class DevelopmentBook
 /// <summary>The ports of the development system. A host replaces the ones it has a real system for.</summary>
 public sealed class DevelopmentEnvironment
 {
-    public DevelopmentEnvironment(IDevelopmentRules rules, IOrganizationControl control, ITraceSink? trace = null)
+    public DevelopmentEnvironment(IDevelopmentRules rules, IOrganizationControl control, ITraceSink? trace = null, INextRaceSource? races = null)
     {
         ArgumentNullException.ThrowIfNull(rules);
         ArgumentNullException.ThrowIfNull(control);
         Rules = rules;
         Control = control;
         Trace = trace ?? NullSink.Instance;
+        Races = races;
     }
+
+    /// <summary>When the team races next, if the host knows. Only the manager view uses it.</summary>
+    public INextRaceSource? Races { get; }
 
     public IDevelopmentRules Rules { get; }
 
@@ -91,6 +95,8 @@ public static class DevelopmentEventTypes
     public const string TimingSet = "development.timing_set";
 
     public const string ProjectCut = "development.project_cut";
+
+    public const string ConceptCommitted = "development.concept_committed";
 }
 
 public sealed record DevelopmentSplitSet(ManagerId ManagerId, DateOnly OccurredOn, string OrganizationId) : IDomainEvent
@@ -101,6 +107,12 @@ public sealed record DevelopmentSplitSet(ManagerId ManagerId, DateOnly OccurredO
 public sealed record ConceptTimingSet(ManagerId ManagerId, DateOnly OccurredOn, string ProjectId, string Timing) : IDomainEvent
 {
     public string TypeId => DevelopmentEventTypes.TimingSet;
+}
+
+/// <summary>A concept was committed to production; it goes live at the first race after <see cref="FinishesOn"/>.</summary>
+public sealed record ConceptCommitted(ManagerId ManagerId, DateOnly OccurredOn, string ProjectId, DateOnly FinishesOn) : IDomainEvent
+{
+    public string TypeId => DevelopmentEventTypes.ConceptCommitted;
 }
 
 public sealed record DevelopmentProjectCut(ManagerId ManagerId, DateOnly OccurredOn, string ProjectId) : IDomainEvent

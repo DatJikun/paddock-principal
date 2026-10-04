@@ -94,6 +94,19 @@ public static class DevelopmentEstimates
     /// <summary>ESTIMATE: quality is lowered to at most this share when the cash is gone (it never drops below).</summary>
     public const double BudgetFactorFloor = 0.8;
 
+    /// <summary>
+    /// ESTIMATE: days a committed concept takes to build in 1950, at the era's reference headcount. It grows with the era's car
+    /// complexity (<see cref="DevelopmentMath.ConceptProductionDays"/>) and shrinks with a bigger team, but a bigger team does not
+    /// make the car better (DESIGN §5.3).
+    /// </summary>
+    public const int ConceptProductionBaseDays = 30;
+
+    /// <summary>ESTIMATE: production costs this share of what the concept cost to develop, posted in full when it is committed.</summary>
+    public const double ConceptProductionCostShare = 0.5;
+
+    /// <summary>ESTIMATE: days the "commit now or keep developing?" inbox decision waits before the default (keep developing) applies.</summary>
+    public const int ConceptDecisionDays = 14;
+
     /// <summary>ESTIMATE: pay the project's cost to the ledger in whole weeks.</summary>
     public const int PostEveryDays = 7;
 

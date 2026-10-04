@@ -22,7 +22,7 @@ const NAV = [
   ['kronika','Kronika','<path d="M6 3h12v18l-6-4-6 4z"/>'],
 ];
 /* ekrany-dzieci podświetlają rodzica w menu */
-const PARENT = { kierowca: 'kierowcy', porownaj: 'kierowcy', osoba: 'personel', wyscig: 'kalendarz', live: 'kalendarz', wyscig_live: 'kalendarz', menedzer: null };
+const PARENT = { kierowca: 'kierowcy', porownaj: 'kierowcy', osoba: 'personel', wyscig: 'kalendarz', menedzer: null };
 const view = document.getElementById('view');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -33,6 +33,7 @@ function buildNav() {
   document.getElementById('navfoot').innerHTML = `<a href="#/ustawienia" data-r="ustawienia">${UI.icon('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>')}Ustawienia</a>`;
 }
 function markNav(name, animate) {
+  if (!document.getElementById('nav')) return;   /* shell is out of the document while in race mode */
   const act = name in PARENT ? PARENT[name] : name;
   document.querySelectorAll('aside [data-r]').forEach(a => a.classList.toggle('on', a.dataset.r === act));
   const unread = DB.inbox.filter(m => m.unread).length;
@@ -87,6 +88,7 @@ function advance() {
 let cur = null, busy = false, queued = false;
 function parse() {
   const parts = (location.hash.replace(/^#\/?/, '') || 'pulpit').split('/');
+  if (parts[0] === 'live') return { name: 'live', args: parts.slice(1) };   /* race mode, outside the shell */
   const name = S[parts[0]] ? parts[0] : 'pulpit';
   return { name, args: parts.slice(1).map(decodeURIComponent) };
 }
@@ -99,9 +101,15 @@ function render(r) {
   UI.initTabs(view);
   syncSettings();
 }
+let shellHash = '#/pulpit';
 function route() {
   if (busy) { queued = true; return; }
-  const r = parse(), prev = cur;
+  const r = parse();
+  /* race mode is its own full-screen root; the shell (and `cur`) stay untouched underneath */
+  if (r.name === 'live') { RaceMode.enter(r.args[0], shellHash); return; }
+  if (RaceMode.active) { RaceMode.exit(); return; }
+  shellHash = location.hash || '#/pulpit';
+  const prev = cur;
   cur = r;
   markNav(r.name, !!prev);
   /* skrzynka to skrzynka: przełączanie wiadomości jest natychmiastowe */
@@ -181,7 +189,13 @@ document.addEventListener('click', e => {
   const t = e.target.closest('[data-toast]');
   if (t) UI.toast(t.dataset.toast);
 });
-addEventListener('resize', () => { UI.initTabs(); if (cur) markNav(cur.name, false); });
+addEventListener('resize', () => { if (RaceMode.active) return; UI.initTabs(); if (cur) markNav(cur.name, false); });
+/* back from race mode: same shell node, same screen; re-measure, or route if the hash moved on */
+document.addEventListener('race-mode-exit', () => {
+  const r = parse();
+  if (cur && r.name === cur.name && r.args.join('/') === cur.args.join('/')) { UI.initTabs(); markNav(cur.name, false); drawTop(); }
+  else route();
+});
 document.fonts && document.fonts.ready.then(() => { UI.initTabs(); if (cur) markNav(cur.name, false); });
 
 addEventListener('hashchange', route);

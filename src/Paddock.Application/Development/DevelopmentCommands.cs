@@ -42,7 +42,7 @@ public sealed record SetDevelopmentSplitCommand : ICommand
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
 
-/// <summary>Chooses when a concept is deployed: <c>WhenReady</c>, <c>AfterRaces</c> (with <see cref="Races"/>) or <c>NextSeason</c>.</summary>
+/// <summary>Chooses when a concept is deployed: <c>WhenReady</c>, <c>AfterRaces</c> (with <see cref="Races"/>), <c>NextSeason</c> or <c>Hold</c> (stay ready across rollovers).</summary>
 public sealed record DeployConceptCommand : ICommand
 {
     public required ManagerId ManagerId { get; init; }
@@ -58,6 +58,25 @@ public sealed record DeployConceptCommand : ICommand
     public required string Timing { get; init; }
 
     public int Races { get; init; }
+
+    public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
+}
+
+/// <summary>
+/// Commits a ready concept to production (T42c): the principal has looked at the state of the work and decides to build now
+/// rather than keep waiting. The old car keeps racing; the concept goes live at the first race after production ends.
+/// </summary>
+public sealed record CommitConceptCommand : ICommand
+{
+    public required ManagerId ManagerId { get; init; }
+
+    public long SubmissionNumber { get; init; }
+
+    public required DateOnly IssuedOn { get; init; }
+
+    public required string OrganizationId { get; init; }
+
+    public required string ProjectId { get; init; }
 
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
@@ -281,12 +300,62 @@ public sealed class DeployConceptHandler : CommandHandler<DeployConceptCommand>
         var outcome = new DevelopmentOutcome(_book.Cars, section, _book.Finance, true);
         if (updated.Status == ProjectStatus.Ready && timing == ConceptTiming.WhenReady)
         {
+            // WhenReady is the automatic path: commit as soon as ready. For a concept that already is, that is now.
             var inputs = _book.Inputs(today, _environment) with { Development = section };
-            outcome = DevelopmentEngine.DeployNow(inputs, updated.Id);
+            outcome = DevelopmentEngine.StartProduction(inputs, updated.Id);
         }
 
         _book.Write(outcome);
         return [new ConceptTimingSet(command.ManagerId, command.IssuedOn, updated.Id, timing.ToString())];
+    }
+}
+
+public sealed class CommitConceptHandler : CommandHandler<CommitConceptCommand>
+{
+    private readonly DevelopmentBook _book;
+    private readonly DevelopmentEnvironment _environment;
+
+    public CommitConceptHandler(DevelopmentBook book, DevelopmentEnvironment environment)
+    {
+        ArgumentNullException.ThrowIfNull(book);
+        ArgumentNullException.ThrowIfNull(environment);
+        _book = book;
+        _environment = environment;
+    }
+
+    protected override TranslationMessage? ValidateTyped(CommitConceptCommand command, CommandContext context)
+    {
+        var rejection = DevelopmentCommandSupport.Team(_environment, _book.World, command.ManagerId, command.OrganizationId, out var organization);
+        if (rejection is not null)
+        {
+            return rejection;
+        }
+
+        return DevelopmentCommandSupport.Own(_book, organization, command.ProjectId) switch
+        {
+            null => TranslationMessage.Of(DevelopmentKeys.UnknownProject),
+            { Kind: not DevKind.Concept } => TranslationMessage.Of(DevelopmentKeys.NotConcept),
+            { Status: not ProjectStatus.Ready } => TranslationMessage.Of(DevelopmentKeys.NotReady),
+            _ => null,
+        };
+    }
+
+    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(CommitConceptCommand command, CommandContext context)
+    {
+        if (ValidateTyped(command, context) is not null)
+        {
+            throw new InvalidOperationException("Execute ran for a command that should have been rejected.");
+        }
+
+        var today = DevelopmentCommandSupport.Day(command.IssuedOn);
+        _book.Write(DevelopmentEngine.StartProduction(_book.Inputs(today, _environment), command.ProjectId));
+        return [Committed(_book, command.ManagerId, command.IssuedOn, command.ProjectId)];
+    }
+
+    internal static ConceptCommitted Committed(DevelopmentBook book, ManagerId manager, DateOnly on, string projectId)
+    {
+        var ends = book.Section.Find(projectId)!.ProductionEnds!.Value;
+        return new ConceptCommitted(manager, on, projectId, new DateOnly(ends.Year, ends.Month, ends.Day));
     }
 }
 
@@ -384,7 +453,58 @@ public sealed class DevelopmentReplyResolver : IInboxResolver
 }
 
 /// <summary>
-/// Registers the three development commands and the inbox resolver of the engineers' reply. One call; it does not touch the
+/// The answer to "commit now or keep developing?" (T42c). Commit runs the same engine as <see cref="CommitConceptCommand"/>;
+/// keep developing changes nothing, so the concept stays ready with whatever timing it has.
+/// </summary>
+public sealed class ConceptDecisionResolver : IInboxResolver
+{
+    private readonly DevelopmentBook _book;
+    private readonly DevelopmentEnvironment _environment;
+
+    public ConceptDecisionResolver(DevelopmentBook book, DevelopmentEnvironment environment)
+    {
+        ArgumentNullException.ThrowIfNull(book);
+        ArgumentNullException.ThrowIfNull(environment);
+        _book = book;
+        _environment = environment;
+    }
+
+    public string Kind => DevelopmentKeys.ConceptInboxKind;
+
+    public TranslationMessage? Validate(InboxItem item, string optionId, CommandContext context)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        switch (optionId)
+        {
+            case DevelopmentKeys.OptionWait:
+                return null;
+            case DevelopmentKeys.OptionCommit:
+                return _book.Section.Find(item.Arguments[DevelopmentKeys.ProjectArgument]) is { Status: ProjectStatus.Ready }
+                    ? null
+                    : TranslationMessage.Of(DevelopmentKeys.NotReady);
+            default:
+                return TranslationMessage.Of(InboxKeys.OptionUnknown);
+        }
+    }
+
+    public IReadOnlyList<IDomainEvent> Execute(InboxItem item, string optionId, CommandContext context)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(context);
+        if (optionId != DevelopmentKeys.OptionCommit)
+        {
+            return [];
+        }
+
+        var today = InboxBook.ToGameDate(context.World.CurrentDate);
+        var id = item.Arguments[DevelopmentKeys.ProjectArgument];
+        _book.Write(DevelopmentEngine.StartProduction(_book.Inputs(today, _environment), id));
+        return [CommitConceptHandler.Committed(_book, new ManagerId(item.ManagerId), InboxBook.ToDateOnly(today), id)];
+    }
+}
+
+/// <summary>
+/// Registers the development commands and the inbox resolver of the engineers' reply. One call; it does not touch the
 /// career loop. The day handler (<see cref="DevelopmentDayHandler"/>) and the post-race hook
 /// (<see cref="DevelopmentRaceHook"/>) are wired by the host separately.
 /// </summary>
@@ -400,7 +520,9 @@ public static class DevelopmentRegistration
         ArgumentNullException.ThrowIfNull(resolvers);
         dispatcher.Register(new SetDevelopmentSplitHandler(book, environment));
         dispatcher.Register(new DeployConceptHandler(book, environment));
+        dispatcher.Register(new CommitConceptHandler(book, environment));
         dispatcher.Register(new CutProjectHandler(book, environment));
         resolvers.Register(new DevelopmentReplyResolver(book, environment));
+        resolvers.Register(new ConceptDecisionResolver(book, environment));
     }
 }

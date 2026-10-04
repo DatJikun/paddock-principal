@@ -97,6 +97,12 @@ Dla nowej sesji (Opus 5.5, wyższy effort). Przeczytaj w całości, zanim zaczni
   - Wynik wyścigu jest skutkiem tego, co się działo na torze, a nie odwrotnie.
 - **Co to oznacza dla backendu (do oceny przy planowaniu fazy 3/6):** UI tylko wyświetla strumień zdarzeń i pozycji (TECH §3: brak logiki gry w UI, determinizm). Dzisiejszy silnik jest oparty na okrążeniach, a ta wizja wymaga ciągłej symulacji pozycji na torze. Kierunek wskazują PP-048 i PP-049 (geometria toru z punktów kontrolnych, profil prędkości z krzywizny i fizyki auta). Czy silnik ma być w pełni ciągły, czy hybrydowy (okrążenia plus lokalna symulacja walki), jest do rozstrzygnięcia; **to nowa decyzja, więc wymaga wpisu PP**, nie edycji starych.
 - Reszta ekranu (klasyfikacja, pit-stopy, radio, Race Spy) zostaje jak w uwadze „oglądanie wyścigu i pit-stopy: OK”.
+- **Tryb wyścigu (uwaga właściciela, 2026-10-04, zrobione w prototypie):** wyścig to **osobny tryb**, nie podstrona powłoki.
+  - Wejście z pulpitu w dzień wyścigu („Wyścig” w górnym pasku albo „Oglądaj na żywo” w rundzie), przejście „kurtyną” w barwach zespołu z nazwą GP. Wyjście tylko przez „Wróć do gry”: po mecie w pasku tempa i na karcie wyniku. Pulpit wraca dokładnie w tym stanie, w jakim był.
+  - Technicznie: `#race-root` to własny pełnoekranowy korzeń. Na czas trybu węzeł `.app` (menu, górny pasek, ekrany) jest **wyjmowany z dokumentu**, a po wyjściu wstawiany z powrotem (`js/race-mode.js`, `RaceMode.enter/exit`). Nie ukrywamy powłoki CSS-em.
+  - Układ: mapa toru na cały ekran (kółko i przyciski: zoom; przeciąganie: przesuwanie; F: śledzenie auta; 0: cały tor). Na mapie tylko lekkie nakładki: pasek stanu (runda, okrążenie, flaga, czas, pogoda), tempo symulacji (spacja: pauza), wieża czasowa po lewej (T: schowaj/pokaż), karta wybranego auta (klik w kropkę albo wiersz; Esc zamyka), boks dla naszych aut (wybór opon, potem „Potwierdź”) i komunikaty radia/dyrekcji wyścigu.
+  - Mapa rysuje wyłącznie klatki `CarFrame` (te same pola co `src/Paddock.Domain/Racing/CarFrame.cs`). Rozsuwanie kropek na starcie i rozmieszczenie nazw zakrętów to wyłącznie układ na ekranie, nie zmienia wyników (`RaceLayout` w `js/race-map.js`, testy: `node --test ui/prototype/tests`).
+  - Źródło klatek to na razie atrapa `MockRaceFeed` (`js/race-sim.js`); liczby w niej są szacunkowe. Do podpięcia taśmy z R-FRAMES (#152).
 
 ### Klasyfikacje
 - OK, ale **konstruktorzy ładują się dłużej** (animacja wejścia). Ma być równo.

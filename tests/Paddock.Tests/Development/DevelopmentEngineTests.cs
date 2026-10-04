@@ -225,14 +225,62 @@ public class DevelopmentEngineTests
         Assert.True(now.AlfaCars[0].Understanding > CarEstimates.NewConceptUnderstanding);
 
         Assert.IsType<Paddock.Application.Commands.CommandResult.Accepted>(now.Submit(Deploy("dev:1", "WhenReady", 0)));
+        Assert.Equal(ProjectStatus.InProduction, now.Project(project => project.Number == 1).Status);
+        Assert.Equal(before, sum(now), 3);
+        LiveThroughProduction(now);
         Assert.Equal(ProjectStatus.Deployed, now.Project(project => project.Number == 1).Status);
         Assert.True(sum(now) > before);
-        Assert.True(now.AlfaCars[0].Understanding <= CarEstimates.NewConceptUnderstanding);
+        Assert.True(now.AlfaCars[0].Understanding <= CarEstimates.NewConceptUnderstanding + 1);
 
         Assert.IsType<Paddock.Application.Commands.CommandResult.Accepted>(later.Submit(Deploy("dev:1", "NextSeason", 0)));
         Assert.Equal(ProjectStatus.Ready, later.Project(project => project.Number == 1).Status);
         Assert.Equal(before, sum(later), 3);
         Assert.True(later.AlfaCars[0].Understanding > CarEstimates.NewConceptUnderstanding);
+    }
+
+    private static DevelopmentKit ReadyConceptAcrossRollover(string timing)
+    {
+        var kit = new DevelopmentKit(seed: 3);
+        kit.PutProject(Concept(Alfa, 1_000_000, 0.5, days: 5));
+        kit.Live(5);
+        Assert.IsType<Paddock.Application.Commands.CommandResult.Accepted>(kit.Submit(Deploy("dev:1", timing, 0)));
+        kit.Live(365);
+        Assert.Equal(1956, kit.Today.Year);
+        return kit;
+    }
+
+    [Fact]
+    public void AHeldConceptStaysReadyAcrossARolloverWhileANextSeasonOneIsConsumed()
+    {
+        var held = ReadyConceptAcrossRollover("Hold");
+        Assert.Equal(ProjectStatus.Ready, held.Project(project => project.Number == 1).Status);
+
+        var consumed = ReadyConceptAcrossRollover("NextSeason");
+        Assert.Equal(ProjectStatus.Deployed, consumed.Project(project => project.Number == 1).Status);
+        Assert.True(consumed.AlfaCars[0].Levels.Downforce > held.AlfaCars[0].Levels.Downforce);
+    }
+
+    [Fact]
+    public void AHeldConceptCanBeDeployedLaterAndTheAccountDecaysMeanwhile()
+    {
+        var kit = ReadyConceptAcrossRollover("Hold");
+        var downforce = kit.AlfaCars[0].Levels.Downforce;
+        var stock = kit.Section.AccountOf(Alfa).StockMilli;
+        kit.Live(30);
+        Assert.True(kit.Section.AccountOf(Alfa).StockMilli <= stock);
+
+        Assert.IsType<Paddock.Application.Commands.CommandResult.Accepted>(kit.Submit(Deploy("dev:1", "WhenReady", 0)));
+        Assert.Equal(ProjectStatus.InProduction, kit.Project(project => project.Number == 1).Status);
+        LiveThroughProduction(kit);
+        Assert.Equal(ProjectStatus.Deployed, kit.Project(project => project.Number == 1).Status);
+        Assert.True(kit.AlfaCars[0].Levels.Downforce > downforce);
+        Assert.True(kit.AlfaCars[0].Understanding <= CarEstimates.NewConceptUnderstanding + 1);
+    }
+
+    [Fact]
+    public void HoldingIsDeterministic()
+    {
+        Assert.Equal(ReadyConceptAcrossRollover("Hold").World.StateHash(), ReadyConceptAcrossRollover("Hold").World.StateHash());
     }
 
     [Fact]
@@ -250,7 +298,16 @@ public class DevelopmentEngineTests
 
         DevelopmentRaceHook.OnRaceFinished(kit.Book, kit.Environment, kit.Today, runs);
         kit.Live(1);
+        Assert.Equal(ProjectStatus.InProduction, kit.Project(project => project.Number == 1).Status);
+        LiveThroughProduction(kit);
         Assert.Equal(ProjectStatus.Deployed, kit.Project(project => project.Number == 1).Status);
+    }
+
+    /// <summary>Lives until the day after the last production day, when a committed concept goes live (T42c).</summary>
+    internal static void LiveThroughProduction(DevelopmentKit kit)
+    {
+        var ends = kit.Section.Projects.Where(project => project.IsInProduction).Max(project => project.ProductionEnds!.Value);
+        kit.Live(Math.Max(1, kit.Today.DaysUntil(ends) + 2));
     }
 
     [Fact]

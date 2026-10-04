@@ -28,20 +28,21 @@ const mailRow = (m, sel) => `<a class="mail ${m.decision && !STATE.decisions[m.i
   <span class="av">${m.av}</span><div><div class="from">${m.from}${m.due && !STATE.decisions[m.id] ? UI.st('do ' + m.due, 'bad', true) : ''}</div><div class="t">${m.title}</div></div>
   ${m.unread ? '<span class="unread" aria-label="nieprzeczytana"></span>' : `<span class="when">${m.when}</span>`}</a>`;
 
-/* sylwetka toru: zamknięta krzywa Catmulla-Roma przez punkty */
+/* karty wyboru decyzji (opcje z efektami +/−/·); wspólne dla skrzynki i ekranu Auto i rozwój */
+const choiceCards = m => {
+  const chosen = STATE.decisions[m.id];
+  return `<div class="choices" role="radiogroup" aria-label="Opcje">${m.options.map(o => `<button class="choice${chosen === o.label ? ' chosen' : ''}" role="radio" aria-checked="${chosen === o.label}" data-opt="${o.label}"${chosen ? ' disabled' : ''}>
+        <div class="ch"><b>${o.label}</b><span class="rd">${chosen === o.label ? UI.icon(UI.check, 14) : ''}</span></div>
+        <div class="fx">${o.fx.map(([t, x]) => `<div class="row ${t}"><b>${t === 'p' ? '+' : t === 'm' ? '−' : '·'}</b><span>${x}</span></div>`).join('')}</div></button>`).join('')}</div>`;
+};
+
+/* sylwetka toru: ta sama krzywa (centripetal Catmull-Rom), którą rysuje mapa wyścigu; kształt z TrackShape */
 function trackSvg(key, cls = '') {
   const t = DB.tracks[key]; if (!t) return '';
-  const p = t.map, n = p.length;
-  const xs = p.map(q => q[0]), ys = p.map(q => q[1]);
-  const x0 = Math.min(...xs) - 4, y0 = Math.min(...ys) - 4, w = Math.max(...xs) - x0 + 4, h = Math.max(...ys) - y0 + 4;
-  let d = `M${p[0][0]},${p[0][1]}`;
-  for (let i = 0; i < n; i++) {
-    const a = p[(i - 1 + n) % n], b = p[i], c = p[(i + 1) % n], e = p[(i + 2) % n];
-    d += `C${(b[0] + (c[0] - a[0]) / 6).toFixed(1)},${(b[1] + (c[1] - a[1]) / 6).toFixed(1)} ${(c[0] - (e[0] - b[0]) / 6).toFixed(1)},${(c[1] - (e[1] - b[1]) / 6).toFixed(1)} ${c[0]},${c[1]}`;
-  }
-  const [sx, sy] = p[0], [nx, ny] = p[1], ang = Math.atan2(ny - sy, nx - sx) + Math.PI / 2;
-  const tick = `M${(sx - Math.cos(ang) * 3).toFixed(1)},${(sy - Math.sin(ang) * 3).toFixed(1)}L${(sx + Math.cos(ang) * 3).toFixed(1)},${(sy + Math.sin(ang) * 3).toFixed(1)}`;
-  return `<svg class="trk ${cls}" viewBox="${x0} ${y0} ${w} ${h}" aria-label="Układ toru ${t.name}"><path class="road" d="${d}"/><path class="line" d="${d}"/><path class="sf" d="${tick}"/></svg>`;
+  const sp = TrackShape.resolve(t).spline, b = sp.bounds, d = sp.svgPath(1);
+  const x0 = b.minX - 4, y0 = b.minY - 4, w = b.w + 8, h = b.h + 8;
+  const s0 = sp.at(0), tick = `M${(s0.x - s0.nx * 3).toFixed(1)},${(s0.y - s0.ny * 3).toFixed(1)}L${(s0.x + s0.nx * 3).toFixed(1)},${(s0.y + s0.ny * 3).toFixed(1)}`;
+  return `<svg class="trk ${cls}" viewBox="${x0.toFixed(1)} ${y0.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}" aria-label="Układ toru ${t.name}"><path class="road" d="${d}"/><path class="line" d="${d}"/><path class="sf" d="${tick}"/></svg>`;
 }
 
 /* ============ PULPIT ============ */
@@ -89,9 +90,7 @@ S.skrzynka = (id) => {
   const chosen = STATE.decisions[cur.id];
   let opts = '';
   if (cur.options) {
-    opts = `<div class="choices" role="radiogroup" aria-label="Opcje">${cur.options.map(o => `<button class="choice${chosen === o.label ? ' chosen' : ''}" role="radio" aria-checked="${chosen === o.label}" data-opt="${o.label}"${chosen ? ' disabled' : ''}>
-        <div class="ch"><b>${o.label}</b><span class="rd">${chosen === o.label ? UI.icon(UI.check, 14) : ''}</span></div>
-        <div class="fx">${o.fx.map(([t, x]) => `<div class="row ${t}"><b>${t === 'p' ? '+' : t === 'm' ? '−' : '·'}</b><span>${x}</span></div>`).join('')}</div></button>`).join('')}</div>
+    opts = `${choiceCards(cur)}
       ${chosen ? `<div class="stamp">${UI.st('Decyzja podjęta', 'good')}<b>${chosen}</b><span class="muted">${STATE.now().title}</span></div>`
         : `<div class="confirm">${UI.fields([{ k: 'Termin', v: cur.due, cls: 'bad' }, { k: 'Wybór', v: '<span id="pick">—</span>' }])}<button class="btn primary" id="confirm" disabled>${UI.icon(UI.check, 17)}<span>Potwierdź</span></button></div>`}`;
   }

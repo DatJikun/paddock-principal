@@ -44,13 +44,17 @@ public static class BoardFactKeys
 /// </summary>
 public sealed class BoardBook
 {
+    private BoardSection _section;
+    private ObjectivesSection _objectives;
+
     public BoardBook(
         ContractBook contracts,
         IObjectiveFacts facts,
         ulong masterSeed,
         IBoardHistory? history = null,
         BoardSection? section = null,
-        ObjectivesSection? objectives = null)
+        ObjectivesSection? objectives = null,
+        IBoardSeverance? severance = null)
     {
         ArgumentNullException.ThrowIfNull(contracts);
         ArgumentNullException.ThrowIfNull(facts);
@@ -58,8 +62,9 @@ public sealed class BoardBook
         Facts = facts;
         MasterSeed = masterSeed;
         History = history ?? new NoBoardHistory();
-        Section = section ?? contracts.World.Section<BoardSection>(BoardSection.SectionName) ?? BoardSection.Empty;
-        Objectives = objectives ?? contracts.World.Section<ObjectivesSection>(ObjectivesSection.SectionName) ?? ObjectivesSection.Empty;
+        Severance = severance ?? new NoSeverance();
+        _section = section ?? contracts.World.Section<BoardSection>(BoardSection.SectionName) ?? BoardSection.Empty;
+        _objectives = objectives ?? contracts.World.Section<ObjectivesSection>(ObjectivesSection.SectionName) ?? ObjectivesSection.Empty;
     }
 
     public ContractBook Contracts { get; }
@@ -68,21 +73,39 @@ public sealed class BoardBook
 
     public IBoardHistory History { get; }
 
+    /// <summary>Where the severance of a dismissed manager is paid from (the finance ledger in a career). Nothing is paid by default.</summary>
+    public IBoardSeverance Severance { get; }
+
     /// <summary>The master seed that keyed draws derive from (INV-004).</summary>
     public ulong MasterSeed { get; }
 
-    public BoardSection Section { get; private set; }
+    /// <summary>
+    /// The board. When the contract book is bound to a host's world (<see cref="ContractBook.IsLive"/>) the section is read from and
+    /// written to that world, so the board, the contracts and every other system see one state; otherwise the book keeps its own copy.
+    /// </summary>
+    public BoardSection Section =>
+        Contracts.IsLive ? Contracts.World.Section<BoardSection>(BoardSection.SectionName) ?? BoardSection.Empty : _section;
 
-    public ObjectivesSection Objectives { get; private set; }
+    /// <summary>The objectives. Read from and written to the host's world when the contract book is bound to one, like <see cref="Section"/>.</summary>
+    public ObjectivesSection Objectives =>
+        Contracts.IsLive ? Contracts.World.Section<ObjectivesSection>(ObjectivesSection.SectionName) ?? ObjectivesSection.Empty : _objectives;
 
     public WorldState World => Contracts.World;
 
-    /// <summary>The given world with the board and its objectives in it. A section that holds nothing is left out.</summary>
+    /// <summary>
+    /// The given world with the board and its objectives in it. A section that holds nothing is left out. A book bound to a host's
+    /// world has nothing to add: its sections already are in that world.
+    /// </summary>
     public WorldState Into(WorldState world)
     {
         ArgumentNullException.ThrowIfNull(world);
-        world = Section.IsEmpty ? world.WithoutSection(BoardSection.SectionName) : world.WithSection(Section);
-        return Objectives.NextNumber == 1 ? world.WithoutSection(ObjectivesSection.SectionName) : world.WithSection(Objectives);
+        if (Contracts.IsLive)
+        {
+            return world;
+        }
+
+        world = _section.IsEmpty ? world.WithoutSection(BoardSection.SectionName) : world.WithSection(_section);
+        return _objectives.NextNumber == 1 ? world.WithoutSection(ObjectivesSection.SectionName) : world.WithSection(_objectives);
     }
 
     /// <summary>The contract book's world with the contract section, the board and its objectives in it.</summary>
@@ -94,9 +117,47 @@ public sealed class BoardBook
     /// <summary>Who runs what, from the board. Managers the board does not track fall back to <paramref name="inner"/>.</summary>
     public TenureControl Control(IOrganizationControl? inner = null) => new(() => Section, inner);
 
-    internal void Update(BoardSection section) => Section = section;
+    internal void Update(BoardSection section)
+    {
+        if (!Contracts.IsLive)
+        {
+            _section = section;
+            return;
+        }
 
-    internal void Update(ObjectivesSection objectives) => Objectives = objectives;
+        var world = Contracts.World;
+        Contracts.UseWorld(section.IsEmpty ? world.WithoutSection(BoardSection.SectionName) : world.WithSection(section));
+    }
+
+    internal void Update(ObjectivesSection objectives)
+    {
+        if (!Contracts.IsLive)
+        {
+            _objectives = objectives;
+            return;
+        }
+
+        var world = Contracts.World;
+        Contracts.UseWorld(objectives.NextNumber == 1 ? world.WithoutSection(ObjectivesSection.SectionName) : world.WithSection(objectives));
+    }
+}
+
+/// <summary>
+/// Pays the severance of a manager the board dismissed. The finance ledger implements it in a career (T37); it is a port so the
+/// board does not reference the ledger. Called once, inside the dismissal, for an amount above zero.
+/// </summary>
+public interface IBoardSeverance
+{
+    /// <summary>Records that <paramref name="payer"/> paid <paramref name="amount"/> (whole nominal dollars) to the manager.</summary>
+    void Pay(OrganizationId payer, string managerId, long amount, GameDate on);
+}
+
+/// <summary>Nothing is paid or recorded beyond the board's own record of it. The default when there is no ledger.</summary>
+public sealed class NoSeverance : IBoardSeverance
+{
+    public void Pay(OrganizationId payer, string managerId, long amount, GameDate on)
+    {
+    }
 }
 
 /// <summary>

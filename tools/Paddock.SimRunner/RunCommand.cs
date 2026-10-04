@@ -175,7 +175,7 @@ public static class RunCommand
                 created.TalentPool,
                 arrivals,
                 new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
-            var result = CareerHost.Run(session, to.Value);
+            var result = CareerHost.Run(session, to.Value, null, new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data) });
             Print(result, strings, preset, config.PeopleSource.ToString(), from.Value, to.Value, seed.Value, stdout, resumedOn: null);
             if (savePath is not null)
             {
@@ -261,7 +261,11 @@ public static class RunCommand
                 loaded.Session,
                 arrivals,
                 new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
-            var result = CareerHost.Run(session, to, loaded.Host);
+            var result = CareerHost.Run(
+                session,
+                to,
+                loaded.Host,
+                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, AuthoredDataLoader.Load(root)) });
             var preset = config.PresetName.ToString();
             Print(result, strings, preset, config.PeopleSource.ToString(), session.OpenedYear, to, seed, stdout, resumedOn: date);
             if (savePath is not null)
@@ -363,6 +367,18 @@ public static class RunCommand
                 ("expired", Number(year.Expired)),
                 ("hash", year.StateHash)));
         }
+
+        var economy = RunEconomy.Of(result.Session.World);
+        stdout.WriteLine(Fill(
+            strings.Required(CareerRunText.Economy),
+            ("books", Number(economy.Books)),
+            ("insolvent", Number(economy.Insolvent)),
+            ("low", economy.CashLow.ToString(CultureInfo.InvariantCulture)),
+            ("high", economy.CashHigh.ToString(CultureInfo.InvariantCulture)),
+            ("deals", Number(economy.SponsorDeals)),
+            ("boards", Number(economy.Boards)),
+            ("dismissals", Number(economy.Dismissals)),
+            ("cars", Number(economy.Cars))));
     }
 
     /// <summary>

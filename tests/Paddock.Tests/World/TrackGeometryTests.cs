@@ -246,4 +246,45 @@ public class TrackGeometryTests
         // Golden SHA-256 of the little-endian IEEE-754 curvature samples (Menger, no Atan2).
         Assert.Equal("8a26c9b7b4f993c588517a5bf9f38c815b98ebf08462eb6f0690d284e901071e", hash);
     }
+
+    [Theory]
+    [InlineData(3_145.0)]
+    [InlineData(14_120.0)]
+    public void Fallback_HitsRequestedLength_IsCounterClockwise_AndDoesNotCrossItself(double lengthM)
+    {
+        var geom = TrackGeometry.Fallback(lengthM);
+
+        Assert.Equal(lengthM, geom.LengthM, precision: 6);
+
+        // Counter-clockwise stadium: the signed area is positive and no bend turns right.
+        var area = 0.0;
+        for (var i = 0; i < geom.Samples.Count; i++)
+        {
+            var a = geom.Samples[i];
+            var b = geom.Samples[(i + 1) % geom.Samples.Count];
+            area += a.X * b.Y - b.X * a.Y;
+        }
+
+        Assert.True(area > 0.0, "fallback must run counter-clockwise");
+        Assert.DoesNotContain(geom.Curvature, k => k < -0.1 * (6.0 + 2.0 * Math.PI) / lengthM);
+
+        // Two straights and two semicircles: 6 of every 6 + 2 pi units of the lap is straight (about 49%).
+        var bendCurvature = (6.0 + 2.0 * Math.PI) / lengthM;
+        var straight = geom.Curvature.Count(k => Math.Abs(k) < 0.5 * bendCurvature) / (double)geom.Curvature.Count;
+        Assert.InRange(straight, 0.35, 0.55);
+    }
+
+    [Fact]
+    public void Fallback_IsIdenticalOnEveryCall()
+    {
+        var a = TrackGeometry.Fallback(4_000.0);
+        var b = TrackGeometry.Fallback(4_000.0);
+        Assert.Equal(a.SvgPath(500.0), b.SvgPath(500.0));
+    }
+
+    [Fact]
+    public void Fallback_NonPositiveLength_Throws()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => TrackGeometry.Fallback(0.0));
+    }
 }

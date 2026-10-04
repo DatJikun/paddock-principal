@@ -121,6 +121,55 @@ public sealed class TrackGeometry
     }
 
     /// <summary>
+    /// Neutral stadium-shaped layout (two straights of 3 r joined by two semicircles of radius r, counter-clockwise)
+    /// scaled to <paramref name="lengthM"/>. This is the defined fallback for a layout that has no authored geometry
+    /// file: it keeps lap length and start/finish conventions valid, but it says nothing about the real shape.
+    /// Built from literal sine/cosine constants only, so it is identical on every platform.
+    /// </summary>
+    public static TrackGeometry Fallback(double lengthM, double stepM = 2.0)
+    {
+        if (lengthM <= 0.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(lengthM), "Length must be positive.");
+        }
+
+        // Unit stadium with r = 1: straights are 3 long, bends are semicircles; Build scales it to lengthM.
+        (double Cos, double Sin)[] arc =
+        [
+            (0.3826834323650898, -0.9238795325112867),
+            (0.7071067811865476, -0.7071067811865476),
+            (0.9238795325112867, -0.3826834323650898),
+            (1.0, 0.0),
+            (0.9238795325112867, 0.3826834323650898),
+            (0.7071067811865476, 0.7071067811865476),
+            (0.3826834323650898, 0.9238795325112867),
+        ];
+
+        var points = new List<(double X, double Y)>(20)
+        {
+            (-1.5, -1.0),
+            (0.0, -1.0),
+            (1.5, -1.0),
+        };
+
+        foreach (var (cos, sin) in arc)
+        {
+            points.Add((1.5 + cos, sin));
+        }
+
+        points.Add((1.5, 1.0));
+        points.Add((0.0, 1.0));
+        points.Add((-1.5, 1.0));
+
+        for (var i = arc.Length - 1; i >= 0; i--)
+        {
+            points.Add((-1.5 - arc[i].Cos, arc[i].Sin));
+        }
+
+        return Build(points, lengthM, stepM);
+    }
+
+    /// <summary>
     /// Renders the path as an SVG string ("M … L … Z") fitted into a square view box with a margin.
     /// </summary>
     public string SvgPath(double viewBoxSize)

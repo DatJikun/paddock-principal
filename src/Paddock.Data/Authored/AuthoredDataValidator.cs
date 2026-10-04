@@ -39,6 +39,12 @@ public static partial class AuthoredDataValidator
     public const string GeometryPointsTooClose = "geometry-points-too-close";
     public const string GeometryLengthMismatch = "geometry-length-mismatch";
     public const string GeometrySelfIntersection = "geometry-self-intersection";
+    public const string GeometryDuplicate = "geometry-duplicate";
+    public const string GeometryCorner = "geometry-corner";
+    public const string GeometrySharpBend = "geometry-sharp-bend";
+
+    /// <summary>Largest turn allowed between two consecutive 2 m path segments (about 4.6 m radius), in degrees. A cusp or loop exceeds it.</summary>
+    private const double MaxBendPer2MDegrees = 25.0;
 
     public static IReadOnlyList<AuthoredDataError> Validate(AuthoredData data)
     {
@@ -447,8 +453,18 @@ public static partial class AuthoredDataValidator
             }
         }
 
+        var seenGeometry = new HashSet<string>(StringComparer.Ordinal);
         foreach (var geom in data.TrackGeometries)
         {
+            if (!seenGeometry.Add(geom.LayoutId))
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometryDuplicate,
+                    $"track geometry for layout '{geom.LayoutId}' is defined more than once"));
+            }
+
+            AppendTrackCornerErrors(errors, geom);
+
             var hasLayout = layoutById.TryGetValue(geom.LayoutId, out var layout);
             if (!hasLayout)
             {
@@ -536,7 +552,84 @@ public static partial class AuthoredDataValidator
                     GeometrySelfIntersection,
                     $"track geometry '{geom.LayoutId}' resampled path intersects itself"));
             }
+
+            var kinkAt = FindSharpBend(rawGeometry.Samples);
+            if (kinkAt >= 0)
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometrySharpBend,
+                    $"track geometry '{geom.LayoutId}' bends more than {MaxBendPer2MDegrees.ToString("0", CultureInfo.InvariantCulture)} degrees within 2 m near sample {kinkAt.ToString(CultureInfo.InvariantCulture)} (a kink or a cusp, check control points that double back)"));
+            }
         }
+    }
+
+    private static void AppendTrackCornerErrors(List<AuthoredDataError> errors, TrackGeometryFile geom)
+    {
+        if (geom.Corners is null)
+        {
+            return;
+        }
+
+        var usedPoints = new HashSet<int>();
+        var usedNames = new HashSet<string>(StringComparer.Ordinal);
+        for (var i = 0; i < geom.Corners.Count; i++)
+        {
+            var corner = geom.Corners[i];
+            if (corner.Point < 0 || corner.Point >= geom.ControlPoints.Count)
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometryCorner,
+                    $"track geometry '{geom.LayoutId}' corner {i.ToString(CultureInfo.InvariantCulture)} points at control point {corner.Point.ToString(CultureInfo.InvariantCulture)}, outside 0..{(geom.ControlPoints.Count - 1).ToString(CultureInfo.InvariantCulture)}"));
+            }
+            else if (!usedPoints.Add(corner.Point))
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometryCorner,
+                    $"track geometry '{geom.LayoutId}' has two corners on control point {corner.Point.ToString(CultureInfo.InvariantCulture)}"));
+            }
+
+            if (string.IsNullOrWhiteSpace(corner.Name))
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometryCorner,
+                    $"track geometry '{geom.LayoutId}' corner {i.ToString(CultureInfo.InvariantCulture)} has an empty name"));
+            }
+            else if (!usedNames.Add(corner.Name))
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometryCorner,
+                    $"track geometry '{geom.LayoutId}' has two corners named '{corner.Name}'"));
+            }
+        }
+    }
+
+    /// <summary>Index of the first sample where the path turns sharper than the allowed bend per segment, or -1.</summary>
+    private static int FindSharpBend(IReadOnlyList<(double X, double Y)> samples)
+    {
+        var count = samples.Count;
+        var minCos = Math.Cos(MaxBendPer2MDegrees * Math.PI / 180.0);
+        for (var i = 0; i < count; i++)
+        {
+            var a = samples[i];
+            var b = samples[(i + 1) % count];
+            var c = samples[(i + 2) % count];
+            var ux = b.X - a.X;
+            var uy = b.Y - a.Y;
+            var vx = c.X - b.X;
+            var vy = c.Y - b.Y;
+            var lengths = Math.Sqrt(ux * ux + uy * uy) * Math.Sqrt(vx * vx + vy * vy);
+            if (lengths < 1e-9)
+            {
+                continue;
+            }
+
+            if ((ux * vx + uy * vy) / lengths < minCos)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private static bool HasSelfIntersections(IReadOnlyList<(double X, double Y)> samples)

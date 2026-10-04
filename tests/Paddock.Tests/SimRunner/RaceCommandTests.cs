@@ -60,6 +60,7 @@ public class RaceCommandTests
     }
 
     [Theory]
+    [Trait("Category", "Slow")]
     [InlineData("pl")]
     [InlineData("en")]
     public void TheReport_NeverQuotesAKeyOrAPlaceholder_InAnyEra(string language)
@@ -134,6 +135,7 @@ public class RaceCommandTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void ASeason_PrintsTheTableAfterEveryRound()
     {
         var (code, lines, stderr) = Run("race", "--season", "1955");

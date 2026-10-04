@@ -8,6 +8,7 @@ namespace Paddock.Tests.SimRunner;
 public class RunCommandTests
 {
     [Fact]
+    [Trait("Category", "Slow")]
     public void OneSeasonPrintsTheEstimateLineAndAStableHash()
     {
         var first = Run(["run", "--preset", "Chaos", "--from", "1950", "--to", "1950", "--seed", "7"], out var code);
@@ -44,6 +45,27 @@ public class RunCommandTests
         var season = Assert.Single(first, line => line.StartsWith("Season 1950:", StringComparison.Ordinal));
         Assert.Matches("state hash [0-9a-f]{64}\\.$", season);
         Assert.Equal(HashOf(season), HashOf(Assert.Single(polish, line => line.StartsWith("Sezon 1950:", StringComparison.Ordinal))));
+    }
+
+    [Theory]
+    [InlineData("Chaos")]
+    [InlineData("MostHistorical")]
+    public void The1955SeasonRunTwiceGivesTheSameHashAndPrintsTheEconomyInBothLanguages(string preset)
+    {
+        string[] args = ["run", "--preset", preset, "--from", "1955", "--to", "1955", "--seed", "7"];
+
+        var first = Run(args, out var code);
+        var second = Run(args, out _);
+        var polish = Run([.. args, "--lang", "pl"], out _);
+
+        Assert.Equal(0, code);
+        Assert.Equal(first, second);
+        var season = Assert.Single(first, line => line.StartsWith("Season 1955:", StringComparison.Ordinal));
+        Assert.Equal(HashOf(season), HashOf(Assert.Single(polish, line => line.StartsWith("Sezon 1955:", StringComparison.Ordinal))));
+        var economy = Assert.Single(first, line => line.StartsWith("Economy at the end of the run", StringComparison.Ordinal));
+        Assert.Contains("estimates", economy, StringComparison.Ordinal);
+        Assert.Matches("[0-9]+ teams with books, [0-9]+ insolvent, cash from -?[0-9]+ to -?[0-9]+ dollars; [0-9]+ sponsor deals; [0-9]+ boards, [0-9]+ dismissals; [0-9]+ cars\\.$", economy);
+        Assert.Contains(polish, line => line.StartsWith("Ekonomia na koniec biegu", StringComparison.Ordinal));
     }
 
     [Fact]

@@ -65,6 +65,7 @@ public sealed class CareerSession
 {
     private DayHandlerRegistry _registry;
     private bool _handlersAttached;
+    private Action<IReadOnlyList<DomainEvent>>? _afterDay;
     private readonly int _openedYear;
     private readonly TalentPoolDayHandler _poolHandler;
     private readonly Dictionary<int, List<PersonId>> _birthdays = new();
@@ -323,6 +324,29 @@ public sealed class CareerSession
     }
 
     /// <summary>
+    /// The day handlers of the session in the order they run each day (ascending <see cref="IDayHandler.Order"/>, then the order
+    /// they were registered). The built-in ones and the ones the career host attached are in one list, so a test can read the day.
+    /// </summary>
+    public IReadOnlyList<IDayHandler> DayHandlers => _registry.Handlers;
+
+    /// <summary>
+    /// Sets what the host does at the end of <see cref="LiveDay"/>: after the day's handlers ran and the world moved to the next
+    /// morning, and before the season summary is taken. It receives the events the day emitted. The host applies the outcomes
+    /// of those events here (objectives, sponsors, board) and puts its books into the world, so the hash a summary or a save
+    /// carries already includes them. Once only.
+    /// </summary>
+    public void AttachAfterDay(Action<IReadOnlyList<DomainEvent>> afterDay)
+    {
+        ArgumentNullException.ThrowIfNull(afterDay);
+        if (_afterDay is not null)
+        {
+            throw new InvalidOperationException("An after-day hook is already attached.");
+        }
+
+        _afterDay = afterDay;
+    }
+
+    /// <summary>
     /// The named stream for the season being lived, continued from the clock when a previous day already drew from it.
     /// The caller draws, then <see cref="KeepStream"/> writes the generator back so the day tick continues it.
     /// </summary>
@@ -364,6 +388,7 @@ public sealed class CareerSession
         var step = WorldClock.AdvanceDay(_clock, _registry);
         _clock = step.State;
         World = World.WithDate(_clock.Date);
+        _afterDay?.Invoke(step.Events);
         AccountContracts(before, expiries);
         if (lived.IsSeasonEnd)
         {

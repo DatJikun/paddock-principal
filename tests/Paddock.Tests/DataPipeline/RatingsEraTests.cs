@@ -140,11 +140,25 @@ public class RatingsEraTests
     public void Level_MapsTheFieldAverageTo12_AndStarsAreLevelOver4()
     {
         Assert.Equal(12.0, RatingsMapping.Level(0.0));
-        Assert.Equal(20.0, RatingsMapping.Level(5.0));
         Assert.Equal(1.0, RatingsMapping.Level(-5.0));
         Assert.Equal(5.0, RatingsMapping.StarsFromLevel(20.0));
         Assert.Equal(2.5, RatingsMapping.StarsFromLevel(10.0));
+        Assert.Equal(4.7, RatingsMapping.StarsFromLevel(18.8));
         Assert.Equal(100, RatingsMapping.OverallFromLevel(20.0));
+    }
+
+    [Fact]
+    public void Level_ApproachesTwentyWithoutFlatteningTheGreats()
+    {
+        double[] z = [0.5, 1.0, 1.5, 2.0, 2.5, 4.0];
+        var levels = z.Select(RatingsMapping.Level).ToList();
+        for (var i = 1; i < levels.Count; i++)
+        {
+            Assert.True(levels[i] > levels[i - 1], $"z={z[i]} level {levels[i]} not above {levels[i - 1]}");
+        }
+
+        Assert.True(levels[^1] < 20.0);
+        Assert.InRange(RatingsMapping.Level(1.2), 18.5, 19.0);
     }
 
     [Fact]

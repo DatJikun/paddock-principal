@@ -92,7 +92,7 @@ public static class CareerSaveReader
         var years = new List<CareerYearSummary>(snapshot.Run.Years.Count);
         foreach (var year in snapshot.Run.Years)
         {
-            years.Add(new CareerYearSummary(year.Year, year.Alive, year.Retired, year.Pool, year.Contracts, year.StateHash));
+            years.Add(new CareerYearSummary(year.Year, year.Alive, year.Retired, year.Pool, year.Contracts, year.StateHash, year.Signed, year.Renewed, year.Expired));
         }
 
         var session = new CareerSessionResume(
@@ -101,7 +101,10 @@ public static class CareerSaveReader
             snapshot.Run.OpenedYear,
             snapshot.Run.ContractExpiries,
             snapshot.Run.Intakes,
-            years);
+            years,
+            snapshot.Run.SeasonSigned,
+            snapshot.Run.SeasonRenewed,
+            snapshot.Run.SeasonExpired);
 
         var managers = ManagerCodec.Restore(snapshot.Managers.Select(manager =>
             (manager.Id, manager.Kind, manager.DisplayName, manager.BlockingKind)));

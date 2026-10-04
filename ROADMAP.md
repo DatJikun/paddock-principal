@@ -89,6 +89,8 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 
+**Zakres MVP (PP-050):** przejęty istniejący zespół, dwa auta i dwóch kierowców na zespół, trzy miejsca na sponsora. Własny zespół, sponsor założycielski, zakładanie i wykup zespołu są po MVP.
+
 ## Faza 5: Żywa historia
 - Kronika rozbieżności, Hall of Fame, rekordy, kompaktowanie historii.
 - Skrzynka i zdarzenia życiowe.

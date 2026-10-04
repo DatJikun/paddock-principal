@@ -85,12 +85,12 @@
   function splitPanel() {
     const streams = STREAMS.map(([id, name, col]) => `<div class="stream" data-s="${id}"><span class="meta"><i style="background:${col}"></i>${name}</span>
         <div class="step"><button class="btn sm" data-d="-5" aria-label="Mniej: ${name}">−</button><span class="val"><b class="num"></b><small class="delta muted"></small></span><button class="btn sm" data-d="5" aria-label="Więcej: ${name}">+</button></div></div>`).join('');
-    const prios = DEV.priorities.map(a => `<div class="prio" data-a="${a.id}"><div class="pn"><span>${a.name}</span><span class="num rk" style="color:${UI.rankColor(a.rank, 16, 34)}">${a.rank}.</span></div>
+    const prios = DEV.priorities.map(a => `<div class="prio" data-a="${a.id}"><div class="pn"><span>${a.name}</span><span class="num rk" title="Miejsce w stawce" style="color:${UI.rankColor(a.rank, 16, 34)}">${a.rank}.</span></div>
         <div class="pr"><div class="pips" role="radiogroup" aria-label="Priorytet: ${a.name}">${Array.from({ length: 10 }, (_, i) => `<button class="pip" role="radio" data-v="${i + 1}" aria-label="${i + 1}"></button>`).join('')}</div><b class="num pv"></b></div></div>`).join('');
     return `<section class="panel plan" id="dev-plan"><header><h2>Podział zasobów</h2><span class="plan-st"></span></header>
       <div class="body"><div class="splitbar">${STREAMS.map(([id, , col]) => `<i data-s="${id}" style="background:${col}"></i>`).join('')}</div>
         <div class="streams">${streams}</div>
-        <div class="prios-h"><span class="meta">Priorytet obszarów</span></div><div class="prios">${prios}</div>
+        <div class="prios-h"><span class="meta">Priorytet obszarów</span><span class="meta">Miejsce w stawce</span></div><div class="prios">${prios}</div>
         <div class="confirm"><div class="fields"><div class="fld"><span class="meta">Suma</span><span class="v num total"></span></div></div><button class="btn primary plan-go" disabled>${UI.icon(UI.check, 17)}<span>Potwierdź</span></button></div></div></section>`;
   }
   function paintPlan(root) {

@@ -43,6 +43,9 @@ public enum ProjectStatus
     Cut,
 
     Deployed,
+
+    /// <summary>A concept the principal has committed: it is being built and goes live after <see cref="DevProject.ProductionEnds"/> (T42c). The old car keeps racing meanwhile.</summary>
+    InProduction,
 }
 
 public enum ConceptTiming
@@ -171,6 +174,8 @@ public sealed record DevelopmentAccount(OrganizationId Organization, int StockMi
 /// One development project. <see cref="ShareMilli"/> is the hidden expected share of the remaining headroom it closes, set when
 /// it starts from the funding and the team's quality. <see cref="OutcomeMilli"/> is the realised share after the execution
 /// noise, drawn from the <c>Development</c> stream when the project finishes. Neither is shown to a manager (INV-003).
+/// <see cref="ProductionEnds"/> and <see cref="ProductionCostCents"/> are set when a concept is committed to production (T42c):
+/// the last day of production, and what it cost (already posted to the ledger in full on the commit day).
 /// </summary>
 public sealed record DevProject(
     long Number,
@@ -190,11 +195,15 @@ public sealed record DevProject(
     ConceptTiming Timing,
     int TimingRaces,
     int RacesWaited,
-    GameDate? ClosedOn)
+    GameDate? ClosedOn,
+    GameDate? ProductionEnds = null,
+    long ProductionCostCents = 0)
 {
     public string Id => DevProjectIds.Format(Number);
 
     public bool IsActive => Status == ProjectStatus.Active;
+
+    public bool IsInProduction => Status == ProjectStatus.InProduction;
 
     public double Progress => DurationDays <= 0 ? 1d : Math.Clamp((double)ProgressDays / DurationDays, 0d, 1d);
 }

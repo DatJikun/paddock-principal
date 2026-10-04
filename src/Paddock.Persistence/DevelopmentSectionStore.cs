@@ -80,8 +80,9 @@ public sealed class DevelopmentSectionStore : ISectionStore
                 connection,
                 transaction,
                 "INSERT INTO development_projects (number, organization_id, kind, area, engineer, started, duration_days, progress_days, cost, posted, "
-                + "share_milli, risk_milli, outcome_milli, status, timing, timing_races, races_waited, closed_on) "
-                + "VALUES ($number, $org, $kind, $area, $engineer, $started, $duration, $progress, $cost, $posted, $share, $risk, $outcome, $status, $timing, $races, $waited, $closed)",
+                + "share_milli, risk_milli, outcome_milli, status, timing, timing_races, races_waited, closed_on, "
+                + "production_ends, production_cost) "
+                + "VALUES ($number, $org, $kind, $area, $engineer, $started, $duration, $progress, $cost, $posted, $share, $risk, $outcome, $status, $timing, $races, $waited, $closed, $prodEnds, $prodCost)",
                 ("$number", project.Number),
                 ("$org", project.Organization.Value),
                 ("$kind", project.Kind.ToString()),
@@ -99,7 +100,9 @@ public sealed class DevelopmentSectionStore : ISectionStore
                 ("$timing", project.Timing.ToString()),
                 ("$races", (long)project.TimingRaces),
                 ("$waited", (long)project.RacesWaited),
-                ("$closed", project.ClosedOn?.ToString()));
+                ("$closed", project.ClosedOn?.ToString()),
+                ("$prodEnds", project.ProductionEnds?.ToString()),
+                ("$prodCost", project.ProductionCostCents));
         }
     }
 
@@ -165,7 +168,7 @@ public sealed class DevelopmentSectionStore : ISectionStore
         {
             command.CommandText =
                 "SELECT number, organization_id, kind, area, engineer, started, duration_days, progress_days, cost, posted, share_milli, risk_milli, "
-                + "outcome_milli, status, timing, timing_races, races_waited, closed_on FROM development_projects ORDER BY number";
+                + "outcome_milli, status, timing, timing_races, races_waited, closed_on, production_ends, production_cost FROM development_projects ORDER BY number";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -187,7 +190,9 @@ public sealed class DevelopmentSectionStore : ISectionStore
                     ParseEnum<ConceptTiming>(reader.GetString(14)),
                     checked((int)reader.GetInt64(15)),
                     checked((int)reader.GetInt64(16)),
-                    ParseOptionalDate(reader, 17)));
+                    ParseOptionalDate(reader, 17),
+                    ParseOptionalDate(reader, 18),
+                    reader.GetInt64(19)));
             }
         }
 

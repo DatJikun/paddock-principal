@@ -12,19 +12,34 @@
 (() => {
   'use strict';
 
-  /* ---------- track geometry: Catmull-Rom loop sampled by arc length ---------- */
+  /* ---------- track geometry: closed centripetal Catmull-Rom loop sampled by arc length ----------
+     Same curve as src/Paddock.Domain/World/Tracks/TrackGeometry.cs (alpha = 0.5, knots t += sqrt(chord)).
+     Each segment is a cubic, so it is stored as an exact Bezier; the tangents below are the derivatives
+     of the Barry-Goldman evaluation at the segment ends. Display only: the backend owns the truth.
+     Unit-tested against reference samples exported from TrackGeometry (ui/prototype/tests/track-spline.test.mjs). */
   class TrackSpline {
     constructor(controlPoints, lengthKm) {
       this.lengthM = lengthKm * 1000;
       this.samples = [];
       this.total = 0;
-      const p = controlPoints, n = p.length, raw = [];
+      this.beziers = [];
+      this.knotD = [];
+      const p = controlPoints, n = p.length, raw = [], firstOfSegment = [];
+      const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+      let perimeter = 0;
+      for (let i = 0; i < n; i++) perimeter += dist(p[i], p[(i + 1) % n]);
+      const stepLen = perimeter / 8000;   /* nominal arc step of the dense polyline, in control-point units */
       for (let i = 0; i < n; i++) {
         const a = p[(i - 1 + n) % n], b = p[i], c = p[(i + 1) % n], e = p[(i + 2) % n];
-        const b1 = [b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6];
-        const b2 = [c[0] - (e[0] - b[0]) / 6, c[1] - (e[1] - b[1]) / 6];
-        for (let j = 0; j < 40; j++) {
-          const u = j / 40, v = 1 - u;
+        const t1 = Math.sqrt(dist(a, b)) || 1e-9, h = Math.sqrt(dist(b, c)) || 1e-9, t2 = t1 + h, t3 = t2 + (Math.sqrt(dist(c, e)) || 1e-9);
+        const m1 = [0, 1].map(k => h * ((b[k] - a[k]) / t1 - (c[k] - a[k]) / t2 + (c[k] - b[k]) / h));
+        const m2 = [0, 1].map(k => h * ((c[k] - b[k]) / h - (e[k] - b[k]) / (t3 - t1) + (e[k] - c[k]) / (t3 - t2)));
+        const b1 = [b[0] + m1[0] / 3, b[1] + m1[1] / 3], b2 = [c[0] - m2[0] / 3, c[1] - m2[1] / 3];
+        this.beziers.push([b, b1, b2, c]);
+        firstOfSegment.push(raw.length);
+        const steps = Math.max(12, Math.ceil(dist(b, c) / stepLen));
+        for (let j = 0; j < steps; j++) {
+          const u = j / steps, v = 1 - u;
           const x = v * v * v * b[0] + 3 * v * v * u * b1[0] + 3 * v * u * u * b2[0] + u * u * u * c[0];
           const y = v * v * v * b[1] + 3 * v * v * u * b1[1] + 3 * v * u * u * b2[1] + u * u * u * c[1];
           const dx = 3 * v * v * (b1[0] - b[0]) + 6 * v * u * (b2[0] - b1[0]) + 3 * u * u * (c[0] - b2[0]);
@@ -38,11 +53,22 @@
       let d = 0;
       raw.forEach((r, i) => { if (i) d += Math.hypot(r.x - raw[i - 1].x, r.y - raw[i - 1].y); this.samples.push({ ...r, d }); });
       this.total = d + Math.hypot(raw[0].x - raw[raw.length - 1].x, raw[0].y - raw[raw.length - 1].y);
-      const xs = raw.map(r => r.x), ys = raw.map(r => r.y);
-      this.bounds = { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
-      this.bounds.w = this.bounds.maxX - this.bounds.minX;
-      this.bounds.h = this.bounds.maxY - this.bounds.minY;
-      this.center = { x: xs.reduce((a, b) => a + b, 0) / xs.length, y: ys.reduce((a, b) => a + b, 0) / ys.length };
+      this.knotD = firstOfSegment.map(i => this.samples[i].d);   /* arc length at every control point */
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, sx = 0, sy = 0;
+      for (const r of raw) { minX = Math.min(minX, r.x); maxX = Math.max(maxX, r.x); minY = Math.min(minY, r.y); maxY = Math.max(maxY, r.y); sx += r.x; sy += r.y; }
+      this.bounds = { minX, maxX, minY, maxY, w: maxX - minX, h: maxY - minY };
+      this.center = { x: sx / raw.length, y: sy / raw.length };
+    }
+
+    /* position of control point i as a fraction of the lap [0,1) */
+    knotFraction(i) { return this.knotD[((i % this.knotD.length) + this.knotD.length) % this.knotD.length] / this.total; }
+
+    /* the closed curve as an SVG path of cubic Beziers ("M … C … Z"), exactly the curve `at()` samples */
+    svgPath(decimals = 1) {
+      const f = v => +v.toFixed(decimals), q = pt => `${f(pt[0])},${f(pt[1])}`;
+      let s = `M${q(this.beziers[0][0])}`;
+      for (const [, b1, b2, c] of this.beziers) s += `C${q(b1)} ${q(b2)} ${q(c)}`;
+      return s + 'Z';
     }
 
     /* point at a fraction of the lap, [0,1) */

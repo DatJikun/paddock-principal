@@ -2,7 +2,7 @@ namespace Paddock.Persistence;
 
 public static class SaveMigrations
 {
-    private static readonly ISaveMigration[] Items = [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), new V004_WorldSections(), new V005_InboxSection(), new V006_PersonRetirement()];
+    private static readonly ISaveMigration[] Items = [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), new V004_WorldSections(), new V005_InboxSection(), new V006_PersonRetirement(), new V007_CareerRun()];
 
     static SaveMigrations()
     {

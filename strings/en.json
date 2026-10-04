@@ -169,6 +169,7 @@
   "objective.predicate.driverNationalityInLineup": "Field a driver of nationality {nationality}.",
   "objective.predicate.personFromCountryInLineup": "Have someone from {country} in the lineup.",
   "career.run.title": "{preset} from {from} to {to}, seed {seed}, people source {source}.",
+  "career.run.resumed": "Resumed {preset} (opened {from}) on {date}, running through {to}, seed {seed}, people source {source}. Only the seasons lived now are listed.",
   "career.run.estimates": "These rules are estimates, not measured facts. A driver may retire from age {driverFrom} and always retires at {driverCertain}. Staff may retire from age {staffFrom} and always retire at {staffCertain}. The chance on a birthday rises in equal steps from the first of those ages and is certain at the second. A scheduled driver enters the talent pool on {entryDate} of the scheduled year. Each later season adds {intake} generated drivers to the pool. A contract ending is recorded and is not renegotiated.",
   "career.run.year": "Season {year}: alive {alive}, retired {retired}, pool {pool}, contracts {contracts}, state hash {hash}.",
   "career.run.hash_note": "The state hash is the world on the morning of 1 January after that season. Alive, retired and pool counts are kept beside it; retirement and the talent pool are not fields of the world hash.",

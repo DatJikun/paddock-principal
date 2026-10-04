@@ -12,6 +12,9 @@ public static class CareerRunText
     public const string Title = "career.run.title";
 
     [TranslationKey]
+    public const string Resumed = "career.run.resumed";
+
+    [TranslationKey]
     public const string Estimates = "career.run.estimates";
 
     [TranslationKey]

@@ -89,6 +89,15 @@ Dla nowej sesji (Opus 5.5, wyższy effort). Przeczytaj w całości, zanim zaczni
   - wyniki z poprzednich lat na tym torze;
   - **statystyki toru:** średnia liczba DNF, średnia liczba samochodów bezpieczeństwa, lista zwycięzców, rekordy toru (np. rekord okrążenia).
 
+### Wyścig na żywo (uwaga właściciela, 2026-10-04)
+- **Widok główny w trakcie wyścigu: mapa toru 2D z góry**, z możliwością przybliżania i przesuwania.
+- **Etapy:** na początku auta to **kropki** (kolor zespołu, numer po przybliżeniu), później można je zamienić na sylwetki bolidów.
+- **Ma to być prawdziwa symulacja, nie skrypt.** Kierowcy jadą po torze „jak w Simulinku”: pozycja i prędkość wynikają z fizyki auta, geometrii toru i decyzji kierowcy, a nie z zaplanowanej choreografii.
+  - Zero sztucznych scenariuszy ani ustawianych zdarzeń. Walka o pozycję, wyprzedzanie, błąd i **uderzenie** mają się brać z samej symulacji (kolizje symulowane, nie wstawiane z góry).
+  - Wynik wyścigu jest skutkiem tego, co się działo na torze, a nie odwrotnie.
+- **Co to oznacza dla backendu (do oceny przy planowaniu fazy 3/6):** UI tylko wyświetla strumień zdarzeń i pozycji (TECH §3: brak logiki gry w UI, determinizm). Dzisiejszy silnik jest oparty na okrążeniach, a ta wizja wymaga ciągłej symulacji pozycji na torze. Kierunek wskazują PP-048 i PP-049 (geometria toru z punktów kontrolnych, profil prędkości z krzywizny i fizyki auta). Czy silnik ma być w pełni ciągły, czy hybrydowy (okrążenia plus lokalna symulacja walki), jest do rozstrzygnięcia; **to nowa decyzja, więc wymaga wpisu PP**, nie edycji starych.
+- Reszta ekranu (klasyfikacja, pit-stopy, radio, Race Spy) zostaje jak w uwadze „oglądanie wyścigu i pit-stopy: OK”.
+
 ### Klasyfikacje
 - OK, ale **konstruktorzy ładują się dłużej** (animacja wejścia). Ma być równo.
 - Przełącznik F1 / Samochody sportowe / F2 jest brzydki i „biedny”. Przeprojektuj (patrz §3.9) albo schowaj do czasu, aż ma sens.

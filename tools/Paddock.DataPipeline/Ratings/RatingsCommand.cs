@@ -331,7 +331,7 @@ public static class RatingsCommand
         // Era-relative scale: every season is measured against the ranked field of its own time.
         var seasonFields = RatingsEraScale.Fields(driverMetrics.Values
             .Where(m => largestComponentSet.Contains(m.DriverId) && m.TotalDuels >= 20));
-        driverMetrics = RatingsEraScale.ToRelative(driverMetrics, seasonFields);
+        driverMetrics = RatingsEraScale.Shrink(RatingsEraScale.ToRelative(driverMetrics, seasonFields));
 
         var raceDuelsCount = teammateDuels.Count(d => d.Kind == DuelKind.Race);
         var qualiDuelsCount = teammateDuels.Count(d => d.Kind == DuelKind.Qualifying);
@@ -390,18 +390,13 @@ public static class RatingsCommand
         var ratingEntries = new List<DriverRatingEntry>(rankedMetrics.Count);
 
         // Per-season values are already era-relative (z against that season's field): smoothed where a curve
-        // exists, raw otherwise. One pool over all ranked driver-seasons turns them into an overall, so a
-        // season in which a driver dominated his field scores higher than one in which he only led it.
+        // exists, raw otherwise. They map to the game's 1-20 level directly, so a season in which a driver
+        // dominated his field scores higher than one in which he only led it.
         double SeasonValue(FittedDriverMetrics m, int season, double raw)
         {
             var curve = curves[m.DriverId];
             return curve?.Smoothed.First(s => s.Season == season).Value ?? raw;
         }
-
-        var seasonPool = rankedMetrics
-            .SelectMany(m => m.Seasons.Select(s => SeasonValue(m, s.Season, s.Skill)))
-            .OrderBy(v => v)
-            .ToList();
 
         for (var i = 0; i < rankedMetrics.Count; i++)
         {
@@ -409,8 +404,9 @@ public static class RatingsCommand
             var name = driverNames.GetValueOrDefault(m.DriverId, m.DriverId);
             var peak = PeakValueOf(m);
             var percentile = RatingsMapping.Percentile(peak, sortedPeaks);
-            var overall = RatingsMapping.Overall(percentile);
-            var stars = RatingsMapping.Stars(percentile);
+            var peakLevel = RatingsMapping.Level(peak);
+            var overall = RatingsMapping.OverallFromLevel(peakLevel);
+            var stars = RatingsMapping.StarsFromLevel(peakLevel);
 
             rankedList.Add(new DriverRankingEntry(
                 Rank: i + 1,
@@ -429,8 +425,7 @@ public static class RatingsCommand
             foreach (var (season, skill, _) in m.Seasons)
             {
                 var value = SeasonValue(m, season, skill);
-                var seasonPercentile = RatingsMapping.Percentile(value, seasonPool);
-                bySeason.Add(new SeasonRating(season, value, RatingsMapping.Overall(seasonPercentile)));
+                bySeason.Add(new SeasonRating(season, value, RatingsMapping.OverallFromLevel(RatingsMapping.Level(value))));
             }
 
             ratingEntries.Add(new DriverRatingEntry(
@@ -443,7 +438,7 @@ public static class RatingsCommand
                 PeakValue: peak,
                 Curve: curves[m.DriverId],
                 RatingBySeason: bySeason,
-                Arc: RatingsCareerArc.Build(bySeason, birthYears.TryGetValue(m.DriverId, out var born) ? born : null)));
+                Arc: RatingsCareerArc.Build(bySeason, birthYears.TryGetValue(m.DriverId, out var born) ? born : null, m.DriverId)));
         }
 
         var top50 = rankedList.Take(50).ToList();

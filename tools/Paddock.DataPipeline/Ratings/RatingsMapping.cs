@@ -7,6 +7,27 @@ namespace Paddock.DataPipeline;
 /// </summary>
 public static class RatingsMapping
 {
+    /// <summary>Level of the average ranked F1 driver of his era (z = 0) on the 1-20 attribute scale. ESTIMATE.</summary>
+    public const double LevelAtFieldMean = 12.0;
+
+    /// <summary>Levels per standard deviation above the era's field; z of about 1.8 reaches 20. ESTIMATE, set on the real run (2026-10-04) so the all-time top ~10 reach 5 stars.</summary>
+    public const double LevelsPerSd = 4.5;
+
+    /// <summary>
+    /// Era-relative skill (z) to the game's 1-20 attribute level (owner's rule, 2026-10-04): the best of each era
+    /// sit near 20, the average F1 driver of the time near 12.
+    /// </summary>
+    public static double Level(double z) =>
+        Math.Clamp(LevelAtFieldMean + LevelsPerSd * z, 1.0, 20.0);
+
+    /// <summary>Stars exactly as the game computes them: level / 4 (20 = 5 stars, 10 = 2.5), shown in half steps.</summary>
+    public static double StarsFromLevel(double level) =>
+        Math.Round(Math.Clamp(level / 4.0, 0.0, 5.0) * 2.0, MidpointRounding.AwayFromZero) / 2.0;
+
+    /// <summary>Overall 1-100 the way the game builds it from attributes: level / 20 * 100.</summary>
+    public static int OverallFromLevel(double level) =>
+        Math.Clamp((int)Math.Round(level * 5.0, MidpointRounding.AwayFromZero), 1, 100);
+
     /// <summary>
     /// Percentile (0 = worst ranked driver, 1 = best) to overall, linearly interpolated between anchors.
     /// ESTIMATES: the issue fixed only 50th percentile = 60 and 99th = 95; the other anchors are guesses.

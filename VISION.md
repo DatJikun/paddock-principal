@@ -236,3 +236,13 @@ Szczegóły w DESIGN §5.3.
 - **Skutek techniczny:** konfiguracja to jeden typ `CareerConfig` zapisywany w `meta`, a każdy system pyta o oś, a nie o nazwę trybu. Fazy 2 i 4 zaczynamy od tego typu.
 - **Uwaga o fazach:** właściciel zdecydował o wcześniejszym zaczęciu wybranych zadań fazy 2 (domena świata, tick dnia, kolejka komend, SimRunner), równolegle z domykaniem fazy 1.
 
+### Przyjęte 2026-10-04 (dwunasta runda: oceny kierowców)
+
+**PP-047: Oceny względem własnej epoki, wspólny łuk kariery, gwiazdki z atrybutów** (doprecyzowuje PP-040).
+- **Ocena względna:** prawdziwy kierowca jest oceniany na tle stawki swoich czasów, a nie kierowców z innych dekad. Najlepsi każdej epoki (Fangio, Clark, Fittipaldi, Hamilton) są na szczycie skali, a dominacja nad rywalami podnosi ocenę.
+- **Gwiazdki są dynamiczne:** to średnia atrybutów 1–20 podzielona przez 4 (20/20 = 5★, 10/20 = 2,5★). Nie ma sztywnych progów rankingowych.
+- **Łuk kariery jest taki sam dla wszystkich:** rozwój, stabilizacja, szczyt, a spadek dopiero około 36–40 lat. Dane decydują o tym, jak wysoko i kiedy kierowca dochodzi do szczytu. Kierowca, który odszedł na szczycie (Fangio), słabnie dopiero po swoim ostatnim prawdziwym sezonie.
+- **Mało danych = ostrożniejsza ocena:** kierowca z małą liczbą porównań z partnerem z zespołu jest przyciągany do średniej (Castellotti).
+- **Indywidualny charakter kierowcy wyrażają przede wszystkim cechy** (DESIGN §6.1): dają bonusy i minusy i mogą też zostać nabyte (albo utracone) w trakcie kariery.
+- Liczby (skala poziomów, siła przyciągania, wiek spadku) są szacunkami do dalszej kalibracji przez właściciela, który może nanosić ręczne korekty.
+

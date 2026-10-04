@@ -8,7 +8,7 @@ namespace Paddock.Domain.Pool;
 /// One season of development for a member of the pool: each attribute moves toward its hidden ceiling (DESIGN 2.1, "at a rate that
 /// depends on potential and luck"). The member's luck for the season is drawn once and scales every attribute; a funded junior
 /// programme scales it again. Attributes are whole numbers, so the expected step is split into its whole part and a chance for
-/// one more point. Pure: the caller hands in a child of the <c>People</c> stream (INV-004).
+/// one more point, and no attribute rises more than <see cref="PoolEstimates.MaxAnnualStep"/> in a season. Pure: the caller hands in a child of the <c>People</c> stream (INV-004).
 /// All numbers are ESTIMATES in <see cref="PoolEstimates"/>.
 /// </summary>
 public static class PoolDevelopment
@@ -34,7 +34,7 @@ public static class PoolDevelopment
             var draw = rng.NextDouble();
             var expected = (ceiling - current.Value) * fraction;
             var whole = (int)Math.Floor(expected);
-            var step = whole + (draw < expected - whole ? 1 : 0);
+            var step = Math.Min(PoolEstimates.MaxAnnualStep, whole + (draw < expected - whole ? 1 : 0));
             next[i] = new NamedAttribute(current.Key, Math.Min(ceiling, current.Value + step));
         }
 

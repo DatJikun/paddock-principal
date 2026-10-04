@@ -60,6 +60,12 @@ public static class PoolEstimates
     /// <summary>ESTIMATE: luck of one season, in percent. The highest value.</summary>
     public const int LuckMaxPercent = 150;
 
+    /// <summary>
+    /// ESTIMATE: the most any attribute rises in one season in the pool. It also bounds how stale a belief can get in a season:
+    /// after development every organization's band widens upward by this much (<see cref="ScoutingModel.Stale"/>).
+    /// </summary>
+    public const int MaxAnnualStep = 3;
+
     /// <summary>ESTIMATE: speed of a funded season of the cheap, slow programme, in percent of the unfunded rate.</summary>
     public const int CheapSlowSpeedPercent = 125;
 
@@ -86,14 +92,17 @@ public static class PoolEstimates
     /// <summary>ESTIMATE: potential is harder to judge than a current attribute, so its band is this many times wider.</summary>
     public const double PotentialWidthFactor = 1.5;
 
-    /// <summary>ESTIMATE: the least a band spans, in attribute points (high minus low).</summary>
-    public const int MinBandSpan = 1;
+    /// <summary>
+    /// ESTIMATE: the most the best scout's reading is off, in attribute points. Not above <see cref="MinHalfWidth"/>, so he never
+    /// misses the truth however narrow his band gets.
+    /// </summary>
+    public const double BestScoutBias = 0.45;
 
-    /// <summary>ESTIMATE: noise of a perfect scout (judgement 20) as a share of the half width. Below 1, so he never misses the truth.</summary>
-    public const double BestScoutNoiseShare = 0.9;
+    /// <summary>ESTIMATE: the most the worst scout's reading (judgement 1) is off, in attribute points. Wide enough that his narrow bands miss the truth (bands are rounded outward, so a miss needs more than a point of error).</summary>
+    public const double WorstScoutBias = 3.0;
 
-    /// <summary>ESTIMATE: noise of the worst scout (judgement 1) as a share of the half width. Above 1, so he can miss the truth.</summary>
-    public const double WorstScoutNoiseShare = 1.5;
+    /// <summary>ESTIMATE: a band of the worst scout (judgement 1) is this many times as wide as the best scout's on the same observation.</summary>
+    public const double WorstScoutWidthFactor = 1.8;
 
     /// <summary>ESTIMATE: observation points per month (thousandths) on one person the organization follows closely.</summary>
     public const long PersonFocusMilliPerMonth = 1000;

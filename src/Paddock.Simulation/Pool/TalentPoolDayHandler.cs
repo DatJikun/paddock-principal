@@ -233,6 +233,11 @@ public sealed class TalentPoolDayHandler : IDayHandler
             var rng = people.DeriveChild("pool-dev:v1:" + year.ToString(CultureInfo.InvariantCulture) + ":" + member.Id.Value);
             var truth = PoolDevelopment.Develop(world.TruthOf(member.Id), speed, rng);
             world = world.WithPersonTruth(member.Id, truth);
+            foreach (var belief in world.Knowledge.Where(belief => belief.SubjectId == member.Id).ToArray())
+            {
+                world = world.SetKnowledge(ScoutingModel.Stale(belief));
+            }
+
             if (member.Funding is { } paid && paid.Season < year)
             {
                 section = section.ClearFunding(member.Id);
@@ -287,15 +292,9 @@ public sealed class TalentPoolDayHandler : IDayHandler
             {
                 var shared = _options.SharedRaces.SharedRaces(focus.Organization, member.Id, today);
                 section = section.AddObservation(focus.Organization, member.Id, ScoutingModel.MonthlyMilli(focus.Kind, scout, shared));
-                var rng = scouting.DeriveChild("observe:v1:" + today + ":" + focus.Organization.Value + ":" + member.Id.Value);
-                PersonKnowledge? previous = null;
-                if (world.KnowledgeOf(focus.Organization, member.Id) is { } view)
-                {
-                    previous = new PersonKnowledge(view.ObserverId, view.SubjectId, view.Attributes, view.Potential);
-                }
-
+                var rng = scouting.DeriveChild(
+                    "bias:v1:" + today.Year.ToString(CultureInfo.InvariantCulture) + ":" + focus.Organization.Value + ":" + member.Id.Value);
                 var belief = ScoutingModel.Observe(
-                    previous,
                     focus.Organization,
                     member.Id,
                     world.TruthOf(member.Id),

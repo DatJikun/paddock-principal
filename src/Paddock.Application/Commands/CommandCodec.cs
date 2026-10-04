@@ -90,6 +90,7 @@ public sealed class CommandCodec
         .. Paddock.Application.Board.BoardCommandCodecs.Entries,
         .. Paddock.Application.Development.DevelopmentCommandCodecs.Entries,
         .. Paddock.Application.Supply.SupplyCommandCodecs.Entries,
+        .. Paddock.Application.Principals.PrincipalCommandCodecs.Entries,
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",
             command => FlatJson.Write(("itemId", command.ItemId), ("optionId", command.OptionId)),

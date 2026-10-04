@@ -164,6 +164,16 @@ public sealed class InboxSection : IWorldSection
     }
 
     /// <summary>
+    /// Closes an open item with no option taken, whatever its validity date. For the poster only: a decision whose manager
+    /// can no longer answer it (a dismissed principal's renewal prompt) must not hold the shared clock for ever.
+    /// </summary>
+    public InboxSection Withdraw(string itemId, GameDate today)
+    {
+        var item = RequireOpen(itemId);
+        return Replace(item.Closed(InboxStatus.Expired, today, null));
+    }
+
+    /// <summary>
     /// Marks an open item whose validity date has passed as lapsed. <paramref name="applyDefault"/> records that the
     /// declared default option was executed; it is only possible for an item that declares one.
     /// </summary>

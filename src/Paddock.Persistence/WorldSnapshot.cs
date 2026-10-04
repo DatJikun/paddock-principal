@@ -24,7 +24,7 @@ public sealed record StoredCommand(long SubmissionNumber, string ManagerId, Date
 public sealed record StoredManager(string Id, string Kind, string DisplayName, string? BlockingKind);
 
 /// <summary>One per-season summary line of a run, as stored in <c>career_years</c>.</summary>
-public sealed record StoredYear(int Year, int Alive, int Retired, int Pool, int Contracts, string StateHash);
+public sealed record StoredYear(int Year, int Alive, int Retired, int Pool, int Contracts, string StateHash, int Signed, int Renewed, int Expired);
 
 /// <summary>
 /// What a day-by-day run keeps beside <see cref="WorldState"/> (V007): the opening year, the tallies, the per-season
@@ -34,7 +34,10 @@ public sealed record CareerRunState(
     int OpenedYear,
     int ContractExpiries,
     int Intakes,
-    IReadOnlyList<StoredYear> Years);
+    IReadOnlyList<StoredYear> Years,
+    int SeasonSigned = 0,
+    int SeasonRenewed = 0,
+    int SeasonExpired = 0);
 
 /// <summary>
 /// Everything a save keeps about the world at one day boundary: the world itself, the day clock's queue,

@@ -16,13 +16,26 @@ namespace Paddock.Domain.Racing;
 public sealed class RaceTape
 {
     private RaceTape(ImmutableArray<RaceEvent> events)
+        : this(events, [], null)
+    {
+    }
+
+    private RaceTape(ImmutableArray<RaceEvent> events, ImmutableArray<CarFrame> frames, FrameAccuracy? accuracy)
     {
         Events = events;
+        Frames = frames.IsDefault ? [] : frames;
+        FrameAccuracy = Frames.IsEmpty ? null : accuracy;
     }
 
     public static RaceTape Empty { get; } = new([]);
 
     public ImmutableArray<RaceEvent> Events { get; }
+
+    /// <summary>Display samples. Empty on a tape that has none (every tape written before position frames).</summary>
+    public ImmutableArray<CarFrame> Frames { get; }
+
+    /// <summary>Null when <see cref="Frames"/> is empty. <see cref="FrameAccuracy.Approximate"/> for the lap engine.</summary>
+    public FrameAccuracy? FrameAccuracy { get; }
 
     public int Count => Events.Length;
 
@@ -41,8 +54,39 @@ public sealed class RaceTape
         return builder.Build();
     }
 
-    /// <summary>Canonical JSON: fixed property order, no whitespace, invariant numbers. Equal tapes give identical text.</summary>
+    /// <summary>
+    /// Canonical JSON of the events only: fixed property order, no whitespace, invariant numbers.
+    /// Frames are display data and are not part of this text, so the tape hash does not change when frames are added.
+    /// </summary>
     public string ToCanonicalJson() => RaceTapeJson.Write(Events);
+
+    /// <summary>
+    /// Versioned document. No frames: the same array as <see cref="ToCanonicalJson"/> (old tapes stay byte-identical).
+    /// With frames: <c>{"v":2,...}</c>.
+    /// </summary>
+    public string ToDocumentJson() =>
+        Frames.IsEmpty ? ToCanonicalJson() : RaceTapeJson.WriteDocument(Events, Frames, FrameAccuracy!.Value);
+
+    /// <summary>Reads a canonical event array (no frames) or a version-2 document (with frames).</summary>
+    public static RaceTape Parse(string json)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(json);
+        var (events, frames, accuracy) = RaceTapeJson.Read(json);
+        var tape = From(events);
+        return frames.IsEmpty ? tape : tape.WithFrames(frames, accuracy!.Value);
+    }
+
+    /// <summary>Returns a copy that carries display frames. The events, and therefore <see cref="Hash"/>, stay the same.</summary>
+    public RaceTape WithFrames(IReadOnlyList<CarFrame> frames, FrameAccuracy accuracy)
+    {
+        ArgumentNullException.ThrowIfNull(frames);
+        if (frames.Count == 0)
+        {
+            throw new ArgumentException("A framed tape needs at least one frame.", nameof(frames));
+        }
+
+        return new RaceTape(Events, [.. frames], accuracy);
+    }
 
     public sealed class Builder
     {

@@ -434,15 +434,15 @@ public sealed partial class WorldRepository
             return;
         }
 
-        using (var header = new Insert(connection, transaction, "career_run", "id", "opened_year", "contract_expiries", "intakes"))
+        using (var header = new Insert(connection, transaction, "career_run", "id", "opened_year", "contract_expiries", "intakes", "season_signed", "season_renewed", "season_expired"))
         {
-            header.Run(1L, (long)run.OpenedYear, (long)run.ContractExpiries, (long)run.Intakes);
+            header.Run(1L, (long)run.OpenedYear, (long)run.ContractExpiries, (long)run.Intakes, (long)run.SeasonSigned, (long)run.SeasonRenewed, (long)run.SeasonExpired);
         }
 
-        using var years = new Insert(connection, transaction, "career_years", "year", "alive", "retired", "pool", "contracts", "state_hash");
+        using var years = new Insert(connection, transaction, "career_years", "year", "alive", "retired", "pool", "contracts", "state_hash", "signed", "renewed", "expired");
         foreach (var year in run.Years)
         {
-            years.Run((long)year.Year, (long)year.Alive, (long)year.Retired, (long)year.Pool, (long)year.Contracts, year.StateHash);
+            years.Run((long)year.Year, (long)year.Alive, (long)year.Retired, (long)year.Pool, (long)year.Contracts, year.StateHash, (long)year.Signed, (long)year.Renewed, (long)year.Expired);
         }
     }
 

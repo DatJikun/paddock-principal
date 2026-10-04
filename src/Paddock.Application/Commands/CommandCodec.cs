@@ -1,7 +1,9 @@
 using Paddock.Application.Contracts;
+using Paddock.Application.Finance;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Application.Pool;
+using Paddock.Application.Sponsors;
 using Paddock.Domain.Codec;
 using Paddock.Domain.Pool;
 using Paddock.Simulation.Codec;
@@ -81,7 +83,13 @@ public sealed class CommandCodec
     /// <summary>The commands this build can save.</summary>
     public static CommandCodec Production { get; } = new(
     [
+        .. SponsorCommandCodecs.Entries,
+        .. FinanceCommandCodecs.Entries,
         .. ContractCommandCodecs.Entries,
+        .. CarCommandCodecs.Entries,
+        .. Paddock.Application.Board.BoardCommandCodecs.Entries,
+        .. Paddock.Application.Development.DevelopmentCommandCodecs.Entries,
+        .. Paddock.Application.Supply.SupplyCommandCodecs.Entries,
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",
             command => FlatJson.Write(("itemId", command.ItemId), ("optionId", command.OptionId)),

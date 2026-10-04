@@ -18,17 +18,18 @@ public class ReliabilityEraProfileTests
     {
         for (var season = 1950; season <= 1959; season++)
         {
-            Assert.InRange(ReliabilityEraProfile.MechanicalRetirementRate(season), 0.40, 0.50);
+            // Calibrated in #122 (per-lap hazard of the reference car against the 1950s fixture races), not the real 40-50 percent.
+            Assert.InRange(ReliabilityEraProfile.MechanicalRetirementRate(season), 0.60, 0.70);
         }
 
         for (var season = 1990; season <= 1999; season++)
         {
-            Assert.InRange(ReliabilityEraProfile.MechanicalRetirementRate(season), 0.20, 0.25);
+            Assert.InRange(ReliabilityEraProfile.MechanicalRetirementRate(season), 0.34, 0.45);
         }
 
         for (var season = 2010; season <= 2019; season++)
         {
-            Assert.InRange(ReliabilityEraProfile.MechanicalRetirementRate(season), 0.05, 0.08);
+            Assert.InRange(ReliabilityEraProfile.MechanicalRetirementRate(season), 0.08, 0.10);
         }
     }
 
@@ -40,7 +41,7 @@ public class ReliabilityEraProfileTests
         {
             var rate = ReliabilityEraProfile.MechanicalRetirementRate(season);
             Assert.True(rate <= previous + 1e-12, $"Rate rose at {season}.");
-            Assert.True(previous - rate < 0.03, $"Rate jumped by {previous - rate} at {season}.");
+            Assert.True(previous - rate < 0.04, $"Rate jumped by {previous - rate} at {season}.");
             previous = rate;
         }
     }

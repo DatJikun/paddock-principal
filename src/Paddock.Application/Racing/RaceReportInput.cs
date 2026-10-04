@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Paddock.Domain.Racing;
+using Paddock.Simulation.Racing;
 using Paddock.Simulation.Racing.Incidents;
 using Paddock.Simulation.Racing.Points;
 using Paddock.Simulation.Racing.Qualifying;
@@ -44,21 +45,28 @@ public sealed record RaceReportInput(
     public static RaceReportInput From(RaceWeekendResult result, int season, int round, string trackId)
     {
         ArgumentNullException.ThrowIfNull(result);
+        return From(RacePublishedFacts.From(result), season, round, trackId);
+    }
+
+    /// <summary>The same report input, taken from the facts the simulator publishes. Lap records are not among them.</summary>
+    public static RaceReportInput From(RacePublishedFacts facts, int season, int round, string trackId)
+    {
+        ArgumentNullException.ThrowIfNull(facts);
         ArgumentException.ThrowIfNullOrWhiteSpace(trackId);
-        var atStart = result.TruthWeather.At(0);
+        var atStart = facts.TruthWeather.At(0);
         return new RaceReportInput(
             season,
             round,
             trackId,
             new RaceReportConditions(atStart.WetnessBand, atStart.AirTempC),
-            result.Qualifying,
-            result.Tape,
-            result.CarResults,
-            result.Classification,
-            result.PersonOutcomes,
-            result.PitStops,
-            result.Neutralisations,
-            result.ScheduledLaps,
-            result.LapsRun);
+            facts.Qualifying,
+            facts.Tape,
+            facts.CarResults,
+            facts.Classification,
+            facts.PersonOutcomes,
+            facts.PitStops,
+            facts.Neutralisations,
+            facts.ScheduledLaps,
+            facts.LapsRun);
     }
 }

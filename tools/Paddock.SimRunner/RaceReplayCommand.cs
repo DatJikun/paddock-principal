@@ -1,14 +1,13 @@
 using System.Diagnostics;
 using System.Globalization;
-using Paddock.Domain.Racing;
 using Paddock.Simulation.Racing;
 using Paddock.Simulation.Racing.Playback;
 
 namespace Paddock.SimRunner;
 
 /// <summary>
-/// <c>race-replay --seed N [--speed X]</c>: builds the stub race (see <see cref="FakeRaceTapeBuilder"/>,
-/// not the race engine) and prints it as text lines through a <see cref="PlaybackScheduler"/> at X times real time.
+/// <c>race-replay --seed N [--speed X]</c>: asks <see cref="ReplayTapeSimulator"/> for the canned tape
+/// (not the lap engine) and prints it as text lines through a <see cref="PlaybackScheduler"/> at X times real time.
 /// </summary>
 public static class RaceReplayCommand
 {
@@ -90,7 +89,8 @@ public static class RaceReplayCommand
             return 1;
         }
 
-        var tape = FakeRaceTapeBuilder.Build(seed.Value).Tape;
+        IRaceSimulator simulator = ReplayTapeSimulator.Instance;
+        var tape = RaceSession.Run(simulator, RaceSimulationRequest.ForSeed(seed.Value));
         var cursor = new PlaybackScheduler(tape, clock, speed).CreateCursor();
         while (true)
         {

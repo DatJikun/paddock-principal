@@ -440,6 +440,12 @@ internal sealed class CommandFiler
 
         foreach (var timing in outcome.Timings)
         {
+            if (timing.Commit)
+            {
+                File(new CommitConceptCommand { ManagerId = Manager, IssuedOn = Day, OrganizationId = Organization, ProjectId = timing.ProjectId });
+                continue;
+            }
+
             File(new DeployConceptCommand
             {
                 ManagerId = Manager,

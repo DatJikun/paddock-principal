@@ -45,12 +45,13 @@ internal sealed partial class TeamKnowledge
         }
 
         var concepts = own.Projects
-            .Where(project => project.Kind == DevKindNames.Concept && project.Status is "Active" or "Ready")
+            .Where(project => project.Kind == DevKindNames.Concept && project.Status is "Active" or "Ready" && project.Timing is not "Hold")
             .Select(project => new ConceptCase(
                 project.ProjectId,
                 project.Status == "Ready",
                 project.Timing,
-                (project.ExpectedGain.Low + project.ExpectedGain.High) / 2.0))
+                (project.ExpectedGain.Low + project.ExpectedGain.High) / 2.0,
+                project.ProductionDays ?? 0))
             .ToArray();
         var year = Today.Year;
         return new DevelopmentInput(

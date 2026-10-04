@@ -659,6 +659,7 @@
   "ai.option.split.sacrifice": "Poświęcenie sezonu",
   "ai.option.split.sacrifice_hard": "Całkowite poświęcenie sezonu",
   "ai.option.timing.when_ready": "Wdroż, gdy będzie gotowe",
+  "ai.option.timing.commit_now": "Zatwierdź do produkcji teraz",
   "ai.option.timing.after_races": "Wdroż po kilku wyścigach",
   "ai.option.timing.next_season": "Wdroż w przyszłym sezonie",
   "ai.option.supplier": "Zwróć się do dostawcy",

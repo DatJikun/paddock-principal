@@ -7,7 +7,8 @@ namespace Paddock.Simulation.Ai;
 /// <param name="Ready">True when the concept is finished and waits; false while it is still running.</param>
 /// <param name="CurrentTiming">The timing now set: <c>WhenReady</c>, <c>AfterRaces</c> or <c>NextSeason</c>.</param>
 /// <param name="ExpectedGainMid">The middle of the band of rating points the concept is expected to bring.</param>
-public sealed record ConceptCase(string ProjectId, bool Ready, string CurrentTiming, double ExpectedGainMid);
+/// <param name="ProductionDays">Days committing a ready concept to production would take, as the engineers show them (0 when not shown).</param>
+public sealed record ConceptCase(string ProjectId, bool Ready, string CurrentTiming, double ExpectedGainMid, int ProductionDays = 0);
 
 /// <summary>What the development decider reads: the team's own plan and car as its engineers show them, its results, and the rules it has heard are coming.</summary>
 /// <param name="Today">The day.</param>
@@ -44,7 +45,7 @@ public sealed record DevelopmentInput(
 public sealed record DevelopmentPlanView(int Current, int Account, int NextYear, int Aero, int Chassis, int Reliability, int Tyres);
 
 /// <summary>When one concept is deployed.</summary>
-public sealed record TimingDecision(string ProjectId, string Timing, int Races);
+public sealed record TimingDecision(string ProjectId, string Timing, int Races, bool Commit = false);
 
 /// <summary>The outcome of a development review. <see cref="Plan"/> is null when the plan in force stays.</summary>
 public sealed record DevelopmentDecision(DevelopmentPlanView? Plan, bool Sacrifice, IReadOnlyList<TimingDecision> Timings);
@@ -201,12 +202,20 @@ public static class DevelopmentDecider
         {
             var gain = Math.Max(0.0, concept.ExpectedGainMid) / 100.0;
             var writtenOff = sacrifice || input.SacrificedSeason == context.Season;
-            var options = new List<OptionDraft>
+            var options = new List<OptionDraft>();
+            if (concept.Ready)
             {
-                new("timing/when_ready", Timing(profile, gain, seasonLeft, nowShare: 1.0, carryShare: 0.5, disruption: 1.0, writtenOff)),
-                new("timing/after_races", Timing(profile, gain, seasonLeft, nowShare: 0.7, carryShare: 0.6, disruption: 0.5, writtenOff)),
-                new("timing/next_season", Timing(profile, gain, seasonLeft, nowShare: 0.0, carryShare: 1.0, disruption: 0.0, writtenOff)),
-            };
+                // Committing builds the car now (T42c): it goes live only after the production days, so less of the season is left to gain.
+                var left = Math.Max(0.0, seasonLeft - (concept.ProductionDays / 365.0));
+                options.Add(new OptionDraft("timing/commit_now", Timing(profile, gain, left, nowShare: 1.0, carryShare: 0.5, disruption: 1.0, writtenOff)));
+            }
+            else
+            {
+                options.Add(new OptionDraft("timing/when_ready", Timing(profile, gain, seasonLeft, nowShare: 1.0, carryShare: 0.5, disruption: 1.0, writtenOff)));
+            }
+
+            options.Add(new OptionDraft("timing/after_races", Timing(profile, gain, seasonLeft, nowShare: 0.7, carryShare: 0.6, disruption: 0.5, writtenOff)));
+            options.Add(new OptionDraft("timing/next_season", Timing(profile, gain, seasonLeft, nowShare: 0.0, carryShare: 1.0, disruption: 0.0, writtenOff)));
             var note = new TraceNote(
                 TimingKind,
                 concept.ProjectId,
@@ -215,6 +224,12 @@ public static class DevelopmentDecider
                 null,
                 IsKeyDecision: false);
             var chosen = UtilityChooser.Choose(context, DecisionFacet.Development, note, options, _ => AiTextKeys.ReasonTiming);
+            if (chosen.Id == "timing/commit_now")
+            {
+                result.Add(new TimingDecision(concept.ProjectId, "WhenReady", 0, Commit: true));
+                continue;
+            }
+
             var (timing, races) = chosen.Id switch
             {
                 "timing/next_season" => ("NextSeason", 0),

@@ -255,10 +255,19 @@ public class AiRulesTests
     [Fact]
     public void AReadyConceptIsHeldForNextSeasonByAPlannerLateInTheSeason()
     {
-        var late = Development(last: 5, previous: 5, nextRules: 0.0) with { Today = new DateOnly(1956, 11, 20), Concepts = [new ConceptCase("dev:1", Ready: true, CurrentTiming: "WhenReady", ExpectedGainMid: 9)] };
+        var late = Development(last: 5, previous: 5, nextRules: 0.0) with { Today = new DateOnly(1956, 11, 20), Concepts = [new ConceptCase("dev:1", Ready: true, CurrentTiming: "WhenReady", ExpectedGainMid: 40, ProductionDays: 30)] };
         var outcome = DevelopmentDecider.Review(Context(PrincipalArchetype.Builder), late);
         var timing = Assert.Single(outcome.Timings);
         Assert.Equal("NextSeason", timing.Timing);
+        Assert.False(timing.Commit);
+    }
+
+    [Fact]
+    public void AContenderCommitsAReadyConceptEarlyInTheSeason()
+    {
+        var early = Development(last: 3, previous: 3, nextRules: 0.0) with { Today = new DateOnly(1956, 2, 1), Concepts = [new ConceptCase("dev:1", Ready: true, CurrentTiming: "WhenReady", ExpectedGainMid: 12, ProductionDays: 30)] };
+        var timing = Assert.Single(DevelopmentDecider.Review(Context(PrincipalArchetype.Contender), early).Timings);
+        Assert.True(timing.Commit);
     }
 
     // ---------------------------------------------------------------- supply

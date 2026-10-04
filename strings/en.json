@@ -629,6 +629,7 @@
   "ai.option.split.sacrifice": "Sacrifice the season",
   "ai.option.split.sacrifice_hard": "Sacrifice the season completely",
   "ai.option.timing.when_ready": "Deploy when ready",
+  "ai.option.timing.commit_now": "Commit to production now",
   "ai.option.timing.after_races": "Deploy after a few races",
   "ai.option.timing.next_season": "Deploy next season",
   "ai.option.supplier": "Approach a supplier",

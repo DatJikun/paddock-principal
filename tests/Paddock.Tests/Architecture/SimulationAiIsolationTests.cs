@@ -140,7 +140,7 @@ public class SimulationAiIsolationTests
             Assert.True(catalog.TryGet(Paddock.Application.Localization.Language.Pl, AiTextKeys.OptionKey("split/" + split.Name), out _));
         }
 
-        foreach (var name in new[] { "when_ready", "after_races", "next_season" })
+        foreach (var name in new[] { "when_ready", "commit_now", "after_races", "next_season" })
         {
             Assert.True(catalog.TryGet(Paddock.Application.Localization.Language.Pl, AiTextKeys.OptionKey("timing/" + name), out _));
         }

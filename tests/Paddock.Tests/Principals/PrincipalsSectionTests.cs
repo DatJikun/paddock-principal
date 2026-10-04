@@ -124,7 +124,7 @@ public class PrincipalsSectionTests : IDisposable
 
         using var file = SaveFile.Create(Path.Combine(_directory, "career.paddock"), WorldFixtures.Meta());
         var repository = new WorldRepository(file);
-        repository.SaveWorld(world, new GameDate(1955, 4, 30));
+        repository.SaveWorld(world, world.CurrentDate);
         Assert.Equal(world.StateHash(), repository.LoadWorld().StateHash());
     }
 

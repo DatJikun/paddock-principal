@@ -280,3 +280,9 @@ Szczegóły w DESIGN §5.3.
 - **Wydarzenia oskryptowane:** scenariusz może zaplanować zdarzenia w czasie, np. start w 2012, a w 2013–2014 ktoś zauważa Verstappena dzięki wynikom w seriach juniorskich i trafia on do akademii Mercedesa. Wydarzenia działają na zwykłych zasadach świata, tak jak propozycje historyczne (PP-004).
 - **Wiedza AI o historii jako opcja kariery:** to, czy AI odtwarza historię, czy tylko reaguje na sytuację, jest ustawieniem kariery (oś „zachowanie AI”, PP-046). Domyślnie AI ocenia siłę aut tak jak prawdziwy szef zespołu i nie zna przyszłości.
 
+### Przyjęte 2026-10-04 (piętnasta runda: uproszczenia MVP nie zamykają modelu)
+
+**PP-052: Uproszczenia MVP są ustawieniem, nie ograniczeniem modelu** (uzupełnia PP-050).
+- **Dwa auta i dwóch stałych kierowców na zespół** to kompromis MVP, a nie założenie architektury. Liczba aut na zespół, prywatne zgłoszenia, sprzedaż i zakup podwozi oraz przesiadki między autami mają wynikać z wymiarów katalogu epok (`cars_per_team`, `customer_chassis`), a MVP tylko ustawia je na „2” i „zabronione”. Kod nie może zakładać stałej liczby aut ani kierowców w polach, indeksach, zapisie i silniku wyścigu.
+- **Znane skutki uproszczenia:** w latach 50. zespoły często wystawiały trzy lub cztery auta, a prywatni zawodnicy startowali masowo, więc liczba startujących, wskaźnik wycofań i przebieg wyścigu z 1955 będą systematycznie odbiegać od historii. Kalibracja silnika (#122) ma to traktować jako znane odchylenie, a nie gonić je zmianą parametrów.
+- **Zasada przy zadaniach:** jeśli zadanie T37–T48 wymagałoby w MVP wpisania na stałe dwóch aut albo braku podwozi klienckich, zamiast tego czyta wartość z konfiguracji epoki i testuje też przypadek większy niż 2.

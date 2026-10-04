@@ -82,14 +82,15 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - Projekt szczegółowy: zakładanie i wykup zespołu w trakcie kariery.
 
 **Stan (2026-10-04):** zadania T35–T48 (#100–#113) są założone jako issues.
-- [x] T36: fundamenty (rejestr sekcji świata, skrzynka v0, cele), #117.
-- [ ] W toku (PR-y tuż przed otwarciem): T39 kontrakty i negocjacje (#104), T40 pula talentów (#105).
-- [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T37 finanse (#102), T38 sponsorzy (#103), T41 model auta (#106), T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
-- [ ] Reszta otwarta: T42–T44, T47, T48.
+- [x] Zmergowane: T35 weekend wyścigowy (#119), T36 fundamenty: rejestr sekcji świata, skrzynka v0, cele (#117), T39 kontrakty i negocjacje (#128), T40 pula talentów (#127).
+- [ ] W przeglądzie: wpięcie T39 i T40 w przebieg kariery (#129, PR #134).
+- [ ] Do zrobienia, wszystkie odblokowane decyzjami z PP-050: T37 finanse (#102, od niego zależą T38 i T45), T41 model auta (#106, niezależny), T38 sponsorzy (#103), T45 reputacja i zarząd (#110), T46 cykl życia zespołów, zakres zmniejszony (#111).
+- [ ] Kolejne w kolejności zależności: T42 rozwój, ścieżka A (#107), T43 dostawcy i silniki (#108), T44 AI szefów zespołów (#109), T47 start kariery i pętla sezonu w CLI (#112), T48 scenariusz bramki, sezon 1955 (#113).
+- [ ] Poza kolejką T-zadań: kalibracja silnika (#122, wymaga cache Jolpica), odporność geometrii torów na różne systemy (#141), szybki domyślny zestaw testów (#142), `race-replay` na prawdziwej taśmie (#143), prędkość i czas okrążenia z fizyki (#138, PR #139).
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 
-**Zakres MVP (PP-050):** przejęty istniejący zespół, dwa auta i dwóch kierowców na zespół, trzy miejsca na sponsora. Własny zespół, sponsor założycielski, zakładanie i wykup zespołu są po MVP.
+**Zakres MVP (PP-050, PP-052):** przejęty istniejący zespół, dwa auta i dwóch kierowców na zespół, trzy miejsca na sponsora. Własny zespół, sponsor założycielski, zakładanie i wykup zespołu są po MVP. Uproszczenie „dwa auta, dwóch kierowców, bez prywatnych zespołów i sprzedaży podwozi” jest tylko ustawieniem MVP, a nie ograniczeniem modelu (PP-052).
 
 ## Faza 5: Żywa historia
 - Kronika rozbieżności, Hall of Fame, rekordy, kompaktowanie historii.
@@ -115,7 +116,7 @@ Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyśc
 
 ## Otwarte pytania
 
-1. **Czy właściciel albo prezes zespołu (zarząd, DESIGN §15) ma atrybuty?** Szef zespołu ma (PP-044); przy właścicielu właściciel gry jeszcze nie zdecydował.
+1. ~~Czy właściciel albo zarząd mają atrybuty?~~ Rozstrzygnięte w PP-050: na razie nie, jest skalar cierpliwości. Szef zespołu ma atrybuty (PP-044).
 2. **System awatarów: odłożony.** Dotychczasowe próby (Peloton, Ping-Pong, brief w HANDOFF_UI §7) nie dały zadowalającego wyniku. Wracamy później.
 3. **Dane do wydania komercyjnego (PP-041):** Jolpica to CC BY-NC-SA 4.0. Na Steam trzeba własnej bazy albo zgody. Decyzja do podjęcia przed fazą wydania.
 4. **Kalibracja ocen:** ile lat przed debiutem kierowca trafia do puli talentów (fazy 1 i 4).

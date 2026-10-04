@@ -6,7 +6,7 @@ Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić
 - Rdzeń świata działa: SimRunner przechodzi 1950→2026 deterministycznie na wygenerowanych ludziach, zapis się wznawia.
 - Silnik wyścigu jest gotowy (weekend wyścigowy z relacją); kalibracja z historią czeka.
 - Czekają pełne dane Jolpica na maszynie właściciela i oceny na prawdziwych danych.
-- Pętla kariery (faza 4) jest w toku, część zadań czeka na decyzje właściciela.
+- Pętla kariery (faza 4) jest w toku: kontrakty i pula talentów gotowe, decyzje właściciela do reszty zapadły (PP-050), zostają finanse, sponsorzy, model auta, rozwój, dostawcy, AI szefów, zarząd i start kariery.
 - Klikalny prototyp UI w wersji szkicowej: `ui/prototype/`, uwagi w `ui/HANDOFF_UI.md`.
 
 ## Dokumentacja

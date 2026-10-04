@@ -520,7 +520,7 @@ public static class RaceCommand
     private static bool TryInt(string value, out int result) =>
         int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out result) && result > 0;
 
-    private static string? FindRoot()
+    internal static string? FindRoot()
     {
         foreach (var start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
         {

@@ -13,6 +13,7 @@ using Paddock.Domain.Spy;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Cars;
+using Paddock.Simulation.Time;
 
 namespace Paddock.Tests.Development;
 
@@ -62,7 +63,8 @@ internal sealed class DevelopmentKit
         FakeRules? rules = null,
         ITraceSink? sink = null,
         int skill = 14,
-        bool staff = true)
+        bool staff = true,
+        INextRaceSource? races = null)
     {
         Seed = seed;
         var (world, _) = WorldState.At(Opening).AddOrganization(Team(Alfa, "Alfa"));
@@ -96,7 +98,7 @@ internal sealed class DevelopmentKit
         Managers.Register(Anna, ManagerKind.Human, "Anna");
         Managers.Register(Bram, ManagerKind.Human, "Bram");
         Book = new DevelopmentBook(() => _world, next => _world = next, seed);
-        Environment = new DevelopmentEnvironment(Rules, Control, Sink);
+        Environment = new DevelopmentEnvironment(Rules, Control, Sink, races);
         Resolvers = new InboxResolvers();
         Inbox = new InboxBook(Resolvers);
         Dispatcher = new CommandDispatcher();
@@ -150,6 +152,18 @@ internal sealed class DevelopmentKit
                 Book.Write(outcome);
             }
 
+            Today = Today.AddDays(1);
+            _world = _world.WithDate(Today);
+        }
+    }
+
+    /// <summary>Lives <paramref name="days"/> days through the real day handler, which also asks the principals in the inbox (T42c).</summary>
+    public void LiveWithInbox(int days)
+    {
+        var registry = new DayHandlerRegistry([new DevelopmentDayHandler(Book, Environment, inbox: Inbox, managers: Managers)]);
+        for (var step = 0; step < days; step++)
+        {
+            WorldClock.AdvanceDay(new WorldClockState(Today, Seed), registry);
             Today = Today.AddDays(1);
             _world = _world.WithDate(Today);
         }

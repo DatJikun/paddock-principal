@@ -136,7 +136,25 @@ public static class DevelopmentEngine
         return new DevelopmentOutcome(state.Cars, state.Development, state.Finance, true);
     }
 
-    /// <summary>Deploys a finished (ready) concept now, whatever its timing.</summary>
+    /// <summary>
+    /// Commits a finished (ready) concept to production: the cost is posted now, the old car keeps racing, and the concept goes
+    /// live on the day after production ends. The caller has already checked who may do this.
+    /// </summary>
+    public static DevelopmentOutcome StartProduction(DevelopmentInputs inputs, string projectId)
+    {
+        ArgumentNullException.ThrowIfNull(inputs);
+        var project = inputs.Development.Find(projectId);
+        if (project is null || project.Kind != DevKind.Concept || project.Status != ProjectStatus.Ready)
+        {
+            throw new InvalidOperationException("Only a ready concept can be committed to production.");
+        }
+
+        var state = new TeamDay(project.Organization, inputs.Cars, inputs.Development, inputs.Finance, inputs, inputs.Rules.Era(inputs.Today.Year));
+        state.StartProductionNow(project);
+        return new DevelopmentOutcome(state.Cars, state.Development, state.Finance, true);
+    }
+
+    /// <summary>Deploys a finished (ready) concept now, whatever its timing, with no production time. Superseded by <see cref="StartProduction"/>; to be retired.</summary>
     public static DevelopmentOutcome DeployNow(DevelopmentInputs inputs, string projectId)
     {
         ArgumentNullException.ThrowIfNull(inputs);

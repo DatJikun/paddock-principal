@@ -29,6 +29,10 @@ public static class StringTable
         return map;
     }
 
+    /// <summary>Both languages with their plural forms, for the commands that print through <see cref="Localizer"/>.</summary>
+    public static TranslationCatalog LoadCatalog() =>
+        TranslationLoader.LoadDirectory(Path.GetDirectoryName(Find("strings/en.json"))!);
+
     public static string Required(this IReadOnlyDictionary<string, string> table, string key)
     {
         if (!table.TryGetValue(key, out string? value) || string.IsNullOrWhiteSpace(value))

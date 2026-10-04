@@ -7,33 +7,72 @@ namespace Paddock.Tests.SimRunner;
 public class RaceCommandTests
 {
     [Fact]
-    public void OneRace_PrintsQualifyingNarrativeAndClassification()
+    public void OneRace_PrintsTheReadableReport_NotTheEventLog()
     {
         var (code, lines, stderr) = Run("race", "--year", "1955", "--round", "1");
 
         Assert.Equal(0, code);
         Assert.Equal(string.Empty, stderr);
-        Assert.Contains(lines, l => l.StartsWith("Race report: 1955 season, round 1", StringComparison.Ordinal));
+        Assert.StartsWith("Race report: 1955 season, round 1", lines[0], StringComparison.Ordinal);
         Assert.Contains(lines, l => l.Contains("SYNTHETIC", StringComparison.Ordinal));
+        Assert.Contains("== Conditions ==", lines);
         Assert.Contains("== Qualifying ==", lines);
-        Assert.Contains("== Race ==", lines);
-        Assert.Contains("== Classification ==", lines);
-        Assert.Contains(lines, l => l.Contains("takes pole position", StringComparison.Ordinal));
-        Assert.Contains(lines, l => l.Contains("RaceStarted", StringComparison.Ordinal));
-        Assert.Contains(lines, l => l.Contains("Finished", StringComparison.Ordinal));
-        Assert.Contains(lines, l => l.Contains("RaceEnded", StringComparison.Ordinal));
+        Assert.Contains(lines, l => l.StartsWith("== The opening, laps 1-", StringComparison.Ordinal));
+        Assert.Contains("== Result ==", lines);
+        Assert.Contains("== Points ==", lines);
+        Assert.Contains(lines, l => l.Contains("took pole position", StringComparison.Ordinal));
+        Assert.Contains(lines, l => l.Contains("wins in", StringComparison.Ordinal));
+        Assert.Contains(lines, l => l.StartsWith("Fastest lap:", StringComparison.Ordinal));
         Assert.Contains(lines, l => l.EndsWith("points", StringComparison.Ordinal));
+        AssertNoRawEventNames(lines);
+
+        // No per-lap lines in the report itself.
+        Assert.DoesNotContain(lines, l => System.Text.RegularExpressions.Regex.IsMatch(l, @"^Lap \d+: driver-\d+ leads"));
+        Assert.DoesNotContain("== Lap by lap ==", lines);
     }
 
     [Fact]
-    public void TheNarrative_UsesTheSameLinesAsTheReplayTool_AndFullShowsEveryLap()
+    public void Verbose_AddsTheLapByLapSection()
     {
-        var short1 = Run("race", "--year", "1955", "--round", "1").Lines;
-        var full = Run("race", "--year", "1955", "--round", "1", "--full").Lines;
+        var plain = Run("race", "--year", "1955", "--round", "1").Lines;
+        var verbose = Run("race", "--year", "1955", "--round", "1", "--verbose").Lines;
 
-        Assert.True(full.Count > short1.Count);
+        Assert.Equal(plain, verbose.Take(plain.Count));
+        Assert.Contains("== Lap by lap ==", verbose);
+        Assert.Contains(verbose, l => System.Text.RegularExpressions.Regex.IsMatch(l, @"^Lap 2: driver-\d+ leads, lap time \d+:\d\d\.\d{3}\.$"));
+        AssertNoRawEventNames(verbose);
+    }
+
+    [Fact]
+    public void Log_PrintsTheOldRawLog_AndFullShowsEveryLap()
+    {
+        var log = Run("race", "--year", "1955", "--round", "1", "--log").Lines;
+        var full = Run("race", "--year", "1955", "--round", "1", "--log", "--full").Lines;
+
+        Assert.Contains("== Race ==", log);
+        Assert.Contains("== Classification ==", log);
+        Assert.Contains(log, l => l.Contains("RaceStarted", StringComparison.Ordinal));
+        Assert.Contains(log, l => l.Contains("Finished", StringComparison.Ordinal));
+        Assert.DoesNotContain("== Result ==", log);
+        Assert.True(full.Count > log.Count);
         Assert.Contains(full, l => System.Text.RegularExpressions.Regex.IsMatch(l, @"LapCompleted driver-\d+ lap .* P2 "));
-        Assert.DoesNotContain(short1, l => System.Text.RegularExpressions.Regex.IsMatch(l, @"LapCompleted driver-\d+ lap .* P2 "));
+        Assert.DoesNotContain(log, l => System.Text.RegularExpressions.Regex.IsMatch(l, @"LapCompleted driver-\d+ lap .* P2 "));
+    }
+
+    [Theory]
+    [InlineData("pl")]
+    [InlineData("en")]
+    public void TheReport_NeverQuotesAKeyOrAPlaceholder_InAnyEra(string language)
+    {
+        foreach (var year in new[] { 1950, 1955, 1970, 1988, 2000, 2022 })
+        {
+            var (code, lines, stderr) = Run("race", "--year", year.ToString(CultureInfo.InvariantCulture), "--round", "1", "--seed", "7", "--lang", language, "--verbose");
+
+            Assert.Equal(0, code);
+            Assert.Equal(string.Empty, stderr);
+            Assert.DoesNotContain(lines, l => l.Contains("report.", StringComparison.Ordinal) || System.Text.RegularExpressions.Regex.IsMatch(l, @"\{[a-z]+\}"));
+            AssertNoRawEventNames(lines);
+        }
     }
 
     [Fact]
@@ -43,8 +82,22 @@ public class RaceCommandTests
 
         Assert.Equal(0, code);
         Assert.Contains("== Kwalifikacje ==", lines);
-        Assert.Contains("== Klasyfikacja ==", lines);
+        Assert.Contains("== Wynik ==", lines);
         Assert.Contains(lines, l => l.StartsWith("Relacja z wyścigu: sezon 1955", StringComparison.Ordinal));
+        Assert.Contains(lines, l => l.Contains("zdobywa pole position", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TheEraIsFeltInTheData_NotInHardCodedText()
+    {
+        var fifties = Run("race", "--year", "1955", "--round", "1", "--seed", "7").Lines;
+        var eighties = Run("race", "--year", "1988", "--round", "1", "--seed", "7").Lines;
+
+        // 1955: shared cars and no constructors' points; 1988: no shared cars and a constructors' table.
+        Assert.Contains("== Shared drives ==", fifties);
+        Assert.DoesNotContain("== Shared drives ==", eighties);
+        Assert.DoesNotContain(fifties, l => l.Contains("constructor point", StringComparison.Ordinal));
+        Assert.Contains(eighties, l => l.Contains("constructor point", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -105,6 +158,10 @@ public class RaceCommandTests
     [InlineData("race", "--year", "1955", "--round", "1", "--bogus")]
     [InlineData("race", "--season", "1955", "--round", "1")]
     [InlineData("race", "--year", "1955", "--round")]
+    [InlineData("race", "--year", "1955", "--round", "1", "--full")]
+    [InlineData("race", "--year", "1955", "--round", "1", "--log", "--verbose")]
+    [InlineData("race", "--season", "1955", "--log")]
+    [InlineData("race", "--season", "1955", "--verbose")]
     public void BadArgumentsFail(params string[] args)
     {
         var (code, lines, stderr) = Run(args);
@@ -121,6 +178,20 @@ public class RaceCommandTests
 
         Assert.Equal(1, code);
         Assert.Contains("No layout is assigned", stderr, StringComparison.Ordinal);
+    }
+
+    private static void AssertNoRawEventNames(IEnumerable<string> lines)
+    {
+        string[] raw = ["RaceStarted", "LapCompleted", "PitStop", "PositionChange", "Retirement", "WeatherChange", "SafetyCar", "RedFlag", "FastestLap", "RaceEnded"];
+        foreach (var line in lines)
+        {
+            foreach (var name in raw)
+            {
+                Assert.DoesNotMatch("\\b" + name + "\\b", line);
+            }
+
+            Assert.DoesNotMatch(@"\bMechanical\b", line);
+        }
     }
 
     private static (int Code, List<string> Lines, string Stderr) Run(params string[] args)

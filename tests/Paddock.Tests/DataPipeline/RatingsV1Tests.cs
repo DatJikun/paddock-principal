@@ -169,10 +169,10 @@ public class RatingsV1Tests(ITestOutputHelper output)
         Assert.Equal(100, RatingsMapping.Overall(1.0));
 
         Assert.Equal(0.0, RatingsMapping.Stars(0.0));
-        Assert.Equal(0.0, RatingsMapping.Stars(0.0999));
-        Assert.Equal(0.5, RatingsMapping.Stars(0.10));
-        Assert.Equal(4.5, RatingsMapping.Stars(0.9949));
-        Assert.Equal(5.0, RatingsMapping.Stars(0.995));
+        Assert.Equal(0.0, RatingsMapping.Stars(0.0399));
+        Assert.Equal(0.5, RatingsMapping.Stars(0.04));
+        Assert.Equal(4.5, RatingsMapping.Stars(0.9699));
+        Assert.Equal(5.0, RatingsMapping.Stars(0.97));
         Assert.Equal(5.0, RatingsMapping.Stars(1.0));
 
         Assert.Equal(0.5, RatingsMapping.Percentile(5.0, [5.0]));

@@ -40,6 +40,31 @@ public static class DevelopmentKeys
     [TranslationKey]
     public const string BadTiming = "development.error.badTiming";
 
+    [TranslationKey]
+    public const string NotReady = "development.error.notReady";
+
+    /// <summary>Ledger reason of a committed concept's production cost.</summary>
+    [TranslationKey]
+    public const string LedgerProduction = "development.ledger.production";
+
+    [TranslationKey]
+    public const string ConceptSubject = "development.inbox.concept.subject";
+
+    [TranslationKey]
+    public const string ConceptCommitLabel = "development.inbox.concept.commit.label";
+
+    [TranslationKey]
+    public const string ConceptCommitConsequence = "development.inbox.concept.commit.consequence";
+
+    [TranslationKey]
+    public const string ConceptWaitLabel = "development.inbox.concept.wait.label";
+
+    [TranslationKey]
+    public const string ConceptWaitConsequence = "development.inbox.concept.wait.consequence";
+
+    [TranslationKey]
+    public const string StatusInProduction = "development.status.InProduction";
+
     /// <summary>Ledger reason of the weekly development spending.</summary>
     [TranslationKey]
     public const string LedgerSpend = "development.ledger.spend";
@@ -103,6 +128,13 @@ public static class DevelopmentKeys
 
     /// <summary>Inbox kind of the engineers' reply to a changed split. A stable code, not text.</summary>
     public const string InboxKind = "development.reply";
+
+    /// <summary>Inbox kind of the decision "commit this concept now or keep developing?". A stable code, not text.</summary>
+    public const string ConceptInboxKind = "development.concept";
+
+    public const string OptionCommit = "commit";
+
+    public const string OptionWait = "wait";
 
     public const string OptionKeep = "keep";
 

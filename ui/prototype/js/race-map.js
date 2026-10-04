@@ -1,728 +1,377 @@
 /* =========================================================================
- * PADDOCK PRINCIPAL · 2D INTERACTIVE TRACK MAP (PP-052 / Issue #153)
+ * PADDOCK PRINCIPAL · 2D TRACK MAP (PP-052)
  * -------------------------------------------------------------------------
- * Top-down 2D canvas track map with:
- * - Smooth pan (mouse drag) and zoom (wheel + controls)
- * - Auto-fit view to circuit bounding box
- * - Follow-selected-car camera mode
- * - Track geometry rendering (road ribbon, curbs, pit lane, S/F line)
- * - Swappable car renderer (dot vs sprite)
+ * Pure display. Input is a PositionFrame { raceTimeMs, cars: CarFrame[] }
+ * where CarFrame mirrors src/Paddock.Domain/Racing/CarFrame.cs:
+ *   { raceTimeMs, carId, distanceM, speedMps, inPitLane, pitDistanceM }
+ * The map never computes results; it only places the frames on the geometry.
+ * Anything the map moves for legibility (grid spreading, label placement) is
+ * a screen-space adjustment and never feeds back into the race.
  * ========================================================================= */
 
 (() => {
   'use strict';
 
-  // Corner names for Brands Hatch (authentic 1976 GP circuit)
-  const CORNER_NAMES = [
-    { s: 0.08, name: 'Paddock Hill Bend' },
-    { s: 0.17, name: 'Druids' },
-    { s: 0.28, name: 'Graham Hill Bend' },
-    { s: 0.38, name: 'Surtees' },
-    { s: 0.52, name: 'Hawthorns' },
-    { s: 0.65, name: 'Westfield' },
-    { s: 0.78, name: 'Dingle Dell' },
-    { s: 0.88, name: 'Stirling\'s' },
-    { s: 0.96, name: 'Clearways' }
-  ];
-
-  class RaceMapCanvas {
-    constructor(canvasEl, trackSpline, onCarSelect) {
-      this.canvas = canvasEl;
-      this.ctx = canvasEl.getContext('2d');
-      this.spline = trackSpline;
-      this.onCarSelect = onCarSelect;
-
-      // Transform state
-      this.panX = 0;
-      this.panY = 0;
-      this.zoom = 1.0;
-      this.minZoom = 0.4;
-      this.maxZoom = 12.0;
-
-      // Interaction state
-      this.isDragging = false;
-      this.dragStartX = 0;
-      this.dragStartY = 0;
-      this.hasDragged = false;
-      this.hoveredCarId = null;
-
-      // Follow camera
-      this.followMode = false;
-      this.selectedCarId = 3; // Default to Jody Scheckter (#3 Elf Tyrrell)
-
-      // Animation / latest frame data
-      this.lastFrame = null;
-      this.carTrails = new Map(); // carId -> [{x, y, alpha}]
-      this.animTime = 0;
-
-      this._initCanvasSize();
-      this._bindEvents();
-      this.resetView();
-    }
-
-    _initCanvasSize() {
-      const rect = this.canvas.parentElement.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      this.width = rect.width;
-      this.height = rect.height;
-      this.canvas.width = Math.round(rect.width * dpr);
-      this.canvas.height = Math.round(rect.height * dpr);
-      this.canvas.style.width = rect.width + 'px';
-      this.canvas.style.height = rect.height + 'px';
-      this.ctx.scale(dpr, dpr);
-    }
-
-    handleResize() {
-      if (!this.canvas || !this.canvas.parentElement) return;
-      const rect = this.canvas.parentElement.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return;
-      const dpr = window.devicePixelRatio || 1;
-      this.width = rect.width;
-      this.height = rect.height;
-      this.canvas.width = Math.round(rect.width * dpr);
-      this.canvas.height = Math.round(rect.height * dpr);
-      this.canvas.style.width = rect.width + 'px';
-      this.canvas.style.height = rect.height + 'px';
-      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-      this.ctx.scale(dpr, dpr);
-      if (this.lastFrame) this.render(this.lastFrame);
-    }
-
-    resetView() {
-      const b = this.spline.bounds;
-      const padding = 60;
-      const availW = Math.max(100, this.width - padding * 2);
-      const availH = Math.max(100, this.height - padding * 2);
-
-      const scaleX = availW / b.width;
-      const scaleY = availH / b.height;
-      this.zoom = Math.min(scaleX, scaleY);
-
-      // Center track in canvas
-      const trackCenterX = b.minX + b.width / 2;
-      const trackCenterY = b.minY + b.height / 2;
-      this.panX = this.width / 2 - trackCenterX * this.zoom;
-      this.panY = this.height / 2 - trackCenterY * this.zoom;
-    }
-
-    zoomBy(factor, centerX = this.width / 2, centerY = this.height / 2) {
-      const oldZoom = this.zoom;
-      const newZoom = Math.max(this.minZoom, Math.min(this.maxZoom, oldZoom * factor));
-      if (newZoom === oldZoom) return;
-
-      const worldX = (centerX - this.panX) / oldZoom;
-      const worldY = (centerY - this.panY) / oldZoom;
-
-      this.zoom = newZoom;
-      this.panX = centerX - worldX * newZoom;
-      this.panY = centerY - worldY * newZoom;
-
-      if (this.lastFrame) this.render(this.lastFrame);
-    }
-
-    setFollowMode(enabled) {
-      this.followMode = enabled;
-      if (this.lastFrame) this.render(this.lastFrame);
-    }
-
-    setSelectedCar(carId) {
-      this.selectedCarId = carId;
-      if (this.lastFrame) this.render(this.lastFrame);
-    }
-
-    _bindEvents() {
-      const c = this.canvas;
-
-      // Mouse Drag to Pan
-      c.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return;
-        this.isDragging = true;
-        this.hasDragged = false;
-        this.dragStartX = e.clientX;
-        this.dragStartY = e.clientY;
-      });
-
-      window.addEventListener('mousemove', (e) => {
-        const rect = c.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        if (this.isDragging) {
-          const dx = e.clientX - this.dragStartX;
-          const dy = e.clientY - this.dragStartY;
-          if (Math.hypot(dx, dy) > 4) {
-            this.hasDragged = true;
-            // Dragging releases follow camera
-            this.followMode = false;
-            if (this.onFollowChange) this.onFollowChange(false);
-          }
-          this.panX += dx;
-          this.panY += dy;
-          this.dragStartX = e.clientX;
-          this.dragStartY = e.clientY;
-          if (this.lastFrame) this.render(this.lastFrame);
-          return;
-        }
-
-        // Hover detection on cars
-        if (mouseX >= 0 && mouseX <= this.width && mouseY >= 0 && mouseY <= this.height) {
-          this._checkCarHover(mouseX, mouseY);
-        }
-      });
-
-      window.addEventListener('mouseup', (e) => {
-        if (!this.isDragging) return;
-        this.isDragging = false;
-        if (!this.hasDragged) {
-          // It was a click: test if user clicked a car
-          const rect = c.getBoundingClientRect();
-          const clickX = e.clientX - rect.left;
-          const clickY = e.clientY - rect.top;
-          this._handleCanvasClick(clickX, clickY);
-        }
-      });
-
-      // Mouse Wheel to Zoom
-      c.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const rect = c.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
-        this.zoomBy(factor, mouseX, mouseY);
-      }, { passive: false });
-
-      // Double click to focus
-      c.addEventListener('dblclick', (e) => {
-        const rect = c.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-        const clickedCar = this._findCarAt(clickX, clickY);
-        if (clickedCar) {
-          this.selectedCarId = clickedCar.carId;
-          this.followMode = true;
-          if (this.onFollowChange) this.onFollowChange(true);
-          if (this.onCarSelect) this.onCarSelect(clickedCar.carId);
-        } else {
-          this.resetView();
-        }
-      });
-    }
-
-    _checkCarHover(mouseX, mouseY) {
-      const car = this._findCarAt(mouseX, mouseY);
-      const newHover = car ? car.carId : null;
-      if (this.hoveredCarId !== newHover) {
-        this.hoveredCarId = newHover;
-        this.canvas.style.cursor = newHover ? 'pointer' : (this.isDragging ? 'grabbing' : 'grab');
-        if (this.lastFrame) this.render(this.lastFrame);
-      }
-    }
-
-    _handleCanvasClick(clickX, clickY) {
-      const car = this._findCarAt(clickX, clickY);
-      if (car) {
-        this.selectedCarId = car.carId;
-        this.followMode = true;
-        if (this.onFollowChange) this.onFollowChange(true);
-        if (this.onCarSelect) this.onCarSelect(car.carId);
-      }
-    }
-
-    _findCarAt(screenX, screenY) {
-      if (!this.lastFrame || !this.lastFrame.cars) return null;
-      const hitRadius = Math.max(16, 10 * this.zoom);
-
-      for (const car of this.lastFrame.cars) {
-        const pt = this._getCarWorldPos(car);
-        const sx = pt.x * this.zoom + this.panX;
-        const sy = pt.y * this.zoom + this.panY;
-        if (Math.hypot(screenX - sx, screenY - sy) <= hitRadius) {
-          return car;
+  /* ---------- track geometry: closed centripetal Catmull-Rom loop sampled by arc length ----------
+     Same curve as src/Paddock.Domain/World/Tracks/TrackGeometry.cs (alpha = 0.5, knots t += sqrt(chord)).
+     Each segment is a cubic, so it is stored as an exact Bezier; the tangents below are the derivatives
+     of the Barry-Goldman evaluation at the segment ends. Display only: the backend owns the truth.
+     Unit-tested against reference samples exported from TrackGeometry (ui/prototype/tests/track-spline.test.mjs). */
+  class TrackSpline {
+    constructor(controlPoints, lengthKm) {
+      this.lengthM = lengthKm * 1000;
+      this.samples = [];
+      this.total = 0;
+      this.beziers = [];
+      this.knotD = [];
+      const p = controlPoints, n = p.length, raw = [], firstOfSegment = [];
+      const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+      let perimeter = 0;
+      for (let i = 0; i < n; i++) perimeter += dist(p[i], p[(i + 1) % n]);
+      const stepLen = perimeter / 8000;   /* nominal arc step of the dense polyline, in control-point units */
+      for (let i = 0; i < n; i++) {
+        const a = p[(i - 1 + n) % n], b = p[i], c = p[(i + 1) % n], e = p[(i + 2) % n];
+        const t1 = Math.sqrt(dist(a, b)) || 1e-9, h = Math.sqrt(dist(b, c)) || 1e-9, t2 = t1 + h, t3 = t2 + (Math.sqrt(dist(c, e)) || 1e-9);
+        const m1 = [0, 1].map(k => h * ((b[k] - a[k]) / t1 - (c[k] - a[k]) / t2 + (c[k] - b[k]) / h));
+        const m2 = [0, 1].map(k => h * ((c[k] - b[k]) / h - (e[k] - b[k]) / (t3 - t1) + (e[k] - c[k]) / (t3 - t2)));
+        const b1 = [b[0] + m1[0] / 3, b[1] + m1[1] / 3], b2 = [c[0] - m2[0] / 3, c[1] - m2[1] / 3];
+        this.beziers.push([b, b1, b2, c]);
+        firstOfSegment.push(raw.length);
+        const steps = Math.max(12, Math.ceil(dist(b, c) / stepLen));
+        for (let j = 0; j < steps; j++) {
+          const u = j / steps, v = 1 - u;
+          const x = v * v * v * b[0] + 3 * v * v * u * b1[0] + 3 * v * u * u * b2[0] + u * u * u * c[0];
+          const y = v * v * v * b[1] + 3 * v * v * u * b1[1] + 3 * v * u * u * b2[1] + u * u * u * c[1];
+          const dx = 3 * v * v * (b1[0] - b[0]) + 6 * v * u * (b2[0] - b1[0]) + 3 * u * u * (c[0] - b2[0]);
+          const dy = 3 * v * v * (b1[1] - b[1]) + 6 * v * u * (b2[1] - b1[1]) + 3 * u * u * (c[1] - b2[1]);
+          const ddx = 6 * v * (b2[0] - 2 * b1[0] + b[0]) + 6 * u * (c[0] - 2 * b2[0] + b1[0]);
+          const ddy = 6 * v * (b2[1] - 2 * b1[1] + b[1]) + 6 * u * (c[1] - 2 * b2[1] + b1[1]);
+          const len = Math.hypot(dx, dy) || 1e-6;
+          raw.push({ x, y, tx: dx / len, ty: dy / len, nx: -dy / len, ny: dx / len, k: Math.abs(dx * ddy - dy * ddx) / len ** 3 });
         }
       }
-      return null;
+      let d = 0;
+      raw.forEach((r, i) => { if (i) d += Math.hypot(r.x - raw[i - 1].x, r.y - raw[i - 1].y); this.samples.push({ ...r, d }); });
+      this.total = d + Math.hypot(raw[0].x - raw[raw.length - 1].x, raw[0].y - raw[raw.length - 1].y);
+      this.knotD = firstOfSegment.map(i => this.samples[i].d);   /* arc length at every control point */
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, sx = 0, sy = 0;
+      for (const r of raw) { minX = Math.min(minX, r.x); maxX = Math.max(maxX, r.x); minY = Math.min(minY, r.y); maxY = Math.max(maxY, r.y); sx += r.x; sy += r.y; }
+      this.bounds = { minX, maxX, minY, maxY, w: maxX - minX, h: maxY - minY };
+      this.center = { x: sx / raw.length, y: sy / raw.length };
     }
 
-    _getCarWorldPos(car) {
-      const pt = this.spline.getPointAt(car.distanceNorm);
-      // Lane lateral offset in world space
-      const offsetScale = 1.6;
-      let effectiveOffset = car.laneOffset * offsetScale;
+    /* position of control point i as a fraction of the lap [0,1) */
+    knotFraction(i) { return this.knotD[((i % this.knotD.length) + this.knotD.length) % this.knotD.length] / this.total; }
 
-      // Pit lane offset
-      if (car.pitState === 'pitting' || car.pitState === 'in_box' || car.pitState === 'exiting') {
-        effectiveOffset = -3.2; // shifted inward into pit lane
-      }
-
-      return {
-        x: pt.x + pt.nx * effectiveOffset,
-        y: pt.y + pt.ny * effectiveOffset,
-        angle: pt.angle,
-        speedKmh: car.speedKmh
-      };
+    /* the closed curve as an SVG path of cubic Beziers ("M … C … Z"), exactly the curve `at()` samples */
+    svgPath(decimals = 1) {
+      const f = v => +v.toFixed(decimals), q = pt => `${f(pt[0])},${f(pt[1])}`;
+      let s = `M${q(this.beziers[0][0])}`;
+      for (const [, b1, b2, c] of this.beziers) s += `C${q(b1)} ${q(b2)} ${q(c)}`;
+      return s + 'Z';
     }
 
-    /**
-     * Main Render Loop
-     */
-    render(frame) {
-      this.lastFrame = frame;
-      this.animTime += 0.03;
-      const ctx = this.ctx;
-      const W = this.width;
-      const H = this.height;
-
-      // Update follow camera
-      if (this.followMode && this.selectedCarId) {
-        const followed = frame.cars.find(c => c.carId === this.selectedCarId);
-        if (followed) {
-          const pt = this._getCarWorldPos(followed);
-          const targetPanX = W / 2 - pt.x * this.zoom;
-          const targetPanY = H / 2 - pt.y * this.zoom;
-          // Smooth spring damping towards target
-          this.panX += (targetPanX - this.panX) * 0.16;
-          this.panY += (targetPanY - this.panY) * 0.16;
-        }
-      }
-
-      // Clear Canvas
-      ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      const dpr = window.devicePixelRatio || 1;
-      ctx.scale(dpr, dpr);
-      ctx.fillStyle = '#14171d'; // dark telemetry backdrop
-      ctx.fillRect(0, 0, W, H);
-
-      // Subtle background grid
-      this._drawBackgroundGrid(ctx, W, H);
-
-      // Apply World Camera Transform
-      ctx.translate(this.panX, this.panY);
-      ctx.scale(this.zoom, this.zoom);
-
-      // 1. Draw Track Runoff & Infield
-      this._drawTrackInfield(ctx);
-
-      // 2. Draw Pit Lane
-      this._drawPitLane(ctx);
-
-      // 3. Draw Track Ribbon & Curbs
-      this._drawTrackRibbon(ctx);
-
-      // 4. Draw Start / Finish Line & Corners
-      this._drawTrackDecorations(ctx);
-
-      // 5. Draw Car Trails
-      this._drawCarTrails(ctx, frame.cars);
-
-      // 6. Draw Cars (via Swappable Renderer)
-      this._drawCars(ctx, frame.cars);
-
-      ctx.restore();
-
-      // Draw Screen Space HUD Overlays (Scale, Corner Tag, Legend)
-      this._drawScreenOverlays(ctx, W, H, frame);
-    }
-
-    _drawBackgroundGrid(ctx, W, H) {
-      const gridSize = 40;
-      ctx.save();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let x = 0; x < W; x += gridSize) {
-        ctx.moveTo(x, 0); ctx.lineTo(x, H);
-      }
-      for (let y = 0; y < H; y += gridSize) {
-        ctx.moveTo(0, y); ctx.lineTo(W, y);
-      }
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    _drawTrackInfield(ctx) {
-      const samples = this.spline.samples;
-      if (!samples || samples.length < 3) return;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(samples[0].x, samples[0].y);
-      for (let i = 1; i < samples.length; i++) {
-        ctx.lineTo(samples[i].x, samples[i].y);
-      }
-      ctx.closePath();
-      // Very subtle green/dark infield tint
-      ctx.fillStyle = 'rgba(32, 44, 38, 0.22)';
-      ctx.fill();
-      ctx.restore();
-    }
-
-    _drawTrackRibbon(ctx) {
-      const samples = this.spline.samples;
-      const roadWidth = 6.4;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(samples[0].x, samples[0].y);
-      for (let i = 1; i < samples.length; i++) ctx.lineTo(samples[i].x, samples[i].y);
-      ctx.closePath();
-      // Red & white alternating dashed curb edges
-      ctx.strokeStyle = '#e03a3e';
-      ctx.lineWidth = roadWidth + 1.8;
-      ctx.setLineDash([2.2, 2.2]);
-      ctx.lineCap = 'butt';
-      ctx.stroke();
-
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineDashOffset = 2.2;
-      ctx.stroke();
-      ctx.restore();
-
-      // 2. Main Asphalt Surface
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(samples[0].x, samples[0].y);
-      for (let i = 1; i < samples.length; i++) {
-        ctx.lineTo(samples[i].x, samples[i].y);
-      }
-      ctx.closePath();
-      ctx.strokeStyle = '#282b33'; // Asphalt surface
-      ctx.lineWidth = roadWidth;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-
-      // 3. Track Edge Boundary Lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-      ctx.lineWidth = 0.45;
-      ctx.stroke();
-
-      // 4. Center Dashed Guide Line
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx.lineWidth = 0.3;
-      ctx.setLineDash([1.5, 2.5]);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    _drawPitLane(ctx) {
-      // Pit lane runs along main straight
-      const sStart = 0.93;
-      const sEnd = 0.07;
-      const pitRoadWidth = 3.6;
-
-      ctx.save();
-      ctx.beginPath();
-      let started = false;
-
-      for (let s = sStart; s <= 1.0; s += 0.005) {
-        const pt = this.spline.getPointAt(s);
-        const px = pt.x - pt.nx * 3.4;
-        const py = pt.y - pt.ny * 3.4;
-        if (!started) { ctx.moveTo(px, py); started = true; }
-        else ctx.lineTo(px, py);
-      }
-      for (let s = 0.0; s <= sEnd; s += 0.005) {
-        const pt = this.spline.getPointAt(s);
-        const px = pt.x - pt.nx * 3.4;
-        const py = pt.y - pt.ny * 3.4;
-        ctx.lineTo(px, py);
-      }
-
-      ctx.strokeStyle = '#22252c';
-      ctx.lineWidth = pitRoadWidth;
-      ctx.lineCap = 'round';
-      ctx.stroke();
-
-      // Pit lane edge line (yellow caution line)
-      ctx.strokeStyle = 'rgba(230, 184, 0, 0.55)';
-      ctx.lineWidth = 0.35;
-      ctx.setLineDash([]);
-      ctx.stroke();
-
-      // Pit stalls marker
-      const midPt = this.spline.getPointAt(0.99);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-      ctx.font = 'bold 1.8px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('PITS', midPt.x - midPt.nx * 3.4, midPt.y - midPt.ny * 3.4);
-      ctx.restore();
-    }
-
-    _drawTrackDecorations(ctx) {
-      // Start / Finish Line
-      const sf = this.spline.samples[0];
-      const sfLen = 3.8;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(sf.x - sf.nx * sfLen, sf.y - sf.ny * sfLen);
-      ctx.lineTo(sf.x + sf.nx * sfLen, sf.y + sf.ny * sfLen);
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 0.9;
-      ctx.stroke();
-
-      // Gold S/F accent tick
-      ctx.strokeStyle = '#f5c518';
-      ctx.lineWidth = 0.35;
-      ctx.stroke();
-
-      // Start / Finish Label
-      if (this.zoom > 1.2) {
-        ctx.fillStyle = '#f5c518';
-        ctx.font = 'bold 1.6px Archivo, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('START / FINISH', sf.x + sf.nx * (sfLen + 2.5), sf.y + sf.ny * (sfLen + 2.5));
-      }
-
-      // Corner Name Tags (visible at higher zoom levels)
-      if (this.zoom > 1.8) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-        ctx.font = '500 1.5px Archivo, sans-serif';
-        ctx.textAlign = 'center';
-        for (const c of CORNER_NAMES) {
-          const pt = this.spline.getPointAt(c.s);
-          const tx = pt.x + pt.nx * 5.2;
-          const ty = pt.y + pt.ny * 5.2;
-          ctx.fillText(c.name, tx, ty);
-        }
-      }
-      ctx.restore();
-    }
-
-    _drawCarTrails(ctx, cars) {
-      // Fading motion trails
-      ctx.save();
-      for (const car of cars) {
-        if (car.status === 'retired' || car.speedKmh < 10) continue;
-        const pt = this._getCarWorldPos(car);
-
-        // Store trail history
-        if (!this.carTrails.has(car.carId)) this.carTrails.set(car.carId, []);
-        const trail = this.carTrails.get(car.carId);
-        trail.push({ x: pt.x, y: pt.y, time: this.animTime });
-        if (trail.length > 5) trail.shift();
-
-        // Draw trail dots
-        for (let i = 0; i < trail.length - 1; i++) {
-          const t = trail[i];
-          const alpha = (i + 1) / (trail.length * 4);
-          ctx.fillStyle = car.livery.primary;
-          ctx.globalAlpha = alpha;
-          ctx.beginPath();
-          ctx.arc(t.x, t.y, 0.8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      ctx.restore();
-    }
-
-    _drawCars(ctx, cars) {
-      // Draw in back-to-front order (leader & selected drawn last on top)
-      const sorted = [...cars].sort((a, b) => {
-        if (a.carId === this.selectedCarId) return 1;
-        if (b.carId === this.selectedCarId) return -1;
-        if (a.isPlayer) return 1;
-        if (b.isPlayer) return -1;
-        return a.position - b.position;
-      });
-
-      for (const car of sorted) {
-        const pt = this._getCarWorldPos(car);
-        const isSelected = (car.carId === this.selectedCarId);
-        const isHovered = (car.carId === this.hoveredCarId);
-        const isPlayer = !!car.isPlayer;
-
-        this.renderCar(ctx, car, pt.x, pt.y, pt.angle, this.zoom, isSelected, isHovered, isPlayer);
-      }
-    }
-
-    /* =========================================================================
-     * RENDERER SWAP POINT (PP-052 / Issue #153)
-     * -------------------------------------------------------------------------
-     * This function renders a single car onto the 2D track map.
-     *
-     * CURRENT MVP IMPLEMENTATION:
-     * Renders car as a high-contrast dot with authentic 1976 team livery colors,
-     * crisp border, driver number when zoomed in, and glowing halo rings for
-     * the player's team (Elf Tyrrell) and currently selected/followed driver.
-     *
-     * FUTURE SWAP POINT (R-FRAMES / Post-MVP continuous simulation):
-     * To swap to top-down car sprites, 2D vector chassis, or 3D meshes:
-     * Replace the circle drawing block below with sprite/chassis rendering
-     * oriented using headingAngle. The input contract:
-     *   (ctx, car, worldX, worldY, headingAngle, zoom, isSelected, isHovered, isPlayer)
-     * is already complete, deterministic, and fully decoupled from the engine.
-     * ========================================================================= */
-    renderCar(ctx, car, worldX, worldY, headingAngle, zoom, isSelected, isHovered, isPlayer) {
-      ctx.save();
-      ctx.translate(worldX, worldY);
-
-      // Dynamic dot radius based on zoom level
-      const baseRadius = 1.35;
-      const r = Math.max(0.9, Math.min(2.8, baseRadius + (zoom - 1) * 0.18));
-
-      // 1. Player Team (Tyrrell #3 / #4) Ambient Halo
-      if (isPlayer) {
-        ctx.beginPath();
-        ctx.arc(0, 0, r + 1.4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(31, 79, 154, 0.35)'; // Tyrrell Elf Blue glow
-        ctx.fill();
-        ctx.strokeStyle = '#e03a3e'; // Tyrrell red accent ring
-        ctx.lineWidth = 0.35;
-        ctx.stroke();
-      }
-
-      // 2. Selected Car Animated Target Reticle / Halo
-      if (isSelected) {
-        const pulse = 1 + Math.sin(this.animTime * 6) * 0.15;
-        ctx.beginPath();
-        ctx.arc(0, 0, (r + 1.8) * pulse, 0, Math.PI * 2);
-        ctx.strokeStyle = '#f5c518'; // High-contrast gold tracking ring
-        ctx.lineWidth = 0.6;
-        ctx.stroke();
-
-        // Crosshair ticks
-        const tLen = r + 2.8;
-        ctx.beginPath();
-        ctx.moveTo(0, -tLen); ctx.lineTo(0, -r - 1.2);
-        ctx.moveTo(0, tLen); ctx.lineTo(0, r + 1.2);
-        ctx.moveTo(-tLen, 0); ctx.lineTo(-r - 1.2, 0);
-        ctx.moveTo(tLen, 0); ctx.lineTo(r + 1.2, 0);
-        ctx.strokeStyle = '#f5c518';
-        ctx.lineWidth = 0.45;
-        ctx.stroke();
-      }
-
-      // 3. Hover Highlight Ring
-      if (isHovered && !isSelected) {
-        ctx.beginPath();
-        ctx.arc(0, 0, r + 1.1, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
-        ctx.lineWidth = 0.4;
-        ctx.stroke();
-      }
-
-      // 4. Car Body Dot (Team Livery Primary Color)
-      ctx.beginPath();
-      ctx.arc(0, 0, r, 0, Math.PI * 2);
-      ctx.fillStyle = car.livery.primary;
-      ctx.fill();
-
-      // 5. High-Contrast Border
-      ctx.lineWidth = isPlayer ? 0.55 : 0.4;
-      ctx.strokeStyle = car.livery.secondary || '#ffffff';
-      ctx.stroke();
-
-      // 6. Heading Pointer (subtle nose indicator pointing forward)
-      ctx.save();
-      ctx.rotate(headingAngle);
-      ctx.fillStyle = car.livery.secondary || '#ffffff';
-      ctx.beginPath();
-      ctx.arc(r - 0.2, 0, 0.45, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // 7. Driver Number (Rendered inside or next to dot when zoomed in)
-      if (zoom >= 1.35 || isSelected || isHovered) {
-        ctx.fillStyle = car.livery.text || '#ffffff';
-        ctx.font = `bold ${Math.max(1.2, r * 1.1)}px Archivo, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(String(car.carId), 0, 0.05);
-      }
-
-      // 8. Floating Telemetry Badge for Selected / Hovered Car
-      if (isSelected || isHovered) {
-        const badgeY = -(r + 3.0);
-        const nameText = `#${car.carId} ${car.driverName.split(' ').pop()}`;
-        const speedText = `${Math.round(car.speedKmh)} km/h`;
-
-        ctx.font = 'bold 1.4px Archivo, sans-serif';
-        const w1 = ctx.measureText(nameText).width;
-        ctx.font = '1.2px Archivo, sans-serif';
-        const w2 = ctx.measureText(speedText).width;
-        const boxW = Math.max(w1, w2) + 2.4;
-        const boxH = 4.2;
-
-        ctx.fillStyle = 'rgba(18, 20, 26, 0.9)';
-        ctx.strokeStyle = isSelected ? '#f5c518' : 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 0.3;
-        ctx.beginPath();
-        ctx.roundRect(-boxW / 2, badgeY - boxH / 2, boxW, boxH, 0.8);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 1.35px Archivo, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(nameText, 0, badgeY - boxH / 2 + 0.6);
-
-        ctx.fillStyle = '#a0aab8';
-        ctx.font = '1.15px Archivo, sans-serif';
-        ctx.fillText(speedText, 0, badgeY - boxH / 2 + 2.3);
-      }
-
-      ctx.restore();
-    }
-    /* =================== END RENDERER SWAP POINT =================== */
-
-    _drawScreenOverlays(ctx, W, H, frame) {
-      // Draw screen space HUD overlays (Zoom scale indicator, followed driver badge)
-      ctx.save();
-
-      // Bottom-Left: Selected / Followed Car HUD pill
-      if (this.selectedCarId) {
-        const sel = frame.cars.find(c => c.carId === this.selectedCarId);
-        if (sel) {
-          const pillX = 16;
-          const pillY = H - 42;
-          const pillW = 270;
-          ctx.fillStyle = 'rgba(20, 23, 29, 0.88)';
-          ctx.strokeStyle = sel.isPlayer ? '#e03a3e' : '#f5c518';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.roundRect(pillX, pillY, pillW, 28, 8);
-          ctx.fill();
-          ctx.stroke();
-
-          // Dot
-          ctx.fillStyle = sel.livery.primary;
-          ctx.beginPath();
-          ctx.arc(pillX + 16, pillY + 14, 6, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#fff';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-
-          // Driver label
-          ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 12px Archivo, sans-serif';
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(`P${sel.position} · #${sel.carId} ${sel.driverName}`, pillX + 28, pillY + 14);
-
-          // Follow status tag
-          ctx.fillStyle = this.followMode ? '#48bb78' : '#a0aec0';
-          ctx.font = '10px Archivo, sans-serif';
-          ctx.textAlign = 'right';
-          ctx.fillText(this.followMode ? 'ŚLEDZENIE' : 'MANUALNY', pillX + pillW - 12, pillY + 14);
-        }
-      }
-
-      // Bottom-Right: Map Zoom Level Indicator
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-      ctx.font = '11px Archivo, sans-serif';
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(`Zoom: ${this.zoom.toFixed(1)}x`, W - 16, H - 14);
-
-      ctx.restore();
+    /* point at a fraction of the lap, [0,1) */
+    at(f) {
+      const s = ((f % 1) + 1) % 1, target = s * this.total, S = this.samples;
+      let lo = 0, hi = S.length - 1;
+      while (lo <= hi) { const m = (lo + hi) >> 1; if (S[m].d < target) lo = m + 1; else hi = m - 1; }
+      const i0 = Math.max(0, lo - 1), p0 = S[i0], p1 = S[(i0 + 1) % S.length];
+      const seg = (i0 + 1 < S.length ? p1.d : this.total) - p0.d || 1e-6, t = Math.min(1, Math.max(0, (target - p0.d) / seg));
+      const L = (a, b) => a + (b - a) * t;
+      const nx = L(p0.nx, p1.nx), ny = L(p0.ny, p1.ny), nl = Math.hypot(nx, ny) || 1;
+      return { x: L(p0.x, p1.x), y: L(p0.y, p1.y), nx: nx / nl, ny: ny / nl, tx: ny / nl, ty: -nx / nl, k: L(p0.k, p1.k) };
     }
   }
 
-  window.RaceMapCanvas = RaceMapCanvas;
+  /* ---------- pure screen-space layout helpers (unit-tested in ui/prototype/tests) ---------- */
+  const RaceLayout = {
+    /* Spread cars that would draw on top of each other.
+       items: [{ id, s }] where s = position along the track in screen px (larger = further ahead).
+       Returns Map id -> { s, lane } with lane in {-1, 0, 1}. Order along the track is kept,
+       a lone car keeps its exact position, clustered cars go two-wide (like a starting grid). */
+    separate(items, spacing) {
+      const out = new Map(), sorted = [...items].sort((a, b) => b.s - a.s);
+      let prev = null, laneLast = null, clusterHead = null;
+      for (const it of sorted) {
+        const inCluster = prev && prev.d - it.s < spacing;
+        if (!inCluster) {
+          const rec = { s: it.s, lane: 0 };
+          out.set(it.id, rec);
+          prev = { d: it.s, lane: 0, rec }; clusterHead = rec; laneLast = null;
+          continue;
+        }
+        if (!laneLast) { clusterHead.lane = -1; prev.lane = -1; laneLast = { '-1': clusterHead.s, '1': Infinity }; }
+        const lane = -prev.lane;
+        const d = Math.min(it.s, laneLast[lane] - spacing, prev.d - spacing / 2);
+        laneLast[lane] = d;
+        const rec = { s: d, lane };
+        out.set(it.id, rec);
+        prev = { d, lane, rec };
+      }
+      return out;
+    },
+
+    /* Place text labels next to anchors without overlapping each other, the track or the edges.
+       anchors: [{ key, x, y, ox, oy, w, h }] (ox, oy = unit vector pointing away from the track)
+       obstacles: [{ x, y }] points the label box must not cover
+       area: { x0, y0, x1, y1 } where labels may go
+       Returns [{ key, cx, cy, w, h, ax, ay }]; anchors with no free spot are left out. */
+    placeLabels(anchors, obstacles, area, pad = 3) {
+      const placed = [];
+      const hitsBox = (a, b) => Math.abs(a.cx - b.cx) * 2 < a.w + b.w + pad * 2 && Math.abs(a.cy - b.cy) * 2 < a.h + b.h + pad * 2;
+      const hitsPoint = (a, p) => Math.abs(a.cx - p.x) * 2 < a.w + pad * 2 && Math.abs(a.cy - p.y) * 2 < a.h + pad * 2;
+      for (const an of anchors) {
+        let best = null;
+        for (const side of [1, -1]) {
+          for (const dist of [14, 24, 36, 50]) {
+            for (const slide of [0, 0.6, -0.6]) {
+              const ox = an.ox * side, oy = an.oy * side;
+              /* push the box out by its half-extent along the offset so the near edge sits at `dist` */
+              const ext = Math.abs(ox) * an.w / 2 + Math.abs(oy) * an.h / 2;
+              const c = { cx: an.x + ox * (dist + ext) - oy * slide * an.w, cy: an.y + oy * (dist + ext) + ox * slide * an.h, w: an.w, h: an.h };
+              if (c.cx - c.w / 2 < area.x0 || c.cx + c.w / 2 > area.x1 || c.cy - c.h / 2 < area.y0 || c.cy + c.h / 2 > area.y1) continue;
+              if (placed.some(p => hitsBox(c, p))) continue;
+              if (obstacles.some(p => hitsPoint(c, p))) continue;
+              best = c; break;
+            }
+            if (best) break;
+          }
+          if (best) break;
+        }
+        if (best) placed.push({ key: an.key, ...best, ax: an.x, ay: an.y });
+      }
+      return placed;
+    },
+  };
+
+  /* ---------- the map ---------- */
+  const PIT_FROM = 0.93, PIT_SPAN = 0.14; /* pit lane along the main straight, fraction of the lap (estimate) */
+
+  class RaceMap {
+    /* entries: Map carId -> { no, livery: { primary, secondary, text }, mine } ; corners: [[fraction, name]] */
+    constructor(canvas, spline, entries, corners) {
+      this.cv = canvas; this.ctx = canvas.getContext('2d');
+      this.sp = spline; this.entries = entries; this.corners = corners || [];
+      this.inset = { l: 0, t: 0, r: 0, b: 0 };
+      this.zoom = 1; this.fitZoom = 1; this.panX = 0; this.panY = 0;
+      this.follow = false; this.selected = null; this.hover = null;
+      this.frame = null; this.drawn = []; this.onSelect = null; this.onFollow = null; this.onView = null;
+      this.colors = { bg: '#15181e', road: '#2c3038', edge: 'rgba(255,255,255,.28)', label: 'rgba(236,231,220,.62)', accent: '#f5c518' };
+      this._resize(); this._bind(); this.fit();
+    }
+
+    destroy() { this._ac.abort(); }
+
+    setInset(ins) { this.inset = ins; }
+    setFollow(on) { this.follow = on; if (this.onFollow) this.onFollow(on); }
+    select(id) { this.selected = id; }
+
+    _resize() {
+      const r = this.cv.parentElement.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+      this.W = r.width; this.H = r.height;
+      this.cv.width = Math.round(r.width * dpr); this.cv.height = Math.round(r.height * dpr);
+      this.cv.style.width = r.width + 'px'; this.cv.style.height = r.height + 'px';
+      this.dpr = dpr;
+    }
+    resize() { const z = this.zoom / this.fitZoom; this._resize(); const keep = z; this.fit(); if (keep !== 1) this.zoomBy(keep); this.draw(); }
+
+    /* free area = canvas minus the overlays */
+    area() { const i = this.inset; return { x0: i.l, y0: i.t, x1: this.W - i.r, y1: this.H - i.b }; }
+
+    fit() {
+      const b = this.sp.bounds, a = this.area(), pad = 48;
+      const w = Math.max(100, a.x1 - a.x0 - pad * 2), h = Math.max(100, a.y1 - a.y0 - pad * 2);
+      this.fitZoom = this.zoom = Math.min(w / b.w, h / b.h);
+      this.panX = (a.x0 + a.x1) / 2 - (b.minX + b.w / 2) * this.zoom;
+      this.panY = (a.y0 + a.y1) / 2 - (b.minY + b.h / 2) * this.zoom;
+      this._view();
+    }
+
+    zoomBy(f, cx, cy) {
+      const a = this.area();
+      cx = cx ?? (a.x0 + a.x1) / 2; cy = cy ?? (a.y0 + a.y1) / 2;
+      const z = Math.max(this.fitZoom * 0.7, Math.min(this.fitZoom * 14, this.zoom * f));
+      const wx = (cx - this.panX) / this.zoom, wy = (cy - this.panY) / this.zoom;
+      this.zoom = z; this.panX = cx - wx * z; this.panY = cy - wy * z;
+      this._view(); this.draw();
+    }
+    _view() { if (this.onView) this.onView(this.zoom / this.fitZoom); }
+
+    _bind() {
+      this._ac = new AbortController();
+      const o = { signal: this._ac.signal }, c = this.cv;
+      let drag = null;
+      const local = e => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+      c.addEventListener('pointerdown', e => { if (e.button) return; drag = { x: e.clientX, y: e.clientY, moved: false }; c.setPointerCapture(e.pointerId); }, o);
+      c.addEventListener('pointermove', e => {
+        if (drag) {
+          const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+          if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+          if (!drag.moved) { drag.moved = true; if (this.follow) this.setFollow(false); }
+          this.panX += dx; this.panY += dy; drag.x = e.clientX; drag.y = e.clientY;
+          c.style.cursor = 'grabbing'; this.draw(); return;
+        }
+        const [x, y] = local(e), h = this._hit(x, y);
+        if (h !== this.hover) { this.hover = h; this.draw(); }
+        c.style.cursor = h ? 'pointer' : 'grab';
+      }, o);
+      c.addEventListener('pointerup', e => {
+        if (drag && !drag.moved) { const [x, y] = local(e), h = this._hit(x, y); if (this.onSelect) this.onSelect(h); }
+        drag = null; c.style.cursor = this.hover ? 'pointer' : 'grab';
+      }, o);
+      c.addEventListener('pointerleave', () => { if (this.hover) { this.hover = null; this.draw(); } }, o);
+      c.addEventListener('wheel', e => { e.preventDefault(); const [x, y] = local(e); this.zoomBy(e.deltaY < 0 ? 1.2 : 1 / 1.2, x, y); }, { passive: false, signal: this._ac.signal });
+    }
+
+    _hit(x, y) {
+      let best = null, bd = 14;
+      for (const d of this.drawn) { const k = Math.hypot(d.x - x, d.y - y); if (k < bd) { bd = k; best = d.id; } }
+      return best;
+    }
+
+    /* screen-space radius of a dot */
+    _r() { return Math.max(5.5, Math.min(11, 5.5 * Math.sqrt(this.zoom / this.fitZoom))); }
+
+    /* where every car is drawn this frame (screen px), after legibility spreading */
+    _layout(cars) {
+      const arcPx = this.sp.total * this.zoom, L = this.sp.lengthM, r = this._r();
+      const track = [], pit = [];
+      for (const c of cars) {
+        /* physical spot on the lap (a lapped car sits where it sits) */
+        if (c.inPitLane) pit.push({ id: c.carId, s: (PIT_FROM + PIT_SPAN * Math.min(1, c.pitDistanceM / (PIT_SPAN * L))) * arcPx });
+        else track.push({ id: c.carId, s: (((c.distanceM / L) % 1 + 1) % 1) * arcPx });
+      }
+      const spacing = r * 2 + 2;
+      const lay = new Map([...RaceLayout.separate(track, spacing), ...RaceLayout.separate(pit, spacing)]);
+      const pitIds = new Set(pit.map(p => p.id)), out = [];
+      for (const c of cars) {
+        const l = lay.get(c.carId), p = this.sp.at(l.s / arcPx);
+        const side = pitIds.has(c.carId) ? -this._pitOff() : l.lane * (r + 1);
+        out.push({ id: c.carId, car: c, x: this.panX + p.x * this.zoom + p.nx * side, y: this.panY + p.y * this.zoom + p.ny * side, tx: p.tx, ty: p.ty });
+      }
+      return out;
+    }
+    _roadPx() { return Math.max(9, 0.85 * this.zoom); }
+    _pitOff() { return this._roadPx() * 0.5 + Math.max(6, this._roadPx() * 0.45); }
+
+    render(frame) { this.frame = frame; this.draw(); }
+
+    draw() {
+      if (!this.frame) return;
+      const ctx = this.ctx, W = this.W, H = this.H, col = this.colors;
+      let pos = this._layout(this.frame.cars);
+      if (this.follow && this.selected) {
+        const f = pos.find(p => p.id === this.selected), a = this.area();
+        if (f) {
+          const dx = ((a.x0 + a.x1) / 2 - f.x) * 0.18, dy = ((a.y0 + a.y1) / 2 - f.y) * 0.18;
+          this.panX += dx; this.panY += dy; pos = pos.map(p => ({ ...p, x: p.x + dx, y: p.y + dy }));
+        }
+      }
+      this.drawn = pos;
+      ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      ctx.fillStyle = col.bg; ctx.fillRect(0, 0, W, H);
+      this._grid(ctx);
+      this._track(ctx);
+      this._labels(ctx);
+      /* draw order: field, then the player's cars, then hover and selection on top */
+      const rank = p => (p.id === this.selected ? 3 : p.id === this.hover ? 2 : this.entries.get(p.id)?.mine ? 1 : 0);
+      for (const p of [...pos].sort((a, b) => rank(a) - rank(b))) this.renderCar(ctx, p, this.entries.get(p.id), this._r(), p.id === this.selected, p.id === this.hover);
+    }
+
+    _grid(ctx) {
+      const step = 48;
+      ctx.strokeStyle = 'rgba(255,255,255,.028)'; ctx.lineWidth = 1; ctx.beginPath();
+      const ox = ((this.panX % step) + step) % step, oy = ((this.panY % step) + step) % step;
+      for (let x = ox; x < this.W; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, this.H); }
+      for (let y = oy; y < this.H; y += step) { ctx.moveTo(0, y); ctx.lineTo(this.W, y); }
+      ctx.stroke();
+    }
+
+    _path(ctx, off = 0, from = 0, to = 1) {
+      ctx.beginPath();
+      const n = Math.max(24, Math.round((to - from) * 600));
+      for (let i = 0; i <= n; i++) {
+        const p = this.sp.at(from + (to - from) * i / n);
+        const x = this.panX + p.x * this.zoom + p.nx * off, y = this.panY + p.y * this.zoom + p.ny * off;
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+    }
+
+    _track(ctx) {
+      const road = this._roadPx(), c = this.colors;
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      /* pit lane */
+      this._path(ctx, -this._pitOff(), PIT_FROM, PIT_FROM + PIT_SPAN);
+      ctx.strokeStyle = '#22262d'; ctx.lineWidth = Math.max(5, road * 0.55); ctx.stroke();
+      ctx.strokeStyle = 'rgba(230,184,0,.4)'; ctx.lineWidth = 1; ctx.stroke();
+      /* kerb band, road, edge */
+      this._path(ctx); ctx.closePath();
+      ctx.strokeStyle = 'rgba(255,255,255,.07)'; ctx.lineWidth = road + 8; ctx.stroke();
+      ctx.strokeStyle = c.road; ctx.lineWidth = road; ctx.stroke();
+      ctx.strokeStyle = c.edge; ctx.lineWidth = 1; ctx.setLineDash([2, 5]); ctx.stroke(); ctx.setLineDash([]);
+      /* start / finish: chequer across the road */
+      const p = this.sp.at(0), x = this.panX + p.x * this.zoom, y = this.panY + p.y * this.zoom, half = road / 2 + 3, sq = Math.max(2.5, road / 6);
+      ctx.save(); ctx.translate(x, y); ctx.rotate(Math.atan2(p.ny, p.nx));
+      for (let i = -half, k = 0; i < half; i += sq, k++) for (let j = 0; j < 2; j++) { ctx.fillStyle = (k + j) % 2 ? '#111' : '#f4efe4'; ctx.fillRect(i, -sq + j * sq, sq, sq); }
+      ctx.restore();
+    }
+
+    _labels(ctx) {
+      if (!this.corners.length) return;
+      const fs = 11, a = this.area();
+      ctx.font = `600 ${fs}px Archivo, sans-serif`;
+      const cx = this.panX + this.sp.center.x * this.zoom, cy = this.panY + this.sp.center.y * this.zoom;
+      const anchors = this.corners.map(([f, name]) => {
+        const p = this.sp.at(f), x = this.panX + p.x * this.zoom, y = this.panY + p.y * this.zoom;
+        const out = (x - cx) * p.nx + (y - cy) * p.ny >= 0 ? 1 : -1;
+        const text = name.toUpperCase();
+        return { key: text, x, y, ox: p.nx * out, oy: p.ny * out, w: ctx.measureText(text).width + 4, h: fs + 4, edge: this._roadPx() / 2 };
+      });
+      anchors.forEach(an => { an.x += an.ox * an.edge; an.y += an.oy * an.edge; });
+      const obstacles = [], half = this._roadPx() / 2 + 3;
+      for (let i = 0; i < this.sp.samples.length; i += 3) {
+        const s = this.sp.samples[i], x = this.panX + s.x * this.zoom, y = this.panY + s.y * this.zoom;
+        obstacles.push({ x, y }, { x: x + s.nx * half, y: y + s.ny * half }, { x: x - s.nx * half, y: y - s.ny * half });
+      }
+      const placed = RaceLayout.placeLabels(anchors, obstacles, { x0: a.x0 + 6, y0: a.y0 + 6, x1: a.x1 - 6, y1: a.y1 - 6 });
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (const l of placed) {
+        ctx.strokeStyle = 'rgba(236,231,220,.22)'; ctx.lineWidth = 1; ctx.beginPath();
+        /* short leader from the kerb to the label's nearest edge */
+        const ex = Math.max(l.cx - l.w / 2, Math.min(l.ax, l.cx + l.w / 2)), ey = Math.max(l.cy - l.h / 2, Math.min(l.ay, l.cy + l.h / 2));
+        ctx.moveTo(l.ax, l.ay); ctx.lineTo(ex, ey); ctx.stroke();
+        ctx.fillStyle = this.colors.label; ctx.fillText(l.key, l.cx, l.cy + 0.5);
+      }
+    }
+
+    /* =====================================================================
+     * RENDERER SWAP POINT (PP-052)
+     * One car, in screen space. `p` = { x, y, tx, ty } (position and unit
+     * heading), `e` = entry { no, livery, mine }, `r` = dot radius in px.
+     * Today: a dot in team colours with the race number. For car silhouettes
+     * replace the body of this method (rotate by atan2(p.ty, p.tx) and draw a
+     * sprite); the map, layout and hit-testing do not need to change.
+     * ===================================================================== */
+    renderCar(ctx, p, e, r, selected, hovered) {
+      const lv = e.livery;
+      ctx.save(); ctx.translate(p.x, p.y);
+      if (e.mine) { ctx.beginPath(); ctx.arc(0, 0, r + 3, 0, 7); ctx.strokeStyle = lv.accent || '#e03a3e'; ctx.lineWidth = 1.6; ctx.stroke(); }
+      if (selected) { ctx.beginPath(); ctx.arc(0, 0, r + 6, 0, 7); ctx.strokeStyle = this.colors.accent; ctx.lineWidth = 2; ctx.stroke(); }
+      else if (hovered) { ctx.beginPath(); ctx.arc(0, 0, r + 5, 0, 7); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.5; ctx.stroke(); }
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, 7);
+      ctx.fillStyle = lv.primary; ctx.fill();
+      ctx.lineWidth = 1.2; ctx.strokeStyle = lv.secondary; ctx.stroke();
+      if (r >= 7.5 || selected || hovered) {
+        ctx.fillStyle = lv.text; ctx.font = `700 ${Math.round(r * 1.05)}px Archivo, sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(e.no, 0, 0.5);
+      }
+      ctx.restore();
+    }
+    /* =================== END RENDERER SWAP POINT =================== */
+  }
+
+  const g = typeof window !== 'undefined' ? window : globalThis;
+  g.TrackSpline = TrackSpline; g.RaceMap = RaceMap; g.RaceLayout = RaceLayout;
+  if (typeof module !== 'undefined') module.exports = { TrackSpline, RaceLayout };
 })();

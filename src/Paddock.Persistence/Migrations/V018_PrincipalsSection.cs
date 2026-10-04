@@ -7,9 +7,9 @@ namespace Paddock.Persistence;
 /// review and what it remembers between reviews. A save from before this migration has no principals section, which loads as no
 /// section, so its hash is unchanged. Dates are <c>yyyy-MM-dd</c> text and ids are not foreign keys (rules of V003 and V005).
 /// </summary>
-public sealed class V017_PrincipalsSection : ISaveMigration
+public sealed class V018_PrincipalsSection : ISaveMigration
 {
-    public int Version => 17;
+    public int Version => 18;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

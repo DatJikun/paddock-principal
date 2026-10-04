@@ -98,7 +98,7 @@ public class PrincipalsSectionTests : IDisposable
     public void ASaveFromBeforeThePrincipalsMigrationLoadsWithNoSectionAndTheSameHash()
     {
         var path = Path.Combine(_directory, "old.paddock");
-        var before = SaveMigrations.Production.TakeWhile(migration => migration is not V017_PrincipalsSection).ToArray();
+        var before = SaveMigrations.Production.TakeWhile(migration => migration is not V018_PrincipalsSection).ToArray();
         var world = WorldFixtures.Small();
         using (var created = SaveFile.Create(path, WorldFixtures.Meta(), before))
         {

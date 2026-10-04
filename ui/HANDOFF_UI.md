@@ -97,6 +97,12 @@ Dla nowej sesji (Opus 5.5, wyższy effort). Przeczytaj w całości, zanim zaczni
   - Wynik wyścigu jest skutkiem tego, co się działo na torze, a nie odwrotnie.
 - **Co to oznacza dla backendu (do oceny przy planowaniu fazy 3/6):** UI tylko wyświetla strumień zdarzeń i pozycji (TECH §3: brak logiki gry w UI, determinizm). Dzisiejszy silnik jest oparty na okrążeniach, a ta wizja wymaga ciągłej symulacji pozycji na torze. Kierunek wskazują PP-048 i PP-049 (geometria toru z punktów kontrolnych, profil prędkości z krzywizny i fizyki auta). Czy silnik ma być w pełni ciągły, czy hybrydowy (okrążenia plus lokalna symulacja walki), jest do rozstrzygnięcia; **to nowa decyzja, więc wymaga wpisu PP**, nie edycji starych.
 - Reszta ekranu (klasyfikacja, pit-stopy, radio, Race Spy) zostaje jak w uwadze „oglądanie wyścigu i pit-stopy: OK”.
+- **Tryb wyścigu (uwaga właściciela, 2026-10-04, zrobione w prototypie):** wyścig to **osobny tryb**, nie podstrona powłoki.
+  - Wejście z pulpitu w dzień wyścigu („Wyścig” w górnym pasku albo „Oglądaj na żywo” w rundzie), przejście „kurtyną” w barwach zespołu z nazwą GP. Wyjście tylko przez „Wróć do gry”: po mecie w pasku tempa i na karcie wyniku. Pulpit wraca dokładnie w tym stanie, w jakim był.
+  - Technicznie: `#race-root` to własny pełnoekranowy korzeń. Na czas trybu węzeł `.app` (menu, górny pasek, ekrany) jest **wyjmowany z dokumentu**, a po wyjściu wstawiany z powrotem (`js/race-mode.js`, `RaceMode.enter/exit`). Nie ukrywamy powłoki CSS-em.
+  - Układ: mapa toru na cały ekran (kółko i przyciski: zoom; przeciąganie: przesuwanie; F: śledzenie auta; 0: cały tor). Na mapie tylko lekkie nakładki: pasek stanu (runda, okrążenie, flaga, czas, pogoda), tempo symulacji (spacja: pauza), wieża czasowa po lewej (T: schowaj/pokaż), karta wybranego auta (klik w kropkę albo wiersz; Esc zamyka), boks dla naszych aut (wybór opon, potem „Potwierdź”) i komunikaty radia/dyrekcji wyścigu.
+  - Mapa rysuje wyłącznie klatki `CarFrame` (te same pola co `src/Paddock.Domain/Racing/CarFrame.cs`). Rozsuwanie kropek na starcie i rozmieszczenie nazw zakrętów to wyłącznie układ na ekranie, nie zmienia wyników (`RaceLayout` w `js/race-map.js`, testy: `node --test "ui/prototype/tests/*.test.mjs"`).
+  - Źródło klatek to na razie atrapa `MockRaceFeed` (`js/race-sim.js`); liczby w niej są szacunkowe. Do podpięcia taśmy z R-FRAMES (#152).
 
 ### Klasyfikacje
 - OK, ale **konstruktorzy ładują się dłużej** (animacja wejścia). Ma być równo.
@@ -246,7 +252,7 @@ Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloto
 
 ## 8. Stan po sesji przebudowy (2026-09-26)
 
-Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane i mapki torów to atrapa.
+Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane są atrapą. Kształty torów z plikiem w `data/authored/tracks/geometry` rysują się z tego pliku (TECH §6.5: edycja JSON-a lub edytor torów, potem `node ui/prototype/tools/build-track-geometry.mjs`, podgląd w `track-preview.html`).
 
 **Zrobione (kroki 1–4 z §6, w wersji szkicowej):**
 - **Komponenty** (`css/app.css`, `js/ui.js`):
@@ -271,8 +277,15 @@ Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane i mapki torów to 
 - **Przebudowane:** kalendarz, porównanie (działające zakładki), personel, akademia (miejsca i pula), infrastruktura, dostawcy, sponsorzy, finanse (rozwijane pozycje), zarząd (właściciel jako postać), rynek (zwarta tabela z podglądem), Monthly (działające działy i właściwe linki), FIA (głosowanie w skrzynce), ustawienia.
 - **Tryb „Opinie”** zapisuje się i zmienia profil kierowcy (cytaty zamiast atrybutów). Skórki lat 90. i 20. są oznaczone jako niedostępne.
 - **Barwy:** tryb „Zespół” zmienia tło, akcenty i dym, więc różnica jest wyraźna.
+- **Auto i rozwój** (PP-043, ścieżka A, `js/screens-dev.js`, #130): gracz nie wybiera części.
+  - **Podział zasobów:** bieżące auto / konto rozwoju / przyszły rok (krok 5 pp, suma musi dać 100%) i priorytety czterech obszarów (0–10) z miejscem w stawce. Zmiany działają dopiero po „Potwierdź”.
+  - **Projekty wybierają inżynierowie:** tabela „W toku” pokazuje stan, dlaczego (cytat osoby, obszar, priorytet) i prognozę (przedział zysku, termin, ryzyko). Zakładki „Zakończone” (efekt, zrozumienie) i „Koncepcja auta” (osie).
+  - **Zatwierdzenie koncepcji zamiast zegara (uwaga właściciela, 2026-10-04):** gotowa koncepcja ma status, przedział dalszego zysku, dni do wyścigu i czas produkcji. Decyzje „Wdrażamy teraz” i „Czekamy” (osobne „Potwierdź”). Zatwierdzenie uruchamia produkcję, a koncepcja trafia do auta po jej końcu (oś z wyścigami na starym aucie). Dawnych terminów „po N wyścigach” na ekranie nie ma.
+  - **Odpowiedź inżyniera** jak wiadomość ze skrzynki („jeszcze 2 tygodnie”): „Trzymamy plan” albo „Tniemy projekt”. Obie decyzje są też w Skrzynce (#9, #10) i dzielą stan z ekranem.
+  - **Prawda a wiedza:** gracz widzi tylko przedziały i szacunki (zysk, ryzyko, konto). Dane to atrapa w `DB.car.dev` o neutralnym kształcie, bo nazwy po stronie backendu jeszcze się ustalają; liczby są szacunkowe.
+  - Test: `ui/prototype/tests/dev-screen.test.mjs` (na Node 22 uruchamiaj z globem: `node --test "ui/prototype/tests/*.test.mjs"`).
 
 **Znane braki:**
 - Profil kierowcy przewija się na 1440×900 (ok. 120 px) i minimalnie na 1620×860.
-- Sylwetki torów są rysowane z pamięci i przybliżone.
-- Auto i rozwój bez zmian: czeka na decyzję właściciela o systemie z §4.
+- Sylwetki torów bez pliku geometrii (dziś wszystkie poza Monzą 1972) są nadal rysowane z pamięci i przybliżone (`map` w `data.js`); geometrie z pliku to też szacunki.
+- Auto i rozwój: ścieżka B (ręczny wybór projektów) nie ma ekranu, a podział zasobów nie ma jeszcze reakcji skrzynki na własną zmianę (odpowiedź inżyniera jest gotowa w danych).

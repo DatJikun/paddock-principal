@@ -269,7 +269,7 @@ public sealed class CareerResumeTests : IDisposable
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Intakes = -1 }, arrivals, Options()));
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { World = loaded.World.WithoutSection(TalentPoolSection.SectionName) }, arrivals, Options()));
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Years = [.. loaded.Years, loaded.Years[0]] }, arrivals, Options()));
-        Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Years = [new CareerYearSummary(1956, 0, 0, 0, 0, "x")] }, arrivals, Options()));
+        Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Years = [new CareerYearSummary(1956, 0, 0, 0, 0, "x", 0, 0, 0)] }, arrivals, Options()));
         var retired = loaded.World.Persons.First(person => person.IsRetired).Id;
         var pool = loaded.World.Section<TalentPoolSection>(TalentPoolSection.SectionName)!;
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { World = loaded.World.WithSection(pool.EnterAll([retired], loaded.World.CurrentDate)) }, arrivals, Options()));

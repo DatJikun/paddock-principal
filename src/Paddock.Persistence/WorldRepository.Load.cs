@@ -95,9 +95,12 @@ public sealed partial class WorldRepository
         int openedYear;
         int expiries;
         int intakes;
+        int seasonSigned;
+        int seasonRenewed;
+        int seasonExpired;
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT opened_year, contract_expiries, intakes FROM career_run";
+            command.CommandText = "SELECT opened_year, contract_expiries, intakes, season_signed, season_renewed, season_expired FROM career_run";
             using var reader = command.ExecuteReader();
             if (!reader.Read())
             {
@@ -107,12 +110,15 @@ public sealed partial class WorldRepository
             openedYear = ToInt(reader.GetInt64(0));
             expiries = ToInt(reader.GetInt64(1));
             intakes = ToInt(reader.GetInt64(2));
+            seasonSigned = ToInt(reader.GetInt64(3));
+            seasonRenewed = ToInt(reader.GetInt64(4));
+            seasonExpired = ToInt(reader.GetInt64(5));
         }
 
         var years = new List<StoredYear>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT year, alive, retired, pool, contracts, state_hash FROM career_years ORDER BY year";
+            command.CommandText = "SELECT year, alive, retired, pool, contracts, state_hash, signed, renewed, expired FROM career_years ORDER BY year";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -122,11 +128,14 @@ public sealed partial class WorldRepository
                     ToInt(reader.GetInt64(2)),
                     ToInt(reader.GetInt64(3)),
                     ToInt(reader.GetInt64(4)),
-                    reader.GetString(5)));
+                    reader.GetString(5),
+                    ToInt(reader.GetInt64(6)),
+                    ToInt(reader.GetInt64(7)),
+                    ToInt(reader.GetInt64(8))));
             }
         }
 
-        return new CareerRunState(openedYear, expiries, intakes, years);
+        return new CareerRunState(openedYear, expiries, intakes, years, seasonSigned, seasonRenewed, seasonExpired);
     }
 
     private void RequireWorld()

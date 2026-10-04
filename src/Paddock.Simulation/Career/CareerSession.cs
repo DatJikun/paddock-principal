@@ -11,7 +11,16 @@ using Paddock.Simulation.Time;
 namespace Paddock.Simulation.Career;
 
 /// <summary>Counts and the world-state hash on the morning after a season closes (1 January).</summary>
-public sealed record CareerYearSummary(int Year, int Alive, int Retired, int Pool, int Contracts, string StateHash);
+public sealed record CareerYearSummary(
+    int Year,
+    int Alive,
+    int Retired,
+    int Pool,
+    int Contracts,
+    string StateHash,
+    int Signed,
+    int Renewed,
+    int Expired);
 
 /// <summary>
 /// Optional knobs for <see cref="CareerSession"/>. The pool settings default to the ESTIMATES in <see cref="PoolEstimates"/>.
@@ -40,7 +49,10 @@ public sealed record CareerSessionResume(
     int OpenedYear,
     int ContractExpiries,
     int Intakes,
-    IReadOnlyList<CareerYearSummary> Years);
+    IReadOnlyList<CareerYearSummary> Years,
+    int SeasonSigned = 0,
+    int SeasonRenewed = 0,
+    int SeasonExpired = 0);
 
 /// <summary>
 /// One career's world and day clock.
@@ -51,7 +63,8 @@ public sealed record CareerSessionResume(
 /// </summary>
 public sealed class CareerSession
 {
-    private readonly DayHandlerRegistry _registry;
+    private DayHandlerRegistry _registry;
+    private bool _handlersAttached;
     private readonly int _openedYear;
     private readonly TalentPoolDayHandler _poolHandler;
     private readonly Dictionary<int, List<PersonId>> _birthdays = new();
@@ -192,6 +205,15 @@ public sealed class CareerSession
 
     public int ContractExpiries { get; private set; }
 
+    /// <summary>Contracts signed since the current season opened. Reset when the season summary is taken.</summary>
+    public int SeasonSigned { get; private set; }
+
+    /// <summary>Renewals of a contract the same organization already held, plus options exercised. Reset with <see cref="SeasonSigned"/>.</summary>
+    public int SeasonRenewed { get; private set; }
+
+    /// <summary>Contracts that reached their end date since the current season opened.</summary>
+    public int SeasonExpired { get; private set; }
+
     /// <summary>People who entered the pool after the session opened: scheduled real drivers and fictional fillers.</summary>
     public int Intakes => _poolHandler.Entries;
 
@@ -229,7 +251,7 @@ public sealed class CareerSession
             throw new ArgumentException("The run cannot have opened after the saved date.", nameof(saved));
         }
 
-        if (saved.ContractExpiries < 0 || saved.Intakes < 0)
+        if (saved.ContractExpiries < 0 || saved.Intakes < 0 || saved.SeasonSigned < 0 || saved.SeasonRenewed < 0 || saved.SeasonExpired < 0)
         {
             throw new ArgumentException("The saved tallies cannot be negative.", nameof(saved));
         }
@@ -271,6 +293,9 @@ public sealed class CareerSession
         var session = new CareerSession(saved.World, saved.Clock, saved.OpenedYear, [], arrivals, options)
         {
             ContractExpiries = saved.ContractExpiries,
+            SeasonSigned = saved.SeasonSigned,
+            SeasonRenewed = saved.SeasonRenewed,
+            SeasonExpired = saved.SeasonExpired,
         };
         session._poolHandler.Entries = saved.Intakes;
         session._years.AddRange(saved.Years);
@@ -292,6 +317,56 @@ public sealed class CareerSession
         World = next;
     }
 
+    /// <summary>
+    /// Adds day handlers once, before the first day is lived. The career host uses this for the contract handlers, which live
+    /// in the application layer and so cannot be constructed here.
+    /// </summary>
+    public void AttachHandlers(IReadOnlyList<IDayHandler> handlers)
+    {
+        ArgumentNullException.ThrowIfNull(handlers);
+        if (_handlersAttached)
+        {
+            throw new InvalidOperationException("Day handlers are already attached.");
+        }
+
+        _handlersAttached = true;
+        if (handlers.Count == 0)
+        {
+            return;
+        }
+
+        var combined = new List<IDayHandler>(_registry.Handlers.Count + handlers.Count);
+        combined.AddRange(_registry.Handlers);
+        combined.AddRange(handlers);
+        _registry = new DayHandlerRegistry(combined);
+    }
+
+    /// <summary>
+    /// The named stream for the season being lived, continued from the clock when a previous day already drew from it.
+    /// The caller draws, then <see cref="KeepStream"/> writes the generator back so the day tick continues it.
+    /// </summary>
+    public Xoshiro256StarStar BorrowStream(string streamName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(streamName);
+        var slot = new RngStreamSlot(streamName, _clock.Date.Year);
+        return _clock.RngStates.TryGetValue(slot, out var saved)
+            ? new Xoshiro256StarStar(saved)
+            : RngStreams.Derive(_clock.MasterSeed, streamName, _clock.Date.Year);
+    }
+
+    /// <summary>Stores a stream <see cref="BorrowStream"/> handed out, after the caller has drawn from it.</summary>
+    public void KeepStream(string streamName, Xoshiro256StarStar generator)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(streamName);
+        ArgumentNullException.ThrowIfNull(generator);
+        var slot = new RngStreamSlot(streamName, _clock.Date.Year);
+        var copy = new Dictionary<RngStreamSlot, RngState>(_clock.RngStates)
+        {
+            [slot] = generator.State,
+        };
+        _clock = _clock with { RngStates = copy };
+    }
+
     /// <summary>Lives the current day, then moves the world and the clock to the next morning.</summary>
     public void LiveDay()
     {
@@ -300,14 +375,57 @@ public sealed class CareerSession
             throw new InvalidOperationException("The world date and the day clock have diverged.");
         }
 
+        var before = World.Contracts
+            .Select(contract => (contract.Id.Value, contract.PersonId.Value, contract.OrganizationId.Value, contract.End))
+            .ToArray();
+        var expiries = ContractExpiries;
         var lived = _clock.Date;
         var step = WorldClock.AdvanceDay(_clock, _registry);
         _clock = step.State;
         World = World.WithDate(_clock.Date);
+        AccountContracts(before, expiries);
         if (lived.IsSeasonEnd)
         {
             _years.Add(Summarize(lived.Year));
+            SeasonSigned = 0;
+            SeasonRenewed = 0;
+            SeasonExpired = 0;
         }
+    }
+
+    private void AccountContracts(
+        (string Id, string Person, string Organization, GameDate End)[] before,
+        int expiriesBefore)
+    {
+        var previous = new Dictionary<string, GameDate>(before.Length, StringComparer.Ordinal);
+        foreach (var contract in before)
+        {
+            previous[contract.Id] = contract.End;
+        }
+
+        foreach (var contract in World.Contracts)
+        {
+            if (!previous.TryGetValue(contract.Id.Value, out var end))
+            {
+                SeasonSigned++;
+                foreach (var earlier in before)
+                {
+                    if (earlier.Person == contract.PersonId.Value
+                        && earlier.Organization == contract.OrganizationId.Value
+                        && earlier.End < contract.Start)
+                    {
+                        SeasonRenewed++;
+                        break;
+                    }
+                }
+            }
+            else if (contract.End > end)
+            {
+                SeasonRenewed++;
+            }
+        }
+
+        SeasonExpired += ContractExpiries - expiriesBefore;
     }
 
     private CareerYearSummary Summarize(int year)
@@ -336,7 +454,7 @@ public sealed class CareerSession
             }
         }
 
-        return new CareerYearSummary(year, alive, retired, Pool.Count, contracts, World.StateHash());
+        return new CareerYearSummary(year, alive, retired, Pool.Count, contracts, World.StateHash(), SeasonSigned, SeasonRenewed, SeasonExpired);
     }
 
     /// <summary>

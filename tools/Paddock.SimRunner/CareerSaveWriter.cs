@@ -65,7 +65,7 @@ public static class CareerSaveWriter
         var years = new List<StoredYear>(session.Years.Count);
         foreach (var year in session.Years)
         {
-            years.Add(new StoredYear(year.Year, year.Alive, year.Retired, year.Pool, year.Contracts, year.StateHash));
+            years.Add(new StoredYear(year.Year, year.Alive, year.Retired, year.Pool, year.Contracts, year.StateHash, year.Signed, year.Renewed, year.Expired));
         }
 
         var snapshot = new WorldSnapshot(
@@ -81,7 +81,10 @@ public static class CareerSaveWriter
                 session.OpenedYear,
                 session.ContractExpiries,
                 session.Intakes,
-                years),
+                years,
+                session.SeasonSigned,
+                session.SeasonRenewed,
+                session.SeasonExpired),
             RngStates = RngStatesOf(clock),
         };
         var meta = new SaveMeta(

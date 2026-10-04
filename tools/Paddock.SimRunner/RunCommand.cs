@@ -358,6 +358,9 @@ public static class RunCommand
                 ("retired", Number(year.Retired)),
                 ("pool", Number(year.Pool)),
                 ("contracts", Number(year.Contracts)),
+                ("signed", Number(year.Signed)),
+                ("renewed", Number(year.Renewed)),
+                ("expired", Number(year.Expired)),
                 ("hash", year.StateHash)));
         }
     }

@@ -67,6 +67,35 @@ public sealed class CareerResumeTests : IDisposable
     }
 
     [Fact]
+    public void AContractAddedAfterOpeningExpiresOnTheSameDayWhenTheRunIsResumed()
+    {
+        // The contract is signed after the session exists, the way a renewal is. Its end date is not known at opening.
+        var options = new CareerSessionOptions
+        {
+            Pool = new TalentPoolOptions { TargetSize = 0 },
+            LastSeasons = new Dictionary<string, int> { ["d1"] = 1960, ["d10"] = 1960 },
+        };
+        var end = new GameDate(1952, 12, 31);
+
+        var whole = Opened(options);
+        AddContract(whole, PersonId.Real("d10"), end);
+        LiveThrough(whole, new GameDate(1953, 1, 1));
+
+        var first = Opened(options);
+        AddContract(first, PersonId.Real("d10"), end);
+        LiveThrough(first, new GameDate(1952, 1, 1));
+        var loaded = CareerSaveReader.Read(Save(first, FreshHost(), "added-contract.paddock"));
+        var resumed = CareerSession.Resume(loaded.Session, PendingArrivals(loaded.Session.World.CurrentDate), options);
+        LiveThrough(resumed, new GameDate(1953, 1, 1));
+
+        var expected = whole.Years.Single(year => year.Year == 1952);
+        Assert.Equal(2, expected.Expired);
+        Assert.Equal(expected, resumed.Years.Single(year => year.Year == 1952));
+        Assert.Equal(whole.ContractExpiries, resumed.ContractExpiries);
+        Assert.Equal(whole.World.StateHash(), resumed.World.StateHash());
+    }
+
+    [Fact]
     public void TheFixtureReallyExercisesIntakeArrivalsRetirementsAndExpiries()
     {
         var whole = NewSession();
@@ -293,8 +322,26 @@ public sealed class CareerResumeTests : IDisposable
     private static IReadOnlyList<ScheduledArrival> PendingArrivals(GameDate date) =>
         [.. Arrivals().Where(arrival => arrival.On >= date)];
 
-    private static CareerSession NewSession() =>
-        new(World(), Seed, [PersonId.Real("d1"), PersonId.Real("d2"), PersonId.Real("d7")], Arrivals(), Options());
+    private static CareerSession NewSession() => Opened(Options());
+
+    private static CareerSession Opened(CareerSessionOptions options) =>
+        new(World(), Seed, [PersonId.Real("d1"), PersonId.Real("d2"), PersonId.Real("d7")], Arrivals(), options);
+
+    private static void AddContract(CareerSession session, PersonId person, GameDate end)
+    {
+        var team = session.World.Organizations[0].Id;
+        var (world, _) = session.World.AddContract(new ContractSpec(
+            person,
+            team,
+            ContractRole.Driver(SeatStatus.Equal),
+            session.Date,
+            end,
+            0,
+            true,
+            null,
+            null));
+        session.StoreWorld(world);
+    }
 
     private static CareerHostState FreshHost()
     {

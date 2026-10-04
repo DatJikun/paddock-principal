@@ -68,7 +68,6 @@ public sealed class CareerSession
     private readonly int _openedYear;
     private readonly TalentPoolDayHandler _poolHandler;
     private readonly Dictionary<int, List<PersonId>> _birthdays = new();
-    private readonly Dictionary<GameDate, ContractId[]> _expiries = new();
     private readonly Dictionary<GameDate, ScheduledArrival[]> _arrivals = new();
     private readonly IReadOnlyDictionary<string, int> _lastSeasons;
     private readonly Dictionary<GameDate, List<PersonId>> _lastSeasonRetirements = new();
@@ -157,24 +156,6 @@ public sealed class CareerSession
         {
             pair.Value.Sort(static (left, right) => string.CompareOrdinal(ArrivalKey(left), ArrivalKey(right)));
             _arrivals.Add(pair.Key, pair.Value.ToArray());
-        }
-
-        var groupedContracts = new Dictionary<GameDate, List<ContractId>>();
-        foreach (var contract in world.Contracts)
-        {
-            if (!groupedContracts.TryGetValue(contract.End, out var list))
-            {
-                list = [];
-                groupedContracts.Add(contract.End, list);
-            }
-
-            list.Add(contract.Id);
-        }
-
-        foreach (var pair in groupedContracts)
-        {
-            pair.Value.Sort(static (left, right) => string.CompareOrdinal(left.Value, right.Value));
-            _expiries.Add(pair.Key, pair.Value.ToArray());
         }
 
         _poolHandler = new TalentPoolDayHandler(
@@ -623,24 +604,21 @@ public sealed class CareerSession
 
         public void OnDay(DayContext context)
         {
-            if (!_session._expiries.TryGetValue(context.Today, out var due))
-            {
-                return;
-            }
-
-            var present = new HashSet<string>(StringComparer.Ordinal);
+            // The end dates are read from the world, not from a list taken when the session opened. Renewals sign
+            // contracts after that, and a resumed session would otherwise count those later contracts while the run
+            // that never stopped would not.
+            var due = new List<ContractId>();
             foreach (var contract in _session.World.Contracts)
             {
-                present.Add(contract.Id.Value);
+                if (contract.End == context.Today)
+                {
+                    due.Add(contract.Id);
+                }
             }
 
+            due.Sort(static (left, right) => string.CompareOrdinal(left.Value, right.Value));
             foreach (var id in due)
             {
-                if (!present.Contains(id.Value))
-                {
-                    continue;
-                }
-
                 context.Emit(CareerEventType.ContractExpired, new MarkerPayload(id.Value));
                 _session.ContractExpiries++;
             }

@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.Json;
 using Paddock.Domain.People;
 using Paddock.SimRunner;
 
@@ -68,8 +67,9 @@ public class GenPeopleCommandTests
     private static string Explanation(string language)
     {
         string path = Path.Combine(RepoPaths.Root(), "strings", language + ".json");
-        Dictionary<string, string> table = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(path))!;
-        return table[GenPeopleCommand.RatingExplanationKey].Replace(
+        // The catalog loader, not a flat string map: the catalog now has plural entries (objects) as well.
+        var table = Paddock.Application.Localization.TranslationLoader.LoadFile(path);
+        return table[GenPeopleCommand.RatingExplanationKey].Text!.Replace(
             "{starThreshold}",
             GenerationEstimates.StarPotential.ToString(CultureInfo.InvariantCulture),
             StringComparison.Ordinal);

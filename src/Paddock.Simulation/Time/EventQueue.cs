@@ -19,6 +19,48 @@ public sealed class EventQueue
         NextSequence = nextSequence;
     }
 
+    /// <summary>
+    /// Rebuilds a saved queue exactly: each event keeps its own <see cref="ScheduledEvent.Sequence"/> and the next insert
+    /// gets <paramref name="nextSequence"/>, so the order of events that are scheduled after a load is the same as in a
+    /// run that never stopped. Ids and sequences must be unique and every sequence must be below the counter.
+    /// </summary>
+    public static EventQueue Restore(IReadOnlyList<ScheduledEvent> events, ulong nextSequence)
+    {
+        ArgumentNullException.ThrowIfNull(events);
+        var ids = new HashSet<string>(events.Count, StringComparer.Ordinal);
+        var sequences = new HashSet<ulong>(events.Count);
+        var ordered = new ScheduledEvent[events.Count];
+        for (var i = 0; i < ordered.Length; i++)
+        {
+            var scheduled = events[i] ?? throw new ArgumentException("The saved queue lists a null event.", nameof(events));
+            if (scheduled.Sequence >= nextSequence)
+            {
+                throw new ArgumentException(
+                    $"Event '{scheduled.Id.Value}' has sequence {scheduled.Sequence}, which is not below the queue counter {nextSequence}.",
+                    nameof(events));
+            }
+
+            if (!ids.Add(scheduled.Id.Value))
+            {
+                throw new ArgumentException($"Event id '{scheduled.Id.Value}' is saved twice.", nameof(events));
+            }
+
+            if (!sequences.Add(scheduled.Sequence))
+            {
+                throw new ArgumentException($"Sequence {scheduled.Sequence} is saved twice.", nameof(events));
+            }
+
+            ordered[i] = scheduled;
+        }
+
+        Array.Sort(ordered, static (left, right) =>
+        {
+            var date = left.Date.CompareTo(right.Date);
+            return date != 0 ? date : left.Sequence.CompareTo(right.Sequence);
+        });
+        return new EventQueue(ordered, nextSequence);
+    }
+
     public int Count => _ordered.Length;
 
     public ulong NextSequence { get; }

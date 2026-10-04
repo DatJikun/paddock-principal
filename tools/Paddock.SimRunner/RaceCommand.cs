@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
+using Paddock.Application.Localization;
+using Paddock.Application.Racing;
 using Paddock.Application.Spy;
 using Paddock.Data.Authored;
 using Paddock.Domain.Racing;
@@ -14,9 +16,11 @@ using Paddock.Simulation.Racing.Weekend;
 namespace Paddock.SimRunner;
 
 /// <summary>
-/// <c>race --year Y --round N [--seed S] [--grid fixture] [--spy] [--lang pl|en] [--full] [--hash] [--timing]</c> runs one race weekend
-/// (<see cref="RaceWeekend"/>) on the SYNTHETIC fixture field of the era and prints the report: qualifying, the narrative
-/// (the same lines as <c>race-replay</c>, through <see cref="RaceEventText"/>) and the classification with points.
+/// <c>race --year Y --round N [--seed S] [--grid fixture] [--spy] [--lang pl|en] [--verbose] [--log [--full]] [--hash] [--timing]</c>
+/// runs one race weekend (<see cref="RaceWeekend"/>) on the SYNTHETIC fixture field of the era and prints the readable race
+/// report (<see cref="RaceReportBuilder"/>): conditions, qualifying, the race in phases, pit stops, shared drives, the result and
+/// the points, through the translation keys of both languages. <c>--verbose</c> adds the lap by lap section. <c>--log</c> prints the
+/// old raw event log instead (the same lines as <c>race-replay</c>, through <see cref="RaceEventText"/>, then the classification table).
 /// <c>race --season Y [--seed S] [--lang pl|en]</c> runs every round of a season and prints the drivers' table after each round.
 /// Read-only: nothing is saved (INV-001). <c>--spy</c> also prints the developer's decision traces and the true weather;
 /// the race is the same either way (INV-006). <c>--hash</c> prints the SHA-256 of the tape JSON, the number the golden
@@ -30,7 +34,7 @@ public static class RaceCommand
     public const ulong DefaultSeed = 20_261_003UL;
 
     private const string Usage =
-        "Usage: race --year <int> --round <int> [--seed <ulong>] [--grid fixture] [--spy] [--lang pl|en] [--full] [--hash] [--timing] | race --season <int> [--seed <ulong>] [--lang pl|en] [--timing]";
+        "Usage: race --year <int> --round <int> [--seed <ulong>] [--grid fixture] [--spy] [--lang pl|en] [--verbose] [--log [--full]] [--hash] [--timing] | race --season <int> [--seed <ulong>] [--lang pl|en] [--timing]";
 
     private sealed record Options(
         int? Year,
@@ -39,6 +43,8 @@ public static class RaceCommand
         ulong Seed,
         bool Spy,
         bool Full,
+        bool Log,
+        bool Verbose,
         bool Hash,
         bool Timing,
         string Language);
@@ -64,12 +70,14 @@ public static class RaceCommand
 
         AuthoredData data;
         IReadOnlyDictionary<string, string> strings;
+        TranslationCatalog catalog;
         try
         {
             data = AuthoredDataLoader.Load(Path.Combine(root, "data"));
             strings = StringTable.Load(options.Language);
+            catalog = StringTable.LoadCatalog();
         }
-        catch (Exception ex) when (ex is AuthoredDataLoadException or InvalidOperationException or IOException)
+        catch (Exception ex) when (ex is AuthoredDataLoadException or InvalidOperationException or IOException or LocalizationLoadException)
         {
             stderr.WriteLine(ex.Message);
             return 1;
@@ -80,7 +88,7 @@ public static class RaceCommand
         {
             var code = options.Season is { } season
                 ? RunSeason(data, strings, season, options, stdout)
-                : RunRace(data, strings, options.Year!.Value, options.Round!.Value, options, stdout);
+                : RunRace(data, strings, catalog, options.Year!.Value, options.Round!.Value, options, stdout);
             if (options.Timing)
             {
                 stderr.WriteLine(string.Create(CultureInfo.InvariantCulture, $"elapsed {clock.ElapsedMilliseconds} ms"));
@@ -122,7 +130,7 @@ public static class RaceCommand
     // ESTIMATE: the calendar has no dates yet, so rounds are spread over March to October.
     private static int MonthOf(int round, int rounds) => 3 + ((round - 1) * 8 / Math.Max(1, rounds));
 
-    private static int RunRace(AuthoredData data, IReadOnlyDictionary<string, string> strings, int season, int round, Options options, TextWriter stdout)
+    private static int RunRace(AuthoredData data, IReadOnlyDictionary<string, string> strings, TranslationCatalog catalog, int season, int round, Options options, TextWriter stdout)
     {
         var input = BuildInput(data, season, round, options.Seed, SyntheticField.For(season));
         var collector = options.Spy ? new CollectingSink() : null;
@@ -135,7 +143,15 @@ public static class RaceCommand
             return 0;
         }
 
-        PrintReport(stdout, strings, input, result, options);
+        if (options.Log)
+        {
+            PrintLog(stdout, strings, input, result, options);
+        }
+        else
+        {
+            PrintNarrative(stdout, strings, catalog, input, result, options);
+        }
+
         if (collector is not null)
         {
             PrintSpy(stdout, strings, result, collector);
@@ -144,7 +160,32 @@ public static class RaceCommand
         return 0;
     }
 
-    private static void PrintReport(TextWriter stdout, IReadOnlyDictionary<string, string> strings, RaceWeekendInput input, RaceWeekendResult result, Options options)
+    /// <summary>The readable report: the title, the synthetic note and the seed, then the sections of <see cref="RaceReportBuilder"/>.</summary>
+    private static void PrintNarrative(TextWriter stdout, IReadOnlyDictionary<string, string> strings, TranslationCatalog catalog, RaceWeekendInput input, RaceWeekendResult result, Options options)
+    {
+        var sink = new CollectingMissingKeySink();
+        var localizer = new Localizer(catalog, options.Language == "pl" ? Language.Pl : Language.En, sink);
+        var report = RaceReportBuilder.Build(
+            RaceReportInput.From(result, input.Season, input.Round, input.Track.Id),
+            new RaceReportOptions(options.Verbose));
+        var lines = RaceReportRenderer.Render(report, localizer);
+        if (sink.Reports.Count > 0)
+        {
+            // A fallback is never silent: a report that quotes a key instead of text is a bug.
+            throw new InvalidOperationException("The race report used missing or incomplete translations: " + string.Join("; ", sink.Reports.Select(r => $"{r.Kind} {r.Key} {r.Detail}".TrimEnd())));
+        }
+
+        stdout.WriteLine(lines[0]);
+        stdout.WriteLine(strings.Required("race.synthetic"));
+        stdout.WriteLine(Fill(strings.Required("race.seed"), ("seed", options.Seed)));
+        foreach (var line in lines.Skip(1))
+        {
+            stdout.WriteLine(line);
+        }
+    }
+
+    /// <summary>The old output (<c>--log</c>): the raw event log, then the classification table.</summary>
+    private static void PrintLog(TextWriter stdout, IReadOnlyDictionary<string, string> strings, RaceWeekendInput input, RaceWeekendResult result, Options options)
     {
         stdout.WriteLine(Fill(strings.Required("race.title"), ("year", input.Season), ("round", input.Round), ("layout", input.Track.Id), ("laps", input.TotalLaps)));
         stdout.WriteLine(strings.Required("race.synthetic"));
@@ -340,6 +381,8 @@ public static class RaceCommand
         string? language = null;
         var spy = false;
         var full = false;
+        var log = false;
+        var verbose = false;
         var hash = false;
         var timing = false;
 
@@ -353,6 +396,12 @@ public static class RaceCommand
                     continue;
                 case "--full":
                     full = true;
+                    continue;
+                case "--log":
+                    log = true;
+                    continue;
+                case "--verbose":
+                    verbose = true;
                     continue;
                 case "--hash":
                     hash = true;
@@ -424,9 +473,21 @@ public static class RaceCommand
         }
 
         var raceMode = year is not null || round is not null;
-        if (season is not null && (raceMode || hash || spy || full))
+        if (season is not null && (raceMode || hash || spy || full || log || verbose))
         {
-            stderr.WriteLine($"--season cannot be combined with --year, --round, --spy, --full or --hash. {Usage}");
+            stderr.WriteLine($"--season cannot be combined with --year, --round, --spy, --full, --log, --verbose or --hash. {Usage}");
+            return null;
+        }
+
+        if (full && !log)
+        {
+            stderr.WriteLine($"--full belongs to --log. {Usage}");
+            return null;
+        }
+
+        if (verbose && log)
+        {
+            stderr.WriteLine($"--verbose belongs to the report and --log prints the raw log; give one of them. {Usage}");
             return null;
         }
 
@@ -436,7 +497,7 @@ public static class RaceCommand
             return null;
         }
 
-        return new Options(year, round, season, seed, spy, full, hash, timing, language ?? "en");
+        return new Options(year, round, season, seed, spy, full, log, verbose, hash, timing, language ?? "en");
     }
 
     private static bool TryInt(string value, out int result) =>

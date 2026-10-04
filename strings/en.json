@@ -169,6 +169,7 @@
   "objective.predicate.driverNationalityInLineup": "Field a driver of nationality {nationality}.",
   "objective.predicate.personFromCountryInLineup": "Have someone from {country} in the lineup.",
   "career.run.title": "{preset} from {from} to {to}, seed {seed}, people source {source}.",
+  "career.run.resumed": "Resumed {preset} (opened {from}) on {date}, running through {to}, seed {seed}, people source {source}. Only the seasons lived now are listed.",
   "career.run.estimates": "These rules are estimates, not measured facts. A driver may retire from age {driverFrom} and always retires at {driverCertain}. Staff may retire from age {staffFrom} and always retire at {staffCertain}. The chance on a birthday rises in equal steps from the first of those ages and is certain at the second. A scheduled driver enters the talent pool on {entryDate} of the scheduled year. Each later season adds {intake} generated drivers to the pool. A contract ending is recorded and is not renegotiated.",
   "career.run.year": "Season {year}: alive {alive}, retired {retired}, pool {pool}, contracts {contracts}, state hash {hash}.",
   "career.run.hash_note": "The state hash is the world on the morning of 1 January after that season. Alive, retired and pool counts are kept beside it; retirement and the talent pool are not fields of the world hash.",
@@ -241,5 +242,143 @@
   "contract.inbox.renewal.release.consequence": "The contract ends on its date and the person becomes a free agent.",
   "contract.inbox.exitExercised.subject": "{person} used the exit clause and has left.",
   "contract.inbox.optionExercised.subject": "{person} used the option: the contract now runs longer.",
-  "contract.inbox.expired.subject": "The contract of {person} has ended. The person is a free agent."
+  "contract.inbox.expired.subject": "The contract of {person} has ended. The person is a free agent.",
+  "report.title": "Race report: {year} season, round {round}, {layout}, {laps} laps scheduled",
+  "report.section.conditions": "Conditions",
+  "report.section.qualifying": "Qualifying",
+  "report.phase.opening": "The opening, laps {from}-{to}",
+  "report.phase.middle": "The middle of the race, laps {from}-{to}",
+  "report.phase.closing": "The closing stages, laps {from}-{to}",
+  "report.phase.quiet": "Nothing of note happened.",
+  "report.section.pits": "Pit stops",
+  "report.section.drives": "Shared drives",
+  "report.section.result": "Result",
+  "report.section.points": "Points",
+  "report.section.log": "Lap by lap",
+  "report.conditions.start.dry": "A dry track at the start, air temperature {temp} °C.",
+  "report.conditions.start.damp": "A damp track at the start, air temperature {temp} °C.",
+  "report.conditions.start.wet": "A wet track at the start, air temperature {temp} °C.",
+  "report.conditions.start.extreme": "A soaked track at the start, air temperature {temp} °C.",
+  "report.conditions.change.dry": "Lap {lap}: the track has dried out.",
+  "report.conditions.change.damp": "Lap {lap}: the track is damp.",
+  "report.conditions.change.wet": "Lap {lap}: the track is wet.",
+  "report.conditions.change.extreme": "Lap {lap}: the track is soaked and conditions are extreme.",
+  "report.conditions.change.other": "Lap {lap}: the conditions have changed.",
+  "report.qualifying.pole": "{driver} ({team}) took pole position with {time}, {margin} s ahead of {second}.",
+  "report.qualifying.poleAlone": "{driver} ({team}) took pole position with {time}.",
+  "report.qualifying.second": "Second on the grid: {driver} ({team}), {time} (+{gap} s).",
+  "report.qualifying.third": "Third on the grid: {driver} ({team}), {time} (+{gap} s).",
+  "report.qualifying.notQualified": {
+    "one": "{count} car did not qualify: {drivers}.",
+    "other": "{count} cars did not qualify: {drivers}."
+  },
+  "report.qualifying.pitLane": {
+    "one": "{drivers} starts from the pit lane.",
+    "other": "{drivers} start from the pit lane."
+  },
+  "report.start.leaderPole": "{driver} led after the first lap, from pole position.",
+  "report.start.leaderOther": "{driver} led after the first lap; pole-sitter {pole} was P{position} by then.",
+  "report.start.leaderOtherOut": "{driver} led after the first lap; pole-sitter {pole} did not complete it.",
+  "report.start.gain": {
+    "one": "{driver} gained {count} place on the opening lap (grid {from}, now P{to}).",
+    "other": "{driver} gained {count} places on the opening lap (grid {from}, now P{to})."
+  },
+  "report.start.loss": {
+    "one": "{driver} lost {count} place on the opening lap (grid {from}, now P{to}).",
+    "other": "{driver} lost {count} places on the opening lap (grid {from}, now P{to})."
+  },
+  "report.start.quiet": "The order hardly changed on the first lap.",
+  "report.lead.change": "Lap {lap}: {driver} takes the lead from {from}.",
+  "report.retire.engine": "Lap {lap}: {driver} ({team}) is out with engine failure.",
+  "report.retire.gearbox": "Lap {lap}: {driver} ({team}) is out with gearbox failure.",
+  "report.retire.suspension": "Lap {lap}: {driver} ({team}) is out with a suspension failure.",
+  "report.retire.brakes": "Lap {lap}: {driver} ({team}) is out with brake failure.",
+  "report.retire.electrics": "Lap {lap}: {driver} ({team}) is out with an electrical or hydraulic failure.",
+  "report.retire.cooling": "Lap {lap}: {driver} ({team}) is out with a cooling failure.",
+  "report.retire.mechanical": "Lap {lap}: {driver} ({team}) is out with a mechanical failure.",
+  "report.retire.accident": "Lap {lap}: {driver} ({team}) is out after an accident.",
+  "report.retire.other": "Lap {lap}: {driver} ({team}) retires.",
+  "report.injury.light": "{driver} was lightly injured.",
+  "report.injury.serious": "{driver} was seriously injured.",
+  "report.injury.careerEnding": "{driver} suffered a career-ending injury.",
+  "report.injury.fatal": "{driver} was killed.",
+  "report.incident.minor": "Lap {lap}: a minor incident involving {drivers}.",
+  "report.incident.major": "Lap {lap}: a major incident involving {drivers}.",
+  "report.incident.severe": "Lap {lap}: a severe incident involving {drivers}.",
+  "report.neutral.safetyCar.deployed": "Lap {lap}: the safety car is out.",
+  "report.neutral.safetyCar.ending": "Lap {lap}: the safety car comes in and racing resumes.",
+  "report.neutral.virtual.deployed": "Lap {lap}: virtual safety car.",
+  "report.neutral.virtual.ending": "Lap {lap}: the virtual safety car ends.",
+  "report.neutral.redFlag": "Lap {lap}: red flag, the race is stopped.",
+  "report.neutral.redFlag.restart": "Lap {lap}: red flag, the race is stopped and later restarted.",
+  "report.pits.none": "Nobody made a pit stop.",
+  "report.pits.total": {
+    "one": "{count} pit stop was made in all.",
+    "other": "{count} pit stops were made in all."
+  },
+  "report.pits.noStops": "Finished without a stop: {drivers}.",
+  "report.pits.byCount": {
+    "one": "{count} stop: {drivers}.",
+    "other": "{count} stops: {drivers}."
+  },
+  "report.pits.fastest": "Fastest routine stop: {driver}, lap {lap}, {time} s.",
+  "report.pits.slowest": "Slowest routine stop: {driver}, lap {lap}, {time} s.",
+  "report.pits.repair": "Lap {lap}: {driver} stopped for repairs and spent {time} s in the pits.",
+  "report.pits.slowStops": {
+    "one": "{count} slow stop, the worst: {driver}, lap {lap}, {time} s.",
+    "other": "{count} slow stops, the worst: {driver}, lap {lap}, {time} s."
+  },
+  "report.pits.faultError": "Lap {lap}: {driver} lost time with an error in the pits, {time} s.",
+  "report.drive.swap": "Lap {lap}: {first} hands the {team} car to {second}.",
+  "report.drive.shared": "{first} and {second} shared the {team} car.",
+  "report.result.winner": "{driver} ({team}) wins in {time}.",
+  "report.result.marginTime": "Margin over {second}: {gap} s.",
+  "report.result.marginLaps": {
+    "one": "Margin over {second}: {count} lap.",
+    "other": "Margin over {second}: {count} laps."
+  },
+  "report.result.alone": "No other car finished.",
+  "report.result.noWinner": "Nobody finished the race.",
+  "report.result.fastest": "Fastest lap: {driver} ({team}), {time} on lap {lap}.",
+  "report.result.finishers": {
+    "one": "{finished} of {count} starter was running at the flag.",
+    "other": "{finished} of {count} starters were running at the flag."
+  },
+  "report.result.attrition": "Retirements: {count} ({mechanical} mechanical, {accident} accidents, {other} other).",
+  "report.result.noRetirements": "Nobody retired.",
+  "report.result.leadLap": {
+    "one": "{count} car finished on the winner's lap.",
+    "other": "{count} cars finished on the winner's lap."
+  },
+  "report.result.lapped": {
+    "one": "{count} lap down: {drivers}.",
+    "other": "{count} laps down: {drivers}."
+  },
+  "report.result.leadChanges": {
+    "one": "The lead changed hands {count} time.",
+    "other": "The lead changed hands {count} times."
+  },
+  "report.result.ledAll": "{driver} led every lap.",
+  "report.result.mostLaps": {
+    "one": "Most time in front: {driver}, {count} of {total} laps.",
+    "other": "Most time in front: {driver}, {count} of {total} laps."
+  },
+  "report.result.shortened": "The race was stopped on lap {lap} of {total}; the result stands as of that lap.",
+  "report.points.driver": {
+    "one": "{driver}: {count} point",
+    "other": "{driver}: {count} points"
+  },
+  "report.points.team": {
+    "one": "{team}: {count} constructor point",
+    "other": "{team}: {count} constructor points"
+  },
+  "report.points.none": "No points were awarded.",
+  "report.event.raceStarted": "The race starts. Cars: {cars}. Laps: {laps}.",
+  "report.event.lap": "Lap {lap}: {driver} leads, lap time {time}.",
+  "report.event.pitIn": "Lap {lap}: {driver} comes into the pits.",
+  "report.event.pitOut": "Lap {lap}: {driver} rejoins after {time} s in the pits.",
+  "report.event.position": "Lap {lap}: {driver} moves from P{from} to P{to}.",
+  "report.event.fastestLap": "Lap {lap}: fastest lap of the race so far: {driver}, {time}.",
+  "report.event.finished": "{driver} finishes P{position} (laps: {laps}, time: {time}).",
+  "report.event.raceEnded": "Lap {lap}: the race is over."
 }

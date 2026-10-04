@@ -67,8 +67,10 @@ public sealed record GenerationRequest
         IReadOnlyList<NationalityWeight> nationalityWeights,
         int eraYear,
         KnownPersonIdentity? knownPerson,
-        int? strength)
+        int? strength,
+        (int MinInclusive, int MaxExclusive)? ageRange = null)
     {
+        AgeRange = ageRange;
         Quality = quality;
         NationalityWeights = nationalityWeights;
         EraYear = eraYear;
@@ -86,6 +88,29 @@ public sealed record GenerationRequest
 
     /// <summary>0–100 for <see cref="RandomizeKnownPerson"/>. Null for a new fictional person.</summary>
     public int? Strength { get; }
+
+    /// <summary>
+    /// Age at the season (inclusive minimum, exclusive maximum) that replaces the band's own range for a new person.
+    /// Null keeps the band's range, so a request without it draws exactly as before.
+    /// </summary>
+    public (int MinInclusive, int MaxExclusive)? AgeRange { get; }
+
+    /// <summary>A new person who enters at an age chosen by the caller, for example a young talent-pool entrant.</summary>
+    public static GenerationRequest ForNewAtAge(
+        QualityBand quality,
+        IReadOnlyList<NationalityWeight> nationalityWeights,
+        int eraYear,
+        int ageMinInclusive,
+        int ageMaxExclusive)
+    {
+        if (ageMinInclusive < 1 || ageMaxExclusive <= ageMinInclusive)
+        {
+            throw new ArgumentOutOfRangeException(nameof(ageMaxExclusive), ageMaxExclusive, "The age range must be a non-empty range of positive ages.");
+        }
+
+        var basic = ForNew(quality, nationalityWeights, eraYear);
+        return new GenerationRequest(basic.Quality, basic.NationalityWeights, basic.EraYear, null, null, (ageMinInclusive, ageMaxExclusive));
+    }
 
     public static GenerationRequest ForNew(QualityBand quality, IReadOnlyList<NationalityWeight> nationalityWeights, int eraYear)
     {

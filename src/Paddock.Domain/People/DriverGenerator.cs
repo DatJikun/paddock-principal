@@ -35,7 +35,7 @@ public sealed class DriverGenerator
         var rng = PeopleSampling.Child(people, "driver", id.Value);
         string nationality = PeopleSampling.PickNationality(rng, request.NationalityWeights);
         bool female = PeopleSampling.PickFemale(rng, season);
-        (int ageMin, int ageMax) = GenerationEstimates.AgeRange(request.Quality);
+        (int ageMin, int ageMax) = request.AgeRange ?? GenerationEstimates.AgeRange(request.Quality);
         int age = PeopleSampling.PickAge(rng, ageMin, ageMax);
         DateOnly birth = PeopleSampling.PickBirthDate(rng, season, age);
         PersonName name = PeopleSampling.PickName(rng, _names, _blocklist, nationality, birth.Year, female);

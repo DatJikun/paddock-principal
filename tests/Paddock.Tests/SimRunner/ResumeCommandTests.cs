@@ -35,7 +35,9 @@ public sealed class ResumeCommandTests : IDisposable
         var b = CareerSaveReader.Read(resumed);
         Assert.Equal(a.Session.World.StateHash(), b.Session.World.StateHash());
         Assert.Equal(a.Session.Years, b.Session.Years);
-        Assert.Equal(a.Session.Pool, b.Session.Pool);
+        Assert.Equal(
+            a.Session.World.Section<Paddock.Domain.Pool.TalentPoolSection>(Paddock.Domain.Pool.TalentPoolSection.SectionName)!.Members.Select(member => member.Id.Value + member.Handle),
+            b.Session.World.Section<Paddock.Domain.Pool.TalentPoolSection>(Paddock.Domain.Pool.TalentPoolSection.SectionName)!.Members.Select(member => member.Id.Value + member.Handle));
         Assert.Equal(a.Session.Intakes, b.Session.Intakes);
         Assert.Equal(a.Session.ContractExpiries, b.Session.ContractExpiries);
         Assert.Equal(a.Session.OpenedYear, b.Session.OpenedYear);

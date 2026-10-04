@@ -132,6 +132,10 @@ public sealed class Person
 
     public bool IsRetired => RetiredOn is not null;
 
+    /// <summary>The same person with other simulation truth (development moves it). Everything else, retirement included, is kept.</summary>
+    internal Person WithTruth(PersonTruth truth) =>
+        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, truth, RetiredOn);
+
     internal Person Retire(GameDate on)
     {
         if (RetiredOn is not null)

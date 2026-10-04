@@ -179,6 +179,19 @@ public sealed partial class WorldState
     }
 
     /// <summary>
+    /// Replaces the simulation truth of a person (development moves it). Identity, roles, contracts, and beliefs are unchanged.
+    /// Beliefs about the person are not touched: what organizations think does not follow the truth by itself.
+    /// </summary>
+    public WorldState WithPersonTruth(PersonId id, PersonTruth truth)
+    {
+        ArgumentNullException.ThrowIfNull(truth);
+        var person = RequirePerson(id);
+        var persons = Clone(_persons);
+        persons[id.Value] = person.WithTruth(truth);
+        return new WorldState(CurrentDate, Ids, persons, _organizations, _contracts, _knowledge, _sections);
+    }
+
+    /// <summary>
     /// Marks the person retired on <paramref name="on"/> and ends their contracts by removing them (the contract ids stay
     /// issued). The person stays in the world with their truth and knowledge about them. Retiring twice is refused.
     /// </summary>

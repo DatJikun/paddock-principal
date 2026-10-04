@@ -28,7 +28,6 @@ public sealed class CareerRunStoreTests : IDisposable
         Assert.Equal(run.OpenedYear, loaded.Run!.OpenedYear);
         Assert.Equal(run.ContractExpiries, loaded.Run.ContractExpiries);
         Assert.Equal(run.Intakes, loaded.Run.Intakes);
-        Assert.Equal(run.Pool.Order(StringComparer.Ordinal), loaded.Run.Pool);
         Assert.Equal(run.Years, loaded.Run.Years);
         Assert.NotNull(loaded.RngStates);
         Assert.Equal(states.Count, loaded.RngStates!.Count);
@@ -58,7 +57,6 @@ public sealed class CareerRunStoreTests : IDisposable
         Assert.Null(loaded.Run);
         Assert.Null(loaded.RngStates);
         Assert.Throws<InvalidOperationException>(() => save.ReadRngStates());
-        Assert.Equal(0, Count(save, "talent_pool"));
         Assert.Equal(0, Count(save, "career_years"));
         Assert.Equal(0, Count(save, "career_run"));
     }
@@ -88,11 +86,11 @@ public sealed class CareerRunStoreTests : IDisposable
         var states = Rng(4);
         repository.SaveAll(Snapshot(world, run, states), WorldFixtures.Opening);
 
-        var broken = run with { Pool = [.. run.Pool, run.Pool[0]] };
+        var broken = run with { Years = [.. run.Years, run.Years[0]] };
         Assert.Throws<InvalidDataException>(() => repository.SaveAll(Snapshot(world, broken, Rng(5)), WorldFixtures.Opening));
 
         var loaded = repository.LoadAll();
-        Assert.Equal(run.Pool.Order(StringComparer.Ordinal), loaded.Run!.Pool);
+        Assert.Equal(run.Years, loaded.Run!.Years);
         Assert.Equal(states["Weather"], loaded.RngStates!["Weather"]);
     }
 
@@ -114,13 +112,13 @@ public sealed class CareerRunStoreTests : IDisposable
         using (var created = SaveFile.Create(path, WorldFixtures.Meta(), [.. SaveMigrations.Production.Take(6)]))
         {
             Assert.Equal(6, created.ReadMeta().SchemaVersion);
-            new WorldRepository(created).SaveWorld(world, WorldFixtures.Opening);
+            new WorldRepository(created, []).SaveWorld(world, WorldFixtures.Opening);
         }
 
         Assert.DoesNotContain("career_run", Tables(path));
         using (var opened = SaveFile.Open(path))
         {
-            Assert.Equal(7, opened.ReadMeta().SchemaVersion);
+            Assert.Equal(SaveMigrations.CurrentVersion, opened.ReadMeta().SchemaVersion);
             var repository = new WorldRepository(opened);
             Assert.True(repository.HasWorld);
             var snapshot = repository.LoadAll();
@@ -128,7 +126,6 @@ public sealed class CareerRunStoreTests : IDisposable
             Assert.Null(snapshot.Run);
             Assert.Null(snapshot.RngStates);
             Assert.Equal(0, Count(opened, "career_run"));
-            Assert.Equal(0, Count(opened, "talent_pool"));
 
             // The migrated file takes a full save from now on.
             repository.SaveAll(Snapshot(world, Run(), Rng(7)), WorldFixtures.Opening);
@@ -137,12 +134,13 @@ public sealed class CareerRunStoreTests : IDisposable
 
         Assert.Contains("career_run", Tables(path));
         Assert.Contains("career_years", Tables(path));
-        Assert.Contains("talent_pool", Tables(path));
+        Assert.DoesNotContain("talent_pool", Tables(path));
+        Assert.Contains("pool_members", Tables(path));
 
         var older = Path.Combine(_directory, "old2.paddock");
         using (var created = SaveFile.Create(older, WorldFixtures.Meta(), [.. SaveMigrations.Production.Take(6)]))
         {
-            new WorldRepository(created).SaveWorld(world, WorldFixtures.Opening);
+            new WorldRepository(created, []).SaveWorld(world, WorldFixtures.Opening);
         }
 
         var refusal = Assert.Throws<SaveNotResumableException>(() => CareerSaveReader.Read(older));
@@ -155,7 +153,6 @@ public sealed class CareerRunStoreTests : IDisposable
         using var save = SaveFile.Create(Path.Combine(_directory, "f.paddock"), WorldFixtures.Meta());
         Assert.Throws<SqliteException>(() => Exec(save, "INSERT INTO career_run (id, opened_year, contract_expiries, intakes) VALUES (2, 1950, 0, 0)"));
         Assert.Throws<SqliteException>(() => Exec(save, "INSERT INTO career_run (id, opened_year, contract_expiries, intakes) VALUES (1, 1950, -1, 0)"));
-        Assert.Throws<SqliteException>(() => Exec(save, "INSERT INTO talent_pool (person_id) VALUES ('')"));
         Assert.Throws<SqliteException>(() => Exec(save, "INSERT INTO career_years (year, alive, retired, pool, contracts, state_hash) VALUES (1950, 1, 0, 0, 0, '')"));
     }
 
@@ -170,7 +167,6 @@ public sealed class CareerRunStoreTests : IDisposable
         1950,
         7,
         31,
-        ["gen:30", "gen:12", "alonso", "gen:9"],
         [new StoredYear(1950, 4, 0, 0, 5, new string('a', 64)), new StoredYear(1951, 6, 1, 2, 3, new string('b', 64))]);
 
     private static Dictionary<string, RngState> Rng(ulong seed)

@@ -28,13 +28,12 @@ public sealed record StoredYear(int Year, int Alive, int Retired, int Pool, int 
 
 /// <summary>
 /// What a day-by-day run keeps beside <see cref="WorldState"/> (V007): the opening year, the tallies, the per-season
-/// summaries, and the placeholder talent pool as person ids. None of it is part of the world hash.
+/// and the per-season summaries. None of it is part of the world hash. The talent pool is a world section (T40), not part of this.
 /// </summary>
 public sealed record CareerRunState(
     int OpenedYear,
     int ContractExpiries,
     int Intakes,
-    IReadOnlyList<string> Pool,
     IReadOnlyList<StoredYear> Years);
 
 /// <summary>

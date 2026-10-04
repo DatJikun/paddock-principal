@@ -202,7 +202,7 @@ public class VotedRegulationsTests
             Assert.NotEqual(regulations, RngStreams.Derive(5, name, 1991).NextULong());
         }
 
-        Assert.Equal(11, RngStreamName.All.Count);
+        Assert.Equal(12, RngStreamName.All.Count);
     }
 
     [Fact]

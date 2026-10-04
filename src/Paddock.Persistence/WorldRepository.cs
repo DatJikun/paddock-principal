@@ -424,7 +424,7 @@ public sealed partial class WorldRepository
     private static void WriteRun(SqliteTransaction transaction, CareerRunState? run)
     {
         var connection = transaction.Connection!;
-        foreach (var table in new[] { "talent_pool", "career_years", "career_run" })
+        foreach (var table in new[] { "career_years", "career_run" })
         {
             Execute(connection, transaction, "DELETE FROM " + table);
         }
@@ -437,14 +437,6 @@ public sealed partial class WorldRepository
         using (var header = new Insert(connection, transaction, "career_run", "id", "opened_year", "contract_expiries", "intakes"))
         {
             header.Run(1L, (long)run.OpenedYear, (long)run.ContractExpiries, (long)run.Intakes);
-        }
-
-        using (var pool = new Insert(connection, transaction, "talent_pool", "person_id"))
-        {
-            foreach (var id in run.Pool)
-            {
-                pool.Run(id);
-            }
         }
 
         using var years = new Insert(connection, transaction, "career_years", "year", "alive", "retired", "pool", "contracts", "state_hash");

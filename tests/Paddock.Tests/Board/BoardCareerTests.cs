@@ -43,6 +43,38 @@ public class BoardCareerTests
         return lab;
     }
 
+    private sealed class RecordingSeverance : IBoardSeverance
+    {
+        public List<(OrganizationId Payer, string Manager, long Amount, GameDate On)> Payments { get; } = [];
+
+        public void Pay(OrganizationId payer, string managerId, long amount, GameDate on) => Payments.Add((payer, managerId, amount, on));
+    }
+
+    // --- The severance of a dismissed manager goes through the severance port (the ledger in a career), once ---
+
+    [Fact]
+    public void ADismissedManagersSeveranceIsPaidOnceThroughThePortAndAResignationPaysNothing()
+    {
+        var severance = new RecordingSeverance();
+        var lab = new Lab(42UL, free: 5, severance: severance);
+        lab.Appoint(Pam, T3);
+        lab.Facts.Position(T3, 5);
+        lab.AdvanceTo(new GameDate(1956, 6, 8));
+
+        var payment = Assert.Single(severance.Payments);
+        Assert.Equal(T3, payment.Payer);
+        Assert.Equal(Pam.Value, payment.Manager);
+        Assert.Equal(50_000, payment.Amount);
+        Assert.Equal(new GameDate(1956, 6, 7), payment.On);
+
+        var resigning = new RecordingSeverance();
+        var other = new Lab(5UL, free: 5, noRaces: true, severance: resigning);
+        other.Appoint(Pam, T3);
+        other.Advance(2);
+        _ = other.Submit(new ResignFromTeamCommand { ManagerId = Pam, IssuedOn = Date(other.Today) });
+        Assert.Empty(resigning.Payments);
+    }
+
     // --- A fixed scenario: poor results dismiss the player, the market delivers an offer, the career continues ---
 
     [Fact]

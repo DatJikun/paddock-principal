@@ -27,5 +27,8 @@ public static class CareerRunText
     public const string Ai = "career.run.ai";
 
     [TranslationKey]
+    public const string Economy = "career.run.economy";
+
+    [TranslationKey]
     public const string Saved = "career.run.saved";
 }

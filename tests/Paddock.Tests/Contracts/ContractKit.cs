@@ -316,6 +316,9 @@ internal static class ContractKit
 
         public ReadyGate Gate { get; }
 
+        /// <summary>The clock as the ready gate sees it: asking it to advance lives one day.</summary>
+        public IWorldState Time => _world;
+
         public WorldClockState Clock { get; set; }
 
         public GameDate Today => Clock.Date;

@@ -19,8 +19,9 @@ Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić
 | [TECH.md](TECH.md) | stack, architektura, determinizm, dane, zapis, diagnostyka, testy |
 | [AGENTS.md](AGENTS.md) | zasady dla agentów AI pomagających w repo |
 | [ui/HANDOFF_UI.md](ui/HANDOFF_UI.md) | stan prototypu UI i pełne uwagi właściciela |
+| [docs/przewodnik/index.html](docs/przewodnik/index.html) | przewodnik po polsku, do czytania w przeglądarce: jak działają systemy |
 
-Dokumentacji ma być mało (PP-017). Szczegóły żyją w kodzie i historii gita.
+Przewodnik jest do czytania. Nie zastępuje plików powyżej. Dokumentacji projektowej ma być mało (PP-017). Szczegóły żyją w kodzie i historii gita.
 
 ## Stack
 

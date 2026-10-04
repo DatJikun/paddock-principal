@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paddock Principal. Jak działa ta gra</title>
+  <meta name="description" content="Przewodnik po Paddock Principal: świat, ludzie, samochód, wyścig, pieniądze i to, co silnik już liczy.">
+  <meta name="theme-color" content="#231710">
+  <style>
+    @font-face {
+      font-family: "Archivo";
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url("fonts/archivo-latin-ext.woff2") format("woff2");
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: "Archivo";
+      font-style: normal;
+      font-weight: 400 700;
+      font-display: swap;
+      src: url("fonts/archivo-latin.woff2") format("woff2");
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: "Big Shoulders Display";
+      font-style: normal;
+      font-weight: 800 900;
+      font-display: swap;
+      src: url("fonts/big-shoulders-latin-ext.woff2") format("woff2");
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: "Big Shoulders Display";
+      font-style: normal;
+      font-weight: 800 900;
+      font-display: swap;
+      src: url("fonts/big-shoulders-latin.woff2") format("woff2");
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    :root {
+      --ink: #231710;
+      --ink-soft: #4a382e;
+      --paper: #f4ebda;
+      --card: #fffaf0;
+      --desk: #e4d5be;
+      --era1: #e2572b;
+      --era2: #f0a33b;
+      --era3: #7b3f1d;
+      --good: #1c6b34;
+      --bad: #a3321c;
+      --tower: #231710;
+      --on: #f4ebda;
+      --rule: color-mix(in oklab, var(--ink) 16%, transparent);
+      --display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+      --ui: Archivo, "Segoe UI", sans-serif;
+      --ease: cubic-bezier(.16, 1, .3, 1);
+      --measure: 66ch;
+      --tower-w: 292px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-padding-top: 1.25rem; }
+    body {
+      margin: 0;
+      background: var(--desk);
+      color: var(--ink);
+      font: 400 17px/1.65 var(--ui);
+      text-rendering: optimizeLegibility;
+    }
+    ::selection { background: var(--era2); color: var(--ink); }
+    :focus-visible { outline: 2.5px solid var(--ink); outline-offset: 3px; }
+    .tower :focus-visible { outline-color: var(--era2); }
+    * { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--ink) 32%, transparent) transparent; }
+
+    .skip {
+      position: absolute;
+      left: 12px;
+      top: -48px;
+      z-index: 20;
+      background: var(--era2);
+      color: var(--ink);
+      padding: 0.55rem 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .skip:focus { top: 12px; }
+
+    .shell {
+      display: grid;
+      grid-template-columns: var(--tower-w) minmax(0, 1fr);
+      min-height: 100vh;
+      background: var(--paper);
+    }
+
+    .tower {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: var(--tower);
+      color: var(--on);
+      display: flex;
+      flex-direction: column;
+      z-index: 5;
+    }
+    .crest {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px 4px;
+      flex: none;
+    }
+    .crest svg { width: 36px; height: 36px; flex: none; }
+    .crest p {
+      margin: 0;
+      font: 900 1.55rem/0.86 var(--display);
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+    }
+    .crest p span { display: block; color: var(--era2); }
+    nav {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 6px 12px 10px;
+      overflow: auto;
+      scrollbar-color: color-mix(in oklab, var(--on) 28%, transparent) transparent;
+    }
+    nav .group {
+      margin: 9px 12px 2px;
+      font: 600 11px/1.2 var(--ui);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--era2);
+    }
+    nav .group:first-child { margin-top: 6px; }
+    nav a {
+      display: block;
+      position: relative;
+      z-index: 1;
+      margin: 1px 0;
+      padding: 4px 12px;
+      border-radius: 10px;
+      color: color-mix(in oklab, var(--on) 86%, var(--era2));
+      text-decoration: none;
+      font: 500 14.5px/1.35 var(--ui);
+    }
+    nav a:hover { background: color-mix(in oklab, var(--on) 10%, transparent); color: var(--on); }
+    nav a[aria-current="true"] {
+      background: var(--paper);
+      color: var(--ink);
+      font-weight: 600;
+      box-shadow: 0 3px 0 color-mix(in oklab, var(--ink) 72%, var(--era1));
+    }
+    nav a[aria-current="true"]::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 4px;
+      border-radius: 0 3px 3px 0;
+      background: linear-gradient(var(--era1) 0 33.3%, var(--era2) 0 66.6%, var(--era3) 0);
+    }
+    .board {
+      flex: none;
+      padding: 8px 16px 6px;
+      border-top: 1px solid color-mix(in oklab, var(--on) 16%, transparent);
+    }
+    .board b {
+      display: block;
+      font: 900 1.45rem/0.9 var(--display);
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+    }
+    .stripes {
+      height: 28px;
+      flex: none;
+      background: linear-gradient(180deg, var(--era1) 0 33.3%, var(--era2) 0 66.6%, var(--era3) 0);
+      clip-path: polygon(0 46%, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .topbar { display: none; }
+    .scrim { display: none; }
+    .scrim[hidden] { display: none !important; }
+
+    main {
+      min-width: 0;
+      padding: 52px 72px 88px;
+    }
+    .mast { max-width: 920px; }
+    h1 {
+      margin: 0;
+      font: 900 5.25rem/0.82 var(--display);
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+    .lead {
+      margin: 1.35rem 0 0;
+      max-width: 40rem;
+      font-size: 1.22rem;
+      line-height: 1.5;
+    }
+    .band {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      height: 16px;
+      margin: 1.7rem 0 1.15rem;
+      max-width: 920px;
+    }
+    .band i { display: block; }
+    .band i:nth-child(1) { background: var(--era1); }
+    .band i:nth-child(2) { background: var(--era2); }
+    .band i:nth-child(3) { background: var(--era3); }
+    .howto {
+      max-width: var(--measure);
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    section { margin-top: 5.1rem; scroll-margin-top: 1.5rem; }
+    h2 {
+      margin: 0 0 0.9rem;
+      max-width: 16em;
+      font: 900 2.7rem/0.92 var(--display);
+      text-transform: uppercase;
+      letter-spacing: 0.004em;
+    }
+    h3 {
+      margin: 2.1rem 0 0.45rem;
+      font: 700 1.2rem/1.3 var(--ui);
+    }
+    p { margin: 0 0 1rem; max-width: var(--measure); }
+    strong { font-weight: 700; }
+    main a {
+      color: inherit;
+      text-decoration-line: underline;
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 0.18em;
+      text-decoration-color: var(--era1);
+    }
+    main a:hover { text-decoration-color: var(--ink); }
+
+    blockquote {
+      margin: 1.5rem 0 1.6rem;
+      max-width: 16em;
+    }
+    blockquote p {
+      margin: 0;
+      max-width: none;
+      font: 900 2.05rem/0.96 var(--display);
+      text-transform: uppercase;
+      letter-spacing: 0.004em;
+    }
+
+    ul, ol { margin: 0.3rem 0 1.15rem; padding: 0; max-width: var(--measure); }
+    ul { list-style: none; }
+    ul li {
+      position: relative;
+      margin: 0.38rem 0;
+      padding-left: 1.15rem;
+    }
+    ul li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 7px;
+      height: 7px;
+      background: var(--era1);
+    }
+    ol.steps {
+      list-style: none;
+      counter-reset: step;
+      max-width: 70ch;
+      margin-top: 0.8rem;
+    }
+    ol.steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 2.4rem minmax(0, 1fr);
+      gap: 0.15rem 0.85rem;
+      padding: 0.85rem 0 0.95rem;
+      border-top: 1px solid var(--rule);
+    }
+    ol.steps li::before {
+      content: counter(step);
+      font: 900 1.7rem/1 var(--display);
+      color: var(--era3);
+      padding-top: 0.12rem;
+    }
+    ol.steps li b { font-weight: 700; }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: 880px;
+      margin: 1.35rem 0 1.5rem;
+      border: 1.5px solid var(--ink);
+      background: var(--card);
+    }
+    .facts div {
+      padding: 0.85rem 1rem 0.95rem;
+      min-width: 0;
+    }
+    .facts div + div { border-left: 1px solid var(--rule); }
+    .facts span {
+      display: block;
+      margin-bottom: 0.28rem;
+      font: 600 0.72rem/1.2 var(--ui);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .facts b {
+      display: block;
+      font: 900 1.45rem/0.95 var(--display);
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .est {
+      display: inline-block;
+      margin-left: 0.28rem;
+      padding: 0.12rem 0.32rem 0.08rem;
+      border: 1px solid color-mix(in oklab, var(--ink) 40%, transparent);
+      border-radius: 2px;
+      font: 600 0.66rem/1 var(--ui);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      vertical-align: 0.18em;
+      white-space: nowrap;
+    }
+
+    .note {
+      margin: 1.25rem 0 1.4rem;
+      padding: 0.15rem 0 0.2rem;
+      max-width: var(--measure);
+      border-top: 1.5px solid var(--ink);
+      border-bottom: 1.5px solid var(--ink);
+    }
+    .note p { margin: 0.75rem 0; }
+    .note p:first-child { margin-top: 0.85rem; }
+    .note p:last-child { margin-bottom: 0.85rem; }
+
+    .sheet-wrap { max-width: 920px; overflow-x: auto; margin: 1.1rem 0 1.4rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+    th {
+      padding: 0.55rem 0.8rem 0.6rem;
+      border-bottom: 3px solid var(--ink);
+      font: 600 0.72rem/1.25 var(--ui);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: left;
+      vertical-align: bottom;
+    }
+    td {
+      padding: 0.72rem 0.8rem;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+    }
+    td.num, th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    figure.sketch {
+      margin: 1.3rem 0 1.4rem;
+      max-width: 520px;
+    }
+    figure.sketch svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: var(--card);
+      border: 1.5px solid var(--ink);
+    }
+    figcaption {
+      margin-top: 0.55rem;
+      max-width: var(--measure);
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+    }
+
+    dl { margin: 0.4rem 0 0; max-width: var(--measure); }
+    dt {
+      margin-top: 1.15rem;
+      font: 900 1.35rem/1 var(--display);
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+    }
+    dd { margin: 0.25rem 0 0; }
+
+    footer.colophon {
+      margin-top: 4.5rem;
+      padding-top: 1.1rem;
+      max-width: 70ch;
+      border-top: 1.5px solid var(--ink);
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+    }
+
+    .menu {
+      all: unset;
+      box-sizing: border-box;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1.5px solid var(--ink);
+      background: var(--era2);
+      color: var(--ink);
+      font: 900 1.25rem/1 var(--display);
+      text-transform: uppercase;
+      box-shadow: 0 3px 0 var(--ink);
+    }
+    .menu:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+    .menu:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+    .menu[aria-expanded="true"] { background: var(--paper); }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .band { animation: wipe 0.85s var(--ease) both; }
+      [data-now].call { animation: call 0.42s var(--ease); }
+      .tower { transition: transform 0.42s var(--ease); }
+    }
+    @keyframes wipe {
+      from { clip-path: inset(0 100% 0 0); }
+      to { clip-path: inset(0 0 0 0); }
+    }
+    @keyframes call {
+      from { clip-path: inset(0 0 100% 0); filter: blur(3px); }
+      to { clip-path: inset(0 0 0 0); filter: blur(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .shell { display: block; }
+      .tower {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(86vw, 320px);
+        height: 100vh;
+        transform: translateX(-105%);
+        box-shadow: 16px 0 40px color-mix(in oklab, var(--ink) 28%, transparent);
+      }
+      .tower.open { transform: translateX(0); }
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        position: sticky;
+        top: 0;
+        z-index: 4;
+        padding: 12px 16px;
+        background: color-mix(in oklab, var(--paper) 92%, var(--desk));
+        border-bottom: 1.5px solid var(--ink);
+      }
+      .topbar b {
+        min-width: 0;
+        font: 900 1.35rem/0.95 var(--display);
+        text-transform: uppercase;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .scrim {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 4;
+        background: color-mix(in oklab, var(--ink) 38%, transparent);
+        opacity: 0;
+        pointer-events: none;
+      }
+      .scrim.show { opacity: 1; pointer-events: auto; }
+      html { scroll-padding-top: 80px; }
+      section, h2 { scroll-margin-top: 0; }
+      main { padding: 28px 20px 64px; }
+      h1 { font-size: 3.4rem; }
+      h2 { font-size: 2.15rem; }
+      .facts { grid-template-columns: 1fr; }
+      .facts div + div { border-left: 0; border-top: 1px solid var(--rule); }
+      blockquote p { font-size: 1.65rem; }
+    }
+
+    @media print {
+      .tower, .topbar, .scrim, .skip { display: none !important; }
+      .shell { display: block; background: white; }
+      body { background: white; }
+      main { padding: 0; }
+      a { text-decoration: none; }
+      section { break-inside: auto; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#tresc">Przejdź do treści</a>
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="shell">
+    <aside class="tower" id="spis">
+      <div class="crest">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M24 5c1.6 5.2 2.6 9.2 2.6 14.2v9.6c0 5-1 9-2.6 14.2-1.6-5.2-2.6-9.2-2.6-14.2v-9.6C21.4 14.2 22.4 10.2 24 5z"/>
+            <circle cx="13.5" cy="16" r="4.2"/>
+            <circle cx="34.5" cy="16" r="4.2"/>
+            <circle cx="13.5" cy="32" r="4.2"/>
+            <circle cx="34.5" cy="32" r="4.2"/>
+          </g>
+        </svg>
+        <p>Paddock<span>Principal</span></p>
+      </div>
+      <nav aria-label="Spis treści">
+        <p class="group">Świat gry</p>
+        <a href="#o-co-chodzi">O co chodzi</a>
+        <a href="#zasady">Zasady</a>
+        <a href="#swiat">Świat i epoki</a>
+        <a href="#ludzie">Ludzie</a>
+        <a href="#start">Start kariery</a>
+        <p class="group">Codzienność</p>
+        <a href="#dzien">Jeden dzień</a>
+        <a href="#skrzynka">Skrzynka</a>
+        <a href="#samochod">Samochód</a>
+        <a href="#rozwoj">Rozwój</a>
+        <a href="#tory">Tory</a>
+        <a href="#wyscig">Wyścig</a>
+        <p class="group">Zespół</p>
+        <a href="#pieniadze">Pieniądze</a>
+        <a href="#dostawcy">Dostawcy</a>
+        <a href="#umowy">Umowy</a>
+        <a href="#zarzad">Zarząd</a>
+        <a href="#szefowie">Szefowie</a>
+        <p class="group">Zaplecze</p>
+        <a href="#wiedza">Wiedza</a>
+        <a href="#zapis">Zapis</a>
+        <a href="#budowa">Jak to jest zbudowane</a>
+        <a href="#ekrany">Ekrany</a>
+        <a href="#poza">Czego nie robimy</a>
+        <a href="#stan">Gdzie jesteśmy</a>
+        <a href="#slownik">Słowniczek</a>
+      </nav>
+      <div class="board" aria-live="polite">
+        <b data-now>O co chodzi</b>
+      </div>
+      <div class="stripes" aria-hidden="true"></div>
+    </aside>
+
+    <div class="topbar">
+      <button class="menu" type="button" aria-expanded="false" aria-controls="spis">Spis</button>
+      <b data-now>O co chodzi</b>
+    </div>
+
+    <main id="tresc">
+      <header class="mast">
+        <h1>Paddock<br>Principal</h1>
+        <p class="lead">Jesteś menedżerem zespołu wyścigowego. Zaczynasz w wybranym roku, najwcześniej w 1950, i zostajesz z tym światem tak długo, jak chcesz. Obok Ciebie pracują prawdziwi ludzie. Wynik liczy symulacja: auto, talent i decyzje.</p>
+        <div class="band" aria-hidden="true"><i></i><i></i><i></i></div>
+        <p class="howto">Ten tekst jest do czytania, bez zaglądania w kod. Mówi, jak gra ma działać, i w tym samym zdaniu mówi, co silnik już liczy. Liczby przy czasie, pieniądzach i ludziach są szacunkami do dostrojenia. Przy każdej takiej liczbie stoi stempel „szacunek”. Gdyby przewodnik rozjechał się z plikami decyzji, liczą się tamte pliki.</p>
+      </header>
+
+      <section id="o-co-chodzi">
+        <h2>O co chodzi</h2>
+        <blockquote>
+          <p>Jest 1955. Jesteś młodym menedżerem w małym brytyjskim zespole. Stirling Moss jeszcze nie wie, dla kogo będzie jeździł w przyszłym roku.</p>
+        </blockquote>
+        <p>Za trzy lata ktoś wpadnie na pomysł, żeby wstawić silnik za kierowcą. Może to będziesz Ty. Trzydzieści lat później pewien Brazylijczyk może wygrać dla Ciebie mistrzostwo w zespole, którego w prawdziwej historii nie było. Gra położy obie osie czasu obok siebie: prawdziwą i Twoją.</p>
+        <p>Prowadzisz ludzi. Zatrudniasz kierowców, projektantów, inżynierów i mechaników. Ustalasz, na co idą pieniądze i jak duże ryzyko zespół bierze na siebie. W niedzielę decyduje sztab. Jakość tych decyzji jest jakością ludzi, których wcześniej wybrałeś.</p>
+        <p>Prawdziwe nazwiska są punktem startu i punktem odniesienia. Nikt nie wygrywa dlatego, że tak było naprawdę. Wygrywa ten, kto w tym świecie ma lepsze auto, lepszych ludzi i lepszy dzień. Jeśli zabierzesz komuś miejsce, które w historii należało do niego, świat jedzie dalej inną drogą. To jest cała zabawa.</p>
+        <p>Prawdziwe nazwiska sięgają 2026 roku. Dalej generator dopisuje nowych ludzi w tym samym rytmie i o podobnym rozkładzie talentu, jaki miały ostatnie dekady. Szew ma być niewidoczny. Kariera może iść w lata czterdzieste i dalej.</p>
+        <p>Na start jest tylko mistrzostwo świata Formuły 1. Wyścigi długodystansowe, samochody gran turismo i serie juniorskie mają powstać później na tym samym silniku. Edytor bazy i paczka całkowicie wymyślonych nazwisk też. Silnik od początku ma działać bez prawdziwych nazwisk, bo licencje to sprawa wydania, a świat ma być wymienne.</p>
+      </section>
+
+      <section id="zasady">
+        <h2>Zasady, które trzymają grę</h2>
+        <p>Są rzeczy, których gra nie odda, nawet gdy przybędzie ekranów. Warto je znać, zanim zejdzie się do samochodów i pieniędzy, bo z nich wynika reszta.</p>
+        <h3>Symulacja tworzy wynik</h3>
+        <p>Historia jest materiałem początkowym. Sezon 1955 zaczyna się od ludzi i zespołów, które wtedy istniały, i od aut o sile zbliżonej do prawdziwej. Potem każdy wyścig jest liczony. Dominacja Mercedesa w 1955 jest mocnym autem na starcie, a potem już sprawą tempa, awarii i decyzji.</p>
+        <h3>Widać, gdzie zszedłeś z historii</h3>
+        <p>Wyróżnikiem gry jest rozjazd, nie sama lista nazwisk. Kronika ma pokazać tytuły Twoje i prawdziwe, zespoły, które nie powstały albo przetrwały dłużej, technologie wcześniejsze albo późniejsze, kariery, które się nie wydarzyły. Na pulpicie jej nie będzie. Piszesz własną historię i nikt nie ma Ci jej przypominać co dzień. Kronika dostanie własne miejsce. Ten ekran jest jeszcze przed nami. Zasada jest już przyjęta.</p>
+        <h3>Jeden świat</h3>
+        <p>Tryb historyczny i tryb wymyślony to ten sam świat. Różnią się tym, skąd biorą się ludzie i skąd biorą się przepisy. Po wyczerpaniu prawdziwych danych generator przejmuje pałeczkę w tej samej grze. Nie ma osobnej „paczki sezonu 1988” do wczytania. Jest ciągła linia czasu, a rok startu jest tylko miejscem, od którego zaczynasz patrzeć.</p>
+        <h3>Epoka zmienia grę</h3>
+        <p>Rok 1952 gra się inaczej niż 2012, bo inne są awarie, bezpieczeństwo, pieniądze, liczba wyścigów, punktacja, tankowanie, opony i aerodynamika. To wpisy na osi czasu, a nie jeden współczesny model Formuły 1 z nałożonym filtrem sepii.</p>
+        <h3>Komputer gra tą samą grą</h3>
+        <p>Szefowie komputerowi używają tych samych zasad co Ty. Nie widzą ukrytych liczb. Nie dostają cichej premii, gdy zostają z tyłu. Nie znają przyszłości. Jeśli w ustawieniach mają „trzymać się historii”, dostają scenariusz zdarzeń do rozważenia. To oferta, nie wiedza o tym, co będzie.</p>
+        <h3>Ważne rzeczy da się wytłumaczyć</h3>
+        <p>Każda istotna decyzja komputera zostawia ślad: kto decydował, co brał pod uwagę, co wybrał i dlaczego. Ty widzisz wersję, którą mógłby usłyszeć prawdziwy szef zespołu: słowa inżyniera, agenta, radia. Narzędzie dla osób budujących grę widzi też liczby schowane w szufladzie. Włączenie tego narzędzia nie zmienia wyniku. Pytanie „co by było” też niczego nie rusza i nie zużywa losowości.</p>
+        <h3>Prawda i opinia to dwie różne rzeczy</h3>
+        <p>Symulacja zna prawdziwe tempo kierowcy. Twój zespół zna opinię, zwykle w postaci przedziału. Im lepszy skaut i im dłużej patrzy, tym przedział węższy. Podpisanie kontraktu albo wspólne kilometry zawężają go dalej. Samo patrzenie nigdy nie daje jednej dokładnej liczby. O tym szerzej w rozdziale <a href="#wiedza">Wiedza</a>.</p>
+      </section>
+
+      <section id="swiat">
+        <h2>Świat i epoki</h2>
+        <p>Świat jest jedną ciągłą symulacją od roku, w którym zacząłeś. Nie składa się z osobnych pudełek na sezony.</p>
+        <h3>Kto w nim żyje</h3>
+        <p><strong>Osoba</strong> może w życiu zmienić rolę. Jack Brabham, Bruce McLaren, John Surtees i Alain Prost byli kierowcami, a potem szefami własnych zespołów. Ta sama osoba zostaje w świecie, zmienia się tylko to, czym się zajmuje.</p>
+        <p><strong>Organizacja</strong> to zespół, producent silników, dostawca opon, sponsor albo organizator serii. Ma datę powstania, zmiany nazwy, sprzedaż i koniec. Gra pamięta linię następstwa. Tyrrell stał się British American Racing, potem Hondą, Brawnem i Mercedesem. To jeden łańcuch, nie pięć obcych zespołów.</p>
+        <p><strong>Tor</strong> ma wersje układu. Stara i nowa Spa, stare Hockenheim, północna pętla Nürburgringu to osobne kształty, każdy ze swoim charakterem. O torach jest osobny rozdział, bo z kształtu wynika tempo.</p>
+        <p><strong>Samochód</strong> jest projektem na sezon plus tym, co zespół dołoży w trakcie. <strong>Epoka</strong> jest wpisem na osi czasu: przepisy, punktacja, bezpieczeństwo, pieniądze.</p>
+        <h3>Przepisy są danymi</h3>
+        <p>W programie nie jest wpisane na sztywno, że „zawsze punktuje dziesięciu, zawsze jest jedno tankowanie, zawsze są trzy mieszanki”. Jest katalog rzeczy, które regulamin może zmienić: punktacja, format kwalifikacji, tankowanie, pojemność zbiornika, opony, masa, pomoce elektroniczne, ruchome skrzydło, odzysk energii, samochód bezpieczeństwa, limity testów, limit wydatków, rodzaj silnika. Oś czasu mówi, od którego sezonu co obowiązuje, od 1950 do 2026.</p>
+        <p>Stąd biorą się rzeczy, które w jednym modelu współczesnej Formuły 1 giną. Na początku punkt za najszybsze okrążenie. Dzielenie punktów, gdy w jednym aucie zmieniał się kierowca. Liczenie tylko części najlepszych wyników, aż do 1990 roku. Indianapolis 500 wliczane do mistrzostw do 1960 roku. Sponsorzy na nadwoziu od 1968 roku. Pieniądze z telewizji po umowie Concorde, czyli po podziale praw między zespoły. Zakaz tankowania, potem powrót tankowania, potem znowu zakaz. Samochód bezpieczeństwa. Limit wydatków.</p>
+        <h3>Głosowanie nad przepisami</h3>
+        <p>W erach, w których zespoły współdecydują o regulaminie, zmiany mają być proponowane i głosowane. Zespół głosuje według własnego interesu. Szef z wyczuciem polityki może lobbować. Są dwa tryby do wyboru przy zakładaniu kariery. W zwykłym każde głosowanie to jeden głos. W trybie z bankiem wstrzymanie się odkłada głos na później i zebrane głosy można wydać naraz na ważniejszą sprawę.</p>
+        <div class="note">
+          <p>Maszyna do głosowań jest już policzona: zespoły ważą własny interes, a próg większości zmienia się z epoką. Przełącznik „przepisy historyczne albo głosowane co sezon” jest już w ustawieniach kariery. Codzienny bieg kariery jeszcze sam tych głosowań nie odpala.</p>
+        </div>
+        <h3>Skąd bierze się historia</h3>
+        <p>Wyniki, kierowcy, konstruktorzy i tory od 1950 roku pochodzą z publicznego zbioru Jolpica. Ta baza ma licencję, która pozwala na użycie niekomercyjne, z podaniem źródła. Dlatego pobrane wyniki nie leżą w repozytorium projektu. Każdy buduje je u siebie narzędziem do składania danych. Wydanie gry na sprzedaż będzie potrzebowało własnego zbioru faktów albo zgody właściciela danych. To decyzja przed wydaniem, nie na teraz.</p>
+        <p>Obok tego leżą rzeczy napisane ręcznie na potrzeby gry: oś przepisów, charakter torów, katalog technologii, dostawcy silników, linia następstwa zespołów, założyciele, kluczowy personel. To jest nasze i może być w projekcie.</p>
+        <h3>Prawdziwe zdarzenie jest ofertą</h3>
+        <p>Przejście Michaela Schumachera do Ferrari pod koniec 1995 roku nie jest rozkazem. Oferta pojawia się, gdy Ferrari istnieje, ma budżet, nie ma już mistrza w składzie, a Schumacher może odejść z dotychczasowej umowy. Inaczej zdarzenie przepada i trafia do kroniki. Tak samo powstanie zespołu, wejście producenta, wejście sponsora, zmiana regulaminu, sprzedaż zespołu. Decyzję podejmuje zwykły aktor, człowiek albo komputer, na zwykłych zasadach. „Siła historii” tylko podbija atrakcyjność tej oferty dla komputera.</p>
+        <p>Jeśli nikt nie da prawdziwemu kierowcy szansy, jego kariera może się nie wydarzyć. To cecha gry. Trafia wtedy do kroniki rozbieżności, obok prawdziwej osi czasu.</p>
+      </section>
+
+      <section id="ludzie">
+        <h2>Ludzie</h2>
+        <p>Nie symulujemy kartingu sześciolatków. Człowiek wchodzi do świata w punkcie wejścia, czyli na najniższym szczeblu, który gra w ogóle modeluje. Na start jest to pula talentów: abstrakcyjny świat poza Formułą 1. Juniorzy, kierowcy innych serii, testerzy.</p>
+        <h3>Kiedy ktoś się pojawia</h3>
+        <p>Prawdziwy kierowca trafia do puli na dwa, trzy lata przed prawdziwym debiutem, nie wcześniej niż około siedemnastego roku życia. Dokładną liczbę lat ustalimy przy dostrajaniu. Weteran z Indianapolis albo z samochodów sportowych wchodzi w wieku, w jakim naprawdę był. Pula jest uzupełniana wiarygodnymi, wymyślonymi kierowcami. Bez nich lista byłaby spisem przyszłych mistrzów, a wybór nie miałby sensu. Komputer nie wie, kto jest „prawdziwy”.</p>
+        <div class="note">
+          <p>W silniku pula jest już żywym rejestrem. Co sezon dopisuje wymyślonych kierowców, aż jest ich około szesnastu, zwykle w wieku 17–20 lat, z rzadkim udziałem przyszłych gwiazd. <span class="est">szacunek</span> Kierowca bez kontraktu odpada po sześciu sezonach albo po przekroczeniu 28 lat. <span class="est">szacunek</span> Odpadnięcie jest zdarzeniem, które kronika może zapamiętać. Rozwój co sezon domyka część drogi do ukrytego potencjału, najwyżej o trzy punkty na jednej cesze, z odrobiną szczęścia. <span class="est">szacunek</span> Opłacony sezon „gdzieś niżej” przyspiesza rozwój: tanio i wolno albo drogo i szybko.</p>
+        </div>
+        <p>Skauci organizacji patrzą albo na całą pulę powoli, albo na jedną osobę szybko. Przedział oceny zwęża się z czasem, z siecią kontaktów skauta i ze wspólnymi wyścigami. Ocena talentu skauta decyduje o szerokości przedziału i o tym, czy może się pomylić.</p>
+        <h3>Skąd biorą się oceny prawdziwych kierowców</h3>
+        <p>Ocen nie wpisuje się z pamięci. Wylicza je ścieżka danych z prawdziwych wyników. Dla każdego wyścigu i kwalifikacji patrzy, jak kierowca wypadł wobec partnera z tego samego zespołu, i odrzuca awarie, które nie były jego winą. Z całej sieci takich par (Fangio z Mossem, Moss z Clarkiem, i tak dalej przez dekady) wychodzi, ile było umiejętności kierowcy w danym sezonie, a ile było autem. Kierowca jest oceniany na tle własnej epoki. Fangio, Clark, Fittipaldi i Hamilton mogą stać na szczycie skali swoich czasów jednocześnie. Mało porównań z partnerem ściąga ocenę ostrożnie ku średniej.</p>
+        <p>Z tego wychodzi łuk kariery: jak wysoko ktoś doszedł i kiedy. Sam kształt łuku jest wspólny. Rozwój, stabilizacja, szczyt, spadek dopiero około 36–40 lat. <span class="est">szacunek</span> Dane decydują o wysokości i o momencie szczytu. Kierowca, który odszedł na szczycie, jak Fangio, słabnie dopiero po swoim ostatnim prawdziwym sezonie.</p>
+        <p>Są dwa sposoby użycia tego łuku, wybierane przy starcie kariery. W wariancie potencjału prawdziwa kariera wyznacza sufit, a to, czy kierowca do niego dojdzie, zależy od auta, wyników, sztabu, pewności siebie i kontuzji. W wariancie trajektorii umiejętności rok po roku idą za prawdziwą krzywą. Świat zmienia wtedy, gdzie kto jeździ, a poziom w danym roku zostaje przy krzywej. Można też wziąć prawdziwe nazwiska i wylosować im umiejętności, albo wygenerować wszystkich od zera.</p>
+        <h3>Co opisuje kierowcę</h3>
+        <p>Cechy jazdy są w skali od 1 do 20, zawsze liczbami całkowitymi. W środku gra może liczyć płynniej, a drobny postęp widać jako strzałkę trendu. Obcemu kierowcy pokazujemy przedział, na przykład 16–19, a nie jedną liczbę.</p>
+        <div class="sheet-wrap">
+          <table>
+            <thead>
+              <tr><th>Cecha</th><th>Co robi w grze</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Zakręty</td><td>Czyste tempo. To nie jest jedna liczba, która rządzi wszystkim.</td></tr>
+              <tr><td>Hamowanie</td><td>Dohamowania i stabilność na wejściu w zakręt.</td></tr>
+              <tr><td>Płynność</td><td>Delikatność dla auta: opony, hamulce, skrzynia. Wartość jest stała, a jej waga zależy od epoki. W latach pięćdziesiątych ratuje skrzynię, dziś głównie opony.</td></tr>
+              <tr><td>Wyprzedzanie i obrona</td><td>Atak i utrzymanie pozycji.</td></tr>
+              <tr><td>Regularność</td><td>Powtarzalne czasy, mało błędów.</td></tr>
+              <tr><td>Opanowanie</td><td>Presja, start, walka o tytuł.</td></tr>
+              <tr><td>Adaptacja</td><td>Jak szybko wchodzi w nowe auto, nowy tor i zmienną pogodę.</td></tr>
+              <tr><td>Deszcz</td><td>Mokry i przesychający tor.</td></tr>
+              <tr><td>Kondycja</td><td>Długi, gorący albo fizycznie ciężki wyścig. Lata pięćdziesiąte, brak wspomagania, wyścigi długodystansowe.</td></tr>
+              <tr><td>Informacja zwrotna</td><td>Jak bardzo pomaga rozwijać auto i trafiać w ustawienia.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Gwiazdki, od zera do pięciu, z połówkami, są średnią tych cech podzieloną przez cztery. Dwadzieścia na dwadzieścia to pięć gwiazdek. Dziesięć na dwadzieścia to dwie i pół. Gwiazdki poruszają się razem z formą. Przy obcym kierowcy widać pasmo, na przykład trzy do czterech, a potencjał pokazują gwiazdki-duchy. Rynek da się sortować po gwiazdkach.</p>
+        <p>Doświadczenie nie jest cechą. To liczniki: starty ogółem, okrążenia na danym torze, wyścigi w deszczu, sezony w zespole. Każdy licznik ma konkretny skutek. Więcej startów to mniej błędów w chaosie pierwszego okrążenia. Więcej okrążeń na torze to lepsza znajomość układu.</p>
+        <p>Do tego dochodzą preferencje prowadzenia: podsterowność albo nadsterowność, miękka albo ostra trakcja, wczesne, normalne albo późne hamowanie. Auto ma swój charakter. Rozjazd kosztuje tempo i pewność siebie. Mistrz bywa przeciętny w aucie, które mu nie leży. Stąd pytanie przy projekcie: budujemy pod naszą gwiazdę czy pod partnera?</p>
+        <p>Osobowość ma jedną twarz główną, na przykład lojalny, najemnik, ambitny, mentor, i ukryte wartości: lojalność, ambicja, temperament, profesjonalizm, ego. Poznaje się je z czasem, z rozmów i z historii. One zmieniają wagi, którymi człowiek ocenia ofertę kontraktu.</p>
+        <p>Są też cechy charakteru jazdy, od zera do trzech sztuk. Mistrz kwalifikacji, ktoś, kto oszczędza opony albo je zjada, ktoś szybki tylko w czystym powietrzu, artysta wyprzedzania, ktoś, kto pęka pod presją. Widać je po obserwacji. Dają konkretny plus albo minus i mogą przyjść albo zniknąć w trakcie kariery. To one, bardziej niż jedna ocena, robią z kierowcy konkretnego człowieka.</p>
+        <p>Stan bieżący się zmienia: forma, morale, pewność siebie, zdrowie, kontuzje. Pewność siebie spada po błędach i w aucie, które nie leży. Zmęczenia nie ma na ekranie składu. Istnieje wewnątrz długich wyścigów, gdzie liczy się kondycja na dystansie.</p>
+        <h3>Tor lubi jednych bardziej niż drugich</h3>
+        <p>Dopasowanie do toru ma trzy warstwy. Pierwsza wynika wprost z cech i z profilu toru: w Monako ważą regularność i opanowanie, na Monzy więcej daje walka na prostych. Druga to znajomość, która rośnie z przejechanymi okrążeniami. Nowy tor albo nowa wersja układu jest stratą dla wszystkich, mniejszą dla doświadczonych. Trzecia jest mała i ukryta: niektórzy są po prostu lepsi albo gorsi na konkretnym torze, czego cechy nie tłumaczą. U prawdziwych kierowców ta reszta wychodzi z danych, gdy odejmie się model. U wymyślonych jest losowana. Odkrywasz ją z czasem, gdy inżynier powie, że ten człowiek ma coś z tym torem.</p>
+        <h3>Personel</h3>
+        <p>Zespół to nie dziesięć nazwisk. W latach pięćdziesiątych to kilkadziesiąt osób, dziś ponad tysiąc. Gra ma rozróżniać kluczowych ludzi z imienia i działy z liczebnością. Liczebność skraca czas. Jakość, infrastruktura i budżet decydują o tym, jak dobry jest efekt. Kolejny inżynier daje coraz mniej, a zbyt duży dział gubi się w uzgodnieniach. Samym zatrudnianiem nie da się wygrać.</p>
+        <p>Role przychodzą z epoką. Dyrektor techniczny i główny projektant są od 1950 roku. Szef aerodynamiki ma sens od skrzydeł. Strateg staje się osobną rolą, gdy w grze jest tankowanie i złożone postoje. Szef zespołu, i ten ludzki, i komputerowy, ma cechy menedżerskie: negocjacje, zarządzanie ludźmi, politykę i biznes. Czy takie cechy ma też właściciel albo prezes, jest jeszcze otwarte. Na razie zarząd jest bytem z cierpliwością, bez własnego charakteru osoby.</p>
+        <div class="note">
+          <p>Pełny model działów, z liczebnością i talentami wyrastającymi w środku, jest kierunkiem. W obecnym rozwoju auta liczebność jest jedną liczbą zastępczą. Oceny historycznego personelu też są na razie zastępcze, do czasu wyliczenia.</p>
+        </div>
+        <h3>Wiek i odejście</h3>
+        <p>Emeryt zostaje w świecie. Ma datę odejścia, kończą mu się kontrakty, nie podpisze nowego i nie liczy się jako aktywny. Prawdziwe osoby zostają w zapisie zawsze. Wymyślone, bez znaczącej kariery, będzie można kiedyś sprzątnąć na koniec sezonu, tak żeby przyszłość się od tego nie zmieniła.</p>
+        <p>W przebiegu bez wyścigów prawdziwa osoba ze znanym ostatnim sezonem odchodzi 31 grudnia tego roku. Kierowcy z ostatniego sezonu danych są pomijani, bo dane się tam po prostu kończą, a nie dlatego, że wszyscy naraz kończą karierę. Pozostali odchodzą według krzywej wieku. To też szacunek.</p>
+      </section>
+
+      <section id="start">
+        <h2>Start kariery</h2>
+        <p>Gracz jest osobą, nie zespołem. Może zmienić pracodawcę. Może zostać zwolniony. Kariera trwa dalej. Na starcie wybiera się rok, zespół i to, jak mocno świat trzyma się historii.</p>
+        <p>Ustawienia są osiami, a gotowe zestawy tylko je składają. Każdą oś da się ruszyć ręcznie.</p>
+        <div class="sheet-wrap">
+          <table>
+            <thead>
+              <tr><th>Zestaw</th><th>Ludzie</th><th>Przepisy</th><th>Szefowie komputerowi</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Najbardziej historyczny</td>
+                <td>Prawdziwa trajektoria, rok po roku</td>
+                <td>Historyczne</td>
+                <td>Realizują ofertę historii, siła historii na pełną</td>
+              </tr>
+              <tr>
+                <td>Zbalansowany, domyślny</td>
+                <td>Prawdziwy potencjał, rozwój zależy od świata</td>
+                <td>Historyczne</td>
+                <td>Reagują na sytuację, siła historii w połowie</td>
+              </tr>
+              <tr>
+                <td>Chaos</td>
+                <td>W pełni wygenerowani</td>
+                <td>Głosowane co sezon</td>
+                <td>Prawie losowo, siła historii wyłączona</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Do tego dochodzą suwaki. Siła historii, od zera do stu, mówi, jak chętnie komputer bierze sensowną ofertę historyczną. Przy stu świat bez Twojego udziału idzie torem prawdziwej historii i rozjeżdża się tam, gdzie wejdziesz. Jeśli zabierzesz Mercedesowi miejsce dla Hamiltona, Mercedes weźmie kogoś innego, na przykład Alonso. Przy zerze zostaje czysta symulacja. Suwak losowości rusza rozwój, formę i awarie. Śmiertelne wypadki są osobnym przełącznikiem, domyślnie wyłączonym. Poważny wypadek kończy się wtedy kontuzją albo końcem kariery. Prawdziwe tragedie nigdy nie są odtwarzane według daty z kalendarza.</p>
+        <p>Jest też przełącznik gry bez liczb. Zostaje opisany przy wiedzy, bo to ta sama wiedza zespołu, tylko powiedziana słowami.</p>
+        <p>Rok startu nie może być wcześniejszy niż 1950. Start po 2026 wymaga ludzi wygenerowanych, bo prawdziwe dane się kończą. Odtwarzanie historii wymaga prawdziwych ludzi i historycznych przepisów. Inaczej zestaw jest odrzucany, z jasnym powodem.</p>
+        <h3>Jaki zespół na początek</h3>
+        <p>Pierwsza grywalna wersja to sezon 1955 w przejętym, istniejącym zespole. Każdy zespół wystawia dokładnie dwa auta i dwóch stałych kierowców. Bez prywatnych zgłoszeń, bez sprzedaży podwozi i bez przesiadek między autami w trakcie sezonu. To świadome uproszczenie historii, żeby pierwszy sezon dało się dokończyć.</p>
+        <p>Własny zespół jest opisany i przyjdzie później. Na starcie kariery miałby budżet, kraj bazy, dostawcę silników i sponsora założycielskiego z warunkami: kierowca danej narodowości, talent z danego kraju w określonym czasie, podium w ciągu kilku lat, budżet powyżej zera. Spełnienie daje pieniądze i zaufanie. Złamanie oznacza odejście sponsora. W trakcie kariery nowy zespół od zera jest realny głównie do lat dziewięćdziesiątych, bo bariery wejścia rosną: umowa Concorde, depozyt, opłata za rozwadnianie stawki. Wykup upadającego zespołu ma być możliwy w każdej epoce. Przejmujesz wtedy wszystko tak, jak jest: kontrakty, budżet, długi. Nic nie jest dorysowywane, bo człowiek i komputer grają tymi samymi zasadami.</p>
+        <p>Udziały też są w planie. Można sprzedać część zespołu za gotówkę, kupić udziały w innym, prowadzić zespół siostrzany. Nie da się skupić całej stawki. Limity biorą się z regulaminu, ze zgody organizatora i z reakcji sponsorów. W piaskownicy limity będzie można wyłączyć.</p>
+      </section>
+
+      <section id="dzien">
+        <h2>Jeden dzień</h2>
+        <p>Czas płynie dzień po dniu. Nowa kariera zaczyna się 1 stycznia. W gotowej grze przycisk „Dalej” przewija puste dni aż do sprawy, która wymaga człowieka. W dzień wyścigu ten sam przycisk staje się wejściem w weekend. Dni bez zdarzeń są tanie, więc przewinięcie tygodnia nie jest osobną symulacją każdego oddechu.</p>
+        <p>Świat zmienia się tylko przez polecenia. Ekran nie poprawia stanu po cichu. Polecenie jest sprawdzane. Odrzucone nie rusza niczego i wraca z powodem. Przyjęte wykonuje się i zostaje w dzienniku. Dzięki temu wczytany zapis może powtórzyć te same polecenia i dostać tę samą przyszłość.</p>
+        <h3>Poranek</h3>
+        <ol class="steps">
+          <li><span><b>Termin w skrzynce mija.</b> Sprawa z datą ważności rozstrzyga się domyślną opcją. To też jest zapisane polecenie, więc po wczytaniu gry stanie się to samo.</span></li>
+          <li><span><b>Szefowie składają polecenia.</b> W zwykłym przebiegu rano działa na razie proste zastępstwo, które często przedłuża umowy kierowców. Pełni szefowie komputerowi są już napisani i składają te same rodzaje poleceń co człowiek, ale ten poranek ich jeszcze nie woła.</span></li>
+          <li><span><b>Kolejka się wykonuje.</b> Polecenia idą po kolei, w ustalonej kolejności dnia i numeru zgłoszenia. Stąd przebieg da się powtórzyć.</span></li>
+          <li><span><b>Czas rusza albo stoi.</b> Dzień mija, gdy wszyscy ludzie są gotowi. Jedna nierozstrzygnięta decyzja zatrzymuje czas. W grze ze znajomymi zatrzyma go dla wszystkich. Gra dla jednej osoby jest po prostu spotkaniem bez gości.</span></li>
+        </ol>
+        <h3>Co dzieje się w ciągu dnia</h3>
+        <p>Kolejność jest stała, bo jedne rzeczy czytają wynik poprzednich. W ludzkim skrócie dzień wygląda tak.</p>
+        <ol class="steps">
+          <li><span><b>Pula talentów.</b> Młodzi się rozwijają, pula uzupełnia się nowymi nazwiskami, skauci obserwują. Błąd obserwacji losuje się osobno od rozwoju, więc dodatkowe zerknięcie skauta nie przesuwa czyjegoś dorastania.</span></li>
+          <li><span><b>Wiek.</b> Ludzie się starzeją. Kto kończy karierę, zostaje w świecie z datą odejścia.</span></li>
+          <li><span><b>Umowy.</b> Kończące się kontrakty wygasają. Negocjacje dostają odpowiedź w zaplanowanym dniu.</span></li>
+          <li><span><b>Przełom roku.</b> Gdy kalendarz to mówi, sezon się zamyka.</span></li>
+          <li><span><b>Sponsorzy.</b> Rozmowy dojrzewają. Rywal może podpisać kogoś, z kim też rozmawiasz.</span></li>
+          <li><span><b>Pieniądze.</b> Pensje schodzą pierwszego dnia miesiąca. Inne koszty, które dany dzień przyniósł, dopisują się do księgi.</span></li>
+          <li><span><b>Cele i zarząd.</b> Sprawdza się, co było obiecane. Zarząd przesuwa zaufanie. Skutek celu liczy się na końcu, gdy wszyscy zdążyli go zobaczyć.</span></li>
+        </ol>
+        <p>Po dniu sponsor może wypłacić premię albo odejść, a zarząd stosuje skutek celu do zaufania. Potem cele, których nikt nie przejął, się rozliczają.</p>
+        <div class="note">
+          <p>Wyścigi, rozwój auta i umowy z dostawcami mają swoje dni, już opisane w kodzie. Codzienny bieg kariery ich jeszcze do tej listy nie dopisał. Dlatego długi przebieg bez klikania przeżywa ludzi, umowy, sponsorów, księgę i zarząd, a nie przeżywa jeszcze niedzieli na torze. O skutkach tego jest w rozdziale o pieniądzach i na końcu, w „Gdzie jesteśmy”.</p>
+        </div>
+        <p>Zapis robi się w stabilnych porankach: koniec dnia, a gdy wyścigi wejdą do kalendarza, także tuż przed wyścigiem i tuż po nim. Wyścig jest jedną całością. Nie zapisuje się go w połowie okrążenia.</p>
+      </section>
+
+      <section id="skrzynka">
+        <h2>Skrzynka</h2>
+        <p>Sprawy przychodzą, gdy mają treść. Cisza jest w porządku. Na pulpicie widać nadawcę i tytuł. Decyzje z terminem są przypięte u góry. Szczegóły i wybór są w skrzynce.</p>
+        <p>Tylko decyzja zatrzymuje czas. Zwykła wiadomość nie. Zanim potwierdzisz, widać skutek każdej opcji. Najpierw wybór, potem osobny przycisk potwierdzenia. Kliknięcie opcji samo niczego nie robi.</p>
+        <p>U jednego menedżera naraz blokuje czas jedna sprawa. Jeśli slot jest zajęty przez coś innego, nowa decyzja go nie wypycha. Oferta z datą ważności musi mieć opcję domyślną. Gdy termin minie, host sam wstawia tę opcję do kolejki. Dzięki temu wygaśnięcie jest w dzienniku i powtarza się po wczytaniu zapisu.</p>
+        <p>Gdy koncepcja auta dochodzi do gotowości i nikt nie kazał jej wdrażać automatycznie, do skrzynki wpada pytanie: wdrażamy teraz czy rozwijamy dalej. Domyślnie, po czternastu dniach, odpowiedź brzmi: rozwijamy dalej. <span class="est">szacunek</span> Ten mechanizm jest napisany razem z rozwojem. W codziennym biegu odezwie się, gdy rozwój zostanie do tego biegu dopięty.</p>
+      </section>
+
+      <section id="samochod">
+        <h2>Samochód</h2>
+        <p>Budowanie auta ma być jedną z najlepszych części gry, bo nie ma jednej dobrej odpowiedzi. Każda droga i każda oś ma cenę, a cena zależy od toru, regulaminu, budżetu i ludzi.</p>
+        <h3>Skąd bierze się auto</h3>
+        <div class="sheet-wrap">
+          <table>
+            <thead>
+              <tr><th>Droga</th><th>Co zyskujesz</th><th>Czym płacisz</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Samochód kliencki</td>
+                <td>Tanio, szybko, znana baza. Dobry start dla nowego zespołu.</td>
+                <td>Sufit wyznacza producent. Zawsze jesteś krok za fabryką.</td>
+              </tr>
+              <tr>
+                <td>Własna konstrukcja</td>
+                <td>Pełna kontrola. Sufit jest w Twoich ludziach.</td>
+                <td>Drogo. Projekt może nie wyjść. Potrzeba projektantów i zaplecza.</td>
+              </tr>
+              <tr>
+                <td>Umowa z producentem</td>
+                <td>Pieniądze, części, inżynierowie, silnik skrojony pod auto.</td>
+                <td>Zależność, cele producenta, ryzyko że odejdzie.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>W Formule 1 samochód kliencki był codziennością do umowy Concorde, a od 1981 roku własna konstrukcja jest obowiązkowa. W pierwszej wersji gry polecenie „kup gotowe podwozie” jest świadomie odrzucane. Każdy zespół ma dwa własne auta. Siła na starcie ma odtwarzać historię: Mercedes w 1955 jest mocny. Gdy brakuje wyliczonego efektu auta z prawdziwych wyników, zostaje próg zastępczy. W świecie w pełni wygenerowanym progi są losowane.</p>
+        <h3>Sześć osi koncepcji</h3>
+        <p>Projekt roczny to wybory, w których każdy biegun coś kosztuje.</p>
+        <div class="sheet-wrap">
+          <table>
+            <thead>
+              <tr><th>Oś</th><th>Jedna strona</th><th>Druga strona</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Aerodynamika</td><td>Mały opór, szybko na prostych</td><td>Duży docisk, szybko w zakrętach, większe zużycie opon</td></tr>
+              <tr><td>Filozofia</td><td>Ewolucja: pewna, przewidywalna</td><td>Rewolucja: wyższy sufit, ryzyko porażki, rywale mogą skopiować</td></tr>
+              <tr><td>Okno pracy</td><td>Szerokie: łatwe ustawienia na każdym torze</td><td>Wąskie: bardzo szybkie w oknie, bezradne poza nim</td></tr>
+              <tr><td>Chłodzenie</td><td>Zapas: mniej awarii, trochę wolniej</td><td>Na krawędzi: szybciej, więcej awarii w upale</td></tr>
+              <tr><td>Opony</td><td>Łagodne: dłuższe odcinki</td><td>Agresywne: szybkie okrążenie, słabsze na dystansie</td></tr>
+              <tr><td>Silnik</td><td>Pod konkretną jednostkę, optymalnie</td><td>Uniwersalnie, łatwiej zmienić dostawcę</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Z koncepcji wychodzi wektor osiągów: moc, docisk, przyczepność mechaniczna, hamowanie, niezawodność. Docisk jest obcięty tym, na co epoka w ogóle pozwala. Prawdziwy wektor czyta symulacja wyścigu. Ty i szefowie komputerowi widzicie przedział. Rywal nie widzi ani sufitu, ani wektora.</p>
+        <p>Miejsce w stawce na danym torze wynika z tych parametrów zestawionych z geometrią toru. Na Monzie prędkość maksymalna waży więcej niż docisk. Na torze pełnym wolnych zakrętów jest odwrotnie. Jednej liczby „jak dobre jest auto w tym sezonie” nie ma, bo pytanie bez toru nie ma odpowiedzi.</p>
+        <p>Ile w wyniku jest kierowcy, a ile auta, też zależy od epoki. Proporcję ma dać ten sam model, który liczy oceny z prawdziwych wyników. Dopóki nie ma przeliczenia na danych, proporcja jest szacunkiem.</p>
+        <p>Kierowca z dobrą informacją zwrotną pomaga rozumieć auto w sezonie. Preferencje prowadzenia porównuje się z charakterem koncepcji. Rozjazd widać w tempie.</p>
+      </section>
+
+      <section id="rozwoj">
+        <h2>Rozwój</h2>
+        <p>Nie ma wspólnej krzywej, na której „stoi” każde auto, i nie ma drzewka technologii do kupienia. Tempo rozwoju wynika z zapasu własnej koncepcji.</p>
+        <p>Każda koncepcja ma sufit. Zależy od pomysłu, od regulaminu i od ludzi, którzy ją wymyślili. Nikt nie zna go dokładnie. Dyrektor techniczny podaje szacunek, a trafność szacunku zależy od jego umiejętności. Zysk z pracy jest proporcjonalny do tego, ile zapasu jeszcze zostało, i do zasobów. Blisko sufitu każda kolejna dziesiąta sekundy kosztuje coraz więcej. Zespół z trafioną koncepcją rozwija się dłużej. Zespół z przeciętną szybko staje i musi zdecydować o zmianie. Tak Mercedes utknął przy koncepcji z 2022 roku. Nowa regulacja daje nowe sufity. Część wiedzy przechodzi w ludziach i w narzędziach. Część, ta o zakazanym rozwiązaniu, przepada.</p>
+        <h3>Trzy koszyki</h3>
+        <p>Ty ustalasz podział zasobów. Bieżące auto, konto wiedzy na później, przyszły rok. Możesz też wskazać, które obszary są ważniejsze: aerodynamika, podwozie, niezawodność, opony i prowadzenie. Konkretne projekty wybierają inżynierowie, według swoich cech, doświadczenia i stażu. To ta sama logika, której używają zespoły komputerowe, więc pierwsza wersja gry nie potrzebuje osobnego ekranu „kliknij projekt”. Ręczny wybór projektów ma być później opcją w ustawieniach kariery.</p>
+        <p>Gdy zmienisz podział w trakcie, inżynierowie mogą odezwać się w skrzynce: dajcie nam jeszcze dwa tygodnie, jesteśmy blisko. Możesz zostać przy planie albo ciąć.</p>
+        <p>Konto wiedzy jest odkładaniem wyników badań. Da się je wydać później, na poprawkę, na nową koncepcję, na auto przyszłego roku. Trzymanie wszystkiego na zapas też kosztuje, bo rywale w tym czasie jadą. Zmiana przepisów obniża konto proporcjonalnie do tego, ile wymiarów technicznych się zmieniło.</p>
+        <p>Liczba ludzi skraca czas. Nie zamienia przeciętnego pomysłu w genialny. Jakość siedzi w kluczowych ludziach, w zapleczu i w budżecie. Nowe auto na starcie sezonu dostaje tylko część swojego sufitu. Resztę trzeba wyrobić w sezonie. Ostrożna filozofia daje mocniejszy start i niższy sufit. Eksperymentalna daje słabszy start, wyższy sufit i większy rozrzut.</p>
+        <h3>Gotowa koncepcja czeka na decyzję</h3>
+        <p>Gdy koncepcja jest gotowa, nikt nie wstawia jej do auta zegarem. Patrzysz na stan prac i decydujesz: zatwierdzamy teraz czy rozwijamy dalej. Czekanie może dać więcej, a w tym czasie rywale idą do przodu i konto traci wartość. Zatwierdzenie kosztuje czas i pieniądze.</p>
+        <p>Zatwierdzenie uruchamia produkcję. Stare auto jeździ dalej, bez zmian. Nowe wchodzi pierwszego dnia po ostatnim dniu produkcji, więc nigdy w połowie weekendu. Koszt produkcji, połowa kosztu rozwoju koncepcji, schodzi z księgi w całości w dniu zatwierdzenia. <span class="est">szacunek</span> Produkcji nie da się cofnąć. Pieniądze są wydane. Czy kiedyś dopuścić anulowanie, jest otwarte.</p>
+        <p>Czas produkcji to około 30 dni w 1950 roku. Rośnie z pierwiastkiem liczebności zespołu w danej epoce, bo auto się komplikuje: około 40 dni w 1955 i około 190 w 2025. Większa załoga go skraca. <span class="est">szacunek</span> Produkcja niczego już nie losuje. Efekt jest ustalony w chwili, gdy kończy się rozwój.</p>
+        <p>Do decyzji dostajesz tylko to, co Twój zespół może wiedzieć: status, przedział dalszego zysku z trwających prac, dni do następnego wyścigu, czas i koszt produkcji, oraz pierwszy wyścig, na którym nowe auto już by jechało. Nie dostajesz ukrytego sufitu.</p>
+        <p>Starsze terminy nadal istnieją, żeby nic się nie rozsypało: „zatwierdź, gdy tylko gotowe”, „po kilku wyścigach”, „w przyszłym sezonie”, „trzymaj”. Trzymana koncepcja może przeżyć zmianę roku. Stare auto jedzie dalej. Kary za trzymanie nie ma. Gorzej jest samo z siebie, bo inni się rozwijają. Natychmiastowe włożenie koncepcji do auta, bez produkcji, jest wycofane.</p>
+        <p>Nowa część nie daje pełnych osiągów od razu. Zespół musi ją zrozumieć przez testy i kilometry. Limity testów z regulaminu sprawiają, że duża poprawka w połowie sezonu naprawdę coś kosztuje.</p>
+        <h3>Przełomy od ludzi</h3>
+        <p>Osobno od codziennych poprawek są przełomy. Nie da się ich przyspieszyć samymi pieniędzmi. Inżynier ma cechę innowacyjności. Od niej zależy, jak często wpada na pomysł i jak dobry ten pomysł jest średnio. Rozkład ma długi ogon: słaby inżynier raz na wiele lat może trafić coś wielkiego. Pomysł przychodzi do skrzynki, z opisem, szacunkiem kosztu i niepewnością. Inwestycja jest zakładem. Wykonanie zależy od precyzji, działu, zaplecza i budżetu. Pomysł może nie wypalić.</p>
+        <p>Rywale kopiują to, co widać. Osobnego systemu szpiegostwa nie ma. Kopiowanie wynika z umiejętności inżynierów i z tego, że ludzie przechodzą między zespołami. Technologia, która zbyt mocno dominuje, może zostać zakazana. Taka propozycja przychodzi jako głosowanie.</p>
+        <p>Każda technologia ma najwcześniejszy wiarygodny rok, wynikający z materiałów i wiedzy. Da się wyprzedzić historię o kilka lat. Nie da się o dekadę. Silnik za kierowcą, monokok, skrzydła, efekt przyziemny, turbo, włókno węglowe, półautomatyczna skrzynia, aktywne zawieszenie, hybryda: to katalog przykładów, nie drzewko do odklikania.</p>
+        <div class="note">
+          <p>Rozwój z podziałem zasobów, wyborem inżynierów, kontem wiedzy i produkcją koncepcji jest już policzony, łącznie z zapisem. Codzienny bieg kariery jeszcze go nie woła. Przełomy technologiczne i model działów do tego kroku nie weszły. Infrastruktura, która nigdy się nie kończy, też jest kierunkiem: tunel z 1975 roku jest przestarzały w 1990, bo granica przesuwa się z całym sportem, a nowe rodzaje obiektów przychodzą z epoką. W 1972 nie może być stanu, w którym „już wszystko zbudowane”.</p>
+        </div>
+      </section>
+
+      <section id="tory">
+        <h2>Tory</h2>
+        <p>Układ toru jest listą punktów w metrach. Z nich liczy się gładka, zamknięta krzywa i rozciąga ją do znanej długości. Ten sam plik czyta symulacja i rysunek na ekranie. Zmiana pliku zmienia jedno i drugie.</p>
+        <figure class="sketch">
+          <svg viewBox="0 0 360 200" role="img" aria-labelledby="tor-cap">
+            <path d="M70 150 C 48 150 36 92 78 62 C 112 38 150 48 176 74 C 198 44 250 28 300 58 C 338 82 334 132 292 150 C 246 170 196 150 176 128 C 150 156 112 168 70 150 Z" fill="none" stroke="#231710" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M70 142 v16" stroke="#e2572b" stroke-width="3"/>
+            <circle cx="70" cy="150" r="4.5" fill="#e2572b"/>
+          </svg>
+          <figcaption id="tor-cap">Rysunek pokazuje ideę, nie żaden prawdziwy tor. Pomarańczowa kreska to linia mety, czyli pierwszy punkt. Krzywa przechodzi przez punkty kontrolne i jest rozciągana do długości z katalogu.</figcaption>
+        </figure>
+        <p>Z krzywizny wychodzi, jak szybko da się jechać w danym miejscu, i jaki udział mają proste oraz zakręty wolne, średnie i szybkie. Czas okrążenia składa się z fizyki auta i z tej geometrii. Prototyp Monzy, z 2026 roku jako próba metody, ma 65 punktów i odtwarza 5,793 kilometra. Z krzywizny wyszło około 78 kilometrów na godzinę w Rettifilo i około 96 w Roggii, a proste zajęły około 88 procent długości. Dziesięć kilometrów na godzinę więcej prędkości maksymalnej dało około 0,8 sekundy na okrążeniu. Dziesięć procent docisku dało około 0,2 sekundy. To jest charakter Monzy i to są szacunki do kalibracji.</p>
+        <p>Pliki są dla układów używanych w latach 1950–1960. Kolejne dekady dojdą porcjami. Kształty są przybliżone: narysowane z ogólnej wiedzy o układach i z opisów, bez obrysowywania cudzych map. Każdy plik mówi wprost, skąd się wziął i jak bardzo jest pewny. Poprawia się je w edytorze torów, z własnych obrazów. Obrazy do repozytorium nie trafiają.</p>
+        <p>Walidacja pilnuje, żeby układ istniał w katalogu, miał dość punktów, nie przecinał sam siebie i nie miał za ostrych załamań, a długość trzymała się katalogu. Brak pliku nie wywraca gry: dostajesz neutralny „stadion” o właściwej długości, bez nazw zakrętów, i widać, że to zastępstwo. Celowego skrzyżowania, mostu albo tunelu, na razie zadeklarować się nie da. Nürburgring z 1976 roku przez chwilę rysuje się z układu z 1951, dopóki nie powstanie własny plik.</p>
+      </section>
+
+      <section id="wyscig">
+        <h2>Wyścig</h2>
+        <p>Nie mikrozarządzasz magazynem części. Zatrudniasz stratega, a on prowadzi postoje i tempo. Ręczne pit-stopy i polecenia tempa mają być opcją w ustawieniach kariery, dla tych, którzy tego chcą. Gra jest złożona z klocków właśnie po to, żeby dało się je oddać ludziom albo wziąć w swoje ręce.</p>
+        <p>Weekend jest jedną zamkniętą kalkulacją. Te same składniki dają ten sam wynik, co do joty. Nic w trakcie nie czyta zegara komputera i nie zagląda do stanu kariery, żeby coś podmienić.</p>
+        <h3>Kolejność weekendu</h3>
+        <ol class="steps">
+          <li><span><b>Przepisy sezonu.</b> Punktacja, postoje, paliwo, opony, bezpieczeństwo. Biorą się z osi czasu, nie z jednego współczesnego regulaminu.</span></li>
+          <li><span><b>Pogoda na cały wyścig.</b> Jest generowana na początku: sucho, lekki deszcz, ulewa, burza, ze zmianami w trakcie. Prawdziwy przebieg zostaje w szufladzie.</span></li>
+          <li><span><b>Ukryta szorstkość toru.</b> Jak mocno układ zjada opony. Losuje się raz, z talii szumu okrążeń, i żaden samochód tego nie przesuwa.</span></li>
+          <li><span><b>Kwalifikacje</b> w formacie epoki, z własnym szumem każdego auta.</span></li>
+          <li><span><b>Awaria na zapas.</b> Na starcie wyścigu każde auto losuje, czy i która część odmówi posłuszeństwa w trakcie. W latach pięćdziesiątych ta talia decyduje o dużej części wyników.</span></li>
+          <li><span><b>Okrążenie po okrążeniu.</b> Czas, incydent, decyzja stratega, postój, wyprzedzanie. Strateg widzi własny samochód, odstępy z tablicy czasów, przepisy i prognozę pogody, która może się mylić. Nie widzi prawdziwej pogody.</span></li>
+          <li><span><b>Klasyfikacja i punkty</b> według zasad sezonu, łącznie z liczeniem tylko części najlepszych wyników i z dzieleniem punktów przy zmianie kierowcy, tam gdzie epoka tak każe.</span></li>
+          <li><span><b>Taśma.</b> Z weekend wychodzi zapis zdarzeń. Da się go czytać od razu albo odtwarzać w tempie oglądania. Relacja pisana, punkty, zapis i przyszła mapa czytają taśmę. Nie zaglądają do środka silnika.</span></li>
+        </ol>
+        <h3>Z czego składa się czas okrążenia</h3>
+        <p>Czas jest sumą warstw. Szum podaje wywołujący. Sam wzór niczego nie losuje, więc da się go policzyć dwa razy i dostać to samo.</p>
+        <ul>
+          <li>Baza toru: długość dzielona przez prędkość typową dla epoki, poprawiona charakterem układu.</li>
+          <li>Dopasowanie auta: moc, docisk, przyczepność mechaniczna i hamowanie ważone profilem toru. Czułość tej warstwy zmienia się z dekadą.</li>
+          <li>Kierowca: czyste tempo wobec średniej.</li>
+          <li>Ukryte powinowactwo do toru, w małym zakresie sekund.</li>
+          <li>Paliwo: każdy kilogram coś kosztuje.</li>
+          <li>Opony: zużycie zależne od mieszanki, od szorstkości i od stylu.</li>
+          <li>Ruch i brudne powietrze, gdy jedziesz komuś blisko za plecami.</li>
+          <li>Mokry tor.</li>
+          <li>Szum, mniejszy u kierowcy regularnego.</li>
+        </ul>
+        <p>Osobno jest fizyczny ślad prędkości wzdłuż krzywej. Przyczepność mechaniczna to baza. Docisk dokłada przyczepność rosnącą z kwadratem prędkości. Do tego prędkość maksymalna, przyspieszenie i hamowanie. Oceny zespołu skalują fizykę typową dla epoki. Pięćdziesiąt punktów to średnia tych lat. Docisk powyżej limitu epoki liczy się tak, jakby był na limicie. Z tego śladu da się narysować, gdzie auto jest na torze. W pierwszej wersji kropki na mapie biorą się z taśmy przez przybliżenie wzdłuż geometrii. Ma być podpisane jako przybliżenie.</p>
+        <p>Incydenty zależą od bezpieczeństwa epoki, od agresji i opanowania kierowcy, od sprzętu. Skutkiem jest kontuzja albo koniec kariery. Śmierć tylko przy włączonej opcji, i nigdy jako odtworzenie prawdziwej tragedii.</p>
+        <p>Samochód bezpieczeństwa, wirtualny samochód bezpieczeństwa, mieszanki, obowiązkowy postój, system redukcji oporu: pojawiają się, gdy oś czasu mówi, że epoka je ma. W latach pięćdziesiątych jest jedna mieszanka, rzadkie postoje i duża awaryjność. W erze tankowania strateg liczy paliwo. Później liczy mieszanki i neutralizacje.</p>
+        <h3>Relacja</h3>
+        <p>Z taśmy da się złożyć tekst do czytania: co się stało, kto odpadł, jak zmieniało się prowadzenie. Tekst dostaje klucze tłumaczeń, po polsku i po angielsku, a nie gotowe zdania zaszyte w silniku. Warunki, które czyta widz, to stan toru i temperatura na starcie oraz zmiany, które pokazały się w przebiegu. Prawdziwa pogoda, ta z szuflady, do relacji nie wchodzi. Nazwy wewnętrzne zdarzeń też nie. Koloryt epoki bierze się z tego, co naprawdę zaszło: postoje, wycofania, zmiany kierowców, a nie z osobnego akapitu napisanego „pod rok 1955”.</p>
+        <div class="note">
+          <p>Weekend da się policzyć osobno i przeczytać. Kalendarz kariery jeszcze sam go nie uruchamia. Docelowo wyścigi w tle, inne serie i świat bez gracza, mogą zawsze iść szybkim silnikiem okrążeniowym. Wyścig, który oglądasz, będzie mógł kiedyś iść silnikiem ciągłym: pozycja i prędkość w każdej chwili, wyprzedzanie i kontakt wynikające z jazdy, bez wstawianych scenariuszy. Oba silniki mają oddawać tę samą taśmę. Reszta gry i ekran nie powinny wiedzieć, który pracował. To furtka już zapisana. Ciągłego silnika jeszcze nie ma.</p>
+        </div>
+        <p>Tempo oglądania: na żywo, pięć, dziesięć, dwadzieścia razy szybciej, albo sam wynik. Wspólne oglądanie ze znajomymi użyje tej samej taśmy, puszczanej w jednym tempie, a polecenia z boksu wrócą jako zwykłe polecenia z numerem okrążenia.</p>
+      </section>
+
+      <section id="pieniadze">
+        <h2>Pieniądze</h2>
+        <p>Pieniądze w sporcie rosną z popularności, nie z automatycznej inflacji dopisanej co rok. Na razie popularność jest jedna, globalna. Baza fanów w każdym kraju jest w planie.</p>
+        <p>Wyrównana walka o tytuł i wielu różnych zwycięzców popularność podnoszą. Długa dominacja jednego zespołu ją obniża. W trybie historycznym bazą jest oś epok: era telewizji, umowa Concorde. Popularność świata ten bazowy ruch wzmacnia albo tłumi. Po 2026 zostaje sam model. Skutek jest praktyczny: pula nagród i pieniędzy z praw, rynek sponsorów, naturalny wzrost pensji. Gwiazdy są więcej warte, bo zespoły mają więcej pieniędzy, a nie dlatego, że ktoś wpisał „inflacja 3 procent”.</p>
+        <p>Przychody zmieniają się z epoką. Najpierw pieniądze startowe od organizatorów. Od 1968 roku sponsorzy na aucie. Potem telewizja i nagrody za miejsce w klasyfikacji konstruktorów. Koszty to pensje, projekt i budowa aut, silniki, podróże, zaplecze, naprawy po wypadkach.</p>
+        <p>Kwoty są w dolarach, nominalnie. Z biegiem lat rosną razem ze sportem. Na ekranie gotówka, zobowiązania, pewne przychody i prognoza mają być osobno. Jeśli czegoś nie da się kupić, gra ma powiedzieć dokładnie dlaczego.</p>
+        <p>Saldo może spaść poniżej zera. Na powrót nad kreskę jest cały sezon, licząc od rocznicy dnia, w którym zeszło się pod próg. Dopiero wtedy pada zdarzenie niewypłacalności, raz. Kredyt, kilka ofert z kwotą, oprocentowaniem i okresem, ze zgodą zarządu i z limitem, ile kredytów naraz, jest zaplanowany. W silniku jest na razie puste miejsce na ten mechanizm.</p>
+        <div class="note">
+          <p>Księga już działa. Wpisy tylko się dopisują, saldo jest ich sumą, kwoty trzyma się w centach, żeby zapis nie zależał od ułamków. Pensje schodzą pierwszego dnia miesiąca. Widok własnego zespołu daje stan i prognozę do końca sezonu. Cudzy zespół jest niewidoczny. Zapytanie o pieniądze niczego nie zmienia i niczego nie losuje.</p>
+          <p>Dopóki wyścigi nie płacą, każdy zespół 1 stycznia dostaje tę samą kwotę zastępczą: około 30 procent typowego budżetu epoki. <span class="est">szacunek</span> Bez niej długi przebieg od 1950 roku zostawiał zespoły bez umów już w 1959, bo tylko wydawały. Ta kwota ma zniknąć jedną linijką, gdy wyniki wyścigów zaczną wchodzić do księgi.</p>
+        </div>
+        <h3>Sponsorzy</h3>
+        <p>Sponsorzy w grze są wymyśleni. Leżą w naszym katalogu, a liczby przy nich są szacunkami. Na każde z trzech miejsc na zespole katalog ma mieć co najmniej trzech do pięciu kandydatów w każdym roku. Inaczej dane są odrzucane.</p>
+        <p>Rodzaj miejsc wynika z epoki. Do 1967 roku są trzy miejsca techniczne albo mecenasa, w czasach narodowych barw. Od 1968 roku jest miejsce główne, dodatkowe i techniczne. Tytoń i alkohol wchodzą i wychodzą razem z przepisami o reklamie. Zakaz reklamy tytoniu ma być realnym wstrząsem dla zespołów, które na nim stały.</p>
+        <p>Rozmowa jest grą w czekanie. Im dłużej negocjujesz, tym lepsze warunki, aż do sufitu zależnego od negocjatora. Negocjatorem jest dyrektor komercyjny, jeśli taka rola w zespole jest, inaczej szef. W tym czasie ukryty rywal może sponsora podpisać. Czy wiesz, że rywal też rozmawia, zależy od jakości Twojego negocjatora. Podpisanie teraz albo czekanie jest świadomym ryzykiem.</p>
+        <p>Warunek sponsora jest zwykłym celem: kierowca danej narodowości, wynik, budżet. Spełnienie daje jednorazową premię i zaufanie. Złamanie oznacza odejście. Zaufanie jest pamiętane między sponsorem a organizacją. Raty i premie idą do księgi.</p>
+        <p>Sponsor tytularny, w pełnej grze, zmienia nazwę zespołu i może chcieć udziałów. Dwa koncerny paliwowe na jednym aucie się nie dogadają. Zgodna narodowość sponsora i kierowcy oraz prestiż zespołu rozmowę przyspieszają. Te subtelności są opisane. Część z nich czeka na pełniejszy rynek.</p>
+      </section>
+
+      <section id="dostawcy">
+        <h2>Dostawcy</h2>
+        <p>Opony, paliwo i silnik są umowami, nie pozycją w sklepie. Rodzaj umowy ustala, jak świeży jest produkt i ile kosztuje.</p>
+        <div class="sheet-wrap">
+          <table>
+            <thead>
+              <tr><th>Umowa</th><th>Co dostajesz</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Fabryczna</td><td>Bieżąca specyfikacja. Wspólny rozwój. W rozliczeniu sezonowym fabryka nie wystawia rachunku jak klientowi.</td></tr>
+              <tr><td>Partnerska</td><td>Krok za fabryką. Relacja wieloletnia dokłada wspólnego rozwoju.</td></tr>
+              <tr><td>Kliencka</td><td>Taniej i elastyczniej. Produkt dla wszystkich, zawsze krok za partnerem.</td></tr>
+              <tr><td>Silnik z zeszłego roku</td><td>Najtańsza deska ratunku. Wolniejszy, bez rozwoju.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Opóźnienie wersji jest konkretne: fabryka jedzie specyfikacją tego sezonu, partner i klient specyfikacją opóźnioną o sezon, zeszłoroczny silnik o dwa. <span class="est">szacunek</span> Umowy na starcie świata biorą się z katalogu, kto komu dostarczał silniki w prawdziwej historii. Fabryka, partner, klient, silnik pod cudzą plakietką: każde ma swój przekład. Auta zespołu wskazują na umowę, która właśnie obowiązuje.</p>
+        <p>Rozmowa z dostawcą używa tego samego słownika co rozmowa z człowiekiem, ale odpowiada firma, nie osoba z charakterem. Odpowiedź przychodzi po kilku dniach. Opłata roczna schodzi do księgi. Dostawca, który sam prowadzi księgę, księguje sprzedaż. Bez umowy auto zostaje przy osiągach, które miało z samej koncepcji.</p>
+        <p>Każdy dostawca ma mieć swoje plusy i minusy, a nie miejsce w rankingu. Paliwo mocniejsze i mniej wydajne. Opona szybka i kapryśna. Zespół numer jeden u dostawcy współtworzy technologię i dostaje ją pierwszy. Inni klienci dostają ją później albo w słabszej wersji. Rozwój u fabryki poprawia produkt także rywalom na tych samych oponach. Wojna oponiarska potrafi przestawić stawkę. Umowa partnerska może kosztować udziały: tańsze silniki w zamian za kawałek zespołu i wpływ na to, czy dostawca goni moc, niezawodność czy wydajność.</p>
+        <p>Własny program silnikowy jest w planie. Da się nim zostać producentem, jak Ferrari, BRM czy Honda: projektant silników, osobny budżet, co najmniej sezon na pierwszą jednostkę, sprzedaż klientom. Sprzedaż daje pieniądze i dane, a także rywali na tym samym sprzęcie. Zmiana przepisów o pojemności, doładowaniu albo hybrydzie może unieważnić projekt. W kodzie jest na to miejsce. Sam program jeszcze nie liczy sezonu.</p>
+        <div class="note">
+          <p>Dostawy są już policzone i da się je zapisać. Codzienny bieg kariery jeszcze ich nie woła. Liczby przy cenach i opóźnieniach są szacunkami, bo nie ma tu archiwum prawdziwych cenników.</p>
+        </div>
+      </section>
+
+      <section id="umowy">
+        <h2>Umowy z ludźmi</h2>
+        <p>Profil pokazuje kontrakt: pensję, premie, lata do końca i status. Status to pierwszy kierowca, równi partnerzy, drugi albo rezerwowy. Wykup, znany z piłki nożnej, jest tu rzadkością. Osobno jest kierowca, który sam wnosi sponsora.</p>
+        <p>Pensja odniesienia bierze się z benchmarku epoki i z gwiazdek, które zna oferujący zespół. Ukryta prawda o kierowcy nie zmienia ani oferty, ani powodów, które widzisz. Osobowość na razie nie mieszka jeszcze w świecie jako osobny opis. Jest wyprowadzana stabilnie z ziarna kariery i z tożsamości osoby, więc ten sam człowiek w tej samej karierze reaguje tak samo.</p>
+        <h3>Jak człowiek ocenia ofertę</h3>
+        <p>Składa pięć rzeczy, z wagami ze swojej osobowości. Prestiż zespołu. Przewidywane auto. Pensja wobec tego, czego może się spodziewać. Status w hierarchii. I minus za ryzyko, że zespół jest w tarapatach. Każda decyzja zostawia ślad. Tobie pokazują się tylko czynniki nazwane w uzasadnieniu, nie cała szuflada.</p>
+        <p>Rozmowa trwa. Odpowiedź jest zaplanowana na konkretny dzień, z opóźnieniem wylosowanym osobno dla tej rozmowy. Cudza negocjacja nie przesuwa Twojego losowania. Człowiek dostaje decyzję do skrzynki i czas stoi. Komputerowy szef czyta negocjację sam.</p>
+        <p>Gdy ktoś ma kilka akceptowalnych ofert, czeka do najwcześniejszego terminu, a potem bierze tę o najwyższej użyteczności. Przy remisie przesądza zaufanie, a jeśli i ono jest równe, talia rynku. Obecny zespół nie wygrywa automatycznie.</p>
+        <p>Liczba prób ma zależeć od relacji. Wieloletni kierowca z wysoką lojalnością da ich dużo. Obcy, bez historii, dwie albo trzy. Kolejne podbijanie pensji o grosze irytuje i obniża zainteresowanie. Liczy się realna zmiana: status, klauzula, lata. Im później w sezonie, tym mniej wolnych miejsc i tym niższe oczekiwania kogoś, kto nadal nie ma fotela.</p>
+        <h3>Klauzule</h3>
+        <p>Klauzule są osobnym, głębokim systemem. Wyjście, gdy zespół spadnie poniżej umówionego miejsca albo nie da podium w umówionym czasie. Rozwiązanie przez zespół, gdy kierowca przegra pojedynek z partnerem. Opcja przedłużenia po jednej ze stron. Gwarancja statusu, gwarancja partnera albo zakaz konkretnego partnera. Premie. Kara za zerwanie. Zakaz startów w innych seriach. Rzadkie zwolnienie za kwotę. Każdą da się negocjować. Obie strony wyceniają ją według charakteru i sytuacji. Złamanie jest sprawą w skrzynce i uderza w zaufanie.</p>
+        <h3>Zaufanie i obietnice</h3>
+        <p>Relacja jest pamięcią. Zero do stu, z historią zdarzeń: dotrzymane i złamane obietnice, wspólne sukcesy, kraksy między partnerami, spory, mentorstwo. Obietnica ma termin i warunek, który da się sprawdzić. „Jeszcze jeden rok, ale chcę widzieć podia.” „Chcę statusu pierwszego kierowcy.” „Zbudujemy auto pod mój styl.” Dotrzymanie buduje zaufanie. Złamanie je niszczy. Lojalny wybacza raz. Najemnik odchodzi przy pierwszej okazji. Z tego, bez osobnego skryptu, mają wyrastać rywalizacje i napięcia w zespole.</p>
+        <p>Profil ma pokazywać trzy najlepsze i trzy najgorsze relacje, z liczbami. To jest przyjęte. Pełne historie obietnic są kierunkiem, do którego negocjacje już mają haczyk zaufania.</p>
+      </section>
+
+      <section id="zarzad">
+        <h2>Zarząd i reputacja</h2>
+        <p>Zarząd stawia cele na sezon i na kilka lat. Oczekiwania biorą się z faktów, które są publiczne: ostatnie miejsce, ranga budżetu. Skutkiem celu jest zmiana zaufania. Zarząd nie jest osobą i na razie nie ma cech charakteru. Ma cierpliwość, od zera do stu, wyprowadzoną z wieku organizacji. To szacunek, dopóki właściciele nie dostaną własnych osobowości.</p>
+        <p>Reputacja szefa rośnie, gdy wynik jest powyżej oczekiwań, gdy przychodzą tytuły i gdy rozwijają się ludzie. Spada przy słabych wynikach i przy złym obchodzeniu się z pieniędzmi. Wpływa na oferty pracy i na to, jak poważnie brzmią obietnice. W ocenie oferty kontraktu reputacja może lekko przesunąć prestiż zespołu, najwyżej o kawałek, nie przeskoczyć całej skali.</p>
+        <p>Po wyścigu zaufanie przesuwa się o ćwierć w stronę tego, co wynika z miejsca wobec oczekiwań. Gotówka poniżej zera zaufanie obniża. Szef bez ochrony, którego zaufanie jest pod progiem przez kilka ocen z rzędu, jest zwalniany. <span class="est">szacunek</span> Szefa komputerowego zastępuje kandydat wylosowany osobno dla tego zespołu i tego dnia, z nowym stylem prowadzenia. Gracz dostaje odprawę i zostaje bez pracy.</p>
+        <p>Nowy szef ma ochronę przez pierwszy pełny sezon, a do tego trzy dni za każdy punkt reputacji. <span class="est">szacunek</span> Założyciela własnego zespołu nie da się zwolnić i sam nie może odejść. Własny zespół jest poza pierwszą wersją, zasada jest już wpisana.</p>
+        <p>Zwolniony gracz ogląda świat jako neutralny obserwator. Zapytania nie pokazują mu już wnętrza zespołu. Otwarte decyzje i negocjacje są zamykane. Oferty pracy przychodzą od zespołów, które szukają szefa i nie żądają więcej reputacji, niż masz. Po czterdziestu pięciu dniach przychodzi oferta skromnej jakości niezależnie od reputacji, więc nie da się utknąć bez pracy na zawsze. <span class="est">szacunek</span></p>
+        <div class="note">
+          <p>Zarząd jest już w codziennym biegu. Ocenia jednak po dniu wyścigowym. Dopóki kalendarz wyścigów nie jest podpięty, nikt w długim przebiegu nie jest zwalniany. Cele zależne od tabeli, bez tabeli, liczą się jako niespełnione, więc zaufanie by spadało, ale przegląd i tak czeka na niedzielę. Gdy wyścigi wejdą, stan liczy się od nowa.</p>
+        </div>
+      </section>
+
+      <section id="szefowie">
+        <h2>Szefowie komputerowi</h2>
+        <p>Styl należy do osoby, nie do zespołu. Zwolniony szef zostaje zastąpiony innym i zespół widać, że zmienia kierunek. Są cztery style. Pretendent stawia wszystko na ten sezon. Budowniczy ma długi plan, zaplecze i młodych. Oportunista poluje na okazje i krótkie zobowiązania. Ten od przetrwania pilnuje budżetu i bezpiecznego wyboru. Wagi, którymi style różnią się między sobą, są szacunkiem. Nazwy stylów są przyjęte. Liczby przy nich jeszcze nie.</p>
+        <p>Decyzja jest wyborem największej użyteczności spośród opcji, które szef w ogóle widzi. Widzi to, co widziałby menedżer tego zespołu: przedziały, wyniki, stan księgi, oferty na stole. Nie widzi ukrytych cech obcych kierowców i nie wie, kto wygra za trzy lata. Gdy jego miejsce w stawce jest ustabilizowane albo nadchodzi duża zmiana przepisów, może poświęcić sezon i przenieść zasoby na przyszłe auto. Jak chętnie to robi, zależy od stylu.</p>
+        <p>Rano, gdy pełny mechanizm jest włączony, szef patrzy na zespoły, którym właśnie mija termin przeglądu: okno kontraktowe, odpowiedź w rozmowie, warunki sponsora, nowy sezon. Potem składa zwykłe polecenia, pod identyfikatorem menedżera tego zespołu, do tej samej kolejki co człowiek. Sam niczego po cichu nie poprawia. Zespół prowadzony przez człowieka jest pomijany. Polecenie dotyczące takiego zespołu jest odrzucane.</p>
+        <p>Losowość wyboru idzie z osobnej talii decyzji, z osobnym rozdaniem na zespół, decyzję i opcję. Talia nie jest „zużywana” w sposób, który przesuwałby pogodę albo rozwój. Remis rozstrzyga ta sama talia, też osobno.</p>
+        <div class="note">
+          <p>Ten mechanizm jest napisany i zostawia ślady decyzji. W zwykłym przebiegu kariery poranek nadal obsługuje prostsze zastępstwo przy umowach. Wpięcie pełnych szefów w ten poranek jest następnym krokiem, nie osobnym pomysłem.</p>
+        </div>
+      </section>
+
+      <section id="wiedza">
+        <h2>Co widzisz, a co jest prawdą</h2>
+        <p>Symulacja trzyma prawdziwe liczby. Organizacja trzyma przekonania. Przekonanie jest przedziałem, nie jedną kropką. Skauting, wspólne kilometry i podpisanie kontraktu przedział zwężają. Szerokość i ryzyko pomyłki zależą od człowieka, który patrzy.</p>
+        <p>Stąd gwiazdki-duchy przy potencjale i pasmo przy obcym kierowcy. Stąd przedział osiągów własnego auta i brak wektora u rywala. Stąd prognoza pogody, która może się mylić, podczas gdy prawdziwy deszcz jest już wylosowany. Stąd opinia o sponsorze rywala, którą ma tylko dobry negocjator.</p>
+        <p>Tryb bez liczb jest tą samą wiedzą, powiedzianą słowami. „Jesteśmy mocni w wolnych zakrętach, na prostych tracimy do Ferrari.” „Młody jest bardzo szybki, ale zjada opony.” Trafność zdań zależy od jakości ludzi. Słaby inżynier może być zbyt pewny albo coś przeoczyć. Wyniki, czasy okrążeń i tabele mistrzostw widać zawsze, bo to fakty publiczne. Przełącznik tego trybu jest już w ustawieniach kariery. Ekrany, które mówią zdaniami, przyjdą razem z prawdziwym interfejsem.</p>
+        <p>Pytanie o stan i prognoza nie zmieniają świata i nie sięgają do talii losowań. Można patrzeć tyle razy, ile się chce. Przyszłość rusza się dopiero od polecenia albo od dnia, który mija.</p>
+        <p>Dla osób budujących grę jest drugie okno, nazywane w projekcie Paddock Spy. Widzi ślad decyzji w całości, łącznie z tym, co było w szufladzie. Jest pasywne: włączone albo nie, wynik weekendu jest ten sam. Gracz dostaje wersję przefiltrowaną. W zapisie zostają ślady spraw dużych, jak transfery, tytuły i wielkie awarie. Reszta może iść do pliku na żądanie, a po sezonie szczegółowe ślady będzie się sprzątać, zostawiając wyniki, rekordy i kronikę.</p>
+      </section>
+
+      <section id="zapis">
+        <h2>Zapis i powtarzalność</h2>
+        <p>Jedna kariera to jeden plik. W środku jest baza, którą da się pytać o historię bez wciągania całego świata do pamięci. Zapis robi się rano, w stabilnym punkcie. W środku są ludzie, organizacje, umowy, przekonania zespołów, skrzynka, księga, auta, sponsorzy, zarząd, pula talentów, dziennik poleceń, stan losowań i data.</p>
+        <p>Ta sama wersja gry, ta sama baza świata, ten sam stan początkowy i ta sama sekwencja poleceń dają ten sam wynik. Da się to sprawdzić: przebieg od 1950 do 1970 naraz i przebieg do 1960, zapis, wczytanie, ciąg dalszy do 1970, kończą się tym samym odciskiem świata. Jeśli baza danych świata się zmieniła, wznowienie odmawia, bo przyszłość nie byłaby już tą samą przyszłością.</p>
+        <p>Losowość ma osobne talie. Pogoda, szum okrążeń, incydenty, awarie, postoje, rynek, decyzje szefów, ludzie, historia, zdarzenia życiowe, przepisy, skauting, rozwój auta. Talia sezonu wynika z jednego ziarna kariery, z nazwy talii i z numeru sezonu. Dodatkowe losowanie w skautingu nie przesuwa pogody. Wynik sezonu nie zależy od tego, ile losowań zjadł sezon poprzedni. Dziecko talii jest przypięte do konkretnej rozmowy, konkretnego zespołu, konkretnego projektu. Cudza sprawa nie przestawia Twoich kart.</p>
+        <p>Identyfikatory nigdy nie wracają do puli. Prawdziwe osoby mają numer z bazy świata. Wymyślone dostają nowy. Dzięki temu „kierowca o tym numerze” za dziesięć lat jest nadal tą samą osobą albo nikim, nigdy kimś innym.</p>
+        <p>Nieznany znacznik w zapisie przerywa wczytywanie. Gra nie zgaduje, czym było stare polecenie. Nowe polecenie musi być świadomie dopisane do listy rzeczy, które zapis rozumie.</p>
+        <p>Na koniec sezonu, w pełnej grze, sprząta się szczegóły okrążeń i drobne ślady, a zostają wyniki, klasyfikacje, rekordy, kronika i sala sławy. Kompaktowanie nie może zmienić przyszłości. Cel rozmiaru po siedemdziesięciu sześciu sezonach to rząd kilkudziesięciu megabajtów. To cel do zmierzenia, nie obietnica.</p>
+        <p>Teksty dla gracza, także w narzędziach tekstowych, idą przez klucze. Jest polski i angielski. Test pilnuje, żeby oba zestawy miały te same klucze. Silnik zwraca klucz i parametry. Zdanie składa się na końcu, z odmianą liczebników: jeden wyścig, dwa wyścigi, pięć wyścigów.</p>
+      </section>
+
+      <section id="budowa">
+        <h2>Jak to jest zbudowane</h2>
+        <p>Gra jest programem na komputer, pisanym w języku C#, na platformie .NET 10. Ekrany mają być stroną internetową osadzoną w oknie, bo prawie cała gra to tabele, formularze i wykresy, a taką stronę da się otworzyć w przeglądarce i poprawiać, patrząc na nią. Silnik Godota odrzucono: dobrze robi grafikę, słabo gęste tabele, a praca nad wyglądem bez podglądu wychodzi źle.</p>
+        <p>Ekran nie zawiera zasad gry. Wysyła pytanie albo polecenie. Dostaje z powrotem stan, powód i prognozę. Dzięki temu ten sam silnik obsługuje przyszłe okno, dzisiejsze narzędzia i kiedyś grę w sieci.</p>
+        <dl>
+          <dt>Zasady świata</dt>
+          <dd>Czyste pojęcia: osoba, zespół, data, umowa, przepisy. Bez rysowania i bez sięgania do dysku.</dd>
+          <dt>Symulacja</dt>
+          <dd>Weekend wyścigowy, pogoda, awarie, czas, który płynie dzień po dniu, generator ludzi, głosowania.</dd>
+          <dt>Kariera</dt>
+          <dd>Polecenia, skrzynka, księga, sponsorzy, kontrakty, pula, auta, zarząd. Tu jest lista systemów, które zwykły przebieg naprawdę woła.</dd>
+          <dt>Zapis</dt>
+          <dd>Jeden plik kariery, migracje, gdy kształt zapisu się zmienia, odcisk świata.</dd>
+          <dt>Dane</dt>
+          <dd>Wczytywanie tego, co napisane ręcznie: przepisy, tory, technologie, silniki, personel, sponsorzy. Sprawdza, czy odwołania się zgadzają.</dd>
+          <dt>Narzędzie przebiegów</dt>
+          <dd>Potrafi przeżyć dekady bez klikania, wznowić zapis, policzyć pojedynczy weekend i porównać statystyki wyścigów z historią. Służy do sprawdzania, czy świat się trzyma.</dd>
+          <dt>Narzędzie danych</dt>
+          <dd>Pobiera historię, składa oceny, sprawdza pliki torów. Pełne pobranie czeka na komputerze właściciela, bo źródło puszcza ograniczoną liczbę zapytań na godzinę i wznawia pracę z lokalnego schowka.</dd>
+          <dt>Okno gry</dt>
+          <dd>Miejsce na przyszły interfejs. Prawdziwe ekrany powstają, gdy pętla kariery jest grywalna. Obok leży klikalny szkic wyglądu, jeszcze bez silnika.</dd>
+        </dl>
+        <p>Nowy system kariery dopisuje się jedną linijką do listy i przynosi własny zapis. Reszta dnia go nie zna z imienia. Kolejność w ciągu dnia bierze się z numeru, który system sam sobie wyznacza, tak żeby czytać wynik tych, od których zależy. Dziś na liście codziennego biegu są cele, finanse, kontrakty, pula talentów, auta, sponsorzy i zarząd. Rozwój, dostawy i szefowie są obok, gotowi do dopisania.</p>
+        <p>Gra ze znajomymi użyje tego samego rdzenia. Kilka osób, każdy swój zespół, wspólna data. Czas rusza, gdy wszyscy klikną „Dalej”. Liczy komputer gospodarza. Goście wysyłają decyzje i dostają obraz świata widziany swoim zespołem, nie cudzą szufladą. Zapis jest u gospodarza. Na start połączenie bezpośrednie. Sieć powstanie razem z prawdziwymi ekranami. Wspólnego zespołu z podziałem ról, kont i dobierania obcych graczy nie będzie.</p>
+      </section>
+
+      <section id="ekrany">
+        <h2>Ekrany</h2>
+        <p>Wygląd jest osobnym torem, równoległym do silnika, bo ma być głównym wyróżnikiem gry. Wybrany kierunek to barwy epoki, ze wzorcem jakości w roku 1976. Krem, atrament, grube ramy, dwa kroje: wąski, wysoki Big Shoulders na tytuły i Archivo na resztę. Pasek w trzech barwach dekady. Ten przewodnik używa tego samego języka, żeby dało się go czytać jak rzecz z tego samego warsztatu.</p>
+        <p>Kolory interfejsu biorą się z zespołu. Po sponsorze tytularnym mogą przejść na jego barwy, czerń i złoto albo granat i czerwień. Da się też zostać przy barwach dekady. Tło to smugi dymu jak w tunelu aerodynamicznym, w barwach zespołu, bez rysowanych bolidów. Przy ograniczeniu ruchu tło stoi.</p>
+        <p>Pulpit stoi na tym, co wymaga uwagi: skrzynka i następny wyścig. Mieści się na jednym ekranie. Data jest pełna: „środa, 7 lipca 1976”. Pozycję auta wobec stawki pokazuje pasek od zielonego do czerwonego. Klasyfikacja na pulpicie ma przełącznik kierowców i konstruktorów oraz pełną czołówkę, nie jedno zdanie w stylu „jesteśmy drudzy”. Nawigacja zbiera pulpit, skrzynkę, kalendarz, klasyfikacje, zespół, biznes i świat. Na dole ustawienia: barwy, skórka epoki, tło, tryb bez liczb.</p>
+        <p>Wyścig na żywo ma być osobnym trybem, nie kolejną podstroną. Wejście zasłania kurtyna w barwach zespołu. Mapa toru z góry, na cały ekran, z przybliżaniem. Na początku auta to kropki w kolorze zespołu. Wieża czasów, radio, wybór opon z osobnym potwierdzeniem. Mapa rysuje klatki z taśmy. Nie liczy wyniku.</p>
+        <p>Obok ma wyjść miesięcznik ze świata gry, Paddock Monthly. Rynek i plotki, talenty, wyniki innych serii, technika, pieniądze. Artykuł prowadzi do profilu, kontraktu albo tabeli. Gazeta zna tylko wiedzę publiczną. Plotka może być nieprawdziwa, a wiarygodność zależy od źródła. Treść ma wynikać ze zdarzeń, nie z generatora wypełniaczy. Miesięcznika jeszcze nie ma. Jest miejsce w nawigacji szkicu i przyjęty kształt.</p>
+        <p>Szkic wszystkich głównych ekranów da się klikać. Dane w nim są atrapą, zespół przykładowy to Tyrrell w 1976 roku. To nie jest gra. To język, z którego złożą się prawdziwe ekrany, gdy silnik odda stan, powód i prognozę. Poprzeczka, zapisana wprost: gra ma być fantastyczna albo jej nie wydajemy.</p>
+      </section>
+
+      <section id="poza">
+        <h2>Czego nie robimy</h2>
+        <ul>
+          <li>Nie wymuszamy prawdziwych transferów ani prawdziwych wyników. Oferta historyczna może przepaść.</li>
+          <li>Nie odtwarzamy prawdziwych tragedii według kalendarza. Śmiertelność jest opcją, domyślnie wyłączoną.</li>
+          <li>Nie dociągamy słabszych zespołów cichą premią i nie dajemy komputerowi ukrytej wiedzy.</li>
+          <li>Nie piszemy liczb „na oko” jako faktów. Szacunek zostaje szacunkiem, dopóki nie przejdzie porównania z historią.</li>
+          <li>Nie ma szarej strefy: luk w przepisach, protestów, zakazanych systemów z ryzykiem wpadki. Da się to kiedyś dodać jako opcjonalny klocek. Na razie go nie ma.</li>
+          <li>Nie ma magazynu pojedynczych części i nie ma osobnego szpiegostwa.</li>
+          <li>Nie ścigamy się z innymi grami menedżerskimi na liczbę przełączników. Wyróżnienie to ciągła historia, wyjaśnione decyzje i ekrany, które da się czytać.</li>
+        </ul>
+        <p>Później, na tym samym silniku: drabina od samochodów turystycznych po hipersamochody, Le Mans, Daytona, Spa i Nürburgring jako osobne drzwi wejścia, partnerskie poziomy u producenta, prawdziwe serie juniorskie, które przesuną punkt wejścia niżej, edytor bazy, paczka fikcyjna, wyzwania. To jest odłożone świadomie. Pierwsza wersja ma być sezonem, który da się przeżyć w przejętym zespole.</p>
+      </section>
+
+      <section id="stan">
+        <h2>Gdzie jesteśmy</h2>
+        <p>Stan na 4 października 2026. Fundament decyzji jest spisany. Świat da się postawić, przeżyć dekady i wznowić z zapisu. Weekend wyścigowy da się policzyć i opowiedzieć. Pierwsza grywalna pętla, czyli sezon, w którym decyzje mają skutek od poniedziałku do niedzieli, jest w trakcie składania.</p>
+        <div class="sheet-wrap">
+          <table>
+            <thead>
+              <tr><th>Rzecz</th><th>Jak jest teraz</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Świat, ludzie, dni, zapis</td>
+                <td>Codzienny bieg to liczy. Przebieg od 1950 do 2026 na wygenerowanych ludziach jest powtarzalny. Przebieg na prawdziwych nazwiskach czeka na lokalną bazę wyników.</td>
+              </tr>
+              <tr>
+                <td>Oceny kierowców</td>
+                <td>Metoda jest opisana i jest pierwsza wersja liczenia. Pełne przeliczenie na prawdziwych danych i raport do oceny są przed nami.</td>
+              </tr>
+              <tr>
+                <td>Pula, umowy, sponsorzy, księga, auta, zarząd, skrzynka</td>
+                <td>Są w codziennym biegu. Cele bez tabeli wyników liczą się jako niespełnione. Zarząd nie zwalnia, dopóki nie ma dni wyścigowych.</td>
+              </tr>
+              <tr>
+                <td>Weekend wyścigowy</td>
+                <td>Liczy się osobno, z relacją. Kalendarz kariery jeszcze go nie uruchamia. Porównanie z prawdziwymi statystykami postojów, deszczu i wycofań jest narzędziem, dostrajanie trwa.</td>
+              </tr>
+              <tr>
+                <td>Rozwój auta i dostawy</td>
+                <td>Policzone i zapisywalne. Codzienny bieg ich jeszcze nie woła.</td>
+              </tr>
+              <tr>
+                <td>Szefowie komputerowi</td>
+                <td>Napisani, ze śladami decyzji. Poranek przebiegu nadal używa prostszego zastępstwa przy umowach.</td>
+              </tr>
+              <tr>
+                <td>Pieniądze z wyścigów</td>
+                <td>Model księgi jest. Wpływy z wyników jeszcze nie płyną, więc 1 stycznia zespoły dostają kwotę zastępczą.</td>
+              </tr>
+              <tr>
+                <td>Głosowania, przełomy, własne silniki, kredyty, kronika, gazeta</td>
+                <td>Kierunek przyjęty. Głosowania i część rozwoju są policzone obok. Reszta czeka na swoją kolej.</td>
+              </tr>
+              <tr>
+                <td>Ekrany i gra w sieci</td>
+                <td>Jest klikalny szkic wyglądu i edytor torów. Prawdziwe okno i wspólna gra ze znajomymi przyjdą, gdy sezon da się prowadzić.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Bramka, którą właściciel chce zobaczyć najpierw, jest konkretna. Pełny sezon 1955, od stycznia do grudnia, w którym decyzje mają odczuwalne skutki. Wcześniejsza bramka wyścigu: przeczytać relację z 1955 i z 1988 roku i poczuć, że to są inne epoki, a wyniki brzmią wiarygodnie. Identycznego odtworzenia historii nikt nie oczekuje. Oczekuje się, że dominujący kierowcy są w czołówce, a nie w loterii.</p>
+      </section>
+
+      <section id="slownik">
+        <h2>Słowniczek</h2>
+        <dl>
+          <dt>Odcisk świata</dt>
+          <dd>Krótki skrót całego stanu. Dwa przebiegi o tym samym odcisku doszły do tego samego miejsca. Służy sprawdzaniu, czy zapis i przyszłość się trzymają.</dd>
+          <dt>Pula talentów</dt>
+          <dd>Świat poza stawką. Stąd biorą się kierowcy, zanim ktoś da im fotel. Na start zastępuje serie juniorskie.</dd>
+          <dt>Przedział</dt>
+          <dd>Zakres, w którym zespół trzyma wiedzę o ukrytej liczbie. Na przykład od 14 do 18.</dd>
+          <dt>Szufłada</dt>
+          <dd>Prawdziwe liczby symulacji. Gracz i szefowie komputerowi ich nie czytają. Czyta je silnik wyścigu i narzędzie diagnostyczne.</dd>
+          <dt>Taśma</dt>
+          <dd>Zapis weekendu: zdarzenia, a docelowo też klatki pozycji. Relacja, punkty, ekran i kronika czytają taśmę.</dd>
+          <dt>Siła historii</dt>
+          <dd>Jak chętnie komputer bierze sensowną ofertę zdarzenia, które zaszło naprawdę. Zero to czysta symulacja. Sto to świat, który bez Twojej ingerencji trzyma się historii.</dd>
+          <dt>Trajektoria i potencjał</dt>
+          <dd>Dwa sposoby użycia prawdziwej kariery. Trajektoria trzyma umiejętności przy prawdziwym łuku. Potencjał wyznacza sufit, a resztę robi świat.</dd>
+          <dt>Konto rozwoju</dt>
+          <dd>Wiedza odłożona na później. Traci wartość, gdy regulamin unieważnia to, czego dotyczyła.</dd>
+          <dt>Koncepcja</dt>
+          <dd>Roczny pomysł na auto, sześć osi kompromisów, własny sufit. Wdrożenie to osobna produkcja, nie natychmiastowa podmiana.</dd>
+          <dt>Szacunek</dt>
+          <dd>Liczba jeszcze nieporównana z historią. Wolno nią grać. Nie wolno udawać, że jest zmierzona.</dd>
+          <dt>Polecenie</dt>
+          <dd>Jedyny sposób, w jaki ktoś zmienia świat. Sprawdzane, albo wykonane i zapisane, albo odrzucone z powodem.</dd>
+          <dt>Poranek</dt>
+          <dd>Stabilny punkt. Tu robi się zapis, tu rusza albo staje czas, tu składane są polecenia na dziś.</dd>
+        </dl>
+      </section>
+
+      <footer class="colophon">
+        <p>Stan opisu: 4 października 2026. Przewodnik streszcza projekt dla czytelnika. Decyzje, systemy gry, plan i opis techniczny zostają w swoich plikach i wygrywają, gdy ten tekst się zestarzeje.</p>
+        <p>Kroje Archivo i Big Shoulders Display są na licencji SIL Open Font License 1.1. Teksty licencji leżą obok plików krojów.</p>
+      </footer>
+    </main>
+  </div>
+  <script>
+    (function () {
+      var links = Array.prototype.slice.call(document.querySelectorAll("nav a"));
+      var sections = links.map(function (link) {
+        return document.querySelector(link.getAttribute("href"));
+      }).filter(Boolean);
+      var boards = document.querySelectorAll("[data-now]");
+      var current = "";
+
+      function show(name) {
+        if (!name || name === current) return;
+        current = name;
+        boards.forEach(function (board) {
+          board.textContent = name;
+          board.classList.remove("call");
+          void board.offsetWidth;
+          board.classList.add("call");
+        });
+      }
+
+      function mark(id) {
+        links.forEach(function (link) {
+          var on = link.getAttribute("href") === "#" + id;
+          if (on) link.setAttribute("aria-current", "true");
+          else link.removeAttribute("aria-current");
+          if (on) show(link.textContent.trim());
+        });
+      }
+
+      if ("IntersectionObserver" in window) {
+        var watcher = new IntersectionObserver(function (entries) {
+          var visible = entries
+            .filter(function (entry) { return entry.isIntersecting; })
+            .sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; })[0];
+          if (visible) mark(visible.target.id);
+        }, { rootMargin: "-20% 0px -55% 0px", threshold: [0, 0.25, 0.5] });
+        sections.forEach(function (section) { watcher.observe(section); });
+      }
+
+      var tower = document.getElementById("spis");
+      var scrim = document.getElementById("scrim");
+      var menu = document.querySelector(".menu");
+
+      function closeMenu() {
+        tower.classList.remove("open");
+        scrim.classList.remove("show");
+        scrim.hidden = true;
+        if (menu) menu.setAttribute("aria-expanded", "false");
+      }
+
+      function openMenu() {
+        tower.classList.add("open");
+        scrim.hidden = false;
+        scrim.classList.add("show");
+        if (menu) menu.setAttribute("aria-expanded", "true");
+      }
+
+      if (menu) {
+        menu.addEventListener("click", function () {
+          if (tower.classList.contains("open")) closeMenu();
+          else openMenu();
+        });
+      }
+      scrim.addEventListener("click", closeMenu);
+      links.forEach(function (link) {
+        link.addEventListener("click", function () {
+          if (window.matchMedia("(max-width: 980px)").matches) closeMenu();
+        });
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") closeMenu();
+      });
+
+      if (location.hash) {
+        var opener = document.querySelector('nav a[href="' + location.hash + '"]');
+        if (opener) show(opener.textContent.trim());
+      } else if (links[0]) {
+        links[0].setAttribute("aria-current", "true");
+      }
+    }());
+  </script>
+</body>
+</html>

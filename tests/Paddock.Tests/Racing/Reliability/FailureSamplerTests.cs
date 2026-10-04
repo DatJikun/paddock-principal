@@ -114,6 +114,7 @@ public class FailureSamplerTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void HigherReliabilityRating_MeansFewerFailures()
     {
         const int cars = 10_000;

@@ -7,6 +7,7 @@ namespace Paddock.Tests.SimRunner;
 public class CalibrateRaceTests
 {
     [Fact]
+    [Trait("Category", "Slow")]
     public void Figures_PoolTheSamplesByCounts()
     {
         var races = WeekendTestKit.Races(1988, 3);
@@ -35,6 +36,7 @@ public class CalibrateRaceTests
     // Issue #122: on dry race days ~6.5 percent of 1988 cars and ~15 percent of 2012 cars fitted wet tyres, because the forecast
     // probability ignored climatology. The pit wall fitting wet tyres on a dry day is a bug, so the whole-race rate is pinned here.
     [Theory]
+    [Trait("Category", "Slow")]
     [InlineData(1988, 12)]
     [InlineData(2012, 5)]
     public void OnDryDays_AlmostNoCarFitsWetTyres(int season, int races)

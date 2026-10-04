@@ -24,20 +24,21 @@ public static class RatingsMapping
 
     /// <summary>
     /// Stars from percentile: the first cut-off whose percentile is &lt;= the driver's percentile wins
-    /// (inclusive at the boundary). Ordered high to low. ESTIMATES (guesses, not calibrated).
+    /// (inclusive at the boundary). Ordered high to low. ESTIMATES, first pass after the real run (2026-10-04):
+    /// over ~350 ranked drivers, 5 stars is roughly the all-time top 10 and 4.5 the champions of each era.
     /// </summary>
     public static readonly IReadOnlyList<(double MinPercentile, double Stars)> StarCutoffs =
     [
-        (0.995, 5.0),
-        (0.98, 4.5),
-        (0.95, 4.0),
-        (0.90, 3.5),
-        (0.80, 3.0),
-        (0.65, 2.5),
-        (0.50, 2.0),
-        (0.35, 1.5),
-        (0.20, 1.0),
-        (0.10, 0.5),
+        (0.97, 5.0),
+        (0.92, 4.5),
+        (0.85, 4.0),
+        (0.75, 3.5),
+        (0.62, 3.0),
+        (0.48, 2.5),
+        (0.34, 2.0),
+        (0.20, 1.5),
+        (0.10, 1.0),
+        (0.04, 0.5),
     ];
 
     /// <summary>

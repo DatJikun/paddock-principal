@@ -63,7 +63,9 @@ public sealed record SeasonRating(int Season, double Value, int Overall);
 
 /// <summary>
 /// Overall 1-100 and stars 0-5 are percentile mappings with guessed anchors (see <see cref="RatingsMapping"/>).
-/// <c>RatingBySeason</c> maps each season's (smoothed) value to an overall within that season's ranked field.
+/// All values are era-relative (z against each season's field, <see cref="RatingsEraScale"/>).
+/// <c>RatingBySeason</c> maps each season's (smoothed) value to an overall over all ranked driver-seasons.
+/// <c>Arc</c> is the career arc in the game's shape; null without a birth year or with a short career.
 /// </summary>
 public sealed record DriverRatingEntry(
     int Rank,
@@ -74,7 +76,8 @@ public sealed record DriverRatingEntry(
     double Percentile,
     double PeakValue,
     CareerCurve? Curve,
-    IReadOnlyList<SeasonRating> RatingBySeason);
+    IReadOnlyList<SeasonRating> RatingBySeason,
+    CareerArc? Arc = null);
 
 /// <summary>Everything produced by one fit; used by the report builder and by tests.</summary>
 public sealed record RatingsModelRun(

@@ -1,6 +1,6 @@
 # Paddock Principal — ROADMAP
 
-**Status:** aktualne na 2026-10-03
+**Status:** aktualne na 2026-10-04
 **Zasada:** każda faza kończy się bramką, czyli czymś, co da się uruchomić i ocenić. Poza fazą 0 nie ma faz „tylko dokumentacja”.
 
 ---
@@ -15,24 +15,20 @@
 - [x] 3 kierunki (A „ściana boksu”, B „gazeta”, C „barwy epoki”). Wybrany **C**, a B stał się pomysłem na gazetę w grze (PP-038, PP-039).
 - [x] Pulpit w 5 iteracjach (`ui/mockups/`), potem **klikalny prototyp wszystkich 21 ekranów** (`ui/prototype/`).
 - [x] Pełna runda uwag właściciela do prototypu: **`ui/HANDOFF_UI.md`** (zasady plus uwagi ekran po ekranie). **Następny krok UI zaczyna się od tego pliku.**
-- [ ] System komponentów po uwagach: zakładki/przełącznik, status, segmentowane pola, `plural()`, flagi SVG, cięższe przejścia, „Potwierdź”.
-- [ ] Przebudowa ekranów z listy w HANDOFF_UI §6.
+- [x] System komponentów po uwagach: zakładki/przełącznik, status, segmentowane pola, `plural()`, flagi SVG, cięższe przejścia, „Potwierdź” (szkicowo, HANDOFF_UI §8).
+- [x] Przebudowa ekranów z listy w HANDOFF_UI §6 (szkicowo, HANDOFF_UI §8). Auto i rozwój czekają na decyzję właściciela.
 - Po fazie 5 z tych komponentów składamy prawdziwe ekrany (faza 6).
 
 ## Faza 1: Pipeline danych historycznych (test wykonalności)
 Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 
-**Stan (2026-09-26):**
-- [x] #1 T1: solucja .NET 10, deterministyczny generator losowości (Xoshiro256**, strumienie), CI. Zmergowane.
-- [x] #2 R1: katalog 41 wymiarów regulaminu i oś czasu 1950–2026 (`data/authored/regulations/`). Zmergowane.
-- [x] #3 R2: 78 torów, 156 wersji układów, 1172 wyścigi przypisane do układów (`data/authored/tracks/`). Zmergowane.
-- [x] #4 T2 importer Jolpica-F1, T3 loader danych autorskich, T4 szkielet zapisu SQLite, T5 statystyki epok, T6 dane zespołów/technologii/personelu, T7 podgląd danych, T8 oceny v0 (porównania z partnerem). R3–R7 zmergowane.
-- [ ] Pełne pobieranie Jolpica (limit API ~450 zapytań/h) trwa; po nim `ratings` na prawdziwych danych i kalibracja v0.
-- [ ] Tryby gry jako osie (PP-046): `CareerConfig` (T21), generator ludzi (T13), harmonogram historyczny (T12), zdarzenia zespołów (R11).
-- [ ] Wcześniej zaczęte zadania fazy 2 (decyzja właściciela, PP-046): domena świata (T15), tick dnia (T16), kolejka komend (T17), SimRunner (T18), zapis encji (T19), inicjalizator świata (T20).
-- [ ] Model ocen kierowców (Claude), patrz niżej.
-- [ ] Oś czasu epok, drzewo technologii, kluczowy personel (`data/authored/`).
+**Stan (2026-10-04):**
+- [x] T1–T12 zmergowane: solucja .NET 10 z deterministyczną losowością i CI, importer Jolpica-F1, loadery danych autorskich, szkielet zapisu SQLite, statystyki epok, oceny v0, harmonogram historyczny ludzi (T12). Research (regulaminy, tory, technologie, personel, zdarzenia zespołów, ofiary, pogoda) jest w `data/authored/`.
+- [x] T22: oceny v1 (efekt auta, krzywe kariery, ocena ogólna, gwiazdki), #99.
+- [ ] Pełne pobieranie Jolpica (limit API ~450 zapytań/h) na maszynie właściciela.
+- [ ] `dotnet run --project tools/Paddock.DataPipeline -- ratings` na prawdziwych danych i kalibracja.
 - [ ] Raport do oceny właściciela (bramka).
+- Zadania fazy 2 zaczęte wcześniej (decyzja właściciela, PP-046) są zmergowane, patrz faza 2.
 
 **Model ocen: plan metody** (do zrobienia przez Claude'a, nie Groka):
 1. Dla każdego wyścigu i kwalifikacji: wynik względny kierowcy wobec partnera z zespołu (różnica pozycji albo czasu, gdy jest dostępny), z odrzuceniem awarii, które nie są winą kierowcy.
@@ -56,6 +52,11 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - SimRunner: przebieg bez wyścigów.
 - Pod multiplayer (PP-045): komendy i widoki z `managerId`, bramka gotowości przed `AdvanceDay`, jedna kolejka komend. Sieci jeszcze nie ma.
 
+**Stan (2026-10-04):**
+- [x] T15 domena świata, T16 tick dnia, T17 kolejka komend z bramką gotowości, T18 SimRunner (`run`), T19 zapis encji świata, T20 inicjalizator świata, T21 `CareerConfig`, T13 generator ludzi.
+- [x] Wznowienie zapisu daje identyczną przyszłość (#125); emeryci zostają w świecie z datą odejścia (#120).
+- [ ] Bramka: przebieg 1950→2026 jest deterministyczny na wygenerowanych ludziach. Przebieg na prawdziwych danych czeka na cache Jolpica.
+
 **Bramka:** 1950→2026 w SimRunnerze. Ludzie pojawiają się, starzeją i odchodzą, zapis pozostaje mały, a wynik jest deterministyczny.
 
 ## Faza 3: Silnik wyścigu dla wielu epok
@@ -63,6 +64,12 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - Race Spy od pierwszego dnia.
 - Wyścig jako strumień zdarzeń, który da się odtwarzać w tempie oglądania (potrzebne do wspólnego oglądania online, PP-045).
 - Test wierności historii: 1950–1960, a potem kolejne dekady.
+
+**Stan (2026-10-04):**
+- [x] T26–T34: strumień zdarzeń, punkty i klasyfikacja, kwalifikacje, model okrążeń, opony i paliwo, awaryjność, pogoda, incydenty, pit stopy ze strategiem; Race Spy (T24) i głosowane przepisy (T23) już wcześniej.
+- [x] T35: orkiestrator weekendu wyścigowego (#119).
+- [x] Czytelna relacja wyścigu do bramki (#124).
+- [ ] Kalibracja silnika z historią: pit stopy, mokre opony, wycofania (#122).
 
 **Bramka (grywalności):** czytasz relację wyścigu z 1955 i z 1988. Czuć różnicę epok, a wyniki są wiarygodne.
 
@@ -73,6 +80,12 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - AI szefów zespołów, zwolnienia (także gracza).
 - Powstawanie, upadki i wykupy zespołów; propozycje historyczne.
 - Projekt szczegółowy: zakładanie i wykup zespołu w trakcie kariery.
+
+**Stan (2026-10-04):** zadania T35–T48 (#100–#113) są założone jako issues.
+- [x] T36: fundamenty (rejestr sekcji świata, skrzynka v0, cele), #117.
+- [ ] W toku (PR-y tuż przed otwarciem): T39 kontrakty i negocjacje (#104), T40 pula talentów (#105).
+- [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T37 finanse (#102), T38 sponsorzy (#103), T41 model auta (#106), T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
+- [ ] Reszta otwarta: T42–T44, T47, T48.
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 

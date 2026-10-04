@@ -72,11 +72,12 @@ public class InitWorldCommandTests
         { ["init-world", "--preset", "Chaos", "--year", "1988", "--seed", "1", "--bogus", "1"] },
     };
 
+    // Without --data-root the command reads the repo's data/cache when it exists, so the counts below would depend on the machine.
     private static string[] Run(string[] args, out int code)
     {
         var stdout = new StringWriter();
         var stderr = new StringWriter();
-        code = InitWorldCommand.Execute(args, stdout, stderr);
+        code = InitWorldCommand.Execute([.. args, "--data-root", RepoPaths.AuthoredOnlyDataRoot()], stdout, stderr);
         Assert.Equal(string.Empty, stderr.ToString());
         return stdout.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }

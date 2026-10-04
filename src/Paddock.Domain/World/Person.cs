@@ -62,6 +62,8 @@ public sealed class PersonSpec
 /// <summary>
 /// A person in the world: identity, roles held, and simulation truth.
 /// Knowledge about this person is stored per organization, not here.
+/// A person who has left the sport keeps the record and gets <see cref="RetiredOn"/>; they are never deleted
+/// (TECH §6.2: real people always stay).
 /// </summary>
 public sealed class Person
 {
@@ -73,7 +75,8 @@ public sealed class Person
         string nationality,
         bool isReal,
         IReadOnlyList<PersonRole> roles,
-        PersonTruth truth)
+        PersonTruth truth,
+        GameDate? retiredOn = null)
     {
         if (!id.IsAssigned)
         {
@@ -98,6 +101,12 @@ public sealed class Person
         IsReal = isReal;
         Roles = CanonicalRoles(roles);
         Truth = truth ?? throw new ArgumentNullException(nameof(truth));
+        if (retiredOn is GameDate left && left < birthDate)
+        {
+            throw new ArgumentOutOfRangeException(nameof(retiredOn), retiredOn, "A person cannot retire before they are born.");
+        }
+
+        RetiredOn = retiredOn;
     }
 
     public PersonId Id { get; }
@@ -117,6 +126,25 @@ public sealed class Person
     public IReadOnlyList<PersonRole> Roles { get; }
 
     public PersonTruth Truth { get; }
+
+    /// <summary>The day the person left the sport, or null while they are active.</summary>
+    public GameDate? RetiredOn { get; }
+
+    public bool IsRetired => RetiredOn is not null;
+
+    /// <summary>The same person with other simulation truth (development moves it). Everything else, retirement included, is kept.</summary>
+    internal Person WithTruth(PersonTruth truth) =>
+        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, truth, RetiredOn);
+
+    internal Person Retire(GameDate on)
+    {
+        if (RetiredOn is not null)
+        {
+            throw new InvalidOperationException($"Person '{Id}' has already retired.");
+        }
+
+        return new Person(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, on);
+    }
 
     private static PersonRole[] CanonicalRoles(IReadOnlyList<PersonRole> roles)
     {

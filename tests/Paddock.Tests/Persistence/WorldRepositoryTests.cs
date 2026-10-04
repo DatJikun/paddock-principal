@@ -16,6 +16,27 @@ public class WorldRepositoryTests : IDisposable
     }
 
     [Fact]
+    public void ARetiredPersonRoundTripsWithTheirDateAndAnActivePersonStaysActive()
+    {
+        var small = WorldFixtures.Small();
+        var leaver = small.Persons.First(person => person.BirthDate.Year < 1940);
+        var world = small.RetirePerson(leaver.Id, new GameDate(1955, 12, 31));
+        Assert.Contains(world.Persons, person => person.RetiredOn is null);
+
+        var path = NewPath();
+        using (var save = SaveFile.Create(path, WorldFixtures.Meta()))
+        {
+            new WorldRepository(save).SaveWorld(world, world.CurrentDate);
+        }
+
+        using var reopened = SaveFile.Open(path);
+        var loaded = new WorldRepository(reopened).LoadWorld();
+        Assert.Equal(world.StateHash(), loaded.StateHash());
+        Assert.Equal(new GameDate(1955, 12, 31), loaded.GetPerson(leaver.Id).RetiredOn);
+        Assert.Equal(world.Persons.Count(person => person.RetiredOn is null), loaded.Persons.Count(person => person.RetiredOn is null));
+    }
+
+    [Fact]
     public void FreshSaveHasNoWorldAndLoadingSaysSo()
     {
         using var save = SaveFile.Create(NewPath(), WorldFixtures.Meta());

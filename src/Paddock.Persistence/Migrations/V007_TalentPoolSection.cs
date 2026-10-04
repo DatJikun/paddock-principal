@@ -10,9 +10,9 @@ namespace Paddock.Persistence;
 /// is a table, nothing is stored twice. Person and organization ids are not foreign keys, as in the inbox: the world tables are
 /// rewritten as a whole and the section is checked when it is loaded.
 /// </summary>
-public sealed class V006_TalentPoolSection : ISaveMigration
+public sealed class V007_TalentPoolSection : ISaveMigration
 {
-    public int Version => 6;
+    public int Version => 7;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

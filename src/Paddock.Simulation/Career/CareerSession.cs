@@ -19,14 +19,21 @@ public sealed record CareerYearSummary(int Year, int Alive, int Retired, int Poo
 public sealed class CareerSessionOptions
 {
     public TalentPoolOptions Pool { get; init; } = new();
+
+    /// <summary>
+    /// The last season each real person was active (T12), by person id. Such a person retires on 31 December of that
+    /// season (or of the season they join the world, if later) and does not use the age curve. Null or missing means
+    /// the age curve decides.
+    /// </summary>
+    public IReadOnlyDictionary<string, int>? LastSeasons { get; init; }
 }
 
 /// <summary>
-/// One career's world, day clock, and retirement ledger.
+/// One career's world and day clock.
 /// <see cref="LiveDay"/> is the only way the date moves: it runs <see cref="WorldClock.AdvanceDay"/>
 /// with the placeholder handlers and the talent pool (T40). The talent pool is the world section
-/// <see cref="TalentPoolSection"/>, so it is part of <see cref="WorldState.StateHash"/>. The retirement ledger still sits
-/// beside the world and is not.
+/// <see cref="TalentPoolSection"/>, so it is part of <see cref="WorldState.StateHash"/>. Retirement is part of the world (<see cref="Person.RetiredOn"/>):
+/// a retiree keeps the record (TECH 6.2), their contracts end, and the date is in the hash and the save.
 /// </summary>
 public sealed class CareerSession
 {
@@ -36,7 +43,8 @@ public sealed class CareerSession
     private readonly Dictionary<int, List<PersonId>> _birthdays = new();
     private readonly Dictionary<GameDate, ContractId[]> _expiries = new();
     private readonly Dictionary<GameDate, ScheduledArrival[]> _arrivals = new();
-    private readonly SortedSet<PersonId> _retired = new();
+    private readonly IReadOnlyDictionary<string, int> _lastSeasons;
+    private readonly Dictionary<GameDate, List<PersonId>> _lastSeasonRetirements = new();
     private readonly List<CareerYearSummary> _years = [];
     private WorldClockState _clock;
 
@@ -54,10 +62,15 @@ public sealed class CareerSession
         World = world;
         _clock = new WorldClockState(world.CurrentDate, masterSeed);
         _openedYear = world.CurrentDate.Year;
+        _lastSeasons = options.LastSeasons ?? new Dictionary<string, int>();
 
         foreach (var person in world.Persons)
         {
             IndexBirthday(person);
+            if (!person.IsRetired)
+            {
+                ScheduleLastSeason(person, _openedYear);
+            }
         }
 
         var pool = world.Section<TalentPoolSection>(TalentPoolSection.SectionName) ?? TalentPoolSection.Empty;
@@ -121,13 +134,14 @@ public sealed class CareerSession
             () => World,
             next => World = next,
             _arrivals,
-            IndexBirthday,
+            AdmitToWorld,
             options.Pool,
             _openedYear);
         _registry = new DayHandlerRegistry(
         [
             _poolHandler,
             new AgeingHandler(this),
+            new LastSeasonHandler(this),
             new ContractExpiryHandler(this),
             new SeasonRolloverHandler(),
         ]);
@@ -151,7 +165,8 @@ public sealed class CareerSession
     /// <summary>The talent pool as the world holds it.</summary>
     public TalentPoolSection Pool => World.Section<TalentPoolSection>(TalentPoolSection.SectionName) ?? TalentPoolSection.Empty;
 
-    public IReadOnlyList<PersonId> Retired => _retired.ToArray();
+    public IReadOnlyList<PersonId> Retired =>
+        World.Persons.Where(person => person.IsRetired).Select(person => person.Id).ToArray();
 
     /// <summary>
     /// Stores the world a command produced. The command layer calls this after a command has changed the world (INV-001). The date
@@ -190,9 +205,14 @@ public sealed class CareerSession
     {
         var seasonEnd = GameDate.SeasonEnd(year);
         var alive = 0;
+        var retired = 0;
         foreach (var person in World.Persons)
         {
-            if (person.BirthDate <= seasonEnd && !_retired.Contains(person.Id))
+            if (person.IsRetired)
+            {
+                retired++;
+            }
+            else if (person.BirthDate <= seasonEnd)
             {
                 alive++;
             }
@@ -207,7 +227,37 @@ public sealed class CareerSession
             }
         }
 
-        return new CareerYearSummary(year, alive, _retired.Count, Pool.Count, contracts, World.StateHash());
+        return new CareerYearSummary(year, alive, retired, Pool.Count, contracts, World.StateHash());
+    }
+
+    /// <summary>
+    /// A real person with a known last season leaves on 31 December of it. A last season before the person joined the
+    /// world, or before the run opened, means they leave at the end of that first season.
+    /// </summary>
+    private void ScheduleLastSeason(Person person, int firstSeason)
+    {
+        if (!person.IsReal || !_lastSeasons.TryGetValue(person.Id.Value, out var last))
+        {
+            return;
+        }
+
+        var on = GameDate.SeasonEnd(Math.Max(last, firstSeason));
+        if (!_lastSeasonRetirements.TryGetValue(on, out var list))
+        {
+            list = [];
+            _lastSeasonRetirements.Add(on, list);
+        }
+
+        list.Add(person.Id);
+    }
+
+    private bool GovernedByLastSeason(Person person) => person.IsReal && _lastSeasons.ContainsKey(person.Id.Value);
+
+    private void Retire(PersonId id, GameDate today, DayContext context)
+    {
+        World = World.RetirePerson(id, today);
+        LeavePool(id);
+        context.Emit(CareerEventType.Retired, new MarkerPayload(id.Value));
     }
 
     private void IndexBirthday(Person person)
@@ -262,6 +312,13 @@ public sealed class CareerSession
     private static string ArrivalKey(ScheduledArrival arrival) =>
         arrival.Spec.IsReal ? arrival.Spec.RealId! : arrival.Spec.FamilyName + "\u001f" + arrival.Spec.GivenName;
 
+    /// <summary>The pool handler has put a person into the world: the session indexes birthdays and last seasons.</summary>
+    private void AdmitToWorld(Person person, GameDate today)
+    {
+        IndexBirthday(person);
+        ScheduleLastSeason(person, today.Year);
+    }
+
     private void LeavePool(PersonId id)
     {
         var pool = Pool;
@@ -285,12 +342,12 @@ public sealed class CareerSession
             _session.ForBirthdays(context.Today, _buffer);
             foreach (var id in _buffer)
             {
-                if (_session._retired.Contains(id))
+                var person = _session.World.GetPerson(id);
+                if (person.IsRetired || _session.GovernedByLastSeason(person))
                 {
                     continue;
                 }
 
-                var person = _session.World.GetPerson(id);
                 var age = context.Today.Year - person.BirthDate.Year;
                 var driver = IsDriver(person);
                 if (!RetirementCurve.Retires(age, driver, () => context.Stream(RngStreamName.LifeEvents).NextDouble()))
@@ -298,10 +355,32 @@ public sealed class CareerSession
                     continue;
                 }
 
-                if (_session._retired.Add(id))
+                _session.Retire(id, context.Today, context);
+            }
+        }
+    }
+
+    private sealed class LastSeasonHandler : IDayHandler
+    {
+        private readonly CareerSession _session;
+
+        public LastSeasonHandler(CareerSession session) => _session = session;
+
+        public int Order => 25;
+
+        public void OnDay(DayContext context)
+        {
+            if (!_session._lastSeasonRetirements.TryGetValue(context.Today, out var due))
+            {
+                return;
+            }
+
+            due.Sort(static (left, right) => string.CompareOrdinal(left.Value, right.Value));
+            foreach (var id in due)
+            {
+                if (!_session.World.GetPerson(id).IsRetired)
                 {
-                    _session.LeavePool(id);
-                    context.Emit(CareerEventType.Retired, new MarkerPayload(id.Value));
+                    _session.Retire(id, context.Today, context);
                 }
             }
         }
@@ -322,8 +401,19 @@ public sealed class CareerSession
                 return;
             }
 
+            var present = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var contract in _session.World.Contracts)
+            {
+                present.Add(contract.Id.Value);
+            }
+
             foreach (var id in due)
             {
+                if (!present.Contains(id.Value))
+                {
+                    continue;
+                }
+
                 context.Emit(CareerEventType.ContractExpired, new MarkerPayload(id.Value));
                 _session.ContractExpiries++;
             }

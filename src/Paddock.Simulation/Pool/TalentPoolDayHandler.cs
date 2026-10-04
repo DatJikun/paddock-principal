@@ -78,7 +78,7 @@ public sealed class TalentPoolDayHandler : IDayHandler
     private readonly Func<WorldState> _world;
     private readonly Action<WorldState> _setWorld;
     private readonly IReadOnlyDictionary<GameDate, ScheduledArrival[]> _arrivals;
-    private readonly Action<Person> _personAdded;
+    private readonly Action<Person, GameDate> _personAdded;
     private readonly TalentPoolOptions _options;
     private readonly int _openedYear;
 
@@ -86,7 +86,7 @@ public sealed class TalentPoolDayHandler : IDayHandler
         Func<WorldState> world,
         Action<WorldState> setWorld,
         IReadOnlyDictionary<GameDate, ScheduledArrival[]> arrivals,
-        Action<Person> personAdded,
+        Action<Person, GameDate> personAdded,
         TalentPoolOptions options,
         int openedYear)
     {
@@ -143,7 +143,7 @@ public sealed class TalentPoolDayHandler : IDayHandler
                 }
 
                 (world, var id) = world.AddPerson(arrival.Spec);
-                _personAdded(world.GetPerson(id));
+                _personAdded(world.GetPerson(id), today);
                 entrants.Add(id);
             }
         }
@@ -170,7 +170,7 @@ public sealed class TalentPoolDayHandler : IDayHandler
                         "Generated person id " + filler.ExpectedId + " does not match the world id " + id.Value + ".");
                 }
 
-                _personAdded(world.GetPerson(id));
+                _personAdded(world.GetPerson(id), today);
                 entrants.Add(id);
             }
         }

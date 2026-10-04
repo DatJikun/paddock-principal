@@ -132,7 +132,7 @@ internal static class PoolKit
                 () => World,
                 next => World = next,
                 byDay,
-                _ => { },
+                (_, _) => { },
                 options ?? new TalentPoolOptions(),
                 world.CurrentDate.Year);
             _registry = new DayHandlerRegistry([_handler]);

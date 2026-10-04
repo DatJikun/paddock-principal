@@ -281,7 +281,7 @@ To dokładnie pasuje do modelu zapasu opisanego wyżej.
 
 Każda z nich zmienia wagi oceny oferty (§8) oraz reakcje na status #2, na złamane obietnice i na złe wyniki. Poznaje się je z czasem: z rozmów, z historii kariery i dzięki relacjom.
 
-**Cechy (0–3):** np. mistrz kwalifikacji, zaklinacz opon / niszczyciel opon, szybki tylko w czystym powietrzu, artysta wyprzedzania, mistrz deszczu, pękający pod presją, skłonny do kraks, „mechanik” (oszczędza sprzęt), kierowca z pieniędzmi, mentor (rozwija partnera z zespołu). Widoczne dopiero po obserwacji.
+**Cechy (0–3):** np. mistrz kwalifikacji, zaklinacz opon / niszczyciel opon, szybki tylko w czystym powietrzu, artysta wyprzedzania, mistrz deszczu, pękający pod presją, skłonny do kraks, „mechanik” (oszczędza sprzęt), kierowca z pieniędzmi, mentor (rozwija partnera z zespołu). Widoczne dopiero po obserwacji. Każda cecha daje konkretny bonus albo minus. Cechy mogą zostać nabyte albo utracone w trakcie kariery (np. doświadczenie w deszczu, mentor obok w zespole) (PP-047).
 
 **Stan bieżący (zmienny):** forma (średnia krocząca), morale, pewność siebie (spada po błędach i w aucie, które mu nie leży), zdrowie i kontuzje. Zmęczenia nie ma w widoku składu. Istnieje tylko wewnątrz długich wyścigów endurance (stinty), gdzie liczy się kondycja.
 
@@ -354,6 +354,8 @@ Z zaufania wyrastają też rywalizacje (Senna–Prost), napięcia między partne
 
 ### 6.4. Rozwój i wiek
 Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datami. W trybie „Trajektoria” zastępuje ją prawdziwa krzywa.
+
+**Zasady łuku (PP-047):** rozwój zaczyna się kilka lat przed debiutem, szczyt przypada zwykle na 25–33 lata, a spadek zaczyna się dopiero około 36–40 lat (każdy kierowca ma własny, stały wiek). U prawdziwych kierowców wysokość szczytu i jego moment wynikają z danych (pipeline ocen, skala względem własnej epoki). Spóźnialski, który był na szczycie do końca kariery (Fangio), słabnie dopiero po ostatnim prawdziwym sezonie. Gwiazdki to zawsze średnia atrybutów / 4.
 
 ---
 

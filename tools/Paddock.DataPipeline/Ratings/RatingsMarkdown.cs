@@ -46,7 +46,7 @@ public static class RatingsMarkdown
             var shortFlag = entry.ShortCareer ? " *" : string.Empty;
             sb.AppendLine(string.Create(
                 CultureInfo.InvariantCulture,
-                $"| {entry.Rank} | {entry.Name}{shortFlag} | {entry.Overall} | {entry.Stars:F1} | {entry.PeakValue:F3} | {entry.CareerPeak:F3} | {entry.PeakSe:F3} | {entry.PeakYears} | {entry.TotalDuels} |"));
+                $"| {entry.Rank} | {entry.Name}{shortFlag} | {entry.Overall} | {entry.Stars:F2} | {entry.PeakValue:F3} | {entry.CareerPeak:F3} | {entry.PeakSe:F3} | {entry.PeakYears} | {entry.TotalDuels} |"));
         }
         sb.AppendLine();
 
@@ -217,7 +217,7 @@ public static class RatingsMarkdown
             {
                 lines.Add(string.Create(
                     CultureInfo.InvariantCulture,
-                    $"  #{d.Rank}: {d.Name} (peak {d.PeakValue:F3}, overall {d.Overall}, {d.Stars:F1} stars, {d.TotalDuels} duels)"));
+                    $"  #{d.Rank}: {d.Name} (peak {d.PeakValue:F3}, overall {d.Overall}, {d.Stars:F2} stars, {d.TotalDuels} duels)"));
             }
         }
 

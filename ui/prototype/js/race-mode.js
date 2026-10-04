@@ -144,7 +144,8 @@
 
     const $ = s => root.querySelector(s);
     st.$ = $;
-    const map = new RaceMap($('.rm-map'), new TrackSpline(track.map, track.len), entries, track.corners);
+    const shape = TrackShape.resolve(track);
+    const map = new RaceMap($('.rm-map'), shape.spline, entries, shape.corners);
     st.map = map;
     map.onSelect = id => select(id);
     map.onFollow = on => { $('[data-act=follow]').setAttribute('aria-pressed', on); renderCard(); };

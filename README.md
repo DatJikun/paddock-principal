@@ -2,11 +2,12 @@
 
 Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić zespół przez całą historię F1 z prawdziwymi ludźmi i zmienić jej bieg. Po 2026 świat żyje dalej proceduralnie, bez końca.
 
-**Stan (2026-09-26):** faza 1 w toku.
-- Jest szkielet .NET 10 z deterministycznym generatorem losowości i CI.
-- Są dane autorskie: regulaminy F1 1950–2026 oraz tory z wersjami układów.
-- Importer danych historycznych jest w trakcie.
-- Równolegle powstaje klikalny prototyp UI (`ui/prototype/`, uwagi i następne kroki w `ui/HANDOFF_UI.md`).
+**Stan (2026-10-04):** fazy 1–3 w większości zrobione, faza 4 w toku.
+- Rdzeń świata działa: SimRunner przechodzi 1950→2026 deterministycznie na wygenerowanych ludziach, zapis się wznawia.
+- Silnik wyścigu jest gotowy (weekend wyścigowy z relacją); kalibracja z historią czeka.
+- Czekają pełne dane Jolpica na maszynie właściciela i oceny na prawdziwych danych.
+- Pętla kariery (faza 4) jest w toku, część zadań czeka na decyzje właściciela.
+- Klikalny prototyp UI w wersji szkicowej: `ui/prototype/`, uwagi w `ui/HANDOFF_UI.md`.
 
 ## Dokumentacja
 

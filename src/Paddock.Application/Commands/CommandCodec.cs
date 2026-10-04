@@ -1,9 +1,6 @@
-using Paddock.Application.Contracts;
-using Paddock.Application.Finance;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Application.Pool;
-using Paddock.Application.Sponsors;
 using Paddock.Domain.Codec;
 using Paddock.Domain.Pool;
 using Paddock.Simulation.Codec;
@@ -80,17 +77,19 @@ public sealed class CommandCodec
         }
     }
 
-    /// <summary>The commands this build can save.</summary>
+    /// <summary>
+    /// The commands this build can save: the core ones listed below (inbox, talent pool) and the ones every career module brings
+    /// (<see cref="Career.ICareerModule.CommandCodecs"/>). A system that joins <see cref="Career.CareerModules.Default"/> is saved
+    /// without an edit here.
+    /// </summary>
     public static CommandCodec Production { get; } = new(
     [
-        .. SponsorCommandCodecs.Entries,
-        .. FinanceCommandCodecs.Entries,
-        .. ContractCommandCodecs.Entries,
-        .. CarCommandCodecs.Entries,
-        .. Paddock.Application.Board.BoardCommandCodecs.Entries,
+        // T42 and T43 were merged (#163, #162) before they became career modules. Each moves its line into its own module's
+        // CommandCodecs when it joins CareerModules.Default; until then these two stay here so their commands are still saved.
         .. Paddock.Application.Development.DevelopmentCommandCodecs.Entries,
         .. Paddock.Application.Supply.SupplyCommandCodecs.Entries,
         .. Paddock.Application.Principals.PrincipalCommandCodecs.Entries,
+        .. Career.CareerModules.Default.SelectMany(module => module.CommandCodecs),
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",
             command => FlatJson.Write(("itemId", command.ItemId), ("optionId", command.OptionId)),

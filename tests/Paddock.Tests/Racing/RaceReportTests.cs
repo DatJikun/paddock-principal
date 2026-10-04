@@ -269,6 +269,7 @@ public class RaceReportTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void TheConditionsAreTheStateAtTheStartOnly_NotTheOnsetOrThePeak()
     {
         // Same race, all seeds: the conditions line is one of the four start lines and carries nothing but the track state and a temperature.
@@ -398,6 +399,7 @@ public class RaceReportTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void EveryLineThatCarriesACountIsAPluralEntryInBothLanguages_OnRealRacesOfManyEras()
     {
         var counted = new HashSet<string>(StringComparer.Ordinal);
@@ -428,6 +430,7 @@ public class RaceReportTests
     }
 
     [Theory]
+    [Trait("Category", "Slow")]
     [InlineData(1950)]
     [InlineData(1955)]
     [InlineData(1970)]

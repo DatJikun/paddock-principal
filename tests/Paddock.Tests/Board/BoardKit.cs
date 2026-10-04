@@ -162,7 +162,8 @@ internal static class BoardKit
             int free = 3,
             ITraceSink? trace = null,
             IBoardHistory? history = null,
-            bool noRaces = false)
+            bool noRaces = false,
+            IBoardSeverance? severance = null)
         {
             Appeal = new ContractKit.FakeAppeal();
             Facts = new FakeFacts();
@@ -178,7 +179,7 @@ internal static class BoardKit
                 trace,
                 new BoardReputationSource(() => Board!.Section));
             Contracts = new ContractBook(BuildWorld(free), Environment);
-            Board = new BoardBook(Contracts, Facts, masterSeed, history);
+            Board = new BoardBook(Contracts, Facts, masterSeed, history, severance: severance);
             Managers = new ManagerRegistry();
             Managers.Register(Pam, ManagerKind.Human, "Pam");
             Managers.Register(Quinn, ManagerKind.Human, "Quinn");

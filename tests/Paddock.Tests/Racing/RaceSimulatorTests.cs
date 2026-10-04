@@ -20,6 +20,7 @@ public class RaceSimulatorTests
     private const string Golden2012 = "119db93981d1adf3cc19396483d798d199aa0c31f41ea918f624e51a4b58e16f";
 
     [Theory]
+    [Trait("Category", "Slow")]
     [InlineData(1955, Golden1955)]
     [InlineData(1988, Golden1988)]
     [InlineData(2012, Golden2012)]

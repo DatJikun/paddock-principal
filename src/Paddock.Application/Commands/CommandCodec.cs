@@ -1,3 +1,4 @@
+using Paddock.Application.Contracts;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Domain.Codec;
@@ -78,6 +79,7 @@ public sealed class CommandCodec
     /// <summary>The commands this build can save.</summary>
     public static CommandCodec Production { get; } = new(
     [
+        .. ContractCommandCodecs.Entries,
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",
             command => FlatJson.Write(("itemId", command.ItemId), ("optionId", command.OptionId)),

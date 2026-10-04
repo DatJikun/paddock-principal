@@ -26,6 +26,12 @@ public sealed class ContractsSectionStore : ISectionStore
             _ => throw new ArgumentException($"The contracts store cannot save a {section.GetType().Name}.", nameof(section)),
         };
 
+        // A file saved while it was still on an older schema has no contracts tables, and no section to clear in them.
+        if (contracts is null && !TableExists(connection, transaction, "contracts_counter"))
+        {
+            return;
+        }
+
         // Children first, so foreign keys hold at every statement.
         foreach (var table in new[]
         {
@@ -211,6 +217,15 @@ public sealed class ContractsSectionStore : ISectionStore
         }
 
         return ContractsSection.Restore(next, terms, negotiations, prompts);
+    }
+
+    private static bool TableExists(SqliteConnection connection, SqliteTransaction transaction, string table)
+    {
+        using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = $name";
+        command.Parameters.AddWithValue("$name", table);
+        return command.ExecuteScalar() is not null;
     }
 
     private static void WriteNegotiation(SqliteConnection connection, SqliteTransaction transaction, Negotiation negotiation)

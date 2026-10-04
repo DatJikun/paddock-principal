@@ -120,7 +120,7 @@ public sealed class CareerRunStoreTests : IDisposable
         Assert.DoesNotContain("career_run", Tables(path));
         using (var opened = SaveFile.Open(path))
         {
-            Assert.Equal(7, opened.ReadMeta().SchemaVersion);
+            Assert.Equal(SaveMigrations.CurrentVersion, opened.ReadMeta().SchemaVersion);
             var repository = new WorldRepository(opened);
             Assert.True(repository.HasWorld);
             var snapshot = repository.LoadAll();

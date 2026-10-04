@@ -277,8 +277,15 @@ Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane i mapki torów to 
 - **Przebudowane:** kalendarz, porównanie (działające zakładki), personel, akademia (miejsca i pula), infrastruktura, dostawcy, sponsorzy, finanse (rozwijane pozycje), zarząd (właściciel jako postać), rynek (zwarta tabela z podglądem), Monthly (działające działy i właściwe linki), FIA (głosowanie w skrzynce), ustawienia.
 - **Tryb „Opinie”** zapisuje się i zmienia profil kierowcy (cytaty zamiast atrybutów). Skórki lat 90. i 20. są oznaczone jako niedostępne.
 - **Barwy:** tryb „Zespół” zmienia tło, akcenty i dym, więc różnica jest wyraźna.
+- **Auto i rozwój** (PP-043, ścieżka A, `js/screens-dev.js`, #130): gracz nie wybiera części.
+  - **Podział zasobów:** bieżące auto / konto rozwoju / przyszły rok (krok 5 pp, suma musi dać 100%) i priorytety czterech obszarów (0–10) z miejscem w stawce. Zmiany działają dopiero po „Potwierdź”.
+  - **Projekty wybierają inżynierowie:** tabela „W toku” pokazuje stan, dlaczego (cytat osoby, obszar, priorytet) i prognozę (przedział zysku, termin, ryzyko). Zakładki „Zakończone” (efekt, zrozumienie) i „Koncepcja auta” (osie).
+  - **Zatwierdzenie koncepcji zamiast zegara (uwaga właściciela, 2026-10-04):** gotowa koncepcja ma status, przedział dalszego zysku, dni do wyścigu i czas produkcji. Decyzje „Wdrażamy teraz” i „Czekamy” (osobne „Potwierdź”). Zatwierdzenie uruchamia produkcję, a koncepcja trafia do auta po jej końcu (oś z wyścigami na starym aucie). Dawnych terminów „po N wyścigach” na ekranie nie ma.
+  - **Odpowiedź inżyniera** jak wiadomość ze skrzynki („jeszcze 2 tygodnie”): „Trzymamy plan” albo „Tniemy projekt”. Obie decyzje są też w Skrzynce (#9, #10) i dzielą stan z ekranem.
+  - **Prawda a wiedza:** gracz widzi tylko przedziały i szacunki (zysk, ryzyko, konto). Dane to atrapa w `DB.car.dev` o neutralnym kształcie, bo nazwy po stronie backendu jeszcze się ustalają; liczby są szacunkowe.
+  - Test: `ui/prototype/tests/dev-screen.test.mjs` (na Node 22 uruchamiaj z globem: `node --test "ui/prototype/tests/*.test.mjs"`).
 
 **Znane braki:**
 - Profil kierowcy przewija się na 1440×900 (ok. 120 px) i minimalnie na 1620×860.
 - Sylwetki torów są rysowane z pamięci i przybliżone.
-- Auto i rozwój bez zmian: czeka na decyzję właściciela o systemie z §4.
+- Auto i rozwój: ścieżka B (ręczny wybór projektów) nie ma ekranu, a podział zasobów nie ma jeszcze reakcji skrzynki na własną zmianę (odpowiedź inżyniera jest gotowa w danych).

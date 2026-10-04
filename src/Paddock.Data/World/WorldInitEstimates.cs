@@ -27,6 +27,12 @@ public static class WorldInitEstimates
     /// <summary>ESTIMATE: strength of the stand-in used for a real driver the ratings model has not rated (near-flat).</summary>
     public const int UnratedFallbackStrength = GenerationEstimates.StrengthMin;
 
+    /// <summary>
+    /// ESTIMATE: level (1-20) of a rated driver at the start of his growth, years before his debut. Growth to the first rated
+    /// season is linear from here. Never above the first rated level.
+    /// </summary>
+    public const double RatedGrowthStartLevel = 6.0;
+
     /// <summary>ESTIMATE: quality band for a real or random-skill driver who races in the start year.</summary>
     public const QualityBand RacingKnownQuality = QualityBand.Solid;
 

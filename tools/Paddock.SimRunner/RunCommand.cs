@@ -16,13 +16,13 @@ using Paddock.Simulation.Career;
 namespace Paddock.SimRunner;
 
 /// <summary>
-/// <c>run --preset &lt;name&gt; --from &lt;Y&gt; --to &lt;Y&gt; --seed &lt;N&gt; [--save path] [--lang en|pl]</c>:
+/// <c>run --preset &lt;name&gt; --from &lt;Y&gt; --to &lt;Y&gt; --seed &lt;N&gt; [--save path] [--lang en|pl] [--ratings path]</c>:
 /// builds the opening world, then lives every day through 31 December of <c>--to</c> with AI managers only.
 /// Prints one line per season (alive, retired, pool, contracts, world state hash).
 /// <c>--save</c> writes that world, the day clock, the managers, the RNG stream states, the talent pool and the run tallies
 /// through the T19 repository, so that <c>run --resume &lt;save&gt; --to &lt;Y&gt; [--save path]</c> carries on to exactly the
 /// future an uninterrupted run would have lived (issue #123). A resumed run takes its seed, preset and config from the save,
-/// refuses a save whose base data or people inputs have changed, and prints only the seasons it lives.
+/// refuses a save whose base data or people inputs (schedule, drivers, ratings) have changed, and prints only the seasons it lives.
 /// The stored determinism hash is updated by editing the test constant after a reviewed change.
 /// The test does not rewrite it.
 /// </summary>
@@ -50,12 +50,13 @@ public static class RunCommand
         string? dataRoot = null;
         string? schedulePath = null;
         string? driversPath = null;
+        string? ratingsPath = null;
         string? savePath = null;
         string? resumePath = null;
         for (var i = 1; i < args.Length; i++)
         {
             var flag = args[i];
-            if (flag is not ("--preset" or "--from" or "--to" or "--seed" or "--lang" or "--data-root" or "--schedule" or "--drivers" or "--save" or "--resume"))
+            if (flag is not ("--preset" or "--from" or "--to" or "--seed" or "--lang" or "--data-root" or "--schedule" or "--drivers" or "--ratings" or "--save" or "--resume"))
             {
                 stderr.WriteLine("Unknown argument: " + flag);
                 return 1;
@@ -75,6 +76,7 @@ public static class RunCommand
                 "--data-root" => Take(ref dataRoot, value),
                 "--schedule" => Take(ref schedulePath, value),
                 "--drivers" => Take(ref driversPath, value),
+                "--ratings" => Take(ref ratingsPath, value),
                 "--save" => Take(ref savePath, value),
                 "--resume" => Take(ref resumePath, value),
                 "--from" => TakeYear(ref from, value, stderr),
@@ -120,7 +122,7 @@ public static class RunCommand
                 return 1;
             }
 
-            return Resume(resumePath, to.Value, language, dataRoot, schedulePath, driversPath, savePath, stdout, stderr);
+            return Resume(resumePath, to.Value, language, dataRoot, schedulePath, driversPath, ratingsPath, savePath, stdout, stderr);
         }
 
         if (preset is null || from is null || to is null || seed is null)
@@ -165,8 +167,8 @@ public static class RunCommand
             }
 
             var data = AuthoredDataLoader.Load(root);
-            var files = ResolveProviderFiles(root, schedulePath, driversPath);
-            var provider = LoadProvider(files);
+            var files = PeopleInputs.Resolve(root, schedulePath, driversPath, ratingsPath);
+            var provider = files?.Load() ?? EmptyPeopleProvider.Instance;
             var created = WorldInitializer.Create(config, data, provider, seed.Value);
             var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed.Value);
             var session = new CareerSession(
@@ -216,6 +218,7 @@ public static class RunCommand
         string? dataRoot,
         string? schedulePath,
         string? driversPath,
+        string? ratingsPath,
         string? savePath,
         TextWriter stdout,
         TextWriter stderr)
@@ -241,7 +244,7 @@ public static class RunCommand
             }
 
             // The same inputs must be in place, or the future would differ without any sign of it (TECH 6.1, INV-002).
-            var files = ResolveProviderFiles(root, schedulePath, driversPath);
+            var files = PeopleInputs.Resolve(root, schedulePath, driversPath, ratingsPath);
             var worldDataHash = HashWorldData(root, files);
             if (!string.Equals(worldDataHash, loaded.Meta.WorldDataHash, StringComparison.Ordinal))
             {
@@ -251,7 +254,7 @@ public static class RunCommand
                 return 1;
             }
 
-            var provider = LoadProvider(files);
+            var provider = files?.Load() ?? EmptyPeopleProvider.Instance;
 
             // The arrivals the saved run still has ahead of it: those dated on or after the save date. The schedule is built
             // from a world dated the season before when the save is on 1 January, because an entry on that day has not happened.
@@ -366,10 +369,10 @@ public static class RunCommand
     }
 
     /// <summary>
-    /// The base data a save depends on: every authored file, plus the people schedule and drivers files when the run used them
+    /// The base data a save depends on: every authored file, plus the people schedule, drivers and ratings files when the run used them
     /// (without them the hash is that of the authored files alone). A resumed run must see the same hash.
     /// </summary>
-    private static string HashWorldData(string dataRoot, (string Schedule, string Drivers)? people)
+    private static string HashWorldData(string dataRoot, PeopleInputs? people)
     {
         var authored = Path.Combine(Path.GetFullPath(dataRoot), "authored");
         var files = Directory.EnumerateFiles(authored, "*.json", SearchOption.AllDirectories)
@@ -385,9 +388,9 @@ public static class RunCommand
             hash.AppendData("\n"u8);
         }
 
-        if (people is var (schedule, drivers))
+        if (people is not null)
         {
-            foreach (var file in new[] { schedule, drivers })
+            foreach (var file in people.Files)
             {
                 hash.AppendData("people\n"u8);
                 hash.AppendData(File.ReadAllBytes(file));
@@ -396,37 +399,6 @@ public static class RunCommand
         }
 
         return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
-    }
-
-    /// <summary>The people schedule and drivers files in use, or null when the run has none (the empty provider).</summary>
-    private static (string Schedule, string Drivers)? ResolveProviderFiles(string dataRoot, string? schedulePath, string? driversPath)
-    {
-        if (schedulePath is null || driversPath is null)
-        {
-            var cache = Path.Combine(Path.GetFullPath(dataRoot), "cache");
-            schedulePath = Path.Combine(cache, "reports", "people_schedule.json");
-            driversPath = Path.Combine(cache, "jolpica", "normalized", "drivers.json");
-            if (!File.Exists(schedulePath) || !File.Exists(driversPath))
-            {
-                return null;
-            }
-        }
-
-        return (schedulePath, driversPath);
-    }
-
-    private static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files)
-    {
-        if (files is not var (schedulePath, driversPath))
-        {
-            return EmptyPeopleProvider.Instance;
-        }
-
-        var schedule = JsonSerializer.Deserialize<PeopleScheduleReport>(File.ReadAllText(schedulePath), HistoricalJson.Options)
-            ?? throw new JsonException("The people schedule file is empty.");
-        var drivers = JsonSerializer.Deserialize<HistoricalDriversDocument>(File.ReadAllText(driversPath), HistoricalJson.Options)
-            ?? throw new JsonException("The drivers file is empty.");
-        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers);
     }
 
     private static string FormatInit(string template, IReadOnlyList<string> arguments, CareerConfig config)

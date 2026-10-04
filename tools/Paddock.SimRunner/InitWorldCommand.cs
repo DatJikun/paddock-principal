@@ -9,9 +9,11 @@ namespace Paddock.SimRunner;
 
 /// <summary>
 /// <c>init-world --preset &lt;name&gt; --year &lt;Y&gt; --seed &lt;N&gt; [--lang en|pl] [--data-root &lt;dir&gt;]
-/// [--schedule &lt;people_schedule.json&gt; --drivers &lt;drivers.json&gt;]</c>:
+/// [--schedule &lt;people_schedule.json&gt; --drivers &lt;drivers.json&gt;] [--ratings &lt;ratings.json&gt;]</c>:
 /// builds the starting world and prints the report (counts per kind, gaps, state hash). Read-only; it writes nothing.
 /// Real drivers come from the local Jolpica cache outputs when they exist; without them the provider is empty.
+/// Their ratings come from <c>cache/reports/ratings.json</c> (the <c>ratings</c> pipeline command) when it exists, or from
+/// <c>--ratings</c>; a real driver the file does not rate gets a flat stand-in and is listed in the report.
 /// </summary>
 public static class InitWorldCommand
 {
@@ -38,10 +40,11 @@ public static class InitWorldCommand
         string? dataRoot = null;
         string? schedulePath = null;
         string? driversPath = null;
+        string? ratingsPath = null;
         for (var i = 1; i < args.Length; i++)
         {
             var flag = args[i];
-            if (flag is not ("--preset" or "--year" or "--seed" or "--lang" or "--data-root" or "--schedule" or "--drivers"))
+            if (flag is not ("--preset" or "--year" or "--seed" or "--lang" or "--data-root" or "--schedule" or "--drivers" or "--ratings"))
             {
                 stderr.WriteLine("Unknown argument: " + flag);
                 return 1;
@@ -61,6 +64,7 @@ public static class InitWorldCommand
                 "--data-root" => Take(ref dataRoot, value),
                 "--schedule" => Take(ref schedulePath, value),
                 "--drivers" => Take(ref driversPath, value),
+                "--ratings" => Take(ref ratingsPath, value),
                 "--year" => TakeYear(ref year, value, stderr),
                 _ => TakeSeed(ref seed, value, stderr),
             };
@@ -107,7 +111,7 @@ public static class InitWorldCommand
             }
 
             var data = AuthoredDataLoader.Load(root);
-            var provider = LoadProvider(root, schedulePath, driversPath);
+            var provider = PeopleInputs.Resolve(root, schedulePath, driversPath, ratingsPath)?.Load() ?? EmptyPeopleProvider.Instance;
             var result = WorldInitializer.Create(config, data, provider, seed.Value);
             Print(result, ReferenceEquals(provider, EmptyPeopleProvider.Instance), strings, stdout);
             return 0;
@@ -170,29 +174,6 @@ public static class InitWorldCommand
         }
 
         stdout.WriteLine(strings.Required("world.init.report.hash").Replace("{hash}", result.World.StateHash(), StringComparison.Ordinal));
-    }
-
-    private static IPeopleProvider LoadProvider(
-        string dataRoot,
-        string? schedulePath,
-        string? driversPath)
-    {
-        if (schedulePath is null || driversPath is null)
-        {
-            var cache = Path.Combine(Path.GetFullPath(dataRoot), "cache");
-            schedulePath = Path.Combine(cache, "reports", "people_schedule.json");
-            driversPath = Path.Combine(cache, "jolpica", "normalized", "drivers.json");
-            if (!File.Exists(schedulePath) || !File.Exists(driversPath))
-            {
-                return EmptyPeopleProvider.Instance;
-            }
-        }
-
-        var schedule = JsonSerializer.Deserialize<PeopleScheduleReport>(File.ReadAllText(schedulePath), HistoricalJson.Options)
-            ?? throw new JsonException("The people schedule file is empty.");
-        var drivers = JsonSerializer.Deserialize<HistoricalDriversDocument>(File.ReadAllText(driversPath), HistoricalJson.Options)
-            ?? throw new JsonException("The drivers file is empty.");
-        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers);
     }
 
     private static string Format(string template, IReadOnlyList<string> arguments, CareerConfig config)

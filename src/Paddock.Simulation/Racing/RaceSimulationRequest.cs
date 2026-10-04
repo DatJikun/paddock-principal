@@ -24,6 +24,11 @@ public sealed class RaceSimulationRequest
     public StrategistFactory? Strategist { get; init; }
 
     /// <summary>
+    /// ESTIMATE: how often the lap engine samples a display frame, in seconds. Between 0.5 and 1.
+    /// </summary>
+    public double FrameSampleSeconds { get; init; } = 1.0;
+
+    /// <summary>
     /// Spectator facts the lap engine publishes. A stub simulator leaves this null. Never holds lap records.
     /// </summary>
     public RacePublishedFacts? Published { get; internal set; }

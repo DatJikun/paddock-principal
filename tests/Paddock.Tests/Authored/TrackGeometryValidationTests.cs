@@ -229,4 +229,109 @@ public class TrackGeometryValidationTests
         var error = Assert.Single(errors, e => e.Code == AuthoredDataValidator.GeometrySelfIntersection);
         Assert.Contains("intersects itself", error.Message, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void TwoFilesForTheSameLayout_ReportDuplicate()
+    {
+        var geometries = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["a.json"] = ValidTrackJson("test_1950"),
+            ["b.json"] = ValidTrackJson("test_1950"),
+        };
+
+        using var fixture = new TempAuthoredData(geometries: geometries);
+        var errors = AuthoredDataValidator.Validate(AuthoredDataLoader.Load(fixture.Root));
+
+        var error = Assert.Single(errors, e => e.Code == AuthoredDataValidator.GeometryDuplicate);
+        Assert.Contains("test_1950", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CornerOnExistingPoint_IsAccepted_AndOptional()
+    {
+        var withCorners = ValidTrackJson().Replace(
+            "\"notes\": \"Valid test fixture\"",
+            "\"notes\": \"Valid test fixture\", \"corners\": [{ \"point\": 4, \"name\": \"East bend\" }, { \"point\": 10, \"name\": \"West bend\" }]",
+            StringComparison.Ordinal);
+        Assert.Contains("East bend", withCorners, StringComparison.Ordinal);
+
+        using var fixture = new TempAuthoredData(geometries: new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["test_1950.json"] = withCorners,
+        });
+        var data = AuthoredDataLoader.Load(fixture.Root);
+
+        Assert.Equal(2, data.TrackGeometries[0].Corners!.Count);
+        Assert.DoesNotContain(AuthoredDataValidator.Validate(data), e => e.Code.StartsWith("geometry-", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void BadCorners_AreReported()
+    {
+        var json = ValidTrackJson().Replace(
+            "\"notes\": \"Valid test fixture\"",
+            "\"notes\": \"x\", \"corners\": [{ \"point\": 99, \"name\": \"Nowhere\" }, { \"point\": 4, \"name\": \"\" }, { \"point\": 4, \"name\": \"Same\" }, { \"point\": 5, \"name\": \"Same\" }]",
+            StringComparison.Ordinal);
+
+        using var fixture = new TempAuthoredData(geometries: new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["test_1950.json"] = json,
+        });
+        var errors = AuthoredDataValidator.Validate(AuthoredDataLoader.Load(fixture.Root))
+            .Where(e => e.Code == AuthoredDataValidator.GeometryCorner)
+            .Select(e => e.Message)
+            .ToArray();
+
+        Assert.Contains(errors, m => m.Contains("outside 0..11", StringComparison.Ordinal));
+        Assert.Contains(errors, m => m.Contains("empty name", StringComparison.Ordinal));
+        Assert.Contains(errors, m => m.Contains("two corners on control point 4", StringComparison.Ordinal));
+        Assert.Contains(errors, m => m.Contains("two corners named 'Same'", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ControlPointsThatDoubleBack_ReportSharpBend()
+    {
+        // A control point sits 100 m back along the straight it just ran down: the spline has to reverse
+        // within a few metres, a cusp and not a corner.
+        var json = """
+            {
+              "layout_id": "test_1950",
+              "control_points": [
+                [0.0, 0.0],
+                [800.0, 0.0],
+                [1600.0, 0.0],
+                [1500.0, 3.0],
+                [1700.0, 400.0],
+                [1500.0, 1000.0],
+                [900.0, 1100.0],
+                [0.0, 1100.0],
+                [-200.0, 700.0],
+                [-200.0, 300.0]
+              ],
+              "source": "fixture",
+              "notes": ""
+            }
+            """;
+
+        using var fixture = new TempAuthoredData(geometries: new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["test_1950.json"] = json,
+        });
+        var errors = AuthoredDataValidator.Validate(AuthoredDataLoader.Load(fixture.Root));
+
+        Assert.Contains(errors, e => e.Code == AuthoredDataValidator.GeometrySharpBend);
+    }
+
+    [Fact]
+    public void SmoothCircuit_DoesNotReportSharpBend()
+    {
+        using var fixture = new TempAuthoredData(geometries: new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["test_1950.json"] = ValidTrackJson(),
+        });
+
+        Assert.DoesNotContain(
+            AuthoredDataValidator.Validate(AuthoredDataLoader.Load(fixture.Root)),
+            e => e.Code == AuthoredDataValidator.GeometrySharpBend);
+    }
 }

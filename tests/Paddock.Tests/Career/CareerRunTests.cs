@@ -18,13 +18,19 @@ namespace Paddock.Tests.Career;
 /// <summary>
 /// The stored world hash is the fixture career on the morning of 1961-01-01 (seed 7, seasons 1950 through 1960).
 /// Update <see cref="StoredWorldHash"/> and <see cref="StoredRetired"/> only by editing them after a reviewed
-/// change to the day rules or the fixture. This test prints the actual values and never writes them.
+/// change to the day rules or the fixture. This test prints the actual values and never writes them (there is no command that
+/// rewrites a golden hash: TECH 6.2 says how a changed one is reviewed).
+/// <para>
+/// History of <see cref="StoredWorldHash"/>: it changed once in #160, when the career modules joined the run. The fixture team now
+/// has its two cars (concept approved by the AI manager, ceilings from the Development stream) and a board with its principal on
+/// the record, which are world sections and so are in the hash. The fixture has no era data, so finance and sponsors stay out.
+/// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "e0ca0bf13ac7832514c4425cbaafe5ff6e9d77d207c2adbf4b88d5e40d01f4b6";
+    private const string StoredWorldHash = "1142fff08e543efa88ff16bbdfe4fbdeaef0809bf6d3dbf9cc4fa2854adc8504";
 
     private const string StoredRetired = "chief,leap,vet";
 

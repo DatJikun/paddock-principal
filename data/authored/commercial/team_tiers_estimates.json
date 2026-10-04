@@ -1,0 +1,14 @@
+{
+  "notes": "ESTIMATE. A stand-in for the previous season's constructors' standings, which come from the Jolpica results that stay local (PP-041) and are not in the repository. A team starts a career richer or poorer by its place in the previous season (top, typical, low), so a career that starts in 1955 needs the 1954 order. The constructors' championship did not exist before 1958, so this order is an informal reading of the 1954 world championship rounds, not an official table; it is uncalibrated and meant to be replaced by the real standings. A team that is not listed starts as a typical one. Positions are unique within a season.",
+  "standings": [
+    { "season": 1954, "constructorId": "mercedes", "position": 1, "confidence": "estimate", "note": "Fangio won four of the last six rounds of 1954 for Mercedes." },
+    { "season": 1954, "constructorId": "ferrari", "position": 2, "confidence": "estimate", "note": "Won the British and Spanish rounds." },
+    { "season": 1954, "constructorId": "maserati", "position": 3, "confidence": "estimate", "note": "Fangio won the Argentine and Belgian rounds in a Maserati before he moved to Mercedes." },
+    { "season": 1954, "constructorId": "gordini", "position": 4, "confidence": "estimate", "note": "Frequent points finishers without a win." },
+    { "season": 1954, "constructorId": "cooper", "position": 5, "confidence": "estimate", "note": "Small entries, few points." },
+    { "season": 1954, "constructorId": "connaught", "position": 6, "confidence": "estimate", "note": "Small entries, few points." },
+    { "season": 1954, "constructorId": "vanwall", "position": 7, "confidence": "estimate", "note": "A first season with little result." },
+    { "season": 1954, "constructorId": "hwm", "position": 8, "confidence": "estimate", "note": "Small entries, no points." },
+    { "season": 1954, "constructorId": "lancia", "position": 9, "confidence": "estimate", "note": "Entered only the last rounds." }
+  ]
+}

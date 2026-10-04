@@ -32,3 +32,11 @@ jobs:
 
       - name: Validate authored data
         run: dotnet run --project tools/Paddock.DataPipeline --configuration Release --no-build -- validate-authored
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: UI prototype tests
+        run: node --test "ui/prototype/tests/*.test.mjs"

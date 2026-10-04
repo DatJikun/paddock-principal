@@ -1,0 +1,61 @@
+using Paddock.Application.Sponsors;
+using Paddock.Domain.Contracts;
+using Paddock.Domain.Finance;
+using Paddock.Domain.Sponsors;
+using Paddock.Domain.World;
+
+namespace Paddock.Application.Career;
+
+/// <summary>
+/// The data a career run reads from outside the world: authored eras, the fictional sponsors, and the facts that decide how rich
+/// a team starts. The host (SimRunner, later the desktop app) loads them from <c>data/authored</c>; this assembly does not load
+/// files. A module whose input is missing does nothing, so a test or a tool that has no such data still runs the rest of the
+/// career (finance and sponsors are the ones that need it).
+/// </summary>
+public sealed class CareerInputs
+{
+    /// <summary>Era finance facts (budgets, revenue model). Finance and sponsors need it.</summary>
+    public IEraFinanceSource? Eras { get; init; }
+
+    /// <summary>Era slot rules for sponsors. Sponsors need it.</summary>
+    public ISponsorEras? SponsorEras { get; init; }
+
+    /// <summary>The fictional sponsors. Sponsors need it.</summary>
+    public SponsorCatalog? Sponsors { get; init; }
+
+    /// <summary>
+    /// How rich a team starts, from the previous season's standing. The Jolpica results are local only (PP-041), so a host without
+    /// them passes an authored ESTIMATE source, and without any source every team starts as a typical one.
+    /// </summary>
+    public ITeamTierSource? Tiers { get; init; }
+
+    /// <summary>
+    /// The benchmark pay a contract starts from (the era's driver pay, scaled by stars). Without it every contract starts from one
+    /// flat ESTIMATE salary, which is far too high for the early eras once teams pay from a real budget.
+    /// </summary>
+    public IPayBenchmark? Pay { get; init; }
+
+    /// <summary>The inputs a host builds from the authored era periods, the sponsor catalog, the era pay and a tier source.</summary>
+    public static CareerInputs From(IReadOnlyList<RulePeriod> eraPeriods, SponsorCatalog sponsors, IPayBenchmark? pay = null, ITeamTierSource? tiers = null)
+    {
+        ArgumentNullException.ThrowIfNull(eraPeriods);
+        ArgumentNullException.ThrowIfNull(sponsors);
+        return new CareerInputs
+        {
+            Eras = new EraPeriodFinance(eraPeriods),
+            SponsorEras = new PeriodSponsorEras(eraPeriods),
+            Sponsors = sponsors,
+            Pay = pay,
+            Tiers = tiers,
+        };
+    }
+}
+
+/// <summary>What a run is given beyond the session: the modules (every career module by default) and the data inputs.</summary>
+public sealed class CareerRunOptions
+{
+    /// <summary>The systems of the run, in attach order. <see cref="CareerModules.Default"/> is what a career runs.</summary>
+    public IReadOnlyList<ICareerModule> Modules { get; init; } = CareerModules.Default;
+
+    public CareerInputs Inputs { get; init; } = new();
+}

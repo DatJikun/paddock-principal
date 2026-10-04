@@ -47,6 +47,7 @@ public class WeekendEraTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void In1955_ThereAreFewerStopsThanIn2012()
     {
         var stops1955 = StopsPerCar(Races1955.Value);
@@ -57,6 +58,7 @@ public class WeekendEraTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void MechanicalRetirements_AreMoreCommonIn1955Than1988Than2012()
     {
         var share1955 = MechanicalShare(Races1955.Value);

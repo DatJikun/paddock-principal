@@ -28,6 +28,7 @@ public class WeekendIncidentTests
     private static readonly Lazy<RaceWeekendResult[]> FatalitiesOn = new(() => Chaotic(FatalityLevel.On));
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void NobodyDies_WhenFatalitiesAreOff_ButCareersCanEnd()
     {
         var people = FatalitiesOff.Value.SelectMany(r => r.PersonOutcomes).ToList();
@@ -103,6 +104,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void AResumedRedFlag_StopsTheClockOfTheRace()
     {
         var race = FatalitiesOn.Value.First(r => r.Neutralisations.Any(n => n is { Kind: NeutralisationKind.RedFlag, RaceResumed: true }));

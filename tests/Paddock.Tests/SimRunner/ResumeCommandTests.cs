@@ -12,6 +12,7 @@ public sealed class ResumeCommandTests : IDisposable
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 
     [Theory]
+    [Trait("Category", "Slow")]
     [InlineData("Chaos", 7UL)]
     [InlineData("Balanced", 11UL)]
     public void ASplitRunPrintsAndSavesTheSameSeasonsAsTheRunThatNeverStopped(string preset, ulong seed)
@@ -50,6 +51,7 @@ public sealed class ResumeCommandTests : IDisposable
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void ASaveThatWasResumedCanBeResumedAgainAndTheTitleFollowsTheLanguage()
     {
         var half = Path.Combine(_directory, "half.paddock");

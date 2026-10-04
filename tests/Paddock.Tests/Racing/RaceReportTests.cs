@@ -398,6 +398,7 @@ public class RaceReportTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void EveryLineThatCarriesACountIsAPluralEntryInBothLanguages_OnRealRacesOfManyEras()
     {
         var counted = new HashSet<string>(StringComparer.Ordinal);

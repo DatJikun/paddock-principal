@@ -277,8 +277,9 @@ Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane i mapki torów to 
 - **Przebudowane:** kalendarz, porównanie (działające zakładki), personel, akademia (miejsca i pula), infrastruktura, dostawcy, sponsorzy, finanse (rozwijane pozycje), zarząd (właściciel jako postać), rynek (zwarta tabela z podglądem), Monthly (działające działy i właściwe linki), FIA (głosowanie w skrzynce), ustawienia.
 - **Tryb „Opinie”** zapisuje się i zmienia profil kierowcy (cytaty zamiast atrybutów). Skórki lat 90. i 20. są oznaczone jako niedostępne.
 - **Barwy:** tryb „Zespół” zmienia tło, akcenty i dym, więc różnica jest wyraźna.
+- **Auto i rozwój** (PP-043, ścieżka A, `js/car-dev.js`): podział zasobów i priorytety obszarów z „Potwierdź”, projekty inżynierów (stan, dlaczego, prognoza), list z „Trzymaj plan” / „Utnij projekt” oraz gotowa koncepcja (stan, pasmo dalszego zysku, dni do wyścigu, czas produkcji, „Wdrażamy teraz” / „Czekamy”). Termin „gdy gotowa / po wyścigach / przyszły sezon” jest drugorzędny. Pasma i czas produkcji mają znacznik ESTIMATE. Atrapa, bez logiki gry.
 
 **Znane braki:**
 - Profil kierowcy przewija się na 1440×900 (ok. 120 px) i minimalnie na 1620×860.
 - Sylwetki torów są rysowane z pamięci i przybliżone.
-- Auto i rozwój bez zmian: czeka na decyzję właściciela o systemie z §4.
+- Auto i rozwój: w prototypie jest ścieżka A. Ścieżka B (ręczny wybór projektów) nadal później.

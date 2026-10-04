@@ -47,19 +47,7 @@ S.akademia = () => {
     ${UI.panel('Pula talentów', `<table class="table tight"><thead><tr><th>Kierowca</th><th class="c">Wiek</th><th>Seria</th><th>Ocena</th><th>Potencjał</th><th class="c">Wiedza</th></tr></thead><tbody>${ac.pool.map(p => `<tr class="go-row" data-href="#/kierowca/${p.id}"><td><a class="person" href="#/kierowca/${p.id}"><span class="av">${UI.initials(p.name)}</span><div><b>${p.name}</b><small>${UI.flag(p.nat)} ${FLAGS.name(p.nat)}</small></div></a></td><td class="c num">${p.age}</td><td>${p.team}</td><td>${UI.stars(p.band[0], 0, p.band)}</td><td>${UI.stars(0, p.pot)}</td><td class="c num">${p.known}%</td></tr>`).join('')}</tbody></table>`, { cls: 'tbl pool' })}</div>`;
 };
 
-/* ============ AUTO I ROZWÓJ (bez zmian systemu: czeka na decyzję o PP) ============ */
-S.auto = () => {
-  const c = DB.car;
-  return head('Auto i rozwój', UI.fields([{ k: 'Auto', v: c.name }, { k: 'Koncepcja', v: c.concept }])) +
-  `<div class="grid" style="grid-template-columns:1fr 1.2fr 1fr">
-    ${UI.panel('Na tle stawki', `<div class="body">${c.areas.map(([n, p]) => `<div class="crow"><span>${n}</span><span class="num" style="color:${UI.rankColor(p, 16, 34)}">${p}.</span>${UI.rankBar(p)}</div>`).join('')}</div>`)}
-    <div class="col">${UI.panel('Projekty', `<div class="body">${c.projects.map(p => `<div class="proj"><div class="prow"><b>${p.name}</b>${UI.st(p.stream, p.stream === 'Przyszły rok' ? 'hi' : 'team')}</div><div class="bar thin" style="margin:8px 0 6px"><i style="width:${p.pct}%;background:${p.stream === 'Przyszły rok' ? 'var(--t2)' : 'var(--t1)'}"></i></div>${UI.fields([{ k: 'Postęp', v: p.pct + '%', num: 1 }, { k: 'Koniec za', v: p.eta, num: 1 }])}</div>`).join('')}</div>`)}
-      ${UI.panel('Podział zasobów', `<div class="body"><div class="split"><i style="flex:${c.split[0]};background:var(--t1)">Bieżące ${c.split[0]}%</i><i style="flex:${c.split[1]};background:var(--a2)">Konto ${c.split[1]}%</i><i style="flex:${c.split[2]};background:var(--t2)">1977 ${c.split[2]}%</i></div>
-        ${UI.fields([{ k: 'Konto rozwoju', v: c.bank, num: 1 }, { k: 'Utrata przy zmianie kół w 1977', v: '−30%', num: 1, cls: 'bad' }], '') .replace('class="fields ', 'style="margin-top:14px" class="fields ')}</div>`)}</div>
-    <div class="col">${UI.panel('Koncepcja', `<div class="body">${c.axes.map(a => `<div class="axis"><div class="alab"><span>${a[1]}</span><b>${a[0]}</b><span>${a[2]}</span></div><div class="atrack"><i style="left:${a[3]}%"></i></div></div>`).join('')}</div>`)}
-      ${UI.panel('Zrozumienie części', `<div class="body">${c.understanding.map(u => `<div class="crow"><span>${u[0]}</span><span class="num">${u[1]}%</span><div class="bar thin"><i style="width:${u[1]}%;background:var(--t1)"></i></div></div>`).join('')}</div>`)}</div>
-  </div>`;
-};
+/* Auto i rozwój: js/car-dev.js (PP-043, ścieżka A). */
 
 S.rywal = (k = 'ferrari') => {
   const r = DB.rivals[k] || DB.rivals.ferrari;

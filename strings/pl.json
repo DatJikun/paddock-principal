@@ -444,5 +444,12 @@
   "finance.reason.salary": "Pensja z umowy.",
   "finance.reason.termination": "Odszkodowanie za wcześniejsze zakończenie umowy.",
   "finance.view.unknown": "Nie znasz finansów innej organizacji.",
-  "finance.view.forecast": "Prognoza do końca sezonu. Nieskalibrowany szacunek (ESTIMATE)."
+  "finance.view.forecast": "Prognoza do końca sezonu. Nieskalibrowany szacunek (ESTIMATE).",
+  "car.error.notInControl": "Nie kierujesz tym zespołem.",
+  "car.error.unknownOrganization": "Taka organizacja nie istnieje.",
+  "car.error.notATeam": "Auta ma tylko zespół.",
+  "car.error.axisRange": "Każda oś koncepcji leży między dwoma biegunami.",
+  "car.customer.notInMvp": "Podwozia klienckie nie wchodzą jeszcze do tej gry. Każdy zespół projektuje własne dwa auta.",
+  "car.customer.forbidden": "Regulamin nie pozwala na podwozie klienckie.",
+  "car.rival.noMeasuredGap": "Dla tego auta nie ma jeszcze publicznie zmierzonej straty tempa."
 }

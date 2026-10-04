@@ -49,13 +49,22 @@ internal sealed class TeamDay
 
     public void Run()
     {
-        DevalueOnRuleChange();
         AdvanceProjects();
         AdvanceProduction();
         DeployReady();
         StartProjects();
         GrowUnderstanding();
         _account = _account with { StockMilli = DevelopmentMath.StockAfterDay(_account.StockMilli) };
+        Commit();
+    }
+
+    /// <summary>
+    /// Reacts to <c>season.changed</c>: the new year's regulations devalue the account. The host has already moved the cars
+    /// (<see cref="ChangeSeason"/>). Once <see cref="DevelopmentAccount.RulesYear"/> is this year, a second call changes nothing.
+    /// </summary>
+    public void ApplyNewRegulations()
+    {
+        DevalueOnRuleChange();
         Commit();
     }
 
@@ -117,7 +126,7 @@ internal sealed class TeamDay
     private void Rollover()
     {
         // Only concepts timed for the next season are consumed here; a held (or still waiting) concept stays Ready.
-        foreach (var project in Development.ProjectsOf(_organization).Where(project => project.Status == ProjectStatus.Ready && project.Timing == ConceptTiming.NextSeason))
+        foreach (var project in Projects().Where(project => project.Status == ProjectStatus.Ready && project.Timing == ConceptTiming.NextSeason))
         {
             var share = (project.OutcomeMilli ?? 0) / 1000d;
             _account = _account with { NextYearShareMilli = DevelopmentMath.NextYearShareAfter(_account.NextYearShareMilli, share) };
@@ -158,7 +167,7 @@ internal sealed class TeamDay
 
     private void AdvanceProjects()
     {
-        foreach (var project in Development.ProjectsOf(_organization).Where(project => project.IsActive).ToArray())
+        foreach (var project in Projects().Where(project => project.IsActive).ToArray())
         {
             var next = project with { ProgressDays = project.ProgressDays + 1 };
             var done = next.ProgressDays >= next.DurationDays;
@@ -189,7 +198,7 @@ internal sealed class TeamDay
     /// </summary>
     private void AdvanceProduction()
     {
-        foreach (var project in Development.ProjectsOf(_organization).Where(project => project.IsInProduction))
+        foreach (var project in Projects().Where(project => project.IsInProduction))
         {
             if (project.ProductionEnds is { } ends && Today > ends)
             {
@@ -201,7 +210,7 @@ internal sealed class TeamDay
     /// <summary>The automatic path: <c>WhenReady</c> commits as soon as the concept is ready, <c>AfterRaces</c> once the races are counted.</summary>
     private void DeployReady()
     {
-        foreach (var project in Development.ProjectsOf(_organization).Where(project => project.Status == ProjectStatus.Ready))
+        foreach (var project in Projects().Where(project => project.Status == ProjectStatus.Ready))
         {
             var due = project.Timing == ConceptTiming.WhenReady
                 || (project.Timing == ConceptTiming.AfterRaces && project.RacesWaited >= project.TimingRaces);
@@ -310,7 +319,7 @@ internal sealed class TeamDay
             return;
         }
 
-        var running = Development.ProjectsOf(_organization).Where(project => project.IsActive).ToList();
+        var running = Projects().Where(project => project.IsActive).ToList();
         if (running.Count >= DevelopmentEstimates.MaxSlots)
         {
             return;
@@ -377,7 +386,7 @@ internal sealed class TeamDay
 
     private void GrowUnderstanding()
     {
-        var active = Development.ProjectsOf(_organization).Count(project => project.IsActive);
+        var active = Projects().Count(project => project.IsActive);
         var points = DevelopmentEstimates.UnderstandingPerDay + (DevelopmentEstimates.UnderstandingPerActiveProject * active);
         var cap = _era.UnderstandingCap;
         foreach (var car in Cars.Of(_organization))
@@ -411,6 +420,8 @@ internal sealed class TeamDay
         RngStream
             .Derive(_inputs.MasterSeed, RngStreamName.Development, Today.Year)
             .DeriveChild(DevelopmentEngine.OutcomeKey(project));
+
+    private IReadOnlyList<DevProject> Projects() => Development.OpenOf(_organization);
 
     private void Replace(DevProject project)
     {

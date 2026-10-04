@@ -74,8 +74,9 @@ public static class DevelopmentEngine
 
     /// <summary>
     /// The change of season, for every team with cars: concepts timed for the next season are consumed, cars move to the new year
-    /// with the carried work, the year's spending resets. The host decides when (1 January) and calls it before the day's step; the
-    /// daily <see cref="Step"/> only reacts to the season it finds.
+    /// with the carried work, the year's spending resets. The host decides when (1 January) and calls it before the day's step.
+    /// The day handler then calls <see cref="ApplyNewRegulations"/> because it saw <c>season.changed</c>. <see cref="Step"/> does not
+    /// roll the year over.
     /// </summary>
     public static DevelopmentOutcome ChangeSeason(DevelopmentInputs inputs)
     {
@@ -89,6 +90,37 @@ public static class DevelopmentEngine
         {
             var state = new TeamDay(organization, cars, development, finance, inputs, era);
             state.ChangeSeason();
+            if (!state.Changed)
+            {
+                continue;
+            }
+
+            changed = true;
+            cars = state.Cars;
+            development = state.Development;
+            finance = state.Finance;
+        }
+
+        return new DevelopmentOutcome(cars, development, finance, changed);
+    }
+
+    /// <summary>
+    /// The daily handler's reaction to <c>season.changed</c>: each team's development account is devalued against the regulations
+    /// of the new year. The host has already called <see cref="ChangeSeason"/> for the same morning. A second call on the same
+    /// year changes nothing.
+    /// </summary>
+    public static DevelopmentOutcome ApplyNewRegulations(DevelopmentInputs inputs)
+    {
+        ArgumentNullException.ThrowIfNull(inputs);
+        var cars = inputs.Cars;
+        var development = inputs.Development;
+        var finance = inputs.Finance;
+        var era = inputs.Rules.Era(inputs.Today.Year);
+        var changed = false;
+        foreach (var organization in OrganizationsWithCars(cars))
+        {
+            var state = new TeamDay(organization, cars, development, finance, inputs, era);
+            state.ApplyNewRegulations();
             if (!state.Changed)
             {
                 continue;

@@ -1,3 +1,4 @@
+using System.Globalization;
 using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
 using Paddock.Application.Development;
@@ -12,6 +13,7 @@ using Paddock.Domain.People;
 using Paddock.Domain.Spy;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
+using Paddock.Simulation.Career;
 using Paddock.Simulation.Cars;
 using Paddock.Simulation.Time;
 
@@ -156,12 +158,28 @@ internal sealed class DevelopmentKit
         }
     }
 
+    /// <summary>What the development day handler does when it sees <c>season.changed</c>.</summary>
+    private void ApplyRegulationsIfDue()
+    {
+        if (!Today.IsSeasonStart)
+        {
+            return;
+        }
+
+        var outcome = DevelopmentEngine.ApplyNewRegulations(Book.Inputs(Today, Environment));
+        if (outcome.Changed)
+        {
+            Book.Write(outcome);
+        }
+    }
+
     /// <summary>Lives <paramref name="days"/> days, one development step per day, as a host loop would.</summary>
     public void Live(int days)
     {
         for (var step = 0; step < days; step++)
         {
             ChangeSeasonIfDue();
+            ApplyRegulationsIfDue();
             var outcome = DevelopmentEngine.Step(Book.Inputs(Today, Environment));
             if (outcome.Changed)
             {
@@ -176,7 +194,11 @@ internal sealed class DevelopmentKit
     /// <summary>Lives <paramref name="days"/> days through the real day handler, which also asks the principals in the inbox (T42c).</summary>
     public void LiveWithInbox(int days)
     {
-        var registry = new DayHandlerRegistry([new DevelopmentDayHandler(Book, Environment, inbox: Inbox, managers: Managers)]);
+        var registry = new DayHandlerRegistry(
+        [
+            new SeasonChangedNotice(),
+            new DevelopmentDayHandler(Book, Environment, inbox: Inbox, managers: Managers),
+        ]);
         for (var step = 0; step < days; step++)
         {
             ChangeSeasonIfDue();
@@ -281,5 +303,21 @@ internal sealed class DevelopmentKit
         }
 
         public string ContentHash() => "unused";
+    }
+
+    /// <summary>Stands in for the host's season-change handler: emits <c>season.changed</c> before development runs.</summary>
+    private sealed class SeasonChangedNotice : IDayHandler
+    {
+        public int Order => 5;
+
+        public void OnDay(DayContext context)
+        {
+            if (context.Today.IsSeasonStart)
+            {
+                context.Emit(
+                    CareerEventType.SeasonChanged,
+                    new MarkerPayload(context.Today.Year.ToString(CultureInfo.InvariantCulture)));
+            }
+        }
     }
 }

@@ -5,8 +5,10 @@ using Paddock.Application.Finance;
 using Paddock.Domain.Board;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
+using Paddock.Domain.Development;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Objectives;
+using Paddock.Domain.Supply;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Persistence;
@@ -195,7 +197,7 @@ public sealed class CareerWiringTests
         Assert.NotEqual(first.World.StateHash(), other.World.StateHash());
         var names = first.World.Sections.Select(section => section.Name).ToHashSet(StringComparer.Ordinal);
         Assert.Superset(
-            new HashSet<string>(["board", "cars", "contracts", "finance", "objectives", "talent-pool"], StringComparer.Ordinal),
+            new HashSet<string>(["board", "cars", "contracts", "development", "finance", "objectives", "talent-pool"], StringComparer.Ordinal),
             names);
     }
 
@@ -235,6 +237,54 @@ public sealed class CareerWiringTests
         {
             directory.Delete(recursive: true);
         }
+    }
+
+    [Fact]
+    public void ANewCareerInstallsOpeningSupplyDealsOnceAndTheSameRunTwiceMatches()
+    {
+        var first = CareerKit.Opened(CareerPreset.Chaos, 1955, Seed);
+        var second = CareerKit.Opened(CareerPreset.Chaos, 1955, Seed);
+        var firstResult = CareerHost.RunUntil(first.Session, new GameDate(1955, 1, 4), null, CareerKit.OptionsFor(first));
+        CareerHost.RunUntil(second.Session, new GameDate(1955, 1, 4), null, CareerKit.OptionsFor(second));
+
+        var supply = first.Session.World.Section<SupplySection>(SupplySection.SectionName);
+        Assert.NotNull(supply);
+        Assert.NotEmpty(supply.Deals);
+        Assert.Equal(first.Session.World.StateHash(), second.Session.World.StateHash());
+
+        var deals = supply.Deals.Select(deal => deal.Id).ToArray();
+        var directory = Directory.CreateTempSubdirectory("paddock-supply-");
+        try
+        {
+            var path = Path.Combine(directory.FullName, "open.paddock");
+            CareerKit.Save(path, first, first.Session, firstResult.Host);
+            var (resumed, host) = CareerKit.Resume(path);
+            CareerHost.RunUntil(resumed, new GameDate(1955, 1, 8), host, CareerKit.Options);
+            var again = resumed.World.Section<SupplySection>(SupplySection.SectionName);
+            Assert.NotNull(again);
+            Assert.Equal(deals, again.Deals.Select(deal => deal.Id).ToArray());
+        }
+        finally
+        {
+            directory.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
+    public void TheHostChangesTheSeasonOnTheFirstOfJanuaryAndDevelopmentFollows()
+    {
+        var opened = CareerKit.Opened(CareerPreset.Chaos, 1955, Seed);
+        CareerHost.RunUntil(opened.Session, new GameDate(1956, 1, 2), null, CareerKit.OptionsFor(opened));
+
+        Assert.Equal(new GameDate(1956, 1, 2), opened.Session.Date);
+        var cars = opened.Session.World.Section<CarsSection>(CarsSection.SectionName);
+        Assert.NotNull(cars);
+        Assert.NotEmpty(cars.Cars);
+        Assert.All(cars.Cars, car => Assert.Equal(1956, car.Season));
+        var development = opened.Session.World.Section<DevelopmentSection>(DevelopmentSection.SectionName);
+        Assert.NotNull(development);
+        Assert.NotEmpty(development.Accounts);
+        Assert.All(development.Accounts, account => Assert.Equal(1956, account.RulesYear));
     }
 
     [Fact]

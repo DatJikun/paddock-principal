@@ -108,14 +108,21 @@ public sealed class SupplyDayHandler : IDayHandler
             Notice(deal.Customer, SupplyKeys.InboxEndedSubject, deal, today);
         }
 
-        world = world.WithSection(supply);
+        if (!ReferenceEquals(supply, SupplyOf(start)))
+        {
+            world = world.WithSection(supply);
+        }
+
         if (!ReferenceEquals(finance, financeBefore))
         {
             world = world.WithSection(finance);
         }
 
         world = SupplyCars.Sync(world, supply, today);
-        _book.Update(world);
+        if (!ReferenceEquals(world, start))
+        {
+            _book.Update(world);
+        }
     }
 
     private static SupplySection SupplyOf(WorldState world) => world.Section<SupplySection>(SupplySection.SectionName) ?? SupplySection.Empty;

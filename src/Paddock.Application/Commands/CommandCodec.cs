@@ -80,16 +80,20 @@ public sealed class CommandCodec
         }
     }
 
-    /// <summary>The commands this build can save.</summary>
+    /// <summary>
+    /// The commands this build can save: the core ones listed below (inbox, talent pool) and the ones every career module brings
+    /// (<see cref="Career.ICareerModule.CommandCodecs"/>). A system that joins <see cref="Career.CareerModules.Default"/> is saved
+    /// without an edit here.
+    /// </summary>
     public static CommandCodec Production { get; } = new(
     [
         .. SponsorCommandCodecs.Entries,
         .. FinanceCommandCodecs.Entries,
-        .. ContractCommandCodecs.Entries,
         .. CarCommandCodecs.Entries,
         .. Paddock.Application.Board.BoardCommandCodecs.Entries,
         .. Paddock.Application.Development.DevelopmentCommandCodecs.Entries,
         .. Paddock.Application.Supply.SupplyCommandCodecs.Entries,
+        .. Career.CareerModules.Default.SelectMany(module => module.CommandCodecs),
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",
             command => FlatJson.Write(("itemId", command.ItemId), ("optionId", command.OptionId)),

@@ -66,7 +66,9 @@ public sealed class CareerHostState
 
 /// <summary>
 /// Wires the day clock (T16), the AI managers and the ready gate (T17), and a world already built (T20).
-/// Each morning the single AI manager files placeholder contract renewals (until T44), the queue is drained, and the gate advances one day. Zero human managers never block.
+/// The systems themselves (contracts, the pool commands, and the ones that follow) are <see cref="ICareerModule"/>s listed in
+/// <see cref="CareerModules.Default"/>; this class only runs the day. Each morning the modules file their placeholder AI
+/// commands (contract renewals until T44), the queue is drained, and the gate advances one day. Zero human managers never block.
 /// </summary>
 public static class CareerHost
 {
@@ -85,9 +87,17 @@ public static class CareerHost
     /// Runs through 31 December of <paramref name="toYear"/>. With <paramref name="resumeFrom"/> the managers, the command log
     /// and the submission counter are the saved ones; without it a fresh AI manager is registered.
     /// </summary>
-    public static CareerRunResult Run(CareerSession session, int toYear, CareerHostState? resumeFrom)
+    public static CareerRunResult Run(CareerSession session, int toYear, CareerHostState? resumeFrom) =>
+        Run(session, toYear, resumeFrom, CareerModules.Default);
+
+    /// <summary>
+    /// The same run with the systems of <paramref name="modules"/>. <see cref="CareerModules.Default"/> is what a career runs;
+    /// another list is for a test that adds one module, or a tool that runs a subset.
+    /// </summary>
+    public static CareerRunResult Run(CareerSession session, int toYear, CareerHostState? resumeFrom, IReadOnlyList<ICareerModule> modules)
     {
         ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(modules);
         if (session.Date.Month != 1 || session.Date.Day != 1)
         {
             throw new ArgumentException("The run starts on 1 January.", nameof(session));
@@ -111,19 +121,18 @@ public static class CareerHost
         var fact = new FactKey("career.day");
         var queue = resumeFrom is null ? new CommandQueue() : new CommandQueue(resumeFrom.NextSubmissionNumber);
         var dispatcher = new CommandDispatcher(log: resumeFrom?.Log);
-        var contracts = CareerContractHost.Attach(session, managers, dispatcher, hostId);
+        var modulesHost = CareerModuleHost.Attach(session, managers, dispatcher, hostId, modules);
         var world = new ClockWorld(session);
-        var context = new CommandContext(world, managers, contracts.Inbox, contracts.Engine.Book);
+        var context = modulesHost.CommandContext(world, managers);
         var gate = new ReadyGate();
         var end = GameDate.SeasonStart(toYear + 1);
         var commands = 0;
         while (session.Date < end)
         {
             _ = ai.Perceive(view, fact);
-            contracts.BeginMorning();
-            contracts.FileRenewals(queue);
+            modulesHost.BeginMorning(queue);
             commands += dispatcher.DispatchAll(queue, context).Count;
-            contracts.EndMorning();
+            modulesHost.EndMorning();
             var step = gate.RequestAdvance(managers, world);
             if (step is AdvanceResult.Refused refused)
             {

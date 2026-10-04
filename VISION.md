@@ -286,3 +286,11 @@ Szczegóły w DESIGN §5.3.
 - **Dwa auta i dwóch stałych kierowców na zespół** to kompromis MVP, a nie założenie architektury. Liczba aut na zespół, prywatne zgłoszenia, sprzedaż i zakup podwozi oraz przesiadki między autami mają wynikać z wymiarów katalogu epok (`cars_per_team`, `customer_chassis`), a MVP tylko ustawia je na „2” i „zabronione”. Kod nie może zakładać stałej liczby aut ani kierowców w polach, indeksach, zapisie i silniku wyścigu.
 - **Znane skutki uproszczenia:** w latach 50. zespoły często wystawiały trzy lub cztery auta, a prywatni zawodnicy startowali masowo, więc liczba startujących, wskaźnik wycofań i przebieg wyścigu z 1955 będą systematycznie odbiegać od historii. Kalibracja silnika (#122) ma to traktować jako znane odchylenie, a nie gonić je zmianą parametrów.
 - **Zasada przy zadaniach:** jeśli zadanie T37–T48 wymagałoby w MVP wpisania na stałe dwóch aut albo braku podwozi klienckich, zamiast tego czyta wartość z konfiguracji epoki i testuje też przypadek większy niż 2.
+
+### Przyjęte 2026-10-04 (szesnasta runda: MVP z UI, multiplayer zaraz po)
+
+**PP-053: MVP to sezon 1955 grywalny w prawdziwym oknie przez jednego gracza; multiplayer online jest zaraz po MVP** (doprecyzowuje PP-045 i PP-050).
+- **MVP = sezon 1955 w przejętym zespole, grywalny w prawdziwym UI, dla jednego gracza.** Sama konsola z bramką fazy 4 to etap pośredni, a nie MVP.
+- **UI powstaje równolegle z rdzeniem, falami:** ekran jest podłączany do prawdziwej gry, gdy gotowy jest system, który pokazuje (wyścig i relacja, kontrakty, pula talentów, skrzynka jako pierwsze). Ekranu nie robimy przed systemem, który ma w nim żyć.
+- **Multiplayer jest po MVP i tylko online** (host i goście, TECH §5.1). Nie budujemy osobnego trybu na jednym komputerze, chyba że przyda się jako narzędzie testowe zasad gotowości i widoków dwóch menedżerów.
+- **Skutek dla rdzenia:** rdzeń nadal jest pisany pod wielu graczy (`managerId`, bramka gotowości, jedna kolejka komend), a obliczenia mają być identyczne na Windows i Linux, bo od tego zależy gra online (#141).

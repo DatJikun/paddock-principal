@@ -90,7 +90,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 
-**Zakres MVP (PP-050, PP-052):** przejęty istniejący zespół, dwa auta i dwóch kierowców na zespół, trzy miejsca na sponsora. Własny zespół, sponsor założycielski, zakładanie i wykup zespołu są po MVP. Uproszczenie „dwa auta, dwóch kierowców, bez prywatnych zespołów i sprzedaży podwozi” jest tylko ustawieniem MVP, a nie ograniczeniem modelu (PP-052).
+**Zakres MVP (PP-050, PP-052, PP-053):** MVP to ten sezon grywalny w prawdziwym oknie przez jednego gracza, a multiplayer online jest zaraz po nim. Zakres: przejęty istniejący zespół, dwa auta i dwóch kierowców na zespół, trzy miejsca na sponsora. Własny zespół, sponsor założycielski, zakładanie i wykup zespołu są po MVP. Uproszczenie „dwa auta, dwóch kierowców, bez prywatnych zespołów i sprzedaży podwozi” jest tylko ustawieniem MVP, a nie ograniczeniem modelu (PP-052).
 
 ## Faza 5: Żywa historia
 - Kronika rozbieżności, Hall of Fame, rekordy, kompaktowanie historii.
@@ -102,9 +102,11 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 ## Faza 6: UI (HTML/TS/Svelte w Photino)
 - Most JSON, tryb deweloperski w przeglądarce, zrzuty ekranu do przeglądu.
 - Prawdziwe ekrany z design systemu (tor równoległy): gęste tabele, ekran wyścigu, kronika, onboarding.
-- **Multiplayer online (PP-045):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo.
+- **Multiplayer online (PP-045, po MVP wg PP-053):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo. Tylko online, bez trybu na jednym komputerze (poza ewentualnym narzędziem testowym).
 
-**Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.
+**Bramka MVP (PP-053):** grasz sezon 1955 w prawdziwym oknie, sam. UI jest dołączane falami równolegle z fazą 4, ekran po ekranie, gdy system pod nim jest gotowy.
+
+**Bramka po MVP:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.
 
 ## Faza 7+: Rozszerzenia
 - Z przeglądu Team Principal (PP-048), po MVP: specjalizacja projektantów (wolne / średnie / szybkie zakręty, opór) i kierunek rozwoju jako dźwignia gracza.

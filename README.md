@@ -7,6 +7,7 @@ Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić
 - Silnik wyścigu jest gotowy (weekend wyścigowy z relacją); kalibracja z historią czeka.
 - Czekają pełne dane Jolpica na maszynie właściciela i oceny na prawdziwych danych.
 - Pętla kariery (faza 4) jest w toku: kontrakty i pula talentów gotowe, decyzje właściciela do reszty zapadły (PP-050), zostają finanse, sponsorzy, model auta, rozwój, dostawcy, AI szefów, zarząd i start kariery.
+- Cel MVP (PP-053): sezon 1955 grywalny w prawdziwym oknie przez jednego gracza, multiplayer online zaraz po nim.
 - Klikalny prototyp UI w wersji szkicowej: `ui/prototype/`, uwagi w `ui/HANDOFF_UI.md`.
 
 ## Dokumentacja

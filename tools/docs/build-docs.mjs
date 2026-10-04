@@ -5,7 +5,8 @@
 //   node tools/docs/build-docs.mjs --out DIR  write somewhere else
 //
 // The .md files stay the source (PP-054). The output is generated and not committed.
-// GUIDE.md may hold two custom fences that read the game's code, so the numbers never drift:
+// GUIDE.md may hold custom fences that read the game's code, so the numbers never drift
+// (the segmented blocks pola, kroki, wybory, wgrze, porownanie and stan are described in blocks.mjs):
 //   ```strojenie <path to a .cs file>      a table of tunable constants: "Name | opis | format"
 //   ```wykres <name>                       a chart from charts.mjs (the body is its caption)
 //   ```wykres słupki                       a bar chart whose data is in the fence
@@ -17,6 +18,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { renderMarkdown, renderInline, resolveRefs, escapeHtml, GITHUB_BLOB } from './markdown.mjs';
 import { CodeValues } from './code-values.mjs';
 import { namedChart, dataChart, fmt } from './charts.mjs';
+import { makeBlocks, chapterize } from './blocks.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = join(here, '..', '..');
@@ -56,6 +58,7 @@ const UNIT_FORMS = {
   'sezonów': ['sezon', 'sezony', 'sezonów', 'sezonu'],
   'osób': ['osoba', 'osoby', 'osób', 'osoby'],
   rund: ['runda', 'rundy', 'rund', 'rundy'],
+  liczb: ['liczba', 'liczby', 'liczb', 'liczby'],
 };
 
 export function unitFor(value, unit) {
@@ -78,7 +81,9 @@ function tunableTable(path, body, cv, ctx) {
       + `<td class="t-val">${formatValue(value, spec)}</td>`
       + `<td class="t-src"><a href="${link}">${escapeHtml(basename(path))}:${at}</a></td></tr>`;
   });
-  return `<div class="table tunables"><table><thead><tr><th>Liczba do strojenia</th><th class="al-right">Teraz</th><th>W kodzie</th></tr></thead><tbody>\n${rows.join('\n')}\n</tbody></table></div>`;
+  const n = rows.length;
+  return `<details class="tune"><summary><span>Liczby do strojenia</span><span class="tune-count">${n} ${unitFor(n, 'liczb')}</span></summary>`
+    + `<div class="table tunables"><table><thead><tr><th>Co to jest</th><th class="al-right">Teraz</th><th>W kodzie</th></tr></thead><tbody>\n${rows.join('\n')}\n</tbody></table></div></details>`;
 }
 
 export function buildSite(root = REPO_ROOT) {
@@ -99,6 +104,10 @@ export function buildSite(root = REPO_ROOT) {
         const [kind, ...rest] = info.split(/\s+/);
         const arg = rest.join(' ');
         if (kind === 'strojenie') return tunableTable(arg, body, cv, ctx);
+        const blocks = makeBlocks({ cv, ctx, formatValue });
+        if (kind === 'stan') return blocks.stan(arg, body);
+        if (kind === 'porownanie') return blocks.porownanie(arg, body);
+        if (['pola', 'kroki', 'wybory', 'wgrze'].includes(kind)) return blocks[kind](arg || null, body);
         if (kind === 'wykres') {
           if (arg === 'słupki') {
             const caption = body.filter(l => l.startsWith('opis:')).map(l => renderInline(l.slice(5).trim(), ctx)).join(' ');
@@ -110,7 +119,8 @@ export function buildSite(root = REPO_ROOT) {
         return null;
       },
     };
-    const html = renderMarkdown(source, ctx);
+    let html = renderMarkdown(source, ctx);
+    if (p.doc === 'GUIDE') html = chapterize(html);
     ids.set(p.page, ctx.ids);
     rendered.push({ ...p, html, headings: ctx.headings });
   }

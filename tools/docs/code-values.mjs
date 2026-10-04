@@ -1,7 +1,7 @@
 // Reads tunable numbers straight from the C# sources, so the docs never drift from the game.
 // A name that is missing is an error: the docs build fails and says which file and name.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 export class CodeValues {
@@ -60,6 +60,28 @@ export class CodeValues {
     if (/^(true|false)$/.test(raw)) return { value: raw === 'true', line, raw };
     if (/^QualityBand\.|^SeatStatus\./.test(raw)) return { value: raw.split('.').pop(), line, raw };
     throw new Error(`docs: ${name} in ${path} is not a number (${raw})`);
+  }
+
+  /* Path of the .cs file that declares `class Name` (searched in src/ and tools/ once). */
+  classPath(name) {
+    if (!this.classes) {
+      this.classes = new Map();
+      for (const dir of ['src', 'tools']) {
+        let list = [];
+        try { list = readdirSync(join(this.root, dir), { recursive: true }); } catch { continue; }
+        for (const rel of list) {
+          const file = String(rel).replace(/\\/g, '/');
+          if (!file.endsWith('.cs') || /(^|\/)(bin|obj)\//.test(file)) continue;
+          const path = `${dir}/${file}`;
+          for (const m of readFileSync(join(this.root, path), 'utf8').matchAll(/\bclass\s+(\w+)/g)) {
+            if (!this.classes.has(m[1])) this.classes.set(m[1], path);
+          }
+        }
+      }
+    }
+    const path = this.classes.get(name);
+    if (!path) throw new Error(`docs: class ${name} not found in src/ or tools/`);
+    return path;
   }
 
   value(path, name) {

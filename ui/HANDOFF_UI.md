@@ -101,7 +101,7 @@ Dla nowej sesji (Opus 5.5, wyższy effort). Przeczytaj w całości, zanim zaczni
   - Wejście z pulpitu w dzień wyścigu („Wyścig” w górnym pasku albo „Oglądaj na żywo” w rundzie), przejście „kurtyną” w barwach zespołu z nazwą GP. Wyjście tylko przez „Wróć do gry”: po mecie w pasku tempa i na karcie wyniku. Pulpit wraca dokładnie w tym stanie, w jakim był.
   - Technicznie: `#race-root` to własny pełnoekranowy korzeń. Na czas trybu węzeł `.app` (menu, górny pasek, ekrany) jest **wyjmowany z dokumentu**, a po wyjściu wstawiany z powrotem (`js/race-mode.js`, `RaceMode.enter/exit`). Nie ukrywamy powłoki CSS-em.
   - Układ: mapa toru na cały ekran (kółko i przyciski: zoom; przeciąganie: przesuwanie; F: śledzenie auta; 0: cały tor). Na mapie tylko lekkie nakładki: pasek stanu (runda, okrążenie, flaga, czas, pogoda), tempo symulacji (spacja: pauza), wieża czasowa po lewej (T: schowaj/pokaż), karta wybranego auta (klik w kropkę albo wiersz; Esc zamyka), boks dla naszych aut (wybór opon, potem „Potwierdź”) i komunikaty radia/dyrekcji wyścigu.
-  - Mapa rysuje wyłącznie klatki `CarFrame` (te same pola co `src/Paddock.Domain/Racing/CarFrame.cs`). Rozsuwanie kropek na starcie i rozmieszczenie nazw zakrętów to wyłącznie układ na ekranie, nie zmienia wyników (`RaceLayout` w `js/race-map.js`, testy: `node --test ui/prototype/tests`).
+  - Mapa rysuje wyłącznie klatki `CarFrame` (te same pola co `src/Paddock.Domain/Racing/CarFrame.cs`). Rozsuwanie kropek na starcie i rozmieszczenie nazw zakrętów to wyłącznie układ na ekranie, nie zmienia wyników (`RaceLayout` w `js/race-map.js`, testy: `node --test "ui/prototype/tests/*.test.mjs"`).
   - Źródło klatek to na razie atrapa `MockRaceFeed` (`js/race-sim.js`); liczby w niej są szacunkowe. Do podpięcia taśmy z R-FRAMES (#152).
 
 ### Klasyfikacje
@@ -252,7 +252,7 @@ Właściciel chce ładne awatary. Dotychczasowe próby wypadły słabo: w Peloto
 
 ## 8. Stan po sesji przebudowy (2026-09-26)
 
-Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane i mapki torów to atrapa.
+Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane są atrapą. Kształty torów z plikiem w `data/authored/tracks/geometry` rysują się z tego pliku (TECH §6.5: edycja JSON-a lub edytor torów, potem `node ui/prototype/tools/build-track-geometry.mjs`, podgląd w `track-preview.html`).
 
 **Zrobione (kroki 1–4 z §6, w wersji szkicowej):**
 - **Komponenty** (`css/app.css`, `js/ui.js`):
@@ -280,5 +280,5 @@ Prototyp to szkielet do oceny, co jest ładne, a co nie. Dane i mapki torów to 
 
 **Znane braki:**
 - Profil kierowcy przewija się na 1440×900 (ok. 120 px) i minimalnie na 1620×860.
-- Sylwetki torów są rysowane z pamięci i przybliżone.
+- Sylwetki torów bez pliku geometrii (dziś wszystkie poza Monzą 1972) są nadal rysowane z pamięci i przybliżone (`map` w `data.js`); geometrie z pliku to też szacunki.
 - Auto i rozwój bez zmian: czeka na decyzję właściciela o systemie z §4.

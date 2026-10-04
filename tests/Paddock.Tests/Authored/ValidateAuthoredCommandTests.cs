@@ -36,6 +36,7 @@ public class ValidateAuthoredCommandTests
                 "era catalog dimensions: 18",
                 "era timeline periods: 125",
                 "cpi years: 77",
+                "track geometries: 1",
             ],
             Lines(stdout));
     }

@@ -167,7 +167,7 @@ public sealed class CareerRunStoreTests : IDisposable
         1950,
         7,
         31,
-        [new StoredYear(1950, 4, 0, 0, 5, new string('a', 64)), new StoredYear(1951, 6, 1, 2, 3, new string('b', 64))]);
+        [new StoredYear(1950, 4, 0, 0, 5, new string('a', 64), 1, 1, 0), new StoredYear(1951, 6, 1, 2, 3, new string('b', 64), 0, 0, 2)]);
 
     private static Dictionary<string, RngState> Rng(ulong seed)
     {

@@ -55,6 +55,22 @@ public static class AuthoredDataLoader
             Path.Combine(root, "authored", "eras", "cpi_us.json"),
             failures);
 
+        var geometryFiles = new List<TrackGeometryFile>();
+        var geometryDir = Path.Combine(root, "authored", "tracks", "geometry");
+        if (Directory.Exists(geometryDir))
+        {
+            var files = Directory.GetFiles(geometryDir, "*.json");
+            Array.Sort(files, StringComparer.Ordinal);
+            foreach (var file in files)
+            {
+                var geom = TryRead<TrackGeometryFile>(file, failures);
+                if (geom is not null)
+                {
+                    geometryFiles.Add(geom);
+                }
+            }
+        }
+
         if (failures.Count > 0
             || catalog is null
             || timeline is null
@@ -91,7 +107,8 @@ public static class AuthoredDataLoader
             staff,
             eraCatalog,
             eraTimeline,
-            cpiYears);
+            cpiYears,
+            geometryFiles);
     }
 
     private static T? TryRead<T>(string path, List<string> failures)

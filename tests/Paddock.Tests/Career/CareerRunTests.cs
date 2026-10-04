@@ -23,7 +23,7 @@ public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "5508ffb2b6808ccb108801f67dac74d62828cea57d7584a7e634bd9d4488a05b";
+    private const string StoredWorldHash = "e0ca0bf13ac7832514c4425cbaafe5ff6e9d77d207c2adbf4b88d5e40d01f4b6";
 
     private const string StoredRetired = "chief,leap,vet";
 
@@ -172,7 +172,7 @@ public class CareerRunTests
         Assert.Equal(11, left.Years);
         Assert.Equal(0, left.Humans);
         Assert.Equal(1, left.Ai);
-        Assert.Equal(0, left.Commands);
+        Assert.True(left.Commands > 0);
         Assert.True(
             left.Hash == StoredWorldHash && left.Retired == StoredRetired,
             "actual hash " + left.Hash + " retired " + left.Retired);

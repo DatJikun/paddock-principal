@@ -90,6 +90,15 @@ public sealed class InboxBook
         SyncBlocking(managers, new ManagerId(item.ManagerId));
     }
 
+    /// <summary>Closes an open item with no option taken (see <see cref="InboxSection.Withdraw"/>) and frees the clock if it was the last decision.</summary>
+    public void Withdraw(ManagerRegistry managers, string itemId, GameDate today)
+    {
+        ArgumentNullException.ThrowIfNull(managers);
+        var item = Section.Find(itemId) ?? throw new InvalidOperationException($"Unknown inbox item '{itemId}'.");
+        Section = Section.Withdraw(itemId, today);
+        SyncBlocking(managers, new ManagerId(item.ManagerId));
+    }
+
     public void Expire(ManagerRegistry managers, string itemId, GameDate today, bool applyDefault)
     {
         ArgumentNullException.ThrowIfNull(managers);

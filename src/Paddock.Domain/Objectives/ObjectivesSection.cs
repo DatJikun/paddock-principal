@@ -7,8 +7,7 @@ namespace Paddock.Domain.Objectives;
 /// <summary>
 /// Every objective in the world, as the world section named <see cref="SectionName"/>. Like the inbox it keeps its own
 /// counter (ids are <c>obj:{n}</c>, never reused) and is immutable. Settled objectives stay as records.
-/// There is no save store for this section yet: the first system that grants objectives adds one, so a world holding
-/// this section cannot be saved until then (the repository refuses it rather than dropping the data).
+/// Saved by <c>ObjectivesSectionStore</c> (added with the first system that grants objectives, T38 sponsors).
 /// <para>
 /// Canonical text (<see cref="SchemaVersion"/> 1), after the section header written by the state hash:
 /// <code>
@@ -60,6 +59,28 @@ public sealed class ObjectivesSection : IWorldSection
 
     public static string IdOf(long number) =>
         IdPrefix + number.ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>Rebuilds the section from stored objectives. Numbers are unique and below <paramref name="nextNumber"/>.</summary>
+    public static ObjectivesSection Restore(long nextNumber, IEnumerable<Objective> objectives)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(nextNumber, 1);
+        ArgumentNullException.ThrowIfNull(objectives);
+        var items = new SortedDictionary<long, Objective>();
+        foreach (var objective in objectives)
+        {
+            if (objective.Number >= nextNumber || !items.TryAdd(objective.Number, objective))
+            {
+                throw new InvalidOperationException("Objective number " + objective.Number.ToString(CultureInfo.InvariantCulture) + " is duplicated or past the counter.");
+            }
+        }
+
+        if (items.Count != nextNumber - 1)
+        {
+            throw new InvalidOperationException("The objective counter does not match the number of objectives.");
+        }
+
+        return new ObjectivesSection(nextNumber, items);
+    }
 
     public Objective? Find(string objectiveId)
     {

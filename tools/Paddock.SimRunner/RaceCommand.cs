@@ -7,6 +7,7 @@ using Paddock.Application.Spy;
 using Paddock.Data.Authored;
 using Paddock.Domain.Racing;
 using Paddock.Domain.Spy;
+using Paddock.Simulation.Racing;
 using Paddock.Simulation.Racing.Incidents;
 using Paddock.Simulation.Racing.Points;
 using Paddock.Simulation.Racing.Qualifying;
@@ -17,7 +18,7 @@ namespace Paddock.SimRunner;
 
 /// <summary>
 /// <c>race --year Y --round N [--seed S] [--grid fixture] [--spy] [--lang pl|en] [--verbose] [--log [--full]] [--hash] [--timing]</c>
-/// runs one race weekend (<see cref="RaceWeekend"/>) on the SYNTHETIC fixture field of the era and prints the readable race
+/// runs one race weekend through <see cref="IRaceSimulator"/> (default <see cref="RaceEngineKind.Lap"/>) on the SYNTHETIC fixture field of the era and prints the readable race
 /// report (<see cref="RaceReportBuilder"/>): conditions, qualifying, the race in phases, pit stops, shared drives, the result and
 /// the points, through the translation keys of both languages. <c>--verbose</c> adds the lap by lap section. <c>--log</c> prints the
 /// old raw event log instead (the same lines as <c>race-replay</c>, through <see cref="RaceEventText"/>, then the classification table).
@@ -104,7 +105,7 @@ public static class RaceCommand
     }
 
     /// <summary>Builds the input of a weekend from the authored data and the fixture field (the tool's only source of entries until T20).</summary>
-    public static RaceWeekendInput BuildInput(AuthoredData data, int season, int round, ulong seed, ImmutableArray<RaceEntry> entries)
+    public static RaceWeekendInput BuildInput(AuthoredData data, int season, int round, ulong seed, ImmutableArray<RaceEntry> entries, int? month = null)
     {
         ArgumentNullException.ThrowIfNull(data);
         var track = data.LayoutFor(season, round);
@@ -121,7 +122,7 @@ public static class RaceCommand
             Rules = rules,
             Safety = EraSafetyProfile.FromAuthored(season, era.Value("fatality_risk"), rules.Value("safety_car")),
             Climate = new DefaultClimateSource(),
-            Month = MonthOf(round, rounds),
+            Month = month ?? MonthOf(round, rounds),
             TotalLaps = RaceDistance.LapsFor(rules, track),
             Entries = entries,
         };
@@ -130,43 +131,57 @@ public static class RaceCommand
     // ESTIMATE: the calendar has no dates yet, so rounds are spread over March to October.
     private static int MonthOf(int round, int rounds) => 3 + ((round - 1) * 8 / Math.Max(1, rounds));
 
+    /// <summary>Runs one weekend through the given simulator. The career and the tool share <see cref="RaceSession"/>.</summary>
+    public static RaceTape Simulate(IRaceSimulator simulator, RaceWeekendInput input, ITraceSink sink)
+    {
+        ArgumentNullException.ThrowIfNull(simulator);
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(sink);
+        return RaceSession.Run(simulator, RaceSimulationRequest.ForWeekend(input, sink));
+    }
+
     private static int RunRace(AuthoredData data, IReadOnlyDictionary<string, string> strings, TranslationCatalog catalog, int season, int round, Options options, TextWriter stdout)
     {
         var input = BuildInput(data, season, round, options.Seed, SyntheticField.For(season));
         var collector = options.Spy ? new CollectingSink() : null;
         ITraceSink sink = collector ?? (ITraceSink)NullSink.Instance;
-        var result = RaceWeekend.Run(input, sink);
+        var request = RaceSimulationRequest.ForWeekend(input, sink);
+        var tape = RaceSession.Run(request, RaceEngineKind.Lap);
+        var published = RequirePublished(request);
 
         if (options.Hash)
         {
-            stdout.WriteLine(result.Tape.Hash);
+            stdout.WriteLine(tape.Hash);
             return 0;
         }
 
         if (options.Log)
         {
-            PrintLog(stdout, strings, input, result, options);
+            PrintLog(stdout, strings, input, published, options);
         }
         else
         {
-            PrintNarrative(stdout, strings, catalog, input, result, options);
+            PrintNarrative(stdout, strings, catalog, input, published, options);
         }
 
         if (collector is not null)
         {
-            PrintSpy(stdout, strings, result, collector);
+            PrintSpy(stdout, strings, published, collector);
         }
 
         return 0;
     }
 
+    private static RacePublishedFacts RequirePublished(RaceSimulationRequest request) =>
+        request.Published ?? throw new InvalidOperationException("The race engine did not publish the facts the report reads.");
+
     /// <summary>The readable report: the title, the synthetic note and the seed, then the sections of <see cref="RaceReportBuilder"/>.</summary>
-    private static void PrintNarrative(TextWriter stdout, IReadOnlyDictionary<string, string> strings, TranslationCatalog catalog, RaceWeekendInput input, RaceWeekendResult result, Options options)
+    private static void PrintNarrative(TextWriter stdout, IReadOnlyDictionary<string, string> strings, TranslationCatalog catalog, RaceWeekendInput input, RacePublishedFacts published, Options options)
     {
         var sink = new CollectingMissingKeySink();
         var localizer = new Localizer(catalog, options.Language == "pl" ? Language.Pl : Language.En, sink);
         var report = RaceReportBuilder.Build(
-            RaceReportInput.From(result, input.Season, input.Round, input.Track.Id),
+            RaceReportInput.From(published, input.Season, input.Round, input.Track.Id),
             new RaceReportOptions(options.Verbose));
         var lines = RaceReportRenderer.Render(report, localizer);
         if (sink.Reports.Count > 0)
@@ -185,7 +200,7 @@ public static class RaceCommand
     }
 
     /// <summary>The old output (<c>--log</c>): the raw event log, then the classification table.</summary>
-    private static void PrintLog(TextWriter stdout, IReadOnlyDictionary<string, string> strings, RaceWeekendInput input, RaceWeekendResult result, Options options)
+    private static void PrintLog(TextWriter stdout, IReadOnlyDictionary<string, string> strings, RaceWeekendInput input, RacePublishedFacts published, Options options)
     {
         stdout.WriteLine(Fill(strings.Required("race.title"), ("year", input.Season), ("round", input.Round), ("layout", input.Track.Id), ("laps", input.TotalLaps)));
         stdout.WriteLine(strings.Required("race.synthetic"));
@@ -193,15 +208,15 @@ public static class RaceCommand
         stdout.WriteLine();
 
         stdout.WriteLine(strings.Required("race.section.qualifying"));
-        foreach (var line in result.Qualifying.Summary)
+        foreach (var line in published.Qualifying.Summary)
         {
             stdout.WriteLine(Fill(strings.Required(line.Key), [.. line.Args.Select(a => (a.Key, a.Value ?? string.Empty))]));
         }
 
         stdout.WriteLine();
         stdout.WriteLine(strings.Required("race.section.race"));
-        var lastFastest = result.Tape.Events.OfType<FastestLap>().LastOrDefault();
-        foreach (var raceEvent in result.Tape.Events)
+        var lastFastest = published.Tape.Events.OfType<FastestLap>().LastOrDefault();
+        foreach (var raceEvent in published.Tape.Events)
         {
             if (options.Full || IsHeadline(raceEvent, lastFastest))
             {
@@ -212,9 +227,9 @@ public static class RaceCommand
         stdout.WriteLine();
         stdout.WriteLine(strings.Required("race.section.classification"));
         stdout.WriteLine(strings.Required("race.classification.header"));
-        var cars = result.CarResults.ToDictionary(c => c.DriverId, StringComparer.Ordinal);
-        var leader = result.CarResults[0];
-        foreach (var classified in result.Classification.Cars)
+        var cars = published.CarResults.ToDictionary(c => c.DriverId, StringComparer.Ordinal);
+        var leader = published.CarResults[0];
+        foreach (var classified in published.Classification.Cars)
         {
             var car = cars[classified.DriverIds[0]];
             var status = strings.Required(StatusKey(car.Status, classified.IsClassified));
@@ -231,17 +246,17 @@ public static class RaceCommand
 
         stdout.WriteLine();
         stdout.WriteLine(strings.Required("race.section.points"));
-        foreach (var score in result.Classification.DriverScores.Where(s => s.Points > 0).OrderByDescending(s => s.Points).ThenBy(s => s.DriverId, StringComparer.Ordinal))
+        foreach (var score in published.Classification.DriverScores.Where(s => s.Points > 0).OrderByDescending(s => s.Points).ThenBy(s => s.DriverId, StringComparer.Ordinal))
         {
             stdout.WriteLine(Fill(strings.Required("race.points.driver"), ("driver", score.DriverId), ("points", score.Points)));
         }
 
-        foreach (var score in result.Classification.ConstructorScores.Where(s => s.Points > 0).OrderByDescending(s => s.Points).ThenBy(s => s.ConstructorId, StringComparer.Ordinal))
+        foreach (var score in published.Classification.ConstructorScores.Where(s => s.Points > 0).OrderByDescending(s => s.Points).ThenBy(s => s.ConstructorId, StringComparer.Ordinal))
         {
             stdout.WriteLine(Fill(strings.Required("race.points.constructor"), ("team", score.ConstructorId), ("points", score.Points)));
         }
 
-        var injured = result.PersonOutcomes.Where(p => p.Injury != InjuryGrade.None || p.Fatal).ToList();
+        var injured = published.PersonOutcomes.Where(p => p.Injury != InjuryGrade.None || p.Fatal).ToList();
         if (injured.Count > 0)
         {
             stdout.WriteLine();
@@ -256,11 +271,11 @@ public static class RaceCommand
         }
     }
 
-    private static void PrintSpy(TextWriter stdout, IReadOnlyDictionary<string, string> strings, RaceWeekendResult result, CollectingSink collector)
+    private static void PrintSpy(TextWriter stdout, IReadOnlyDictionary<string, string> strings, RacePublishedFacts published, CollectingSink collector)
     {
         stdout.WriteLine();
         stdout.WriteLine(strings.Required("race.section.spy"));
-        var truth = result.TruthWeather;
+        var truth = published.TruthWeather;
         stdout.WriteLine(Fill(
             strings.Required("race.spy.weather"),
             ("showery", truth.IsShowery ? "yes" : "no"),
@@ -291,17 +306,19 @@ public static class RaceCommand
         foreach (var round in rounds)
         {
             var input = BuildInput(data, season, round, options.Seed, entries);
-            var result = RaceWeekend.Run(input, NullSink.Instance);
-            standings = standings.Apply(result.Classification);
-            var winner = result.CarResults[0];
+            var request = RaceSimulationRequest.ForWeekend(input, NullSink.Instance);
+            _ = RaceSession.Run(request, RaceEngineKind.Lap);
+            var published = RequirePublished(request);
+            standings = standings.Apply(published.Classification);
+            var winner = published.CarResults[0];
             stdout.WriteLine(Fill(
                 strings.Required("race.season.round"),
                 ("round", round),
                 ("layout", input.Track.Id),
                 ("laps", input.TotalLaps),
                 ("winner", string.Join(" / ", winner.DriversWhoDrove)),
-                ("finishers", result.CarResults.Count(c => c.Status == FinishStatus.Classified)),
-                ("starters", result.CarResults.Length)));
+                ("finishers", published.CarResults.Count(c => c.Status == FinishStatus.Classified)),
+                ("starters", published.CarResults.Length)));
             foreach (var row in standings.Drivers().Take(5))
             {
                 stdout.WriteLine(Fill(

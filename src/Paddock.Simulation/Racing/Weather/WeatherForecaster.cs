@@ -31,7 +31,7 @@ public sealed record WeatherForecast(int FromMinute, double ForecasterQuality, I
 /// <code>
 /// sigma(h, q) = (ForecastSigmaFloor + ForecastSigmaPerSqrtMinute * sqrt(h)) * lerp(PoorForecasterScale, GoodForecasterScale, q)
 /// raw         = trueIntensity(from + h) + sigma * z            // z ~ N(0, 1): zero-mean, so unbiased
-/// P(rain)     = Phi((raw - MeasurableRainIntensity) / sigma)
+/// P(rain)     = posterior of "rain" given raw, with the climatological prior (see <see cref="RainPosterior"/>)
 /// band        = clamp(raw +- ForecastBandSigmas * sigma, 0, 1)
 /// </code>
 /// The noise z is hashed from the weather stream snapshot plus (origin, horizon, quality) with
@@ -72,6 +72,7 @@ public static class WeatherForecaster
         }
 
         var q = CheckQuality(forecasterQuality);
+        var prior = truth.Climate.RaceRainProbability * WeatherConstants.RainMinuteShareGivenRain;
         var qualityKey = q.ToString("R", CultureInfo.InvariantCulture);
         var last = Math.Min(horizonMinutes, truth.DurationMinutes - fromMinute);
         var steps = ImmutableArray.CreateBuilder<ForecastStep>(last);
@@ -82,7 +83,7 @@ public static class WeatherForecaster
                 string.Create(CultureInfo.InvariantCulture, $"forecast|q={qualityKey}|from={fromMinute}|h={h}"));
             var z = RaceWeather.StandardNormal(rng.NextDouble(), rng.NextDouble());
             var raw = truth.Samples[fromMinute + h].RainIntensity + (sigma * z);
-            var probability = NormalCdf((raw - WeatherConstants.MeasurableRainIntensity) / sigma);
+            var probability = RainPosterior(raw, sigma, prior);
             var band = WeatherConstants.ForecastBandSigmas * sigma;
             steps.Add(new ForecastStep(
                 h,
@@ -96,6 +97,26 @@ public static class WeatherForecaster
 
         return new WeatherForecast(fromMinute, q, steps.MoveToImmutable());
     }
+
+    /// <summary>
+    /// P(rain falling | noisy estimate), with a prior from the climate: a minute is dry (intensity exactly 0) with probability
+    /// <c>1 - prior</c>, and rainy with probability <c>prior</c>, in which case the intensity is uniform between the measurable
+    /// threshold and 1. Bayes: <c>prior * L1 / (prior * L1 + (1 - prior) * L0)</c>, where L0 is the density of the estimate
+    /// around 0 and L1 its density around a uniform intensity. A flat prior (the old <c>Phi((raw - threshold) / sigma)</c>) read
+    /// every noisy dry-day estimate as likely rain, so the pit wall fitted wet tyres on dry days (issue #122). ESTIMATE
+    /// (the prior comes from <see cref="WeatherConstants.RainMinuteShareGivenRain"/> and the climate).
+    /// </summary>
+    public static double RainPosterior(double rawEstimate, double sigma, double prior)
+    {
+        var threshold = WeatherConstants.MeasurableRainIntensity;
+        var dry = NormalPdf(rawEstimate / sigma) / sigma;
+        var rainy = (NormalCdf((rawEstimate - threshold) / sigma) - NormalCdf((rawEstimate - 1.0) / sigma)) / (1.0 - threshold);
+        var numerator = prior * rainy;
+        var denominator = numerator + ((1.0 - prior) * dry);
+        return denominator <= 0 ? (rawEstimate >= threshold ? 1.0 : 0.0) : Math.Clamp(numerator / denominator, 0.0, 1.0);
+    }
+
+    private static double NormalPdf(double x) => Math.Exp(-0.5 * x * x) / Math.Sqrt(2.0 * Math.PI);
 
     private static double CheckQuality(double quality)
     {

@@ -4,8 +4,10 @@ using Paddock.Application.Commands;
 using Paddock.Application.Managers;
 using Paddock.Application.World;
 using Paddock.Domain.People;
+using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
 using Paddock.Simulation.Career;
+using Paddock.Simulation.Racing;
 using AccessManagerId = Paddock.Application.Access.ManagerId;
 using HostManagerId = Paddock.Application.Managers.ManagerId;
 
@@ -64,12 +66,18 @@ public sealed class CareerHostState
 
 /// <summary>
 /// Wires the day clock (T16), the AI managers and the ready gate (T17), and a world already built (T20).
-/// Each morning the single AI manager looks at an empty knowledge view and files no command.
-/// The queue is then drained, and the gate advances one day. Zero human managers never block.
+/// Each morning the single AI manager files placeholder contract renewals (until T44), the queue is drained, and the gate advances one day. Zero human managers never block.
 /// </summary>
 public static class CareerHost
 {
     public const string AiManagerId = "ai:paddock";
+
+    /// <summary>
+    /// Runs one race for the career through <see cref="IRaceSimulator"/>. The day clock does not schedule races yet;
+    /// this is the call a race day will make, and a test can pass a stub simulator.
+    /// </summary>
+    public static RaceTape SimulateRace(IRaceSimulator simulator, RaceSimulationRequest request) =>
+        RaceSession.Run(simulator, request);
 
     public static CareerRunResult Run(CareerSession session, int toYear) => Run(session, toYear, null);
 
@@ -103,15 +111,19 @@ public static class CareerHost
         var fact = new FactKey("career.day");
         var queue = resumeFrom is null ? new CommandQueue() : new CommandQueue(resumeFrom.NextSubmissionNumber);
         var dispatcher = new CommandDispatcher(log: resumeFrom?.Log);
+        var contracts = CareerContractHost.Attach(session, managers, dispatcher, hostId);
         var world = new ClockWorld(session);
-        var context = new CommandContext(world, managers);
+        var context = new CommandContext(world, managers, contracts.Inbox, contracts.Engine.Book);
         var gate = new ReadyGate();
         var end = GameDate.SeasonStart(toYear + 1);
         var commands = 0;
         while (session.Date < end)
         {
             _ = ai.Perceive(view, fact);
+            contracts.BeginMorning();
+            contracts.FileRenewals(queue);
             commands += dispatcher.DispatchAll(queue, context).Count;
+            contracts.EndMorning();
             var step = gate.RequestAdvance(managers, world);
             if (step is AdvanceResult.Refused refused)
             {

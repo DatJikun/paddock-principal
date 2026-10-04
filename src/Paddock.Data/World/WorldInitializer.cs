@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Paddock.Data.Authored;
+using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
 using Paddock.Domain.People;
 using Paddock.Domain.Random;
@@ -16,12 +17,14 @@ namespace Paddock.Data.World;
 public sealed record WorldInitOptions(
     INameSource? Names = null,
     INameBlocklist? Blocklist = null,
-    IReadOnlyDictionary<string, string>? ConstructorNames = null);
+    IReadOnlyDictionary<string, string>? ConstructorNames = null,
+    ICarStrengthSource? CarStrength = null);
 
 /// <summary>
 /// Builds the <see cref="WorldState"/> of a career start (T20): organizations with lineage and engine
-/// suppliers, key staff, and drivers by <see cref="PeopleSource"/>. Pure: no I/O, no clock, only the
-/// <c>People</c> RNG stream derived from the master seed. Same seed, config, data and provider give the same
+/// suppliers, key staff, drivers and two cars per team by <see cref="PeopleSource"/>. Pure: no I/O and no clock.
+/// People and driver-fit rows use the People stream. Generated car tiers use the Development stream inside
+/// <see cref="InitialCarFactory"/>, which this file calls. Same seed, config, data and provider give the same
 /// <see cref="WorldState.StateHash"/>. Numbers that are guesses are in <see cref="WorldInitEstimates"/>.
 /// </summary>
 public static class WorldInitializer
@@ -67,6 +70,8 @@ public static class WorldInitializer
         private readonly INameSource _names;
         private readonly INameBlocklist _blocklist;
         private readonly IReadOnlyDictionary<string, string>? _constructorNames;
+        private readonly ICarStrengthSource? _carStrength;
+        private readonly ulong _masterSeed;
         private readonly RngStream _people;
         private readonly int _start;
         private readonly int _reference;
@@ -92,6 +97,8 @@ public static class WorldInitializer
             _names = options.Names ?? new FixtureNameSource();
             _blocklist = options.Blocklist ?? EmptyNameBlocklist.Instance;
             _constructorNames = options.ConstructorNames;
+            _carStrength = options.CarStrength;
+            _masterSeed = masterSeed;
             _start = config.StartYear;
             var lastAuthored = data.Engines.Entries.Count == 0 ? _start : data.Engines.Entries.Max(entry => entry.Year);
             _reference = Math.Min(_start, lastAuthored);
@@ -134,6 +141,7 @@ public static class WorldInitializer
             }
 
             ReportTeamsWithoutStaff();
+            AddCars();
             return new WorldInitResult(_world, Report(), _pool.ToArray(), player, _supplies.ToArray());
         }
 
@@ -865,6 +873,28 @@ public static class WorldInitializer
                     Gap(WorldInitGapCodes.TeamsWithoutStaff, plan.Id);
                 }
             }
+        }
+
+        private void AddCars()
+        {
+            var fits = new List<DriverFitProfile>();
+            foreach (var person in _world.Persons)
+            {
+                if (!person.Roles.Any(role => role.IsDriver))
+                {
+                    continue;
+                }
+
+                fits.Add(DriverFitFactory.Roll(person.Id, _people.DeriveChild("driver-fit:" + person.Id.Value)));
+            }
+
+            _world = InitialCarFactory.Install(
+                _world,
+                _masterSeed,
+                _start,
+                _config.PeopleSource == PeopleSource.FullyGenerated,
+                _carStrength,
+                fits);
         }
 
         // ---------------------------------------------------------------- shared helpers

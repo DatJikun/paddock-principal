@@ -21,6 +21,7 @@ public class RngStreamsTests
                 "LifeEvents",
                 "Regulations",
                 "Scouting",
+                "Development",
             ],
             RngStreamName.All);
         Assert.Equal(RngStreamName.All.Count, RngStreamName.All.Distinct().Count());

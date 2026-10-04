@@ -50,6 +50,9 @@ public enum ConceptTiming
     WhenReady,
     AfterRaces,
     NextSeason,
+
+    /// <summary>Keeps a finished concept undeployed across season rollovers until a new timing is chosen. The old car runs on; the account keeps decaying and rivals keep moving (PP-043).</summary>
+    Hold,
 }
 
 /// <summary>Stable id <c>dev:{n}</c> from the section counter. Numbers are never reused (INV-009).</summary>

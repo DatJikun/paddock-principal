@@ -50,17 +50,22 @@ internal sealed class TeamDay
     public void Run()
     {
         DevalueOnRuleChange();
-        if (Today.IsSeasonStart)
-        {
-            Rollover();
-        }
-
         AdvanceProjects();
         AdvanceProduction();
         DeployReady();
         StartProjects();
         GrowUnderstanding();
         _account = _account with { StockMilli = DevelopmentMath.StockAfterDay(_account.StockMilli) };
+        Commit();
+    }
+
+    /// <summary>
+    /// The change of season for this team: next season's concepts are consumed, the cars move to the new year with the work carried
+    /// over, and the year's spending resets. The host calls it once on 1 January (owner decision, #160); the daily step never does.
+    /// </summary>
+    public void ChangeSeason()
+    {
+        Rollover();
         Commit();
     }
 

@@ -27,6 +27,8 @@ internal static class CareerKit
     /// <summary>The run options of the tool: every career module and the authored data inputs.</summary>
     public static CareerRunOptions Options => new() { Inputs = CareerInputsLoader.Load(DataRoot, Data) };
 
+    public static CareerRunOptions OptionsFor(OpenedCareer career) => new() { Inputs = CareerInputsLoader.Load(DataRoot, Data, career.Supplies) };
+
     public static CareerSession Open(CareerPreset preset, int startYear, ulong seed) => Opened(preset, startYear, seed).Session;
 
     public static OpenedCareer Opened(CareerPreset preset, int startYear, ulong seed)
@@ -41,7 +43,7 @@ internal static class CareerKit
             created.TalentPool,
             arrivals,
             new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
-        return new OpenedCareer(session, config, created.PlayerOrganization.Value, seed);
+        return new OpenedCareer(session, config, created.PlayerOrganization.Value, seed, created.EngineSupplies);
     }
 
     /// <summary>Writes the career to a save file the way <c>run --save</c> does, so a test can read it back and resume it.</summary>
@@ -64,4 +66,4 @@ internal static class CareerKit
 }
 
 /// <summary>A career opened by <see cref="CareerKit"/>: the session and what a save needs besides it.</summary>
-internal sealed record OpenedCareer(CareerSession Session, CareerConfig Config, string PlayerTeam, ulong Seed);
+internal sealed record OpenedCareer(CareerSession Session, CareerConfig Config, string PlayerTeam, ulong Seed, IReadOnlyList<EngineSupplyLink> Supplies);

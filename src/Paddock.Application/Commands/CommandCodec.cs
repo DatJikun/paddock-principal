@@ -84,10 +84,6 @@ public sealed class CommandCodec
     /// </summary>
     public static CommandCodec Production { get; } = new(
     [
-        // T42 and T43 were merged (#163, #162) before they became career modules. Each moves its line into its own module's
-        // CommandCodecs when it joins CareerModules.Default; until then these two stay here so their commands are still saved.
-        .. Paddock.Application.Development.DevelopmentCommandCodecs.Entries,
-        .. Paddock.Application.Supply.SupplyCommandCodecs.Entries,
         .. Career.CareerModules.Default.SelectMany(module => module.CommandCodecs),
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",

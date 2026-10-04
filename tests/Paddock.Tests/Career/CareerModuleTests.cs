@@ -42,7 +42,7 @@ public sealed class CareerModuleTests
     public void TheDayHandlersRunInTheOrderOfTheirNumbersWhateverTheListOrder()
     {
         var days = new List<GameDate>();
-        var early = new DummyModule(days, order: 5);
+        var early = new DummyModule(days, order: 1);
         var late = new DummyModule(days, order: 5000, name: "late");
 
         var session = Session();
@@ -50,7 +50,7 @@ public sealed class CareerModuleTests
 
         var orders = session.DayHandlers.Select(handler => handler.Order).ToArray();
         Assert.Equal(orders.Order().ToArray(), orders);
-        Assert.Equal(5, orders[0]);
+        Assert.Equal(1, orders[0]);
         Assert.Equal(5000, orders[^1]);
     }
 

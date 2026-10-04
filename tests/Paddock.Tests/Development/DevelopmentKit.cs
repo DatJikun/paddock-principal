@@ -141,11 +141,27 @@ internal sealed class DevelopmentKit
 
     public static DateOnly Day(GameDate date) => new(date.Year, date.Month, date.Day);
 
+    /// <summary>What the career host does on 1 January before any day handler: the change of season (owner decision, #160).</summary>
+    private void ChangeSeasonIfDue()
+    {
+        if (!Today.IsSeasonStart)
+        {
+            return;
+        }
+
+        var outcome = DevelopmentEngine.ChangeSeason(Book.Inputs(Today, Environment));
+        if (outcome.Changed)
+        {
+            Book.Write(outcome);
+        }
+    }
+
     /// <summary>Lives <paramref name="days"/> days, one development step per day, as a host loop would.</summary>
     public void Live(int days)
     {
         for (var step = 0; step < days; step++)
         {
+            ChangeSeasonIfDue();
             var outcome = DevelopmentEngine.Step(Book.Inputs(Today, Environment));
             if (outcome.Changed)
             {
@@ -163,6 +179,7 @@ internal sealed class DevelopmentKit
         var registry = new DayHandlerRegistry([new DevelopmentDayHandler(Book, Environment, inbox: Inbox, managers: Managers)]);
         for (var step = 0; step < days; step++)
         {
+            ChangeSeasonIfDue();
             WorldClock.AdvanceDay(new WorldClockState(Today, Seed), registry);
             Today = Today.AddDays(1);
             _world = _world.WithDate(Today);

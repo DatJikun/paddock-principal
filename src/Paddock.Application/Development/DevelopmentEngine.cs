@@ -73,6 +73,37 @@ public static class DevelopmentEngine
     }
 
     /// <summary>
+    /// The change of season, for every team with cars: concepts timed for the next season are consumed, cars move to the new year
+    /// with the carried work, the year's spending resets. The host decides when (1 January) and calls it before the day's step; the
+    /// daily <see cref="Step"/> only reacts to the season it finds.
+    /// </summary>
+    public static DevelopmentOutcome ChangeSeason(DevelopmentInputs inputs)
+    {
+        ArgumentNullException.ThrowIfNull(inputs);
+        var cars = inputs.Cars;
+        var development = inputs.Development;
+        var finance = inputs.Finance;
+        var era = inputs.Rules.Era(inputs.Today.Year);
+        var changed = false;
+        foreach (var organization in OrganizationsWithCars(cars))
+        {
+            var state = new TeamDay(organization, cars, development, finance, inputs, era);
+            state.ChangeSeason();
+            if (!state.Changed)
+            {
+                continue;
+            }
+
+            changed = true;
+            cars = state.Cars;
+            development = state.Development;
+            finance = state.Finance;
+        }
+
+        return new DevelopmentOutcome(cars, development, finance, changed);
+    }
+
+    /// <summary>
     /// A finished race: every car that ran adds understanding from the race and its kilometres (capped by the era's testing
     /// rules), and every finished concept that waits for "after N races" counts one more race.
     /// </summary>

@@ -1,10 +1,12 @@
 using Paddock.Application.Board;
 using Paddock.Application.Cars;
 using Paddock.Application.Contracts;
+using Paddock.Application.Development;
 using Paddock.Application.Finance;
 using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
 using Paddock.Application.Sponsors;
+using Paddock.Application.Supply;
 
 namespace Paddock.Application.Career;
 
@@ -31,6 +33,8 @@ public static class CareerModules
         new PoolModule(),
         new CarsModule(),
         new SponsorsModule(),
+        new SupplyModule(),
+        new DevelopmentModule(),
         new BoardModule(),
     ]);
 }

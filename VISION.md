@@ -246,3 +246,15 @@ Szczegóły w DESIGN §5.3.
 - **Indywidualny charakter kierowcy wyrażają przede wszystkim cechy** (DESIGN §6.1): dają bonusy i minusy i mogą też zostać nabyte (albo utracone) w trakcie kariery.
 - Liczby (skala poziomów, siła przyciągania, wiek spadku) są szacunkami do dalszej kalibracji przez właściciela, który może nanosić ręczne korekty.
 
+### Przyjęte 2026-10-04 (trzynasta runda: przegląd Team Principal)
+
+**PP-048: Wnioski z przeglądu gry Team Principal (konkurencja).**
+- **Strata do lidera rozbita na składniki, zawsze dla konkretnego toru.** Gra pokazuje, ile czasu na okrążeniu daje osobno auto, silnik i reszta pakietu, ale tylko w odniesieniu do wybranego toru (np. najbliższego wyścigu). Jednej uniwersalnej liczby „na sezon” nie ma, bo zależy ona od charakterystyki toru.
+- **Tory opisane matematycznie.** Układ toru to geometria (linia środkowa, zakręty, proste), z której gra wylicza charakterystykę (udział wolnych, średnich i szybkich zakrętów oraz prostych) i rysuje mapkę. Dzięki temu tory są spójne, dają się dostosowywać, a nowe da się tworzyć bez rysowania ręcznie. Profil auta według typów zakrętów wynika z tej samej geometrii.
+- **Kredyty z akceptacją zarządu:** kilka ofert (kwota, oprocentowanie, okres), ograniczona liczba naraz, zgoda zarządu wymagana.
+- **Relacje w liczbach:** profil kierowcy i personelu pokazuje krótką listę najlepszych i najgorszych relacji z zespołami i ludźmi (top 3 / bottom 3).
+- **Liczba prób w negocjacjach zależy od relacji:** wieloletni kierowca z wysoką lojalnością i morale daje dużo prób, obcy kierowca tylko 2–3.
+- **Głosowanie nad przepisami w dwóch trybach do wyboru w konfiguracji kariery:** zwykły (każde głosowanie to jeden głos) albo z bankiem głosów (wstrzymanie się odkłada głos do prywatnego banku, który można później wydać na ważniejsze głosowanie).
+- **Na później (po MVP):** specjalizacja projektantów (osobne oceny dla wolnych, średnich i szybkich zakrętów oraz oporu, nadająca autu charakter) oraz kierunek rozwoju jako dźwignia gracza (np. moc / niezawodność / efektywność, priorytet rozwoju umiejętności kierowcy).
+- **Odrzucone:** kradzież technologii rywali (PP-037), fabryka i magazyn części (PP-029).
+

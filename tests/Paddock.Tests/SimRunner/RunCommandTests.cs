@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Paddock.Domain.Career;
+using Paddock.Domain.Pool;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.SimRunner;
@@ -35,7 +36,7 @@ public class RunCommandTests
             estimates,
             StringComparison.Ordinal);
         Assert.Contains(
-            CareerDayEstimates.GeneratedIntakePerSeason.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            PoolEstimates.TargetSize.ToString(System.Globalization.CultureInfo.InvariantCulture),
             estimates,
             StringComparison.Ordinal);
         Assert.Contains(CareerDayEstimates.PoolEntryDateText(), estimates, StringComparison.Ordinal);

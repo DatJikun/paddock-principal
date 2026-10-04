@@ -6,11 +6,13 @@ using Paddock.Application.Managers;
 using Paddock.Domain.Career;
 using Paddock.Domain.Codec;
 using Paddock.Domain.People;
+using Paddock.Domain.Pool;
 using Paddock.Domain.Random;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Persistence;
 using Paddock.Simulation.Career;
+using Paddock.Simulation.Pool;
 using Paddock.Simulation.Time;
 using Paddock.SimRunner;
 
@@ -26,7 +28,7 @@ public sealed class CareerResumeTests : IDisposable
 {
     private const ulong Seed = 7;
 
-    private const int IntakePerSeason = 3;
+    private const int PoolTarget = 8;
 
     private readonly string _directory = Directory.CreateTempSubdirectory("paddock-resume-").FullName;
 
@@ -70,7 +72,7 @@ public sealed class CareerResumeTests : IDisposable
         var whole = NewSession();
         CareerHost.Run(whole, 1970);
 
-        Assert.Equal((IntakePerSeason * 20) + 3, whole.Intakes);
+        Assert.True(whole.Intakes > 3);
         Assert.True(whole.Retired.Count >= 8, "retired " + whole.Retired.Count);
         Assert.Contains(whole.Retired, id => id.Value == "r3");
         Assert.Contains(whole.World.Persons, person => person.Id.Value == "r1");
@@ -140,7 +142,7 @@ public sealed class CareerResumeTests : IDisposable
         queue = queue.TakeDue(new GameDate(1956, 9, 9)).Queue;
         var clock = session.Clock with { Queue = EventQueue.Restore(queue.Events, queue.NextSequence + 4), NextEventId = 90 };
         var withQueue = CareerSession.Resume(
-            new CareerSessionResume(session.World, clock, session.OpenedYear, session.TalentPool, session.ContractExpiries, session.Intakes, session.Years),
+            new CareerSessionResume(session.World, clock, session.OpenedYear, session.ContractExpiries, session.Intakes, session.Years),
             PendingArrivals(session.Date),
             Options());
 
@@ -265,18 +267,19 @@ public sealed class CareerResumeTests : IDisposable
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Clock = loaded.Clock with { Date = new GameDate(1957, 1, 1) } }, arrivals, Options()));
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { OpenedYear = 1960 }, arrivals, Options()));
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Intakes = -1 }, arrivals, Options()));
-        Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Pool = [.. loaded.Pool, loaded.Pool[0]] }, arrivals, Options()));
+        Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { World = loaded.World.WithoutSection(TalentPoolSection.SectionName) }, arrivals, Options()));
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Years = [.. loaded.Years, loaded.Years[0]] }, arrivals, Options()));
         Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Years = [new CareerYearSummary(1956, 0, 0, 0, 0, "x")] }, arrivals, Options()));
         var retired = loaded.World.Persons.First(person => person.IsRetired).Id;
-        Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { Pool = [retired] }, arrivals, Options()));
+        var pool = loaded.World.Section<TalentPoolSection>(TalentPoolSection.SectionName)!;
+        Assert.Throws<ArgumentException>(() => CareerSession.Resume(loaded with { World = loaded.World.WithSection(pool.EnterAll([retired], loaded.World.CurrentDate)) }, arrivals, Options()));
         Assert.Throws<ArgumentException>(
             () => CareerSession.Resume(loaded, [.. arrivals, new ScheduledArrival(new GameDate(1960, 1, 1), SpecFor("d1", "D", 1920, driver: true))], Options()));
     }
 
     private static CareerSessionOptions Options() => new()
     {
-        GeneratedIntakePerSeason = IntakePerSeason,
+        Pool = new TalentPoolOptions { TargetSize = PoolTarget },
         LastSeasons = LastSeasons,
     };
 

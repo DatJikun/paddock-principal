@@ -3,11 +3,13 @@ using Paddock.Application.Career;
 using Paddock.Data.World;
 using Paddock.Domain.Career;
 using Paddock.Domain.People;
+using Paddock.Domain.Pool;
 using Paddock.Domain.Random;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Persistence;
 using Paddock.Simulation.Career;
+using Paddock.Simulation.Pool;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.Career;
@@ -21,7 +23,7 @@ public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "df5d2d4f1de60f1f0a8b6daec4a800ce208017fb48f01ca60ffa8e7093426897";
+    private const string StoredWorldHash = "5508ffb2b6808ccb108801f67dac74d62828cea57d7584a7e634bd9d4488a05b";
 
     private const string StoredRetired = "chief,leap,vet";
 
@@ -50,7 +52,7 @@ public class CareerRunTests
     [Fact]
     public void CertainBirthdayRetiresAndLeavesThePool()
     {
-        var session = Session(Seed, intake: 0, arrivals: []);
+        var session = Session(Seed, target: 0, arrivals: []);
         session.LiveDay();
 
         Assert.Contains(session.Retired, id => id.Value == "vet");
@@ -69,7 +71,7 @@ public class CareerRunTests
             Seed,
             [PersonId.Real("vet")],
             [],
-            new CareerSessionOptions { GeneratedIntakePerSeason = 0 });
+            new CareerSessionOptions { Pool = new TalentPoolOptions { TargetSize = 0 } });
         session.LiveDay();
 
         Assert.Contains(session.Retired, id => id.Value == "vet");
@@ -82,7 +84,7 @@ public class CareerRunTests
     [Fact]
     public void LeapDayBirthdayIsObservedOn28FebruaryInACommonYear()
     {
-        var session = Session(Seed, intake: 0, arrivals: []);
+        var session = Session(Seed, target: 0, arrivals: []);
         while (session.Date < new GameDate(1950, 2, 28))
         {
             session.LiveDay();
@@ -97,7 +99,7 @@ public class CareerRunTests
     public void LeapDayBirthdayWaitsFor29FebruaryInALeapYear()
     {
         var world = WorldAt(new GameDate(1952, 2, 28));
-        var session = new CareerSession(world, Seed, [], [], new CareerSessionOptions { GeneratedIntakePerSeason = 0 });
+        var session = new CareerSession(world, Seed, [], [], new CareerSessionOptions { Pool = new TalentPoolOptions { TargetSize = 0 } });
         session.LiveDay();
         Assert.DoesNotContain(session.Retired, id => id.Value == "leap");
         Assert.Equal(new GameDate(1952, 2, 29), session.Date);
@@ -108,7 +110,7 @@ public class CareerRunTests
     [Fact]
     public void ContractExpiryIsRecordedOnceAndTheContractStays()
     {
-        var session = Session(Seed, intake: 0, arrivals: []);
+        var session = Session(Seed, target: 0, arrivals: []);
         while (session.Date < new GameDate(1950, 12, 31))
         {
             session.LiveDay();
@@ -129,7 +131,7 @@ public class CareerRunTests
         var arrival = new ScheduledArrival(
             new GameDate(1950, 1, 3),
             Person("rookie", "Rookie", "Driver", new GameDate(1938, 4, 4), driver: true));
-        var session = Session(Seed, intake: 0, arrivals: [arrival]);
+        var session = Session(Seed, target: 0, arrivals: [arrival]);
         session.LiveDay();
         session.LiveDay();
         Assert.Equal(0, session.Intakes);
@@ -142,7 +144,7 @@ public class CareerRunTests
     [Fact]
     public void GeneratedIntakeStartsTheSeasonAfterTheOpeningYear()
     {
-        var session = Session(Seed, intake: 1, arrivals: []);
+        var session = Session(Seed, target: 1, arrivals: []);
         while (session.Date < new GameDate(1951, 1, 1))
         {
             session.LiveDay();
@@ -179,7 +181,7 @@ public class CareerRunTests
     [Fact]
     public void SaveRoundTripsTheWorldAndTheAiManager()
     {
-        var session = Session(Seed, intake: 0, arrivals: []);
+        var session = Session(Seed, target: 0, arrivals: []);
         CareerHost.Run(session, 1950);
         var directory = Directory.CreateTempSubdirectory("paddock-run-");
         try
@@ -211,7 +213,7 @@ public class CareerRunTests
     [Fact]
     public void ARetireeKeepsTheirRecordAndTheirDateThroughASaveAndLoad()
     {
-        var session = Session(Seed, intake: 0, arrivals: []);
+        var session = Session(Seed, target: 0, arrivals: []);
         CareerHost.Run(session, 1950);
         var directory = Directory.CreateTempSubdirectory("paddock-retiree-");
         try
@@ -342,7 +344,7 @@ public class CareerRunTests
     private static CareerSession WithLastSeasons(IReadOnlyDictionary<string, int> lastSeasons, IReadOnlyList<ScheduledArrival> arrivals) =>
         new(WorldAt(new GameDate(1950, 1, 1)), Seed, [PersonId.Real("vet")], arrivals, new CareerSessionOptions
         {
-            GeneratedIntakePerSeason = 0,
+            Pool = new TalentPoolOptions { TargetSize = 0 },
             LastSeasons = lastSeasons,
         });
 
@@ -351,7 +353,7 @@ public class CareerRunTests
 
     private static DecadeRun RunDecade(ulong seed)
     {
-        var session = Session(seed, intake: CareerDayEstimates.GeneratedIntakePerSeason, arrivals: []);
+        var session = Session(seed, target: PoolEstimates.TargetSize, arrivals: []);
         var result = CareerHost.Run(session, 1960);
         return new DecadeRun(
             session.World.StateHash(),
@@ -363,10 +365,10 @@ public class CareerRunTests
             result.CommandsDispatched);
     }
 
-    private static CareerSession Session(ulong seed, int intake, IReadOnlyList<ScheduledArrival> arrivals) =>
+    private static CareerSession Session(ulong seed, int target, IReadOnlyList<ScheduledArrival> arrivals) =>
         new(WorldAt(new GameDate(1950, 1, 1)), seed, [PersonId.Real("vet")], arrivals, new CareerSessionOptions
         {
-            GeneratedIntakePerSeason = intake,
+            Pool = new TalentPoolOptions { TargetSize = target },
         });
 
     private static WorldState WorldAt(GameDate date)

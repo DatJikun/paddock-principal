@@ -1,7 +1,9 @@
 using Paddock.Application.Contracts;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
+using Paddock.Application.Pool;
 using Paddock.Domain.Codec;
+using Paddock.Domain.Pool;
 using Paddock.Simulation.Codec;
 
 namespace Paddock.Application.Commands;
@@ -111,6 +113,47 @@ public sealed class CommandCodec
                 ManagerId = manager,
                 IssuedOn = issued,
                 ItemId = FlatJson.Read(body, "itemId").String("itemId"),
+            }),
+        CommandCodecEntry.For<AssignScoutFocusCommand>(
+            "pool.scoutFocus/1",
+            command => FlatJson.Write(("person", command.PersonHandle ?? string.Empty)),
+            (body, manager, issued) =>
+            {
+                var person = FlatJson.Read(body, "person").String("person");
+                return new AssignScoutFocusCommand
+                {
+                    ManagerId = manager,
+                    IssuedOn = issued,
+                    PersonHandle = person.Length == 0 ? null : person,
+                };
+            }),
+        CommandCodecEntry.For<FundJuniorCommand>(
+            "pool.fundJunior/1",
+            command => FlatJson.Write(("person", command.PersonHandle), ("programme", command.Programme.ToString())),
+            (body, manager, issued) =>
+            {
+                var fields = FlatJson.Read(body, "person", "programme");
+                return new FundJuniorCommand
+                {
+                    ManagerId = manager,
+                    IssuedOn = issued,
+                    PersonHandle = fields.String("person"),
+                    Programme = Enum.Parse<JuniorProgramme>(fields.String("programme")),
+                };
+            }),
+        CommandCodecEntry.For<SignPoolDriverCommand>(
+            "pool.signDriver/1",
+            command => FlatJson.Write(("person", command.PersonHandle), ("role", command.Role.ToString())),
+            (body, manager, issued) =>
+            {
+                var fields = FlatJson.Read(body, "person", "role");
+                return new SignPoolDriverCommand
+                {
+                    ManagerId = manager,
+                    IssuedOn = issued,
+                    PersonHandle = fields.String("person"),
+                    Role = Enum.Parse<PoolSigningRole>(fields.String("role")),
+                };
             }),
     ]);
 

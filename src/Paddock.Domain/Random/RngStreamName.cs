@@ -14,6 +14,9 @@ public static class RngStreamName
     public const string LifeEvents = "LifeEvents";
     public const string Regulations = "Regulations";
 
+    /// <summary>Observation noise of scouting (T40). Kept apart from <see cref="People"/> so extra scouting never moves development draws.</summary>
+    public const string Scouting = "Scouting";
+
     public static readonly IReadOnlyList<string> All =
     [
         Weather,
@@ -27,5 +30,6 @@ public static class RngStreamName
         History,
         LifeEvents,
         Regulations,
+        Scouting,
     ];
 }

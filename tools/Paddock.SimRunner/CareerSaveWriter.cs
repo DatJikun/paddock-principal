@@ -16,8 +16,8 @@ namespace Paddock.SimRunner;
 /// codecs (events in Simulation, commands and managers in Application) and the opaque rows of Persistence, so the mapping
 /// between them lives here and applies no game rules.
 /// Emitted day events are not kept (the queue holds only the future). Retirement is part of the world
-/// (<c>persons.retired_on</c>). The talent pool is not a field of <see cref="Paddock.Domain.World.WorldState"/>; it is saved
-/// in the <c>talent_pool</c> table beside it.
+/// (<c>persons.retired_on</c>). The talent pool is a section of <see cref="Paddock.Domain.World.WorldState"/> (T40); it is saved
+/// in the <c>talent-pool</c> world section with the rest of the world.
 /// </summary>
 public static class CareerSaveWriter
 {
@@ -81,7 +81,6 @@ public static class CareerSaveWriter
                 session.OpenedYear,
                 session.ContractExpiries,
                 session.Intakes,
-                session.TalentPool.Select(id => id.Value).ToArray(),
                 years),
             RngStates = RngStatesOf(clock),
         };

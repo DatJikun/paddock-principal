@@ -109,17 +109,6 @@ public sealed partial class WorldRepository
             intakes = ToInt(reader.GetInt64(2));
         }
 
-        var pool = new List<string>();
-        using (var command = connection.CreateCommand())
-        {
-            command.CommandText = "SELECT person_id FROM talent_pool ORDER BY person_id";
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                pool.Add(reader.GetString(0));
-            }
-        }
-
         var years = new List<StoredYear>();
         using (var command = connection.CreateCommand())
         {
@@ -137,7 +126,7 @@ public sealed partial class WorldRepository
             }
         }
 
-        return new CareerRunState(openedYear, expiries, intakes, pool, years);
+        return new CareerRunState(openedYear, expiries, intakes, years);
     }
 
     private void RequireWorld()

@@ -1,6 +1,7 @@
 using Paddock.Application.Career;
 using Paddock.Application.Commands;
 using Paddock.Application.Managers;
+using Paddock.Domain.Pool;
 using Paddock.Domain.Random;
 using Paddock.Domain.World;
 using Paddock.Persistence;
@@ -82,18 +83,10 @@ public static class CareerSaveReader
             RngStates = streams,
         };
 
-        var people = new Dictionary<string, PersonId>(StringComparer.Ordinal);
-        foreach (var person in snapshot.World.Persons)
+        if (snapshot.World.Section(TalentPoolSection.SectionName) is null)
         {
-            people.Add(person.Id.Value, person.Id);
-        }
-
-        var pool = new List<PersonId>(snapshot.Run.Pool.Count);
-        foreach (var id in snapshot.Run.Pool)
-        {
-            pool.Add(people.TryGetValue(id, out var known)
-                ? known
-                : throw new InvalidDataException("The saved talent pool lists '" + id + "', who is not in the saved world."));
+            throw new SaveNotResumableException(
+                "This save has no talent pool section (it was written before the talent pool was a world section), so it cannot be resumed exactly.");
         }
 
         var years = new List<CareerYearSummary>(snapshot.Run.Years.Count);
@@ -106,7 +99,6 @@ public static class CareerSaveReader
             snapshot.World,
             clock,
             snapshot.Run.OpenedYear,
-            pool,
             snapshot.Run.ContractExpiries,
             snapshot.Run.Intakes,
             years);

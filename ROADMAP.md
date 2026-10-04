@@ -105,6 +105,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 
 ## Faza 7+: Rozszerzenia
 - Z przeglądu Team Principal (PP-048), po MVP: specjalizacja projektantów (wolne / średnie / szybkie zakręty, opór) i kierunek rozwoju jako dźwignia gracza.
+- Rywalizacje z kolizji na torze oraz przyjaźń i szacunek z wcześniejszych wspólnych startów w seriach juniorskich (PP-049).
 Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyścigi 24h z wcześniejszych ustaleń), tryb proceduralny od zera, wyzwania, edytor bazy, paczka fikcyjna, wydanie.
 
 ---

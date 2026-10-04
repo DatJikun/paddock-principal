@@ -258,3 +258,8 @@ Szczegóły w DESIGN §5.3.
 - **Na później (po MVP):** specjalizacja projektantów (osobne oceny dla wolnych, średnich i szybkich zakrętów oraz oporu, nadająca autu charakter) oraz kierunek rozwoju jako dźwignia gracza (np. moc / niezawodność / efektywność, priorytet rozwoju umiejętności kierowcy).
 - **Odrzucone:** kradzież technologii rywali (PP-037), fabryka i magazyn części (PP-029).
 
+**PP-049: Miejsce w stawce wynika z parametrów auta; tory z geometrii potwierdzone prototypem** (zmienia pierwszy punkt PP-048).
+- **Zamiast rozbicia straty na składniki** gra pokazuje przybliżone miejsce auta w stawce. Wynika ono samo z fizycznych parametrów auta (przyczepność mechaniczna, docisk rosnący z prędkością, prędkość maksymalna, przyspieszenie, hamowanie) zestawionych z geometrią toru. Na różnych torach różne parametry ważą inaczej, bez osobnych tabel wag.
+- **Prototyp Monzy (2026-10-04):** 65 punktów kontrolnych zamkniętej krzywej odtwarza tor długości 5,793 km. Z zakrzywienia wychodzą prędkości w zakrętach (Rettifilo około 78 km/h, Roggia około 96 km/h), udział prostych (około 88%) i mapka. Na Monzie +10 km/h prędkości maksymalnej daje około 0,8 s na okrążeniu, a +10% docisku tylko około 0,2 s, czyli zgodnie z charakterem toru. Liczby są szacunkami do kalibracji.
+- **Na później:** rywalizacje między kierowcami powstają z kolizji na torze, a przyjaźń i większy wzajemny szacunek na torze z wcześniejszych wspólnych startów w seriach juniorskich.
+

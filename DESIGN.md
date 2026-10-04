@@ -289,7 +289,7 @@ Każda z nich zmienia wagi oceny oferty (§8) oraz reakcje na status #2, na zła
 
 **Stan bieżący (zmienny):** forma (średnia krocząca), morale, pewność siebie (spada po błędach i w aucie, które mu nie leży), zdrowie i kontuzje. Zmęczenia nie ma w widoku składu. Istnieje tylko wewnątrz długich wyścigów endurance (stinty), gdzie liczy się kondycja.
 
-**Geometria toru (PP-048):** każda wersja układu jest opisana matematycznie (linia środkowa, łuki, proste). Z geometrii gra wylicza profil toru (udział wolnych, średnich i szybkich zakrętów oraz prostych) i rysuje mapkę. Strata do lidera rozbita na składniki (auto, silnik, pakiet) jest zawsze liczona dla konkretnego toru, nigdy jako jedna liczba na sezon.
+**Geometria toru (PP-048):** każda wersja układu jest opisana matematycznie (linia środkowa, łuki, proste). Z geometrii gra wylicza profil toru (udział wolnych, średnich i szybkich zakrętów oraz prostych) i rysuje mapkę. Czas okrążenia wynika z tej geometrii i fizycznych parametrów auta (przyczepność mechaniczna, docisk, prędkość maksymalna, przyspieszenie, hamowanie), więc przybliżone miejsce w stawce wychodzi naturalnie i różni się między torami (PP-049).
 
 **Tory:** trzy warstwy, od najbardziej wytłumaczalnej:
 1. **Z atrybutów × profil toru:** wynika wprost z liczb. Na przykład w Monako liczą się regularność i opanowanie, a na Monzy więcej daje walka na prostych.

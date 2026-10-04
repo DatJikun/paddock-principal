@@ -249,7 +249,7 @@ public class ContractKnowledgeAndSaveTests : IDisposable
     public void ASaveFromBeforeTheContractsMigrationLoadsWithNoSectionAndTheSameHash()
     {
         var path = Path.Combine(_directory, "old.paddock");
-        var before = SaveMigrations.Production.TakeWhile(migration => migration is not V007_ContractsSection).ToArray();
+        var before = SaveMigrations.Production.TakeWhile(migration => migration is not V008_ContractsSection).ToArray();
         var world = WorldFixtures.Small();
         using (var created = SaveFile.Create(path, WorldFixtures.Meta(), before))
         {

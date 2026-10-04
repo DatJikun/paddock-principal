@@ -6,7 +6,7 @@ using Paddock.Domain.World;
 
 namespace Paddock.Persistence;
 
-/// <summary>Saves the <c>contracts</c> section into the tables made by <see cref="V007_ContractsSection"/>.</summary>
+/// <summary>Saves the <c>contracts</c> section into the tables made by <see cref="V008_ContractsSection"/>.</summary>
 public sealed class ContractsSectionStore : ISectionStore
 {
     private const string LastReasons = "last";

@@ -103,7 +103,8 @@ internal sealed class TeamDay
 
     private void Rollover()
     {
-        foreach (var project in Development.ProjectsOf(_organization).Where(project => project.Status == ProjectStatus.Ready))
+        // Only concepts timed for the next season are consumed here; a held (or still waiting) concept stays Ready.
+        foreach (var project in Development.ProjectsOf(_organization).Where(project => project.Status == ProjectStatus.Ready && project.Timing == ConceptTiming.NextSeason))
         {
             var share = (project.OutcomeMilli ?? 0) / 1000d;
             _account = _account with { NextYearShareMilli = DevelopmentMath.NextYearShareAfter(_account.NextYearShareMilli, share) };

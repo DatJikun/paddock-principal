@@ -42,7 +42,7 @@ public sealed record SetDevelopmentSplitCommand : ICommand
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
 
-/// <summary>Chooses when a concept is deployed: <c>WhenReady</c>, <c>AfterRaces</c> (with <see cref="Races"/>) or <c>NextSeason</c>.</summary>
+/// <summary>Chooses when a concept is deployed: <c>WhenReady</c>, <c>AfterRaces</c> (with <see cref="Races"/>), <c>NextSeason</c> or <c>Hold</c> (stay ready across rollovers).</summary>
 public sealed record DeployConceptCommand : ICommand
 {
     public required ManagerId ManagerId { get; init; }

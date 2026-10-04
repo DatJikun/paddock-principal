@@ -11,8 +11,8 @@ namespace Paddock.Application.Contracts;
 /// T39 contracts and negotiations in the career loop (#129). It builds the contract book, the engine and the environment of
 /// ports (payroll and reputation from the modules that offer them), registers the six contract commands with their inbox
 /// resolvers and the two contract day handlers (orders 700 and 710), and files the placeholder AI renewals (until T44).
-/// The book and the session share one world: the book is refreshed from the session before a command or a contract handler and
-/// written back after, so a pool change and a contract change in the same morning both survive.
+/// The book is bound to the session's world (<see cref="ContractBook.Bind"/>), so a contract a command signs and a pool change in
+/// the same morning both survive; the contracts section is put into the world by the module's flush.
 /// </summary>
 public sealed class ContractsModule : CareerModule
 {
@@ -43,11 +43,10 @@ public sealed class ContractsModule : CareerModule
         context.Provide(book);
         context.Provide(engine);
         context.AddCommandHandlers(dispatcher => ContractRegistration.Register(dispatcher, resolvers));
-        context.AddWorldSync(
-            () => book.UseWorld(session.World),
-            () => session.StoreWorld(inbox.Into(book.Into())));
-        context.AddBookDayHandler(new NegotiationDayHandler(engine));
-        context.AddBookDayHandler(new ContractLifecycleHandler(engine));
+        book.Bind(() => session.World, session.StoreWorld);
+        context.AddFlush(book.Into);
+        context.AddDayHandler(new NegotiationDayHandler(engine));
+        context.AddDayHandler(new ContractLifecycleHandler(engine));
         context.AddMorning(queue => AiContractPlaceholder.File(session, engine, queue, context.Ai, trace));
     }
 

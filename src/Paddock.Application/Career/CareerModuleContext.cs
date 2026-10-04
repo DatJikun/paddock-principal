@@ -1,6 +1,7 @@
 using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
 using Paddock.Application.Managers;
+using Paddock.Domain.World;
 using Paddock.Simulation.Career;
 using Paddock.Simulation.Time;
 
@@ -10,13 +11,20 @@ namespace Paddock.Application.Career;
 /// What the host hands a module (<see cref="ICareerModule"/>): the session and the managers it works with, a place to register
 /// what it adds, and a small bag of per-run services shared between modules. A module registers through this and nowhere else,
 /// so the host is the only place that knows how a day is put together.
+/// <para>
+/// <b>One world.</b> The session owns the world. A system that keeps a mutable book of its own (contracts, the inbox) keeps its
+/// section there and offers <see cref="AddFlush"/>, which puts the section into the session's world at the end of the morning and
+/// of the day, before anything is hashed or saved. A book that changes people and contracts reads and writes the session's world
+/// directly (see <see cref="ContractBook.Bind"/>), so no two systems ever hold two versions of it.
+/// </para>
 /// </summary>
 public sealed class CareerModuleContext
 {
     private readonly CommandDispatcher _dispatcher;
     private readonly Dictionary<Type, object> _services = [];
     private readonly List<IDayHandler> _handlers = [];
-    private readonly List<WorldSync> _syncs = [];
+    private readonly List<Func<WorldState, WorldState>> _flushes = [];
+    private readonly List<(int Order, Action<IReadOnlyList<DomainEvent>> Hook)> _afterDay = [];
     private readonly List<Action<CommandQueue>> _morning = [];
     private bool _frozen;
 
@@ -37,7 +45,7 @@ public sealed class CareerModuleContext
 
     internal IReadOnlyList<IDayHandler> DayHandlers => _handlers;
 
-    /// <summary>Makes a per-run service available to the modules that run after this one (and to a late-bound delegate).</summary>
+    /// <summary>Makes a per-run service available to the modules that attach after this one.</summary>
     public void Provide<T>(T service)
         where T : class
     {
@@ -92,8 +100,8 @@ public sealed class CareerModuleContext
     }
 
     /// <summary>
-    /// Registers a day handler that reads and writes the session's world itself. Its place in the day is its
-    /// <see cref="IDayHandler.Order"/>, nothing else.
+    /// Registers a day handler. Its place in the day is its <see cref="IDayHandler.Order"/>, nothing else: not the place of its
+    /// module in the list. It reads and writes the session's world (through a bound book or the session itself).
     /// </summary>
     public void AddDayHandler(IDayHandler handler)
     {
@@ -103,32 +111,31 @@ public sealed class CareerModuleContext
     }
 
     /// <summary>
-    /// Registers a day handler that works on books (see <see cref="AddWorldSync"/>): every registered book is refreshed from the
-    /// session's world before the handler runs and flushed back after it.
+    /// Registers how a book puts its section into the session's world. The host calls every flush, in registration order, at the
+    /// end of each morning and at the end of each lived day, so the world a hash or a save reads is complete.
     /// </summary>
-    public void AddBookDayHandler(IDayHandler handler)
+    public void AddFlush(Func<WorldState, WorldState> into)
     {
-        ArgumentNullException.ThrowIfNull(handler);
+        ArgumentNullException.ThrowIfNull(into);
         Guard();
-        _handlers.Add(new SyncedDayHandler(handler, this));
+        _flushes.Add(into);
     }
 
     /// <summary>
-    /// Registers a book that holds part of the world (a section, or a working copy of it) between the moments the session's
-    /// world is read. <paramref name="refresh"/> takes the session's world in, <paramref name="flush"/> puts the book's state back.
-    /// The host calls every refresh before a morning and a book day handler, and every flush after them, in registration order.
+    /// Registers something that runs at the end of a lived day with the events the day emitted, after the day's handlers and
+    /// before the flushes (the outcomes of objectives, sponsors and the board). Hooks run in ascending
+    /// <paramref name="order"/>, then in registration order. It may change the world through the books it holds, and nothing else.
     /// </summary>
-    public void AddWorldSync(Action refresh, Action flush)
+    public void AddAfterDay(int order, Action<IReadOnlyList<DomainEvent>> hook)
     {
-        ArgumentNullException.ThrowIfNull(refresh);
-        ArgumentNullException.ThrowIfNull(flush);
+        ArgumentNullException.ThrowIfNull(hook);
         Guard();
-        _syncs.Add(new WorldSync(refresh, flush));
+        _afterDay.Add((order, hook));
     }
 
     /// <summary>
-    /// Registers something that runs each morning after the books are refreshed and before the queue is dispatched: it files the
-    /// commands a placeholder AI gives today. It may enqueue commands and nothing else.
+    /// Registers something that runs each morning before the queue is dispatched: it files the commands a placeholder AI gives
+    /// today. It may enqueue commands and nothing else.
     /// </summary>
     public void AddMorning(Action<CommandQueue> morning)
     {
@@ -137,22 +144,43 @@ public sealed class CareerModuleContext
         _morning.Add(morning);
     }
 
-    internal void Freeze() => _frozen = true;
-
-    internal void Refresh()
+    internal void Freeze()
     {
-        foreach (var sync in _syncs)
+        _frozen = true;
+        var index = 0;
+        var indexed = _afterDay.Select(entry => (entry.Order, Index: index++, entry.Hook)).ToList();
+        indexed.Sort(static (left, right) =>
         {
-            sync.Refresh();
+            var order = left.Order.CompareTo(right.Order);
+            return order != 0 ? order : left.Index.CompareTo(right.Index);
+        });
+        _afterDay.Clear();
+        foreach (var entry in indexed)
+        {
+            _afterDay.Add((entry.Order, entry.Hook));
         }
     }
 
     internal void Flush()
     {
-        foreach (var sync in _syncs)
+        var world = Session.World;
+        foreach (var into in _flushes)
         {
-            sync.Flush();
+            world = into(world);
         }
+
+        Session.StoreWorld(world);
+    }
+
+    internal void AfterDay(IReadOnlyList<DomainEvent> events)
+    {
+        foreach (var (_, hook) in _afterDay)
+        {
+            hook(events);
+        }
+
+        // Whatever a book still holds goes into the world before the world is hashed or saved.
+        Flush();
     }
 
     internal void RunMorning(CommandQueue queue)
@@ -168,30 +196,6 @@ public sealed class CareerModuleContext
         if (_frozen)
         {
             throw new InvalidOperationException("Modules register while the host is attaching them, not later.");
-        }
-    }
-
-    private readonly record struct WorldSync(Action Refresh, Action Flush);
-
-    private sealed class SyncedDayHandler : IDayHandler
-    {
-        private readonly IDayHandler _inner;
-        private readonly CareerModuleContext _context;
-
-        public SyncedDayHandler(IDayHandler inner, CareerModuleContext context)
-        {
-            _inner = inner;
-            _context = context;
-            Order = inner.Order;
-        }
-
-        public int Order { get; }
-
-        public void OnDay(DayContext context)
-        {
-            _context.Refresh();
-            _inner.OnDay(context);
-            _context.Flush();
         }
     }
 }

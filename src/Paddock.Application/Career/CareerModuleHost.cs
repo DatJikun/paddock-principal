@@ -62,7 +62,9 @@ public sealed class CareerModuleHost
         context.Provide<IOrganizationControl>(control);
         context.Provide<IManagerOrganizations>(new FirstOrganizationOnly(session));
         context.Provide(resolvers);
-        context.Provide(InboxBook.From(session.World, resolvers));
+        var inbox = InboxBook.From(session.World, resolvers);
+        context.Provide(inbox);
+        context.AddFlush(inbox.Into);
 
         foreach (var module in modules)
         {
@@ -76,12 +78,7 @@ public sealed class CareerModuleHost
 
         context.Freeze();
         session.AttachHandlers(context.DayHandlers);
-        session.AttachAfterDay(_ =>
-        {
-            // Whatever a handler left in a book after the last flush of the day goes into the world before it is hashed or saved.
-            context.Refresh();
-            context.Flush();
-        });
+        session.AttachAfterDay(context.AfterDay);
         foreach (var module in modules)
         {
             module.Open(context);
@@ -105,21 +102,16 @@ public sealed class CareerModuleHost
             _context.TryGet<ContractBook>());
     }
 
-    /// <summary>Takes the session's world into the books, hands new organizations to the AI manager, and lets the modules file today's commands.</summary>
+    /// <summary>Hands new organizations to the AI manager and lets the modules file today's commands.</summary>
     public void BeginMorning(CommandQueue queue)
     {
         ArgumentNullException.ThrowIfNull(queue);
-        _context.Refresh();
         AssignAll(_control, _context.Session, _context.Ai);
         _context.RunMorning(queue);
     }
 
-    /// <summary>Puts what the morning's commands changed in the books back into the session's world.</summary>
-    public void EndMorning()
-    {
-        _context.Refresh();
-        _context.Flush();
-    }
+    /// <summary>Puts what the morning's commands changed in the books into the session's world.</summary>
+    public void EndMorning() => _context.Flush();
 
     private static void AssignAll(ControlTable control, CareerSession session, ManagerId ai)
     {

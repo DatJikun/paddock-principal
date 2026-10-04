@@ -2,12 +2,14 @@
 
 Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić zespół przez całą historię F1 z prawdziwymi ludźmi i zmienić jej bieg. Po 2026 świat żyje dalej proceduralnie, bez końca.
 
-**Stan (2026-10-04):** fazy 1–3 w większości zrobione, faza 4 w toku.
-- Rdzeń świata działa: SimRunner przechodzi 1950→2026 deterministycznie na wygenerowanych ludziach, zapis się wznawia.
-- Silnik wyścigu jest gotowy (weekend wyścigowy z relacją); kalibracja z historią czeka.
-- Czekają pełne dane Jolpica na maszynie właściciela i oceny na prawdziwych danych.
-- Pętla kariery (faza 4) jest w toku, część zadań czeka na decyzje właściciela.
+**Stan (2026-10-04):** fazy 1–3 w większości zrobione, faza 4 w toku. Szczegóły w [ROADMAP.md](ROADMAP.md).
+- Rdzeń świata działa: SimRunner przechodzi 1950→2026 deterministycznie, na prawdziwych i na wygenerowanych ludziach, a zapis się wznawia. Bez AI zatrudniającego kierowców świat jednak wymiera (T44).
+- Oceny kierowców są policzone na pełnych danych Jolpica 1950–2025 i trafiają do świata kariery. Bramka fazy 1 czeka na decyzję właściciela (#131).
+- Silnik wyścigu jest gotowy (weekend wyścigowy z relacją). Druga runda kalibracji z historią jest do zrobienia.
+- Moduły fazy 4 (finanse, sponsorzy, auto, rozwój, dostawy, zarząd) są gotowe, ale pętla kariery jeszcze ich nie uruchamia (#160).
 - Klikalny prototyp UI w wersji szkicowej: `ui/prototype/`, uwagi w `ui/HANDOFF_UI.md`.
+
+**Dane historyczne lokalnie:** cache Jolpica jest w prywatnym repo `paddock-data` (licencja CC BY-NC-SA, PP-041). Skopiuj jego `jolpica/` do `data/cache/jolpica/`, potem uruchom `dotnet run --project tools/Paddock.DataPipeline -- ratings` i `-- schedule`.
 
 ## Dokumentacja
 

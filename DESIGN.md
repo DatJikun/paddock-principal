@@ -416,7 +416,8 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
   - **Rozmowy spowalniają:** konflikt branż, bo dwa koncerny paliwowe na jednym aucie nie przejdą.
 - **Kredyty (PP-048):** bank oferuje kilka wariantów (kwota, oprocentowanie, okres spłaty). Kredyt wymaga zgody zarządu (§15), a naraz można mieć ograniczoną liczbę kredytów. Raty są zwykłym kosztem tygodniowym.
 - **Gotówka to nie budżet:** UI rozróżnia gotówkę, zobowiązania, pewne przychody i prognozę. Jeśli czegoś nie da się kupić, gra mówi dokładnie dlaczego.
-- **Kwoty nominalne:** UI pokazuje prawdziwe kwoty, które z biegiem lat rosną razem ze sportem.
+- **Saldo i upadłość (PP-050):** saldo może zejść poniżej zera. Na powrót nad kreskę jest cały sezon (rocznica dnia, w którym saldo spadło pod próg), a dopiero potem pada zdarzenie niewypłacalności. Kredyt (PP-048) jest sposobem, żeby ten sezon przetrwać.
+- **Kwoty nominalne (PP-050):** UI pokazuje prawdziwe kwoty w dolarach, które z biegiem lat rosną razem ze sportem, a nie z automatycznej inflacji. Popularność w pierwszej wersji finansów jest tylko globalna.
 
 ---
 

@@ -1,4 +1,5 @@
 using Paddock.Application.Contracts;
+using Paddock.Application.Finance;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Application.Pool;
@@ -81,6 +82,7 @@ public sealed class CommandCodec
     /// <summary>The commands this build can save.</summary>
     public static CommandCodec Production { get; } = new(
     [
+        .. FinanceCommandCodecs.Entries,
         .. ContractCommandCodecs.Entries,
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",

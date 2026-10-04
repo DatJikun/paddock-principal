@@ -399,5 +399,20 @@
   "contract.inbox.renewal.release.consequence": "The contract ends on its date and the person becomes a free agent.",
   "contract.inbox.exitExercised.subject": "{person} used the exit clause and has left.",
   "contract.inbox.optionExercised.subject": "{person} used the option: the contract now runs longer.",
-  "contract.inbox.expired.subject": "The contract of {person} has ended. The person is a free agent."
+  "contract.inbox.expired.subject": "The contract of {person} has ended. The person is a free agent.",
+  "finance.error.notYourOrganization": "You do not run that organization.",
+  "finance.error.unknownOrganization": "That organization does not exist.",
+  "finance.error.booksOpen": "This organization already has its books open.",
+  "finance.error.noBooks": "This organization has no books yet.",
+  "finance.error.insolvent": "This organization is insolvent.",
+  "finance.error.malformed": "That race or season report could not be read.",
+  "finance.revenue.fallback_estimate": "This era's revenue model is not modelled yet, so the money is an uncalibrated ESTIMATE split by finishing position.",
+  "finance.reason.opening_capital": "Opening capital from the era benchmark (ESTIMATE).",
+  "finance.reason.start_money": "Start money for a race entry (ESTIMATE).",
+  "finance.reason.prize_money": "Prize money for a finishing position (ESTIMATE).",
+  "finance.reason.race_running": "The cost of running a race (ESTIMATE).",
+  "finance.reason.salary": "Salary under the contract.",
+  "finance.reason.termination": "Compensation for ending a contract early.",
+  "finance.view.unknown": "You do not know another organization's finances.",
+  "finance.view.forecast": "Forecast to the end of the season. Uncalibrated ESTIMATE."
 }

@@ -183,6 +183,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
   - `control_points`: zamknięta pętla `[x, y]` w metrach (x na wschód, y na północ), punkt 0 leży na linii mety;
   - `source`: uczciwe pochodzenie (dziś „approximate, hand-authored from general layout knowledge, ESTIMATE”), `notes`: czym jest kształt;
   - `corners` (opcjonalne): `{ "point": indeks punktu kontrolnego, "name": "Parabolica" }`. Nazwa jest przypięta do punktu, więc wędruje razem z nim przy edycji. To nazwy własne (jak nazwy torów), nie przechodzą przez `strings/`.
+- **Pokrycie:** pliki mają wszystkie układy ścigane w latach 1950–1960 (26, test `EveryLayoutRacedFrom1950To1960_HasAuthoredGeometry`). Kształty są ręcznie ułożone z ogólnej wiedzy i publicznych opisów tekstowych (kolejność i kierunek zakrętów, proste), bez map i obrysów (PP-041); stopień pewności każdego toru jest w `notes`. Najsłabsze (stylizowane): Pedralbes, Boavista, Ain-Diab, Monsanto, Sebring, Pescara (odcinek górski), Bremgarten, Rouen 1952.
 - **Krzywa:** zamknięty centripetal Catmull-Rom (`TrackGeometry`), przeskalowany do `length_km` z `circuits.json`. Backend bierze ją przez `TrackGeometryCatalog.Resolve(layoutId)` (zwraca geometrię, źródło i zakręty z ułamkiem okrążenia). Geometria nie zmienia stanu świata, więc nie rusza hashy determinizmu.
 - **Edycja** (to wszystko, co trzeba zrobić, żeby zmienić tor w symulacji i w UI):
   1. Zmień plik JSON ręcznie albo w edytorze torów (Wczytaj JSON, przesuń punkty, Zapisz JSON do tego samego pliku; pole `corners` edytor zachowuje).

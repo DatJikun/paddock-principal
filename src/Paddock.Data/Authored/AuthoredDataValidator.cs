@@ -1,5 +1,6 @@
 using System.Globalization;
 using Paddock.Domain.World;
+using Paddock.Domain.World.Tracks;
 
 namespace Paddock.Data.Authored;
 
@@ -33,6 +34,11 @@ public static partial class AuthoredDataValidator
     public const string EraSourceUrl = "era-source-url";
     public const string EraCpiYear = "era-cpi-year";
     public const string EraCpiPartial = "era-cpi-partial";
+    public const string GeometryUnknownLayout = "geometry-unknown-layout";
+    public const string GeometryPointCount = "geometry-point-count";
+    public const string GeometryPointsTooClose = "geometry-points-too-close";
+    public const string GeometryLengthMismatch = "geometry-length-mismatch";
+    public const string GeometrySelfIntersection = "geometry-self-intersection";
 
     public static IReadOnlyList<AuthoredDataError> Validate(AuthoredData data)
     {
@@ -119,6 +125,7 @@ public static partial class AuthoredDataValidator
 
         AppendTechnologiesTeamsAndStaff(errors, data);
         AppendEraErrors(errors, data);
+        AppendTrackGeometryErrors(errors, data);
         return errors;
     }
 
@@ -427,5 +434,170 @@ public static partial class AuthoredDataValidator
         }
 
         return $"{from.ToString(CultureInfo.InvariantCulture)}-{to.Value.ToString(CultureInfo.InvariantCulture)}";
+    }
+
+    private static void AppendTrackGeometryErrors(List<AuthoredDataError> errors, AuthoredData data)
+    {
+        var layoutById = new Dictionary<string, CircuitLayout>(StringComparer.Ordinal);
+        foreach (var circuit in data.Circuits.Circuits)
+        {
+            foreach (var layout in circuit.Layouts)
+            {
+                layoutById.TryAdd(layout.LayoutId, layout);
+            }
+        }
+
+        foreach (var geom in data.TrackGeometries)
+        {
+            var hasLayout = layoutById.TryGetValue(geom.LayoutId, out var layout);
+            if (!hasLayout)
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometryUnknownLayout,
+                    $"track geometry references unknown layout '{geom.LayoutId}'"));
+            }
+
+            if (geom.ControlPoints.Count < 8)
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometryPointCount,
+                    $"track geometry '{geom.LayoutId}' has {geom.ControlPoints.Count.ToString(CultureInfo.InvariantCulture)} control points, minimum is 8"));
+            }
+
+            var points = new List<(double X, double Y)>(geom.ControlPoints.Count);
+            var invalidPointFormat = false;
+            for (var i = 0; i < geom.ControlPoints.Count; i++)
+            {
+                var pt = geom.ControlPoints[i];
+                if (pt is null || pt.Length != 2)
+                {
+                    errors.Add(new AuthoredDataError(
+                        GeometryPointCount,
+                        $"track geometry '{geom.LayoutId}' point {i.ToString(CultureInfo.InvariantCulture)} must have exactly 2 coordinates"));
+                    invalidPointFormat = true;
+                    break;
+                }
+
+                points.Add((pt[0], pt[1]));
+            }
+
+            if (invalidPointFormat)
+            {
+                continue;
+            }
+
+            for (var i = 0; i < points.Count; i++)
+            {
+                var next = (i + 1) % points.Count;
+                var dx = points[next].X - points[i].X;
+                var dy = points[next].Y - points[i].Y;
+                var dist = Math.Sqrt(dx * dx + dy * dy);
+                if (dist < 1.0)
+                {
+                    errors.Add(new AuthoredDataError(
+                        GeometryPointsTooClose,
+                        $"track geometry '{geom.LayoutId}' consecutive points {i.ToString(CultureInfo.InvariantCulture)} and {next.ToString(CultureInfo.InvariantCulture)} are {dist.ToString("0.00", CultureInfo.InvariantCulture)} m apart, minimum is 1.0 m"));
+                }
+            }
+
+            if (points.Count < 3)
+            {
+                continue;
+            }
+
+            TrackGeometry rawGeometry;
+            try
+            {
+                rawGeometry = TrackGeometry.Build(points, referenceLengthM: null, stepM: 2.0);
+            }
+            catch (Exception ex)
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometryPointCount,
+                    $"track geometry '{geom.LayoutId}' failed to build: {ex.Message}"));
+                continue;
+            }
+
+            if (hasLayout && layout is not null)
+            {
+                var refLengthM = layout.LengthKm * 1000.0;
+                var diff = Math.Abs(rawGeometry.LengthM - refLengthM);
+                if (diff > 0.15 * refLengthM)
+                {
+                    errors.Add(new AuthoredDataError(
+                        GeometryLengthMismatch,
+                        $"track geometry '{geom.LayoutId}' raw length {rawGeometry.LengthM.ToString("0.0", CultureInfo.InvariantCulture)} m is not within +/-15% of circuits.json length {refLengthM.ToString("0.0", CultureInfo.InvariantCulture)} m"));
+                }
+            }
+
+            if (HasSelfIntersections(rawGeometry.Samples))
+            {
+                errors.Add(new AuthoredDataError(
+                    GeometrySelfIntersection,
+                    $"track geometry '{geom.LayoutId}' resampled path intersects itself"));
+            }
+        }
+    }
+
+    private static bool HasSelfIntersections(IReadOnlyList<(double X, double Y)> samples)
+    {
+        var count = samples.Count;
+        if (count < 4)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < count; i++)
+        {
+            var a = samples[i];
+            var b = samples[(i + 1) % count];
+            var minAx = Math.Min(a.X, b.X);
+            var maxAx = Math.Max(a.X, b.X);
+            var minAy = Math.Min(a.Y, b.Y);
+            var maxAy = Math.Max(a.Y, b.Y);
+
+            for (var j = i + 1; j < count; j++)
+            {
+                if (j == i + 1 || (i == 0 && j == count - 1))
+                {
+                    continue;
+                }
+
+                var c = samples[j];
+                var d = samples[(j + 1) % count];
+
+                if (maxAx < Math.Min(c.X, d.X) || minAx > Math.Max(c.X, d.X) ||
+                    maxAy < Math.Min(c.Y, d.Y) || minAy > Math.Max(c.Y, d.Y))
+                {
+                    continue;
+                }
+
+                if (SegmentsIntersectProperly(a, b, c, d))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool SegmentsIntersectProperly(
+        (double X, double Y) a,
+        (double X, double Y) b,
+        (double X, double Y) c,
+        (double X, double Y) d)
+    {
+        static double Cross((double X, double Y) p, (double X, double Y) q, (double X, double Y) r) =>
+            (q.X - p.X) * (r.Y - p.Y) - (q.Y - p.Y) * (r.X - p.X);
+
+        var cp1 = Cross(a, b, c);
+        var cp2 = Cross(a, b, d);
+        var cp3 = Cross(c, d, a);
+        var cp4 = Cross(c, d, b);
+
+        const double eps = 1e-9;
+        return ((cp1 > eps && cp2 < -eps) || (cp1 < -eps && cp2 > eps)) &&
+               ((cp3 > eps && cp4 < -eps) || (cp3 < -eps && cp4 > eps));
     }
 }

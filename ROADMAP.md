@@ -87,7 +87,8 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - [x] T37: finanse v0 (księga, przychody epoki, popularność), #102.
 - [x] T38: sponsorzy (rynek, trzy miejsca na zespół, rozmowy, umowy, zaufanie), #103. Pakiet sponsora założycielskiego jest po MVP (PP-050).
 - [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
-- [ ] Reszta otwarta: T42–T44, T47, T48.
+- [ ] W toku: T43 dostawy i silniki (#108): umowy dostaw bez własnego programu silnikowego, ten czeka na T42 (`IEngineProgrammes`).
+- [ ] Reszta otwarta: T42, T44, T47, T48.
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 

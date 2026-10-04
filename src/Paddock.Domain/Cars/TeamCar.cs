@@ -129,6 +129,10 @@ public sealed class TeamCar
 
     public PersonId? Driver { get; }
 
+    /// <summary>Same car with another engine key (T43: the id of the engine deal in force, or null).</summary>
+    public TeamCar WithEngine(string? engineKey) =>
+        new(Id, Organization, Season, Concept, Levels, ConceptCeiling, Understanding, TyreWearMultiplier, SupplierChangeCost, engineKey, Driver);
+
     /// <summary>Same car and same driver, with a newly approved design.</summary>
     public TeamCar WithDesign(
         int season,

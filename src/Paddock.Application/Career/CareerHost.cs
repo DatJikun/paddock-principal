@@ -17,12 +17,13 @@ namespace Paddock.Application.Career;
 /// </summary>
 public sealed class CareerRunResult
 {
-    internal CareerRunResult(CareerSession session, int aiManagers, int humanManagers, int commandsDispatched)
+    internal CareerRunResult(CareerSession session, int aiManagers, int humanManagers, int commandsDispatched, CareerHostState host)
     {
         Session = session;
         AiManagers = aiManagers;
         HumanManagers = humanManagers;
         CommandsDispatched = commandsDispatched;
+        Host = host;
     }
 
     public CareerSession Session { get; }
@@ -32,6 +33,33 @@ public sealed class CareerRunResult
     public int HumanManagers { get; }
 
     public int CommandsDispatched { get; }
+
+    /// <summary>The host's own state at the end of the run: what a save keeps beside the session.</summary>
+    public CareerHostState Host { get; }
+}
+
+/// <summary>
+/// What the host keeps between days besides the world: the managers, the log of accepted commands, and the counter that
+/// numbers the next command. Saved with the world so a loaded career carries on with the same managers and never reuses a
+/// submission number (INV-009). The queue is not part of it: a save is taken on a day boundary, after the queue is drained.
+/// </summary>
+public sealed class CareerHostState
+{
+    public CareerHostState(ManagerRegistry managers, CommandLog log, long nextSubmissionNumber)
+    {
+        ArgumentNullException.ThrowIfNull(managers);
+        ArgumentNullException.ThrowIfNull(log);
+        ArgumentOutOfRangeException.ThrowIfLessThan(nextSubmissionNumber, 1);
+        Managers = managers;
+        Log = log;
+        NextSubmissionNumber = nextSubmissionNumber;
+    }
+
+    public ManagerRegistry Managers { get; }
+
+    public CommandLog Log { get; }
+
+    public long NextSubmissionNumber { get; }
 }
 
 /// <summary>
@@ -43,7 +71,13 @@ public static class CareerHost
 {
     public const string AiManagerId = "ai:paddock";
 
-    public static CareerRunResult Run(CareerSession session, int toYear)
+    public static CareerRunResult Run(CareerSession session, int toYear) => Run(session, toYear, null);
+
+    /// <summary>
+    /// Runs through 31 December of <paramref name="toYear"/>. With <paramref name="resumeFrom"/> the managers, the command log
+    /// and the submission counter are the saved ones; without it a fresh AI manager is registered.
+    /// </summary>
+    public static CareerRunResult Run(CareerSession session, int toYear, CareerHostState? resumeFrom)
     {
         ArgumentNullException.ThrowIfNull(session);
         if (session.Date.Month != 1 || session.Date.Day != 1)
@@ -57,14 +91,18 @@ public static class CareerHost
             throw new ArgumentOutOfRangeException(nameof(toYear), toYear, "The last season is out of range.");
         }
 
-        var managers = new ManagerRegistry();
+        var managers = resumeFrom?.Managers ?? new ManagerRegistry();
         var hostId = new HostManagerId(AiManagerId);
-        managers.Register(hostId, ManagerKind.Ai, "AI");
+        if (!managers.Contains(hostId))
+        {
+            managers.Register(hostId, ManagerKind.Ai, "AI");
+        }
+
         var ai = new AiActor(new AccessManagerId(AiManagerId));
         var view = new EmptyKnowledgeView(AccessContext.ForAi(ai.Id));
         var fact = new FactKey("career.day");
-        var queue = new CommandQueue();
-        var dispatcher = new CommandDispatcher();
+        var queue = resumeFrom is null ? new CommandQueue() : new CommandQueue(resumeFrom.NextSubmissionNumber);
+        var dispatcher = new CommandDispatcher(log: resumeFrom?.Log);
         var world = new ClockWorld(session);
         var context = new CommandContext(world, managers);
         var gate = new ReadyGate();
@@ -96,7 +134,12 @@ public static class CareerHost
             }
         }
 
-        return new CareerRunResult(session, ais, humans, commands);
+        return new CareerRunResult(
+            session,
+            ais,
+            humans,
+            commands,
+            new CareerHostState(managers, dispatcher.Log, queue.NextSubmissionNumber));
     }
 
     private sealed class ClockWorld : IWorldState

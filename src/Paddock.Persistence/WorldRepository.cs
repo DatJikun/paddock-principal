@@ -92,6 +92,8 @@ public sealed partial class WorldRepository
             WriteWorld(transaction, snapshot.World);
             WriteSections(transaction, snapshot.World);
             WriteSchedule(transaction, snapshot);
+            WriteRun(transaction, snapshot.Run);
+            _file.WriteRngStates(transaction, snapshot.RngStates);
             _file.RecordSavePoint(transaction, ToDateOnly(stableDate));
         });
     }
@@ -417,6 +419,39 @@ public sealed partial class WorldRepository
         }
 
         counters.Run("submission", snapshot.NextSubmissionNumber);
+    }
+
+    private static void WriteRun(SqliteTransaction transaction, CareerRunState? run)
+    {
+        var connection = transaction.Connection!;
+        foreach (var table in new[] { "talent_pool", "career_years", "career_run" })
+        {
+            Execute(connection, transaction, "DELETE FROM " + table);
+        }
+
+        if (run is null)
+        {
+            return;
+        }
+
+        using (var header = new Insert(connection, transaction, "career_run", "id", "opened_year", "contract_expiries", "intakes"))
+        {
+            header.Run(1L, (long)run.OpenedYear, (long)run.ContractExpiries, (long)run.Intakes);
+        }
+
+        using (var pool = new Insert(connection, transaction, "talent_pool", "person_id"))
+        {
+            foreach (var id in run.Pool)
+            {
+                pool.Run(id);
+            }
+        }
+
+        using var years = new Insert(connection, transaction, "career_years", "year", "alive", "retired", "pool", "contracts", "state_hash");
+        foreach (var year in run.Years)
+        {
+            years.Run((long)year.Year, (long)year.Alive, (long)year.Retired, (long)year.Pool, (long)year.Contracts, year.StateHash);
+        }
     }
 
     private static void Execute(SqliteConnection connection, SqliteTransaction transaction, string sql)

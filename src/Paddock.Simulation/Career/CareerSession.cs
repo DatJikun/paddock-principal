@@ -35,6 +35,20 @@ public sealed class CareerSessionOptions
 }
 
 /// <summary>
+/// Everything a <see cref="CareerSession"/> keeps besides the people-schedule inputs: the world, the day clock, the
+/// opening year (it decides which seasons draw generated intake), the pool, the tallies, and the per-season summaries.
+/// <see cref="CareerSession.Resume"/> turns it back into a session that lives the same future as one that never stopped.
+/// </summary>
+public sealed record CareerSessionResume(
+    WorldState World,
+    WorldClockState Clock,
+    int OpenedYear,
+    IReadOnlyList<PersonId> Pool,
+    int ContractExpiries,
+    int Intakes,
+    IReadOnlyList<CareerYearSummary> Years);
+
+/// <summary>
 /// One career's world, day clock, and talent pool.
 /// <see cref="LiveDay"/> is the only way the date moves: it runs <see cref="WorldClock.AdvanceDay"/>
 /// with the placeholder handlers. The pool sits beside <see cref="WorldState"/> (the world has no pool field), so it is
@@ -65,6 +79,23 @@ public sealed class CareerSession
         IReadOnlyList<PersonId> talentPool,
         IReadOnlyList<ScheduledArrival> arrivals,
         CareerSessionOptions? options = null)
+        : this(
+            world ?? throw new ArgumentNullException(nameof(world)),
+            new WorldClockState(world.CurrentDate, masterSeed),
+            world.CurrentDate.Year,
+            talentPool,
+            arrivals,
+            options)
+    {
+    }
+
+    private CareerSession(
+        WorldState world,
+        WorldClockState clock,
+        int openedYear,
+        IReadOnlyList<PersonId> talentPool,
+        IReadOnlyList<ScheduledArrival> arrivals,
+        CareerSessionOptions? options)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(talentPool);
@@ -79,8 +110,8 @@ public sealed class CareerSession
         }
 
         World = world;
-        _clock = new WorldClockState(world.CurrentDate, masterSeed);
-        _openedYear = world.CurrentDate.Year;
+        _clock = clock;
+        _openedYear = openedYear;
         _intakePerSeason = options.GeneratedIntakePerSeason;
         _names = options.Names ?? new FixtureNameSource();
         _blocklist = options.Blocklist ?? EmptyNameBlocklist.Instance;
@@ -92,12 +123,15 @@ public sealed class CareerSession
             throw new ArgumentException("Generated intake needs quality weights and nationalities.", nameof(options));
         }
 
+        // A person who is still active when the session starts retires no earlier than the end of the season it starts in.
+        // For a new run that is the opening season, for a resumed one the season of the save date.
+        var firstSeason = world.CurrentDate.Year;
         foreach (var person in world.Persons)
         {
             IndexBirthday(person);
             if (!person.IsRetired)
             {
-                ScheduleLastSeason(person, _openedYear);
+                ScheduleLastSeason(person, firstSeason);
             }
         }
 
@@ -164,6 +198,9 @@ public sealed class CareerSession
 
     public WorldState World { get; private set; }
 
+    /// <summary>The season the run opened in. Generated intake starts the season after it.</summary>
+    public int OpenedYear => _openedYear;
+
     public GameDate Date => _clock.Date;
 
     public WorldClockState Clock => _clock;
@@ -178,6 +215,74 @@ public sealed class CareerSession
 
     public IReadOnlyList<PersonId> Retired =>
         World.Persons.Where(person => person.IsRetired).Select(person => person.Id).ToArray();
+
+    /// <summary>
+    /// Continues a saved session. <paramref name="arrivals"/> are the scheduled arrivals that have not happened yet
+    /// (dated on or after the saved date), <paramref name="options"/> the same inputs the original run used.
+    /// Anything that disagrees with the saved state throws instead of starting a different future.
+    /// </summary>
+    public static CareerSession Resume(
+        CareerSessionResume saved,
+        IReadOnlyList<ScheduledArrival> arrivals,
+        CareerSessionOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(saved);
+        ArgumentNullException.ThrowIfNull(saved.World);
+        ArgumentNullException.ThrowIfNull(saved.Pool);
+        ArgumentNullException.ThrowIfNull(saved.Years);
+        ArgumentNullException.ThrowIfNull(arrivals);
+        if (saved.World.CurrentDate != saved.Clock.Date)
+        {
+            throw new ArgumentException("The saved world date and the saved day clock disagree.", nameof(saved));
+        }
+
+        if (saved.OpenedYear > saved.Clock.Date.Year)
+        {
+            throw new ArgumentException("The run cannot have opened after the saved date.", nameof(saved));
+        }
+
+        if (saved.ContractExpiries < 0 || saved.Intakes < 0)
+        {
+            throw new ArgumentException("The saved tallies cannot be negative.", nameof(saved));
+        }
+
+        foreach (var id in saved.Pool)
+        {
+            if (saved.World.GetPerson(id).IsRetired)
+            {
+                throw new ArgumentException("The saved talent pool lists the retired person '" + id.Value + "'.", nameof(saved));
+            }
+        }
+
+        var previous = int.MinValue;
+        foreach (var year in saved.Years)
+        {
+            ArgumentNullException.ThrowIfNull(year);
+            if (year.Year <= previous || year.Year >= saved.Clock.Date.Year)
+            {
+                throw new ArgumentException("The saved season summaries are out of order or lie in the future.", nameof(saved));
+            }
+
+            previous = year.Year;
+        }
+
+        foreach (var arrival in arrivals)
+        {
+            ArgumentNullException.ThrowIfNull(arrival);
+            if (arrival.Spec.RealId is { } realId && saved.World.Ids.WasIssued(realId))
+            {
+                throw new ArgumentException("Scheduled person '" + realId + "' is already in the saved world.", nameof(arrivals));
+            }
+        }
+
+        var session = new CareerSession(saved.World, saved.Clock, saved.OpenedYear, saved.Pool, arrivals, options)
+        {
+            ContractExpiries = saved.ContractExpiries,
+            Intakes = saved.Intakes,
+        };
+        session._years.AddRange(saved.Years);
+        return session;
+    }
 
     /// <summary>Lives the current day, then moves the world and the clock to the next morning.</summary>
     public void LiveDay()

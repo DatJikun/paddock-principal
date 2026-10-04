@@ -10,9 +10,9 @@ namespace Paddock.Persistence;
 /// table, nothing is stored twice. Contract ids are not foreign keys: the world tables are written first in the same
 /// transaction, and a retired person's contracts are dropped from the world while their terms are pruned a season later.
 /// </summary>
-public sealed class V008_ContractsSection : ISaveMigration
+public sealed class V009_ContractsSection : ISaveMigration
 {
-    public int Version => 8;
+    public int Version => 9;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

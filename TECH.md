@@ -180,6 +180,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Jednostkowe:** reguły domeny (punktacja epok, kontrakty, ekonomia).
 - **Regresja determinizmu:** hash stanu po N sezonach.
 - **Test wierności historii (PP-012):** przebieg okresu bez gracza, potem porównanie z rzeczywistością (rozkład mistrzów, udział ukończonych wyścigów, dominacja). Raport z SimRunnera zamiast asercji 1:1.
+- **Kalibracja silnika wyścigu (#122):** `SimRunner calibrate-race --from Y --to Y [--stride N] [--seeds N] [--cache <katalog jolpica>]` symuluje wyścigi sezonów na syntetycznej stawce, zbiera je w pasma epok i porównuje z lokalnym cache Jolpica (odsetek ukończeń, podział mechanika/wypadek, mediana przewagi zwycięzcy, zdublowani, pole-to-win) oraz z pogodą R9 (deszcz w wyścigu, temperatura powietrza). Postoje i zmiany prowadzenia nie mają danych historycznych w cache, więc raport sprawdza je tylko względem zakresów orientacyjnych (ESTIMATE). Raport trafia do `data/cache/reports/` (poza repo, PP-041). Stałe skalibrowane tym raportem pozostają ESTYMATAMI: opis przy każdej stałej mówi, względem jakich sezonów były dostrajane; zakresy tolerancji są w `CalibrationTargets`.
 - **Stres:** kariera 1950→2100, czas przeliczenia sezonu i rozmiar save'a.
 - **UI:** zrzuty ekranu kluczowych widoków w trybie deweloperskim (przeglądarka).
 - **Błędy:** najpierw test, który je odtwarza, potem poprawka (za Pelotonem, D-030).

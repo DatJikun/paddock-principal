@@ -76,7 +76,11 @@ public sealed class TyreCompoundCatalog
 
     private TyreCompound WetCompoundValue { get; }
 
-    /// <summary>The synthetic ESTIMATE catalog.</summary>
+    /// <summary>
+    /// The synthetic ESTIMATE catalog. Wear rates and cliffs of the treaded and slick eras were calibrated in #122 against
+    /// the stops per car expected of each era (a sanity range, not Jolpica data: the cache has no pit stops); the 1970-1983
+    /// slick era is split from 1984-1997 because tyres lasted a race in the first half.
+    /// </summary>
     public static TyreCompoundCatalog Default { get; } = BuildDefault();
 
     /// <summary>
@@ -129,15 +133,23 @@ public sealed class TyreCompoundCatalog
 
     private static TyreCompoundCatalog BuildDefault() => new(
         [
-            Era("treaded_single", 1950, 1969, Dry("treaded.hard", 0, 0.0, 0.008, 70, 0)),
+            Era("treaded_single", 1950, 1969, Dry("treaded.hard", 0, 0.0, 0.006, 90, 0)),
+            Era(
+                "slick_early",
+                1970,
+                1983,
+                Qualifier("slick.early.qualifier"),
+                Dry("slick.early.soft", 0, 0.0, 0.016, 62, 1),
+                Dry("slick.early.medium", 1, 0.5, 0.011, 88, 1.5),
+                Dry("slick.early.hard", 2, 1.0, 0.008, 110, 2)),
             Era(
                 "slick_multi",
-                1970,
+                1984,
                 1997,
                 Qualifier("slick.qualifier"),
-                Dry("slick.soft", 0, 0.0, 0.045, 22, 1),
-                Dry("slick.medium", 1, 0.5, 0.030, 32, 1.5),
-                Dry("slick.hard", 2, 1.0, 0.018, 45, 2)),
+                Dry("slick.soft", 0, 0.0, 0.030, 34, 1),
+                Dry("slick.medium", 1, 0.5, 0.020, 50, 1.5),
+                Dry("slick.hard", 2, 1.0, 0.013, 70, 2)),
             Era(
                 "grooved",
                 1998,

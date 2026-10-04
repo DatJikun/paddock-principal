@@ -8,6 +8,7 @@ namespace Paddock.Tests.SimRunner;
 public class RunCommandTests
 {
     [Fact]
+    [Trait("Category", "Slow")]
     public void OneSeasonPrintsTheEstimateLineAndAStableHash()
     {
         var first = Run(["run", "--preset", "Chaos", "--from", "1950", "--to", "1950", "--seed", "7"], out var code);

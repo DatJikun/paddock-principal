@@ -40,6 +40,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void ADeathIsPossible_OnlyWhenFatalitiesAreOn_AndIsAFactNotAnAppliedState()
     {
         var deaths = FatalitiesOn.Value.SelectMany(r => r.PersonOutcomes).Where(p => p.Fatal).ToList();
@@ -54,6 +55,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void EveryNeutralisationKind_IsMet_AndEveryTapeStaysValid()
     {
         var races = FatalitiesOn.Value.Concat(FatalitiesOff.Value).ToList();
@@ -87,6 +89,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void AnAccidentRetirement_FollowsItsIncidentOnTheTape()
     {
         foreach (var race in FatalitiesOff.Value)

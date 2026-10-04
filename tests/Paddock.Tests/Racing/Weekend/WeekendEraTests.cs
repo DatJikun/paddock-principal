@@ -11,6 +11,7 @@ namespace Paddock.Tests.Racing.Weekend;
 /// no safety car before 1993, a mandatory mix in 2012), not the values. The strategist searches with at most one further stop
 /// (a cost limit of the tests, see <see cref="WeekendTestKit.CheapSearch"/>).
 /// </summary>
+[Trait("Category", "Slow")]
 public class WeekendEraTests
 {
     private const int RacesPerEra = 200;
@@ -47,7 +48,6 @@ public class WeekendEraTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
     public void In1955_ThereAreFewerStopsThanIn2012()
     {
         var stops1955 = StopsPerCar(Races1955.Value);
@@ -58,7 +58,6 @@ public class WeekendEraTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
     public void MechanicalRetirements_AreMoreCommonIn1955Than1988Than2012()
     {
         var share1955 = MechanicalShare(Races1955.Value);

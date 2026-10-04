@@ -293,6 +293,7 @@ public class IncidentSamplerTests
     }
 
     [Fact]
+    [Trait("Category", "Slow")]
     public void Rain_ShiftsIncidentsTowardsSpinsAndBarriers()
     {
         var race = Race(1990, danger: 3);

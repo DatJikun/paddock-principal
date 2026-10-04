@@ -5,6 +5,7 @@ using Paddock.SimRunner;
 namespace Paddock.Tests.SimRunner;
 
 /// <summary><c>run --resume</c>: the same future as a run that never stopped, and refusals that name the reason (issue #123).</summary>
+[Trait("Category", "Slow")]
 public sealed class ResumeCommandTests : IDisposable
 {
     private readonly string _directory = Directory.CreateTempSubdirectory("paddock-resume-cmd-").FullName;
@@ -12,7 +13,6 @@ public sealed class ResumeCommandTests : IDisposable
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 
     [Theory]
-    [Trait("Category", "Slow")]
     [InlineData("Chaos", 7UL)]
     [InlineData("Balanced", 11UL)]
     public void ASplitRunPrintsAndSavesTheSameSeasonsAsTheRunThatNeverStopped(string preset, ulong seed)
@@ -51,7 +51,6 @@ public sealed class ResumeCommandTests : IDisposable
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
     public void ASaveThatWasResumedCanBeResumedAgainAndTheTitleFollowsTheLanguage()
     {
         var half = Path.Combine(_directory, "half.paddock");

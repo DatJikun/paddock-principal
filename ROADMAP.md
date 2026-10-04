@@ -85,7 +85,8 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - [x] T36: fundamenty (rejestr sekcji świata, skrzynka v0, cele), #117.
 - [ ] W toku (PR-y tuż przed otwarciem): T39 kontrakty i negocjacje (#104), T40 pula talentów (#105).
 - [x] T37: finanse v0 (księga, przychody epoki, popularność), #102.
-- [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T38 sponsorzy (#103), T41 model auta (#106), T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
+- [x] T38: sponsorzy (rynek, trzy miejsca na zespół, rozmowy, umowy, zaufanie), #103. Pakiet sponsora założycielskiego jest po MVP (PP-050).
+- [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
 - [ ] Reszta otwarta: T42–T44, T47, T48.
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.

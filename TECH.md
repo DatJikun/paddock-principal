@@ -149,6 +149,7 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 ### 6.3. Języki (PP-021)
 - Każdy tekst dla gracza to klucz w `strings/pl.json` i `strings/en.json`, także w CLI. Rdzeń zwraca klucz i parametry, a nie gotowe zdania.
 - Test pilnuje, żeby oba pliki miały te same klucze.
+- **Relacja z wyścigu** (`Paddock.Application.Racing.RaceReportBuilder`, T35+) to czysta funkcja `RaceTape` + `RaceWeekendResult` (INV-005, bez RNG). Zwraca sekcje klucz + argumenty (z liczbą dla form mnogich), a `RaceReportRenderer` składa tekst przez `ILocalizer`. Wiedza widza: warunki to tylko stan toru i temperatura na starcie oraz zmiany z taśmy, nigdy prawdziwa pogoda (INV-003). Koloryt epoki bierze się z danych (taśma, postoje, wycofania, zmiany kierowców), a nie z tekstu per rok. Nazwy typów zdarzeń nigdy nie trafiają do tekstu: każdy `RaceEventKind` ma klucz w `RaceReportKeys`. `SimRunner race` drukuje relację domyślnie, `--verbose` dodaje przebieg okrążenie po okrążeniu, a surowy log zostaje pod `--log`.
 
 ### 6.4. Prototyp UI
 - `ui/prototype/` to statyczny, klikalny prototyp wyglądu, bez prawdziwego rdzenia.

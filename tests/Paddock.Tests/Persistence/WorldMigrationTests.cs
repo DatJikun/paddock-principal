@@ -104,7 +104,7 @@ public class WorldMigrationTests : IDisposable
         }
 
         Assert.Equal(
-            ["command_log_by_manager", "contracts_by_organization", "contracts_by_person", "finance_entries_by_org", "inbox_items_by_manager", "knowledge_by_subject", "negotiations_by_manager", "negotiations_by_person", "scheduled_events_by_date"],
+            ["command_log_by_manager", "contracts_by_organization", "contracts_by_person", "finance_entries_by_org", "inbox_items_by_manager", "knowledge_by_subject", "negotiations_by_manager", "negotiations_by_person", "scheduled_events_by_date", "sponsor_deals_by_org"],
             indexes);
     }
 

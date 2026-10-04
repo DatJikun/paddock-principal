@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Podgląd torów</title>
+<!-- Narzędzie autora: rysuje każdą geometrię z js/track-geometry.generated.js tą samą ścieżką co prototyp (TrackShape).
+     Po zmianie pliku JSON: node ui/prototype/tools/build-track-geometry.mjs i odśwież tę stronę. Zob. TECH §6.5. -->
+<style>
+  :root { color-scheme: dark; --bg:#15181e; --card:#1c2027; --ink:#ece7dc; --mute:#9a968c; --road:#2c3038; --acc:#f5c518; --start:#e03a3e; }
+  @media (prefers-color-scheme: light) { :root { color-scheme: light; --bg:#f3efe6; --card:#fffdf8; --ink:#1d1b18; --mute:#6c675d; --road:#cfc8b8; --acc:#9a6b00; --start:#c4161c; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.4 Archivo, system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 16px; }
+  h1 { margin: 0; font-size: 20px; }
+  label { display: inline-flex; gap: 6px; align-items: center; min-height: 44px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 16px; padding: 0 16px 24px; }
+  figure { margin: 0; background: var(--card); border-radius: 8px; padding: 12px; }
+  figcaption { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; margin-bottom: 8px; }
+  figcaption b { font-size: 16px; }
+  figcaption span { color: var(--mute); font-variant-numeric: tabular-nums; }
+  svg { display: block; width: 100%; height: auto; max-height: 420px; }
+  .road { fill: none; stroke: var(--road); stroke-width: 12; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .line { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .pt { fill: var(--acc); }
+  .sf { stroke: var(--start); stroke-width: 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .lab { fill: var(--ink); font-size: 3.1px; text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: var(--card); stroke-width: .8px; }
+  .leader { stroke: var(--mute); stroke-width: .25; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Podgląd torów</h1>
+  <label><input type="checkbox" id="pts" checked> Punkty kontrolne</label>
+  <label><input type="checkbox" id="labs" checked> Zakręty</label>
+</header>
+<main class="grid" id="grid"></main>
+<script src="js/track-geometry.generated.js"></script>
+<script src="js/race-map.js"></script>
+<script src="js/track-shape.js"></script>
+<script>
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const fig = ([id, g]) => {
+    const sh = TrackShape.resolve({ layout: id, len: g.lengthKm }), sp = sh.spline, b = sp.bounds, m = 18;
+    const d = sp.svgPath(1), s0 = sp.at(0);
+    const dots = sh.points.map(p => `<circle class="pt" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r=".7"/>`).join('');
+    const cx = sp.center.x, cy = sp.center.y;
+    const labels = sh.corners.map(([f, name]) => {
+      const p = sp.at(f), out = ((p.x - cx) * p.nx + (p.y - cy) * p.ny) >= 0 ? 1 : -1;
+      const lx = p.x + p.nx * out * 5, ly = p.y + p.ny * out * 5;
+      return `<g class="corner"><line class="leader" x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${lx.toFixed(1)}" y2="${ly.toFixed(1)}"/><text class="lab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}">${esc(name)}</text></g>`;
+    }).join('');
+    const tick = `M${(s0.x - s0.nx * 3).toFixed(1)},${(s0.y - s0.ny * 3).toFixed(1)}L${(s0.x + s0.nx * 3).toFixed(1)},${(s0.y + s0.ny * 3).toFixed(1)}`;
+    return `<figure><figcaption><b>${esc(g.name)}</b><span>${esc(id)}</span><span>${g.lengthKm.toLocaleString('pl-PL')} km</span><span>${g.points.length} punktów</span></figcaption>
+      <svg viewBox="${(b.minX - m).toFixed(1)} ${(b.minY - m).toFixed(1)} ${(b.w + 2 * m).toFixed(1)} ${(b.h + 2 * m).toFixed(1)}" role="img" aria-label="Układ toru ${esc(id)}">
+      <path class="road" d="${d}"/><path class="line" d="${d}"/><path class="sf" d="${tick}"/>${dots}${labels}</svg></figure>`;
+  };
+  document.getElementById('grid').innerHTML = Object.entries(TRACK_GEOMETRY).map(fig).join('');
+  const toggle = (id, sel) => document.getElementById(id).addEventListener('change', e => document.querySelectorAll(sel).forEach(n => n.style.display = e.target.checked ? '' : 'none'));
+  toggle('pts', '.pt'); toggle('labs', '.corner');
+</script>
+</body>
+</html>

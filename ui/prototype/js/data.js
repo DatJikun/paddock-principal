@@ -26,41 +26,42 @@ const byNo = Object.fromEntries(GRID.map(g => [g[0], g]));
 const byId = Object.fromEntries(GRID.map(g => [g[1], g]));
 
 /* ---------- tory i kalendarz ----------
-   Sylwetki torów narysowane ręcznie z pamięci: przybliżone, do zastąpienia prawdziwymi obrysami. */
+   layout = id układu z data/authored/tracks/circuits.json. Kształt toru i nazwy zakrętów pochodzą z pliku geometrii
+   (data/authored/tracks/geometry/<layout>.json → js/track-geometry.generated.js, zob. TECH §6.5), rysuje je TrackShape.
+   `map` (ręczne punkty 0-100) zostaje tylko dla układów bez pliku geometrii; usuń je, gdy plik powstanie. */
 const TRACKS = {
-  interlagos:{name:'Interlagos', len:7.96, profile:{straights:.25,high_speed:.35,low_speed:.15,braking:.25}, tags:['Wyboisty','Długi'],
+  interlagos:{layout:'interlagos_1973', name:'Interlagos', len:7.96, profile:{straights:.25,high_speed:.35,low_speed:.15,braking:.25}, tags:['Wyboisty','Długi'],
     map:[[80,60],[82,45],[82,30],[80,18],[72,10],[60,7],[48,8],[38,12],[30,18],[24,26],[20,36],[18,48],[19,57],[24,63],[32,64],[38,60],[40,53],[37,47],[42,41],[49,42],[53,47],[59,47],[63,41],[60,35],[65,30],[71,34],[73,43],[75,53]]},
-  kyalami:{name:'Kyalami', len:4.104, profile:{straights:.3,high_speed:.35,low_speed:.15,braking:.2}, tags:['Szybki','Wysokość n.p.m.'],
+  kyalami:{layout:'kyalami_1967', name:'Kyalami', len:4.104, profile:{straights:.3,high_speed:.35,low_speed:.15,braking:.2}, tags:['Szybki','Wysokość n.p.m.'],
     map:[[15,15],[45,13],[72,12],[80,13],[83,19],[80,25],[76,30],[78,36],[74,42],[67,45],[59,46],[52,44],[45,45],[40,49],[34,48],[30,44],[25,46],[19,45],[15,40],[14,32],[13,24]]},
-  long_beach:{name:'Long Beach', len:3.251, profile:{straights:.15,high_speed:.15,low_speed:.35,braking:.35}, tags:['Uliczny','Techniczny'],
+  long_beach:{layout:'long_beach_1976', name:'Long Beach', len:3.251, profile:{straights:.15,high_speed:.15,low_speed:.35,braking:.35}, tags:['Uliczny','Techniczny'],
     map:[[80,50],[62,54],[42,55],[24,52],[15,50],[12,44],[18,41],[26,41],[30,36],[30,28],[31,20],[36,15],[46,14],[58,14],[67,15],[72,19],[74,25],[79,30],[83,37],[84,44]]},
-  jarama:{name:'Jarama', len:3.404, profile:{straights:.15,high_speed:.2,low_speed:.35,braking:.3}, tags:['Techniczny','Wyboisty'],
+  jarama:{layout:'jarama_1968', name:'Jarama', len:3.404, profile:{straights:.15,high_speed:.2,low_speed:.35,braking:.3}, tags:['Techniczny','Wyboisty'],
     map:[[15,50],[30,50],[45,50],[52,48],[55,43],[52,37],[55,32],[61,29],[67,30],[71,34],[75,38],[79,35],[78,29],[73,24],[65,21],[57,18],[50,19],[45,23],[39,21],[31,18],[23,20],[16,24],[14,31],[16,38],[12,44]]},
-  zolder:{name:'Zolder', len:4.262, profile:{straights:.18,high_speed:.28,low_speed:.28,braking:.26}, tags:['Techniczny'],
+  zolder:{layout:'zolder_1973', name:'Zolder', len:4.262, profile:{straights:.18,high_speed:.28,low_speed:.28,braking:.26}, tags:['Techniczny'],
     map:[[60,52],[40,52],[20,52],[12,50],[10,44],[14,40],[22,38],[27,34],[33,33],[39,30],[45,30],[48,27],[51,30],[54,27],[60,24],[66,22],[70,24],[73,21],[80,22],[86,26],[90,32],[89,38],[84,41],[77,42],[71,46],[66,50]]},
-  monaco:{name:'Monte Carlo', len:3.312, profile:{straights:.08,high_speed:.1,low_speed:.45,braking:.37}, tags:['Uliczny','Techniczny'],
+  monaco:{layout:'monaco_1976', name:'Monte Carlo', len:3.312, profile:{straights:.08,high_speed:.1,low_speed:.45,braking:.37}, tags:['Uliczny','Techniczny'],
     map:[[25,40],[35,38],[45,36],[50,36],[52,32],[56,25],[60,19],[64,15],[68,15],[70,18],[73,22],[76,21],[79,18],[82,18],[83,21],[80,24],[81,28],[84,31],[80,36],[72,40],[64,44],[60,46],[57,45],[54,47],[48,48],[44,50],[40,51],[37,49],[33,50],[29,52],[24,52],[21,49],[22,44]]},
-  anderstorp:{name:'Anderstorp', len:4.018, profile:{straights:.3,high_speed:.4,low_speed:.1,braking:.2}, tags:['Szybki','Płynny'],
+  anderstorp:{layout:'anderstorp_1973', name:'Anderstorp', len:4.018, profile:{straights:.3,high_speed:.4,low_speed:.1,braking:.2}, tags:['Szybki','Płynny'],
     map:[[30,55],[45,55],[58,55],[68,53],[74,47],[75,39],[72,31],[70,22],[66,15],[60,14],[56,18],[48,28],[38,37],[26,45],[19,49],[20,54]]},
-  ricard:{name:'Paul Ricard', len:5.81, profile:{straights:.35,high_speed:.35,low_speed:.1,braking:.2}, tags:['Szybki','Płynny'],
+  ricard:{layout:'ricard_1971', name:'Paul Ricard', len:5.81, profile:{straights:.35,high_speed:.35,low_speed:.1,braking:.2}, tags:['Szybki','Płynny'],
     map:[[88,20],[93,22],[94,28],[91,34],[86,38],[80,39],[75,42],[71,40],[66,43],[62,46],[57,45],[53,48],[48,47],[44,50],[35,51],[22,51],[12,50],[7,47],[8,42],[12,39],[10,34],[13,30],[17,27],[22,23],[30,20],[50,19],[70,19]]},
-  brands_hatch:{name:'Brands Hatch', len:4.206, profile:{straights:.15,high_speed:.35,low_speed:.25,braking:.25}, tags:['Techniczny','Płynny'],
+  brands_hatch:{layout:'brands_hatch_1964', name:'Brands Hatch', len:4.206, profile:{straights:.15,high_speed:.35,low_speed:.25,braking:.25}, tags:['Techniczny','Płynny'],
     /* zakręty: [ułamek okrążenia od linii mety, nazwa]; położenia szacunkowe, do zastąpienia danymi toru */
     corners:[[.08,'Paddock Hill Bend'],[.17,'Druids'],[.28,'Graham Hill Bend'],[.38,'Surtees'],[.52,'Hawthorns'],[.65,'Westfield'],[.78,'Dingle Dell'],[.88,"Stirling's"],[.96,'Clearways']],
     map:[[38,14],[50,13],[60,12],[66,13],[70,17],[73,22],[77,24],[80,27],[78,31],[73,30],[69,31],[65,34],[58,35],[50,35],[44,36],[40,38],[34,42],[28,46],[21,49],[15,49],[12,46],[10,40],[9,34],[11,29],[15,26],[18,22],[22,20],[24,15],[27,10],[31,9],[35,11]]},
-  nurburgring:{name:'Nürburgring', len:22.835, profile:{straights:.25,high_speed:.35,low_speed:.2,braking:.2}, tags:['Długi','Wyboisty','Niebezpieczny'],
+  nurburgring:{layout:'nurburgring_1951', name:'Nürburgring', len:22.835, profile:{straights:.25,high_speed:.35,low_speed:.2,braking:.2}, tags:['Długi','Wyboisty','Niebezpieczny'],
     map:[[84,56],[74,57],[66,56],[60,54],[57,50],[53,51],[49,48],[45,50],[41,50],[37,48],[33,49],[31,53],[28,58],[24,60],[20,58],[17,60],[13,58],[10,54],[7,55],[5,51],[6,46],[9,43],[8,38],[11,34],[15,30],[20,26],[25,22],[29,21],[32,17],[35,14],[38,12],[40,15],[43,11],[47,9],[51,11],[55,9],[58,12],[62,11],[66,14],[69,12],[73,15],[75,19],[78,23],[82,27],[86,34],[88,42],[88,50]]},
-  osterreichring:{name:'Österreichring', len:5.911, profile:{straights:.25,high_speed:.45,low_speed:.1,braking:.2}, tags:['Szybki','Niebezpieczny'],
+  osterreichring:{layout:'red_bull_ring_1970', name:'Österreichring', len:5.911, profile:{straights:.25,high_speed:.45,low_speed:.1,braking:.2}, tags:['Szybki','Niebezpieczny'],
     map:[[20,55],[32,45],[44,35],[52,26],[56,18],[61,14],[67,14],[75,16],[83,20],[88,26],[90,34],[86,42],[80,48],[75,53],[72,58],[65,61],[54,61],[42,62],[30,62],[22,60]]},
-  zandvoort:{name:'Zandvoort', len:4.226, profile:{straights:.2,high_speed:.35,low_speed:.2,braking:.25}, tags:['Techniczny','Wyboisty'],
+  zandvoort:{layout:'zandvoort_1973', name:'Zandvoort', len:4.226, profile:{straights:.2,high_speed:.35,low_speed:.2,braking:.25}, tags:['Techniczny','Wyboisty'],
     map:[[80,55],[80,30],[80,15],[80,8],[76,4],[72,5],[71,10],[70,15],[66,18],[60,19],[56,16],[54,11],[48,11],[42,12],[38,16],[34,22],[30,25],[26,31],[24,38],[22,44],[25,50],[31,54],[41,56],[53,57],[64,59],[74,60],[79,58]]},
-  monza:{name:'Monza', len:5.8, profile:{straights:.4,high_speed:.25,low_speed:.1,braking:.25}, tags:['Szybki'],
-    map:[[15,55],[15,35],[15,15],[15,12],[17,10],[15,8],[18,5],[26,3],[34,4],[40,5],[42,7],[44,5],[52,6],[56,9],[58,14],[58,18],[57,26],[55,34],[54,39],[56,42],[54,45],[51,49],[48,55],[45,62],[40,66],[31,68],[23,66],[17,62]]},
-  mosport:{name:'Mosport', len:3.957, profile:{straights:.2,high_speed:.4,low_speed:.15,braking:.25}, tags:['Szybki','Wyboisty'],
+  monza:{layout:'monza_1972', name:'Monza', len:5.8, profile:{straights:.4,high_speed:.25,low_speed:.1,braking:.25}, tags:['Szybki']},
+  mosport:{layout:'mosport_1967', name:'Mosport', len:3.957, profile:{straights:.2,high_speed:.4,low_speed:.15,braking:.25}, tags:['Szybki','Wyboisty'],
     map:[[15,22],[30,21],[40,22],[44,27],[44,34],[48,39],[55,41],[60,46],[66,50],[72,50],[78,47],[79,41],[78,33],[78,24],[77,15],[72,9],[64,8],[54,10],[46,9],[34,9],[22,10],[13,13],[11,18]]},
-  watkins_glen:{name:'Watkins Glen', len:5.435, profile:{straights:.25,high_speed:.35,low_speed:.18,braking:.22}, tags:['Techniczny','Długi'],
+  watkins_glen:{layout:'watkins_glen_1971', name:'Watkins Glen', len:5.435, profile:{straights:.25,high_speed:.35,low_speed:.18,braking:.22}, tags:['Techniczny','Długi'],
     map:[[22,12],[45,11],[68,10],[77,13],[79,19],[76,25],[80,31],[77,37],[70,43],[60,48],[50,52],[43,56],[37,61],[30,64],[23,63],[19,58],[21,52],[17,47],[12,42],[11,34],[13,25],[16,17]]},
-  fuji:{name:'Fuji', len:4.359, profile:{straights:.35,high_speed:.35,low_speed:.1,braking:.2}, tags:['Szybki'],
+  fuji:{layout:'fuji_1976', name:'Fuji', len:4.359, profile:{straights:.35,high_speed:.35,low_speed:.1,braking:.2}, tags:['Szybki'],
     map:[[10,20],[40,19],[70,18],[80,18],[86,22],[86,28],[80,34],[72,38],[64,40],[58,44],[51,48],[45,50],[40,47],[32,44],[24,42],[16,40],[8,36],[5,30],[6,24]]},
 };
 /* runda: data, dzień tyg., GP, kraj (flaga), tor, okrążenia, czas zwycięzcy */

@@ -49,7 +49,7 @@
     constructor({ trackKey, laps, seed = 1976, mineTeam = 'tyrrell' }) {
       const tr = DB.tracks[trackKey];
       this.track = tr; this.laps = laps; this.L = tr.len * 1000;
-      this.sp = new g.TrackSpline(tr.map, tr.len);
+      this.sp = g.TrackShape.resolve(tr).spline;
       this.rand = rng(seed);
       this.t = 0; this.acc = 0; this.flag = 'green'; this.finishOrder = [];
       this.conditions = { sky: 'sunny', airC: 24, trackC: 31 };

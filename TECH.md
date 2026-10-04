@@ -169,6 +169,23 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Podgląd:** `.claude/launch.json`, konfiguracja `ui-prototype` (`python -m http.server 5178 --directory ui/prototype`). Plik `index.html` otwiera się też dwuklikiem.
 - Sprawdzamy na 1440×900 i 1620×860.
 - Z prototypu przeniesiemy tokeny i komponenty do właściwego UI (Svelte) w fazie 6.
+- **Testy UI:** `node --test "ui/prototype/tests/*.test.mjs"` (cudzysłów jest potrzebny, bo Node 22 nie przyjmuje katalogu; potrzebny Node 21+). Dwa kolejne pliki prototypu: `js/track-shape.js` (wybór kształtu toru, §6.5) i `js/track-geometry.generated.js` (generowany).
+
+### 6.5. Geometria torów (PP-048, PP-049, #170)
+- **Jeden plik na układ:** `data/authored/tracks/geometry/<layout_id>.json`. Ten sam plik czyta symulacja i UI; to ten format czyta i zapisuje edytor torów (`ui/track-editor`, PR #146).
+  - `layout_id`: id z `circuits.json`, nazwa pliku musi być `<layout_id>.json`;
+  - `control_points`: zamknięta pętla `[x, y]` w metrach (x na wschód, y na północ), punkt 0 leży na linii mety;
+  - `source`: uczciwe pochodzenie (dziś „approximate, hand-authored from general layout knowledge, ESTIMATE”), `notes`: czym jest kształt;
+  - `corners` (opcjonalne): `{ "point": indeks punktu kontrolnego, "name": "Parabolica" }`. Nazwa jest przypięta do punktu, więc wędruje razem z nim przy edycji. To nazwy własne (jak nazwy torów), nie przechodzą przez `strings/`.
+- **Krzywa:** zamknięty centripetal Catmull-Rom (`TrackGeometry`), przeskalowany do `length_km` z `circuits.json`. Backend bierze ją przez `TrackGeometryCatalog.Resolve(layoutId)` (zwraca geometrię, źródło i zakręty z ułamkiem okrążenia). Geometria nie zmienia stanu świata, więc nie rusza hashy determinizmu.
+- **Edycja** (to wszystko, co trzeba zrobić, żeby zmienić tor w symulacji i w UI):
+  1. Zmień plik JSON ręcznie albo w edytorze torów (Wczytaj JSON, przesuń punkty, Zapisz JSON do tego samego pliku; pole `corners` edytor zachowuje).
+  2. Walidacja: `dotnet run --project tools/Paddock.DataPipeline -- validate-authored` oraz `dotnet test`. Reguły: układ istnieje w `circuits.json`, co najmniej 8 punktów, sąsiednie punkty co najmniej 1 m od siebie, surowa długość w granicach ±15% od `length_km`, brak samoprzecięć, brak ostrych załamań (zwrot o ponad 25° na 2 m), poprawne `corners`, brak dwóch plików dla jednego układu. Testy dodatkowo wymagają ±2% długości i odstępu co najmniej 5 m dla każdego zatwierdzonego pliku.
+  3. UI: `node ui/prototype/tools/build-track-geometry.mjs` przepisuje `ui/prototype/js/track-geometry.generated.js` (plik jest w repo, bo prototyp otwiera się dwuklikiem i nie może pobrać JSON-a w czasie działania). Test `track-shape.test.mjs` pada, jeśli plik jest nieaktualny; `--check` robi to samo z linii poleceń.
+  4. Podgląd wszystkich torów: `ui/prototype/track-preview.html` (punkty kontrolne i nazwy zakrętów).
+- **UI tylko rysuje krzywą** (TECH §3): `TrackShape.resolve` wybiera kształt, `TrackSpline` (`js/race-map.js`) to rendererowa kopia tej samej krzywej. Zgodność pilnuje fixture `ui/prototype/tests/fixtures/track-geometry-reference.json`, generowany testem .NET z `TrackGeometry` (`PADDOCK_UPDATE_FIXTURES=1 dotnet test --filter TrackSplineReference`); test JS porównuje próbki z tolerancją 2 cm (zmierzone poniżej 2 mm).
+- **Brak pliku to zdefiniowany przypadek, nie błąd:** backend zwraca `TrackGeometry.Fallback` (neutralny stadion o długości `length_km`, `Source = Fallback`, bez nazw zakrętów), UI robi to samo (`TrackShape`, źródło `fallback`). Układ spoza `circuits.json` to błąd programisty (`ArgumentException`). Dla prototypu istnieje jeszcze trzecia ścieżka, `legacy`: ręczne punkty `map` w `data.js` dla układów 1976 bez pliku; usuwamy je wraz z pojawieniem się pliku. Że plik istnieje dla każdego układu sezonu startowego (1955), pilnuje test, a nie walidator, bo pozostałe sezony jeszcze nie mają geometrii.
+- **To są szacunki.** Kształty są ręcznie rysowane z ogólnej wiedzy o układach (ESTIMATE), skalowane do znanej długości. Nie commitujemy obrazów ani śladów z zewnętrznych źródeł (PP-041); zastąpienie pliku dokładniejszym to zwykła edycja tego samego pliku.
 
 ## 7. Paddock Spy (diagnostyka decyzji)
 

@@ -1,4 +1,4 @@
-// Run: node --test ui/prototype/tests
+// Run: node --test "ui/prototype/tests/*.test.mjs"
 // Pure helpers of the race mode: legibility layout of the map and the mock feed contract.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,7 +10,7 @@ function load() {
   const ctx = { console };
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of ['data.js', 'race-map.js', 'race-sim.js']) vm.runInContext(js(f), ctx, { filename: f });
+  for (const f of ['track-geometry.generated.js', 'data.js', 'race-map.js', 'track-shape.js', 'race-sim.js']) vm.runInContext(js(f), ctx, { filename: f });
   return ctx;
 }
 const G = load();

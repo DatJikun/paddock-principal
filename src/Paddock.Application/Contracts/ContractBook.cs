@@ -115,10 +115,23 @@ public sealed class ContractBook
         return new EvaluationContext(
             Environment.Personality.TraitsOf(person),
             today.Year - record.BirthDate.Year,
-            Environment.Appeal.Appeal(organization, today),
+            AppealOf(organization, today),
             referenceSalary,
             subject,
             current is not null && current.OrganizationId == organization);
+    }
+
+    /// <summary>
+    /// How attractive an organization looks to a person: its public appeal, with the prestige moved by the reputation of the
+    /// principal who runs it (T45): up to about 0.15 either way, nothing at the middle reputation. A pure query (INV-005).
+    /// </summary>
+    public OrganizationAppeal AppealOf(OrganizationId organization, GameDate today)
+    {
+        var appeal = Environment.Appeal.Appeal(organization, today);
+        var shift = Domain.Board.ReputationModel.PrestigeShift(Environment.Reputation.Reputation(organization, today));
+        return shift == 0.0
+            ? appeal
+            : new OrganizationAppeal(Math.Clamp(appeal.Prestige + shift, 0.0, 1.0), appeal.ExpectedCar, appeal.Risk);
     }
 
     /// <summary>

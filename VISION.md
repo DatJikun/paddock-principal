@@ -286,3 +286,11 @@ Szczegóły w DESIGN §5.3.
 - **Po MVP:** osobny silnik ciągły (pozycja i prędkość każdego auta w każdej chwili, wyprzedzanie, kolizje wynikające z symulacji, bez scenariuszy). Wymiana silnika nie może wymagać zmian w reszcie gry ani w UI.
 - **Furtka (kontrakt):** (1) całą symulację wyścigu zamyka jeden interfejs (`IRaceSimulator`: wejście = stawka, tor, pogoda, przepisy epoki, ziarno; wyjście = `RaceTape`); (2) taśma ma poza zdarzeniami opcjonalne **klatki pozycji** (czas, auto, miejsce na torze, prędkość) i to z nich rysuje się mapa, niezależnie od silnika; (3) UI, klasyfikacja, zapis i kronika czytają wyłącznie taśmę, nigdy wnętrza silnika; (4) wybór silnika to ustawienie wyścigu (np. okrążeniowy dla wyścigów w tle, ciągły dla oglądanego), ale oba muszą spełniać ten sam kontrakt i niezmienniki TECH §3 (determinizm, osobny strumień RNG, prawda vs wiedza).
 - **Wyścigi w tle** (inne serie, świat bez gracza) mogą zawsze używać szybkiego silnika okrążeniowego; test zgodności (statystyki wyników obu silników w tych samych warunkach mają być zbliżone) jest zadaniem po MVP.
+
+### Przyjęte 2026-10-04 (piętnasta runda: dokumentacja)
+
+**PP-054: Dokumentacja w HTML generowana z .md i przewodnik „Jak działa gra”** (rozszerza PP-017).
+- **Pliki .md zostają jedynym źródłem.** Strona HTML powstaje z nich skryptem `node tools/docs/build-docs.mjs` (katalog `build/docs/`) i nie trafia do repo. Dokumenty linkują się nawzajem: decyzje PP, sekcje (np. DESIGN §5.3) i issues.
+- **Dochodzi szósty dokument, `GUIDE.md`.** Każdy ważny system gry opisany po ludzku, bez kodu: jak działa, co decydujesz, co masz czuć w grze, liczby do strojenia i stan. Służy do zbierania uwag właściciela w trakcie grania.
+- **Liczby i wykresy w przewodniku pochodzą z kodu.** Generator czyta stałe z plików C# przy każdym budowaniu, więc przewodnik nie rozjeżdża się z grą. Stała, której już nie ma, przerywa budowanie (także w CI).
+- Przewodnik nie zastępuje DESIGN ani VISION: decyzje i pełny projekt systemów zostają tam.

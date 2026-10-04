@@ -187,6 +187,13 @@ Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaj
 - **Brak pliku to zdefiniowany przypadek, nie błąd:** backend zwraca `TrackGeometry.Fallback` (neutralny stadion o długości `length_km`, `Source = Fallback`, bez nazw zakrętów), UI robi to samo (`TrackShape`, źródło `fallback`). Układ spoza `circuits.json` to błąd programisty (`ArgumentException`). Dla prototypu istnieje jeszcze trzecia ścieżka, `legacy`: ręczne punkty `map` w `data.js` dla układów 1976 bez pliku; usuwamy je wraz z pojawieniem się pliku. Że plik istnieje dla każdego układu sezonu startowego (1955), pilnuje test, a nie walidator, bo pozostałe sezony jeszcze nie mają geometrii.
 - **To są szacunki.** Kształty są ręcznie rysowane z ogólnej wiedzy o układach (ESTIMATE), skalowane do znanej długości. Nie commitujemy obrazów ani śladów z zewnętrznych źródeł (PP-041); zastąpienie pliku dokładniejszym to zwykła edycja tego samego pliku.
 
+### 6.6. Dokumentacja HTML (PP-054)
+- `node tools/docs/build-docs.mjs [--out katalog]` buduje `build/docs/` (poza repo) z README, GUIDE, VISION, ROADMAP, DESIGN, TECH, AGENTS i `ui/HANDOFF_UI.md`. Bez zależności, czysty Node 22+. Podgląd: konfiguracja `docs` w `.claude/launch.json` albo dwuklik w `build/docs/index.html`.
+- `GUIDE.md` ma dwa własne rodzaje bloków kodu (oznaczenie języka bloku), które generator wypełnia danymi z kodu gry (`tools/docs/code-values.mjs`):
+  - `strojenie <ścieżka .cs>` z wierszami `Nazwa | opis | format`: tabela stałych z aktualną wartością i linkiem do linii w kodzie. Format: `%` (ułamek), `%%` (już w procentach), `m%` (tysięczne), `t` (dziesiąte punktu) albo jednostka (`dni`, `lat` itd., z polską odmianą);
+  - `wykres <nazwa>` (wykres z `tools/docs/charts.mjs`, treść bloku to podpis) albo `wykres słupki` z danymi w bloku.
+- Brakująca stała, plik albo nieznany wykres przerywa budowanie. CI buduje dokumentację i uruchamia testy `node --test "tools/docs/*.test.mjs"`.
+
 ## 7. Paddock Spy (diagnostyka decyzji)
 
 - **Każda decyzja AI** (rynek, R&D, strategia wyścigu, finanse) zapisuje `DecisionTrace`: kto decydował, jaki był jego poziom, co wywołało decyzję, jakie opcje rozważył (wraz z użytecznością i rozbiciem na czynniki), co wybrał i dlaczego. Opcjonalnie trace zawiera kontekst prawdy symulacji, ale tylko dla dewelopera.

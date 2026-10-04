@@ -28,6 +28,14 @@ const mailRow = (m, sel) => `<a class="mail ${m.decision && !STATE.decisions[m.i
   <span class="av">${m.av}</span><div><div class="from">${m.from}${m.due && !STATE.decisions[m.id] ? UI.st('do ' + m.due, 'bad', true) : ''}</div><div class="t">${m.title}</div></div>
   ${m.unread ? '<span class="unread" aria-label="nieprzeczytana"></span>' : `<span class="when">${m.when}</span>`}</a>`;
 
+/* karty wyboru decyzji (opcje z efektami +/−/·); wspólne dla skrzynki i ekranu Auto i rozwój */
+const choiceCards = m => {
+  const chosen = STATE.decisions[m.id];
+  return `<div class="choices" role="radiogroup" aria-label="Opcje">${m.options.map(o => `<button class="choice${chosen === o.label ? ' chosen' : ''}" role="radio" aria-checked="${chosen === o.label}" data-opt="${o.label}"${chosen ? ' disabled' : ''}>
+        <div class="ch"><b>${o.label}</b><span class="rd">${chosen === o.label ? UI.icon(UI.check, 14) : ''}</span></div>
+        <div class="fx">${o.fx.map(([t, x]) => `<div class="row ${t}"><b>${t === 'p' ? '+' : t === 'm' ? '−' : '·'}</b><span>${x}</span></div>`).join('')}</div></button>`).join('')}</div>`;
+};
+
 /* sylwetka toru: ta sama krzywa (centripetal Catmull-Rom), którą rysuje mapa wyścigu; kształt z TrackShape */
 function trackSvg(key, cls = '') {
   const t = DB.tracks[key]; if (!t) return '';
@@ -82,9 +90,7 @@ S.skrzynka = (id) => {
   const chosen = STATE.decisions[cur.id];
   let opts = '';
   if (cur.options) {
-    opts = `<div class="choices" role="radiogroup" aria-label="Opcje">${cur.options.map(o => `<button class="choice${chosen === o.label ? ' chosen' : ''}" role="radio" aria-checked="${chosen === o.label}" data-opt="${o.label}"${chosen ? ' disabled' : ''}>
-        <div class="ch"><b>${o.label}</b><span class="rd">${chosen === o.label ? UI.icon(UI.check, 14) : ''}</span></div>
-        <div class="fx">${o.fx.map(([t, x]) => `<div class="row ${t}"><b>${t === 'p' ? '+' : t === 'm' ? '−' : '·'}</b><span>${x}</span></div>`).join('')}</div></button>`).join('')}</div>
+    opts = `${choiceCards(cur)}
       ${chosen ? `<div class="stamp">${UI.st('Decyzja podjęta', 'good')}<b>${chosen}</b><span class="muted">${STATE.now().title}</span></div>`
         : `<div class="confirm">${UI.fields([{ k: 'Termin', v: cur.due, cls: 'bad' }, { k: 'Wybór', v: '<span id="pick">—</span>' }])}<button class="btn primary" id="confirm" disabled>${UI.icon(UI.check, 17)}<span>Potwierdź</span></button></div>`}`;
   }

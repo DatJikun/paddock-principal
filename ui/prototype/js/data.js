@@ -254,6 +254,14 @@ window.DB = {
       options:[{label:'Za', fx:[['m','−3% docisku mechanicznego dla wszystkich'],['p','P34 traci mniej niż rywale: przód bez zmian'],['o','Ferrari: relacje −5']]},
                {label:'Wstrzymaj się', fx:[['o','Bez wpływu na relacje'],['o','Wynik zależy od pozostałych 12 głosów']]},
                {label:'Przeciw', fx:[['p','Obecne opony bez zmian'],['p','Ferrari: relacje +3'],['m','Ligier: relacje −3']]}] },
+    { id:9, kind:'decyzje', from:'Derek Gardner', av:'DG', title:'Koncepcja P34B jest gotowa: wdrażamy czy czekamy?', when:'Dziś', due:'21 lipca', dueDay:null, decision:true, unread:true, link:['#/auto','Auto i rozwój'],
+      body:'Koncepcja P34B osiągnęła poziom, który uważamy za gotowy do produkcji. Trwające poprawki mogą dodać jeszcze 0,05–0,20 s na okrążeniu, ale rywale idą do przodu, a każdy tydzień zwłoki odsuwa pierwszy wyścig z nowym autem. Bez decyzji do 21 lipca rozwijamy koncepcję dalej.',
+      options:[{label:'Wdrażamy teraz', fx:[['p','Nowe auto od GP Włoch (runda 13)'],['m','£48 tys. od razu, bez zwrotu'],['m','Zrozumienie auta zaczyna od nowa']]},
+               {label:'Czekamy', fx:[['p','Dalszy zysk: 0,05–0,20 s (szacunek)'],['m','Rywale idą do przodu'],['o','Decyzja wróci do skrzynki 21 lipca']]}] },
+    { id:10, kind:'decyzje', from:'Maurice Philippe', av:'MP', title:'Przednie zawieszenie: dajcie nam jeszcze 2 tygodnie', when:'Dziś', due:'16 lipca', dueDay:null, decision:true, unread:true, link:['#/auto','Auto i rozwój'],
+      body:'Po przesunięciu środków na P34B przednie zawieszenie zwolni. Dajcie nam jeszcze 2 tygodnie, jesteśmy blisko przełomu.',
+      options:[{label:'Trzymamy plan', fx:[['p','Dodatkowe 2 tygodnie'],['m','Rozwój P34B wolniej']]},
+               {label:'Tniemy projekt', fx:[['p','P34B dostaje środki'],['m','Efekt za 62% prac']]}] },
     { id:2, kind:'raporty', from:'Derek Gardner', av:'DG', title:'Przednie opony zużywają się szybciej', when:'Dziś', unread:true,
       body:'Dane z Paul Ricard pokazują, że małe przednie opony tracą przyczepność szybciej, niż zakładaliśmy. Na Brands Hatch stint może być krótszy o ok. 8 okrążeń. Strateg rozważa późniejszy postój, ale to zależy od temperatury.' },
     { id:3, kind:'raporty', from:'Skaut', av:'SK', title:'Didier Pironi, Formuła 2: raport', when:'Dziś', unread:true, link:['#/kierowca/pironi','Profil: Didier Pironi'],
@@ -303,8 +311,40 @@ window.DB = {
     /* miejsce w stawce na typach odcinków toru */
     sectors:[['Proste',12],['Szybkie zakręty',7],['Wolne zakręty',2],['Hamowanie',1]],
     axes:[['Aero','Mały opór','Duży docisk',62],['Filozofia','Ewolucja','Rewolucja',88],['Okno pracy','Szerokie','Wąskie',70],['Chłodzenie','Zapas','Na krawędzi',45],['Opony','Łagodne','Agresywne',58]],
-    projects:[{name:'Przednie zawieszenie', stream:'Bieżące auto', pct:62, eta:'3 tyg.'},{name:'Lżejsza skrzynia biegów', stream:'Bieżące auto', pct:35, eta:'5 tyg.'},{name:'Koncepcja 1977: P34B', stream:'Przyszły rok', pct:28, eta:'5 tyg.'}],
-    bank:'+1,8 pkt', split:[60,15,25],
+    /* Rozwój auta, ścieżka A (PP-043): gracz ustala tylko podział zasobów i priorytety obszarów,
+       projekty wybierają inżynierowie. Kształt danych jest neutralny, bo nazwy po stronie backendu jeszcze się ustalają.
+       ATRAPA: wszystkie liczby to estymaty. Gracz widzi wyłącznie przedziały [od, do] i szacunki, nigdy ukrytych wartości
+       (zysk, ryzyko, stan konta, wynik projektu). Zysk w s/okr., konto rozwoju w punktach. */
+    dev:{
+      plan:{current:60, account:15, nextYear:25},                 // % zasobów, suma 100, krok 5
+      priorities:[                                                // 0–10, domyślnie 5; rank = miejsce obszaru w stawce
+        {id:'aero', name:'Aerodynamika', rank:6, value:5},
+        {id:'chassis', name:'Podwozie', rank:1, value:5},
+        {id:'reliability', name:'Niezawodność', rank:8, value:5},
+        {id:'tyres', name:'Opony i prowadzenie', rank:2, value:5}],
+      account:{band:[1.5, 2.2], unit:'pkt', ruleLoss:[25, 35]},   // szacunek: stan konta; utrata % przy zmianie przepisów 1977
+      /* koncepcja po zakończeniu rozwoju czeka na zatwierdzenie; decyzja przychodzi też do skrzynki (decisionMail) */
+      concept:{ name:'P34B', status:'ready', engineer:'gardner', decisionMail:9, decideBy:'21 lipca',
+        furtherGain:[0.05, 0.20],                                // szacunek dalszego zysku z trwających poprawek, s/okr.
+        production:{days:63, ends:'8 września', cost:48},         // cost w tys. £, księgowany w całości w dniu zatwierdzenia
+        firstRace:{round:13, name:'GP Włoch'}, racesOnOldCar:4,
+        schedule:[[9,'GBR',11],[10,'GER',25],[11,'AUT',39],[12,'NED',53],[13,'ITA',67]],
+        wait:{days:14, schedule:[[9,'GBR',11]]} },   // runda, kraj, dni od zatwierdzenia
+      projects:[
+        {id:'zaw', name:'Przednie zawieszenie', stream:'current', area:'chassis', engineer:'philippe', progress:62, weeks:3, replyMail:10,
+          why:'Małe przednie koła 10″ wymagają innej geometrii.',
+          forecast:{gain:[0.10, 0.25], unit:'s', finish:'28 lipca', risk:[10, 20]}},
+        {id:'skr', name:'Lżejsza skrzynia biegów', stream:'current', area:'reliability', engineer:'gardner', progress:35, weeks:5,
+          why:'Obiecaliśmy ją Scheckterowi na GP Niemiec.',
+          forecast:{gain:[0.05, 0.15], unit:'s', finish:'11 sierpnia', risk:[15, 25], late:true}},
+        {id:'opo', name:'Przednie opony 10″', stream:'account', area:'tyres', engineer:'gardner', progress:48, weeks:4,
+          why:'Paul Ricard: opony przednie zużywają się szybciej.',
+          forecast:{gain:[0.4, 0.9], unit:'pkt', finish:'4 sierpnia', risk:[10, 15]}}],
+      finished:[
+        {name:'Podwozie P34/2', stream:'current', done:'GP RPA', effect:[0.15, 0.30], understanding:92},
+        {name:'Przednie skrzydło B', stream:'current', done:'GP Hiszpanii', effect:[0.10, 0.20], understanding:74},
+        {name:'Nowe tylne zawieszenie', stream:'current', done:'GP Francji', effect:[0.05, 0.15], understanding:41}],
+    },
     understanding:[['Podwozie P34/2',92],['Przednie skrzydło B',74],['Nowe tylne zawieszenie',41]],
   },
   rivals: {
@@ -323,8 +363,8 @@ window.DB = {
       leader:['Ferrari','2 stanowiska'], pct:0, upkeep:0, upgrade:{what:'1 stanowisko hamowni', cost:60, months:5, effect:'Testy integracji silnika na miejscu'} },
     { id:'kompozyty', name:'Warsztat kompozytów', level:2, params:[['Materiały','Włókno szklane'],['Piec do utwardzania','Brak'],['Części w tygodniu','6']],
       leader:['Lotus','Włókno węglowe (próby)'], pct:48, upkeep:1.1, upgrade:{what:'Piec do utwardzania', cost:45, months:4, effect:'Części w tygodniu: 10'} },
-    { id:'biuro', name:'Biuro projektowe', level:3, params:[['Deski kreślarskie','6'],['Projektanci','6'],['Projekty naraz','2']],
-      leader:['McLaren','10 desek'], pct:60, upkeep:0.6, upgrade:{what:'+2 deski kreślarskie', cost:12, months:1, effect:'Projekty naraz: 3'} },
+    { id:'biuro', name:'Biuro projektowe', level:3, params:[['Deski kreślarskie','6'],['Projektanci','6'],['Projekty naraz','3']],
+      leader:['McLaren','10 desek'], pct:60, upkeep:0.6, upgrade:{what:'+2 deski kreślarskie', cost:12, months:1, effect:'Projekty naraz: 4'} },
   ],
 
   /* ---------- dostawcy: wspólne pola + 3 parametry kategorii ---------- */

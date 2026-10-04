@@ -207,12 +207,83 @@ a.plain:hover{text-decoration:underline;text-underline-offset:3px}
 .plus{font:900 60px/1 var(--display);color:var(--ink3)}
 .pool{grid-column:1/-1}
 
-/* ---------- Auto ---------- */
-.proj{padding:12px 0;border-bottom:1px solid var(--rule)}
-.proj:last-child{border:0}
-.prow{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.split{display:flex;gap:4px;height:36px;border-radius:12px;overflow:hidden}
-.split i{display:grid;place-items:center;color:#fff;font:600 13px var(--ui);font-style:normal;white-space:nowrap;overflow:hidden}
+/* ---------- Auto i rozwój (PP-043) ---------- */
+.dev{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px 22px;align-items:stretch}
+.dev-cell{display:flex;min-width:0}
+.dev-cell>.panel{flex:1;display:flex;flex-direction:column}
+.dev-cell>.panel>.body{flex:1;display:flex;flex-direction:column}
+.dev .panel>header{padding:11px 22px 8px;min-height:48px}
+.dev .panel .body{padding:0 22px 14px}
+/* decyzje w tym ekranie: zwarte karty wyboru, dwie obok siebie */
+.dev .choices{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.dev .choice{padding:10px 14px 12px;gap:7px;align-content:start}
+.dev .choice .ch b{font-size:19px;white-space:nowrap}
+.dev .fx .row{font-size:13.5px;line-height:1.3}
+.dev .confirm{margin-top:auto;padding-top:10px;border-top:0}
+.dev .body>.choices{margin-bottom:12px}
+.dev .stamp{margin-top:12px;padding:11px 16px}
+.dev .stamp .muted{margin-left:auto}
+.dev .fields.boxed .fld{padding:9px 16px}
+.dev .fields.boxed .fld:first-child{padding-left:16px}
+.dev .fields.boxed .v{font-size:16px}
+.dev .fields.boxed .meta{font-size:12px}
+/* oś produkcji: stare auto jedzie do końca produkcji, pierwszy wyścig po niej to nowe auto */
+.ptl{margin:auto 0 12px}
+.ptl-track{position:relative;height:14px;border-radius:99px;background:color-mix(in oklab,var(--ink) 8%,transparent);margin:34px 14px 0 0}
+.ptl-track>i{position:absolute;left:0;top:0;bottom:0;border-radius:99px 0 0 99px;background:var(--t1);animation:fill .9s var(--ease) both;transform-origin:left}
+.ptl .mk{position:absolute;bottom:20px;transform:translateX(-50%);display:grid;justify-items:center;gap:2px}
+.ptl .mk::after{content:"";position:absolute;top:calc(100% + 2px);width:2px;height:12px;background:var(--ink)}
+.ptl .mk b{font-size:13px}
+.ptl .mk.new::after{background:var(--t2);width:4px;border-radius:2px}
+.ptl .mk.new b{color:var(--t2)}
+.ptl-lab{position:relative;height:20px;margin:6px 14px 0 0}
+.ptl-lab .meta{position:absolute;top:0;white-space:nowrap}
+.ptl-lab .meta:last-child{transform:translateX(-100%)}
+.reply .letter{font-size:14.5px;line-height:1.45}
+.reply>header{gap:10px}
+.reply>header .person small{font-size:13px}
+.dev-proj{table-layout:fixed}
+.dev-proj th:nth-child(1){width:26%}.dev-proj th:nth-child(2){width:11%}.dev-proj th:nth-child(4){width:24%}
+.dev-proj.done th:nth-child(1){width:34%}.dev-proj.done th:nth-child(2){width:20%}.dev-proj.done th:nth-child(3){width:20%}
+.dev-proj td{vertical-align:top;padding:9px 10px;white-space:normal}
+.dev-proj td:first-child,.dev-proj th:first-child{padding-left:20px}
+.dev-proj td:last-child,.dev-proj th:last-child{padding-right:16px}
+.dev-proj td>b{display:block;font-size:15px;line-height:1.25}
+.dev-proj td b.pct{font-size:17px;margin-bottom:5px}
+.dev-proj td small{display:block;margin-top:2px;font-size:13px;line-height:1.3}
+.pc-sub{display:flex;flex-wrap:wrap;align-items:center;gap:3px 12px;margin-top:4px}
+.pc-sub .st{font-size:13px}
+.why{font-size:13.5px;line-height:1.3;max-width:none;margin-bottom:1px}
+.projects>header{align-items:center}
+.projects .axes{display:grid;grid-template-columns:1fr 1fr;gap:6px 36px;padding-top:6px}
+/* podział zasobów */
+.splitbar{display:flex;gap:3px;height:11px}
+.splitbar i{display:block;border-radius:5px;min-width:0;transition:flex .3s var(--ease)}
+.streams{display:grid;grid-template-columns:repeat(3,1fr);margin-top:10px}
+.stream{display:grid;gap:5px;align-content:start;padding:0 6px 0 8px;border-left:1px solid var(--rule)}
+.stream:first-child{padding-left:0;border-left:0}
+.stream .meta{display:flex;align-items:center;gap:7px;white-space:nowrap;font-size:12px}
+.stream .meta i{width:9px;height:9px;border-radius:2px;flex:none}
+.step{display:flex;align-items:center;justify-content:space-between;gap:2px}
+.step .btn{min-width:34px;width:34px;padding:0;font-size:19px}
+.step .val{display:grid;justify-items:center;gap:1px;flex:1;min-width:0}
+.step .val b{font:900 24px/1 var(--display);font-feature-settings:"tnum" 1}
+.stream.chg .val b{color:var(--t1)}
+.stream .delta{font-size:11.5px;line-height:1;min-height:11px;margin:0;white-space:nowrap}
+.prios-h{display:flex;justify-content:space-between;margin:8px 0 2px}
+.prios{display:grid;grid-template-columns:1fr 1fr;column-gap:22px}
+.prio{display:grid;gap:4px;padding:6px 0 7px;border-bottom:1px solid var(--rule)}
+.prio:nth-last-child(-n+2){border-bottom:0}
+.prio .pn{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14.5px}
+.prio .pr{display:flex;align-items:center;gap:8px}
+.prio .pv{width:20px;text-align:right}
+.prio.chg .pv{color:var(--t1)}
+.pips{display:flex;gap:3px;flex:1}
+.pip{all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:16px;border-radius:3px;background:color-mix(in oklab,var(--ink) 11%,transparent);transition:background .15s,transform .12s var(--ease)}
+.pip:hover{background:color-mix(in oklab,var(--ink) 28%,transparent)}
+.pip:active{transform:scaleY(.8)}
+.pip.on{background:var(--t1)}
+.pip:focus-visible{outline-offset:2px}
 .axis{padding:9px 0}
 .alab{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2);margin-bottom:6px}
 .alab b{color:var(--ink);font-size:14px}

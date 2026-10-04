@@ -21,7 +21,8 @@ const STATUS = {
   pozniej: ['Później', 'later'],
 };
 
-const cells = line => line.split('|').map(s => s.trim());
+// split on "|" outside {placeholders}, so {Name|dni} stays one cell
+const cells = line => line.split(/\|(?![^{]*\})/).map(s => s.trim());
 const rows = body => body.filter(l => l.trim()).map(cells);
 
 export function makeBlocks({ cv, ctx, formatValue }) {

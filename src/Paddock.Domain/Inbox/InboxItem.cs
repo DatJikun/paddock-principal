@@ -247,9 +247,11 @@ public sealed class InboxItem
 
                 break;
             case InboxStatus.Expired:
-                if (draft.ValidUntil is null)
+                // An item with no validity date can only be withdrawn by its poster (T45: a dismissed manager can no longer
+                // answer their open decisions), which closes it with no option taken.
+                if (draft.ValidUntil is null && chosenOptionId is not null)
                 {
-                    throw new ArgumentException("Only an item with a validity date can lapse.", nameof(status));
+                    throw new ArgumentException("Only an item with a validity date can take its default option.", nameof(status));
                 }
 
                 if (chosenOptionId is not null && chosenOptionId != draft.DefaultOptionId)

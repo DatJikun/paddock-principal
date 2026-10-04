@@ -13,13 +13,18 @@ public static class IncidentConstants
     /// <summary>ESTIMATE: probability that a typical driver (aggression 50, composure 50) has an incident on one lap, with no car near, on a dry track of typical danger, in a low-risk era.</summary>
     public const double BaseIncidentRatePerCarLap = 0.0012;
 
-    /// <summary>ESTIMATE: older eras had more incidents (less grip, less safe cars).</summary>
+    /// <summary>
+    /// ESTIMATE, calibrated in #122 against the Jolpica accident share of starters (seasons 1950-2025, fixture field): older
+    /// eras had more incidents (less grip, less safe cars). Raised from 1.6/1.4/1.15/1.0/0.9; the low band is held at 1.6
+    /// because more would put a safety car in over 80 percent of the 2012 fixture races (<c>WeekendEraTests</c>), and the
+    /// order must stay monotone (<c>IncidentSamplerTests</c>), so the real 1990s and 2000s accident peak is still under-delivered.
+    /// </summary>
     public static double EraRateMultiplier(FatalityRiskBand band) => band switch
     {
-        FatalityRiskBand.VeryHigh => 1.6,
-        FatalityRiskBand.High => 1.4,
-        FatalityRiskBand.Moderate => 1.15,
-        FatalityRiskBand.Low => 1.0,
+        FatalityRiskBand.VeryHigh => 2.8,
+        FatalityRiskBand.High => 2.7,
+        FatalityRiskBand.Moderate => 2.6,
+        FatalityRiskBand.Low => 1.6,
         FatalityRiskBand.VeryLow => 0.9,
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };

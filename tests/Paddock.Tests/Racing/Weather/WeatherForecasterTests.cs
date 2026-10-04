@@ -185,4 +185,80 @@ public class WeatherForecasterTests
     {
         Assert.Equal(expected, WeatherForecaster.NormalCdf(x), 5);
     }
+
+    // Issue #122: the forecast probability used to ignore climatology, so noisy dry-day estimates read as rain and the pit wall
+    // fitted wet tyres on dry days (about 7 percent of 1988 cars, 15 percent of 2012 cars). The pit wall fits wet tyres when this
+    // probability reaches Paddock.Simulation.Racing.Pits.PitConstants.WetRaceProbability, so that is the line the test pins.
+    [Theory]
+    [InlineData(ClimateClass.Maritime, RainBand.High, 0.0)]
+    [InlineData(ClimateClass.Maritime, RainBand.High, 0.5)]
+    [InlineData(ClimateClass.Maritime, RainBand.High, 1.0)]
+    [InlineData(ClimateClass.Mediterranean, RainBand.Low, 0.0)]
+    [InlineData(ClimateClass.Mediterranean, RainBand.Low, 1.0)]
+    public void OnDryDays_TheForecastRarelyReachesTheWetTyreThreshold(ClimateClass climateClass, RainBand band, double quality)
+    {
+        var profile = ClimateProfile.FromBand(climateClass, band, 8, 18, 0.6);
+        var steps = 0;
+        var wet = 0;
+        for (ulong seed = 0; seed < 300; seed++)
+        {
+            var truth = RaceWeather.Generate(seed, 1995, 9, profile, Duration);
+            if (truth.HasRain)
+            {
+                continue;
+            }
+
+            foreach (var origin in new[] { 0, 30, 60 })
+            {
+                foreach (var step in WeatherForecaster.ForecastFor(truth, origin, 60, quality).Steps)
+                {
+                    steps++;
+                    if (step.RainProbability >= Paddock.Simulation.Racing.Pits.PitConstants.WetRaceProbability)
+                    {
+                        wet++;
+                    }
+                }
+            }
+        }
+
+        Assert.True(steps > 10_000, "the sample must be large enough to mean something");
+        Assert.True(wet / (double)steps <= 0.02, $"{wet} of {steps} dry-day forecast steps reached the wet threshold.");
+    }
+
+    [Fact]
+    public void WhenItIsRaining_TheNearForecastStillSaysRain()
+    {
+        var profile = ClimateProfile.FromBand(ClimateClass.Maritime, RainBand.High, 8, 18, 0.6);
+        var heavy = 0;
+        var called = 0;
+        for (ulong seed = 0; seed < 400; seed++)
+        {
+            var truth = RaceWeather.Generate(seed, 1995, 9, profile, Duration);
+            for (var minute = 1; minute < Duration - 5; minute += 7)
+            {
+                if (truth.Samples[minute + 1].RainIntensity < 0.4)
+                {
+                    continue;
+                }
+
+                heavy++;
+                if (WeatherForecaster.ForecastFor(truth, minute, 5, 0.8).Steps[0].RainProbability >= 0.6)
+                {
+                    called++;
+                }
+            }
+        }
+
+        Assert.True(heavy > 50);
+        Assert.True(called / (double)heavy >= 0.9, $"only {called} of {heavy} heavy-rain minutes were called.");
+    }
+
+    [Fact]
+    public void RainPosterior_RisesWithTheEstimate_AndFallsWithALowerPrior()
+    {
+        Assert.True(WeatherForecaster.RainPosterior(0.5, 0.1, 0.1) > WeatherForecaster.RainPosterior(0.1, 0.1, 0.1));
+        Assert.True(WeatherForecaster.RainPosterior(0.1, 0.1, 0.3) > WeatherForecaster.RainPosterior(0.1, 0.1, 0.03));
+        Assert.InRange(WeatherForecaster.RainPosterior(0.0, 0.05, 0.1), 0, 0.1);
+        Assert.InRange(WeatherForecaster.RainPosterior(0.7, 0.05, 0.1), 0.99, 1);
+    }
 }

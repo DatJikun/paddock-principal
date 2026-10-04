@@ -105,20 +105,24 @@ public static class ReliabilityConstants
     // ---- Era profile ----
 
     /// <summary>
-    /// ESTIMATE: expected share of starters who retire mechanically, by season. Between anchors the profile is
-    /// interpolated with a smoothstep; outside the first and last anchor it stays flat.
-    /// Targets from the issue: the 1950s about 40 to 50 percent, the 1990s about 20 to 25 percent, the 2010s about 5 to 8 percent.
+    /// ESTIMATE, calibrated in #122 (<c>SimRunner calibrate-race</c>): the per-lap hazard target of the reference car, by season.
+    /// Between anchors the profile is interpolated with a smoothstep; outside the first and last anchor it stays flat.
+    /// These are NOT the real retirement rates. The hazard is per lap and solved for a typical race length, but the fixture
+    /// races are shorter in laps and the cars better than the reference, so the delivered mechanical retirement rate was
+    /// about 0.6 times the anchor. The anchors were raised until the delivered rate matched the Jolpica mechanical share of
+    /// starters per era band (1950s 43 percent, 1960s 37, 1970s 33, 1980-93 36, 1994-2009 22, 2010 onwards 8), seasons 1950-2025.
+    /// A per-distance hazard would remove the factor; that is a model change and not done here.
     /// </summary>
     public static readonly IReadOnlyList<(int Season, double Value)> MechanicalRetirementAnchors =
     [
-        (1950, 0.48),
-        (1960, 0.40),
-        (1970, 0.33),
-        (1980, 0.28),
-        (1990, 0.245),
-        (2000, 0.20),
-        (2010, 0.065),
-        (2020, 0.05),
+        (1950, 0.68),
+        (1960, 0.62),
+        (1970, 0.55),
+        (1980, 0.52),
+        (1990, 0.44),
+        (2000, 0.34),
+        (2010, 0.10),
+        (2020, 0.085),
     ];
 
     /// <summary>

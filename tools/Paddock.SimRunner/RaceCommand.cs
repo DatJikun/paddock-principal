@@ -104,7 +104,7 @@ public static class RaceCommand
     }
 
     /// <summary>Builds the input of a weekend from the authored data and the fixture field (the tool's only source of entries until T20).</summary>
-    public static RaceWeekendInput BuildInput(AuthoredData data, int season, int round, ulong seed, ImmutableArray<RaceEntry> entries)
+    public static RaceWeekendInput BuildInput(AuthoredData data, int season, int round, ulong seed, ImmutableArray<RaceEntry> entries, int? month = null)
     {
         ArgumentNullException.ThrowIfNull(data);
         var track = data.LayoutFor(season, round);
@@ -121,7 +121,7 @@ public static class RaceCommand
             Rules = rules,
             Safety = EraSafetyProfile.FromAuthored(season, era.Value("fatality_risk"), rules.Value("safety_car")),
             Climate = new DefaultClimateSource(),
-            Month = MonthOf(round, rounds),
+            Month = month ?? MonthOf(round, rounds),
             TotalLaps = RaceDistance.LapsFor(rules, track),
             Entries = entries,
         };

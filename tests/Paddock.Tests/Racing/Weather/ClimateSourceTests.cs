@@ -31,7 +31,8 @@ public class ClimateSourceTests
     [Fact]
     public void ClassesDifferInRainAndTemperature()
     {
-        Assert.Equal(RainBand.High, _source.For("silverstone", 7).RainBand);
+        Assert.Equal(RainBand.High, _source.For("suzuka", 10).RainBand);
+        Assert.Equal(RainBand.Medium, _source.For("silverstone", 7).RainBand);
         Assert.Equal(RainBand.Medium, _source.For("hungaroring", 7).RainBand);
         Assert.Equal(RainBand.Low, _source.For("bahrain", 4).RainBand);
         Assert.Equal(ClimateClass.Desert, _source.For("bahrain", 4).ClimateClass);

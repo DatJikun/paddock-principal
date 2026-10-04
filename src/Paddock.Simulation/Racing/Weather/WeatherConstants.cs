@@ -8,14 +8,14 @@ namespace Paddock.Simulation.Racing.Weather;
 public static class WeatherConstants
 {
     // ---- Climate: rain bands (ESTIMATE) -------------------------------------------------------------------
-    /// <summary>ESTIMATE: probability that a race sees measurable rain at some point, band Low.</summary>
-    public const double RaceRainProbabilityLow = 0.08;
+    /// <summary>ESTIMATE, calibrated in #122 against R9 races.json (rain_during_race, 1950-2025, known races only, grouped by the circuit rain band: low 9 percent, medium 20, high 23): probability that a race sees measurable rain at some point, band Low.</summary>
+    public const double RaceRainProbabilityLow = 0.09;
 
     /// <summary>ESTIMATE: probability that a race sees measurable rain at some point, band Medium.</summary>
     public const double RaceRainProbabilityMedium = 0.20;
 
-    /// <summary>ESTIMATE: probability that a race sees measurable rain at some point, band High.</summary>
-    public const double RaceRainProbabilityHigh = 0.35;
+    /// <summary>ESTIMATE, calibrated in #122 against R9 (see band Low): probability that a race sees measurable rain at some point, band High (was 0.35).</summary>
+    public const double RaceRainProbabilityHigh = 0.23;
 
     // ---- Climate: classes (ESTIMATE) ----------------------------------------------------------------------
     // Annual mean air temperature (C), seasonal half-amplitude (C), half-width of the race-day range (C), variability 0..1.
@@ -24,6 +24,12 @@ public static class WeatherConstants
     public const double MediterraneanMeanC = 17, MediterraneanAmplitudeC = 9, MediterraneanHalfRangeC = 4, MediterraneanVariability = 0.4;
     public const double DesertMeanC = 27, DesertAmplitudeC = 10, DesertHalfRangeC = 4, DesertVariability = 0.2;
     public const double TropicalMeanC = 27, TropicalAmplitudeC = 2, TropicalHalfRangeC = 3, TropicalVariability = 0.7;
+
+    /// <summary>
+    /// ESTIMATE: race time is early afternoon, so the race-day temperature range sits this many degrees above the monthly mean.
+    /// Calibrated against the R9 race air temperatures (issue #122): without it the start air temperature was 3 to 4 degrees too low.
+    /// </summary>
+    public const double RaceAfternoonWarmingC = 3.0;
 
     /// <summary>ESTIMATE: month of the seasonal temperature peak in the northern hemisphere (July); southern is shifted by 6.</summary>
     public const int NorthernPeakMonth = 7;
@@ -114,6 +120,12 @@ public static class WeatherConstants
 
     /// <summary>ESTIMATE: error scale of a best (quality 1) forecaster.</summary>
     public const double GoodForecasterScale = 0.5;
+
+    /// <summary>
+    /// ESTIMATE: share of the minutes of a race that is rainy, in a race that has rain. With the race rain probability of the
+    /// climate it gives the prior chance that a given minute is rainy, which the forecast probability starts from (issue #122).
+    /// </summary>
+    public const double RainMinuteShareGivenRain = 0.4;
 
     /// <summary>ESTIMATE: the uncertainty band is the noisy estimate +- this many sigmas (about a 90 per cent band).</summary>
     public const double ForecastBandSigmas = 1.645;

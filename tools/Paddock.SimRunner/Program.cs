@@ -11,6 +11,7 @@ internal static class Program
             "vote-sim" => VoteSimCommand.Execute(args, Console.Out, Console.Error),
             "config" => ConfigCommand.Execute(args, Console.Out, Console.Error),
             RaceReplayCommand.Name => RaceReplayCommand.Execute(args, Console.Out, Console.Error),
+            Paddock.SimRunner.Calibration.CalibrateRaceCommand.Name => Paddock.SimRunner.Calibration.CalibrateRaceCommand.Execute(args, Console.Out, Console.Error),
             RaceCommand.Name => RaceCommand.Execute(args, Console.Out, Console.Error),
             I18nCheckCommand.Name => I18nCheckCommand.Execute(args, Console.Out, Console.Error),
             InitWorldCommand.Name => InitWorldCommand.Execute(args, Console.Out, Console.Error),

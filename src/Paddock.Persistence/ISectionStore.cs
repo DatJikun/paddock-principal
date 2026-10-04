@@ -52,5 +52,6 @@ public static class SectionStores
         new BoardSectionStore(),
         new SupplySectionStore(),
         new DevelopmentSectionStore(),
+        new PrincipalsSectionStore(),
     ]);
 }

@@ -169,6 +169,7 @@
   "objective.predicate.driverNationalityInLineup": "Wystaw kierowcę narodowości {nationality}.",
   "objective.predicate.personFromCountryInLineup": "Miej w składzie kogoś z kraju {country}.",
   "career.run.title": "{preset} od {from} do {to}, ziarno {seed}, źródło ludzi: {source}.",
+  "career.run.resumed": "Wznowiono {preset} (start {from}) dnia {date}, bieg do {to}, ziarno {seed}, źródło ludzi: {source}. Wypisane są tylko sezony przeżyte teraz.",
   "career.run.estimates": "Te reguły to szacunki, a nie zmierzone fakty. Kierowca może zakończyć karierę od wieku {driverFrom} lat i zawsze kończy ją w wieku {driverCertain}. Personel może zakończyć karierę od wieku {staffFrom} lat i zawsze kończy ją w wieku {staffCertain}. Szansa w dniu urodzin rośnie równymi krokami od pierwszego z tych wieków i jest pewna przy drugim. Kierowca z harmonogramu wchodzi do puli talentów dnia {entryDate} roku z harmonogramu. Każdy kolejny sezon fikcyjni kierowcy uzupełniają pulę do {poolTarget} osób. Koniec kontraktu jest tylko odnotowany i nie ma renegocjacji.",
   "career.run.year": "Sezon {year}: żyjący {alive}, zakończyli karierę {retired}, pula {pool}, kontrakty {contracts}, hash stanu {hash}.",
   "career.run.hash_note": "Hash stanu to świat rano 1 stycznia po tym sezonie. Liczby żyjących, zakończonych karier i puli są liczone obok; pula talentów jest częścią hasha świata, zakończenie kariery nie jest.",

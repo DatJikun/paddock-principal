@@ -1,6 +1,8 @@
 using Paddock.Application.Career;
+using Paddock.Application.Commands;
+using Paddock.Application.Managers;
 using Paddock.Domain.Career;
-using Paddock.Domain.Time;
+using Paddock.Domain.Random;
 using Paddock.Persistence;
 using Paddock.Simulation.Career;
 using Paddock.Simulation.Time;
@@ -8,11 +10,14 @@ using Paddock.Simulation.Time;
 namespace Paddock.SimRunner;
 
 /// <summary>
-/// Writes the world, the day-clock queue, and the AI manager through T19.
+/// Writes a career at a day boundary through T19 so that <see cref="CareerSaveReader"/> can resume it to the same future
+/// (issue #123): the world, the day-clock queue and counters, the managers, the command log, the RNG stream states, the
+/// talent pool and the run's tallies, all in one transaction. SimRunner is the composition root that sees both the owners'
+/// codecs (events in Simulation, commands and managers in Application) and the opaque rows of Persistence, so the mapping
+/// between them lives here and applies no game rules.
 /// Emitted day events are not kept (the queue holds only the future). Retirement is part of the world
-/// (<c>persons.retired_on</c>), so a loaded save has it. The talent pool is not a field of
-/// <see cref="Paddock.Domain.World.WorldState"/>, so a loaded save does not restore it.
-/// RNG stream states are not in the V003 snapshot either.
+/// (<c>persons.retired_on</c>). The talent pool is a section of <see cref="Paddock.Domain.World.WorldState"/> (T40); it is saved
+/// in the <c>talent-pool</c> world section with the rest of the world.
 /// </summary>
 public static class CareerSaveWriter
 {
@@ -22,7 +27,8 @@ public static class CareerSaveWriter
         CareerConfig config,
         string playerTeamId,
         string worldDataHash,
-        string careerName)
+        string careerName,
+        CareerHostState? host = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         ArgumentNullException.ThrowIfNull(session);
@@ -38,18 +44,46 @@ public static class CareerSaveWriter
             events[i] = ToStored(clock.Queue.Events[i]);
         }
 
-        var managers = new[]
+        host ??= FreshHost();
+        var managers = new List<StoredManager>();
+        foreach (var manager in host.Managers.All)
         {
-            new StoredManager(CareerHost.AiManagerId, "Ai", "AI", null),
-        };
+            managers.Add(new StoredManager(
+                manager.Id.Value,
+                ManagerCodec.EncodeKind(manager.Kind),
+                manager.DisplayName,
+                manager.BlockingItem?.Kind));
+        }
+
+        var log = new List<StoredCommand>(host.Log.Entries.Count);
+        foreach (var command in host.Log.Entries)
+        {
+            var body = CommandCodec.Production.Encode(command);
+            log.Add(new StoredCommand(command.SubmissionNumber, command.ManagerId.Value, command.IssuedOn, body.Tag, body.Text));
+        }
+
+        var years = new List<StoredYear>(session.Years.Count);
+        foreach (var year in session.Years)
+        {
+            years.Add(new StoredYear(year.Year, year.Alive, year.Retired, year.Pool, year.Contracts, year.StateHash));
+        }
+
         var snapshot = new WorldSnapshot(
             session.World,
             events,
             checked((long)clock.NextEventId),
             checked((long)clock.Queue.NextSequence),
             managers,
-            [],
-            1);
+            log,
+            host.NextSubmissionNumber)
+        {
+            Run = new CareerRunState(
+                session.OpenedYear,
+                session.ContractExpiries,
+                session.Intakes,
+                years),
+            RngStates = RngStatesOf(clock),
+        };
         var meta = new SaveMeta(
             careerName,
             "AI",
@@ -62,22 +96,41 @@ public static class CareerSaveWriter
         new WorldRepository(save).SaveAll(snapshot, session.Date);
     }
 
+    /// <summary>
+    /// The state of every named stream for the season of the clock's date. A stream the days have not touched yet is the one
+    /// the next draw would derive from the master seed, which is exactly what a resumed clock derives for a stream it does not
+    /// have, so writing it is the same as leaving it out. Earlier seasons are not kept: a season derives its own streams.
+    /// </summary>
+    internal static IReadOnlyDictionary<string, RngState> RngStatesOf(WorldClockState clock)
+    {
+        var season = clock.Date.Year;
+        var states = new Dictionary<string, RngState>(RngStreamName.All.Count, StringComparer.Ordinal);
+        foreach (var name in RngStreamName.All)
+        {
+            states[name] = clock.RngStates.TryGetValue(new RngStreamSlot(name, season), out var saved)
+                ? saved
+                : RngStreams.Derive(clock.MasterSeed, name, season).State;
+        }
+
+        return states;
+    }
+
+    private static CareerHostState FreshHost()
+    {
+        var managers = new ManagerRegistry();
+        managers.Register(new ManagerId(CareerHost.AiManagerId), ManagerKind.Ai, "AI");
+        return new CareerHostState(managers, new CommandLog(), 1);
+    }
+
     private static StoredEvent ToStored(ScheduledEvent scheduled)
     {
-        var (payloadType, payload) = scheduled.Payload switch
-        {
-            RaceSessionPayload race => ("race-session", Invariant(race.Season) + ";" + Invariant(race.Round) + ";" + race.LayoutId),
-            MarkerPayload marker => ("marker", marker.Marker),
-            _ => throw new InvalidOperationException("Cannot store a payload of type " + scheduled.Payload.GetType().Name + "."),
-        };
+        var payload = EventPayloadCodec.Encode(scheduled.Payload);
         return new StoredEvent(
             scheduled.Id.Value,
             scheduled.Date,
             checked((long)scheduled.Sequence),
             scheduled.TypeId,
-            payloadType,
-            payload);
+            payload.Tag,
+            payload.Text);
     }
-
-    private static string Invariant(int value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }

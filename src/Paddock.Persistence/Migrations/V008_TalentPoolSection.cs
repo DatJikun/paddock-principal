@@ -5,14 +5,16 @@ namespace Paddock.Persistence;
 /// <summary>
 /// Adds the tables of the <c>talent-pool</c> world section: the handle counter, the members (with a funded junior season, if any),
 /// the lapsed careers, each organization's scouting focus, and the observation points. The observed bands are not here: they are
-/// the world's knowledge table. A save from before this migration has no pool, which loads as no section.
+/// the world's knowledge table. It also drops <c>talent_pool</c>, the placeholder pool table of V007: the section is the only
+/// source of truth for the pool now. A save from before this migration has no pool section, which loads as none, and the
+/// runner refuses to resume it (its placeholder pool is gone).
 /// Rows follow the rules of the world tables (V003): dates are <c>yyyy-MM-dd</c> text, enums are stored by name, every collection
 /// is a table, nothing is stored twice. Person and organization ids are not foreign keys, as in the inbox: the world tables are
 /// rewritten as a whole and the section is checked when it is loaded.
 /// </summary>
-public sealed class V007_TalentPoolSection : ISaveMigration
+public sealed class V008_TalentPoolSection : ISaveMigration
 {
-    public int Version => 7;
+    public int Version => 8;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {
@@ -23,6 +25,8 @@ public sealed class V007_TalentPoolSection : ISaveMigration
     }
 
     private const string Script = """
+        DROP TABLE talent_pool;
+
         CREATE TABLE pool_counter (
             id INTEGER NOT NULL PRIMARY KEY CHECK (id = 1),
             next_handle INTEGER NOT NULL CHECK (next_handle >= 1)

@@ -82,8 +82,51 @@ public sealed partial class WorldRepository
                 Counter(counters, "event_sequence", 0),
                 managers,
                 log,
-                Counter(counters, "submission", 1));
+                Counter(counters, "submission", 1))
+            {
+                Run = ReadRun(connection),
+                RngStates = _file.TryReadRngStates(),
+            };
         });
+    }
+
+    private static CareerRunState? ReadRun(SqliteConnection connection)
+    {
+        int openedYear;
+        int expiries;
+        int intakes;
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT opened_year, contract_expiries, intakes FROM career_run";
+            using var reader = command.ExecuteReader();
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            openedYear = ToInt(reader.GetInt64(0));
+            expiries = ToInt(reader.GetInt64(1));
+            intakes = ToInt(reader.GetInt64(2));
+        }
+
+        var years = new List<StoredYear>();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT year, alive, retired, pool, contracts, state_hash FROM career_years ORDER BY year";
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                years.Add(new StoredYear(
+                    ToInt(reader.GetInt64(0)),
+                    ToInt(reader.GetInt64(1)),
+                    ToInt(reader.GetInt64(2)),
+                    ToInt(reader.GetInt64(3)),
+                    ToInt(reader.GetInt64(4)),
+                    reader.GetString(5)));
+            }
+        }
+
+        return new CareerRunState(openedYear, expiries, intakes, years);
     }
 
     private void RequireWorld()

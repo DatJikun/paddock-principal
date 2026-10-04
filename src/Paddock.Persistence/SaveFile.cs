@@ -155,6 +155,44 @@ public sealed class SaveFile : IDisposable
         }
     }
 
+    /// <summary>Replaces the stored RNG states, or clears them with null, inside the caller's transaction.</summary>
+    internal void WriteRngStates(SqliteTransaction transaction, IReadOnlyDictionary<string, RngState>? states)
+    {
+        ThrowIfDisposed();
+        string? payload = null;
+        if (states is not null)
+        {
+            RngStateCodec.RequireEveryStream(states);
+            payload = RngStateCodec.Serialize(states);
+        }
+
+        using var command = _connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = "UPDATE meta SET rng_states = $payload WHERE id = 1";
+        command.Parameters.Add("$payload", SqliteType.Text).Value = (object?)payload ?? DBNull.Value;
+        if (command.ExecuteNonQuery() != 1)
+        {
+            throw new InvalidDataException("Save meta row is missing.");
+        }
+    }
+
+    /// <summary>The stored RNG states, or null when none were written. Unlike <see cref="ReadRngStates"/> it does not throw for none.</summary>
+    internal IReadOnlyDictionary<string, RngState>? TryReadRngStates()
+    {
+        ThrowIfDisposed();
+        using var command = _connection.CreateCommand();
+        command.CommandText = "SELECT rng_states FROM meta WHERE id = 1";
+        var value = command.ExecuteScalar();
+        if (value is null or DBNull)
+        {
+            return null;
+        }
+
+        return value is string payload && payload.Length > 0
+            ? RngStateCodec.Deserialize(payload)
+            : throw new InvalidDataException("RNG states payload is malformed.");
+    }
+
     public IReadOnlyDictionary<string, RngState> ReadRngStates()
     {
         ThrowIfDisposed();

@@ -6,7 +6,7 @@ using Paddock.Tests.Persistence;
 
 namespace Paddock.Tests.Pool;
 
-/// <summary>The talent-pool section in the save (V007). The world is a synthetic fixture lived through the real pool handler.</summary>
+/// <summary>The talent-pool section in the save (V008). The world is a synthetic fixture lived through the real pool handler.</summary>
 public class PoolPersistenceTests : IDisposable
 {
     private readonly string _directory = Directory.CreateTempSubdirectory("paddock-pool-").FullName;
@@ -108,7 +108,7 @@ public class PoolPersistenceTests : IDisposable
     public void AnOlderSaveMigratesToNoPoolAndKeepsItsHash()
     {
         var path = Path.Combine(_directory, "old.paddock");
-        using (SaveFile.Create(path, WorldFixtures.Meta(), [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), new V004_WorldSections(), new V005_InboxSection(), new V006_PersonRetirement()]))
+        using (SaveFile.Create(path, WorldFixtures.Meta(), [new V001_Initial(), new V002_CareerConfig(), new V003_WorldEntities(), new V004_WorldSections(), new V005_InboxSection(), new V006_PersonRetirement(), new V007_CareerRun()]))
         {
         }
 

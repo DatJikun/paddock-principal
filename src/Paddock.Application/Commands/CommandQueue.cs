@@ -12,6 +12,20 @@ public sealed class CommandQueue
     private readonly List<ICommand> _pending = [];
     private long _nextSubmissionNumber = 1;
 
+    public CommandQueue()
+    {
+    }
+
+    /// <summary>A queue that carries on numbering from a saved counter, so a number is never reused after a load.</summary>
+    public CommandQueue(long nextSubmissionNumber)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(nextSubmissionNumber, 1);
+        _nextSubmissionNumber = nextSubmissionNumber;
+    }
+
+    /// <summary>The number the next accepted command gets. Never decreases.</summary>
+    public long NextSubmissionNumber => _nextSubmissionNumber;
+
     public int Count => _pending.Count;
 
     public IReadOnlyList<ICommand> Pending => OrderedCopy();

@@ -6,7 +6,7 @@ using Paddock.Domain.World;
 
 namespace Paddock.Persistence;
 
-/// <summary>Saves the <c>talent-pool</c> section into the tables made by <see cref="V007_TalentPoolSection"/>.</summary>
+/// <summary>Saves the <c>talent-pool</c> section into the tables made by <see cref="V008_TalentPoolSection"/>.</summary>
 public sealed class TalentPoolSectionStore : ISectionStore
 {
     private const string PersonPrefix = "gen:";

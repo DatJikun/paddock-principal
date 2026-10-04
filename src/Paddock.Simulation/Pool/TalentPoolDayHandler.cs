@@ -112,7 +112,7 @@ public sealed class TalentPoolDayHandler : IDayHandler
     public int Order => DefaultOrder;
 
     /// <summary>How many people have entered the pool through this handler (real arrivals and fillers).</summary>
-    public int Entries { get; private set; }
+    public int Entries { get; internal set; }
 
     public void OnDay(DayContext context)
     {

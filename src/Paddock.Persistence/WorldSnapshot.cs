@@ -1,3 +1,4 @@
+using Paddock.Domain.Random;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 
@@ -21,6 +22,19 @@ public sealed record StoredCommand(long SubmissionNumber, string ManagerId, Date
 /// every day, and a save is only taken at a day boundary.
 /// </summary>
 public sealed record StoredManager(string Id, string Kind, string DisplayName, string? BlockingKind);
+
+/// <summary>One per-season summary line of a run, as stored in <c>career_years</c>.</summary>
+public sealed record StoredYear(int Year, int Alive, int Retired, int Pool, int Contracts, string StateHash);
+
+/// <summary>
+/// What a day-by-day run keeps beside <see cref="WorldState"/> (V007): the opening year, the tallies, the per-season
+/// and the per-season summaries. None of it is part of the world hash. The talent pool is a world section (T40), not part of this.
+/// </summary>
+public sealed record CareerRunState(
+    int OpenedYear,
+    int ContractExpiries,
+    int Intakes,
+    IReadOnlyList<StoredYear> Years);
 
 /// <summary>
 /// Everything a save keeps about the world at one day boundary: the world itself, the day clock's queue,
@@ -69,4 +83,16 @@ public sealed record WorldSnapshot
 
     /// <summary>Next command submission number. Starts at 1.</summary>
     public long NextSubmissionNumber { get; }
+
+    /// <summary>
+    /// The run state that sits beside the world. Null for a save that has none (written by <see cref="WorldRepository.SaveWorld"/>,
+    /// or before V007). <see cref="WorldRepository.SaveAll"/> replaces it, so null clears what an earlier save left.
+    /// </summary>
+    public CareerRunState? Run { get; init; }
+
+    /// <summary>
+    /// The state of every <see cref="RngStreamName"/> stream for the season of the save date (<c>meta.rng_states</c>), or null
+    /// when the save has none. <see cref="WorldRepository.SaveAll"/> replaces it, so null clears it.
+    /// </summary>
+    public IReadOnlyDictionary<string, RngState>? RngStates { get; init; }
 }

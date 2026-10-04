@@ -1,4 +1,5 @@
 using Paddock.Domain.Cars;
+using Paddock.Domain.Supply;
 using Paddock.Domain.Time;
 using Paddock.Simulation.Racing.Pace;
 
@@ -21,6 +22,21 @@ public static class CarPerformanceFor
             car.Levels.MechanicalGrip,
             car.Levels.Braking,
             car.Levels.Reliability);
+    }
+
+    /// <summary>
+    /// The vector with the engine of the car's supply deal (T43). <see cref="EngineContribution.None"/> gives exactly the vector of
+    /// <see cref="Resolve(TeamCar, EraPerformanceLimits)"/>. Power and reliability stay inside 0..100.
+    /// </summary>
+    public static CarPerformance Resolve(TeamCar car, EraPerformanceLimits limits, EngineContribution engine)
+    {
+        var baseline = Resolve(car, limits);
+        return new CarPerformance(
+            Math.Clamp(baseline.Power + engine.PowerOffset, 0d, 100d),
+            baseline.Downforce,
+            baseline.MechanicalGrip,
+            baseline.Braking,
+            Math.Clamp(baseline.Reliability + engine.ReliabilityOffset, 0d, 100d));
     }
 
     public static CarPerformance Resolve(CarsSection section, string carId, GameDate date)

@@ -210,7 +210,7 @@ public class DevelopmentCommandTests : IDisposable
     public void ASaveFromBeforeTheDevelopmentMigrationLoadsWithNoSectionAndTheSameHash()
     {
         var path = Path.Combine(_directory, "old.paddock");
-        var before = SaveMigrations.Production.TakeWhile(migration => migration is not V015_DevelopmentSection).ToArray();
+        var before = SaveMigrations.Production.TakeWhile(migration => migration is not V016_DevelopmentSection).ToArray();
         var world = WorldFixtures.Small();
         using (var created = SaveFile.Create(path, WorldFixtures.Meta(), before))
         {

@@ -8,9 +8,9 @@ namespace Paddock.Persistence;
 /// hash is unchanged. Rows follow the rules of V003 and V005: dates are <c>yyyy-MM-dd</c> text, enums are stored by name, money is
 /// integer cents, shares and stock are milli-units. Organization and person ids are not foreign keys.
 /// </summary>
-public sealed class V015_DevelopmentSection : ISaveMigration
+public sealed class V016_DevelopmentSection : ISaveMigration
 {
-    public int Version => 15;
+    public int Version => 16;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

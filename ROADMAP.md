@@ -25,9 +25,10 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 **Stan (2026-10-04):**
 - [x] T1–T12 zmergowane: solucja .NET 10 z deterministyczną losowością i CI, importer Jolpica-F1, loadery danych autorskich, szkielet zapisu SQLite, statystyki epok, oceny v0, harmonogram historyczny ludzi (T12). Research (regulaminy, tory, technologie, personel, zdarzenia zespołów, ofiary, pogoda) jest w `data/authored/`.
 - [x] T22: oceny v1 (efekt auta, krzywe kariery, ocena ogólna, gwiazdki), #99.
-- [ ] Pełne pobieranie Jolpica (limit API ~450 zapytań/h) na maszynie właściciela.
-- [ ] `dotnet run --project tools/Paddock.DataPipeline -- ratings` na prawdziwych danych i kalibracja.
-- [ ] Raport do oceny właściciela (bramka).
+- [x] Pełne pobieranie Jolpica 1950–2025. Cache jest w prywatnym repo `paddock-data` (PP-041): kopiujesz `jolpica/` do `data/cache/jolpica/` i nie trzeba pobierać od nowa.
+- [x] `ratings` na prawdziwych danych (2026-10-04): 1138 wyścigów, 353 kierowców w rankingu. Czołówka jest wiarygodna, ρ wobec ankiet ekspertów wynosi 0,67–0,81. Podsumowanie jest w komentarzu w #131.
+- [ ] Znane słabości ocen: krzywe kariery mają szczyt na krańcu kariery (53% zakończonych karier), kwalifikacje dają ok. 2/3 sygnału, efekt auta przy jednym sezonie konstruktora jest skrajny. Szczegóły w #131.
+- [ ] Bramka: decyzja właściciela po raporcie z #131.
 - Zadania fazy 2 zaczęte wcześniej (decyzja właściciela, PP-046) są zmergowane, patrz faza 2.
 
 **Model ocen: plan metody** (do zrobienia przez Claude'a, nie Groka):
@@ -55,7 +56,8 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 **Stan (2026-10-04):**
 - [x] T15 domena świata, T16 tick dnia, T17 kolejka komend z bramką gotowości, T18 SimRunner (`run`), T19 zapis encji świata, T20 inicjalizator świata, T21 `CareerConfig`, T13 generator ludzi.
 - [x] Wznowienie zapisu daje identyczną przyszłość (#125); emeryci zostają w świecie z datą odejścia (#120).
-- [ ] Bramka: przebieg 1950→2026 jest deterministyczny na wygenerowanych ludziach. Przebieg na prawdziwych danych czeka na cache Jolpica.
+- [x] Przebieg 1950→2026 jest deterministyczny na wygenerowanych i prawdziwych ludziach (cache z `paddock-data`).
+- [ ] Bramka nie jest spełniona co do treści: świat jest deterministyczny, ale **martwy**. Bez AI zatrudniającego kierowców (T44) liczba kontraktów spada do zera ok. 1965–1971 i nikt nie jeździ. Potrzebny jest test żywotności świata, a nie tylko test hasha.
 
 **Bramka:** 1950→2026 w SimRunnerze. Ludzie pojawiają się, starzeją i odchodzą, zapis pozostaje mały, a wynik jest deterministyczny.
 
@@ -69,7 +71,8 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - [x] T26–T34: strumień zdarzeń, punkty i klasyfikacja, kwalifikacje, model okrążeń, opony i paliwo, awaryjność, pogoda, incydenty, pit stopy ze strategiem; Race Spy (T24) i głosowane przepisy (T23) już wcześniej.
 - [x] T35: orkiestrator weekendu wyścigowego (#119).
 - [x] Czytelna relacja wyścigu do bramki (#124).
-- [ ] Kalibracja silnika z historią: pit stopy, mokre opony, wycofania (#122).
+- [x] Pierwsza kalibracja i raport `calibrate-race` (#122, #157).
+- [ ] Druga runda kalibracji na pełnym cache 1950–2025: 16 metryk poza tolerancją. Systemowo: za wysoki odsetek zwycięstw z pole position (61–83% wobec 36–52%), za mało zdublowanych w latach 1950–1993, za duży udział awarii mechanicznych wśród wycofań.
 
 **Bramka (grywalności):** czytasz relację wyścigu z 1955 i z 1988. Czuć różnicę epok, a wyniki są wiarygodne.
 
@@ -81,14 +84,14 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - Powstawanie, upadki i wykupy zespołów; propozycje historyczne.
 - Projekt szczegółowy: zakładanie i wykup zespołu w trakcie kariery.
 
-**Stan (2026-10-04):** zadania T35–T48 (#100–#113) są założone jako issues.
+**Stan (2026-10-04, wieczór):** zadania T35–T48 (#100–#113) są założone jako issues.
 - [x] T36: fundamenty (rejestr sekcji świata, skrzynka v0, cele), #117.
-- [ ] W toku (PR-y tuż przed otwarciem): T39 kontrakty i negocjacje (#104), T40 pula talentów (#105).
+- [x] T39: kontrakty i negocjacje (#104, PR #128), T40: pula talentów (#105, PR #127). Oba są podpięte do pętli kariery (#134).
 - [x] T37: finanse v0 (księga, przychody epoki, popularność), #102.
 - [x] T38: sponsorzy (rynek, trzy miejsca na zespół, rozmowy, umowy, zaufanie), #103. Pakiet sponsora założycielskiego jest po MVP (PP-050).
-- [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
-- [ ] W toku: T43 dostawy i silniki (#108): umowy dostaw bez własnego programu silnikowego, ten czeka na T42 (`IEngineProgrammes`).
-- [ ] Reszta otwarta: T42, T44, T47, T48.
+- [x] T41: model auta (#106), T42: rozwój auta, ścieżka A (#107, PR #163), T43: umowy dostaw (#108, PR #162), T45: reputacja, zarząd i zwolnienia (#110, PR #155).
+- [ ] **Najważniejsze teraz:** moduły T37, T38, T41, T42, T43 i T45 działają tylko w testach. Pętla kariery ich nie uruchamia, a zegar dnia nie rozgrywa wyścigów (#160).
+- [ ] Otwarte: T44 AI szefów zespołów (#109), T46 cykl życia zespołów (#111, czeka na decyzję właściciela), T47 start kariery w CLI (#112), T48 bramka 1955 (#113), T42b (#165), T43b własny silnik (#164).
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 

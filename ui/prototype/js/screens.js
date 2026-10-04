@@ -138,19 +138,18 @@ S.wyscig = (n = 9) => {
   const pole = past ? DB.gridById[Object.values(DB.grid).find(g => g[0] === res.pole)[1]] : null, fl = past ? DB.grid.find(g => g[0] === res.fl.no) : null;
   const years = hist.years.length ? `<table class="table tight"><thead><tr><th class="c">Rok</th><th>Zwycięzca</th><th>Zespół</th>${hist.years[0][3] ? '<th>Pole position</th><th>Najszybsze okrążenie</th>' : ''}</tr></thead><tbody>${hist.years.map(y => `<tr><td class="c num">${y[0]}</td><td><b>${y[1]}</b></td><td class="muted">${y[2]}</td>${y[3] ? `<td>${y[3]}</td><td>${y[4]}</td>` : ''}</tr>`).join('')}</tbody></table>`
     : `<div class="empty">${UI.st('Pierwszy wyścig F1 na tym torze', 'hi')}</div>`;
-  const liveBtn = `<a class="btn primary" href="#/live/${i + 1}">${UI.icon('<polygon points="5 3 19 12 5 21 5 3"/>', 15)}<span>Oglądaj na żywo</span></a>`;
   return `<div class="race-page">
     <section class="panel rp-head"><span class="rno big">${i + 1}</span>
       <div class="rp-title"><div class="rp-where">${UI.flag(c[1], 'lg')}<span class="meta">${c[0]} 1976</span></div><h1 class="screen">${c[2]}</h1>
         ${UI.fields([{ k: 'Tor', v: t.name }, { k: 'Długość okrążenia', v: `${String(t.len).replace('.', ',')} km`, num: 1 }, { k: 'Okrążenia', v: c[4], num: 1 }, { k: 'Dystans', v: `${(t.len * c[4]).toFixed(1).replace('.', ',')} km`, num: 1 }, { k: 'Charakter', v: t.tags.join(', ') }], 'mid')}</div>
-      <div class="rp-tools">${liveBtn}${prev}${nxt}</div></section>
+      <div class="rp-tools">${prev}${nxt}</div></section>
     <div class="rp-grid">
       <div class="col">
         ${past ? UI.panel('Wyniki', `<div class="tbl-scroll">${table}</div>`, { cls: 'tbl', right: UI.fields([{ k: 'Pole position', v: pole[2] }, { k: 'Najszybsze okrążenie', v: `${fl[2]} · ${res.fl.time}` }], 'hdr') })
           : UI.panel('Poprzednie lata', `<div class="tbl-scroll">${years}</div>`, { cls: 'tbl' })}
       </div>
       <div class="col">
-        <section class="panel rp-map">${trackSvg(c[3], 'big')}<div style="margin-top:14px;display:flex;justify-content:center"><a class="btn primary" href="#/live/${i + 1}"><span>Wyścig na żywo · Mapa 2D</span>${UI.icon(A, 16)}</a></div></section>
+        <section class="panel rp-map">${trackSvg(c[3], 'big')}</section>
         ${UI.panel('Tor w liczbach', `<div class="body">${UI.fields([{ k: 'Wyścigi F1', v: hist.gps || hist.years.length, num: 1 }, { k: 'Średnio DNF', v: String(hist.dnfAvg || '—').replace('.', ','), num: 1 }, { k: 'Średnio SC', v: String(hist.scAvg ?? 0), num: 1 }], 'eq')}
           ${hist.record ? `<div class="record">${UI.fields([{ k: 'Rekord okrążenia', v: hist.record[2], num: 1 }, { k: 'Kierowca', v: `${hist.record[0]} · ${hist.record[1]}` }, { k: 'Rok', v: hist.record[3], num: 1 }])}</div>` : ''}
           <div class="profile-bars">${prof.map(([k, v]) => `<div class="pb"><span>${k}</span><span class="num">${Math.round(v * 100)}%</span><div class="bar thin"><i style="width:${v * 100 / .5}%"></i></div></div>`).join('')}</div></div>`)}

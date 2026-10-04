@@ -22,7 +22,7 @@ const NAV = [
   ['kronika','Kronika','<path d="M6 3h12v18l-6-4-6 4z"/>'],
 ];
 /* ekrany-dzieci podświetlają rodzica w menu */
-const PARENT = { kierowca: 'kierowcy', porownaj: 'kierowcy', osoba: 'personel', wyscig: 'kalendarz', live: 'kalendarz', wyscig_live: 'kalendarz', menedzer: null };
+const PARENT = { kierowca: 'kierowcy', porownaj: 'kierowcy', osoba: 'personel', wyscig: 'kalendarz', menedzer: null };
 const view = document.getElementById('view');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -73,7 +73,7 @@ function drawTop() {
 function advance() {
   const b = STATE.blocking();
   if (b) { location.hash = '#/skrzynka/' + b.id; return; }
-  if (STATE.now().weekend) { location.hash = '#/live/9'; return; }
+  if (STATE.now().weekend) { location.hash = '#/wyscig/9'; return; }
   STATE.step++;
   const mail = STATE.onArrive();
   drawTop();

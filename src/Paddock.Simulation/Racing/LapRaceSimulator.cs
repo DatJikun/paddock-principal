@@ -25,7 +25,11 @@ public sealed class LapRaceSimulator : IRaceSimulator
         }
 
         var result = RaceWeekend.Run(request.Weekend, request.Sink, request.Strategist);
-        request.Publish(RacePublishedFacts.From(result));
-        return result.Tape;
+        var tape = LapFrameInterpolator.Attach(
+            result.Tape,
+            request.Weekend.Track.LengthKm * 1000d,
+            request.FrameSampleSeconds);
+        request.Publish(RacePublishedFacts.From(result) with { Tape = tape });
+        return tape;
     }
 }

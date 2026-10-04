@@ -1,4 +1,5 @@
 using Paddock.Application.Managers;
+using Paddock.Domain.Board;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.People;
 using Paddock.Domain.Spy;
@@ -155,7 +156,8 @@ public sealed class ContractEnvironment
         IPayrollLedger? payroll = null,
         IConstructorStandings? standings = null,
         IPrincipalSkills? principal = null,
-        ITraceSink? trace = null)
+        ITraceSink? trace = null,
+        IReputationSource? reputation = null)
     {
         ArgumentNullException.ThrowIfNull(personality);
         ArgumentNullException.ThrowIfNull(pay);
@@ -168,7 +170,13 @@ public sealed class ContractEnvironment
         Standings = standings ?? new NoStandings();
         Principal = principal ?? new KnownPrincipalSkills();
         Trace = trace ?? NullSink.Instance;
+        Reputation = reputation ?? new NeutralReputationSource();
     }
+
+    /// <summary>
+    /// The reputation of the principal each organization has (T45). A team run by a famous principal looks more prestigious to a
+    /// person weighing its offer, and one run by an unknown looks less. The neutral default shifts nothing.
+    /// </summary>
 
     public IPersonalitySource Personality { get; }
 
@@ -185,6 +193,8 @@ public sealed class ContractEnvironment
     public IConstructorStandings Standings { get; }
 
     public IPrincipalSkills Principal { get; }
+
+    public IReputationSource Reputation { get; }
 
     /// <summary>Receives a trace of every decision a person makes. A passive observer (INV-006).</summary>
     public ITraceSink Trace { get; }

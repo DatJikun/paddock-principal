@@ -38,5 +38,5 @@ public interface ISectionStore
 /// <summary>The stores this build knows.</summary>
 public static class SectionStores
 {
-    public static IReadOnlyList<ISectionStore> Production { get; } = Array.AsReadOnly<ISectionStore>([new InboxSectionStore(), new TalentPoolSectionStore(), new ContractsSectionStore()]);
+    public static IReadOnlyList<ISectionStore> Production { get; } = Array.AsReadOnly<ISectionStore>([new InboxSectionStore(), new TalentPoolSectionStore(), new ContractsSectionStore(), new ObjectivesSectionStore(), new BoardSectionStore()]);
 }

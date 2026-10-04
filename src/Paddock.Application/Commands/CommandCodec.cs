@@ -82,6 +82,7 @@ public sealed class CommandCodec
     public static CommandCodec Production { get; } = new(
     [
         .. ContractCommandCodecs.Entries,
+        .. Paddock.Application.Board.BoardCommandCodecs.Entries,
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",
             command => FlatJson.Write(("itemId", command.ItemId), ("optionId", command.OptionId)),

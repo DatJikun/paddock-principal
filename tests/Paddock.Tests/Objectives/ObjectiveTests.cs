@@ -142,20 +142,24 @@ public class ObjectiveTests
     }
 
     [Fact]
-    public void AWorldHoldingObjectivesIsRefusedByTheSaveUntilTheyHaveAStore()
+    public void AWorldHoldingObjectivesIsSavedAndLoadedWithTheSameHash()
     {
-        // The first system that grants objectives adds the store; until then the data must not be dropped silently.
+        // The board (T45) is the first system that grants objectives, and it added the store.
         var directory = Directory.CreateTempSubdirectory("paddock-objectives-").FullName;
         try
         {
             using var file = SaveFile.Create(Path.Combine(directory, "a.paddock"), WorldFixtures.Meta());
             var repository = new WorldRepository(file);
-            var world = WorldFixtures.Small().WithSection(ObjectivesSection.Empty.Add(Draft(new PodiumsAtLeast(2), 0m), Start).Section);
+            var (section, first) = ObjectivesSection.Empty.Add(Draft(new PodiumsAtLeast(2), 0m), Start);
+            (section, _) = section.Add(Draft(new DriverNationalityInLineup("GBR"), null), Start);
+            section = section.Settle(first.Id, met: true, Deadline);
+            var world = WorldFixtures.Small().WithSection(section);
 
-            var refusal = Assert.Throws<InvalidOperationException>(() => repository.SaveWorld(world, WorldFixtures.Opening));
+            repository.SaveWorld(world, WorldFixtures.Opening);
+            var loaded = repository.LoadWorld();
 
-            Assert.Contains("objectives", refusal.Message, StringComparison.Ordinal);
-            Assert.False(repository.HasWorld);
+            Assert.Equal(world.StateHash(), loaded.StateHash());
+            Assert.Equal(ObjectiveStatus.Met, loaded.Section<ObjectivesSection>(ObjectivesSection.SectionName)!.Find("obj:1")!.Status);
         }
         finally
         {

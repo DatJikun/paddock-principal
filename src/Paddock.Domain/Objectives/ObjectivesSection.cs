@@ -7,8 +7,7 @@ namespace Paddock.Domain.Objectives;
 /// <summary>
 /// Every objective in the world, as the world section named <see cref="SectionName"/>. Like the inbox it keeps its own
 /// counter (ids are <c>obj:{n}</c>, never reused) and is immutable. Settled objectives stay as records.
-/// There is no save store for this section yet: the first system that grants objectives adds one, so a world holding
-/// this section cannot be saved until then (the repository refuses it rather than dropping the data).
+/// The save store was added by the first system that grants objectives, the board (T45): <c>ObjectivesSectionStore</c>.
 /// <para>
 /// Canonical text (<see cref="SchemaVersion"/> 1), after the section header written by the state hash:
 /// <code>
@@ -57,6 +56,29 @@ public sealed class ObjectivesSection : IWorldSection
     public long NextNumber { get; }
 
     public IReadOnlyList<Objective> Objectives => _objectives.Values.ToArray();
+
+    /// <summary>Rebuilds a section from stored objectives. Every number must be below <paramref name="nextNumber"/>.</summary>
+    public static ObjectivesSection Restore(long nextNumber, IEnumerable<Objective> objectives)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(nextNumber, 1);
+        ArgumentNullException.ThrowIfNull(objectives);
+        var map = new SortedDictionary<long, Objective>();
+        foreach (var objective in objectives)
+        {
+            ArgumentNullException.ThrowIfNull(objective);
+            if (objective.Number >= nextNumber)
+            {
+                throw new InvalidOperationException($"Objective '{objective.Id}' is not below the counter {nextNumber}.");
+            }
+
+            if (!map.TryAdd(objective.Number, objective))
+            {
+                throw new InvalidOperationException($"Objective '{objective.Id}' appears twice.");
+            }
+        }
+
+        return new ObjectivesSection(nextNumber, map);
+    }
 
     public static string IdOf(long number) =>
         IdPrefix + number.ToString(CultureInfo.InvariantCulture);

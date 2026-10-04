@@ -258,3 +258,30 @@ public sealed record PersonFromCountryInLineup : ObjectivePredicate
         return facts.Flag(owner, FactKey, Country);
     }
 }
+
+/// <summary>Rebuilds a predicate from its stable name and parameter, as a save stores it.</summary>
+public static class ObjectivePredicates
+{
+    public static ObjectivePredicate Parse(string name, string parameter)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(parameter);
+        try
+        {
+            return name switch
+            {
+                "championshipPositionAtMost" => new ChampionshipPositionAtMost(int.Parse(parameter, NumberStyles.None, CultureInfo.InvariantCulture)),
+                "podiumsAtLeast" => new PodiumsAtLeast(int.Parse(parameter, NumberStyles.None, CultureInfo.InvariantCulture)),
+                "pointsAtLeast" => new PointsAtLeast(decimal.Parse(parameter, NumberStyles.Number, CultureInfo.InvariantCulture)),
+                "cashAtLeast" => new CashAtLeast(long.Parse(parameter, NumberStyles.None, CultureInfo.InvariantCulture)),
+                "driverNationalityInLineup" => new DriverNationalityInLineup(parameter),
+                "personFromCountryInLineup" => new PersonFromCountryInLineup(parameter),
+                _ => throw new ArgumentException($"Unknown predicate '{name}'.", nameof(name)),
+            };
+        }
+        catch (Exception ex) when (ex is FormatException or OverflowException or ArgumentOutOfRangeException)
+        {
+            throw new ArgumentException($"Predicate '{name}' cannot take the parameter '{parameter}'.", nameof(parameter), ex);
+        }
+    }
+}

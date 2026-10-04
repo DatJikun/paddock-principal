@@ -46,6 +46,8 @@ public class RaceSimulatorTests
 
         Assert.Equal(direct.ToCanonicalJson(), via.ToCanonicalJson());
         Assert.Equal(direct.Hash, request.Published!.Tape.Hash);
+        Assert.Equal(FrameAccuracy.Approximate, via.FrameAccuracy);
+        Assert.NotEmpty(via.Frames);
         Assert.DoesNotContain(typeof(RacePublishedFacts).GetProperties(), property => property.Name == "LapRecords");
     }
 

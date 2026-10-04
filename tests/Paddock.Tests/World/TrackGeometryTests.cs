@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+using System.Security.Cryptography;
 using Paddock.Domain.World.Tracks;
 
 namespace Paddock.Tests.World;
@@ -213,5 +215,35 @@ public class TrackGeometryTests
         Assert.StartsWith("M ", path, StringComparison.Ordinal);
         Assert.EndsWith(" Z", path, StringComparison.Ordinal);
         Assert.Contains(" L ", path, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Curvature_GoldenChecksum_MatchesExpectedCrossPlatformSha256()
+    {
+        var points = new (double X, double Y)[]
+        {
+            (100.0, 0.0),
+            (500.0, 0.0),
+            (700.0, 200.0),
+            (700.0, 600.0),
+            (400.0, 800.0),
+            (0.0, 800.0),
+            (-200.0, 500.0),
+            (-100.0, 200.0),
+        };
+
+        var geom = TrackGeometry.Build(points, referenceLengthM: 3500.0, stepM: 2.0);
+        Assert.NotEmpty(geom.Curvature);
+
+        var bytes = new byte[geom.Curvature.Count * sizeof(double)];
+        for (var i = 0; i < geom.Curvature.Count; i++)
+        {
+            var bits = BitConverter.DoubleToInt64Bits(geom.Curvature[i]);
+            BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(i * sizeof(long)), bits);
+        }
+
+        var hash = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+        // Golden SHA-256 of the little-endian IEEE-754 curvature samples (Menger, no Atan2).
+        Assert.Equal("8a26c9b7b4f993c588517a5bf9f38c815b98ebf08462eb6f0690d284e901071e", hash);
     }
 }

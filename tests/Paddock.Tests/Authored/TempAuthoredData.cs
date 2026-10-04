@@ -15,11 +15,13 @@ internal sealed class TempAuthoredData : IDisposable
         string? staff = null,
         string? eraCatalog = null,
         string? eraTimeline = null,
-        string? cpi = null)
+        string? cpi = null,
+        IReadOnlyDictionary<string, string>? geometries = null)
     {
         Root = Path.Combine(Path.GetTempPath(), "paddock-authored-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "regulations"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "tracks"));
+        Directory.CreateDirectory(Path.Combine(Root, "authored", "tracks", "geometry"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "tech"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "teams"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "people"));
@@ -37,6 +39,13 @@ internal sealed class TempAuthoredData : IDisposable
         Write("authored/eras/catalog.json", eraCatalog ?? EraSamples.Catalog);
         Write("authored/eras/f1_timeline.json", eraTimeline ?? EraSamples.Timeline);
         Write("authored/eras/cpi_us.json", cpi ?? EraSamples.CpiJson(EraSamples.ClosedCpi()));
+        if (geometries is not null)
+        {
+            foreach (var (fileName, json) in geometries)
+            {
+                Write($"authored/tracks/geometry/{fileName}", json);
+            }
+        }
     }
 
     public string Root { get; }

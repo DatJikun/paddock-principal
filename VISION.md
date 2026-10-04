@@ -236,3 +236,53 @@ Szczegóły w DESIGN §5.3.
 - **Skutek techniczny:** konfiguracja to jeden typ `CareerConfig` zapisywany w `meta`, a każdy system pyta o oś, a nie o nazwę trybu. Fazy 2 i 4 zaczynamy od tego typu.
 - **Uwaga o fazach:** właściciel zdecydował o wcześniejszym zaczęciu wybranych zadań fazy 2 (domena świata, tick dnia, kolejka komend, SimRunner), równolegle z domykaniem fazy 1.
 
+### Przyjęte 2026-10-04 (dwunasta runda: oceny kierowców)
+
+**PP-047: Oceny względem własnej epoki, wspólny łuk kariery, gwiazdki z atrybutów** (doprecyzowuje PP-040).
+- **Ocena względna:** prawdziwy kierowca jest oceniany na tle stawki swoich czasów, a nie kierowców z innych dekad. Najlepsi każdej epoki (Fangio, Clark, Fittipaldi, Hamilton) są na szczycie skali, a dominacja nad rywalami podnosi ocenę.
+- **Gwiazdki są dynamiczne:** to średnia atrybutów 1–20 podzielona przez 4 (20/20 = 5★, 10/20 = 2,5★). Nie ma sztywnych progów rankingowych.
+- **Łuk kariery jest taki sam dla wszystkich:** rozwój, stabilizacja, szczyt, a spadek dopiero około 36–40 lat. Dane decydują o tym, jak wysoko i kiedy kierowca dochodzi do szczytu. Kierowca, który odszedł na szczycie (Fangio), słabnie dopiero po swoim ostatnim prawdziwym sezonie.
+- **Mało danych = ostrożniejsza ocena:** kierowca z małą liczbą porównań z partnerem z zespołu jest przyciągany do średniej (Castellotti).
+- **Indywidualny charakter kierowcy wyrażają przede wszystkim cechy** (DESIGN §6.1): dają bonusy i minusy i mogą też zostać nabyte (albo utracone) w trakcie kariery.
+- Liczby (skala poziomów, siła przyciągania, wiek spadku) są szacunkami do dalszej kalibracji przez właściciela, który może nanosić ręczne korekty.
+
+### Przyjęte 2026-10-04 (trzynasta runda: przegląd Team Principal)
+
+**PP-048: Wnioski z przeglądu gry Team Principal (konkurencja).**
+- **Strata do lidera rozbita na składniki, zawsze dla konkretnego toru.** Gra pokazuje, ile czasu na okrążeniu daje osobno auto, silnik i reszta pakietu, ale tylko w odniesieniu do wybranego toru (np. najbliższego wyścigu). Jednej uniwersalnej liczby „na sezon” nie ma, bo zależy ona od charakterystyki toru.
+- **Tory opisane matematycznie.** Układ toru to geometria (linia środkowa, zakręty, proste), z której gra wylicza charakterystykę (udział wolnych, średnich i szybkich zakrętów oraz prostych) i rysuje mapkę. Dzięki temu tory są spójne, dają się dostosowywać, a nowe da się tworzyć bez rysowania ręcznie. Profil auta według typów zakrętów wynika z tej samej geometrii.
+- **Kredyty z akceptacją zarządu:** kilka ofert (kwota, oprocentowanie, okres), ograniczona liczba naraz, zgoda zarządu wymagana.
+- **Relacje w liczbach:** profil kierowcy i personelu pokazuje krótką listę najlepszych i najgorszych relacji z zespołami i ludźmi (top 3 / bottom 3).
+- **Liczba prób w negocjacjach zależy od relacji:** wieloletni kierowca z wysoką lojalnością i morale daje dużo prób, obcy kierowca tylko 2–3.
+- **Głosowanie nad przepisami w dwóch trybach do wyboru w konfiguracji kariery:** zwykły (każde głosowanie to jeden głos) albo z bankiem głosów (wstrzymanie się odkłada głos do prywatnego banku, który można później wydać na ważniejsze głosowanie).
+- **Na później (po MVP):** specjalizacja projektantów (osobne oceny dla wolnych, średnich i szybkich zakrętów oraz oporu, nadająca autu charakter) oraz kierunek rozwoju jako dźwignia gracza (np. moc / niezawodność / efektywność, priorytet rozwoju umiejętności kierowcy).
+- **Odrzucone:** kradzież technologii rywali (PP-037), fabryka i magazyn części (PP-029).
+
+**PP-049: Miejsce w stawce wynika z parametrów auta; tory z geometrii potwierdzone prototypem** (zmienia pierwszy punkt PP-048).
+- **Zamiast rozbicia straty na składniki** gra pokazuje przybliżone miejsce auta w stawce. Wynika ono samo z fizycznych parametrów auta (przyczepność mechaniczna, docisk rosnący z prędkością, prędkość maksymalna, przyspieszenie, hamowanie) zestawionych z geometrią toru. Na różnych torach różne parametry ważą inaczej, bez osobnych tabel wag.
+- **Prototyp Monzy (2026-10-04):** 65 punktów kontrolnych zamkniętej krzywej odtwarza tor długości 5,793 km. Z zakrzywienia wychodzą prędkości w zakrętach (Rettifilo około 78 km/h, Roggia około 96 km/h), udział prostych (około 88%) i mapka. Na Monzie +10 km/h prędkości maksymalnej daje około 0,8 s na okrążeniu, a +10% docisku tylko około 0,2 s, czyli zgodnie z charakterem toru. Liczby są szacunkami do kalibracji.
+- **Na później:** rywalizacje między kierowcami powstają z kolizji na torze, a przyjaźń i większy wzajemny szacunek na torze z wcześniejszych wspólnych startów w seriach juniorskich.
+
+### Przyjęte 2026-10-04 (czternasta runda: zakres MVP)
+
+**PP-050: Zakres MVP i odpowiedzi na pytania fazy 4.**
+- **MVP = sezon 1955 w przejętym istniejącym zespole.** Własny zespół, sponsor założycielski, zakładanie i wykup zespołu w trakcie kariery są po MVP. Multiplayer jest razem z prawdziwym UI (faza 6), a rdzeń jest już pod niego pisany (PP-045).
+- **Finanse:** szacunki zamiast danych z 1955 są w porządku. Saldo może spaść poniżej zera, a na odbicie się jest **cały sezon** (nie 90 dni); można też wziąć kredyt (PP-048). Popularność sportu jest globalna. Kwoty tylko w dolarach.
+- **Sponsorzy:** trzy miejsca na sponsora; na każde miejsce co najmniej 3–5 sponsorów do wyboru. Warunek „talent z danego kraju” oznacza kierowcę tej narodowości.
+- **Auta i stawka:** każdy zespół wystawia dokładnie **dwa auta i dwóch stałych kierowców**. Bez prywatnych zgłoszeń, sprzedaży podwozi i przesiadek między autami w trakcie sezonu (uproszczenie historii). Siła aut na starcie odtwarza historię (Mercedes mocny w 1955). AI widzi siłę aut tak jak prawdziwy szef zespołu (wyniki, tempo), ale nie zna przyszłości.
+- **Balans kierowca–auto** wynika z modelu ocen: dla każdej epoki proporcja rozrzutu auta i rozrzutu kierowcy jest wyliczona z prawdziwych wyników, a silnik wyścigu używa tych proporcji.
+- **Zarząd:** nowy szef ma ochronę co najmniej przez pierwszy sezon, dłużej przy wysokiej reputacji. Właściciele i zarządy na razie nie mają atrybutów. Założyciela własnego zespołu nie da się zwolnić. Zwolniony gracz ogląda dalej świat jako neutralny obserwator, dopóki nie znajdzie nowej pracy.
+- **Przejęcie zespołu (po MVP):** przejmujesz wszystko dokładnie tak, jak jest: kontrakty, budżet, długi i zobowiązania. Nic nie jest generowane ani pomijane, bo gracz i AI działają według tych samych zasad.
+- **Prawdziwe wydarzenia z historii zespołów** nie są pokazywane graczowi jako opisy. Świat gry jest wirtualny, a gracz może porównać go z prawdziwą historią sam.
+
+**PP-051: Scenariusze startowe i wydarzenia oskryptowane (pomysł na po MVP).**
+- **Własna baza startowa sezonu:** gracz wybiera sezon startowy (np. 2016) i zmienia w jego bazie, co chce: zespoły, kierowców, kontrakty, siłę aut. Na razie zmiany nanosi Claude na prośbę właściciela, później edytor bazy (faza 7+).
+- **Wydarzenia oskryptowane:** scenariusz może zaplanować zdarzenia w czasie, np. start w 2012, a w 2013–2014 ktoś zauważa Verstappena dzięki wynikom w seriach juniorskich i trafia on do akademii Mercedesa. Wydarzenia działają na zwykłych zasadach świata, tak jak propozycje historyczne (PP-004).
+- **Wiedza AI o historii jako opcja kariery:** to, czy AI odtwarza historię, czy tylko reaguje na sytuację, jest ustawieniem kariery (oś „zachowanie AI”, PP-046). Domyślnie AI ocenia siłę aut tak jak prawdziwy szef zespołu i nie zna przyszłości.
+
+
+**PP-052: Wyścig na żywo: w MVP silnik okrążeniowy, ale z furtką na prawdziwą symulację ciągłą.**
+- **MVP:** zostaje obecny silnik okrążeniowy (taśma zdarzeń, `RaceTape`). Mapa 2D z góry z kropkami (HANDOFF_UI, „Wyścig na żywo”) działa już w MVP, a pozycje aut na torze są z taśmy wyliczane (interpolacja po geometrii toru). Jest to przybliżenie i ma być jako takie oznaczone w kodzie.
+- **Po MVP:** osobny silnik ciągły (pozycja i prędkość każdego auta w każdej chwili, wyprzedzanie, kolizje wynikające z symulacji, bez scenariuszy). Wymiana silnika nie może wymagać zmian w reszcie gry ani w UI.
+- **Furtka (kontrakt):** (1) całą symulację wyścigu zamyka jeden interfejs (`IRaceSimulator`: wejście = stawka, tor, pogoda, przepisy epoki, ziarno; wyjście = `RaceTape`); (2) taśma ma poza zdarzeniami opcjonalne **klatki pozycji** (czas, auto, miejsce na torze, prędkość) i to z nich rysuje się mapa, niezależnie od silnika; (3) UI, klasyfikacja, zapis i kronika czytają wyłącznie taśmę, nigdy wnętrza silnika; (4) wybór silnika to ustawienie wyścigu (np. okrążeniowy dla wyścigów w tle, ciągły dla oglądanego), ale oba muszą spełniać ten sam kontrakt i niezmienniki TECH §3 (determinizm, osobny strumień RNG, prawda vs wiedza).
+- **Wyścigi w tle** (inne serie, świat bez gracza) mogą zawsze używać szybkiego silnika okrążeniowego; test zgodności (statystyki wyników obu silników w tych samych warunkach mają być zbliżone) jest zadaniem po MVP.

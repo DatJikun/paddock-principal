@@ -2,4 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Paddock.Simulation\Paddock.Simulation.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Paddock.Tests" />
+  </ItemGroup>
 </Project>

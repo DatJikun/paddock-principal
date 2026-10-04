@@ -84,10 +84,14 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 **Stan (2026-10-04):** zadania T35–T48 (#100–#113) są założone jako issues.
 - [x] T36: fundamenty (rejestr sekcji świata, skrzynka v0, cele), #117.
 - [ ] W toku (PR-y tuż przed otwarciem): T39 kontrakty i negocjacje (#104), T40 pula talentów (#105).
-- [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T37 finanse (#102), T38 sponsorzy (#103), T41 model auta (#106), T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
+- [x] T37: finanse v0 (księga, przychody epoki, popularność), #102.
+- [x] T38: sponsorzy (rynek, trzy miejsca na zespół, rozmowy, umowy, zaufanie), #103. Pakiet sponsora założycielskiego jest po MVP (PP-050).
+- [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
 - [ ] Reszta otwarta: T42–T44, T47, T48.
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
+
+**Zakres MVP (PP-050):** przejęty istniejący zespół, dwa auta i dwóch kierowców na zespół, trzy miejsca na sponsora. Własny zespół, sponsor założycielski, zakładanie i wykup zespołu są po MVP.
 
 ## Faza 5: Żywa historia
 - Kronika rozbieżności, Hall of Fame, rekordy, kompaktowanie historii.
@@ -104,6 +108,9 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 **Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.
 
 ## Faza 7+: Rozszerzenia
+- Z przeglądu Team Principal (PP-048), po MVP: specjalizacja projektantów (wolne / średnie / szybkie zakręty, opór) i kierunek rozwoju jako dźwignia gracza.
+- Rywalizacje z kolizji na torze oraz przyjaźń i szacunek z wcześniejszych wspólnych startów w seriach juniorskich (PP-049).
+- Scenariusze startowe: własna baza startowa wybranego sezonu i wydarzenia oskryptowane w czasie (PP-051).
 Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyścigi 24h z wcześniejszych ustaleń), tryb proceduralny od zera, wyzwania, edytor bazy, paczka fikcyjna, wydanie.
 
 ---

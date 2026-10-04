@@ -4,8 +4,10 @@ using Paddock.Application.Commands;
 using Paddock.Application.Managers;
 using Paddock.Application.World;
 using Paddock.Domain.People;
+using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
 using Paddock.Simulation.Career;
+using Paddock.Simulation.Racing;
 using AccessManagerId = Paddock.Application.Access.ManagerId;
 using HostManagerId = Paddock.Application.Managers.ManagerId;
 
@@ -69,6 +71,13 @@ public sealed class CareerHostState
 public static class CareerHost
 {
     public const string AiManagerId = "ai:paddock";
+
+    /// <summary>
+    /// Runs one race for the career through <see cref="IRaceSimulator"/>. The day clock does not schedule races yet;
+    /// this is the call a race day will make, and a test can pass a stub simulator.
+    /// </summary>
+    public static RaceTape SimulateRace(IRaceSimulator simulator, RaceSimulationRequest request) =>
+        RaceSession.Run(simulator, request);
 
     public static CareerRunResult Run(CareerSession session, int toYear) => Run(session, toYear, null);
 

@@ -7,6 +7,39 @@ namespace Paddock.DataPipeline;
 /// </summary>
 public static class RatingsMapping
 {
+    /// <summary>Level of the average ranked F1 driver of his era (z = 0) on the 1-20 attribute scale. ESTIMATE.</summary>
+    public const double LevelAtFieldMean = 12.0;
+
+    /// <summary>Levels per standard deviation below the era's field average. ESTIMATE.</summary>
+    public const double LevelsPerSd = 4.5;
+
+    /// <summary>
+    /// Above the field the level rises along a smooth curve that approaches 20 without being cut off, so the
+    /// greats stay distinct: 12 + 8 * tanh(z / SaturationSd). With 0.95 a z of 1.2 (Lauda) gives about 18.8
+    /// and a z of 2 (Senna, Fangio) about 19.8. ESTIMATE, set on the real run (2026-10-04, owner's check:
+    /// Hill, Ascari and Lauda between 4.5 and 5 stars).
+    /// </summary>
+    public const double SaturationSd = 0.95;
+
+    /// <summary>
+    /// Era-relative skill (z) to the game's 1-20 attribute level (owner's rule, 2026-10-04): the best of each era
+    /// close to 20, the average F1 driver of the time at 12.
+    /// </summary>
+    public static double Level(double z) => z >= 0.0
+        ? LevelAtFieldMean + (20.0 - LevelAtFieldMean) * Math.Tanh(z / SaturationSd)
+        : Math.Max(1.0, LevelAtFieldMean + LevelsPerSd * z);
+
+    /// <summary>
+    /// Stars exactly as the game computes them: the mean attribute level / 4 (20 = 5 stars, 10 = 2.5).
+    /// Continuous, not tiers (owner, 2026-10-04); rounded to two decimals for the report.
+    /// </summary>
+    public static double StarsFromLevel(double level) =>
+        Math.Round(Math.Clamp(level / 4.0, 0.0, 5.0), 2, MidpointRounding.AwayFromZero);
+
+    /// <summary>Overall 1-100 the way the game builds it from attributes: level / 20 * 100.</summary>
+    public static int OverallFromLevel(double level) =>
+        Math.Clamp((int)Math.Round(level * 5.0, MidpointRounding.AwayFromZero), 1, 100);
+
     /// <summary>
     /// Percentile (0 = worst ranked driver, 1 = best) to overall, linearly interpolated between anchors.
     /// ESTIMATES: the issue fixed only 50th percentile = 60 and 99th = 95; the other anchors are guesses.

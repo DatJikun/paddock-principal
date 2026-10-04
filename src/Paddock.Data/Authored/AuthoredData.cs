@@ -20,7 +20,8 @@ public sealed class AuthoredData
         IReadOnlyList<StaffMember> staff,
         IReadOnlyList<CatalogDimension> eraCatalog,
         IReadOnlyList<TimelinePeriod> eraTimeline,
-        IReadOnlyList<CpiYear> cpiYears)
+        IReadOnlyList<CpiYear> cpiYears,
+        IReadOnlyList<TrackGeometryFile>? trackGeometries = null)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(timeline);
@@ -58,6 +59,7 @@ public sealed class AuthoredData
             .Select(period => new RulePeriod(period.Dimension, period.Value, period.From, period.To))
             .ToArray();
         CpiBook = new CpiBook(cpiYears.Select(row => new CpiObservation(row.Year, row.Cpi)).ToArray());
+        TrackGeometries = trackGeometries ?? [];
         Layouts = circuits.Circuits
             .SelectMany(circuit => circuit.Layouts.Select(layout => new TrackLayout(
                 layout.LayoutId,
@@ -122,6 +124,8 @@ public sealed class AuthoredData
     public IReadOnlyList<TimelinePeriod> EraTimeline { get; }
 
     public IReadOnlyList<CpiYear> CpiYears { get; }
+
+    public IReadOnlyList<TrackGeometryFile> TrackGeometries { get; }
 
     public IReadOnlyList<string> DimensionIds { get; }
 

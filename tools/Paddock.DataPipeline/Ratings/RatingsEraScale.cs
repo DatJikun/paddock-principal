@@ -112,6 +112,36 @@ public static class RatingsEraScale
         return result;
     }
 
+    /// <summary>
+    /// Teammate duels at which a driver's era-relative values keep half their size (shrinkage toward the
+    /// field average). Few duels mean a noisy estimate: a 40-duel career keeps a third of its lead over the field,
+    /// a 400-duel career over 80 percent. ESTIMATE, set on the real run (2026-10-04, Castellotti check).
+    /// </summary>
+    public const double ShrinkHalfDuels = 80.0;
+
+    /// <summary>Pulls every season of a thinly measured driver toward the field average (z = 0).</summary>
+    public static Dictionary<string, FittedDriverMetrics> Shrink(IReadOnlyDictionary<string, FittedDriverMetrics> metrics)
+    {
+        ArgumentNullException.ThrowIfNull(metrics);
+        var result = new Dictionary<string, FittedDriverMetrics>(metrics.Count, StringComparer.Ordinal);
+        foreach (var (driverId, m) in metrics)
+        {
+            var factor = m.TotalDuels / (m.TotalDuels + ShrinkHalfDuels);
+            var seasons = m.Seasons.Select(s => (s.Season, s.Skill * factor, s.Se * factor)).ToList();
+            var (peak, peakSe, peakYears, shortCareer) = RatingsModel.CalculatePeak(seasons);
+            result[driverId] = m with
+            {
+                CareerPeak = peak,
+                PeakSe = peakSe,
+                PeakYears = peakYears,
+                ShortCareer = shortCareer,
+                Seasons = seasons,
+            };
+        }
+
+        return result;
+    }
+
     private static SeasonField FieldFor(IReadOnlyDictionary<int, SeasonField> fields, int season)
     {
         if (fields.TryGetValue(season, out var field))

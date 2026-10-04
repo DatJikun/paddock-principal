@@ -115,6 +115,10 @@ Pełną oś czasu budujemy w fazie 1 razem z danymi (**zadanie badawcze dla Grok
 
 **Polityka regulaminowa:** w erach, w których zespoły współdecydują o przepisach (np. Komisja F1), zmiany są proponowane i głosowane. Zespoły głosują zgodnie z własnym interesem, a gracz może lobbować; atrybut szefa „polityka” ma tu znaczenie. W trybie historycznym prawdziwe zmiany przychodzą jako propozycje (PP-004).
 
+**Dwa tryby głosowania (PP-048, wybór w konfiguracji kariery):**
+- **zwykły:** w każdym głosowaniu zespół ma jeden głos;
+- **bank głosów:** wstrzymanie się odkłada głos do prywatnego banku zespołu, a zebrane głosy można później wydać naraz na ważniejsze głosowanie.
+
 ### 4.2. Przełomy technologiczne od ludzi (PP-042, zastępuje PP-009)
 
 **Nie ma drzewka technologii ani ekranu z technologiami do kupienia.** Nie da się niczego przyspieszyć samymi pieniędzmi.
@@ -281,9 +285,11 @@ To dokładnie pasuje do modelu zapasu opisanego wyżej.
 
 Każda z nich zmienia wagi oceny oferty (§8) oraz reakcje na status #2, na złamane obietnice i na złe wyniki. Poznaje się je z czasem: z rozmów, z historii kariery i dzięki relacjom.
 
-**Cechy (0–3):** np. mistrz kwalifikacji, zaklinacz opon / niszczyciel opon, szybki tylko w czystym powietrzu, artysta wyprzedzania, mistrz deszczu, pękający pod presją, skłonny do kraks, „mechanik” (oszczędza sprzęt), kierowca z pieniędzmi, mentor (rozwija partnera z zespołu). Widoczne dopiero po obserwacji.
+**Cechy (0–3):** np. mistrz kwalifikacji, zaklinacz opon / niszczyciel opon, szybki tylko w czystym powietrzu, artysta wyprzedzania, mistrz deszczu, pękający pod presją, skłonny do kraks, „mechanik” (oszczędza sprzęt), kierowca z pieniędzmi, mentor (rozwija partnera z zespołu). Widoczne dopiero po obserwacji. Każda cecha daje konkretny bonus albo minus. Cechy mogą zostać nabyte albo utracone w trakcie kariery (np. doświadczenie w deszczu, mentor obok w zespole) (PP-047).
 
 **Stan bieżący (zmienny):** forma (średnia krocząca), morale, pewność siebie (spada po błędach i w aucie, które mu nie leży), zdrowie i kontuzje. Zmęczenia nie ma w widoku składu. Istnieje tylko wewnątrz długich wyścigów endurance (stinty), gdzie liczy się kondycja.
+
+**Geometria toru (PP-048):** każda wersja układu jest opisana matematycznie (linia środkowa, łuki, proste). Z geometrii gra wylicza profil toru (udział wolnych, średnich i szybkich zakrętów oraz prostych) i rysuje mapkę. Czas okrążenia wynika z tej geometrii i fizycznych parametrów auta (przyczepność mechaniczna, docisk, prędkość maksymalna, przyspieszenie, hamowanie), więc przybliżone miejsce w stawce wychodzi naturalnie i różni się między torami (PP-049).
 
 **Tory:** trzy warstwy, od najbardziej wytłumaczalnej:
 1. **Z atrybutów × profil toru:** wynika wprost z liczb. Na przykład w Monako liczą się regularność i opanowanie, a na Monzy więcej daje walka na prostych.
@@ -355,6 +361,8 @@ Z zaufania wyrastają też rywalizacje (Senna–Prost), napięcia między partne
 ### 6.4. Rozwój i wiek
 Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datami. W trybie „Trajektoria” zastępuje ją prawdziwa krzywa.
 
+**Zasady łuku (PP-047):** rozwój zaczyna się kilka lat przed debiutem, szczyt przypada zwykle na 25–33 lata, a spadek zaczyna się dopiero około 36–40 lat (każdy kierowca ma własny, stały wiek). U prawdziwych kierowców wysokość szczytu i jego moment wynikają z danych (pipeline ocen, skala względem własnej epoki). Spóźnialski, który był na szczycie do końca kariery (Fangio), słabnie dopiero po ostatnim prawdziwym sezonie. Gwiazdki to zawsze średnia atrybutów / 4.
+
 ---
 
 ## 7. Wyścig
@@ -406,8 +414,10 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
   - **Sponsor tytularny zmienia nazwę zespołu** (historycznie np. „Marlboro McLaren”, „Mild Seven Benetton”). Wymaga prestiżu i długiej umowy, może też chcieć udziałów.
   - **Rozmowy przyspieszają:** zgodna narodowość sponsora i kierowcy, prestiż zespołu, przedłużenie istniejącej umowy.
   - **Rozmowy spowalniają:** konflikt branż, bo dwa koncerny paliwowe na jednym aucie nie przejdą.
+- **Kredyty (PP-048):** bank oferuje kilka wariantów (kwota, oprocentowanie, okres spłaty). Kredyt wymaga zgody zarządu (§15), a naraz można mieć ograniczoną liczbę kredytów. Raty są zwykłym kosztem tygodniowym.
 - **Gotówka to nie budżet:** UI rozróżnia gotówkę, zobowiązania, pewne przychody i prognozę. Jeśli czegoś nie da się kupić, gra mówi dokładnie dlaczego.
-- **Kwoty nominalne:** UI pokazuje prawdziwe kwoty, które z biegiem lat rosną razem ze sportem.
+- **Saldo i upadłość (PP-050):** saldo może zejść poniżej zera. Na powrót nad kreskę jest cały sezon (rocznica dnia, w którym saldo spadło pod próg), a dopiero potem pada zdarzenie niewypłacalności. Kredyt (PP-048) jest sposobem, żeby ten sezon przetrwać.
+- **Kwoty nominalne (PP-050):** UI pokazuje prawdziwe kwoty w dolarach, które z biegiem lat rosną razem ze sportem, a nie z automatycznej inflacji. Popularność w pierwszej wersji finansów jest tylko globalna.
 
 ---
 
@@ -424,6 +434,8 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 - Każdą klauzulę można negocjować. Obie strony wyceniają ją według swojej osobowości i sytuacji. Złamanie klauzuli jest sprawą w skrzynce i uderza w zaufanie (§6.3).
 - **Negocjacje z ludźmi, a nie z paskami:** UI pokazuje powody odmowy lub zgody.
   - **Ograniczona liczba prób:** zwykle kilka, u niecierpliwych mniej. Kolejne drobne podbijanie pensji o grosze irytuje drugą stronę i obniża jej zainteresowanie. Liczy się realna zmiana oferty (status, klauzula, lata), a nie klikanie suwaka.
+  - **Liczba prób zależy od relacji (PP-048):** wieloletni kierowca z wysoką lojalnością i morale daje dużo prób, a obcy kierowca bez relacji tylko 2–3.
+- **Relacje w liczbach (PP-048):** profil osoby pokazuje top 3 i bottom 3 relacji z zespołami i ludźmi, z wartościami. Relacje wpływają na zainteresowanie ofertą i liczbę prób.
   - **Rywale składają oferty równolegle.** Kierowca porównuje wszystkie akceptowalne oferty, a przy remisie przesądza zaufanie (§6.3). Obecny zespół nie wygrywa automatycznie.
   - **Kierowcy i personel sami zgłaszają się z propozycjami** („jestem zainteresowany, oto moje warunki”).
 - **Umowy handlowe (sponsorzy, dostawcy) prowadzi dział komercyjny.** Jego liczebność i jakość decydują o tym, ile rozmów prowadzisz naraz i jak szybko idą. **Im dłużej negocjujesz, tym lepsze warunki możesz wynegocjować, ale rywal może w tym czasie podpisać umowę przed Tobą.** Pytanie „podpisać teraz czy czekać” jest świadomym ryzykiem, a gra pokazuje, kto jeszcze rozmawia z tym partnerem (o ile to wiesz).

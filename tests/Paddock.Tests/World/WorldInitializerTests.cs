@@ -1,6 +1,7 @@
 using System.Globalization;
 using Paddock.Data.Authored;
 using Paddock.Data.World;
+using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
 using Paddock.Domain.People;
 using Paddock.Domain.Time;
@@ -285,7 +286,11 @@ public class WorldInitializerTests
         var first = WorldInitializer.Create(Config(PeopleSource.RealTrajectory), WorldInitFixtures.Data(), provider, 1);
         var second = WorldInitializer.Create(Config(PeopleSource.RealTrajectory), WorldInitFixtures.Data(), provider, 2);
 
-        Assert.Equal(first.World.StateHash(), second.World.StateHash());
+        // Rated people stay seed-independent. Driver-fit rolls use the People stream, so only the cars section moves.
+        Assert.Equal(
+            first.World.WithoutSection(CarsSection.SectionName).StateHash(),
+            second.World.WithoutSection(CarsSection.SectionName).StateHash());
+        Assert.NotEqual(first.World.StateHash(), second.World.StateHash());
     }
 
     [Fact]

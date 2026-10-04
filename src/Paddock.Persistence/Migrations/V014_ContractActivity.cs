@@ -7,9 +7,9 @@ namespace Paddock.Persistence;
 /// completed season rows and on the in-progress season kept in <c>career_run</c>. A save from before this migration loads
 /// those counts as zero. The columns are not part of the world hash.
 /// </summary>
-public sealed class V010_ContractActivity : ISaveMigration
+public sealed class V014_ContractActivity : ISaveMigration
 {
-    public int Version => 10;
+    public int Version => 14;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

@@ -44,6 +44,8 @@ public static class WorldInitGapCodes
     public const string LineageTruncated = "world.init.gap.lineage_truncated";
 
     public const string ReferenceSeasonClamped = "world.init.gap.reference_season_clamped";
+
+    public const string IndianapolisOnly = "world.init.gap.indianapolis_only";
 }
 
 /// <summary>Translation keys of <see cref="WorldInitException"/>.</summary>

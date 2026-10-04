@@ -302,11 +302,16 @@ public sealed class ContractEngine
         if (exerciseOption)
         {
             var terms = _book.Section.TermsOf(contract.Id);
-            return contract.Option is ContractOption option
-                && terms?.OptionHolder == OptionHolder.Team
-                && today <= option.Deadline
-                ? null
-                : TranslationMessage.Of(ContractKeys.OptionUnavailable);
+            if (contract.Option is not ContractOption option
+                || terms?.OptionHolder != OptionHolder.Team
+                || today > option.Deadline)
+            {
+                return TranslationMessage.Of(ContractKeys.OptionUnavailable);
+            }
+
+            return HasSignedFuture(contract.PersonId, contract.Id, today)
+                ? TranslationMessage.Of(ContractKeys.PersonTaken)
+                : null;
         }
 
         if (offer is null)

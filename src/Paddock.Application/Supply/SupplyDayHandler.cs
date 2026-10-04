@@ -162,6 +162,14 @@ public sealed class SupplyDayHandler : IDayHandler
         switch (answer.Kind)
         {
             case SupplyAnswerKind.Accept:
+                var blocked = SupplyRules.RefusalAtSign(supply, negotiation, negotiation.Offer, today);
+                if (blocked is not null)
+                {
+                    var blockedTalks = negotiation.WithRefusal([blocked], today);
+                    Notice(negotiation.Customer, SupplyKeys.InboxRefusedSubject, blockedTalks, today);
+                    return world.WithSection(supply.ReplaceNegotiation(blockedTalks));
+                }
+
                 var signed = SupplyRules.Sign(world, negotiation, negotiation.Offer, today);
                 if (signed is null)
                 {

@@ -199,6 +199,43 @@ public class ContractLifecycleTests
     // --- A person's option ---
 
     [Fact]
+    public void APersonOptionIsSkippedWhenARenewalIsAlreadySigned()
+    {
+        var lab = new Lab(
+            customize: world =>
+            {
+                var (withCurrent, _) = world.AddContract(new ContractSpec(
+                    DriverY,
+                    TeamB,
+                    ContractRole.Driver(SeatStatus.Equal),
+                    new GameDate(1955, 1, 1),
+                    new GameDate(1955, 12, 31),
+                    100_000,
+                    true,
+                    new ContractOption(new GameDate(1955, 9, 1), 1),
+                    null));
+                var (withRenewal, _) = withCurrent.AddContract(new ContractSpec(
+                    DriverY,
+                    TeamB,
+                    ContractRole.Driver(SeatStatus.Equal),
+                    new GameDate(1956, 1, 1),
+                    new GameDate(1956, 12, 31),
+                    100_000,
+                    true,
+                    null,
+                    null));
+                return withRenewal;
+            },
+            customizeSection: section => section.WithTerms(new ContractTerms(ContractId.Generated(4), 0, 0, 0, OptionHolder.Person, null)));
+
+        var exception = Record.Exception(() => lab.Advance(95));
+
+        Assert.Null(exception);
+        Assert.Equal(new GameDate(1955, 12, 31), lab.World.Contracts.Single(contract => contract.Id == ContractId.Generated(4)).End);
+        Assert.Empty(lab.EventsOf(ContractEventTypes.OptionExercised));
+    }
+
+    [Fact]
     public void APersonWhoHoldsTheOptionExtendsTheContractWhenStayingIsWorthIt()
     {
         var sink = new MemorySink();

@@ -6,6 +6,7 @@ using Paddock.Application.Contracts;
 using Paddock.Application.Managers;
 using Paddock.Application.World;
 using Paddock.Domain.Cars;
+using Paddock.Domain.Contracts;
 using Paddock.Domain.People;
 using Paddock.Domain.Random;
 using Paddock.Domain.Time;
@@ -182,6 +183,104 @@ public class CarModelTests
     }
 
     [Fact]
+    public void TheSameConceptDrawsTheSameCeiling()
+    {
+        var lab = new Lab(TeamOnly());
+        ApproveConceptCommand Concept(int aero) => new()
+        {
+            ManagerId = lab.Anna,
+            IssuedOn = Day,
+            OrganizationId = "mercedes",
+            AeroMilli = aero,
+        };
+
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(Concept(0)));
+        var ceiling = Ceiling(lab.World);
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(Concept(0)));
+        Assert.Equal(ceiling, Ceiling(lab.World));
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(Concept(1000)));
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(Concept(0)));
+        Assert.Equal(ceiling, lab.Cars.Of(OrganizationId.Real("mercedes"))[0].ConceptCeiling);
+    }
+
+    [Fact]
+    public void AConceptApprovedMidSeasonTakesTheDriversSignedByThen()
+    {
+        var march = new GameDate(1955, 3, 1);
+        var world = WorldState.At(march);
+        (world, var mercedes) = world.AddOrganization(Team("mercedes", "Mercedes"));
+        (world, var moss) = world.AddPerson(Driver("moss", "Stirling", "Moss"));
+        (world, var collins) = world.AddPerson(Driver("collins", "Peter", "Collins"));
+        world = world.AddContract(new ContractSpec(moss, mercedes, ContractRole.Driver(SeatStatus.NumberOne), march, GameDate.SeasonEnd(1955), 1000, true, null, null)).State;
+        world = world.AddContract(new ContractSpec(collins, mercedes, ContractRole.Driver(SeatStatus.NumberTwo), march, GameDate.SeasonEnd(1955), 1000, true, null, null)).State;
+        var lab = new Lab(world);
+
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(new ApproveConceptCommand
+        {
+            ManagerId = lab.Anna,
+            IssuedOn = Day,
+            OrganizationId = "mercedes",
+        }));
+
+        var cars = lab.Cars.Of(mercedes).OrderBy(car => car.Id, StringComparer.Ordinal).ToArray();
+        Assert.Equal([moss, collins], cars.Select(car => car.Driver));
+    }
+
+    [Fact]
+    public void RetirementClearsTheSeatAndANewSigningFillsIt()
+    {
+        var world = Grid();
+        var mercedes = OrganizationId.Real("mercedes");
+        var moss = PersonId.Real("moss");
+        var cars = world.Section<CarsSection>(CarsSection.SectionName)!.Of(mercedes).OrderBy(car => car.Id, StringComparer.Ordinal).ToArray();
+        var mossCar = Assert.Single(cars, car => car.Driver == moss);
+        var partner = Assert.Single(cars, car => car.Driver is not null && car.Driver != moss).Driver;
+
+        var retired = CarSeatSync.Apply(world.RetirePerson(moss, DayAsGame()), new GameDate(1955, 6, 1));
+        var afterRetirement = retired.Section<CarsSection>(CarsSection.SectionName)!.Of(mercedes);
+        Assert.Null(Assert.Single(afterRetirement, car => car.Id == mossCar.Id).Driver);
+        Assert.Equal(partner, Assert.Single(afterRetirement, car => car.Id != mossCar.Id).Driver);
+
+        (retired, var fangio) = retired.AddPerson(Driver("fangio", "Juan", "Fangio"));
+        retired = retired.AddContract(new ContractSpec(
+            fangio,
+            mercedes,
+            ContractRole.Driver(SeatStatus.NumberOne),
+            new GameDate(1955, 6, 1),
+            GameDate.SeasonEnd(1955),
+            1000,
+            true,
+            null,
+            null)).State;
+        var filled = CarSeatSync.Apply(retired, new GameDate(1955, 6, 1));
+        Assert.Equal(fangio, filled.Section<CarsSection>(CarsSection.SectionName)!.Find(mossCar.Id)!.Driver);
+        Assert.Equal(partner, filled.Section<CarsSection>(CarsSection.SectionName)!.Of(mercedes).Single(car => car.Id != mossCar.Id).Driver);
+    }
+
+    [Fact]
+    public void AKnowledgeBandIsNotCentredOnTheTruth()
+    {
+        const string key = "mercedes|car:1|1955";
+        var band = CarKnowledgeBands.Around(60, 12, 12, key);
+        Assert.NotEqual(60d, (band.Low + band.High) / 2d);
+        Assert.InRange(60d, band.Low, band.High);
+        Assert.Equal(band, CarKnowledgeBands.Around(60, 12, 12, key));
+
+        foreach (var truth in new[] { 0d, 1d, 20d, 50d, 60d, 99d, 100d })
+        {
+            foreach (var skill in new[] { 1, 10, 20 })
+            {
+                var sample = CarKnowledgeBands.Around(truth, skill, skill, "alfa|supplier:acme|" + truth.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                Assert.InRange(truth, sample.Low, sample.High);
+                if (truth is > 15d and < 85d)
+                {
+                    Assert.NotEqual(truth, (sample.Low + sample.High) / 2d);
+                }
+            }
+        }
+    }
+
+    [Fact]
     public void ACustomerCarIsRefusedAndTheWorldDoesNotChange()
     {
         Assert.Equal(CarKeys.CustomerNotInMvp, CustomerChassisRules.Refusal(mvpAllows: false, regulationAllows: true));
@@ -206,8 +305,8 @@ public class CarModelTests
     [Fact]
     public void ARivalViewHasNoCeilingAndBandsShrinkWithABetterTechnicalDirector()
     {
-        var weak = CarKnowledgeBands.Around(60, technicalDirectorVision: 8, aeroHead: 10);
-        var strong = CarKnowledgeBands.Around(60, technicalDirectorVision: 18, aeroHead: 10);
+        var weak = CarKnowledgeBands.Around(60, technicalDirectorVision: 8, aeroHead: 10, "mercedes|car:1|1955");
+        var strong = CarKnowledgeBands.Around(60, technicalDirectorVision: 18, aeroHead: 10, "mercedes|car:1|1955");
         Assert.True(strong.High - strong.Low < weak.High - weak.Low);
         Assert.True(strong.High > strong.Low);
 
@@ -294,6 +393,8 @@ public class CarModelTests
 
     private static TeamCar Car(string id, double downforce) =>
         new(id, OrganizationId.Real("mercedes"), 1955, CarConcept.Neutral, PerformanceLevels.Of(50, downforce, 50, 50, 50), 70, 100, 1, 60, null, PersonId.Real("moss"));
+
+    private static GameDate DayAsGame() => new(Day.Year, Day.Month, Day.Day);
 
     private static double Ceiling(WorldState world)
     {

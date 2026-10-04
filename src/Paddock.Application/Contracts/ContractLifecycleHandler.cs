@@ -1,5 +1,6 @@
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
+using Paddock.Domain.Cars;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Inbox;
 using Paddock.Domain.Time;
@@ -76,6 +77,12 @@ public sealed class ContractLifecycleHandler : IDayHandler
             var existing = book.World.Contracts.Select(contract => contract.Id.Value).ToHashSet(StringComparer.Ordinal);
             book.Update(book.Section.PruneTo(id => existing.Contains(id.Value)));
         }
+
+        var synced = CarSeatSync.Apply(book.World, today);
+        if (!ReferenceEquals(synced, book.World))
+        {
+            book.Update(synced);
+        }
     }
 
     private void PromptRenewal(Contract contract, DayContext context)
@@ -124,6 +131,11 @@ public sealed class ContractLifecycleHandler : IDayHandler
         var today = context.Today;
         var terms = book.Section.TermsOf(contract.Id);
         if (terms?.OptionHolder != OptionHolder.Person)
+        {
+            return;
+        }
+
+        if (book.LiveContractsOf(contract.PersonId, today).Any(other => other.Id != contract.Id && other.Start > today))
         {
             return;
         }

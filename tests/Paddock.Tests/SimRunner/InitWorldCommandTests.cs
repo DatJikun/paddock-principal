@@ -39,7 +39,7 @@ public class InitWorldCommandTests
         var polish = Run(["init-world", "--preset", "Chaos", "--year", "1950", "--seed", "5", "--lang", "pl"], out var code);
 
         Assert.Equal(0, code);
-        Assert.Contains("Zespoły: 25", polish);
+        Assert.Contains("Zespoły: 10", polish);
         Assert.Equal(english[^1].Split(": ")[1], polish[^1].Split(": ")[1]);
     }
 

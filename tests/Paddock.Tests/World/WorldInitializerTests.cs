@@ -425,14 +425,18 @@ public class WorldInitializerTests
             EmptyPeopleProvider.Instance,
             Seed);
 
-        // Counts pin the current authored files (engines.json lists 24 constructors for 1950).
+        // Indianapolis 500-only constructors are a gap, not a two-car team (PP-050).
         Assert.Equal(1950, result.Report.ReferenceSeason);
-        Assert.Equal(24, result.Report.Counts.Teams);
         Assert.Equal(0, result.Report.Counts.RacingDrivers);
         Assert.Equal(OrganizationId.Real("ferrari"), result.PlayerOrganization);
-        Assert.Equal(
-            data.Engines.Entries.Where(entry => entry.Year == 1950).Select(entry => entry.ConstructorId).Distinct().Order(StringComparer.Ordinal),
-            result.World.Organizations.Where(organization => organization.Kind == OrganizationKind.Team).Select(organization => organization.Id.Value).Order(StringComparer.Ordinal));
+        var seasonConstructors = data.Engines.Entries.Where(entry => entry.Year == 1950).Select(entry => entry.ConstructorId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        var indyOnly = Subjects(result, WorldInitGapCodes.IndianapolisOnly);
+        var teams = result.World.Organizations.Where(organization => organization.Kind == OrganizationKind.Team && organization.Dissolved is null).Select(organization => organization.Id.Value).Order(StringComparer.Ordinal).ToArray();
+        Assert.Equal(seasonConstructors, indyOnly.Concat(teams).Order(StringComparer.Ordinal));
+        Assert.Contains("kurtis_kraft", indyOnly);
+        Assert.DoesNotContain("ferrari", indyOnly);
+        Assert.Contains("ferrari", teams);
+        Assert.Equal(teams.Length, result.Report.Counts.Teams);
 
         var enzo = result.World.GetPerson(PersonId.Real("enzo_ferrari"));
         Assert.Equal([PersonRole.TeamPrincipal], enzo.Roles);

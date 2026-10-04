@@ -204,6 +204,19 @@ public sealed class RespondToSupplyOfferHandler : CommandHandler<RespondToSupply
             return TranslationMessage.Of(SupplyKeys.AlreadySupplied);
         }
 
+        if (command.Accept)
+        {
+            var blocked = SupplyRules.RefusalAtSign(
+                _book.Section,
+                negotiation,
+                negotiation.Counter!,
+                FinanceBook.ToGameDate(command.IssuedOn));
+            if (blocked is not null)
+            {
+                return TranslationMessage.Of(blocked);
+            }
+        }
+
         return null;
     }
 

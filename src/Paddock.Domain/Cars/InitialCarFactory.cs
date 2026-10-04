@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using Paddock.Domain.People;
 using Paddock.Domain.Random;
 using Paddock.Domain.Time;
@@ -69,21 +70,59 @@ public readonly record struct RatingBand(double Low, double High);
 /// <summary>
 /// Bands an organization's engineers would give. Wider for a weaker technical director and aero head.
 /// Pure and deterministic, so a query can call it without RNG (INV-005). The band never collapses to a point.
+/// The centre is shifted by a stable hash of <c>biasKey</c> (organization, car or supplier, season) so the midpoint
+/// is not the hidden truth (INV-003). The shift is smaller than the half-width, so the truth stays inside the band.
 /// </summary>
 public static class CarKnowledgeBands
 {
-    public static RatingBand Around(double truth, int technicalDirectorVision, int aeroHead)
+    public static RatingBand Around(double truth, int technicalDirectorVision, int aeroHead, string biasKey)
     {
         var skill = (ClampStaff(technicalDirectorVision) + ClampStaff(aeroHead) - 2d) / 38d;
         var half = CarEstimates.MaxHalfWidth + ((CarEstimates.MinHalfWidth - CarEstimates.MaxHalfWidth) * skill);
-        var low = CarEstimates.ClampRating(truth - half);
-        var high = CarEstimates.ClampRating(truth + half);
+        return OfHalfWidth(truth, half, biasKey);
+    }
+
+    /// <summary>A band of the given half-width around <paramref name="truth"/>, with the same RNG-free centre shift.</summary>
+    public static RatingBand OfHalfWidth(double truth, double halfWidth, string biasKey)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(biasKey);
+        var half = Math.Max(0d, halfWidth);
+        var centre = truth + CentreBias(biasKey, half);
+        var low = CarEstimates.ClampRating(centre - half);
+        var high = CarEstimates.ClampRating(centre + half);
+        if (low > truth)
+        {
+            low = CarEstimates.ClampRating(truth);
+        }
+
+        if (high < truth)
+        {
+            high = CarEstimates.ClampRating(truth);
+        }
+
         if (high <= low)
         {
             high = CarEstimates.ClampRating(low + 1d);
         }
 
         return new RatingBand(low, high);
+    }
+
+    /// <summary>
+    /// ESTIMATE shift, strictly inside (−half, half) and never zero when the band has width.
+    /// FNV-1a of the key, so a query draws no RNG (INV-004, INV-005).
+    /// </summary>
+    private static double CentreBias(string biasKey, double half)
+    {
+        if (half <= 0d)
+        {
+            return 0d;
+        }
+
+        var hash = Fnv1a64.Hash(Encoding.UTF8.GetBytes(biasKey));
+        var fraction = ((hash % 999UL) + 1UL) / 1000d;
+        var signed = (hash & 1UL) == 0UL ? fraction : -fraction;
+        return signed * half * 0.5d;
     }
 
     private static int ClampStaff(int value) => Math.Clamp(value, 1, 20);
@@ -160,7 +199,7 @@ public static class InitialCarFactory
             var concept = CarConcept.Neutral;
             var effects = ConceptMapping.Effects(concept, ceiling);
             var levels = ConceptMapping.StartingLevels(concept, ceiling);
-            var drivers = RaceDrivers(world, organization.Id, season);
+            var drivers = RaceDrivers(world, organization.Id, opening);
             for (var seat = 0; seat < CarEstimates.CarsPerTeam; seat++)
             {
                 PersonId? driver = seat < drivers.Count ? drivers[seat] : null;
@@ -188,16 +227,16 @@ public static class InitialCarFactory
         return world.WithSection(CarsSection.Restore(next, 1, cars, profiles));
     }
 
-    public static IReadOnlyList<PersonId> RaceDrivers(WorldState world, OrganizationId organization, int season)
+    /// <summary>Race drivers in post on <paramref name="on"/> (not only on 1 January), number one first.</summary>
+    public static IReadOnlyList<PersonId> RaceDrivers(WorldState world, OrganizationId organization, GameDate on)
     {
         ArgumentNullException.ThrowIfNull(world);
-        var opening = GameDate.SeasonStart(season);
         return world.Contracts
             .Where(contract => contract.OrganizationId == organization
                 && contract.Role.IsDriver
                 && contract.Role.Seat != SeatStatus.Reserve
-                && contract.Start <= opening
-                && contract.End >= opening)
+                && contract.Start <= on
+                && contract.End >= on)
             .OrderBy(contract => (int)contract.Role.Seat)
             .ThenBy(contract => contract.PersonId.Value, StringComparer.Ordinal)
             .Take(CarEstimates.CarsPerTeam)

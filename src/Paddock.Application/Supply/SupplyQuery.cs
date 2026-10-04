@@ -110,8 +110,9 @@ public sealed class SupplyQuery
         var version = _environment.Profiles.EngineOf(deal.Supplier, versionSeason);
         var vision = TeamEngineers.Attribute(world, deal.Customer, today, StaffRole.TechnicalDirector, "vision");
         var aero = TeamEngineers.Attribute(world, deal.Customer, today, StaffRole.HeadOfAerodynamics, "aerodynamics");
-        var power = CarKnowledgeBands.Around(version.Power, vision, aero);
-        var reliability = CarKnowledgeBands.Around(version.Reliability, vision, aero);
+        var key = deal.Customer.Value + "|" + deal.Supplier.Value + "|" + versionSeason.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        var power = CarKnowledgeBands.Around(version.Power, vision, aero, key + "|power");
+        var reliability = CarKnowledgeBands.Around(version.Reliability, vision, aero, key + "|reliability");
         return new OwnEngineView(
             new CarBandView(power.Low, power.High),
             new CarBandView(reliability.Low, reliability.High),

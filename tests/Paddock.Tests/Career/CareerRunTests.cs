@@ -10,6 +10,7 @@ using Paddock.Domain.World;
 using Paddock.Persistence;
 using Paddock.Simulation.Career;
 using Paddock.Simulation.Pool;
+using Paddock.Simulation.Time;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.Career;
@@ -339,6 +340,26 @@ public class CareerRunTests
             provider,
             world,
             Seed));
+    }
+
+    [Fact]
+    public void AnExitClauseEndIsCountedInTheRunTallies()
+    {
+        var session = Session(Seed, target: 0, arrivals: []);
+        session.AttachHandlers([new ExitMarker()]);
+
+        session.LiveDay();
+
+        Assert.Equal(1, session.ContractExpiries);
+        Assert.Equal(1, session.SeasonExpired);
+    }
+
+    private sealed class ExitMarker : IDayHandler
+    {
+        public int Order => 710;
+
+        public void OnDay(DayContext context) =>
+            context.Emit("contract.exitExercised", new MarkerPayload("con:1"));
     }
 
     private static CareerSession WithLastSeasons(IReadOnlyDictionary<string, int> lastSeasons, IReadOnlyList<ScheduledArrival> arrivals) =>

@@ -148,6 +148,7 @@
   "world.init.gap.supplier_unknown": "Teams whose engine supplier is unknown",
   "world.init.gap.lineage_truncated": "Lineage chains cut short because a constructor id repeats (lineage:constructor)",
   "world.init.gap.reference_season_clamped": "Start years after the last authored season (the last season's teams were used)",
+  "world.init.gap.indianapolis_only": "Constructors left out because they only entered the Indianapolis 500 in the start season",
   "world.init.error.invalid_config": "The career configuration is not valid: {codes}.",
   "world.init.error.unknown_player_team": "The team {team} did not exist in {year}.",
   "inbox.error.itemUnknown": "That inbox item does not exist.",

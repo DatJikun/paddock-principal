@@ -10,7 +10,13 @@ using ManagerId = Paddock.Application.Managers.ManagerId;
 
 namespace Paddock.Application.Development;
 
-/// <summary>One project of the manager's own team. Gain is a band of rating points, never the exact hidden number.</summary>
+/// <summary>
+/// One project of the manager's own team. Gain is a band of rating points, never the exact hidden number. For a concept the
+/// production fields are what the principal needs to decide (T42c): a <c>Ready</c> concept shows how many days and how much money
+/// committing now would take (<see cref="ProductionDays"/>, <see cref="ProductionCostCents"/>) and, when the host knows the
+/// calendar, the first race it would then be live at (<see cref="GoesLiveOn"/>). An <c>InProduction</c> one shows the days left,
+/// the last production day (<see cref="ProductionEnds"/>) and the first race it is live at. Own team only, no hidden numbers.
+/// </summary>
 public sealed record OwnProjectView(
     string ProjectId,
     string Kind,
@@ -22,7 +28,11 @@ public sealed record OwnProjectView(
     CarBandView ExpectedGain,
     string Timing,
     int TimingRaces,
-    int RacesWaited);
+    int RacesWaited,
+    int? ProductionDays = null,
+    long? ProductionCostCents = null,
+    DateOnly? ProductionEnds = null,
+    DateOnly? GoesLiveOn = null);
 
 /// <summary>
 /// FORECAST of the own car at the end of the season from the projects that are running and due by then. It does not guess at
@@ -47,8 +57,15 @@ public sealed record OwnDevelopmentView(
     int Headcount,
     CarBandView Account,
     IReadOnlyList<OwnProjectView> Projects,
-    DevelopmentForecast Forecast);
+    DevelopmentForecast Forecast,
+    CarBandView OngoingGain = default,
+    int? DaysToNextRace = null);
 
+/// <remarks>
+/// <see cref="OwnDevelopmentView.OngoingGain"/> is the band of rating points the running upgrades are still expected to add to the
+/// current car (the sum of their bands); it uses only what T42 already has, no breakthrough mechanics. <see cref="OwnDevelopmentView.DaysToNextRace"/>
+/// is null when the host gives no calendar.
+/// </remarks>
 /// <summary>Only the manager's own teams. Rivals' plans and projects are not in the type at all (INV-003).</summary>
 public sealed record DevelopmentOverview(IReadOnlyList<OwnDevelopmentView> Own);
 
@@ -114,9 +131,14 @@ public sealed class DevelopmentQuery
             balance,
             annual);
         var projects = section.ProjectsOf(organization)
-            .Where(project => project.Status is ProjectStatus.Active or ProjectStatus.Ready)
-            .Select(project => ProjectView(project, cars, skill, today))
+            .Where(project => project.Status is ProjectStatus.Active or ProjectStatus.Ready or ProjectStatus.InProduction)
+            .Select(project => ProjectView(project, organization, world, cars, skill, today))
             .ToArray();
+        var running = projects.Where(project => project.Status == nameof(ProjectStatus.Active) && project.Kind == nameof(DevKind.Upgrade)).ToArray();
+        var ongoing = new CarBandView(
+            CarEstimates.ClampRating(running.Sum(project => project.ExpectedGain.Low)),
+            CarEstimates.ClampRating(running.Sum(project => project.ExpectedGain.High)));
+        var next = _environment.Races?.NextRaceOnOrAfter(organization, today);
         var stock = section.AccountOf(organization).StockMilli / 1000d;
         return new OwnDevelopmentView(
             organization.Value,
@@ -130,10 +152,12 @@ public sealed class DevelopmentQuery
             capacity.Headcount,
             Band(stock, vision, aero),
             projects,
-            Forecast(section.ProjectsOf(organization), cars, vision, aero, today));
+            Forecast(section.ProjectsOf(organization), cars, vision, aero, today),
+            ongoing,
+            next is { } race ? today.DaysUntil(race) : null);
     }
 
-    private static OwnProjectView ProjectView(DevProject project, IReadOnlyList<TeamCar> cars, double skill, GameDate today)
+    private OwnProjectView ProjectView(DevProject project, OrganizationId organization, WorldState world, IReadOnlyList<TeamCar> cars, double skill, GameDate today)
     {
         var reference = cars.Count > 0 ? cars[0] : null;
         var headroom = reference is null || project.Area is not { } area
@@ -142,6 +166,26 @@ public sealed class DevelopmentQuery
         var expected = headroom * project.ShareMilli / 1000d;
         var half = 0.6d - (0.45d * skill);
         var left = Math.Max(0, project.DurationDays - project.ProgressDays);
+        int? productionDays = null;
+        long? productionCost = null;
+        DateOnly? productionEnds = null;
+        DateOnly? goesLive = null;
+        if (project.Kind == DevKind.Concept && project.Status == ProjectStatus.Ready)
+        {
+            var plan = ConceptProduction.Plan(world, _book.Finance, organization, project, today);
+            productionDays = plan.Days;
+            productionCost = plan.CostCents;
+            goesLive = LiveOn(organization, today.AddDays(plan.Days));
+        }
+        else if (project.IsInProduction && project.ProductionEnds is { } ends)
+        {
+            left = Math.Max(0, today.DaysUntil(ends));
+            productionDays = left;
+            productionCost = project.ProductionCostCents;
+            productionEnds = ToDateOnly(ends);
+            goesLive = LiveOn(organization, ends);
+        }
+
         return new OwnProjectView(
             project.Id,
             project.Kind.ToString(),
@@ -153,8 +197,16 @@ public sealed class DevelopmentQuery
             new CarBandView(CarEstimates.ClampRating(expected * (1d - half)), CarEstimates.ClampRating(expected * (1d + half))),
             project.Timing.ToString(),
             project.TimingRaces,
-            project.RacesWaited);
+            project.RacesWaited,
+            productionDays,
+            productionCost,
+            productionEnds,
+            goesLive);
     }
+
+    /// <summary>The first race after the last production day, or null when the host gives no calendar.</summary>
+    private DateOnly? LiveOn(OrganizationId organization, GameDate lastProductionDay) =>
+        _environment.Races?.NextRaceOnOrAfter(organization, lastProductionDay.AddDays(1)) is { } race ? ToDateOnly(race) : null;
 
     private static DevelopmentForecast Forecast(
         IReadOnlyList<DevProject> projects,

@@ -56,6 +56,20 @@ public static class DevelopmentCommandCodecs
                     Races = fields.Int32("races"),
                 };
             }),
+        CommandCodecEntry.For<CommitConceptCommand>(
+            "development.commitConcept/1",
+            command => FlatJson.Write(("organization", command.OrganizationId), ("project", command.ProjectId)),
+            (body, manager, issued) =>
+            {
+                var fields = FlatJson.Read(body, "organization", "project");
+                return new CommitConceptCommand
+                {
+                    ManagerId = manager,
+                    IssuedOn = issued,
+                    OrganizationId = fields.String("organization"),
+                    ProjectId = fields.String("project"),
+                };
+            }),
         CommandCodecEntry.For<CutProjectCommand>(
             "development.cutProject/1",
             command => FlatJson.Write(("organization", command.OrganizationId), ("project", command.ProjectId)),

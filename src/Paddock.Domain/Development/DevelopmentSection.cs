@@ -17,7 +17,11 @@ namespace Paddock.Domain.Development;
 /// account &lt;len&gt;:&lt;org&gt; &lt;stock&gt; &lt;nextYear&gt; &lt;rulesYear&gt;
 /// projects &lt;count&gt;
 /// project &lt;number&gt; &lt;len&gt;:&lt;org&gt; &lt;kind&gt; &lt;area or -&gt; &lt;len&gt;:&lt;engineer&gt; &lt;started&gt; &lt;duration&gt; &lt;progress&gt; &lt;cost&gt; &lt;posted&gt;
-///   &lt;share&gt; &lt;risk&gt; &lt;outcome or -&gt; &lt;status&gt; &lt;timing&gt; &lt;timingRaces&gt; &lt;waited&gt; &lt;closed or -&gt;
+///   &lt;share&gt; &lt;risk&gt; &lt;outcome or -&gt; &lt;status&gt; &lt;timing&gt; &lt;timingRaces&gt; &lt;waited&gt; &lt;closed or -&gt; [prod &lt;ends&gt; &lt;productionCost&gt;]
+/// </code>
+/// The trailing <c>prod</c> group is written only for a project that was committed to production (T42c), so a section
+/// without such a project keeps the text, and the hash, it had before.
+/// <code>
 /// </code>
 /// </para>
 /// </summary>
@@ -120,6 +124,11 @@ public sealed class DevelopmentSection : IWorldSection
                 throw new InvalidOperationException($"Project '{project.Id}' is not below the counter {nextProject}.");
             }
 
+            if ((project.Status == ProjectStatus.InProduction && project.ProductionEnds is null) || project.ProductionCostCents < 0)
+            {
+                throw new InvalidOperationException($"Project '{project.Id}' is in production without a finish date.");
+            }
+
             if (!projectMap.TryAdd(project.Number, project))
             {
                 throw new InvalidOperationException($"Project '{project.Id}' appears twice.");
@@ -212,7 +221,8 @@ public sealed class DevelopmentSection : IWorldSection
                 + " " + N(project.ShareMilli) + " " + N(project.RiskMilli)
                 + " " + (project.OutcomeMilli is { } outcome ? N(outcome) : "-")
                 + " " + project.Status + " " + project.Timing + " " + N(project.TimingRaces) + " " + N(project.RacesWaited)
-                + " " + D(project.ClosedOn));
+                + " " + D(project.ClosedOn)
+                + (project.ProductionEnds is { } ends ? " prod " + D(ends) + " " + N(project.ProductionCostCents) : string.Empty));
             writer.End();
         }
     }

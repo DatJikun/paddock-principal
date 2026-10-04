@@ -429,5 +429,20 @@
   "contract.inbox.renewal.release.consequence": "Umowa skończy się w terminie, a osoba stanie się wolnym agentem.",
   "contract.inbox.exitExercised.subject": "Osoba {person} skorzystała z klauzuli wyjścia i odeszła.",
   "contract.inbox.optionExercised.subject": "Osoba {person} skorzystała z opcji: umowa trwa dłużej.",
-  "contract.inbox.expired.subject": "Umowa osoby {person} wygasła. Osoba jest wolnym agentem."
+  "contract.inbox.expired.subject": "Umowa osoby {person} wygasła. Osoba jest wolnym agentem.",
+  "finance.error.notYourOrganization": "Nie kierujesz tą organizacją.",
+  "finance.error.unknownOrganization": "Taka organizacja nie istnieje.",
+  "finance.error.booksOpen": "Ta organizacja ma już otwarte księgi.",
+  "finance.error.noBooks": "Ta organizacja nie ma jeszcze ksiąg.",
+  "finance.error.insolvent": "Ta organizacja jest niewypłacalna.",
+  "finance.error.malformed": "Tego raportu z wyścigu albo sezonu nie da się odczytać.",
+  "finance.revenue.fallback_estimate": "Model przychodów tej epoki nie jest jeszcze opisany, więc pieniądze to nieskalibrowany szacunek (ESTIMATE) dzielony według pozycji.",
+  "finance.reason.opening_capital": "Kapitał otwarcia z benchmarku epoki (szacunek, ESTIMATE).",
+  "finance.reason.start_money": "Pieniądze startowe za zgłoszenie do wyścigu (szacunek, ESTIMATE).",
+  "finance.reason.prize_money": "Nagroda za pozycję na mecie (szacunek, ESTIMATE).",
+  "finance.reason.race_running": "Koszt wystawienia się w wyścigu (szacunek, ESTIMATE).",
+  "finance.reason.salary": "Pensja z umowy.",
+  "finance.reason.termination": "Odszkodowanie za wcześniejsze zakończenie umowy.",
+  "finance.view.unknown": "Nie znasz finansów innej organizacji.",
+  "finance.view.forecast": "Prognoza do końca sezonu. Nieskalibrowany szacunek (ESTIMATE)."
 }

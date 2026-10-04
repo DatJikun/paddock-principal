@@ -104,7 +104,7 @@ public class BoardPersistenceTests : IDisposable
         Assert.Equal(lab.Board.Into().StateHash(), repository.LoadWorld().StateHash());
 
         repository.SaveWorld(lab.World, lab.Today);
-        foreach (var table in new[] { "boards", "board_reputations", "board_reputation_changes", "board_unemployed", "objectives", "objective_effect_arguments", "objectives_counter" })
+        foreach (var table in new[] { "boards", "board_reputations", "board_reputation_changes", "board_unemployed", "objectives", "objective_effect_arguments", "objectives_state" })
         {
             Assert.Equal(0L, Count(file, table));
         }
@@ -116,7 +116,7 @@ public class BoardPersistenceTests : IDisposable
     public void ASaveFromBeforeTheBoardMigrationLoadsWithNoSectionsAndTheSameHash()
     {
         var path = Path.Combine(_directory, "old.paddock");
-        var before = SaveMigrations.Production.TakeWhile(migration => migration is not V010_BoardAndObjectivesSections).ToArray();
+        var before = SaveMigrations.Production.TakeWhile(migration => migration is not V013_BoardSection).ToArray();
         var world = WorldFixtures.Small();
         using (var created = SaveFile.Create(path, WorldFixtures.Meta(), before))
         {

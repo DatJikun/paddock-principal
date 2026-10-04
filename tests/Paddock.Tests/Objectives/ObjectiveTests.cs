@@ -142,24 +142,24 @@ public class ObjectiveTests
     }
 
     [Fact]
-    public void AWorldHoldingObjectivesIsSavedAndLoadedWithTheSameHash()
+    public void AWorldHoldingObjectivesRoundTripsThroughTheSaveWithTheSameHash()
     {
-        // The board (T45) is the first system that grants objectives, and it added the store.
+        // The first system that grants objectives (T38 sponsors) added the store.
         var directory = Directory.CreateTempSubdirectory("paddock-objectives-").FullName;
         try
         {
             using var file = SaveFile.Create(Path.Combine(directory, "a.paddock"), WorldFixtures.Meta());
             var repository = new WorldRepository(file);
-            var (section, first) = ObjectivesSection.Empty.Add(Draft(new PodiumsAtLeast(2), 0m), Start);
-            (section, _) = section.Add(Draft(new DriverNationalityInLineup("GBR"), null), Start);
-            section = section.Settle(first.Id, met: true, Deadline);
+            var (section, _) = ObjectivesSection.Empty.Add(Draft(new PodiumsAtLeast(2), 0m), Start);
+            (section, var second) = section.Add(Draft(new DriverNationalityInLineup("GBR"), null), Start);
+            section = section.Settle(second.Id, true, Start);
             var world = WorldFixtures.Small().WithSection(section);
 
             repository.SaveWorld(world, WorldFixtures.Opening);
             var loaded = repository.LoadWorld();
 
             Assert.Equal(world.StateHash(), loaded.StateHash());
-            Assert.Equal(ObjectiveStatus.Met, loaded.Section<ObjectivesSection>(ObjectivesSection.SectionName)!.Find("obj:1")!.Status);
+            Assert.Equal(2, loaded.Section<ObjectivesSection>(ObjectivesSection.SectionName)!.Objectives.Count);
         }
         finally
         {

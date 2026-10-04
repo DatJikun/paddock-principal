@@ -7,7 +7,7 @@ namespace Paddock.Domain.Objectives;
 /// <summary>
 /// Every objective in the world, as the world section named <see cref="SectionName"/>. Like the inbox it keeps its own
 /// counter (ids are <c>obj:{n}</c>, never reused) and is immutable. Settled objectives stay as records.
-/// The save store was added by the first system that grants objectives, the board (T45): <c>ObjectivesSectionStore</c>.
+/// Saved by <c>ObjectivesSectionStore</c> (added with the first system that grants objectives, T38 sponsors).
 /// <para>
 /// Canonical text (<see cref="SchemaVersion"/> 1), after the section header written by the state hash:
 /// <code>
@@ -57,31 +57,30 @@ public sealed class ObjectivesSection : IWorldSection
 
     public IReadOnlyList<Objective> Objectives => _objectives.Values.ToArray();
 
-    /// <summary>Rebuilds a section from stored objectives. Every number must be below <paramref name="nextNumber"/>.</summary>
+    public static string IdOf(long number) =>
+        IdPrefix + number.ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>Rebuilds the section from stored objectives. Numbers are unique and below <paramref name="nextNumber"/>.</summary>
     public static ObjectivesSection Restore(long nextNumber, IEnumerable<Objective> objectives)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(nextNumber, 1);
         ArgumentNullException.ThrowIfNull(objectives);
-        var map = new SortedDictionary<long, Objective>();
+        var items = new SortedDictionary<long, Objective>();
         foreach (var objective in objectives)
         {
-            ArgumentNullException.ThrowIfNull(objective);
-            if (objective.Number >= nextNumber)
+            if (objective.Number >= nextNumber || !items.TryAdd(objective.Number, objective))
             {
-                throw new InvalidOperationException($"Objective '{objective.Id}' is not below the counter {nextNumber}.");
-            }
-
-            if (!map.TryAdd(objective.Number, objective))
-            {
-                throw new InvalidOperationException($"Objective '{objective.Id}' appears twice.");
+                throw new InvalidOperationException("Objective number " + objective.Number.ToString(CultureInfo.InvariantCulture) + " is duplicated or past the counter.");
             }
         }
 
-        return new ObjectivesSection(nextNumber, map);
-    }
+        if (items.Count != nextNumber - 1)
+        {
+            throw new InvalidOperationException("The objective counter does not match the number of objectives.");
+        }
 
-    public static string IdOf(long number) =>
-        IdPrefix + number.ToString(CultureInfo.InvariantCulture);
+        return new ObjectivesSection(nextNumber, items);
+    }
 
     public Objective? Find(string objectiveId)
     {

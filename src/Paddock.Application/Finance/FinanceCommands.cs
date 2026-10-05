@@ -58,6 +58,9 @@ public sealed record ApplySeasonEndedCommand : ICommand
     /// <summary>Distinct winning organization ids, separated by commas. Empty when nobody won.</summary>
     public required string Winners { get; init; }
 
+    /// <summary><c>driver|position|points</c> rows separated by <c>;</c>. Empty when the drivers' table is not published.</summary>
+    public string Drivers { get; init; } = "";
+
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
 
@@ -314,7 +317,26 @@ public static class FinanceText
                 }
             }
 
-            season = new SeasonEnded(command.Season, command.Races, rows, winners);
+            var drivers = new List<DriverTitleRow>();
+            if (command.Drivers.Length > 0)
+            {
+                foreach (var row in command.Drivers.Split(';', StringSplitOptions.None))
+                {
+                    var parts = row.Split('|');
+                    if (parts.Length != 3 || parts[0].Length == 0)
+                    {
+                        error = "row";
+                        return false;
+                    }
+
+                    drivers.Add(new DriverTitleRow(
+                        parts[0],
+                        int.Parse(parts[1], CultureInfo.InvariantCulture),
+                        decimal.Parse(parts[2], CultureInfo.InvariantCulture)));
+                }
+            }
+
+            season = new SeasonEnded(command.Season, command.Races, rows, winners, drivers);
             return true;
         }
         catch (Exception exception) when (exception is ArgumentException or FormatException or OverflowException)

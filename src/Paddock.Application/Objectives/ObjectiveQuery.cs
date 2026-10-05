@@ -20,6 +20,9 @@ public static class ObjectiveKeys
     public const string StatusFailed = "objective.status.failed";
 
     [TranslationKey]
+    public const string StatusWithdrawn = "objective.status.withdrawn";
+
+    [TranslationKey]
     public const string ForecastUnknown = "objective.forecast.unknown";
 
     [TranslationKey]
@@ -54,6 +57,7 @@ public static class ObjectiveKeys
         ObjectiveStatus.Open => StatusOpen,
         ObjectiveStatus.Met => StatusMet,
         ObjectiveStatus.Failed => StatusFailed,
+        ObjectiveStatus.Withdrawn => StatusWithdrawn,
         _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Unknown status."),
     };
 

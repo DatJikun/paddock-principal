@@ -1,7 +1,9 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using Paddock.Application.Board;
 using Paddock.Desktop.Bridge;
+using Paddock.Domain.Board;
 
 namespace Paddock.Tests.Desktop;
 
@@ -65,11 +67,25 @@ public class BridgeTests
     }
 
     [Fact]
+    public void OpeningOffersTheSeasonTargetWithItsReason()
+    {
+        using var career = Open();
+        var exchange = career.Host.Handle(Message("in", "query", "inbox"));
+        using var json = JsonDocument.Parse(exchange.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), exchange.Response);
+        var match = json.RootElement.GetProperty("data").GetProperty("items").EnumerateArray()
+            .Single(item => item.GetProperty("kind").GetString() == BoardEngine.SeasonTargetKind);
+        Assert.Equal(BoardKeys.SeasonTargetSubject, match.GetProperty("subject").GetProperty("key").GetString());
+        Assert.Equal(SeasonTarget.Expected, match.GetProperty("defaultOptionId").GetString());
+    }
+
+    [Fact]
     public void TheAiPrincipalDirectorLeavesThePlayersTeamAlone()
     {
         // Regression: without seating the player, the T44 director ran the player's team as an AI team
         // (for example it set that team's scouting focus on the first morning).
         using var career = Open();
+        AcceptExpectedSeasonTarget(career.Host, "target");
         for (var day = 0; day < 30; day++)
         {
             var pool = career.Host.Handle(Message("p" + day, "query", "pool"));
@@ -91,6 +107,8 @@ public class BridgeTests
     {
         using var first = Open();
         using var second = Open();
+        AcceptExpectedSeasonTarget(first.Host, "t1");
+        AcceptExpectedSeasonTarget(second.Host, "t2");
         var moved = first.Host.Handle(Message("a1", "command", "advanceDay"));
         using var json = JsonDocument.Parse(moved.Response);
         Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), json.RootElement.ToString());
@@ -229,6 +247,23 @@ public class BridgeTests
         using var json = JsonDocument.Parse(Encoding.UTF8.GetString(buffer, 0, received.Count));
         Assert.Equal("1955-01-01", json.RootElement.GetProperty("data").GetProperty("date").GetString());
         await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+    }
+
+    private static void AcceptExpectedSeasonTarget(BridgeHost host, string id)
+    {
+        var inbox = host.Handle(Message(id, "query", "inbox"));
+        using var json = JsonDocument.Parse(inbox.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), inbox.Response);
+        var itemId = json.RootElement.GetProperty("data").GetProperty("items").EnumerateArray()
+            .Single(item => item.GetProperty("kind").GetString() == BoardEngine.SeasonTargetKind)
+            .GetProperty("id").GetString();
+        var resolved = host.Handle(Message(
+            id + "-answer",
+            "command",
+            "resolveInbox",
+            "{\"managerId\":\"" + CareerBridge.HumanManagerId + "\",\"itemId\":\"" + itemId + "\",\"optionId\":\"" + SeasonTarget.Expected + "\"}"));
+        using var answered = JsonDocument.Parse(resolved.Response);
+        Assert.True(answered.RootElement.GetProperty("ok").GetBoolean(), resolved.Response);
     }
 
     private static string Message(string id, string kind, string name, string? args = null) =>

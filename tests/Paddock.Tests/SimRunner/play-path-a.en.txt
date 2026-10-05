@@ -19,7 +19,7 @@ Cash: 60000.00.
 Forecast to the end of the season: 60000.00.
 No championship position is on the board yet.
 Next race: 1955-03-03.
-Inbox: 0 open, 0 need a decision.
+Inbox: 1 open, 1 need a decision.
 gen:21 — Jean Bernard (FRA)
 gen:22 — John Clarke (GBR)
 gen:23 — Karl Schmidt (DEU)
@@ -72,10 +72,14 @@ talent-8 — Jean Bernard, age 31.
 talent-9 — Karl Schmidt, age 34.
 talent-10 — John Clarke, age 28.
 Scouting focus set to all.
-The inbox is empty.
+inb:1 (board.seasonTarget): The board asks how hard this season should be. Safe is P6, expected is P4, ambitious is P2.
+  safe — Safe
+  expected — Expected
+  ambitious — Ambitious
 No decision you may read is on record.
 Ready.
-The date is now 1955-01-02.
-World hash b5053af8328b285a40a5facc0cf8a532d0f0914ca2ce8521559645ab7b968ed8.
-Saved SAVE. World hash b5053af8328b285a40a5facc0cf8a532d0f0914ca2ce8521559645ab7b968ed8.
+An unresolved matter is holding the clock.
+Waiting for Ada Lovelace.
+World hash 58520b9963f96aa8292d0fd346bc2ab83ef5ca527352a153973c1afd35cefd52.
+Saved SAVE. World hash 58520b9963f96aa8292d0fd346bc2ab83ef5ca527352a153973c1afd35cefd52.
 Session closed.

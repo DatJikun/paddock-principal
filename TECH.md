@@ -54,7 +54,15 @@ data/
   cache/                surowy cache API (poza repo)
 ```
 
-Sześć projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaje tylko wtedy, gdy obecny realnie przeszkadza.
+Siedem projektów w `src/`, bez mnożenia warstw na zapas. Nowy projekt powstaje tylko wtedy, gdy obecny realnie przeszkadza.
+
+Zależności między projektami w `src/` podlegają ścisłym regułom warstwowym (weryfikowanym w `LayeringTests`):
+- `Paddock.Domain` nie zależy od żadnego innego projektu Paddock.
+- `Paddock.Simulation` zależy wyłącznie od `Paddock.Domain`.
+- `Paddock.Application` zależy wyłącznie od `Paddock.Simulation`.
+- `Paddock.Persistence` oraz `Paddock.Data` zależą wyłącznie od `Paddock.Domain`.
+- `Paddock.Career` (zarządzanie przebiegiem kariery, zapisem i odczytem) zależy od `Paddock.Application`, `Paddock.Data` oraz `Paddock.Persistence`.
+- `Paddock.Desktop` (host UI i most JSON) zależy od `Paddock.Application`, `Paddock.Career` oraz `Paddock.Data` — nie referuje `Paddock.Persistence` bezpośrednio, tylko przez `Paddock.Career`.
 
 ---
 

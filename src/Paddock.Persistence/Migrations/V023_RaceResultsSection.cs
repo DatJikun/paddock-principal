@@ -6,9 +6,9 @@ namespace Paddock.Persistence;
 /// Adds the tables of the <c>race-results</c> world section: the classification and the report of each finished round.
 /// A save from before this migration has no such section, which loads as no section, so its hash is unchanged.
 /// </summary>
-public sealed class V022_RaceResultsSection : ISaveMigration
+public sealed class V023_RaceResultsSection : ISaveMigration
 {
-    public int Version => 22;
+    public int Version => 23;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

@@ -1,13 +1,20 @@
 using Paddock.SimRunner;
+using Paddock.Career;
 using Paddock.Application.Board;
 using Paddock.Application.Career;
 using Paddock.Application.Commands;
+using Paddock.Application.Contracts;
 using Paddock.Application.Development;
+using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Data.Authored;
 using Paddock.Data.World;
+using Paddock.Domain.Board;
 using Paddock.Domain.Career;
+using Paddock.Domain.Inbox;
+using Paddock.Domain.Objectives;
 using Paddock.Domain.People;
+using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Career;
@@ -68,6 +75,7 @@ public class PlayCommandTests
         // team as an AI team (it opened talks and set the scouting focus for Ferrari).
         var shell = OpenFerrari();
         TakeOver(shell, "Ada", "Lovelace", "negotiation");
+        AcceptExpectedSeasonTarget(shell);
         for (var day = 0; day < 30; day++)
         {
             shell.BeginDay();
@@ -88,6 +96,7 @@ public class PlayCommandTests
     {
         var shell = OpenFerrari();
         TakeOver(shell, "Ada", "Lovelace", "negotiation");
+        AcceptExpectedSeasonTarget(shell);
         shell.BeginDay();
         var other = shell.RegisterHuman("Bram");
         shell.Ready(shell.Player);
@@ -152,6 +161,111 @@ public class PlayCommandTests
         Assert.Equal(25, plan.NextYearPercent);
     }
 
+    [Fact]
+    public void TakeOverOnNewYearOffersTheSeasonTargetAndAnsweringGrantsOnlyThatOne()
+    {
+        var shell = OpenFerrari();
+        TakeOver(shell, "Ada", "Lovelace", "negotiation");
+        shell.BeginDay();
+
+        var team = shell.TeamOf(shell.Player)!.Value;
+        var board = shell.Modules.Require<BoardBook>();
+        Assert.Equal(BoardEstimates.InitialConfidenceTenths, board.Section.Board(team)!.ConfidenceTenths);
+        Assert.DoesNotContain(
+            board.Objectives.OwnedBy(team),
+            objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
+        var decision = Assert.Single(OpenSeasonTargets(shell));
+        Assert.Equal(BoardKeys.SeasonTargetSubject, decision.SubjectKey);
+        Assert.Equal(SeasonTarget.Expected, decision.DefaultOptionId);
+
+        var answered = shell.Submit(new ResolveInboxItemCommand
+        {
+            ManagerId = shell.Player,
+            IssuedOn = new DateOnly(shell.Date.Year, shell.Date.Month, shell.Date.Day),
+            ItemId = decision.Id,
+            OptionId = SeasonTarget.Ambitious,
+        });
+        Assert.IsType<CommandResult.Accepted>(answered);
+
+        var season = Assert.Single(
+            board.Objectives.OwnedBy(team),
+            objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
+        Assert.Equal(SeasonTarget.Ambitious, season.EffectOnMet.Arguments["ambition"]);
+        Assert.DoesNotContain(board.Objectives.OwnedBy(team), objective => objective.Status == ObjectiveStatus.Withdrawn);
+        Assert.Empty(OpenSeasonTargets(shell));
+        Assert.Equal(BoardEstimates.InitialConfidenceTenths, board.Section.Board(team)!.ConfidenceTenths);
+    }
+
+    [Fact]
+    public void ACareerWithAWithdrawnObjectiveSavesAndLoads()
+    {
+        // Regression (review of #223): the objectives table only allowed Open, Met and Failed, so saving after a take-over
+        // that withdrew the AI's season objective failed on the CHECK constraint.
+        var shell = OpenFerrari();
+        LiveOneDay(shell);
+        TakeOverOn(shell);
+        var config = CareerConfig.FromPreset(CareerPreset.Chaos).WithStartYear(1955).WithPlayerTeam("ferrari");
+        var path = Path.Combine(_directory, "withdrawn.paddock");
+
+        CareerSaveWriter.Write(path, shell.Session, config, "ferrari", "test-data-hash", "withdrawn", shell.HostState);
+
+        var loaded = CareerSaveReader.Read(path);
+        Assert.Contains(
+            loaded.Session.World.Section<Paddock.Domain.Objectives.ObjectivesSection>(Paddock.Domain.Objectives.ObjectivesSection.SectionName)!.Objectives,
+            objective => objective.Status == ObjectiveStatus.Withdrawn);
+    }
+
+    [Fact]
+    public void TakeOverBeforeTheFirstRaceWithdrawsTheAiObjectiveWithoutEffects()
+    {
+        var shell = OpenFerrari();
+        LiveOneDay(shell);
+        var team = OrganizationId.Real("ferrari");
+        var board = shell.Modules.Require<BoardBook>();
+        var granted = Assert.Single(
+            board.Objectives.OwnedBy(team),
+            objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
+
+        TakeOverOn(shell);
+
+        Assert.Equal(ObjectiveStatus.Withdrawn, board.Objectives.Find(granted.Id)!.Status);
+        Assert.Equal(BoardEstimates.InitialConfidenceTenths, board.Section.Board(team)!.ConfidenceTenths);
+        Assert.DoesNotContain(
+            board.Objectives.OwnedBy(team),
+            objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
+        var decision = Assert.Single(OpenSeasonTargets(shell));
+        Assert.Equal(BoardKeys.SeasonTargetSubject, decision.SubjectKey);
+    }
+
+    [Fact]
+    public void TakeOverAfterTheFirstRaceKeepsTheExistingObjective()
+    {
+        var shell = OpenFerrari();
+        LiveOneDay(shell);
+        var team = OrganizationId.Real("ferrari");
+        var contracts = shell.Modules.Require<ContractBook>();
+        contracts.UseWorld(contracts.World.WithSection(ChampionshipSection.Create(
+            shell.Date.Year,
+            7,
+            1,
+            false,
+            [new ChampionshipLedger("driver", [0m], [1])],
+            [new ChampionshipLedger(team.Value, [0m], [1])])));
+        var board = shell.Modules.Require<BoardBook>();
+        var granted = Assert.Single(
+            board.Objectives.OwnedBy(team),
+            objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
+
+        TakeOverOn(shell);
+
+        var kept = Assert.Single(
+            board.Objectives.OwnedBy(team),
+            objective => objective.KindKey == BoardKeys.ObjectiveSeason);
+        Assert.Equal(granted.Id, kept.Id);
+        Assert.Equal(ObjectiveStatus.Open, kept.Status);
+        Assert.Empty(OpenSeasonTargets(shell));
+    }
+
     private static void TakeOver(CareerShell shell, string given, string family, string tilt)
     {
         var result = shell.Submit(new TakeOverTeamCommand
@@ -166,6 +280,47 @@ public class PlayCommandTests
         });
         Assert.IsType<CommandResult.Accepted>(result);
     }
+
+    private static void TakeOverOn(CareerShell shell)
+    {
+        var today = new DateOnly(shell.Date.Year, shell.Date.Month, shell.Date.Day);
+        var result = shell.Submit(new TakeOverTeamCommand
+        {
+            ManagerId = shell.Player,
+            IssuedOn = today,
+            OrganizationId = "ferrari",
+            GivenName = "Ada",
+            FamilyName = "Lovelace",
+            Nationality = "GBR",
+            Tilt = "negotiation",
+        });
+        Assert.IsType<CommandResult.Accepted>(result);
+    }
+
+    private static void LiveOneDay(CareerShell shell)
+    {
+        shell.BeginDay();
+        shell.Ready(shell.Player);
+        Assert.IsType<AdvanceResult.Advanced>(shell.Advance());
+    }
+
+    private static void AcceptExpectedSeasonTarget(CareerShell shell)
+    {
+        var decision = Assert.Single(OpenSeasonTargets(shell));
+        var answered = shell.Submit(new ResolveInboxItemCommand
+        {
+            ManagerId = shell.Player,
+            IssuedOn = new DateOnly(shell.Date.Year, shell.Date.Month, shell.Date.Day),
+            ItemId = decision.Id,
+            OptionId = SeasonTarget.Expected,
+        });
+        Assert.IsType<CommandResult.Accepted>(answered);
+    }
+
+    private static IReadOnlyList<InboxItem> OpenSeasonTargets(CareerShell shell) =>
+        shell.Modules.Require<InboxBook>().Section.ItemsOf(shell.Player.Value)
+            .Where(item => item.Kind == BoardEngine.SeasonTargetKind && item.IsOpen)
+            .ToArray();
 
     private static CareerShell OpenFerrari()
     {

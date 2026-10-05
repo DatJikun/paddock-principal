@@ -15,7 +15,7 @@ export type NegotiationStatus = "Open" | "AwaitingResponse" | "Countered" | "Per
 
 export type NegotiationSubjectKind = "DriverSeat" | "StaffRole";
 
-export type ObjectiveStatus = "Open" | "Met" | "Failed";
+export type ObjectiveStatus = "Open" | "Met" | "Failed" | "Withdrawn";
 
 export type OptionHolder = "Team" | "Person";
 

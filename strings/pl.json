@@ -207,6 +207,7 @@
   "objective.status.open": "W toku",
   "objective.status.met": "Spełniony",
   "objective.status.failed": "Niespełniony",
+  "objective.status.withdrawn": "Wycofany",
   "objective.forecast.unknown": "Brak prognozy: wartość nie jest jeszcze dostępna.",
   "objective.forecast.onTrack": "Przy obecnym trendzie cel zostanie osiągnięty.",
   "objective.forecast.offTrack": "Przy obecnym trendzie cel nie zostanie osiągnięty.",

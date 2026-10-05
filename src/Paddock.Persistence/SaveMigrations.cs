@@ -27,7 +27,8 @@ public static class SaveMigrations
         new V019_RaisesSection(),
         new V020_RaceSections(),
         new V021_StaffSection(),
-        new V022_RaceResultsSection(),
+        new V022_ObjectiveWithdrawn(),
+        new V023_RaceResultsSection(),
     ];
 
     static SaveMigrations()

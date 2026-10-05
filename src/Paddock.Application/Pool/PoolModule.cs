@@ -24,6 +24,7 @@ public sealed class PoolModule : CareerModule
     {
         ArgumentNullException.ThrowIfNull(context);
         var book = PoolBook.ForSession(context.Session);
+        context.Provide(book);
         var organizations = context.Require<IManagerOrganizations>();
         context.AddCommandHandler(new AssignScoutFocusHandler(book, organizations));
         context.AddCommandHandler(new FundJuniorHandler(book, organizations, context.TryGet<IJuniorFunding>()));

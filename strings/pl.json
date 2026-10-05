@@ -260,6 +260,7 @@
   "report.retire.electrics": "Okrążenie {lap}: {driver} ({team}) odpada z powodu awarii układu elektrycznego lub hydraulicznego.",
   "report.retire.cooling": "Okrążenie {lap}: {driver} ({team}) odpada z powodu awarii chłodzenia.",
   "report.retire.mechanical": "Okrążenie {lap}: {driver} ({team}) odpada z powodu awarii mechanicznej.",
+  "report.retire.sudden": "Okrążenie {lap}: {driver} ({team}) odpada z powodu nagłej awarii.",
   "report.retire.accident": "Okrążenie {lap}: {driver} ({team}) odpada po wypadku.",
   "report.retire.other": "Okrążenie {lap}: {driver} ({team}) wycofuje się z wyścigu.",
   "report.injury.light": "{driver} doznaje lekkiej kontuzji.",

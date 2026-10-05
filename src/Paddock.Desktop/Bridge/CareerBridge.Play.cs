@@ -43,6 +43,8 @@ public sealed partial class CareerBridge
     private ulong _suggestedSeed = DefaultSeed;
 
     private Dictionary<string, TrackFacts> _tracks = new(StringComparer.Ordinal);
+    private string? _cardsKey;
+    private IReadOnlyList<TeamCardView>? _cards;
 
     private IReadOnlyDictionary<string, CircuitLabel> Circuits => _circuits;
 
@@ -116,21 +118,96 @@ public sealed partial class CareerBridge
     {
         if (!HasCareer)
         {
-            return new SessionView(false, HumanManagerId, null, null, null, _peopleNotice, _suggestedYear, SeedText());
+            return new SessionView(false, HumanManagerId, null, null, null, _peopleNotice, _suggestedYear, SeedText(), PresetViews());
         }
 
         var team = ReadTeam();
-        return new SessionView(true, Human.Value, DateText, team.OrganizationId, team.Name, _peopleNotice, _suggestedYear, SeedText());
+        return new SessionView(true, Human.Value, DateText, team.OrganizationId, team.Name, _peopleNotice, _suggestedYear, SeedText(), PresetViews());
     }
+
+    private static IReadOnlyList<PresetView> PresetViews() =>
+        new[] { CareerPreset.MostHistorical, CareerPreset.Balanced, CareerPreset.Chaos }
+            .Select(preset =>
+            {
+                var config = CareerConfig.FromPreset(preset);
+                return new PresetView(
+                    preset.ToString(),
+                    config.PeopleSource.ToString(),
+                    config.RulesSource.ToString(),
+                    config.AiBehavior.ToString(),
+                    config.HistoryStrength,
+                    config.RandomnessLevel,
+                    config.FatalityLevel.ToString(),
+                    config.NoNumbers);
+            })
+            .ToArray();
 
     private TeamListView ReadTeams(JsonElement args)
     {
         var year = IntOf(args, "year") ?? DefaultYear;
-        var data = AuthoredDataLoader.Load(RequireData());
-        var teams = WorldInitializer.PublicTeams(data, year)
-            .Select(team => new TeamOptionView(team.Id, team.Name))
+        var root = RequireData();
+        var data = AuthoredDataLoader.Load(root);
+        var roster = WorldInitializer.PublicTeams(data, year);
+        var cards = new Dictionary<string, TeamCardView>(StringComparer.Ordinal);
+        TranslationMessage? problem = null;
+        if (roster.Count > 0)
+        {
+            problem = Configure(args, roster[0].Id, year, out var config, out var dataRoot, out var files, out _);
+            if (problem is null)
+            {
+                var seed = ULongOf(args, "seed") ?? _suggestedSeed;
+                foreach (var card in PreviewCards(data, dataRoot, config, files, seed))
+                {
+                    cards[card.Id] = card;
+                }
+            }
+        }
+
+        var teams = roster
+            .Select(team => cards.TryGetValue(team.Id, out var card)
+                ? new TeamOptionView(team.Id, team.Name, card.Drivers, card.Engine, card.Budget, card.LastSeason, card.Expected, card.FieldSize)
+                : new TeamOptionView(team.Id, team.Name, [], null, null, null, null, null))
             .ToArray();
-        return new TeamListView(year, teams);
+        return new TeamListView(year, teams, problem);
+    }
+
+    /// <summary>
+    /// The public side of the world this setup would start in. The world is built the way <c>newCareer</c> builds it and thrown
+    /// away: the page's session is untouched and no stream of it is drawn. One setup is remembered, because the page asks again
+    /// whenever it redraws.
+    /// </summary>
+    private IReadOnlyList<TeamCardView> PreviewCards(
+        AuthoredData data,
+        string root,
+        CareerConfig config,
+        (string Schedule, string Drivers)? files,
+        ulong seed)
+    {
+        var key = string.Join('|', root, config.StartYear.ToString(CultureInfo.InvariantCulture), config.PeopleSource, seed.ToString(CultureInfo.InvariantCulture));
+        if (_cardsKey == key && _cards is not null)
+        {
+            return _cards;
+        }
+
+        try
+        {
+            var created = WorldInitializer.Create(config, data, CareerData.LoadProvider(files), seed);
+            var tiers = TeamTiersLoader.Load(root);
+            var last = tiers.Standings
+                .Where(entry => entry.Season == config.StartYear - 1)
+                .ToDictionary(entry => entry.ConstructorId, entry => entry.Position, StringComparer.Ordinal);
+            var supplies = created.EngineSupplies
+                .Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType))
+                .ToArray();
+            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, TeamTiersLoader.ToSource(tiers), last);
+            _cardsKey = key;
+            _cards = cards;
+            return cards;
+        }
+        catch (WorldInitException)
+        {
+            return [];
+        }
     }
 
     private SaveListView ReadSaves()
@@ -148,7 +225,12 @@ public sealed partial class CareerBridge
             {
                 using var save = SaveFile.Open(path);
                 var meta = save.ReadMeta();
-                items.Add(new SaveListItem(Path.GetFileName(path), meta.CurrentGameDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), meta.PlayerTeamId));
+                items.Add(new SaveListItem(
+                    Path.GetFileName(path),
+                    meta.CurrentGameDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    meta.PlayerTeamId,
+                    meta.CareerName,
+                    File.GetLastWriteTimeUtc(path).ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture)));
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or InvalidOperationException)
             {
@@ -184,37 +266,35 @@ public sealed partial class CareerBridge
         return MarketRead.Of(access, Contracts(), id, Session.Date);
     }
 
-    private PlayStep Start(JsonElement args)
+    /// <summary>
+    /// The career's axes from a message: the preset, then the single axes over it. Shared by <c>newCareer</c> and the team cards,
+    /// so the cards show the world the career will start in. A refusal is the error and nothing else changes.
+    /// </summary>
+    private TranslationMessage? Configure(
+        JsonElement args,
+        string team,
+        int year,
+        out CareerConfig config,
+        out string root,
+        out (string Schedule, string Drivers)? files,
+        out string? notice)
     {
-        var team = TextOf(args, "teamId");
-        var given = TextOf(args, "givenName");
-        var family = TextOf(args, "familyName");
-        var nationality = TextOf(args, "nationality");
-        var tilt = TextOf(args, "tilt");
-        if (team is null || given is null || family is null || nationality is null || tilt is null)
-        {
-            return PlayStep.Fail(TranslationMessage.Of(BridgeKeys.BadMessage));
-        }
-
-        if (!PlayerPrincipal.TryTilt(tilt, out _))
-        {
-            return PlayStep.Fail(TranslationMessage.Of(PlayKeys.BadTilt, ("tilt", tilt)));
-        }
-
+        config = null!;
+        root = null!;
+        files = null;
+        notice = null;
         var presetText = TextOf(args, "preset") ?? nameof(CareerPreset.Chaos);
         if (!Enum.TryParse<CareerPreset>(presetText, ignoreCase: false, out var preset) || preset == CareerPreset.Custom || !Enum.IsDefined(preset))
         {
-            return PlayStep.Fail(TranslationMessage.Of(PlayKeys.BadPreset, ("preset", presetText)));
+            return TranslationMessage.Of(PlayKeys.BadPreset, ("preset", presetText));
         }
 
-        var year = IntOf(args, "year") ?? DefaultYear;
-        var seed = ULongOf(args, "seed") ?? DefaultSeed;
-        var config = CareerConfig.FromPreset(preset).WithStartYear(year).WithPlayerTeam(team);
+        config = CareerConfig.FromPreset(preset).WithStartYear(year).WithPlayerTeam(team);
         if (TextOf(args, "people") is { } people)
         {
             if (!Enum.TryParse<PeopleSource>(people, ignoreCase: false, out var source) || !Enum.IsDefined(source))
             {
-                return PlayStep.Fail(TranslationMessage.Of(PlayKeys.BadAxisValue, ("axis", "people"), ("value", people)));
+                return TranslationMessage.Of(PlayKeys.BadAxisValue, ("axis", "people"), ("value", people));
             }
 
             config = config.WithPeopleSource(source);
@@ -224,7 +304,7 @@ public sealed partial class CareerBridge
         {
             if (!Enum.TryParse<RulesSource>(rules, ignoreCase: false, out var source) || !Enum.IsDefined(source))
             {
-                return PlayStep.Fail(TranslationMessage.Of(PlayKeys.BadAxisValue, ("axis", "rules"), ("value", rules)));
+                return TranslationMessage.Of(PlayKeys.BadAxisValue, ("axis", "rules"), ("value", rules));
             }
 
             config = config.WithRulesSource(source);
@@ -234,7 +314,7 @@ public sealed partial class CareerBridge
         {
             if (!Enum.TryParse<AiBehavior>(ai, ignoreCase: false, out var behavior) || !Enum.IsDefined(behavior))
             {
-                return PlayStep.Fail(TranslationMessage.Of(PlayKeys.BadAxisValue, ("axis", "ai"), ("value", ai)));
+                return TranslationMessage.Of(PlayKeys.BadAxisValue, ("axis", "ai"), ("value", ai));
             }
 
             config = config.WithAiBehavior(behavior);
@@ -254,7 +334,7 @@ public sealed partial class CareerBridge
         {
             if (!Enum.TryParse<FatalityLevel>(fatalityText, ignoreCase: false, out var fatality) || !Enum.IsDefined(fatality))
             {
-                return PlayStep.Fail(TranslationMessage.Of(PlayKeys.BadFatality));
+                return TranslationMessage.Of(PlayKeys.BadFatality);
             }
 
             config = config.WithFatalityLevel(fatality);
@@ -272,22 +352,49 @@ public sealed partial class CareerBridge
         var validation = config.Validate();
         if (!validation.IsValid)
         {
-            return PlayStep.Fail(TranslationMessage.Of(validation.Errors[0].Code));
+            return TranslationMessage.Of(validation.Errors[0].Code);
         }
 
-        var root = RequireData();
-        var files = CareerData.ResolveProviderFiles(root, null, null);
-        string? notice = null;
+        root = RequireData();
+        files = CareerData.ResolveProviderFiles(root, null, null);
+        notice = null;
         if (files is null && config.PeopleSource != PeopleSource.FullyGenerated)
         {
             config = config.WithPeopleSource(PeopleSource.FullyGenerated);
             var again = config.Validate();
             if (!again.IsValid)
             {
-                return PlayStep.Fail(TranslationMessage.Of(again.Errors[0].Code));
+                return TranslationMessage.Of(again.Errors[0].Code);
             }
 
             notice = BridgeKeys.GeneratedPeople;
+        }
+
+        return null;
+    }
+
+    private PlayStep Start(JsonElement args)
+    {
+        var team = TextOf(args, "teamId");
+        var given = TextOf(args, "givenName");
+        var family = TextOf(args, "familyName");
+        var nationality = TextOf(args, "nationality");
+        var tilt = TextOf(args, "tilt");
+        if (team is null || given is null || family is null || nationality is null || tilt is null)
+        {
+            return PlayStep.Fail(TranslationMessage.Of(BridgeKeys.BadMessage));
+        }
+
+        if (!PlayerPrincipal.TryTilt(tilt, out _))
+        {
+            return PlayStep.Fail(TranslationMessage.Of(PlayKeys.BadTilt, ("tilt", tilt)));
+        }
+
+        var year = IntOf(args, "year") ?? DefaultYear;
+        var seed = ULongOf(args, "seed") ?? DefaultSeed;
+        if (Configure(args, team, year, out var config, out var root, out var files, out var notice) is { } refused)
+        {
+            return PlayStep.Fail(refused);
         }
 
         try
@@ -431,13 +538,38 @@ public sealed partial class CareerBridge
         try
         {
             var path = SavePath(name);
-            var display = _play.Modules.Managers.Get(_play.Player).DisplayName;
-            CareerSaveWriter.Write(path, _play.Session, _config, organization.Value, _worldDataHash, _careerName, _play.HostState);
+            WriteSave(path, organization.Value);
             return PlayStep.Ok(BridgeValues.ToNode(new CareerSavedView(Path.GetFileName(path), _play.WorldHash)), inbox: false);
         }
         catch (Exception ex) when (ex is IOException or InvalidOperationException or UnstableSaveException or ArgumentException)
         {
             return PlayStep.Fail(TranslationMessage.Of(PlayKeys.SaveFailed, ("reason", ex.GetType().Name)));
+        }
+    }
+
+    /// <summary>
+    /// Writes the career next to its final name and moves it over: the writer refuses to touch an existing file, and a save
+    /// that fails half way must not destroy the one it was replacing.
+    /// </summary>
+    private void WriteSave(string path, string team)
+    {
+        var temp = path + ".tmp";
+        try
+        {
+            if (File.Exists(temp))
+            {
+                File.Delete(temp);
+            }
+
+            CareerSaveWriter.Write(temp, _play!.Session, _config!, team, _worldDataHash!, _careerName, _play.HostState);
+            File.Move(temp, path, overwrite: true);
+        }
+        finally
+        {
+            if (File.Exists(temp))
+            {
+                File.Delete(temp);
+            }
         }
     }
 

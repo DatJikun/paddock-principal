@@ -302,6 +302,139 @@ public class BridgeTests
     }
 
     [Fact]
+    public void TheTeamCardsShowTheLineUpTheCareerWillStartWithAndChangeNothing()
+    {
+        using var career = Lobby();
+        var args = """{"managerId":"human:player","year":1955,"preset":"Chaos","people":null,"seed":1}""";
+        var first = career.Host.Handle(Message("cards", "query", "teams", args));
+        var again = career.Host.Handle(Message("cards2", "query", "teams", args));
+        using var json = JsonDocument.Parse(first.Response);
+        using var twice = JsonDocument.Parse(again.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), first.Response);
+        Assert.Equal(
+            json.RootElement.GetProperty("data").GetRawText(),
+            twice.RootElement.GetProperty("data").GetRawText());
+        Assert.Empty(first.Events);
+
+        JsonElement? ferrari = null;
+        foreach (var team in json.RootElement.GetProperty("data").GetProperty("teams").EnumerateArray())
+        {
+            Assert.True(team.GetProperty("expected").GetInt32() >= 1, team.GetRawText());
+            Assert.True(team.GetProperty("expected").GetInt32() <= team.GetProperty("fieldSize").GetInt32(), team.GetRawText());
+            Assert.Contains(team.GetProperty("budget").GetString(), new[] { "low", "typical", "top" });
+            if (team.GetProperty("id").GetString() == "ferrari")
+            {
+                ferrari = team.Clone();
+            }
+        }
+
+        Assert.NotNull(ferrari);
+        var card = ferrari.Value;
+        Assert.NotEmpty(card.GetProperty("drivers").EnumerateArray());
+        Assert.Equal("works", card.GetProperty("engine").GetProperty("supplyType").GetString());
+
+        var session = career.Host.Handle(Message("session", "query", "session"));
+        using (var sessionJson = JsonDocument.Parse(session.Response))
+        {
+            var sessionData = sessionJson.RootElement.GetProperty("data");
+            Assert.False(sessionData.GetProperty("started").GetBoolean());
+            var balanced = sessionData.GetProperty("presets").EnumerateArray().Single(preset => preset.GetProperty("name").GetString() == "Balanced");
+            Assert.Equal("RealPotential", balanced.GetProperty("people").GetString());
+            Assert.Equal(5, balanced.GetProperty("history").GetInt32());
+            Assert.Equal(3, sessionData.GetProperty("presets").GetArrayLength());
+        }
+
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"ferrari","givenName":"Enzo","familyName":"Test","nationality":"IT","tilt":"none","preset":"Chaos","year":1955,"seed":1}"""));
+        using (var startedJson = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        var drivers = career.Host.Handle(Message("drivers", "query", "drivers"));
+        using var driversJson = JsonDocument.Parse(drivers.Response);
+        var own = driversJson.RootElement.GetProperty("data").GetProperty("own").EnumerateArray()
+            .Select(driver => driver.GetProperty("name").GetString())
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var shown = card.GetProperty("drivers").EnumerateArray()
+            .Select(driver => driver.GetProperty("name").GetString())
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(own, shown);
+    }
+
+    [Fact]
+    public void SavingAgainUnderTheSameNameReplacesTheSaveAndTheListShowsWhoAndWhen()
+    {
+        using var career = Lobby();
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"ferrari","givenName":"Enzo","familyName":"Test","nationality":"ITA","tilt":"none","preset":"Chaos","year":1955,"seed":1}"""));
+        using (var startedJson = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        var name = "bridge-" + Guid.NewGuid().ToString("N");
+        var path = Path.Combine(BridgeHost.RepositoryRoot(), "saves", name + ".paddock");
+        var args = "{\"managerId\":\"human:player\",\"name\":\"" + name + "\"}";
+        try
+        {
+            for (var round = 0; round < 2; round++)
+            {
+                var saved = career.Host.Handle(Message("save" + round, "command", "saveCareer", args));
+                using var json = JsonDocument.Parse(saved.Response);
+                Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), "save " + round + ": " + saved.Response);
+            }
+
+            var list = career.Host.Handle(Message("saves", "query", "saves"));
+            using var listJson = JsonDocument.Parse(list.Response);
+            var mine = listJson.RootElement.GetProperty("data").GetProperty("saves").EnumerateArray()
+                .Single(save => save.GetProperty("name").GetString() == name + ".paddock");
+            Assert.Equal("ferrari", mine.GetProperty("teamId").GetString());
+            Assert.Equal("Enzo Test", mine.GetProperty("careerName").GetString());
+            Assert.Equal("1955-01-01", mine.GetProperty("date").GetString());
+            Assert.EndsWith("Z", mine.GetProperty("savedAt").GetString());
+            Assert.False(File.Exists(path + ".tmp"));
+        }
+        finally
+        {
+            foreach (var leftover in new[] { path, path + ".tmp" })
+            {
+                if (File.Exists(leftover))
+                {
+                    File.Delete(leftover);
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void ASetupTheCareerWouldRefuseComesBackAsTheProblemOfTheTeamList()
+    {
+        using var career = Lobby();
+        var exchange = career.Host.Handle(Message(
+            "bad",
+            "query",
+            "teams",
+            """{"managerId":"human:player","year":1955,"preset":"Chaos","people":null,"rules":"VotedEachSeason","ai":"ReplayHistory","history":null,"randomness":null,"fatality":null,"noNumbers":null,"seed":1}"""));
+        using var json = JsonDocument.Parse(exchange.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), exchange.Response);
+        var data = json.RootElement.GetProperty("data");
+        Assert.Equal("config.error.replay_needs_historical_rules", data.GetProperty("problem").GetProperty("key").GetString());
+        foreach (var team in data.GetProperty("teams").EnumerateArray())
+        {
+            Assert.Equal(JsonValueKind.Null, team.GetProperty("expected").ValueKind);
+        }
+    }
+
+    [Fact]
     public async Task DevSocketRoundTripsAQuery()
     {
         using var career = Open();

@@ -124,3 +124,13 @@ export function command<N extends BridgeCommandName>(
 ): Promise<BridgeCommandMap[N]['result']> {
   return call('command', name, args) as Promise<BridgeCommandMap[N]['result']>;
 }
+
+/** True when the page runs inside the desktop window, which is the only place "Quit" can close anything. */
+export function canExit(): boolean {
+  return photino() !== null;
+}
+
+/** Closes the desktop window. A window message of its own, not a bridge name: the game never sees it. */
+export function exitApp(): void {
+  photino()?.sendMessage(JSON.stringify({ kind: 'window', name: 'exit' }));
+}

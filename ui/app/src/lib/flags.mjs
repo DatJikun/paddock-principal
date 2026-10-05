@@ -44,7 +44,12 @@
       '<rect x="14.1" y="7.6" width="1.8" height="3.6" fill="#f17f29"/><rect x="14.1" y="8.3" width="1.8" height=".5" fill="#fff"/><rect x="14.1" y="9.3" width="1.8" height=".5" fill="#fff"/><rect x="14.1" y="10.3" width="1.8" height=".5" fill="#fff"/>' +
       '<rect x="16.4" y="8.4" width="3.2" height=".67" fill="#c8102e"/><rect x="16.4" y="9.07" width="3.2" height=".67" fill="#fff"/><rect x="16.4" y="9.73" width="3.2" height=".67" fill="#1c3f94"/><rect x="16.4" y="8.4" width="1" height="2" fill="#007a3d"/>',
   };
-  const ALIAS = { ZAF: 'RSA', DEU: 'GER', MCO: 'MON', NLD: 'NED', CHE: 'SUI', PRT: 'POR' };
+  /* The world names real people by demonym ("Italian"), generated ones by code ("ITA"); both reach the same flag. */
+  const DEMONYM = { British: 'GBR', English: 'GBR', Italian: 'ITA', German: 'GER', French: 'FRA', American: 'USA', Swiss: 'SUI', Austrian: 'AUT',
+    Japanese: 'JPN', Brazilian: 'BRA', Spanish: 'ESP', Australian: 'AUS', Dutch: 'NED', Canadian: 'CAN', Irish: 'IRL', Belgian: 'BEL',
+    Monegasque: 'MON', Swedish: 'SWE', Argentine: 'ARG', 'New Zealander': 'NZL', 'South African': 'RSA', Polish: 'POL', Portuguese: 'POR',
+    Mexican: 'MEX', Moroccan: 'MAR' };
+  const ALIAS = { ZAF: 'RSA', DEU: 'GER', MCO: 'MON', NLD: 'NED', CHE: 'SUI', PRT: 'POR', ...DEMONYM };
   const NAMES = { GBR: 'Wielka Brytania', FRA: 'Francja', ITA: 'Włochy', IRL: 'Irlandia', BEL: 'Belgia', GER: 'RFN', AUT: 'Austria', NED: 'Holandia',
     ARG: 'Argentyna', MON: 'Monako', POL: 'Polska', ESP: 'Hiszpania', JPN: 'Japonia', SUI: 'Szwajcaria', SWE: 'Szwecja', BRA: 'Brazylia', USA: 'USA',
     CAN: 'Kanada', AUS: 'Australia', NZL: 'Nowa Zelandia', RSA: 'RPA' };

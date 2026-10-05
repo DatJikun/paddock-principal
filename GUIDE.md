@@ -332,7 +332,7 @@ Reputacja menedżera | start {BoardEstimates.InitialReputationTenths|t} ze 100 |
 Zaufanie zarządu | start {BoardEstimates.InitialConfidenceTenths|t} | po wyścigu nadrabia {BoardEstimates.ReviewSmoothing|%} różnicy do celu
 Cierpliwość | {BoardEstimates.PatienceBase} + wiek zespołu w latach | starszy zespół czeka dłużej
 Ochrona nowego szefa | pierwszy pełny sezon | + {BoardEstimates.ProtectionDaysPerReputationPoint|dni} za punkt reputacji
-Popularność | wyrównany sezon ją podnosi, dominacja obniża | od niej zależą pule pieniędzy
+Popularność | wyrównany sezon ją podnosi, dominacja obniża | walka kierowców o tytuł podnosi ją mniej niż walka kilku zespołów
 Finanse rywali | niewidoczne | widzisz tylko swoje i prognozę do końca sezonu
 ```
 

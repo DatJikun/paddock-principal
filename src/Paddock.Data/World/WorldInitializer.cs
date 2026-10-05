@@ -119,7 +119,7 @@ public static class WorldInitializer
             _names = options.Names ?? new FixtureNameSource();
             _blocklist = options.Blocklist ?? EmptyNameBlocklist.Instance;
             _constructorNames = options.ConstructorNames;
-            _carStrength = options.CarStrength;
+            _carStrength = options.CarStrength ?? data.CarStrength;
             _masterSeed = masterSeed;
             _start = config.StartYear;
             var lastAuthored = data.Engines.Entries.Count == 0 ? _start : data.Engines.Entries.Max(entry => entry.Year);

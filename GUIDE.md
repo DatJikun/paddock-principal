@@ -199,6 +199,7 @@ Auto na start | {CarEstimates.EvolutionStartFraction|%} sufitu | {CarEstimates.R
 ```
 
 ```pola
+Auto na starcie kariery | startuje ze swoją siłą, a rozwój może ją podnieść o {CarEstimates.InitialHeadroom} punktów
 Osiągi | moc · docisk · przyczepność mechaniczna · hamowanie · niezawodność | docisk ograniczony epoką
 Osie koncepcji | aero · filozofia · okno pracy · chłodzenie · opony · silnik
 ```

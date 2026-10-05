@@ -30,6 +30,13 @@ public static class CalibrationTargets
     /// <summary>ESTIMATE: absolute tolerance on the finish rate.</summary>
     public const double FinishRateTolerance = 0.08;
 
+    /// <summary>
+    /// ESTIMATE: centre of the 1950s finish-rate band for a test that has no Jolpica cache (PP-041). Taken from the local
+    /// <c>calibrate-race --from 1955 --to 1955</c> report: 43.4% historical (6 races) against 46.9% simulated on the synthetic field.
+    /// Use it only with <see cref="FinishRateTolerance"/>, as a calibration band for the race engine, never as a result to reproduce (PP-062).
+    /// </summary>
+    public const double FinishRate1950s = 0.434;
+
     /// <summary>ESTIMATE: absolute tolerance on the mechanical and accident shares of retirements.</summary>
     public const double ShareTolerance = 0.15;
 

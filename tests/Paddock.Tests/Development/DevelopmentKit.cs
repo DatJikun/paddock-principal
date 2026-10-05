@@ -84,7 +84,7 @@ internal sealed class DevelopmentKit
             }
         }
 
-        world = InitialCarFactory.Install(world, seed, 1955, fullyGenerated: false, EstimateCarStrength.Shared, []);
+        world = InitialCarFactory.Install(world, seed, 1955, fullyGenerated: false, null, []);
         var facts = new EraFinanceFacts("test", 200_000, 1_000_000, 3_000_000);
         var finance = FinanceSection.Empty.Open(Alfa, Opening, 5_000_000, facts);
         if (betaToo)

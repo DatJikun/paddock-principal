@@ -1,0 +1,24 @@
+{
+  "notes": "ESTIMATE. A stand-in for the ratings car effect (T22), which needs the Jolpica results that stay local (PP-041): the strength of a constructor's car on 0..100 when a career starts in that season. It is an informal reading of the 1954 and 1955 grids, not a measured figure, and is meant to be replaced by the ratings run. A row may give a starting reliability below the strength for a car that was quick but fragile (ESTIMATE too). A constructor that is not listed starts at the tier fallback. It is world setup only: the AI never reads it (PP-050). A fully generated world ignores it and draws its own tiers.",
+  "strengths": [
+    { "season": 1954, "constructorId": "mercedes", "strength": 74, "confidence": "estimate", "note": "The strongest car of the 1954-55 grid (PP-050)." },
+    { "season": 1954, "constructorId": "ferrari", "strength": 72, "confidence": "estimate", "note": "A works team near the front." },
+    { "season": 1954, "constructorId": "maserati", "strength": 64, "confidence": "estimate", "note": "A works team behind Mercedes and Ferrari." },
+    { "season": 1954, "constructorId": "lancia", "strength": 60, "confidence": "estimate", "note": "A new works team." },
+    { "season": 1954, "constructorId": "gordini", "strength": 52, "confidence": "estimate", "note": "A mid-field works team." },
+    { "season": 1954, "constructorId": "cooper", "strength": 48, "confidence": "estimate", "note": "A small constructor." },
+    { "season": 1954, "constructorId": "connaught", "strength": 47, "confidence": "estimate", "note": "A small constructor." },
+    { "season": 1954, "constructorId": "vanwall", "strength": 45, "confidence": "estimate", "note": "A small constructor." },
+    { "season": 1954, "constructorId": "hwm", "strength": 40, "confidence": "estimate", "note": "A small constructor." },
+    { "season": 1955, "constructorId": "mercedes", "strength": 78, "confidence": "estimate", "note": "Strongest car of the grid, unchanged." },
+    { "season": 1955, "constructorId": "lancia", "strength": 70, "startingReliability": 58, "confidence": "estimate", "note": "Second-fastest car: Ascari matched Fangio's pole time at Monaco and Castellotti took pole at Spa. Fragile, so it starts with lower reliability." },
+    { "season": 1955, "constructorId": "maserati", "strength": 66, "confidence": "estimate", "note": "The 250F was better than the Ferrari." },
+    { "season": 1955, "constructorId": "ferrari", "strength": 62, "confidence": "estimate", "note": "The 625 and 555 were weak: Monaco was won only because the leaders retired." },
+    { "season": 1955, "constructorId": "connaught", "strength": 50, "confidence": "estimate", "note": "Beat the works Maseratis at Syracuse 1955." },
+    { "season": 1955, "constructorId": "gordini", "strength": 48, "startingReliability": 42, "confidence": "estimate", "note": "An old car, and the new one was unfinished. Fragile, so it starts with lower reliability." },
+    { "season": 1955, "constructorId": "vanwall", "strength": 45, "startingReliability": 35, "confidence": "estimate", "note": "Pace was fine, reliability was the problem, so it starts with lower reliability." },
+    { "season": 1955, "constructorId": "cooper", "strength": 40, "confidence": "estimate", "note": "Its only start was the slow T40-Bristol." },
+    { "season": 1955, "constructorId": "hwm", "strength": 40, "confidence": "estimate", "note": "A low-budget entry with an older car." },
+    { "season": 1955, "constructorId": "arzani-volpini", "strength": 35, "confidence": "estimate", "note": "New entry, listed so that the default 50 does not put it above Cooper and Vanwall." }
+  ]
+}

@@ -26,11 +26,11 @@ public static class ConceptMapping
     public static ConceptEffects Effects(CarConcept concept, double ceiling)
     {
         var full = PerformanceLevels.Of(
-            ceiling * (0.55d - (0.12d * concept.Aero) - (0.10d * concept.Cooling)),
-            ceiling * (0.50d + (0.18d * concept.Aero)),
-            ceiling * (0.48d + (0.06d * concept.Window)),
-            ceiling * 0.50d,
-            ceiling * (0.48d + (0.16d * concept.Cooling)));
+            ceiling * (1.00d - (0.12d * concept.Aero) - (0.10d * concept.Cooling)),
+            ceiling * (1.00d + (0.18d * concept.Aero)),
+            ceiling * (1.00d + (0.06d * concept.Window)),
+            ceiling * 1.00d,
+            ceiling * (1.00d + (0.16d * concept.Cooling)));
         var wear = CarEstimates.Quantize(1d + (0.25d * concept.Aero) - (0.20d * concept.TyreKindness));
         var integration = (concept.Integration + 1d) / 2d;
         return new ConceptEffects(

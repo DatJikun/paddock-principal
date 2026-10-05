@@ -1,4 +1,5 @@
 using Paddock.Application.Sponsors;
+using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Finance;
@@ -39,6 +40,9 @@ public sealed class CareerInputs
     /// them passes an authored ESTIMATE source, and without any source every team starts as a typical one.
     /// </summary>
     public ITeamTierSource? Tiers { get; init; }
+
+    /// <summary>The authored ESTIMATE of constructor car strength. Supply derives a supplier's base engine from it; without it the tier fallback applies.</summary>
+    public ICarStrengthSource? CarStrength { get; init; }
 
     /// <summary>Track layouts for the championship calendar. Without them the career runs no races.</summary>
     public IReadOnlyList<TrackLayout>? Layouts { get; init; }

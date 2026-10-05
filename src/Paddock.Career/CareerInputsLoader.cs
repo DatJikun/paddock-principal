@@ -28,6 +28,7 @@ public static class CareerInputsLoader
             Sponsors = inputs.Sponsors,
             Pay = inputs.Pay,
             Tiers = inputs.Tiers,
+            CarStrength = data.CarStrength,
             EraPeriods = inputs.EraPeriods,
             RulePeriods = data.Periods,
             SupplyLinks = supplies?.Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType)).ToArray(),

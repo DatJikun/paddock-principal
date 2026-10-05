@@ -8,6 +8,7 @@ using Paddock.Domain.Contracts;
 using Paddock.Domain.Inbox;
 using Paddock.Domain.Objectives;
 using Paddock.Domain.People;
+using Paddock.Domain.Principals;
 using Paddock.Domain.Random;
 using Paddock.Domain.Spy;
 using Paddock.Domain.Time;
@@ -46,6 +47,9 @@ public sealed class BoardEngine
     public const string OptionAccept = "accept";
 
     public const string OptionDecline = "decline";
+
+    /// <summary>Inbox kind of the season-target decision offered to a human principal.</summary>
+    public const string SeasonTargetKind = "board.seasonTarget";
 
     /// <summary>ESTIMATE: the archetype of a board that has not rerolled one.</summary>
     public const string DefaultArchetype = "balanced";
@@ -258,15 +262,29 @@ public sealed class BoardEngine
                     _book.History.FinalPosition(board.Organization, today.Year - 1),
                     BudgetRank(board.Organization, today),
                     fieldSize);
-            var baseline = _book.Facts.Number(board.Organization, ObjectiveFactKeys.ChampionshipPosition) ?? expected;
+            var publicExpected = expected;
+            var baseline = _book.Facts.Number(board.Organization, ObjectiveFactKeys.ChampionshipPosition) ?? publicExpected;
             if (!seasonOpen)
             {
-                Grant(board.Organization, BoardKeys.ObjectiveSeason, BoardKeys.ReasonSeason, expected, baseline, GameDate.SeasonEnd(today.Year), BoardEstimates.SeasonObjectiveTenths, today);
+                if (board.Principal is { Kind: PrincipalKind.Human } human)
+                {
+                    if (!TargetPending(human.Subject, board.Organization))
+                    {
+                        PostSeasonTarget(human.Subject, board.Organization, publicExpected, fieldSize, today);
+                    }
+                }
+                else
+                {
+                    var ambition = SeasonTarget.ForArchetype(StyleOf(board.Organization));
+                    GrantSeason(board.Organization, publicExpected, fieldSize, ambition, baseline, today);
+                    TraceSeasonTarget(board, ambition, today);
+                    expected = SeasonTarget.Position(publicExpected, fieldSize, ambition);
+                }
             }
 
             if (!multiOpen)
             {
-                var target = Math.Max(1, expected - BoardEstimates.MultiYearPlacesBetter);
+                var target = Math.Max(1, publicExpected - BoardEstimates.MultiYearPlacesBetter);
                 Grant(
                     board.Organization,
                     BoardKeys.ObjectiveMultiYear,
@@ -342,7 +360,67 @@ public sealed class BoardEngine
             return;
         }
 
-        _book.Update(_book.Section.WithBoard(board with { ConfidenceTenths = BoardEstimates.Clamp(board.ConfidenceTenths + tenths) }));
+        var updated = board with { ConfidenceTenths = BoardEstimates.Clamp(board.ConfidenceTenths + tenths) };
+        _book.Update(_book.Section.WithBoard(updated));
+        if (!met
+            && effect.Arguments.TryGetValue("dismiss", out var dismiss)
+            && dismiss == "1"
+            && updated.Principal is { } principal
+            && !principal.Founder
+            && objective.Deadline > principal.ProtectedUntil)
+        {
+            Dismiss(updated, objective.Deadline, ReputationModel.DismissThresholdTenths(updated.Patience), ReputationModel.ReviewsToDismiss(updated.Patience));
+        }
+    }
+
+    /// <summary>Grants the season objective for a chosen ambition. The expected position stays the public one until this runs.</summary>
+    public void GrantSeason(OrganizationId organization, int expected, int fieldSize, SeasonAmbition ambition, decimal baseline, GameDate today)
+    {
+        var target = SeasonTarget.Position(expected, fieldSize, ambition);
+        Grant(
+            organization,
+            BoardKeys.ObjectiveSeason,
+            BoardKeys.ReasonSeason,
+            target,
+            baseline,
+            GameDate.SeasonEnd(today.Year),
+            SeasonTarget.RewardTenths(ambition),
+            today,
+            SeasonTarget.PenaltyTenths(ambition),
+            SeasonTarget.KeyOf(ambition),
+            ambition == SeasonAmbition.Ambitious);
+        var board = _book.Section.Board(organization);
+        if (board is not null)
+        {
+            _book.Update(_book.Section.WithBoard(board with { ExpectedPosition = target }));
+        }
+    }
+
+    /// <summary>Applies the option of a season-target decision. A second answer, or a team that already has a season objective, changes nothing.</summary>
+    public void AcceptSeasonTarget(InboxItem item, string optionId, GameDate today)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        if (!SeasonTarget.TryParse(optionId, out var ambition)
+            || !item.Arguments.TryGetValue(OrganizationArgument, out var organizationText)
+            || !int.TryParse(item.Arguments["expected"], NumberStyles.None, CultureInfo.InvariantCulture, out var expected)
+            || !int.TryParse(item.Arguments["field"], NumberStyles.None, CultureInfo.InvariantCulture, out var fieldSize))
+        {
+            return;
+        }
+
+        var found = _book.World.Organizations.FirstOrDefault(candidate => candidate.Id.Value == organizationText)?.Id;
+        if (found is not OrganizationId owner)
+        {
+            return;
+        }
+
+        if (_book.Objectives.OwnedBy(owner).Any(objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason))
+        {
+            return;
+        }
+
+        var baseline = _book.Facts.Number(owner, ObjectiveFactKeys.ChampionshipPosition) ?? expected;
+        GrantSeason(owner, expected, fieldSize, ambition, baseline, today);
     }
 
     // ---------------------------------------------------------------- dismissal and replacement
@@ -660,9 +738,39 @@ public sealed class BoardEngine
         return Math.Max(1L, (long)Math.Round(reference * BoardEstimates.SeveranceShare, MidpointRounding.AwayFromZero));
     }
 
-    private void Grant(OrganizationId organization, string kind, string reason, int target, decimal baseline, GameDate deadline, int tenths, GameDate today)
+    private void Grant(
+        OrganizationId organization,
+        string kind,
+        string reason,
+        int target,
+        decimal baseline,
+        GameDate deadline,
+        int tenths,
+        GameDate today,
+        int? penaltyTenths = null,
+        string? ambition = null,
+        bool dismissOnFail = false)
     {
-        var points = (tenths / 10).ToString(CultureInfo.InvariantCulture);
+        var penalty = penaltyTenths ?? tenths;
+        var metPoints = (tenths / 10).ToString(CultureInfo.InvariantCulture);
+        var failPoints = (penalty / 10).ToString(CultureInfo.InvariantCulture);
+        var met = new List<KeyValuePair<string, string>>
+        {
+            new("points", metPoints),
+            new("tenths", tenths.ToString(CultureInfo.InvariantCulture)),
+        };
+        var failed = new List<KeyValuePair<string, string>>
+        {
+            new("points", failPoints),
+            new("tenths", (-penalty).ToString(CultureInfo.InvariantCulture)),
+        };
+        if (ambition is not null)
+        {
+            met.Add(new("ambition", ambition));
+            failed.Add(new("ambition", ambition));
+            failed.Add(new("dismiss", dismissOnFail ? "1" : "0"));
+        }
+
         var (section, _) = _book.Objectives.Add(
             new ObjectiveDraft(
                 organization,
@@ -672,10 +780,97 @@ public sealed class BoardEngine
                 new ChampionshipPositionAtMost(target),
                 baseline,
                 deadline,
-                new ObjectiveEffect(BoardKeys.EffectConfidenceUp, [new("points", points), new("tenths", tenths.ToString(CultureInfo.InvariantCulture))]),
-                new ObjectiveEffect(BoardKeys.EffectConfidenceDown, [new("points", points), new("tenths", (-tenths).ToString(CultureInfo.InvariantCulture))])),
+                new ObjectiveEffect(BoardKeys.EffectConfidenceUp, met),
+                new ObjectiveEffect(BoardKeys.EffectConfidenceDown, failed)),
             today);
         _book.Update(section);
+    }
+
+    private void PostSeasonTarget(string managerId, OrganizationId organization, int expected, int fieldSize, GameDate today)
+    {
+        var manager = new ManagerId(managerId);
+        if (!_managers.Contains(manager))
+        {
+            GrantSeason(organization, expected, fieldSize, SeasonAmbition.Expected, expected, today);
+            return;
+        }
+
+        string Text(SeasonAmbition ambition) =>
+            SeasonTarget.Position(expected, fieldSize, ambition).ToString(CultureInfo.InvariantCulture);
+        string Points(SeasonAmbition ambition) =>
+            (SeasonTarget.RewardTenths(ambition) / 10).ToString(CultureInfo.InvariantCulture);
+        string Loss(SeasonAmbition ambition) =>
+            (SeasonTarget.PenaltyTenths(ambition) / 10).ToString(CultureInfo.InvariantCulture);
+        _inbox.Post(
+            _managers,
+            manager,
+            new InboxItemDraft(
+                SeasonTargetKind,
+                BoardKeys.SeasonTargetSubject,
+                [
+                    new(OrganizationArgument, organization.Value),
+                    new("expected", expected.ToString(CultureInfo.InvariantCulture)),
+                    new("field", fieldSize.ToString(CultureInfo.InvariantCulture)),
+                    new("safeTarget", Text(SeasonAmbition.Safe)),
+                    new("expectedTarget", Text(SeasonAmbition.Expected)),
+                    new("ambitiousTarget", Text(SeasonAmbition.Ambitious)),
+                    new("safePoints", Points(SeasonAmbition.Safe)),
+                    new("expectedPoints", Points(SeasonAmbition.Expected)),
+                    new("ambitiousPoints", Points(SeasonAmbition.Ambitious)),
+                    new("safeLoss", Loss(SeasonAmbition.Safe)),
+                    new("expectedLoss", Loss(SeasonAmbition.Expected)),
+                    new("ambitiousLoss", Loss(SeasonAmbition.Ambitious)),
+                ],
+                [
+                    new InboxOption(SeasonTarget.Safe, BoardKeys.SeasonTargetSafeLabel, BoardKeys.SeasonTargetSafeConsequence),
+                    new InboxOption(SeasonTarget.Expected, BoardKeys.SeasonTargetExpectedLabel, BoardKeys.SeasonTargetExpectedConsequence),
+                    new InboxOption(SeasonTarget.Ambitious, BoardKeys.SeasonTargetAmbitiousLabel, BoardKeys.SeasonTargetAmbitiousConsequence),
+                ],
+                today.AddDays(BoardEstimates.SeasonTargetDecisionDays),
+                SeasonTarget.Expected),
+            today);
+    }
+
+    private bool TargetPending(string managerId, OrganizationId organization) =>
+        _inbox.Section.ItemsOf(managerId).Any(item =>
+            item.IsOpen
+            && item.Kind == SeasonTargetKind
+            && item.Arguments.TryGetValue(OrganizationArgument, out var id)
+            && id == organization.Value);
+
+    private string? StyleOf(OrganizationId organization) =>
+        _book.World.Section<PrincipalsSection>(PrincipalsSection.SectionName)?.Of(organization)?.Archetype;
+
+    private void TraceSeasonTarget(BoardRecord board, SeasonAmbition chosen, GameDate today)
+    {
+        var trace = _book.Contracts.Environment.Trace;
+        if (!trace.IsEnabled || board.Principal is not { } principal)
+        {
+            return;
+        }
+
+        var style = StyleOf(board.Organization) ?? "-";
+        TraceOption Option(SeasonAmbition ambition)
+        {
+            var picked = ambition == chosen;
+            return new TraceOption(
+                SeasonTarget.KeyOf(ambition),
+                picked ? 1 : 0,
+                [new TraceFactor("archetype", picked ? 1 : 0, false)],
+                false);
+        }
+
+        trace.Record(new DecisionTrace(
+            new WeekendKey(today.Season, 0),
+            principal.Subject,
+            0,
+            "board.seasonTarget:" + board.Organization.Value,
+            [Option(SeasonAmbition.Safe), Option(SeasonAmbition.Expected), Option(SeasonAmbition.Ambitious)],
+            SeasonTarget.KeyOf(chosen),
+            "archetype " + style + " picks " + SeasonTarget.KeyOf(chosen),
+            null,
+            true,
+            new Dictionary<string, string> { ["archetype"] = style }));
     }
 
     /// <summary>A draw keyed by purpose, organization and date, from the Market stream of the season (INV-004).</summary>

@@ -6,7 +6,7 @@
 //
 // The .md files stay the source (PP-054). The output is generated and not committed.
 // GUIDE.md may hold custom fences that read the game's code, so the numbers never drift
-// (the segmented blocks pola, kroki, wybory, wgrze, porownanie and stan are described in blocks.mjs):
+// (the segmented blocks pola, kroki, wybory, wgrze, pytania, porownanie and stan are described in blocks.mjs):
 //   ```strojenie <path to a .cs file>      a table of tunable constants: "Name | opis | format"
 //   ```wykres <name>                       a chart from charts.mjs (the body is its caption)
 //   ```wykres słupki                       a bar chart whose data is in the fence
@@ -107,7 +107,7 @@ export function buildSite(root = REPO_ROOT) {
         const blocks = makeBlocks({ cv, ctx, formatValue });
         if (kind === 'stan') return blocks.stan(arg, body);
         if (kind === 'porownanie') return blocks.porownanie(arg, body);
-        if (['pola', 'kroki', 'wybory', 'wgrze'].includes(kind)) return blocks[kind](arg || null, body);
+        if (['pola', 'kroki', 'wybory', 'wgrze', 'pytania'].includes(kind)) return blocks[kind](arg || null, body);
         if (kind === 'wykres') {
           if (arg === 'słupki') {
             const caption = body.filter(l => l.startsWith('opis:')).map(l => renderInline(l.slice(5).trim(), ctx)).join(' ');

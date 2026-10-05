@@ -9,6 +9,7 @@
 //   ```kroki                numbered flow: Tytuł | opis
 //   ```wybory               player decisions: Decyzja | co zmienia
 //   ```wgrze                feedback map: Jeśli w grze… | sprawdź
+//   ```pytania              questions for testers, one per line
 //   ```porownanie A | B     two columns side by side: Wiersz | A | B
 
 import { renderInline, escapeHtml } from './markdown.mjs';
@@ -70,6 +71,12 @@ export function makeBlocks({ cv, ctx, formatValue }) {
       const items = rows(body).map(([feel, check = '']) =>
         `<tr><td>${value(feel, path)}</td><td class="arrow" aria-hidden="true">→</td><td>${value(check, path)}</td></tr>`);
       return `<div class="feel"><div class="feel-head"><span>Jeśli w grze</span><span>Sprawdź</span></div><table>${items.join('')}</table></div>`;
+    },
+
+    /* Questions for the people testing the game; one per line. */
+    pytania(path, body) {
+      const items = body.filter(l => l.trim()).map(l => `<li>${value(l.trim(), path)}</li>`);
+      return `<div class="ask"><span class="ask-head">Twoja opinia</span><ul>${items.join('')}</ul></div>`;
     },
 
     porownanie(header, body) {

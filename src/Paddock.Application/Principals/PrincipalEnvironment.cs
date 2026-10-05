@@ -36,6 +36,7 @@ public sealed class NoRegulationOutlook : IRegulationOutlook
 public sealed class DevelopmentRulesOutlook : IRegulationOutlook
 {
     private readonly IDevelopmentRules _rules;
+    private readonly Dictionary<int, DevelopmentEra> _eras = [];
 
     public DevelopmentRulesOutlook(IDevelopmentRules rules)
     {
@@ -45,8 +46,19 @@ public sealed class DevelopmentRulesOutlook : IRegulationOutlook
 
     public double ChangeAfter(int season)
     {
-        var (changed, total) = _rules.Era(season + 1).ChangedSince(_rules.Era(season));
+        var (changed, total) = Era(season + 1).ChangedSince(Era(season));
         return total == 0 ? 0.0 : Math.Min(1.0, changed / (double)total);
+    }
+
+    private DevelopmentEra Era(int year)
+    {
+        if (!_eras.TryGetValue(year, out var era))
+        {
+            era = _rules.Era(year);
+            _eras[year] = era;
+        }
+
+        return era;
     }
 }
 

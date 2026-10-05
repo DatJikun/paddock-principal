@@ -433,11 +433,20 @@ public sealed class FinanceSection : IWorldSection
         long obligations = 0;
         if (_books.ContainsKey(key))
         {
+            var contracts = new List<Contract>();
+            foreach (var contract in world.Contracts)
+            {
+                if (contract.OrganizationId.Value == key)
+                {
+                    contracts.Add(contract);
+                }
+            }
+
             foreach (var payDay in SalaryDays(today))
             {
-                foreach (var contract in world.Contracts)
+                foreach (var contract in contracts)
                 {
-                    if (contract.OrganizationId.Value != key || !contract.IsActiveOn(payDay))
+                    if (!contract.IsActiveOn(payDay))
                     {
                         continue;
                     }

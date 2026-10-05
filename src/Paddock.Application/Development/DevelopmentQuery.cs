@@ -107,25 +107,51 @@ public sealed class DevelopmentQuery
         {
             if (_environment.Control.Controls(manager, organization))
             {
-                own.Add(Own(organization, world, today));
+                own.Add(Own(organization, world, today).View);
             }
         }
 
         return new DevelopmentOverview(own);
     }
 
-    private OwnDevelopmentView Own(OrganizationId organization, WorldState world, GameDate today)
+    /// <summary>The one team this manager runs, or null when they do not run it. Same view as <see cref="View"/> for that team.</summary>
+    internal OwnedDevelopment? ViewOf(AccessContext access, OrganizationId organization)
+    {
+        ArgumentNullException.ThrowIfNull(access);
+        if (access.Kind == AccessKind.Developer)
+        {
+            throw new InvalidOperationException("A developer reads Truth, not the manager overview.");
+        }
+
+        if (access.Manager is not { } actor)
+        {
+            throw new InvalidOperationException("A manager view needs a manager.");
+        }
+
+        var manager = new ManagerId(actor.Value);
+        if (!_environment.Control.Controls(manager, organization))
+        {
+            return null;
+        }
+
+        var world = _book.World;
+        var today = new GameDate(world.CurrentDate.Year, world.CurrentDate.Month, world.CurrentDate.Day);
+        return Own(organization, world, today);
+    }
+
+    private OwnedDevelopment Own(OrganizationId organization, WorldState world, GameDate today)
     {
         var section = _book.Section;
         var plan = section.PlanOf(organization) ?? DevelopmentPlan.Default(organization);
-        var vision = TeamEngineers.Attribute(world, organization, today, StaffRole.TechnicalDirector, "vision");
-        var aero = TeamEngineers.Attribute(world, organization, today, StaffRole.HeadOfAerodynamics, "aerodynamics");
+        var staff = EngineerRoster.Read(world, organization, today);
+        var vision = staff.Vision;
+        var aero = staff.Aero;
         var skill = (Math.Clamp(vision, 1, 20) + Math.Clamp(aero, 1, 20) - 2d) / 38d;
         var cars = _book.Cars.Of(organization);
         var annual = (long)DevelopmentMath.AnnualBudgetCents(_book.Finance.TypicalCents);
         var balance = _book.Finance.HasBook(organization) ? _book.Finance.BalanceOf(organization) : 0L;
         var capacity = EngineeringCapacity.Derive(
-            EngineerRoster.Of(world, organization, today),
+            staff.Engineers,
             today.Year,
             EngineerRoster.ChairsIn(today.Year),
             balance,
@@ -142,7 +168,7 @@ public sealed class DevelopmentQuery
             CarEstimates.ClampRating(running.Sum(project => project.ExpectedGain.High)));
         var next = _environment.Races?.NextRaceOnOrAfter(organization, today);
         var stock = section.AccountOf(organization).StockMilli / 1000d;
-        return new OwnDevelopmentView(
+        var view = new OwnDevelopmentView(
             organization.Value,
             plan.CurrentPercent,
             plan.AccountPercent,
@@ -157,7 +183,10 @@ public sealed class DevelopmentQuery
             Forecast(open, cars, vision, aero, today),
             ongoing,
             next is { } race ? today.DaysUntil(race) : null);
+        return new OwnedDevelopment(view, vision, aero);
     }
+
+    internal readonly record struct OwnedDevelopment(OwnDevelopmentView View, int Vision, int Aero);
 
     private OwnProjectView ProjectView(DevProject project, OrganizationId organization, WorldState world, IReadOnlyList<TeamCar> cars, double skill, GameDate today)
     {

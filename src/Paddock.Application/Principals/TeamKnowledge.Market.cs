@@ -214,22 +214,27 @@ internal sealed partial class TeamKnowledge
             }
 
             var subjects = wanted.OrderBy(item => item, StringComparer.Ordinal).ToArray();
-            foreach (var view in new FreeAgentQuery(book).List(Access, Organization, Today))
+            // Persons are already in id order. Skip anyone under an exclusive contract that has not ended; that is the free-agent
+            // list. Bands are read only for someone who can fill a vacancy, not for every person in the world.
+            var busy = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var contract in World.Contracts)
             {
-                if (failed.Contains(view.Person.Value) || negotiating.Contains(view.Person.Value))
+                if (contract.Exclusive && contract.End >= Today)
                 {
-                    continue;
+                    busy.Add(contract.PersonId.Value);
                 }
+            }
 
-                var person = World.GetPerson(view.Person);
-                if (person.IsRetired)
+            foreach (var person in World.Persons)
+            {
+                if (busy.Contains(person.Id.Value) || person.IsRetired || failed.Contains(person.Id.Value) || negotiating.Contains(person.Id.Value))
                 {
                     continue;
                 }
 
                 foreach (var subject in subjects)
                 {
-                    if (!Qualifies(view, subject))
+                    if (!Qualifies(person, subject))
                     {
                         continue;
                     }
@@ -239,6 +244,7 @@ internal sealed partial class TeamKnowledge
                     {
                         continue;
                     }
+
                     persons[person.Id.Value] = person.Id;
                     candidates.Add(new Candidate(
                         ViewOf(person, QualityKeys(subject)),
@@ -252,10 +258,10 @@ internal sealed partial class TeamKnowledge
         return new MarketBundle(input, contractsById, persons, events, roles.Select(role => role.ToString()).ToArray());
     }
 
-    private static bool Qualifies(FreeAgentView view, string subject) =>
+    private static bool Qualifies(Person person, string subject) =>
         MarketSubjects.IsDriver(subject)
-            ? view.IsDriver
-            : view.StaffRoles.Contains(NegotiationSubject.Parse(subject).StaffRole);
+            ? person.Roles.Any(role => role.IsDriver)
+            : person.Roles.Any(role => role.IsStaff && role.StaffRole == NegotiationSubject.Parse(subject).StaffRole);
 
     /// <summary>A contract the market decides about: a driver in a race seat, or key staff other than the principal (the board appoints him).</summary>
     private static bool IsMarketRole(Contract contract) =>

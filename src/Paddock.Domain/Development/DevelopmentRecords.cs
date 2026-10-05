@@ -205,5 +205,8 @@ public sealed record DevProject(
 
     public bool IsInProduction => Status == ProjectStatus.InProduction;
 
+    /// <summary>The day still walks it. Closed, failed, cut and deployed projects stay in the section as history.</summary>
+    public bool IsOpen => IsActive || IsInProduction || Status == ProjectStatus.Ready;
+
     public double Progress => DurationDays <= 0 ? 1d : Math.Clamp((double)ProgressDays / DurationDays, 0d, 1d);
 }

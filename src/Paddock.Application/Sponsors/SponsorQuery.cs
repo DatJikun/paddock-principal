@@ -90,6 +90,8 @@ public static class SponsorQuery
         var skill = environment.Negotiators.Skill(book.World, subject, today);
         var deals = section.ActiveDealsOf(subject);
         var talks = section.OpenTalksOf(subject);
+        var typical = environment.Finance.Facts(today.Year).TypicalDollars;
+        var shared = CandidateFacts.Collect(section, catalog, environment, subject, today, skill, deals, talks, typical);
 
         var slots = new List<SponsorSlotView>();
         for (var slot = 1; slot <= SponsorEstimates.SlotsPerTeam; slot++)
@@ -99,14 +101,7 @@ public static class SponsorQuery
             var talk = talks.FirstOrDefault(candidate => candidate.Slot == slot);
             var candidates = deal is not null || talk is not null
                 ? []
-                : catalog.Candidates(today.Year, kind, era)
-                    .Select(sponsor => new SponsorCandidateView(
-                        sponsor.Id,
-                        sponsor.Name,
-                        TranslationMessage.Of(SponsorKeys.IndustryName(sponsor.Industry)),
-                        SponsorRules.FullAnnualCents(book, environment, sponsor, kind, today.Year),
-                        SponsorRules.CanBegin(book, environment, subject, sponsor.Id, slot, today)))
-                    .ToArray();
+                : shared.List(book, catalog, era, kind, slot, today);
             slots.Add(new SponsorSlotView(slot, TranslationMessage.Of(SponsorKeys.SlotName(kind)), deal?.Id, talk?.Id, candidates));
         }
 
@@ -147,4 +142,162 @@ public static class SponsorQuery
     }
 
     private static DateOnly Day(GameDate date) => new(date.Year, date.Month, date.Day);
+
+    /// <summary>
+    /// The facts <see cref="SponsorRules.CanBegin"/> rereads for every sponsor. Collected once per view, in the same
+    /// order CanBegin reports them, so a slot lists the same blocked reason it did when each sponsor was checked alone.
+    /// </summary>
+    private sealed class CandidateFacts
+    {
+        private readonly SponsorsSection _section;
+        private readonly HashSet<string> _inDeal;
+        private readonly HashSet<string> _industries;
+        private readonly double _prestige;
+        private readonly bool _tooMany;
+        private readonly long _typicalDollars;
+        private readonly IReadOnlyList<SponsorDeal> _deals;
+        private readonly IReadOnlyList<SponsorTalk> _talks;
+
+        private CandidateFacts(
+            SponsorsSection section,
+            HashSet<string> inDeal,
+            HashSet<string> industries,
+            double prestige,
+            bool tooMany,
+            long typicalDollars,
+            IReadOnlyList<SponsorDeal> deals,
+            IReadOnlyList<SponsorTalk> talks)
+        {
+            _section = section;
+            _inDeal = inDeal;
+            _industries = industries;
+            _prestige = prestige;
+            _tooMany = tooMany;
+            _typicalDollars = typicalDollars;
+            _deals = deals;
+            _talks = talks;
+        }
+
+        public static CandidateFacts Collect(
+            SponsorsSection section,
+            SponsorCatalog catalog,
+            SponsorEnvironment environment,
+            OrganizationId subject,
+            GameDate today,
+            int skill,
+            IReadOnlyList<SponsorDeal> deals,
+            IReadOnlyList<SponsorTalk> talks,
+            long typicalDollars)
+        {
+            var inDeal = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var deal in section.Deals)
+            {
+                if (deal.IsActive)
+                {
+                    inDeal.Add(deal.SponsorId);
+                }
+            }
+
+            var industries = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var deal in deals)
+            {
+                AddIndustry(catalog, industries, deal.SponsorId);
+            }
+
+            foreach (var talk in talks)
+            {
+                AddIndustry(catalog, industries, talk.SponsorId);
+            }
+
+            return new CandidateFacts(
+                section,
+                inDeal,
+                industries,
+                environment.Appeal.Appeal(subject, today).Prestige,
+                talks.Count >= SponsorPricing.ParallelTalks(skill),
+                typicalDollars,
+                deals,
+                talks);
+        }
+
+        public SponsorCandidateView[] List(
+            SponsorBook book,
+            SponsorCatalog catalog,
+            SponsorEra era,
+            SlotKind kind,
+            int slot,
+            GameDate today)
+        {
+            var slotBusy = SlotBusy(slot);
+            return catalog.Candidates(today.Year, kind, era)
+                .Select(sponsor => new SponsorCandidateView(
+                    sponsor.Id,
+                    sponsor.Name,
+                    TranslationMessage.Of(SponsorKeys.IndustryName(sponsor.Industry)),
+                    SponsorPricing.FullAnnualCents(sponsor, kind, _typicalDollars, book.Finance.PopularityMilli),
+                    Blocked(sponsor, today, slotBusy)))
+                .ToArray();
+        }
+
+        private bool SlotBusy(int slot)
+        {
+            foreach (var deal in _deals)
+            {
+                if (deal.Slot == slot)
+                {
+                    return true;
+                }
+            }
+
+            foreach (var talk in _talks)
+            {
+                if (talk.Slot == slot)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>The first reason CanBegin would return. Kind and era were already applied by <see cref="SponsorCatalog.Candidates"/>.</summary>
+        private TranslationMessage? Blocked(SponsorDefinition sponsor, GameDate today, bool slotBusy)
+        {
+            if (_inDeal.Contains(sponsor.Id) || _section.IsTaken(sponsor.Id, today))
+            {
+                return TranslationMessage.Of(SponsorKeys.SponsorUnavailable);
+            }
+
+            if (slotBusy)
+            {
+                return TranslationMessage.Of(SponsorKeys.SlotBusy);
+            }
+
+            if (_industries.Contains(sponsor.Industry))
+            {
+                return TranslationMessage.Of(SponsorKeys.IndustryConflict);
+            }
+
+            if (_prestige < sponsor.PrestigeNeed)
+            {
+                return TranslationMessage.Of(SponsorKeys.PrestigeTooLow);
+            }
+
+            if (_tooMany)
+            {
+                return TranslationMessage.Of(SponsorKeys.TooManyTalks);
+            }
+
+            return null;
+        }
+
+        private static void AddIndustry(SponsorCatalog catalog, HashSet<string> industries, string sponsorId)
+        {
+            var industry = catalog.Find(sponsorId)?.Industry;
+            if (industry is not null)
+            {
+                industries.Add(industry);
+            }
+        }
+    }
 }

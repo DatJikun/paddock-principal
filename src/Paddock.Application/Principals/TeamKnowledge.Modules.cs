@@ -2,6 +2,7 @@ using Paddock.Application.Cars;
 using Paddock.Application.Development;
 using Paddock.Application.Sponsors;
 using Paddock.Application.Supply;
+using Paddock.Domain.Cars;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Principals;
 using Paddock.Domain.Sponsors;
@@ -30,19 +31,25 @@ internal sealed partial class TeamKnowledge
             return null;
         }
 
-        var overview = new DevelopmentQuery(sources.Book, sources.Environment).View(Access);
-        var own = overview.Own.FirstOrDefault(item => item.OrganizationId == Organization.Value);
-        if (own is null)
+        var owned = new DevelopmentQuery(sources.Book, sources.Environment).ViewOf(Access, Organization);
+        if (owned is not { } team)
         {
             return null;
         }
 
-        var roster = new CarQuery(sources.Cars, sources.Environment.Control).View(Access);
-        var car = roster.Own.FirstOrDefault();
+        var own = team.View;
+        var car = sources.Cars.Section.Of(Organization).FirstOrDefault();
         if (car is null)
         {
             return null;
         }
+
+        // same bias key as CarQuery, so a principal reads the bands its own car screen would show
+        var key = car.Organization.Value + "|" + car.Id + "|" + car.Season.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        var downforce = Band(car.Levels.Downforce, team.Vision, team.Aero, key);
+        var grip = Band(car.Levels.MechanicalGrip, team.Vision, team.Aero, key);
+        var reliability = Band(car.Levels.Reliability, team.Vision, team.Aero, key);
+        var braking = Band(car.Levels.Braking, team.Vision, team.Aero, key);
 
         var concepts = own.Projects
             .Where(project => project.Kind == DevKindNames.Concept && project.Status is "Active" or "Ready" && project.Timing is not "Hold")
@@ -54,13 +61,13 @@ internal sealed partial class TeamKnowledge
                 project.ProductionDays ?? 0))
             .ToArray();
         var year = Today.Year;
-        return new DevelopmentInput(
+        var result = new DevelopmentInput(
             Day,
             new DevelopmentPlanView(own.CurrentPercent, own.AccountPercent, own.NextYearPercent, own.AeroPriority, own.ChassisPriority, own.ReliabilityPriority, own.TyresPriority),
-            Mid(car.Downforce),
-            Mid(car.MechanicalGrip),
-            Mid(car.Reliability),
-            Mid(car.Braking),
+            Mid(downforce),
+            Mid(grip),
+            Mid(reliability),
+            Mid(braking),
             Position(year - 1),
             Position(year - 2),
             Position(year),
@@ -69,9 +76,16 @@ internal sealed partial class TeamKnowledge
             record?.SacrificedSeason ?? 0,
             Funds().Headroom < 0,
             concepts);
+        return result;
     }
 
     private static double Mid(CarBandView band) => (band.Low + band.High) / 2.0;
+
+    private static CarBandView Band(double truth, int vision, int aero, string biasKey)
+    {
+        var band = CarKnowledgeBands.Around(truth, vision, aero, biasKey);
+        return new CarBandView(band.Low, band.High);
+    }
 
     // ---------------------------------------------------------------- supply (T43)
 

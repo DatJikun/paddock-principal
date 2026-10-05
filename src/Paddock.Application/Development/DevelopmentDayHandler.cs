@@ -3,6 +3,7 @@ using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Domain.Development;
 using Paddock.Domain.Inbox;
+using Paddock.Simulation.Career;
 using Paddock.Simulation.Time;
 
 namespace Paddock.Application.Development;
@@ -11,11 +12,10 @@ namespace Paddock.Application.Development;
 /// One lived day of car development for every team that has cars, the player's and the AI's alike. It names no manager:
 /// a plan is data in the development section, whoever set it. Writes nothing when nothing changed.
 /// <para>
+/// On a morning the host has marked with <see cref="CareerEventType.SeasonChanged"/> (order 5, before this handler) it devalues
+/// each account against the new regulations. It does not itself move the cars: that already happened in the host's season change.
 /// When an inbox and the managers are given, a concept that becomes ready and is not set to commit by itself puts the decision
 /// "commit now or keep developing?" in the inbox of the managers who run the team (T42c).
-/// <para>
-/// To wire it, register it with the day-handler registry of the career host. That is the host's job, not this task's:
-/// <c>registry.Register(new DevelopmentDayHandler(book, environment))</c>.
 /// </para>
 /// </summary>
 public sealed class DevelopmentDayHandler : IDayHandler
@@ -56,6 +56,16 @@ public sealed class DevelopmentDayHandler : IDayHandler
 
         var before = _book.Section;
         var inputs = _book.Inputs(context.Today, _environment);
+        if (context.HasEmitted(CareerEventType.SeasonChanged))
+        {
+            var season = DevelopmentEngine.ApplyNewRegulations(inputs);
+            if (season.Changed)
+            {
+                _book.Write(season);
+                inputs = _book.Inputs(context.Today, _environment);
+            }
+        }
+
         var outcome = DevelopmentEngine.Step(inputs);
         if (!outcome.Changed)
         {

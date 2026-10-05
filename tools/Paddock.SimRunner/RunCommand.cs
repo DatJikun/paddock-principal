@@ -175,7 +175,7 @@ public static class RunCommand
                 created.TalentPool,
                 arrivals,
                 new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
-            var result = CareerHost.Run(session, to.Value, null, new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data) });
+            var result = CareerHost.Run(session, to.Value, null, new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies) });
             Print(result, strings, preset, config.PeopleSource.ToString(), from.Value, to.Value, seed.Value, stdout, resumedOn: null);
             if (savePath is not null)
             {

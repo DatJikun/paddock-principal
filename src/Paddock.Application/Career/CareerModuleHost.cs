@@ -85,6 +85,7 @@ public sealed class CareerModuleHost
             module.Attach(context);
         }
 
+        context.AddDayHandler(new SeasonChangeHandler(context));
         context.Freeze();
         session.AttachHandlers(context.DayHandlers);
         session.AttachAfterDay(context.AfterDay);

@@ -1,6 +1,8 @@
 using Paddock.Application.Career;
 using Paddock.Data.Authored;
+using Paddock.Data.World;
 using Paddock.Domain.Contracts;
+using Paddock.Domain.Supply;
 
 namespace Paddock.SimRunner;
 
@@ -11,12 +13,23 @@ namespace Paddock.SimRunner;
 /// </summary>
 public static class CareerInputsLoader
 {
-    public static CareerInputs Load(string dataRoot, AuthoredData data)
+    public static CareerInputs Load(string dataRoot, AuthoredData data, IReadOnlyList<EngineSupplyLink>? supplies = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dataRoot);
         ArgumentNullException.ThrowIfNull(data);
         var sponsors = SponsorsLoader.ToCatalog(SponsorsLoader.Load(dataRoot));
         var tiers = TeamTiersLoader.ToSource(TeamTiersLoader.Load(dataRoot));
-        return CareerInputs.From(data.EraPeriods, sponsors, new EraPayBenchmark(data.EraSetFor), tiers);
+        var inputs = CareerInputs.From(data.EraPeriods, sponsors, new EraPayBenchmark(data.EraSetFor), tiers);
+        return new CareerInputs
+        {
+            Eras = inputs.Eras,
+            SponsorEras = inputs.SponsorEras,
+            Sponsors = inputs.Sponsors,
+            Pay = inputs.Pay,
+            Tiers = inputs.Tiers,
+            EraPeriods = inputs.EraPeriods,
+            RulePeriods = data.Periods,
+            SupplyLinks = supplies?.Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType)).ToArray(),
+        };
     }
 }

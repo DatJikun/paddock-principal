@@ -2,6 +2,7 @@ using Paddock.Application.Sponsors;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Sponsors;
+using Paddock.Domain.Supply;
 using Paddock.Domain.World;
 
 namespace Paddock.Application.Career;
@@ -16,6 +17,15 @@ public sealed class CareerInputs
 {
     /// <summary>Era finance facts (budgets, revenue model). Finance and sponsors need it.</summary>
     public IEraFinanceSource? Eras { get; init; }
+
+    /// <summary>The authored regulation periods. Development (in-season testing, rule changes) and supply (fuel rule) need them.</summary>
+    public IReadOnlyList<RulePeriod>? RulePeriods { get; init; }
+
+    /// <summary>The authored era periods (budgets and the like). Supply prices deals against them.</summary>
+    public IReadOnlyList<RulePeriod>? EraPeriods { get; init; }
+
+    /// <summary>The opening engine supplies the world initializer reported. Supply builds its first deals from them on a new career.</summary>
+    public IReadOnlyList<SupplyLink>? SupplyLinks { get; init; }
 
     /// <summary>Era slot rules for sponsors. Sponsors need it.</summary>
     public ISponsorEras? SponsorEras { get; init; }
@@ -43,6 +53,7 @@ public sealed class CareerInputs
         return new CareerInputs
         {
             Eras = new EraPeriodFinance(eraPeriods),
+            EraPeriods = eraPeriods,
             SponsorEras = new PeriodSponsorEras(eraPeriods),
             Sponsors = sponsors,
             Pay = pay,

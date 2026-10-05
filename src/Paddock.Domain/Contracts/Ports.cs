@@ -119,6 +119,7 @@ public sealed class EraPayBenchmark : IPayBenchmark
     public const string TopDimension = "driver_pay_top_nominal_usd";
 
     private readonly Func<int, EraSet> _eras;
+    private readonly Dictionary<int, (double Middle, double Top)> _scale = [];
 
     public EraPayBenchmark(Func<int, EraSet> eras)
     {
@@ -128,9 +129,15 @@ public sealed class EraPayBenchmark : IPayBenchmark
 
     public long Reference(int season, NegotiationSubject subject, double stars)
     {
-        var era = _eras(season);
-        var middle = Read(era, MidfieldDimension);
-        var top = Math.Max(middle, Read(era, TopDimension));
+        if (!_scale.TryGetValue(season, out var scale))
+        {
+            var era = _eras(season);
+            var resolved = Read(era, MidfieldDimension);
+            scale = (resolved, Math.Max(resolved, Read(era, TopDimension)));
+            _scale[season] = scale;
+        }
+
+        var (middle, top) = scale;
         var clamped = Math.Clamp(stars, 0.0, 5.0);
         var pay = clamped <= NegotiationEstimates.MidfieldStars
             ? middle * (NegotiationEstimates.MinPayShare

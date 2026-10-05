@@ -1,3 +1,4 @@
+using Paddock.Domain.Cars;
 using Paddock.Domain.People;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -152,6 +153,83 @@ public static class EngineerRoster
     }
 
     /// <summary>
+    /// The roster plus the technical director's vision and the aero head's aerodynamics, from one pass over the contracts.
+    /// Same people and the same first matching attribute as <see cref="Of"/> and <see cref="TeamEngineers.Attribute"/>.
+    /// </summary>
+    public static StaffRead Read(WorldState world, OrganizationId organization, GameDate on)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        var vision = CarEstimates.DefaultStaffAttribute;
+        var aero = CarEstimates.DefaultStaffAttribute;
+        var visionFound = false;
+        var aeroFound = false;
+        var found = new List<(StaffRole Role, string Person, Engineer Engineer)>();
+        foreach (var contract in world.Contracts)
+        {
+            if (contract.OrganizationId != organization || !contract.Role.IsStaff || contract.Start > on || contract.End < on)
+            {
+                continue;
+            }
+
+            var role = contract.Role.StaffRole;
+            if (role == StaffRole.TechnicalDirector && !visionFound && TryAttribute(world, contract.PersonId, "vision", out var visionValue))
+            {
+                vision = visionValue;
+                visionFound = true;
+            }
+            else if (role == StaffRole.HeadOfAerodynamics && !aeroFound && TryAttribute(world, contract.PersonId, "aerodynamics", out var aeroValue))
+            {
+                aero = aeroValue;
+                aeroFound = true;
+            }
+
+            if (!Roles.Contains(role))
+            {
+                continue;
+            }
+
+            var person = world.GetPerson(contract.PersonId);
+            var attributes = person.Truth.Attributes.ToDictionary(attribute => attribute.Key, attribute => attribute.Value, StringComparer.Ordinal);
+            found.Add((
+                role,
+                contract.PersonId.Value,
+                new Engineer(
+                    contract.PersonId.Value,
+                    role,
+                    attributes,
+                    DevelopmentMath.ExperienceOf(person.BirthDate, on),
+                    DevelopmentMath.AdaptationOf(TenureStart(world, contract), on))));
+        }
+
+        var ordered = found
+            .OrderBy(entry => entry.Role)
+            .ThenBy(entry => entry.Person, StringComparer.Ordinal)
+            .Select(entry => entry.Engineer)
+            .ToList();
+        if (ordered.Count == 0)
+        {
+            ordered.Add(new Engineer("staff:" + organization.Value, null, new Dictionary<string, int>(), 0.5d, 0.5d));
+        }
+
+        return new StaffRead(vision, aero, ordered);
+    }
+
+    private static bool TryAttribute(WorldState world, PersonId person, string key, out int value)
+    {
+        foreach (var attribute in world.TruthOf(person).Attributes)
+        {
+            if (attribute.Key == key)
+            {
+                value = attribute.Value;
+                return true;
+            }
+        }
+
+        value = 0;
+        return false;
+    }
+
+    /// <summary>
     /// The start of unbroken service: walk back over contracts of the same person and organization that meet end-to-end.
     /// A renewal is a new contract starting the day after the previous one ends, and it does not reset adaptation.
     /// </summary>
@@ -191,3 +269,6 @@ public static class EngineerRoster
         return start;
     }
 }
+
+/// <summary>One team's development staff on one day: the roster and the two attributes the car bands use.</summary>
+public readonly record struct StaffRead(int Vision, int Aero, IReadOnlyList<Engineer> Engineers);

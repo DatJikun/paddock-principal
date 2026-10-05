@@ -84,6 +84,21 @@ public sealed class DayContext
         _scheduled.Add(new ScheduledEvent(TakeId(), date, typeId, payload));
     }
 
+    /// <summary>Whether a handler earlier today already emitted <paramref name="typeId"/>.</summary>
+    public bool HasEmitted(string typeId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeId);
+        foreach (var emitted in _emitted)
+        {
+            if (emitted.TypeId == typeId)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>Emits an extra domain event for today. The id is the next stable counter value.</summary>
     public void Emit(string typeId, EventPayload payload)
     {

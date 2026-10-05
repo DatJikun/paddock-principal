@@ -20,7 +20,7 @@ Preset | najbardziej historyczny, zbalansowany albo chaos
 Ludzie | prawdziwa kariera rok po roku, prawdziwy sufit talentu, prawdziwe nazwiska z losowymi umiejętnościami albo wszyscy generowani
 Przepisy | historyczne albo głosowane co sezon
 Zachowanie AI | odtwarza historię, reaguje na sytuację albo gra losowo
-Siła historii | suwak 0–100: jak chętnie AI powtarza prawdziwe zdarzenia
+Siła historii | skala 0–10: jak chętnie AI powtarza prawdziwe zdarzenia
 Losowość | suwak 0–100: rozwój, forma, awarie
 Śmiertelność | domyślnie wyłączona
 ```
@@ -50,7 +50,7 @@ Czy suwaki (siła historii, losowość) są zrozumiałe, czy wystarczą same pre
 Kierowca ma 11 atrybutów, gwiazdki i wiek. Wiek decyduje, kiedy osiągnie szczyt i kiedy zacznie słabnąć.
 
 ```wybory
-Kogo zatrudnić | patrzysz na gwiazdki, atrybuty i doświadczenie; cudzych kierowców widzisz tylko w paśmie, np. 12–16
+Kogo zatrudnić | patrzysz na gwiazdki, atrybuty i doświadczenie; cudzych kierowców widzisz tylko w widełkach, np. 12–16
 Młody talent czy doświadczony kierowca | młody dopiero rośnie, starszy może być już po szczycie
 Kiedy się rozstać | po szczycie kierowca traci poziom co roku
 Kierowca do auta | styl kierowcy musi pasować do auta (rozdział 6)
@@ -67,6 +67,7 @@ Doświadczenie | starty, okrążenia na torze, wyścigi w deszczu, sezony w zesp
 Rozwój | od {RatingsCareerArc.YearsOfGrowthBeforeDebut|lat} przed debiutem w F1
 Szczyt | {RatingsCareerArc.MinPeakAge}–{RatingsCareerArc.MaxPeakAge} lat, z najlepszego sezonu
 Spadek | od {RatingsCareerArc.DeclineStartMin}–{RatingsCareerArc.DeclineStartMax} lat, {RatingsCareerArc.DeclineLevelsPerYear|pkt} poziomu na rok
+Atrybuty | kondycja spada pierwsza, opanowanie, regularność i informacja zwrotna rosną najdłużej
 Emerytura | prawdziwy kierowca po swoim ostatnim prawdziwym sezonie, pozostali losowo od {CareerDayEstimates.DriverRetirementFromAge|lat}, na pewno w wieku {CareerDayEstimates.DriverRetirementCertainAge|lat}
 ```
 
@@ -100,7 +101,6 @@ W latach 50. płynność i kondycja ratowały wyścig, dziś więcej daje regula
 ```
 
 ```pytania
-Czy któraś legenda ma wyraźnie za wysoką albo za niską ocenę? Podaj nazwisko i rok.
 Czy różnica między oceną a potencjałem młodych kierowców wydaje Ci się sensowna?
 ```
 
@@ -112,9 +112,10 @@ Nowi ludzie wchodzą do gry przez pulę talentów, czyli świat poza F1. Skauci 
 
 ```wybory
 Obserwuj całą pulę | wolno, wszyscy naraz
-Obserwuj jedną osobę | szybko, jedno pasmo się zawęża
+Obserwuj jedną osobę | szybko, jej widełki się zawężają
 Opłać sezon juniorski | tani i wolny albo drogi i szybki
 Podpisz | kierowca wyścigowy, testowy albo junior z opcją
+Akademia | ograniczone miejsca; poziom akademii daje lepszych juniorów, ale kosztuje co sezon; około 1 na 10 juniorów nie dochodzi do potencjału
 ```
 
 ```pola
@@ -129,7 +130,7 @@ Program przyspiesza rozwój, ale nie podnosi sufitu.
 ```
 
 ```wykres pasmo-skauta
-Pasmo potencjału jest szersze niż pasmo atrybutu. Słaby skaut może się mylić.
+Widełki potencjału są szersze niż widełki atrybutu. Słaby skaut może się mylić.
 ```
 
 ```pytania
@@ -151,6 +152,8 @@ Status | numer 1, równy albo numer 2
 Kiedy ruszyć kontrakt rywala | na {NegotiationEstimates.NegotiationWindowDays|dni} przed jego końcem
 Czy dociskać | podwyżka poniżej {NegotiationEstimates.MinMeaningfulImprovementPercent|%%} nie jest zmianą i odbiera zainteresowanie
 Zerwać umowę | płacisz {NegotiationEstimates.TerminationShare|%} reszty pensji
+Gdy rywal kusi Twojego kierowcę | w ostatnim roku umowy; zależnie od morale i lojalności kierowca odchodzi, prosi o lepsze warunki albo zostaje
+Gdy kierowca prosi o podwyżkę | w trakcie umowy; kierowca na szczycie prosi o mniej niż wschodząca gwiazda
 ```
 
 ```pola
@@ -283,7 +286,7 @@ Masz trzy miejsca na sponsorów, a na każde kilku kandydatów.
 ```wybory
 Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, ale rywal może podpisać pierwszy
 Który sponsor na które miejsce | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego
-Cel sponsora | spełniony daje premię {SponsorEstimates.BonusMilli|m%} rocznej kwoty, niespełniony może zakończyć umowę
+Cel sponsora | dopasowany do siły zespołu; spełniony daje premię {SponsorEstimates.BonusMilli|m%} rocznej kwoty, niespełniony może zakończyć umowę
 Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania
 ```
 
@@ -311,6 +314,7 @@ Czy cele sponsorów są zrozumiałe i uczciwe?
 Każdy przychód i koszt trafia do księgi. Zarząd ocenia Cię po każdym wyścigu i może Cię zwolnić.
 
 ```wybory
+Cel na sezon | wybierasz: bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę)
 Na co wydać | rozwój auta i pensje to główne koszty; auto i rozwój płacisz co tydzień, pensje 1. dnia miesiąca
 Zejść pod kreskę | saldo może być ujemne, na powrót masz cały sezon, potem niewypłacalność
 Ryzykować przy słabych wynikach | zarząd zwalnia po {BoardEstimates.ReviewsToDismissBase}+ ocenach z rzędu pod progiem; starszy zespół jest cierpliwszy
@@ -361,7 +365,7 @@ Auto | dopasowanie parametrów do fragmentów toru
 Kierowca | tempo, regularność, opanowanie w deszczu
 Paliwo i opony | ciężar baku, zużycie
 Ruch | brudne powietrze, walka o pozycję
-Szum | mniejszy u regularnych kierowców
+Rozrzut czasów | drobne różnice z okrążenia na okrążenie (błędy, ruch, wiatr); regularny kierowca jeździ równiej
 ```
 
 ```pola
@@ -424,7 +428,7 @@ Jak ocenić rywala | widzisz wyniki, czasy i klasyfikacje; jego finansów, umów
 ```
 
 ```porownanie Widzisz | Nie widzisz
-Kierowcy | swoich dokładnie po czasie, cudzych w pasmach | ukrytego potencjału
+Kierowcy | swoich dokładnie po czasie, cudzych w widełkach | ukrytego potencjału
 Auto | przedziały zysku i sufitu | prawdziwego sufitu
 Rywale | wyniki, czasy, klasyfikacje | finansów, umów, wektora auta
 Pogoda | prognozę z błędem | przyszłej pogody

@@ -26,7 +26,8 @@ Kierunek i decyzje: [VISION.md](VISION.md). Technika: [TECH.md](TECH.md).
 ### 2.1. Punkt wejścia do świata (PP-018)
 Nie symulujemy całej drabinki motorsportu, od kartingu dla 6-latków w górę. Ludzie pojawiają się w świecie w **punkcie wejścia**, czyli na najniższym modelowanym szczeblu drabinki. Na start modelujemy **tylko mistrzostwa świata F1**, więc punktem wejścia jest **pula talentów**: abstrakcyjny „świat poza F1”, czyli juniorzy, kierowcy innych serii i testerzy.
 
-- **Kiedy prawdziwy kierowca trafia do puli:** 2–3 lata przed prawdziwym debiutem w F1, nie wcześniej niż w wieku ~17 lat. Dokładną liczbę lat ustalimy przy kalibracji. Weterani innych serii (np. Indy, sportowe samochody) wchodzą w wieku, w jakim byli naprawdę.
+- **Kiedy prawdziwy kierowca trafia do puli (PP-057):** gdy kończy karting i trafia do serii juniorskich. Wiek wejścia zależy od epoki: do 1969 około 18 lat, 1970–1989 około 16, od 1990 około 14 (szacunki). Późni debiutanci wchodzą najpóźniej 2–3 lata przed prawdziwym debiutem. Weterani innych serii (np. Indy, sportowe samochody) wchodzą w wieku, w jakim byli naprawdę.
+- **Akademia (PP-057, PP-058):** zespół ma ograniczoną liczbę miejsc w akademii (na start 3, szacunek). Junior w akademii rozwija się latami, a zespół ma do niego pierwszeństwo przy podpisie. Poziom akademii zmienia jakość juniorów, a nie ich liczbę (1–2 nowych na sezon); akademia kosztuje co sezon; mniej więcej 10% juniorów nie dochodzi do potencjału; junior, który się ściga, rozwija się szybciej. Bez minigry z treningiem.
 - **Co się dzieje w puli:** talent rozwija się sam, w tempie zależnym od potencjału i losu. Zespoły mogą go podpisać jako kierowcę wyścigowego, testowego albo „juniora” z opcją na przyszłość.
 - **Inwestycja w juniora:** można opłacić juniorowi sezon „gdzieś niżej” (abstrakcyjny program: tanio i wolno, albo drogo i szybko). To przyspiesza jego rozwój i buduje lojalność. Kierowca rezerwowy rozwija się przez prywatne testy, ograniczone regulaminem epoki.
 - **Wypełniacze:** pulę uzupełnia generator wiarygodnymi fikcyjnymi kierowcami. Bez nich pula byłaby listą przyszłych mistrzów, a wybór pozbawiony sensu. AI nie wie, kto jest „prawdziwy”.
@@ -43,7 +44,7 @@ Ustawienia przy tworzeniu kariery. Presety mają nazwy (np. **„Najbardziej his
 - **Los legend:**
   - *Potencjał*: prawdziwa kariera wyznacza sufit talentu (z niepewnością), a osiągnięcie go zależy od świata: samochodu, wyników, sztabu, pewności siebie, kontuzji;
   - *Trajektoria*: umiejętności podążają rok po roku za wyliczoną krzywą prawdziwej kariery; świat zmienia wtedy, *gdzie* kierowca jeździ, ale nie *jak dobry* jest.
-- **Siła historii (0–100%):** jak chętnie aktorzy AI realizują propozycje historyczne (§2.4), gdy są sensowne.
+- **Siła historii (0–10, PP-057):** jak chętnie aktorzy AI realizują propozycje historyczne (§2.4), gdy są sensowne.
   - Przy 100% świat bez udziału gracza idzie torem prawdziwej historii, a rozjeżdża się tam, gdzie gracz zainterweniuje. Jeśli zabierzesz Mercedesowi miejsce dla Hamiltona, Mercedes weźmie np. Alonso.
   - Przy 0% jest czysta symulacja.
 - **Osie trybu (PP-046):** ludzie (trajektoria / prawdziwy potencjał / prawdziwe nazwiska z losowymi umiejętnościami / w pełni generowani), przepisy (historyczne / głosowane co sezon), zachowanie AI (odtwarza historię / reaguje na sytuację / czysta losowość). Presety składają te osie, a ręczna zmiana jest zawsze możliwa.
@@ -224,6 +225,8 @@ To dokładnie pasuje do modelu zapasu opisanego wyżej.
 
 **Moment zamrożenia koncepcji:** projekt na przyszły rok bierze za punkt wyjścia stan auta w chwili zatwierdzenia koncepcji. Poprawki wprowadzone później pomagają już tylko temu sezonowi. Decyzja „kiedy zamrozić” jest więc realnym wyborem, a konto rozwoju pozwala część późniejszej pracy przenieść dalej.
 
+**Epoka zmienia rozwój (PP-057):** projektowanie koncepcji trwa dłużej, gdy auta są bardziej złożone (tak jak produkcja). We wczesnych epokach zyski z projektów są mniejsze, a koncepcja częściej kończy się porażką.
+
 **Wcześniejsze zakończenie projektu:** każdy projekt można zamknąć przed czasem. Dostajesz wtedy proporcjonalną część efektu. Przydaje się, gdy zbliża się ważny wyścig albo kończą się pieniądze.
 
 **Pierwsze wdrożenie (T42, wszystkie liczby to ESTYMATY, do kalibracji):** podział „bieżące auto / konto / przyszły rok” finansuje trzy rodzaje projektów: część do auta (jeden obszar: aerodynamika, podwozie, niezawodność, opony i prowadzenie), badania na konto i nową koncepcję. Zysk to udział w pozostałym zapasie (sufit koncepcji minus poziom), liniowy względem zasobów, więc blisko sufitu maleje. Liczebność zespołu skraca czas, a nie podnosi jakości. Koncepcję wdraża się „gdy gotowa”, „po N wyścigach” albo „w przyszłym sezonie” (domyślnie; zmiana sezonu wdraża tylko takie koncepcje) albo „trzymaj” (T42b: gotowa koncepcja czeka ponad zmianę sezonu, stare auto jedzie dalej, rozwój idzie w przyszłą koncepcję; bez kary i bez własnej krzywej, pogarsza się samo, bo rywale się rozwijają, a konto traci wartość); wdrożona w sezonie zeruje zrozumienie do poziomu nowej koncepcji. Zmiana przepisów obniża konto proporcjonalnie do liczby zmienionych wymiarów technicznych. Szkielet działów z §6.2 i przełomy z PP-042 nie wchodzą do tego kroku: liczebność jest jednym skalarem, a przełomów nie ma.
@@ -329,6 +332,8 @@ Personel ma analogiczny profil: tożsamość, atrybuty roli, osobowość, stan, 
 
 ### 6.2. Personel (PROPOZYCJA do ustalenia; PP-033)
 
+**Zasada dwóch krzywych (PP-058):** to, co pieniądze kupują (sztab, działy, infrastruktura), ma malejące korzyści, a koszt rośnie coraz szybciej. Talent kierowcy działa prawie liniowo, ale jest rzadki, starzeje się i drożeje. Pieniądze nie kupią dominacji samym wsparciem.
+
 **Dwa poziomy: kluczowi ludzie i działy.** W zespole nie pracuje 10 osób, tylko od ~20 (lata 50.) do ~1000+ (dziś).
 - **Kluczowi ludzie** (tabela niżej) to imienni specjaliści z pełnym profilem. Kierują działami i podejmują decyzje.
 - **Działy:** projektowy, aerodynamiki, silnika, produkcji, dynamiki pojazdu, zespół wyścigowy i mechanicy, komercyjny, scouting. Każdy ma:
@@ -368,6 +373,8 @@ Morale personelu (np. po zwolnieniu kolegi, przy słabych wynikach, przy dużym 
 Z zaufania wyrastają też rywalizacje (Senna–Prost), napięcia między partnerami z zespołu i historie w skrzynce, bez skryptu.
 
 ### 6.4. Rozwój i wiek
+
+**Atrybuty starzeją się różnie (PP-058):** fizyczne (kondycja) szczytują wcześnie i spadają pierwsze, techniczne (zakręty, hamowanie, płynność) trzymają się długo, mentalne (opanowanie, regularność, informacja zwrotna) rosną najdłużej.
 Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datami. W trybie „Trajektoria” zastępuje ją prawdziwa krzywa.
 
 **Zasady łuku (PP-047):** rozwój zaczyna się kilka lat przed debiutem, szczyt przypada zwykle na 25–33 lata, a spadek zaczyna się dopiero około 36–40 lat (każdy kierowca ma własny, stały wiek). U prawdziwych kierowców wysokość szczytu i jego moment wynikają z danych (pipeline ocen, skala względem własnej epoki). Spóźnialski, który był na szczycie do końca kariery (Fangio), słabnie dopiero po ostatnim prawdziwym sezonie. Gwiazdki to zawsze średnia atrybutów / 4.
@@ -384,7 +391,7 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 - **współczesność:** mieszanki opon, obowiązkowy postój, samochód bezpieczeństwa i VSC, DRS od 2011.
 
 **Kwalifikacje** mają format epoki.
-**Incydenty i awarie:** ryzyko zależy od epoki (bezpieczeństwo), kierowcy (agresja, opanowanie) i sprzętu. Skutki to kontuzje i końce karier. Śmierć tylko przy włączonej opcji (PP-006).
+**Incydenty i awarie:** ryzyko zależy od epoki (bezpieczeństwo), kierowcy (agresja, opanowanie) i sprzętu. Skutki to kontuzje i końce karier. Śmierć tylko przy włączonej opcji (PP-006). Większość awarii daje kilka okrążeń sygnałów (auto zwalnia), ale mniej więcej co trzecia przychodzi bez ostrzeżenia (PP-057).
 **Prezentacja:** najpierw backend (PP-020). Wyścig ma wynik natychmiastowy albo relację na żywo w formie tabeli z różnicami czasu i komunikatami. Mapa toru 2D powstanie po zbudowaniu UI.
 
 ---
@@ -406,7 +413,7 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatycznej inflacji**. Model popularności:
 - **Globalna popularność serii**, plus **baza fanów w każdym kraju**.
 - **Co ją podnosi:** wyrównane walki o tytuł (wielu pretendentów, rozstrzygnięcia w ostatnich wyścigach), gwiazdy i ich rywalizacje, krajowi bohaterowie (np. mistrz z Polski buduje polski rynek), wyścigi w nowych krajach, era TV.
-- **Co ją obniża:** długa dominacja jednego zespołu lub kierowcy, nudne wyścigi, skandale, (przy włączonej opcji) tragedie.
+- **Co ją obniża:** długa dominacja jednego zespołu lub kierowcy, nudne wyścigi, skandale, (przy włączonej opcji) tragedie. Dominacja jednego zespołu z wyrównaną walką jego kierowców o tytuł (2016) obniża popularność mniej niż dominacja jednego kierowcy (PP-057).
 - **Tryb historyczny:** bazowy wzrost pochodzi z osi czasu epok (np. era TV, umowa Concorde), a popularność świata go wzmacnia lub osłabia. Po 2026 działa już tylko model.
 
 **Skutki:**
@@ -419,6 +426,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 - **Przychody według epoki:** pieniądze startowe → sponsorzy (od 1968) → TV i umowa Concorde → nagrody za pozycję w konstruktorach, sprzedaż silników i samochodów klienckich.
 - **Koszty:** pensje, projekt i budowa aut, silniki, podróże, infrastruktura (także jej starzenie się, §4.3), naprawy po wypadkach.
 - **Sponsorzy** to rynek z celami, a jego wielkość w każdym kraju wynika z popularności. Sponsorzy mają **branże** zmieniające się z epokami: paliwa i opony w latach 50., tytoń od 1968 do zakazów w latach 2000., alkohol, banki, telekomy, IT, kryptowaluty. Zakaz reklamy tytoniu to w trybie historycznym realny szok finansowy dla zespołów od niej zależnych.
+  - **Cele sponsorów pasują do siły zespołu (PP-058):** słaby zespół dostaje osiągalne cele, a premia rośnie z trudnością celu.
   - **Miejsca na aucie:** główne, drugorzędne, mniejsze. Każde daje inną część kwoty.
   - **Sponsor tytularny zmienia nazwę zespołu** (historycznie np. „Marlboro McLaren”, „Mild Seven Benetton”). Wymaga prestiżu i długiej umowy, może też chcieć udziałów.
   - **Rozmowy przyspieszają:** zgodna narodowość sponsora i kierowcy, prestiż zespołu, przedłużenie istniejącej umowy.
@@ -441,6 +449,8 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
   - **zakazy:** udział w innych seriach (np. Le Mans), ryzykowne hobby;
   - **zwolnienie za kwotę:** rzadkie, ale możliwe (historycznie wykupy kontraktów się zdarzały).
 - Każdą klauzulę można negocjować. Obie strony wyceniają ją według swojej osobowości i sytuacji. Złamanie klauzuli jest sprawą w skrzynce i uderza w zaufanie (§6.3).
+- **Kierowca a oferty rywali (PP-058):** rywal może kusić naszego kierowcę dopiero w ostatnim roku umowy i po kilku wyścigach sezonu. Niskie morale i lojalność: „odchodzę po sezonie”. Średnie: „mam lepszą ofertę, przebijecie?”. Wysokie: „dostaję oferty, ale zostaję”. Pewne odejście tylko przy bardzo niskim morale i lojalności albo złamanej obietnicy. Przy gwiazdach plotka najpierw trafia do gazety (§14.3).
+- **Podwyżki w trakcie umowy (PP-057):** kierowca może zażądać podwyżki przed końcem kontraktu. Częstość zależy od lojalności i morale, a kwota od zapasu potencjału: kierowca na szczycie żąda mniej niż wschodząca gwiazda. Odmowa obniża zaufanie (§6.3).
 - **Negocjacje z ludźmi, a nie z paskami:** UI pokazuje powody odmowy lub zgody.
   - **Ograniczona liczba prób:** zwykle kilka, u niecierpliwych mniej. Kolejne drobne podbijanie pensji o grosze irytuje drugą stronę i obniża jej zainteresowanie. Liczy się realna zmiana oferty (status, klauzula, lata), a nie klikanie suwaka.
   - **Liczba prób zależy od relacji (PP-048):** wieloletni kierowca z wysoką lojalnością i morale daje dużo prób, a obcy kierowca bez relacji tylko 2–3.
@@ -523,7 +533,7 @@ Gazeta ze świata gry, wydawana co miesiąc. Działy:
 
 Pomysły ze starego GDD V4, dopasowane do obecnego projektu.
 - **Reputacja menedżera:** rośnie z wynikami ponad oczekiwania, tytułami i rozwojem ludzi, a spada ze słabymi wynikami i złym zarządzaniem pieniędzmi. Wpływa na oferty pracy, negocjacje z kierowcami i sponsorami, a także na wiarygodność obietnic (§6.3).
-- **Zarząd (albo właściciel)** stawia cele na sezon i na kilka lat i ocenia menedżera. Jego cierpliwość zależy od osobowości właściciela. W zespole założonym przez gracza tę rolę pełnią inwestorzy i sponsor założycielski (§3.2).
+- **Zarząd (albo właściciel)** stawia cele na sezon i na kilka lat i ocenia menedżera. Przed sezonem gracz wybiera jeden z trzech celów: bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę) (PP-058). Jego cierpliwość zależy od osobowości właściciela. W zespole założonym przez gracza tę rolę pełnią inwestorzy i sponsor założycielski (§3.2).
 - **Pogoda w wyścigu:** sucho, lekki deszcz, ulewa, burza, ze zmianami w trakcie wyścigu.
 - **Tempo oglądania wyścigu:** na żywo, ×5, ×10, ×20 albo sam wynik.
 

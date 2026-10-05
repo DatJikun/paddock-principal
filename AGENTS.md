@@ -27,6 +27,16 @@ people, where history can be changed. The owner (DatJikun) reviews; agents build
   a *visual* `DESIGN.md` at the repo root, but our `DESIGN.md` is the game-design
   document: never let a tool overwrite or "regenerate" it.
 
+## Review checklist for game mechanics (PP-058, from the Peloton research)
+A mechanic is not ready if any of these is true:
+- a choice has no cost (raise a number, another number only goes up);
+- difficulty comes from the UI (hidden limits, unclear budget) instead of the world;
+- something fails silently (no inbox item, no reason shown);
+- a faster simulation path uses different rules than the watched one;
+- it adds admin between races that nobody would choose to click;
+- a result is read straight from an attribute instead of emerging from the simulation;
+- AI reads hidden truth or the future.
+
 ## Hard rules
 - **Invariants in TECH §3 are non-negotiable**: no game logic in UI, determinism,
   isolated RNG streams, truth vs knowledge, passive Spy, stable IDs.

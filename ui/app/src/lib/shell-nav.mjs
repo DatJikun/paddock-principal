@@ -18,7 +18,6 @@ export const NAV = [
   { id: 'rynek', key: 'shell.nav.market', icon: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>' },
   { id: 'monthly', key: 'shell.nav.monthly', icon: '<path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/>' },
   { id: 'fia', key: 'shell.nav.fia', icon: '<path d="M12 3v18M5 7h14M7 7l-3 7h6zM17 7l-3 7h6z"/>' },
-  { id: 'kronika', key: 'shell.nav.chronicle', icon: '<path d="M6 3h12v18l-6-4-6 4z"/>' },
 ];
 
 export const SETTINGS = {
@@ -82,14 +81,30 @@ export const SHELL_KEYS = [
   'inbox.area.other',
 ];
 
-const ids = [...NAV.filter((item) => item.id).map((item) => item.id), SETTINGS.id];
+/** Pages that are not in the menu light up their parent: a race page belongs to the calendar. */
+export const PARENT = { wyscig: 'kalendarz' };
+
+const ids = [...NAV.filter((item) => item.id).map((item) => item.id), SETTINGS.id, ...Object.keys(PARENT)];
+
+/** "#/wyscig/3" -> { name: 'wyscig', args: ['3'] }. Anything unknown is the dashboard. */
+export function parseRoute(hash) {
+  const parts = (hash || '').replace(/^#\/?/, '').split('/').filter(Boolean).map((part) => decodeURIComponent(part));
+  const name = parts[0] ?? 'pulpit';
+  if (!ids.includes(name)) return { name: 'pulpit', args: [] };
+  return { name, args: parts.slice(1) };
+}
 
 export function screenId(hash) {
-  const name = (hash || '').replace(/^#\/?/, '') || 'pulpit';
-  return ids.includes(name) ? name : 'pulpit';
+  return parseRoute(hash).name;
+}
+
+/** The menu entry that is lit for a screen. */
+export function navOwner(name) {
+  return PARENT[name] ?? name;
 }
 
 export function screenKey(id) {
-  const item = NAV.find((entry) => entry.id === id) ?? (id === SETTINGS.id ? SETTINGS : NAV[0]);
+  const owner = navOwner(id);
+  const item = NAV.find((entry) => entry.id === owner) ?? (owner === SETTINGS.id ? SETTINGS : NAV[0]);
   return item.key ?? 'shell.nav.home';
 }

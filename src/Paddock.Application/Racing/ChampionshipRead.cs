@@ -28,16 +28,25 @@ public sealed record CalendarRoundView(
 /// <summary>The season's rounds, in order. A pure read (INV-005).</summary>
 public sealed record CalendarView(int Season, IReadOnlyList<CalendarRoundView> Rounds);
 
-/// <summary>The era's points table, as the catalog wrote it. Names are the catalog values, which are identifiers.</summary>
+/// <summary>
+/// The era's points table, as the catalog wrote it. Names are the catalog values, which are identifiers.
+/// <see cref="CountedResults"/> is how many results count (0 = all); a split rule also fills the two quotas.
+/// </summary>
 public sealed record PointsScaleView(
     IReadOnlyList<int> PositionPoints,
     string FastestLap,
     string ResultsCounting,
     bool DoublePointsFinale,
-    string Constructors);
+    string Constructors,
+    int CountedResults,
+    int FirstQuota,
+    int SecondQuota);
 
-/// <summary>One line of a table. <see cref="Points"/> is the counted total, in invariant text.</summary>
-public sealed record StandingRowView(int Position, string Id, string Name, string Points, int Wins);
+/// <summary>
+/// One line of a table. <see cref="Points"/> is the counted total, in invariant text. For a driver, nationality and
+/// the team of his latest race this season; for a constructor both stay empty.
+/// </summary>
+public sealed record StandingRowView(int Position, string Id, string Name, string Points, int Wins, string Nationality, string? TeamId, string? TeamName);
 
 /// <summary>Drivers and constructors after the era's points rules. Empty until the first race.</summary>
 public sealed record StandingsView(
@@ -49,7 +58,7 @@ public sealed record StandingsView(
     IReadOnlyList<StandingRowView> Constructors);
 
 /// <summary>One classification row. <see cref="RetirementKey"/> is empty when the car was classified.</summary>
-public sealed record RaceRowView(int Position, bool Classified, string DriverId, string DriverName, string TeamId, string TeamName, string Points, string RetirementKey);
+public sealed record RaceRowView(int Position, bool Classified, string DriverId, string DriverName, string Nationality, string TeamId, string TeamName, string Points, string RetirementKey);
 
 /// <summary>One report argument. A person or team value is the name the player may see.</summary>
 public sealed record ReportArgView(string Name, string Value);
@@ -172,8 +181,11 @@ public static class ChampionshipRead
                 points.FastestLap.ToString()!,
                 points.ResultsCounting.ToString()!,
                 points.DoublePointsFinale,
-                points.ConstructorCounting.ToString()!),
-            table.Drivers().Select(row => DriverRow(session.World, row)).ToArray(),
+                points.ConstructorCounting.ToString()!,
+                points.ResultsCounting.TotalCounted,
+                points.ResultsCounting.FirstQuota,
+                points.ResultsCounting.SecondQuota),
+            table.Drivers().Select(row => DriverRow(session, row)).ToArray(),
             table.Constructors().Select(row => TeamRow(session.World, session.Date, row)).ToArray());
     }
 
@@ -200,6 +212,7 @@ public static class ChampionshipRead
                 row.Classified,
                 row.DriverId,
                 PersonName(session.World, row.DriverId),
+                Nationality(session.World, row.DriverId),
                 row.TeamId,
                 TeamName(session.World, session.Date, row.TeamId),
                 row.Points,
@@ -295,11 +308,52 @@ public static class ChampionshipRead
         return snapshots;
     }
 
-    private static StandingRowView DriverRow(WorldState world, StandingsRow row) =>
-        new(row.Position, row.Id, PersonName(world, row.Id), Points(row.CountedPoints), row.Wins);
+    private static StandingRowView DriverRow(CareerSession session, StandingsRow row)
+    {
+        var team = LatestTeam(session, row.Id);
+        return new(
+            row.Position,
+            row.Id,
+            PersonName(session.World, row.Id),
+            Points(row.CountedPoints),
+            row.Wins,
+            Nationality(session.World, row.Id),
+            team,
+            team is null ? null : TeamName(session.World, session.Date, team));
+    }
 
     private static StandingRowView TeamRow(WorldState world, GameDate on, StandingsRow row) =>
-        new(row.Position, row.Id, TeamName(world, on, row.Id), Points(row.CountedPoints), row.Wins);
+        new(row.Position, row.Id, TeamName(world, on, row.Id), Points(row.CountedPoints), row.Wins, "", null, null);
+
+    private static string? LatestTeam(CareerSession session, string driverId)
+    {
+        var races = FinishedRounds(session, session.Date.Year);
+        for (var i = races.Count - 1; i >= 0; i--)
+        {
+            foreach (var row in races[i].Rows)
+            {
+                if (row.DriverId == driverId)
+                {
+                    return row.TeamId;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static string Nationality(WorldState world, string id)
+    {
+        foreach (var person in world.Persons)
+        {
+            if (person.Id.Value == id)
+            {
+                return person.Nationality;
+            }
+        }
+
+        return "";
+    }
 
     private static string Points(decimal points) => points.ToString(CultureInfo.InvariantCulture);
 

@@ -167,6 +167,7 @@ public sealed partial class CareerBridge
             "standings" => BridgeValues.ToNode(ChampionshipRead.Standings(Session, Box.Inputs)),
             "raceResult" => BridgeValues.ToNode(ReadRace(args)),
             "nextRace" => BridgeValues.ToNode(ChampionshipRead.Next(Session, Circuits)),
+            "track" => BridgeValues.ToNode(TrackRead.Read(Session, Tracks, TextOf(args, "layoutId"))),
             "staff" => BridgeValues.ToNode(ReadStaff()),
             "market" => BridgeValues.ToNode(ReadMarket(access)),
             _ => throw new InvalidOperationException("Query '" + name + "' is registered but not implemented."),

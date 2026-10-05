@@ -95,6 +95,43 @@ public class BridgeTests
     }
 
     [Fact]
+    public void TheTrackQueryReadsALayoutWithoutChangingTheWorld()
+    {
+        using var career = Open();
+        var before = career.Host.StateHash;
+        var exchange = career.Host.Handle(Message(
+            "tr",
+            "query",
+            "track",
+            "{\"managerId\":\"human:player\",\"layoutId\":\"galvez_1953\"}"));
+        using var json = JsonDocument.Parse(exchange.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), exchange.Response);
+        var data = json.RootElement.GetProperty("data");
+        Assert.True(data.GetProperty("found").GetBoolean(), exchange.Response);
+        Assert.False(string.IsNullOrWhiteSpace(data.GetProperty("name").GetString()));
+        Assert.True(data.GetProperty("lengthKm").GetDouble() > 0);
+        Assert.True(data.GetProperty("points").GetArrayLength() >= 3);
+        Assert.Equal(0, data.GetProperty("races").GetInt32());
+        Assert.Equal(before, career.Host.StateHash);
+
+        var named = career.Host.Handle(Message(
+            "tr2",
+            "query",
+            "track",
+            "{\"managerId\":\"human:player\",\"layoutId\":\"monza_1955\"}"));
+        using var namedJson = JsonDocument.Parse(named.Response);
+        Assert.Equal("monza", namedJson.RootElement.GetProperty("data").GetProperty("circuitId").GetString());
+
+        var missing = career.Host.Handle(Message(
+            "tr3",
+            "query",
+            "track",
+            "{\"managerId\":\"human:player\",\"layoutId\":\"nowhere_1999\"}"));
+        using var missingJson = JsonDocument.Parse(missing.Response);
+        Assert.False(missingJson.RootElement.GetProperty("data").GetProperty("found").GetBoolean());
+    }
+
+    [Fact]
     public void TheAiPrincipalDirectorLeavesThePlayersTeamAlone()
     {
         // Regression: without seating the player, the T44 director ran the player's team as an AI team
@@ -188,6 +225,23 @@ public class BridgeTests
         }
 
         Assert.True(raced, "the first 1955 race did not finish");
+        var standings = career.Host.Handle(Message("standings", "query", "standings"));
+        using (var json = JsonDocument.Parse(standings.Response))
+        {
+            var data = json.RootElement.GetProperty("data");
+            var leader = data.GetProperty("drivers")[0];
+            Assert.False(string.IsNullOrWhiteSpace(leader.GetProperty("nationality").GetString()), standings.Response);
+            Assert.False(string.IsNullOrWhiteSpace(leader.GetProperty("teamName").GetString()), standings.Response);
+            Assert.True(data.GetProperty("rules").GetProperty("countedResults").GetInt32() >= 0);
+        }
+
+        var track = career.Host.Handle(Message("track", "query", "track", "{\"managerId\":\"human:player\",\"layoutId\":\"galvez_1953\"}"));
+        using (var json = JsonDocument.Parse(track.Response))
+        {
+            var data = json.RootElement.GetProperty("data");
+            Assert.Equal(1, data.GetProperty("races").GetInt32());
+            Assert.Single(data.GetProperty("winners").EnumerateArray());
+        }
         var calendar = career.Host.Handle(Message("calendar", "query", "calendar"));
         using (var json = JsonDocument.Parse(calendar.Response))
         {

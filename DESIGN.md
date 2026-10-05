@@ -34,7 +34,7 @@ Nie symulujemy całej drabinki motorsportu, od kartingu dla 6-latków w górę. 
 - **Rozszerzenie ladderu:** gdy dodamy F2/F3 (faza 7+), punkt wejścia przesunie się niżej, a pula zamieni się w prawdziwe serie. Ten sam mechanizm, bez przepisywania.
 - **Model w kodzie (T40; wszystkie liczby to SZACUNKI z `PoolEstimates`, bez kalibracji):** pula jest uzupełniana fikcyjnymi kierowcami do ok. 16 osób co sezon, w wieku 17–20 lat i z rzadkim udziałem przyszłych gwiazd. Kierowca bez kontraktu odpada po 6 sezonach albo po przekroczeniu 28 lat, a odpadnięcie to zdarzenie dla Kroniki. Rozwój co sezon domyka część dystansu do ukrytego potencjału (z losowym szczęściem, najwyżej 3 punkty na atrybut), a opłacony sezon juniorski przyspiesza go (tani i wolny albo drogi i szybki). Skauci organizacji obserwują całą pulę wolno albo jedną osobę szybko; pasma zawężają się z czasem, siecią kontaktów skauta i wspólnymi wyścigami, a ocena talentu skauta decyduje o szerokości pasma i o tym, czy może się pomylić. Samo obserwowanie nigdy nie daje dokładnej wartości.
 
-Jeśli nikt nie da prawdziwemu kierowcy szansy, jego kariera może się nie wydarzyć. **To jest cecha gry, nie błąd.** Trafia wtedy do Kroniki rozbieżności.
+Jeśli nikt nie da prawdziwemu kierowcy szansy, jego kariera może się nie wydarzyć. **To jest cecha gry, nie błąd.**
 
 ### 2.2. Wiedza o przyszłości to część zabawy
 Gracz zna historię i wolno mu z niej korzystać, np. podpisać Sennę do Lotusa i odbudować z nim potęgę z lat 60. i 70. albo jako Ferrari wybrać Häkkinena zamiast Schumachera. AI tej wiedzy nie ma (D-010) i działa na podstawie scoutingu. Jak bardzo świat „trzyma się” historii, ustawia gracz w konfiguracji kariery (§2.3).
@@ -474,7 +474,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 
 ## 12. Żywa historia
 
-- **Kronika rozbieżności:** tytuły twoje i prawdziwe; zespoły, które nie powstały albo przetrwały dłużej; technologie wprowadzone wcześniej lub później; kariery, które się nie wydarzyły. Dostępna jako ekran z osią czasu i jako komentarze w skrzynce („W prawdziwej historii Clark zdobyłby dziś swój pierwszy tytuł”).
+- **Bez porównań z prawdziwą historią (PP-062):** gra nie ma kroniki rozbieżności ani komentarzy w stylu „w prawdziwej historii…”.
 - **Hall of Fame, rekordy, historia sezonów:** w kompaktowej formie (TECH §6).
 
 ---
@@ -503,8 +503,7 @@ Podstawą jest kierunek C, czyli „barwy epoki”, z 1976 jako wzorcem jakości
 ### 14.2. Zasady (lista anty-AI-slop)
 - **Każdy ekran ma jeden punkt skupienia.** Na pulpicie są to skrzynka i następny wyścig.
 - **Pulpit i ekrany przeglądowe mieszczą się na jednym ekranie** (od 1440×900 w górę), bez przewijania i bez pustych dziur. Przewijanie jest dozwolone tylko tam, gdzie treść jest z natury długa, np. na liście transferowej z wieloma kolumnami.
-- **Kronika rozbieżności nie trafia na pulpit.** To ciekawostka we własnej zakładce, bo gracz pisze swoją historię i nie trzeba mu jej przypominać.
-- **Nawigacja:** Pulpit, Skrzynka, Kalendarz, Klasyfikacje · Zespół (Kierowcy, Personel, Akademia, Auto i rozwój, Infrastruktura) · Biznes (Dostawcy, Sponsorzy, Finanse, Zarząd) · Świat (Rynek, Paddock Monthly, FIA i regulamin, Kronika). Na dole „Ustawienia” (tam m.in. kolory Era/Zespół, skórka epoki, animowane tło, tryb bez liczb). Pozycje menu są duże (16 px).
+- **Nawigacja:** Pulpit, Skrzynka, Kalendarz, Klasyfikacje · Zespół (Kierowcy, Personel, Akademia, Auto i rozwój, Infrastruktura) · Biznes (Dostawcy, Sponsorzy, Finanse, Zarząd) · Świat (Rynek, Paddock Monthly, FIA i regulamin). Na dole „Ustawienia” (na MVP: język; reszta według PP-063). Pozycje menu są duże (16 px).
 - **Data zawsze w formie „Środa, 7 lipca 1976”.**
 - **Klasyfikacje na pulpicie mają przełącznik Kierowcy / Konstruktorzy**, zawsze z pełnym top 6, a nie ze zdaniem w stylu „Tyrrell drugi”.
 - **Ikony są rysowane jednym stylem i jedną grubością linii**, z sensownym motywem (auto to bolid z odkrytymi kołami widziany z góry).

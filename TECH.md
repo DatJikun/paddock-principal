@@ -43,7 +43,7 @@ src/
   Paddock.Desktop       host Photino + most JSON
   Paddock.Career        zapis i wczytanie kariery, wspólne dla okna i SimRunnera
 tools/
-  Paddock.SimRunner     przebiegi wsadowe, testy wierności, zrzuty Spy
+  Paddock.SimRunner     przebiegi wsadowe, kalibracja silnika wyścigu, zrzuty Spy
   Paddock.DataPipeline  import z Jolpica-F1, wyliczanie ocen, budowa bazy świata
 tests/
   Paddock.Tests
@@ -138,7 +138,7 @@ Zależności między projektami w `src/` podlegają ścisłym regułom warstwowy
 - Liczby zgadywane (długość pierwszego kontraktu, jakość pokolenia, liczba miejsc, wielkość puli) są w `WorldInitEstimates` i są ESTIMATE. SimRunner: `init-world --preset <nazwa> --year <rok> --seed <n>` drukuje raport (liczby wg rodzaju, luki, hash).
 
 ### 6.2. Save (`.paddock` = SQLite, tryb WAL)
-- **Główne tabele:** `meta` (wersja schematu, hash bazy, master seed, stan RNG, data gry), `people`, `person_attributes`, `organizations`, `org_lineage`, `contracts`, `cars`, `seasons`, `race_results`, `standings`, `chronicle` (rozbieżności), `hall_of_fame`, `inbox`, `decision_traces`.
+- **Główne tabele:** `meta` (wersja schematu, hash bazy, master seed, stan RNG, data gry), `people`, `person_attributes`, `organizations`, `org_lineage`, `contracts`, `cars`, `seasons`, `race_results`, `standings`, `hall_of_fame`, `inbox`, `decision_traces`.
 - **Świat w zapisie (V003, T19):** `persons`, `person_roles`, `person_attributes` (prawda i sufit w jednym wierszu), `organizations`, `org_names`, `org_lineage` (jedna krawędź na wiersz), `contracts`, `knowledge` i `knowledge_bands` (przekonania organizacji, tylko przedziały), `id_counters` i `retired_ids` (ID nigdy nie wracają, INV-009), `scheduled_events`, `managers`, `command_log`. Warstwa zapisu nie interpretuje ładunku zdarzeń ani komend: trzyma typ i tekst, a właściciel (Simulation, Application) go koduje. `WorldRepository` zapisuje i wczytuje świat w jednej transakcji, a zapis jest dozwolony tylko na granicy dnia (INV-007): świat z inną datą niż podana granica jest odrzucany przed zapisem. Limity rozmiaru i czasu w teście `WorldSizeTests` to ESTYMATY, nie skalibrowane cele.
 - **Sekcje świata (V004–V005, T36):** systemy fazy 4 trzymają swój stan jako `IWorldSection` w `WorldState` (nazwa, `SchemaVersion`, kanoniczny tekst; wartość niezmienna). Hash: świat bez sekcji ma format `paddock-world/1` (bez zmian względem T15), świat z sekcjami `paddock-world/2` (sekcje po zwykłej treści, w kolejności nazw, ciało sekcji z prefiksem długości). Zapis: tabela `world_sections` (rejestr) i `ISectionStore` na sekcję (`Replace`/`Load` w transakcji `WorldRepository`); nowa sekcja = własna migracja z tabelami, własny store, wpis w `SectionStores.Production`. Sekcja bez store'a jest odrzucana przy zapisie, a zapis z sekcją bez store'a przy wczytaniu, żeby dane nigdy nie ginęły po cichu. Pierwsza sekcja to `inbox` (V005); sekcja `objectives` dostała store razem z zarządem (T45, V010).
 - **Inbox v0 (T36):** per menedżer, ID `inb:{n}` z licznika sekcji. Decyzja z otwartą opcją zajmuje jedyny slot `BlockingItem` menedżera (rodzaj `inbox.decision`) i zwalnia go po odpowiedzi; slot zajęty przez inny system zostaje nietknięty. Oferta z datą ważności musi mieć domyślną opcję i wygasa komendą `ExpireInboxItem` (wydawaną przez hosta, `InboxExpiry.EnqueueDue`), więc wygaśnięcie trafia do logu i powtarza się deterministycznie. Opcję wykonuje `IInboxResolver` właściciela rodzaju, wewnątrz komendy (INV-001).
@@ -161,7 +161,7 @@ Zależności między projektami w `src/` podlegają ścisłym regułom warstwowy
 - **Migracje:** wersjonowane skrypty w kodzie, stosowane w jednej transakcji przy wczytaniu.
 - **Kompaktowanie (koniec sezonu):**
   - usuwamy dane okrążeń i szczegółowe ślady Spy;
-  - zostają wyniki, klasyfikacje, rekordy, kronika i Hall of Fame;
+  - zostają wyniki, klasyfikacje, rekordy i Hall of Fame;
   - generowane osoby bez znaczącej kariery są usuwane;
   - prawdziwe osoby zostają zawsze, bo baza świata i tak je zna.
 - **Cel:** save po 76 sezonach poniżej ~50 MB. Weryfikujemy to w SimRunnerze, a nie deklarujemy.
@@ -228,7 +228,6 @@ Zależności między projektami w `src/` podlegają ścisłym regułom warstwowy
 - **Jednostkowe:** reguły domeny (punktacja epok, kontrakty, ekonomia).
 - **Regresja determinizmu:** hash stanu po N sezonach. Przebieg sezonu 1955 w SimRunnerze (`run`) musi dać dwa razy ten sam hash, a zapis w dowolnym dniu sezonu wznowiony do tego samego dnia końcowego musi dać identyczny hash, dziennik komend i podsumowania sezonów (`CareerWiringTests`, `CareerResumeTests`).
   - **Złote hashe:** nie ma komendy, która je przepisuje, i nie ma być (test drukuje wartość rzeczywistą i nigdy jej nie zapisuje). Zmienia je człowiek, ręcznie, w stałej testu (`CareerRunTests.StoredWorldHash`), a PR mówi, dlaczego hash się zmienił (zwykle: nowa sekcja świata albo nowa komenda w dzienniku). Hash zmieniony bez takiego wyjaśnienia to błąd, nie aktualizacja.
-- **Test wierności historii (PP-012):** przebieg okresu bez gracza, potem porównanie z rzeczywistością (rozkład mistrzów, udział ukończonych wyścigów, dominacja). Raport z SimRunnera zamiast asercji 1:1.
 - **Kalibracja silnika wyścigu (#122):** `SimRunner calibrate-race --from Y --to Y [--stride N] [--seeds N] [--cache <katalog jolpica>]` symuluje wyścigi sezonów na syntetycznej stawce, zbiera je w pasma epok i porównuje z lokalnym cache Jolpica (odsetek ukończeń, podział mechanika/wypadek, mediana przewagi zwycięzcy, zdublowani, pole-to-win) oraz z pogodą R9 (deszcz w wyścigu, temperatura powietrza). Postoje i zmiany prowadzenia nie mają danych historycznych w cache, więc raport sprawdza je tylko względem zakresów orientacyjnych (ESTIMATE). Raport trafia do `data/cache/reports/` (poza repo, PP-041). Stałe skalibrowane tym raportem pozostają ESTYMATAMI: opis przy każdej stałej mówi, względem jakich sezonów były dostrajane; zakresy tolerancji są w `CalibrationTargets`.
 - **Stres:** kariera 1950→2100, czas przeliczenia sezonu i rozmiar save'a.
 - **UI:** zrzuty ekranu kluczowych widoków w trybie deweloperskim (przeglądarka).

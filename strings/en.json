@@ -8,6 +8,7 @@
   "bridge.error.badMessage": "The bridge message could not be read.",
   "bridge.error.managerRequired": "A command needs a manager id.",
   "bridge.error.internal": "Something went wrong.",
+  "bridge.race.none": "No race has been run in this career yet.",
   "bridge.career.appointed": "You take over the team.",
   "ready.blockingItem": "An unresolved matter is holding the clock.",
   "ready.humansNotReady": "Time advances when every human manager is ready.",

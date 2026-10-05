@@ -83,6 +83,31 @@ public static class ChampionshipFacts
         return 0;
     }
 
+    /// <summary>The season table, or null when this season has not raced. A pure query (INV-005).</summary>
+    public static Standings? Table(CareerSession session, CareerInputs inputs)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(inputs);
+        var section = session.World.Section<ChampionshipSection>(ChampionshipSection.SectionName);
+        if (section is null || section.Season != session.Date.Year)
+        {
+            return null;
+        }
+
+        var rules = Rules(inputs, session.World, section.Season);
+        if (rules is null)
+        {
+            return null;
+        }
+
+        return Standings.Restore(
+            PointsRules.For(rules),
+            section.TotalRounds,
+            section.RoundsCompleted,
+            Snapshots(section.Drivers),
+            Snapshots(section.Constructors));
+    }
+
     private static RuleSet? Rules(CareerInputs inputs, WorldState world, int season)
     {
         var stored = world.Section<RegulationsSection>(RegulationsSection.SectionName);

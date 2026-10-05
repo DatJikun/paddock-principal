@@ -130,7 +130,8 @@ public sealed class RaceWeekendDay : IDayHandler
             payload.LayoutId,
             published.Tape,
             Lines(published),
-            field.SkippedTeamIds);
+            field.SkippedTeamIds,
+            RaceReportInput.From(published, payload.Season, payload.Round, payload.LayoutId));
     }
 
     private void ApplyUnderstanding(GameDate today, double lengthKm, IReadOnlyList<CarRaceResult> results)

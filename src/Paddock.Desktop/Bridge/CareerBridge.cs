@@ -12,6 +12,7 @@ using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
+using Paddock.Application.Racing;
 using Paddock.Application.Sponsors;
 using Paddock.Application.Supply;
 using Paddock.Application.World;
@@ -98,7 +99,7 @@ public sealed class CareerBridge
             dispatcher,
             ai,
             CareerModules.Default,
-            LoadInputs(dataRoot, data, created.EngineSupplies),
+            LoadInputs(dataRoot, data, created.EngineSupplies, config),
             // Seat the player on his team, so the AI principal director (T44) never runs it.
             created.PlayerOrganization.IsAssigned
                 ? [new CareerHuman(HumanManagerId, "Principal", created.PlayerOrganization.Value)]
@@ -136,6 +137,9 @@ public sealed class CareerBridge
             "pool" => BridgeValues.ToNode(Pool().View(access)),
             "supply" => BridgeValues.ToNode(ReadSupply(access)),
             "negotiations" => BridgeValues.ToNode(new NegotiationQuery(Contracts()).View(access)),
+            "standings" => BridgeValues.ToNode(ReadStandings()),
+            "raceResult" => BridgeValues.ToNode(ReadRaceResult()),
+            "raceReport" => BridgeValues.ToNode(ReadRaceReport()),
             _ => throw new InvalidOperationException("Query '" + name + "' is registered but not implemented."),
         };
     }
@@ -148,6 +152,20 @@ public sealed class CareerBridge
         return results.Count == 0
             ? throw new InvalidOperationException("The queue accepted a command and then dispatched nothing.")
             : results[^1];
+    }
+
+    /// <summary>The last race, once, for the <c>raceFinished</c> push. Later queries still read it.</summary>
+    public bool TakeFinishedRace(out RaceResultView result)
+    {
+        result = null!;
+        var watch = _modules.Context.TryGet<RaceWatch>();
+        if (watch is null || !watch.TryTake(out var season, out var round, out var layoutId, out _, out var lines, out _))
+        {
+            return false;
+        }
+
+        result = ResultView(season, round, layoutId, lines);
+        return true;
     }
 
     public AdvanceOutcome Advance()
@@ -344,7 +362,7 @@ public sealed class CareerBridge
 
     private AccessContext Access() => AccessContext.ForManager(new AccessManagerId(_human.Value));
 
-    private static CareerInputs LoadInputs(string dataRoot, AuthoredData data, IReadOnlyList<EngineSupplyLink> supplies)
+    private static CareerInputs LoadInputs(string dataRoot, AuthoredData data, IReadOnlyList<EngineSupplyLink> supplies, CareerConfig career)
     {
         var sponsors = SponsorsLoader.ToCatalog(SponsorsLoader.Load(dataRoot));
         var tiers = TeamTiersLoader.ToSource(TeamTiersLoader.Load(dataRoot));
@@ -359,7 +377,87 @@ public sealed class CareerBridge
             EraPeriods = inputs.EraPeriods,
             RulePeriods = data.Periods,
             SupplyLinks = supplies.Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType)).ToArray(),
+            Layouts = data.Layouts,
+            RaceAssignments = data.RaceAssignments,
+            RegulationDimensionIds = data.DimensionIds,
+            EraDimensionIds = data.EraDimensionIds,
+            RegulationCatalog = RuleCatalog.ToSpecs(data.Catalog),
+            Rules = career.RulesSource,
+            Fatality = career.FatalityLevel,
         };
+    }
+
+    private StandingsView ReadStandings()
+    {
+        var table = ChampionshipFacts.Table(_session, _modules.Context.Inputs);
+        if (table is null)
+        {
+            return new StandingsView(_session.Date.Year, 0, 0, [], []);
+        }
+
+        return new StandingsView(
+            _session.Date.Year,
+            table.RoundsCompleted,
+            table.TotalRounds,
+            Rows(table.Drivers()),
+            Rows(table.Constructors()));
+    }
+
+    private static IReadOnlyList<StandingRowView> Rows(IEnumerable<Paddock.Simulation.Racing.Points.StandingsRow> rows)
+    {
+        var list = new List<StandingRowView>();
+        foreach (var row in rows)
+        {
+            list.Add(new StandingRowView(row.Position, row.Id, (double)row.CountedPoints));
+        }
+
+        return list;
+    }
+
+    private RaceResultView ReadRaceResult()
+    {
+        var watch = _modules.Context.TryGet<RaceWatch>();
+        if (watch is null || watch.Round == 0 || watch.Lines.Count == 0)
+        {
+            throw new BridgeQueryException(BridgeKeys.NoRace);
+        }
+
+        return ResultView(watch.Season, watch.Round, watch.LayoutId, watch.Lines);
+    }
+
+    private RaceReportView ReadRaceReport()
+    {
+        var watch = _modules.Context.TryGet<RaceWatch>();
+        if (watch?.Report is not { } input)
+        {
+            throw new BridgeQueryException(BridgeKeys.NoRace);
+        }
+
+        var report = RaceReportBuilder.Build(input);
+        return new RaceReportView(
+            input.Season,
+            input.Round,
+            input.TrackId,
+            Line(report.Title),
+            report.Sections.Select(section => new RaceReportSectionView(Line(section.Title), section.Lines.Select(Line).ToArray())).ToArray());
+    }
+
+    private static RaceResultView ResultView(int season, int round, string layoutId, IReadOnlyList<RaceResultLine> lines) =>
+        new(
+            season,
+            round,
+            layoutId,
+            lines.Select(line => new RaceResultRowView(line.Position, line.Classified, line.DriverId, line.TeamId, line.Points)).ToArray());
+
+    private static RaceReportLineView Line(RaceReportLine line)
+    {
+        var args = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var pair in line.Args)
+        {
+            args[pair.Key] = pair.Value?.ToString() ?? "";
+        }
+
+        return new RaceReportLineView(line.Key, args);
     }
 
     /// <summary>The same adapter <see cref="CareerHost"/> keeps private: advancing the gate lives the day.</summary>
@@ -379,3 +477,11 @@ public sealed class CareerBridge
 
 /// <summary>What <see cref="CareerBridge.Advance"/> did. A refusal carries the reason key and changes nothing.</summary>
 public sealed record AdvanceOutcome(bool Advanced, TranslationMessage? Reason, string? Date);
+
+/// <summary>A query that cannot be answered. The host turns <see cref="Key"/> into the bridge error.</summary>
+public sealed class BridgeQueryException : Exception
+{
+    public BridgeQueryException(string key) => Key = key;
+
+    public string Key { get; }
+}

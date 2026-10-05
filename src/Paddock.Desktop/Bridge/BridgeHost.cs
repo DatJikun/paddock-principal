@@ -111,7 +111,14 @@ public sealed class BridgeHost
 
             if (endpoint.Kind == BridgeRegistry.Query)
             {
-                return new BridgeExchange(BridgeValues.Response(id, _career.Query(name)), []);
+                try
+                {
+                    return new BridgeExchange(BridgeValues.Response(id, _career.Query(name)), []);
+                }
+                catch (BridgeQueryException exception)
+                {
+                    return Fail(id, exception.Key, null);
+                }
             }
 
             return Command(id, name, args);
@@ -129,12 +136,19 @@ public sealed class BridgeHost
                     return Fail(id, advance.Reason!.Key, Parameters(advance.Reason));
                 }
 
+                var events = new List<string>
+                {
+                    BridgeValues.Event("dayAdvanced", BridgeValues.ToNode(new AdvanceDayView(advance.Date!))),
+                    BridgeValues.Event("inboxChanged", null),
+                };
+                if (_career.TakeFinishedRace(out var race))
+                {
+                    events.Add(BridgeValues.Event("raceFinished", BridgeValues.ToNode(race)));
+                }
+
                 return new BridgeExchange(
                     BridgeValues.Response(id, BridgeValues.ToNode(new AdvanceDayView(advance.Date!))),
-                    [
-                        BridgeValues.Event("dayAdvanced", BridgeValues.ToNode(new AdvanceDayView(advance.Date!))),
-                        BridgeValues.Event("inboxChanged", null),
-                    ]);
+                    events);
             case "resolveInbox":
                 var itemId = Text(args, "itemId");
                 var optionId = Text(args, "optionId");

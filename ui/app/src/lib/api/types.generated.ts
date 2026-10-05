@@ -407,6 +407,39 @@ export interface PoolView {
   items: PoolItemView[];
 }
 
+export interface RaceReportLineView {
+  args: Record<string, string>;
+  key: string;
+}
+
+export interface RaceReportSectionView {
+  lines: RaceReportLineView[];
+  title: RaceReportLineView;
+}
+
+export interface RaceReportView {
+  layoutId: string;
+  round: number;
+  season: number;
+  sections: RaceReportSectionView[];
+  title: RaceReportLineView;
+}
+
+export interface RaceResultRowView {
+  classified: boolean;
+  driverId: string;
+  points: string;
+  position: number;
+  teamId: string;
+}
+
+export interface RaceResultView {
+  layoutId: string;
+  round: number;
+  rows: RaceResultRowView[];
+  season: number;
+}
+
 export interface ReputationLineView {
   on: IsoDate;
   points: number;
@@ -503,6 +536,20 @@ export interface SponsorViewUnknown {
   reason: TranslationMessage;
 }
 
+export interface StandingRowView {
+  id: string;
+  points: number;
+  position: number;
+}
+
+export interface StandingsView {
+  constructors: StandingRowView[];
+  drivers: StandingRowView[];
+  roundsCompleted: number;
+  season: number;
+  totalRounds: number;
+}
+
 export interface TranslationMessage {
   key: string;
   parameters: Record<string, string>;
@@ -525,6 +572,9 @@ export interface BridgeQueryMap {
   pool: { args: ManagerCall; result: PoolView };
   supply: { args: ManagerCall; result: ManagerSupplyView };
   negotiations: { args: ManagerCall; result: NegotiationsView };
+  standings: { args: ManagerCall; result: StandingsView };
+  raceResult: { args: ManagerCall; result: RaceResultView };
+  raceReport: { args: ManagerCall; result: RaceReportView };
 }
 
 export interface BridgeCommandMap {

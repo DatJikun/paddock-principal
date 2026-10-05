@@ -20,4 +20,7 @@ public static class BridgeKeys
     /// <summary>Reason stored when the host appoints the human at career start, until the wizard (#112) owns that command.</summary>
     [TranslationKey]
     public const string CareerAppointed = "bridge.career.appointed";
+
+    [TranslationKey]
+    public const string NoRace = "bridge.race.none";
 }

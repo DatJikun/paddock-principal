@@ -8,6 +8,7 @@
   "bridge.error.badMessage": "Nie dało się odczytać wiadomości mostu.",
   "bridge.error.managerRequired": "Komenda wymaga identyfikatora menedżera.",
   "bridge.error.internal": "Coś poszło nie tak.",
+  "bridge.race.none": "W tej karierze nie było jeszcze wyścigu.",
   "bridge.career.appointed": "Przejmujesz zespół.",
   "ready.blockingItem": "Nierozstrzygnięta sprawa zatrzymuje czas.",
   "ready.humansNotReady": "Czas ruszy, gdy każdy ludzki menedżer będzie gotowy.",

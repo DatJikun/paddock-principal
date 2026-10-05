@@ -12,7 +12,7 @@ namespace Paddock.Desktop.Bridge;
 
 /// <summary>
 /// Names the page may send. The result type is the JSON shape <see cref="BridgeValues"/> writes.
-/// Standings and the calendar are not here: Application has no query for them yet.
+/// The calendar is not here. Standings, the last result and the last report are.
 /// </summary>
 public static class BridgeRegistry
 {
@@ -34,6 +34,9 @@ public static class BridgeRegistry
         Endpoint(Query, "pool", typeof(ManagerCall), typeof(PoolView)),
         Endpoint(Query, "supply", typeof(ManagerCall), typeof(ManagerSupplyView)),
         Endpoint(Query, "negotiations", typeof(ManagerCall), typeof(NegotiationsView)),
+        Endpoint(Query, "standings", typeof(ManagerCall), typeof(StandingsView)),
+        Endpoint(Query, "raceResult", typeof(ManagerCall), typeof(RaceResultView)),
+        Endpoint(Query, "raceReport", typeof(ManagerCall), typeof(RaceReportView)),
         Endpoint(Command, "advanceDay", typeof(ManagerCall), typeof(AdvanceDayView)),
         Endpoint(Command, "resolveInbox", typeof(ResolveInboxCall), typeof(CommandAck)),
         Endpoint(Command, "dismissInbox", typeof(DismissInboxCall), typeof(CommandAck)),

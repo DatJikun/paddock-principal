@@ -23,6 +23,9 @@ public sealed class RaceWatch
 
     public IReadOnlyList<RaceResultLine> Lines { get; private set; } = [];
 
+    /// <summary>The spectator report of the last race. Kept after <see cref="TryTake"/> so a host can read it again. Not saved.</summary>
+    public RaceReportInput? Report { get; private set; }
+
     /// <summary>Teams that had cars and did not start because the race running cost was above the cash on hand.</summary>
     public IReadOnlyList<string> SkippedTeamIds { get; private set; } = [];
 
@@ -32,7 +35,8 @@ public sealed class RaceWatch
         string layoutId,
         RaceTape tape,
         IReadOnlyList<RaceResultLine> lines,
-        IReadOnlyList<string> skippedTeamIds)
+        IReadOnlyList<string> skippedTeamIds,
+        RaceReportInput? report = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(layoutId);
         ArgumentNullException.ThrowIfNull(tape);
@@ -44,6 +48,7 @@ public sealed class RaceWatch
         Tape = tape;
         Lines = lines;
         SkippedTeamIds = skippedTeamIds;
+        Report = report;
         Pending = true;
     }
 

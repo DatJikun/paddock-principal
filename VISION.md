@@ -328,3 +328,15 @@ Szczegóły w DESIGN §5.3.
 - **Nagłe awarie.** Mniej więcej co trzecia awaria przychodzi bez ostrzeżenia, np. pęknięte zawieszenie albo wybuch silnika. Reszta jak dotąd daje kilka okrążeń sygnałów.
 - **Słowa dla gracza:** „widełki” zamiast „pasmo”, „rozrzut czasów” zamiast „szum”.
 - **Bez zmian na razie:** oceny prawdziwych kierowców zostają wstępne (wartość na wejściu i potencjał), dokładniejsze ustalimy później; spadek formy weteranów (np. Alonso) zostaje jak jest.
+
+### Przyjęte 2026-10-05 (osiemnasta runda: co przenieść z Pelotona i Ping-Ponga)
+
+**PP-058: Sprawdzone mechaniki z Ping-Pong Managera i lekcje z researchu Pelotona.** Liczby to szacunki.
+- **Kierowca a oferty rywali.** Rywal może kusić naszego kierowcę dopiero w ostatnim roku jego umowy i nie wcześniej niż po kilku wyścigach sezonu. To, jak się o tym dowiemy, zależy od morale i lojalności kierowcy: niskie oznaczają „odchodzę po sezonie”, średnie „mam lepszą ofertę, przebijecie?” (zwykłe negocjacje), a wysokie „dostaję oferty, ale zostaję”. Pewne odejście tylko przy bardzo niskim morale i lojalności albo przy złamanej obietnicy z kontraktu. Przy gwiazdach plotka najpierw trafia do gazety. Razem z podwyżkami w trakcie umowy (PP-057) to jeden system.
+- **Zarząd daje wybór celu przed sezonem:** bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę).
+- **Cele sponsorów pasują do siły zespołu.** Słaby zespół dostaje osiągalne cele, a premia rośnie z trudnością celu i nigdy nie jest odwrotnie.
+- **Akademia (rozwija PP-057).** Poziom akademii zmienia jakość juniorów, a nie ich liczbę (1–2 nowych na sezon). Akademia kosztuje co sezon. Mniej więcej 10% juniorów nie dochodzi do potencjału. Junior rozwija się szybciej, gdy się ściga. Bez minigry z treningiem: tylko decyzje.
+- **Atrybuty starzeją się różnie.** Fizyczne (kondycja) szczytują wcześnie i spadają pierwsze, mentalne (opanowanie, regularność, informacja zwrotna) rosną najdłużej. Dlatego doświadczony kierowca bywa lepszy od młodszego.
+- **Dwie krzywe balansu.** To, co pieniądze kupują (sztab, infrastruktura, działy), ma malejące korzyści, a koszt rośnie coraz szybciej. Talent kierowcy działa prawie liniowo, ale jest rzadki, starzeje się i drożeje.
+- **Lista antywzorców** z researchu Pelotona służy do review każdej mechaniki (AGENTS.md).
+- **Na później:** cechy zespołów (np. fabryczny, prywatny, „akademia”) i szef AI dobierany pod zespół.

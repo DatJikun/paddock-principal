@@ -20,4 +20,17 @@ public static class BridgeKeys
     /// <summary>Reason stored when the host appoints the human at career start, until the wizard (#112) owns that command.</summary>
     [TranslationKey]
     public const string CareerAppointed = "bridge.career.appointed";
+
+    /// <summary>The Jolpica cache was not on disk, so the career was built from generated people.</summary>
+    [TranslationKey]
+    public const string GeneratedPeople = "bridge.career.generatedPeople";
+
+    [TranslationKey]
+    public const string AlreadyOpen = "bridge.error.alreadyOpen";
+
+    [TranslationKey]
+    public const string BadSaveName = "bridge.error.badSaveName";
+
+    [TranslationKey]
+    public const string SaveMissing = "bridge.error.saveMissing";
 }

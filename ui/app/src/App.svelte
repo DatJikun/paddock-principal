@@ -28,6 +28,17 @@
   let moving = false;
   let queued: string | null = null;
   let refreshToken = 0;
+  let gate = $state(true);
+  let teams = $state<{ id: string; name: string }[]>([]);
+  let saves = $state<{ name: string; date: string; teamId: string }[]>([]);
+  let preset = $state('Balanced');
+  let year = $state(1955);
+  let fatality = $state('Off');
+  let teamId = $state('');
+  let givenName = $state('');
+  let familyName = $state('');
+  let nationality = $state('');
+  let tilt = $state('none');
 
   let air: HTMLCanvasElement | undefined = $state();
   let contentEl: HTMLElement | undefined = $state();
@@ -78,6 +89,63 @@
     marker.style.opacity = '1';
     marker.style.height = `${current.offsetHeight}px`;
     marker.style.transform = `translateY(${current.offsetTop}px)`;
+  }
+
+  async function boot() {
+    const session = await query('session', { managerId: HUMAN_MANAGER_ID });
+    if (session.open) {
+      gate = false;
+      await refresh();
+      return;
+    }
+    gate = true;
+    year = session.suggestedYear;
+    const listed = await query('teams', { managerId: HUMAN_MANAGER_ID, year: session.suggestedYear });
+    teams = listed.teams.map((item) => ({ id: item.id, name: item.name }));
+    teamId = teams.find((item) => item.id === 'ferrari')?.id ?? teams[0]?.id ?? '';
+    const stored = await query('saves', { managerId: HUMAN_MANAGER_ID });
+    saves = stored.saves.map((item) => ({ name: item.name, date: item.date, teamId: item.teamId }));
+    fault = null;
+  }
+
+  async function takeOver() {
+    if (busy || !teamId || !givenName.trim() || !familyName.trim() || !nationality.trim()) return;
+    busy = true;
+    try {
+      await command('startCareer', {
+        managerId: HUMAN_MANAGER_ID,
+        preset,
+        year,
+        fatality,
+        teamId,
+        givenName: givenName.trim(),
+        familyName: familyName.trim(),
+        nationality: nationality.trim(),
+        tilt,
+        seed: '1',
+        careerName: 'career',
+      });
+      gate = false;
+      await refresh();
+    } catch (error) {
+      fault = error instanceof BridgeError ? error : new BridgeError('bridge.error.internal');
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function loadSave(name: string) {
+    if (busy) return;
+    busy = true;
+    try {
+      await command('loadCareer', { managerId: HUMAN_MANAGER_ID, name });
+      gate = false;
+      await refresh();
+    } catch (error) {
+      fault = error instanceof BridgeError ? error : new BridgeError('bridge.error.internal');
+    } finally {
+      busy = false;
+    }
   }
 
   async function refresh() {
@@ -181,7 +249,7 @@
     });
     const stopSmoke = air ? startSmoke(air) : () => {};
     const stopBridge = connect(() => {
-      void refresh().catch((error: unknown) => {
+      void boot().catch((error: unknown) => {
         fault = error instanceof BridgeError ? error : new BridgeError('bridge.error.internal');
       });
     });
@@ -190,7 +258,7 @@
     };
     window.addEventListener('hashchange', onHash);
     void ready()
-      .then(() => refresh())
+      .then(() => boot())
       .catch((error: unknown) => {
         fault = error instanceof BridgeError ? error : new BridgeError('bridge.error.internal');
       });
@@ -283,6 +351,45 @@
       </button>
     </header>
     <main id="view" bind:this={viewEl}>
+      {#if gate}
+        <div class="screen-head"><h1 class="screen">{t('shell.gate.title')}</h1></div>
+        {#if fault}<p class="bad">{t(fault.key, fault.parameters)}</p>{/if}
+        <div class="panel">
+          <div class="body gate">
+            <label><span class="meta">{t('shell.gate.preset')}</span>
+              <select bind:value={preset}>
+                <option value="MostHistorical">{t('shell.gate.preset.mostHistorical')}</option>
+                <option value="Balanced">{t('shell.gate.preset.balanced')}</option>
+                <option value="Chaos">{t('shell.gate.preset.chaos')}</option>
+              </select>
+            </label>
+            <label><span class="meta">{t('shell.gate.year')}</span><input type="number" bind:value={year} /></label>
+            <label><span class="meta">{t('shell.gate.fatality')}</span>
+              <select bind:value={fatality}><option value="Off">{t('shell.gate.fatality.off')}</option><option value="On">{t('shell.gate.fatality.on')}</option></select>
+            </label>
+            <label><span class="meta">{t('shell.gate.team')}</span>
+              <select bind:value={teamId}>
+                {#each teams as item (item.id)}<option value={item.id}>{item.name}</option>{/each}
+              </select>
+            </label>
+            <label><span class="meta">{t('shell.gate.given')}</span><input bind:value={givenName} /></label>
+            <label><span class="meta">{t('shell.gate.family')}</span><input bind:value={familyName} /></label>
+            <label><span class="meta">{t('shell.gate.nationality')}</span><input bind:value={nationality} /></label>
+            <label><span class="meta">{t('shell.gate.tilt')}</span><input bind:value={tilt} /></label>
+            <div class="span"><button class="btn primary" type="button" disabled={busy} onclick={takeOver}>{t('shell.gate.start')}</button></div>
+          </div>
+        </div>
+        <div class="panel">
+          <header><b>{t('shell.gate.loadTitle')}</b></header>
+          <div class="body">
+            {#if saves.length === 0}<p>{t('shell.gate.empty')}</p>{:else}
+              {#each saves as save (save.name)}
+                <button class="btn" type="button" disabled={busy} onclick={() => loadSave(save.name)}>{save.name}</button>
+              {/each}
+            {/if}
+          </div>
+        </div>
+      {:else}
       <div class="screen-head">
         <h1 class="screen">{t(screenKey(screen) || 'shell.nav.home')}</h1>
         {#if screen === 'skrzynka' && inbox && inbox.openCount > 0}
@@ -334,6 +441,7 @@
             />
           </div>
         </div>
+      {/if}
       {/if}
     </main>
     <div id="wipe" aria-hidden="true" bind:this={wipeEl}><i></i><i></i><i></i></div>

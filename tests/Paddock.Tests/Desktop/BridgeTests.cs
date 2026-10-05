@@ -40,11 +40,11 @@ public class BridgeTests
     public void UnknownNameReturnsItsReasonKey()
     {
         using var career = Open();
-        var exchange = career.Host.Handle(Message("u1", "query", "standings"));
+        var exchange = career.Host.Handle(Message("u1", "query", "missing"));
         using var json = JsonDocument.Parse(exchange.Response);
         Assert.False(json.RootElement.GetProperty("ok").GetBoolean());
         Assert.Equal(BridgeKeys.UnknownName, json.RootElement.GetProperty("error").GetProperty("key").GetString());
-        Assert.Equal("standings", json.RootElement.GetProperty("error").GetProperty("parameters").GetProperty("name").GetString());
+        Assert.Equal("missing", json.RootElement.GetProperty("error").GetProperty("parameters").GetProperty("name").GetString());
     }
 
     [Fact]
@@ -122,20 +122,119 @@ public class BridgeTests
         await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
     }
 
+    [Fact]
+    public void TheWindowOpensWithNoCareer()
+    {
+        using var career = Open(start: false);
+        var exchange = career.Host.Handle(Message("s", "query", "session"));
+        using var json = JsonDocument.Parse(exchange.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), exchange.Response);
+        Assert.False(json.RootElement.GetProperty("data").GetProperty("open").GetBoolean());
+        var shell = career.Host.Handle(Message("shell", "query", "shell"));
+        using var refused = JsonDocument.Parse(shell.Response);
+        Assert.False(refused.RootElement.GetProperty("ok").GetBoolean());
+        Assert.Equal(Paddock.Application.Career.PlayKeys.NoCareer, refused.RootElement.GetProperty("error").GetProperty("key").GetString());
+    }
+
+    [Fact]
+    public void StartOnFerrariSavesAndLoadsTheSameHash()
+    {
+        using var first = Open();
+        var started = first.Host.Handle(Message("dup", "command", "startCareer", StartArgs()));
+        using var refused = JsonDocument.Parse(started.Response);
+        Assert.False(refused.RootElement.GetProperty("ok").GetBoolean());
+
+        var before = first.Host.StateHash;
+        var saved = first.Host.Handle(Message("save", "command", "saveCareer", "{\"managerId\":\"" + CareerBridge.HumanManagerId + "\",\"name\":\"ferrari1955\"}"));
+        using var saveJson = JsonDocument.Parse(saved.Response);
+        Assert.True(saveJson.RootElement.GetProperty("ok").GetBoolean(), saved.Response);
+
+        using var second = Open(start: false, first.Saves);
+        var loaded = second.Host.Handle(Message("load", "command", "loadCareer", "{\"managerId\":\"" + CareerBridge.HumanManagerId + "\",\"name\":\"ferrari1955\"}"));
+        using var loadJson = JsonDocument.Parse(loaded.Response);
+        Assert.True(loadJson.RootElement.GetProperty("ok").GetBoolean(), loaded.Response);
+        Assert.Equal(before, second.Host.StateHash);
+        Assert.Equal(CareerBridge.HumanManagerId, loadJson.RootElement.GetProperty("data").GetProperty("managerId").GetString());
+    }
+
+    [Fact]
+    public void ACommandForAnotherTeamIsRejected()
+    {
+        using var career = Open();
+        var teams = career.Host.Handle(Message("teams", "query", "teams", "{\"managerId\":\"" + CareerBridge.HumanManagerId + "\",\"year\":1955}"));
+        using var listed = JsonDocument.Parse(teams.Response);
+        string? other = null;
+        foreach (var team in listed.RootElement.GetProperty("data").GetProperty("teams").EnumerateArray())
+        {
+            var id = team.GetProperty("id").GetString();
+            if (id is not null && !string.Equals(id, "ferrari", StringComparison.Ordinal))
+            {
+                other = id;
+                break;
+            }
+        }
+
+        Assert.NotNull(other);
+        var before = career.Host.StateHash;
+        var exchange = career.Host.Handle(Message(
+            "split",
+            "command",
+            "developmentSplit",
+            "{\"managerId\":\"" + CareerBridge.HumanManagerId + "\",\"organizationId\":\"" + other + "\",\"currentPercent\":40,\"accountPercent\":20,\"nextYearPercent\":40}"));
+        using var json = JsonDocument.Parse(exchange.Response);
+        Assert.False(json.RootElement.GetProperty("ok").GetBoolean(), exchange.Response);
+        Assert.False(string.IsNullOrWhiteSpace(json.RootElement.GetProperty("error").GetProperty("key").GetString()));
+        Assert.Equal(before, career.Host.StateHash);
+    }
+
     private static string Message(string id, string kind, string name, string? args = null) =>
         "{\"id\":\"" + id + "\",\"kind\":\"" + kind + "\",\"name\":\"" + name + "\",\"args\":"
         + (args ?? "{\"managerId\":\"" + CareerBridge.HumanManagerId + "\"}") + "}";
 
-    private static Opened Open() => new(BridgeHost.Open(Path.Combine(BridgeHost.RepositoryRoot(), "data")));
+    private static string StartArgs() =>
+        "{\"managerId\":\"" + CareerBridge.HumanManagerId + "\",\"preset\":\"Balanced\",\"year\":1955,\"fatality\":\"Off\",\"teamId\":\"ferrari\",\"givenName\":\"Enzo\",\"familyName\":\"Ferrari\",\"nationality\":\"IT\",\"tilt\":\"none\",\"seed\":\"1\",\"careerName\":\"career\"}";
+
+    private static Opened Open(bool start = true, string? saves = null)
+    {
+        var directory = saves ?? Path.Combine(Path.GetTempPath(), "paddock-bridge-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        var host = BridgeHost.Open(Path.Combine(BridgeHost.RepositoryRoot(), "data"), savesDirectory: directory);
+        if (start)
+        {
+            var exchange = host.Handle(Message("start", "command", "startCareer", StartArgs()));
+            using var json = JsonDocument.Parse(exchange.Response);
+            Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), exchange.Response);
+            var notice = json.RootElement.GetProperty("data").GetProperty("noticeKey");
+            if (notice.ValueKind != JsonValueKind.Null)
+            {
+                Assert.Equal(BridgeKeys.GeneratedPeople, notice.GetString());
+            }
+        }
+
+        return new Opened(host, directory, ownsDirectory: saves is null);
+    }
 
     private sealed class Opened : IDisposable
     {
-        public Opened(BridgeHost host) => Host = host;
+        private readonly bool _ownsDirectory;
+
+        public Opened(BridgeHost host, string saves, bool ownsDirectory)
+        {
+            Host = host;
+            Saves = saves;
+            _ownsDirectory = ownsDirectory;
+        }
 
         public BridgeHost Host { get; }
 
+        public string Saves { get; }
+
         public void Dispose()
         {
+            if (_ownsDirectory && Directory.Exists(Saves))
+            {
+                Directory.Delete(Saves, true);
+            }
         }
     }
 }

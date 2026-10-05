@@ -1,4 +1,4 @@
-export const HUMAN_MANAGER_ID = 'human:player';
+export const HUMAN_MANAGER_ID = 'human:1';
 
 export const BLOCKING_KEY = 'ready.blockingItem';
 

@@ -140,6 +140,10 @@ body[data-team="lotus"] .go{color:#16130e}
 .panel>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px 12px}
 .panel .body{padding:0 22px 20px}
 .panel>footer{padding:12px 22px 16px;border-top:1px solid var(--rule);font-size:14px;color:var(--ink2)}
+.gate{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+.gate label{display:flex;flex-direction:column;gap:6px}
+.gate input,.gate select{min-height:46px;padding:0 12px;border:1px solid var(--ink);border-radius:var(--r-ctl);background:#fff}
+.gate .span{grid-column:1 / -1}
 .link{display:inline-flex;align-items:center;gap:6px;font:600 14.5px var(--ui);color:var(--link,var(--t1));text-decoration:none;cursor:pointer;background:none;border:0;padding:4px 0}
 .link:hover{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
 .link:hover svg.i{transform:translateX(2px)}

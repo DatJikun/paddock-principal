@@ -36,6 +36,8 @@ public sealed class DevelopmentModule : CareerModule
         var session = context.Session;
         var book = DevelopmentBook.ForSession(session, session.Clock.MasterSeed);
         var environment = new DevelopmentEnvironment(new PeriodDevelopmentRules(periods), context.Require<IOrganizationControl>());
+        context.Provide(book);
+        context.Provide(environment);
         var resolvers = context.Require<InboxResolvers>();
         context.AddCommandHandlers(dispatcher => DevelopmentRegistration.Register(dispatcher, resolvers, book, environment));
         context.AddDayHandler(new DevelopmentDayHandler(book, environment, inbox: context.Require<InboxBook>(), managers: context.Managers));

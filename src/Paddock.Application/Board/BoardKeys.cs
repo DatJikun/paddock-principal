@@ -70,6 +70,27 @@ public static class BoardKeys
     public const string OfferDeclineConsequence = "board.offer.decline.consequence";
 
     [TranslationKey]
+    public const string SeasonTargetSubject = "board.seasonTarget.subject";
+
+    [TranslationKey]
+    public const string SeasonTargetSafeLabel = "board.seasonTarget.safe.label";
+
+    [TranslationKey]
+    public const string SeasonTargetSafeConsequence = "board.seasonTarget.safe.consequence";
+
+    [TranslationKey]
+    public const string SeasonTargetExpectedLabel = "board.seasonTarget.expected.label";
+
+    [TranslationKey]
+    public const string SeasonTargetExpectedConsequence = "board.seasonTarget.expected.consequence";
+
+    [TranslationKey]
+    public const string SeasonTargetAmbitiousLabel = "board.seasonTarget.ambitious.label";
+
+    [TranslationKey]
+    public const string SeasonTargetAmbitiousConsequence = "board.seasonTarget.ambitious.consequence";
+
+    [TranslationKey]
     public const string NoticeDismissed = "board.notice.dismissed";
 
     [TranslationKey]

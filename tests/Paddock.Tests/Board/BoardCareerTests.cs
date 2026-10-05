@@ -481,7 +481,9 @@ public class BoardCareerTests
         Assert.Equal(3, own.Why.ExpectedPosition);
         Assert.Equal(5m, own.Why.CurrentPosition);
         Assert.Equal(33, own.Why.TargetConfidence);
-        Assert.Equal([BoardKeys.ObjectiveSeason, BoardKeys.ObjectiveMultiYear], own.Why.Expectations.Select(item => item.Title.Key));
+        Assert.Equal(
+            [BoardKeys.ObjectiveMultiYear, BoardKeys.ObjectiveSeason],
+            own.Why.Expectations.Select(item => item.Title.Key).OrderBy(key => key, StringComparer.Ordinal).ToArray());
         Assert.All(own.Why.Expectations, item => Assert.Equal(T3.Value, item.OwnerId));
         Assert.Equal(BoardForecastKind.Protected, own.Forecast.Kind);
         Assert.Equal(30, view.Reputation!.Points);

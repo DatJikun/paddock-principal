@@ -22,19 +22,24 @@ namespace Paddock.Tests.Career;
 /// rewrites a golden hash: TECH 6.2 says how a changed one is reviewed).
 /// <para>
 /// History of <see cref="StoredWorldHash"/>: it changed in #160, when the career modules joined the run. The fixture team now
-/// has its two cars (concept approved by the AI manager, ceilings from the Development stream) and a board with its principal on
+/// has its two cars (concept approved by the team's AI manager, ceilings from the Development stream) and a board with its principal on
 /// the record, which are world sections and so are in the hash. The fixture has no era data, so finance and sponsors stay out.
 /// It changed again in #173 (B3): the ceiling draw is a child of Development tagged with the organization, the season and the
 /// concept axes, and approval no longer advances <c>NextCeilingDraw</c>. The same concept cannot be re-rolled, so the stored
 /// ceiling and the cars-section counter differ from the #160 hash. Two runs with one seed still match (INV-002). Seat sync (B4)
 /// does not move this fixture: its one contracted driver stays seated.
+/// It changed again in #184: the AI principal of the fixture team reviews and writes the <c>principals</c> section, and contract
+/// renewals are that principal's commands instead of the renewal placeholder. The gate manager <c>ai:paddock</c> stays, and the
+/// team adds <c>ai:alpha</c>.
+/// It changed again for the season-target choice (#197): an AI team still takes the expected finish, but the objective
+/// records that choice, so the objectives section text differs.
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "6ef244815712ec8588d9a2e4c20cd5613ca7922677e9d2f884d618872915d56d";
+    private const string StoredWorldHash = "bf744635bec6e2a05ab51b68ef1dba376d6feac3b53bd6cc6f46071aa4631b05";
 
     private const string StoredRetired = "chief,leap,vet";
 
@@ -182,7 +187,7 @@ public class CareerRunTests
         Assert.Equal(new GameDate(1961, 1, 1), left.Date);
         Assert.Equal(11, left.Years);
         Assert.Equal(0, left.Humans);
-        Assert.Equal(1, left.Ai);
+        Assert.Equal(2, left.Ai);
         Assert.True(left.Commands > 0);
         Assert.True(
             left.Hash == StoredWorldHash && left.Retired == StoredRetired,

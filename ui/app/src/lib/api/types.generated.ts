@@ -484,6 +484,7 @@ export interface SponsorTalkView {
   currentAnnualCents: number;
   id: string;
   note: TranslationMessage;
+  objective: TranslationMessage | null;
   rivalKnown: boolean | null;
   slot: TranslationMessage;
   sponsorId: string;

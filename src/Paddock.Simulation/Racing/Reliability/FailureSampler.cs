@@ -1,3 +1,4 @@
+using System.Globalization;
 using Paddock.Domain.Random;
 
 namespace Paddock.Simulation.Racing.Reliability;
@@ -83,7 +84,7 @@ public static class FailureSampler
 
             if (retireLap is int lapR)
             {
-                var failure = Build(lapR, component, new FailureEffect.Retire(), options);
+                var failure = Build(lapR, component, new FailureEffect.Retire(), options, raceStream, carId);
                 Consider(failure, index * 2, ref first, ref firstOrder);
                 Consider(failure, index * 2, ref retirement, ref retirementOrder);
             }
@@ -93,7 +94,7 @@ public static class FailureSampler
                 FailureEffect effect = kindDraw < split.PowerLossShareOfRest
                     ? new FailureEffect.LosePower(Lerp(ReliabilityConstants.PowerLossMinPercent, ReliabilityConstants.PowerLossMaxPercent, magnitudeDraw))
                     : new FailureEffect.PitForRepair(Lerp(ReliabilityConstants.RepairMinSeconds, ReliabilityConstants.RepairMaxSeconds, magnitudeDraw));
-                Consider(Build(lapO, component, effect, options), index * 2 + 1, ref first, ref firstOrder);
+                Consider(Build(lapO, component, effect, options, raceStream, carId), index * 2 + 1, ref first, ref firstOrder);
             }
         }
 
@@ -110,8 +111,21 @@ public static class FailureSampler
         }
     }
 
-    private static MechanicalFailure Build(int lap, MechanicalComponent component, FailureEffect effect, FailureSamplerOptions options)
+    private static MechanicalFailure Build(
+        int lap,
+        MechanicalComponent component,
+        FailureEffect effect,
+        FailureSamplerOptions options,
+        RngStream raceStream,
+        string carId)
     {
+        // Child of the race Failures stream. It does not advance the car's sequential draws (INV-004).
+        var suddenTag = string.Create(CultureInfo.InvariantCulture, $"sudden:{carId}:lap:{lap}");
+        if (raceStream.DeriveChild(suddenTag).NextDouble() < ReliabilityConstants.SuddenFailureShare)
+        {
+            return new MechanicalFailure(lap, component, effect, null, 0, Sudden: true);
+        }
+
         var warningLap = lap - options.WarningLeadLaps;
         return warningLap >= 1
             ? new MechanicalFailure(lap, component, effect, warningLap, ReliabilityConstants.DegradedPaceLossFraction)

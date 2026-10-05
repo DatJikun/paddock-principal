@@ -40,6 +40,30 @@ public sealed record ConstructorTitleRow
     public decimal Points { get; }
 }
 
+/// <summary>One driver's championship place. <see cref="Points"/> is the counted total (T27 standings).</summary>
+public sealed record DriverTitleRow
+{
+    public DriverTitleRow(string driverId, int position, decimal points)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(driverId);
+        ArgumentOutOfRangeException.ThrowIfLessThan(position, 1);
+        if (points < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(points), points, "Championship points cannot be negative.");
+        }
+
+        DriverId = driverId;
+        Position = position;
+        Points = points;
+    }
+
+    public string DriverId { get; }
+
+    public int Position { get; }
+
+    public decimal Points { get; }
+}
+
 /// <summary>
 /// One entry in a published race. T47 will emit the race; finance does not reference the race engine.
 /// One row is one car.
@@ -110,6 +134,7 @@ public sealed record RaceResultsPublished
 /// <summary>
 /// A published season. <see cref="DistinctWinningOrganizations"/> is one id per different race-winning organization.
 /// <see cref="Constructors"/> is the final constructors' table (position 1 is the champion).
+/// <see cref="Drivers"/> is the drivers' table. Empty when the publisher has none; popularity then ignores the drivers' fight.
 /// </summary>
 public sealed record SeasonEnded
 {
@@ -117,7 +142,8 @@ public sealed record SeasonEnded
         int season,
         int races,
         IReadOnlyList<ConstructorTitleRow> constructors,
-        IReadOnlyList<OrganizationId> distinctWinningOrganizations)
+        IReadOnlyList<OrganizationId> distinctWinningOrganizations,
+        IReadOnlyList<DriverTitleRow>? drivers = null)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(season, 1);
         ArgumentOutOfRangeException.ThrowIfNegative(races);
@@ -132,6 +158,7 @@ public sealed record SeasonEnded
         Races = races;
         Constructors = constructors;
         DistinctWinningOrganizations = distinctWinningOrganizations;
+        Drivers = drivers ?? [];
     }
 
     public int Season { get; }
@@ -141,6 +168,8 @@ public sealed record SeasonEnded
     public IReadOnlyList<ConstructorTitleRow> Constructors { get; }
 
     public IReadOnlyList<OrganizationId> DistinctWinningOrganizations { get; }
+
+    public IReadOnlyList<DriverTitleRow> Drivers { get; }
 }
 
 /// <summary>

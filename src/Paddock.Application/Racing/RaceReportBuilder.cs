@@ -623,7 +623,10 @@ public static class RaceReportBuilder
                 {
                     var car = _byDriver.GetValueOrDefault(x.DriverId);
                     var person = WhoRetired(x);
-                    var key = RaceReportKeys.RetirementKey(x.Reason, x.Reason == RetirementReason.Mechanical ? car?.FailedComponent : null);
+                    var key = RaceReportKeys.RetirementKey(
+                        x.Reason,
+                        x.Reason == RetirementReason.Mechanical ? car?.FailedComponent : null,
+                        sudden: x.Reason == RetirementReason.Mechanical && car?.SuddenFailure == true);
                     return RaceReportLine.Of(
                         key,
                         ("lap", x.Lap),

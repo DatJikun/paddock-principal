@@ -22,6 +22,36 @@ public static class BoardKeys
     [TranslationKey]
     public const string FounderCannotResign = "board.error.founderCannotResign";
 
+    [TranslationKey]
+    public const string TakeOverOwnTeam = "board.error.takeOver.ownTeam";
+
+    [TranslationKey]
+    public const string TakeOverUnknownTeam = "board.error.takeOver.unknownTeam";
+
+    [TranslationKey]
+    public const string TakeOverNotATeam = "board.error.takeOver.notATeam";
+
+    [TranslationKey]
+    public const string TakeOverNoBoard = "board.error.takeOver.noBoard";
+
+    [TranslationKey]
+    public const string TakeOverNotHuman = "board.error.takeOver.notHuman";
+
+    [TranslationKey]
+    public const string TakeOverAlreadyEmployed = "board.error.takeOver.alreadyEmployed";
+
+    [TranslationKey]
+    public const string TakeOverAlreadyHuman = "board.error.takeOver.alreadyHuman";
+
+    [TranslationKey]
+    public const string TakeOverBadTilt = "board.error.takeOver.badTilt";
+
+    [TranslationKey]
+    public const string TakeOverBadName = "board.error.takeOver.badName";
+
+    [TranslationKey]
+    public const string TakeOverReason = "board.takeOver.reason";
+
     // ---- Inbox items ----
 
     [TranslationKey]
@@ -38,6 +68,27 @@ public static class BoardKeys
 
     [TranslationKey]
     public const string OfferDeclineConsequence = "board.offer.decline.consequence";
+
+    [TranslationKey]
+    public const string SeasonTargetSubject = "board.seasonTarget.subject";
+
+    [TranslationKey]
+    public const string SeasonTargetSafeLabel = "board.seasonTarget.safe.label";
+
+    [TranslationKey]
+    public const string SeasonTargetSafeConsequence = "board.seasonTarget.safe.consequence";
+
+    [TranslationKey]
+    public const string SeasonTargetExpectedLabel = "board.seasonTarget.expected.label";
+
+    [TranslationKey]
+    public const string SeasonTargetExpectedConsequence = "board.seasonTarget.expected.consequence";
+
+    [TranslationKey]
+    public const string SeasonTargetAmbitiousLabel = "board.seasonTarget.ambitious.label";
+
+    [TranslationKey]
+    public const string SeasonTargetAmbitiousConsequence = "board.seasonTarget.ambitious.consequence";
 
     [TranslationKey]
     public const string NoticeDismissed = "board.notice.dismissed";

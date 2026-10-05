@@ -29,6 +29,8 @@ public sealed class CareerModuleContext
     private readonly List<(int Order, Action<IReadOnlyList<DomainEvent>> Hook)> _afterDay = [];
     private readonly List<Action<CommandQueue>> _morning = [];
     private readonly List<Action<GameDate>> _seasonChange = [];
+    private readonly List<Action<ICommand>> _beforeCommand = [];
+    private readonly List<Action<ICommand>> _afterCommand = [];
     private bool _frozen;
 
     internal CareerModuleContext(CareerSession session, ManagerRegistry managers, CommandDispatcher dispatcher, ManagerId ai, CareerInputs inputs)
@@ -46,6 +48,9 @@ public sealed class CareerModuleContext
     public CareerSession Session { get; }
 
     public ManagerRegistry Managers { get; }
+
+    /// <summary>The accepted commands of this run. A module may read them while attaching; it does not append.</summary>
+    public CommandLog CommandLog => _dispatcher.Log;
 
     /// <summary>The manager the host files placeholder AI commands as, until the AI principals (T44) own that.</summary>
     public ManagerId Ai { get; }
@@ -175,6 +180,28 @@ public sealed class CareerModuleContext
     }
 
     /// <summary>
+    /// Runs before each command is dispatched. A book that keeps its own copy of the world refreshes it here, so a command sees
+    /// what the previous command wrote.
+    /// </summary>
+    public void AddBeforeCommand(Action<ICommand> hook)
+    {
+        ArgumentNullException.ThrowIfNull(hook);
+        Guard();
+        _beforeCommand.Add(hook);
+    }
+
+    /// <summary>
+    /// Runs after each command is dispatched, accepted or rejected. A book puts its section back into the session world here when
+    /// the command was one of its own, so the next command reads one world.
+    /// </summary>
+    public void AddAfterCommand(Action<ICommand> hook)
+    {
+        ArgumentNullException.ThrowIfNull(hook);
+        Guard();
+        _afterCommand.Add(hook);
+    }
+
+    /// <summary>
     /// Registers a step of the change of season. The host runs every such step once, on 1 January, before any other day handler
     /// (order order 5), and emits <see cref="CareerEventType.SeasonChanged"/>. A system that has
     /// something to move to the new year (cars to the new model year, next year's budget) does it here, so the daily handlers only
@@ -239,6 +266,22 @@ public sealed class CareerModuleContext
         foreach (var morning in _morning)
         {
             morning(queue);
+        }
+    }
+
+    internal void BeforeCommand(ICommand command)
+    {
+        foreach (var hook in _beforeCommand)
+        {
+            hook(command);
+        }
+    }
+
+    internal void AfterCommand(ICommand command)
+    {
+        foreach (var hook in _afterCommand)
+        {
+            hook(command);
         }
     }
 

@@ -29,7 +29,7 @@ public class ConfigCommandTests
         var code = ConfigCommand.Execute(
             [
                 "config",
-                "--axis", "history-strength=50",
+                "--axis", "history-strength=5",
                 "--preset", "Chaos",
                 "--axis", "people=RealPotential",
                 "--axis", "rules=Historical",
@@ -76,6 +76,23 @@ public class ConfigCommandTests
         Assert.Equal(0, code);
         Assert.Equal([expected.ToCanonicalJson()], Lines(stdout));
         Assert.Equal(["warning " + CareerConfigCodes.HistoryStrengthWithPureRandom], Lines(stderr));
+    }
+
+    [Fact]
+    public void HistoryStrengthAboveTenPrintsTheNewRange()
+    {
+        var stdout = new StringWriter();
+        var stderr = new StringWriter();
+
+        var code = ConfigCommand.Execute(
+            ["config", "--preset", "Balanced", "--axis", "history-strength=50"],
+            stdout,
+            stderr);
+
+        Assert.Equal(1, code);
+        Assert.Equal(
+            ["error " + CareerConfigCodes.HistoryStrengthRange + " 0 10"],
+            Lines(stderr));
     }
 
     [Fact]

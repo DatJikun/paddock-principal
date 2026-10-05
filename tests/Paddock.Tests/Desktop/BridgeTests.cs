@@ -65,6 +65,28 @@ public class BridgeTests
     }
 
     [Fact]
+    public void TheAiPrincipalDirectorLeavesThePlayersTeamAlone()
+    {
+        // Regression: without seating the player, the T44 director ran the player's team as an AI team
+        // (for example it set that team's scouting focus on the first morning).
+        using var career = Open();
+        for (var day = 0; day < 30; day++)
+        {
+            var pool = career.Host.Handle(Message("p" + day, "query", "pool"));
+            using var poolJson = JsonDocument.Parse(pool.Response);
+            Assert.True(poolJson.RootElement.GetProperty("ok").GetBoolean(), poolJson.RootElement.ToString());
+            Assert.Equal(JsonValueKind.Null, poolJson.RootElement.GetProperty("data").GetProperty("focus").ValueKind);
+
+            var moved = career.Host.Handle(Message("a" + day, "command", "advanceDay"));
+            using var movedJson = JsonDocument.Parse(moved.Response);
+            if (!movedJson.RootElement.GetProperty("ok").GetBoolean())
+            {
+                break;
+            }
+        }
+    }
+
+    [Fact]
     public void AdvanceDayMovesTheDateAndASecondCareerAgrees()
     {
         using var first = Open();

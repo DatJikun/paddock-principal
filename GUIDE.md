@@ -286,7 +286,7 @@ Masz trzy miejsca na sponsorów, a na każde kilku kandydatów.
 ```wybory
 Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, ale rywal może podpisać pierwszy
 Który sponsor na które miejsce | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego
-Cel sponsora | dopasowany do siły zespołu; spełniony daje premię {SponsorEstimates.BonusMilli|m%} rocznej kwoty, niespełniony może zakończyć umowę
+Cel sponsora | dopasowany do siły zespołu (oczekiwana pozycja, jak u zarządu); premia startuje od {SponsorEstimates.BonusMilli|m%} rocznej kwoty i rośnie z trudnością celu, niespełniony może zakończyć umowę
 Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania
 ```
 
@@ -332,7 +332,7 @@ Reputacja menedżera | start {BoardEstimates.InitialReputationTenths|t} ze 100 |
 Zaufanie zarządu | start {BoardEstimates.InitialConfidenceTenths|t} | po wyścigu nadrabia {BoardEstimates.ReviewSmoothing|%} różnicy do celu
 Cierpliwość | {BoardEstimates.PatienceBase} + wiek zespołu w latach | starszy zespół czeka dłużej
 Ochrona nowego szefa | pierwszy pełny sezon | + {BoardEstimates.ProtectionDaysPerReputationPoint|dni} za punkt reputacji
-Popularność | wyrównany sezon ją podnosi, dominacja obniża | od niej zależą pule pieniędzy
+Popularność | wyrównany sezon ją podnosi, dominacja obniża | walka kierowców o tytuł podnosi ją mniej niż walka kilku zespołów
 Finanse rywali | niewidoczne | widzisz tylko swoje i prognozę do końca sezonu
 ```
 
@@ -373,7 +373,7 @@ Wyprzedzanie | potrzebna przewaga tempa powyżej {WeekendConstants.OvertakeMargi
 Brudne powietrze | do {PaceConstants.DirtyAirMaxLossSeconds|s} straty na okrążeniu
 Pierwsze okrążenie | {IncidentConstants.FirstLapFactor}× groźniejsze niż zwykle | drugie {IncidentConstants.SecondLapFactor}×
 Pogoda | zmienia się minuta po minucie | prognoza w boksie ma błąd: najlepsza osoba {WeatherConstants.GoodForecasterScale}×, najsłabsza {WeatherConstants.PoorForecasterScale}×
-Ostrzeżenie o awarii | {ReliabilityConstants.DefaultWarningLeadLaps} okrążenia wcześniej | auto zwalnia
+Ostrzeżenie o awarii | {ReliabilityConstants.DefaultWarningLeadLaps} okrążenia wcześniej | auto zwalnia; około {ReliabilityConstants.SuddenFailureShare} awarii przychodzi nagle, bez ostrzeżenia
 ```
 
 ```wykres dopasowanie-toru

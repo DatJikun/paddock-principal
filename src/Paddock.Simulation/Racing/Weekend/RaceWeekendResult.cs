@@ -26,6 +26,7 @@ namespace Paddock.Simulation.Racing.Weekend;
 /// <param name="Stops">Pit stops made, repairs included.</param>
 /// <param name="CompoundsUsed">Compounds fitted during the race, in order of use, duplicates kept.</param>
 /// <param name="SetFastestLap">This car set the fastest race lap.</param>
+/// <param name="SuddenFailure">The mechanical retirement arrived with no warning (PP-057). False for a finisher and for a warned failure.</param>
 public sealed record CarRaceResult(
     string CarId,
     string DriverId,
@@ -39,7 +40,8 @@ public sealed record CarRaceResult(
     ImmutableArray<string> DriversWhoDrove,
     int Stops,
     ImmutableArray<string> CompoundsUsed,
-    bool SetFastestLap)
+    bool SetFastestLap,
+    bool SuddenFailure = false)
 {
     /// <summary>The car as the points rules read it.</summary>
     public RaceResultInput ToInput() => new(
@@ -163,7 +165,8 @@ public sealed record RaceWeekendResult(
         {
             text.Append("car:").Append(car.CarId).Append('|').Append(car.Status).Append('|').Append(car.LapsCompleted).Append('|')
                 .Append(R(car.TotalSeconds)).Append('|').AppendJoin('+', car.DriversWhoDrove).Append('|').Append(car.Stops).Append('|')
-                .AppendJoin('+', car.CompoundsUsed).Append('|').Append(car.FailedComponent).Append('|').Append(car.SetFastestLap).Append('\n');
+                .AppendJoin('+', car.CompoundsUsed).Append('|').Append(car.FailedComponent).Append('|')
+                .Append(car.SuddenFailure ? 1 : 0).Append('|').Append(car.SetFastestLap).Append('\n');
         }
 
         foreach (var car in Classification.Cars)

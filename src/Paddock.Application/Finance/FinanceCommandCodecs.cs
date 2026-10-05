@@ -43,10 +43,11 @@ public static class FinanceCommandCodecs
                 ("season", command.Season),
                 ("races", command.Races),
                 ("constructors", command.Constructors),
-                ("winners", command.Winners)),
+                ("winners", command.Winners),
+                ("drivers", command.Drivers)),
             (body, manager, issued) =>
             {
-                var fields = FlatJson.Read(body, "season", "races", "constructors", "winners");
+                var fields = FlatJson.Read(body, "season", "races", "constructors", "winners", "drivers");
                 return new ApplySeasonEndedCommand
                 {
                     ManagerId = manager,
@@ -55,6 +56,7 @@ public static class FinanceCommandCodecs
                     Races = fields.Int32("races"),
                     Constructors = fields.String("constructors"),
                     Winners = fields.String("winners"),
+                    Drivers = fields.String("drivers"),
                 };
             }),
     ];

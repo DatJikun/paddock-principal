@@ -133,6 +133,8 @@ public class DriverGeneratorTests
     [Fact]
     public void EraWeightsShiftSmoothnessFitnessAndFeedback()
     {
+        Assert.Equal(120, Weight(1950, "smoothness"));
+        Assert.Equal(180, Weight(1950, "cornering"));
         Assert.True(Weight(1950, "smoothness") > Weight(2024, "smoothness"));
         Assert.True(Weight(1950, "fitness") > Weight(2024, "fitness"));
         Assert.True(Weight(2024, "feedback") > Weight(1950, "feedback"));

@@ -65,15 +65,17 @@ public abstract record FailureEffect
 /// <param name="Effect">What the failure does.</param>
 /// <param name="WarningLap">
 /// The lap from which the warning flag is up: <c>Lap - WarningLeadLaps</c>. Null when the failure comes too early
-/// to be preceded by a full lead (a sudden failure).
+/// to be preceded by a full lead, or when it is a sudden failure (PP-057).
 /// </param>
 /// <param name="DegradedPaceLossFraction">Share of lap time lost while the warning is active. 0 when there is no warning.</param>
+/// <param name="Sudden">True when the failure was drawn as sudden: no warning lap and no degraded pace, even when the lead would have fitted.</param>
 public sealed record MechanicalFailure(
     int Lap,
     MechanicalComponent Component,
     FailureEffect Effect,
     int? WarningLap,
-    double DegradedPaceLossFraction)
+    double DegradedPaceLossFraction,
+    bool Sudden = false)
 {
     public bool IsRetirement => Effect is FailureEffect.Retire;
 

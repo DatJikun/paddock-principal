@@ -96,6 +96,28 @@ public sealed class PrincipalDirector
     }
 
     /// <summary>
+    /// Restores the follow-up streak of a team from the command log. The streak is not saved by itself; a resumed run reads it
+    /// back from the reviews that filed commands, so the next review is scheduled the same way as a run that never stopped.
+    /// </summary>
+    public void RememberStreak(OrganizationId organization, int count)
+    {
+        if (!organization.IsAssigned)
+        {
+            throw new ArgumentException("Organization id is unassigned.", nameof(organization));
+        }
+
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        if (count == 0)
+        {
+            _streaks.Remove(organization.Value);
+        }
+        else
+        {
+            _streaks[organization.Value] = count;
+        }
+    }
+
+    /// <summary>
     /// The morning step: files the commands of every AI team that is due, and returns how many it filed (the record commands included).
     /// The host calls it each morning after its books are synced to the world and before it drains the queue.
     /// </summary>

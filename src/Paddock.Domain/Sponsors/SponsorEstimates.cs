@@ -1,3 +1,4 @@
+using System.Globalization;
 using Paddock.Domain.Finance;
 
 namespace Paddock.Domain.Sponsors;
@@ -82,8 +83,32 @@ public static class SponsorEstimates
 
     public const int RenewalPerTrustMilli = 3;
 
-    /// <summary>ESTIMATE: bonus for a met objective, in thousandths of the annual amount.</summary>
+    /// <summary>ESTIMATE: bonus for a met objective, in thousandths of the annual amount, before the target is scaled to the team.</summary>
     public const int BonusMilli = 150;
+
+    /// <summary>
+    /// ESTIMATE (PP-058): an "at least" target (podiums, points) for the team expected to finish first, in thousandths of the authored base.
+    /// 2000 is double. A harder target pays more than an easier one.
+    /// </summary>
+    public const int ObjectiveAtLeastTopMilli = 2000;
+
+    /// <summary>ESTIMATE (PP-058): the same target for the team expected to finish last, in thousandths of the authored base. 250 is a quarter.</summary>
+    public const int ObjectiveAtLeastBottomMilli = 250;
+
+    /// <summary>
+    /// ESTIMATE (PP-058): a championship-position target for the team expected to finish first, in thousandths of the authored base.
+    /// 500 is half, which is harder because a smaller position is better.
+    /// </summary>
+    public const int ObjectivePositionTopMilli = 500;
+
+    /// <summary>ESTIMATE (PP-058): the same target for the team expected to finish last, in thousandths of the authored base. A larger position is easier.</summary>
+    public const int ObjectivePositionBottomMilli = 2000;
+
+    /// <summary>ESTIMATE: the scaled bonus never exceeds this many thousandths of the annual amount.</summary>
+    public const int MaxObjectiveBonusMilli = 1000;
+
+    /// <summary>ESTIMATE: trust gained for a scaled objective never exceeds this.</summary>
+    public const int MaxScaledTrustOnMet = 40;
 
     /// <summary>ESTIMATE: a secondary livery slot pays this fraction of a main slot, in thousandths.</summary>
     public const int SecondarySlotMilli = 500;
@@ -130,4 +155,93 @@ public static class SponsorPricing
     }
 
     public static int ClampTrust(int trust) => Math.Clamp(trust, SponsorEstimates.MinTrust, SponsorEstimates.MaxTrust);
+}
+
+/// <summary>
+/// Scales an authored sponsor objective to a team's expected championship position (1 is best). The position is the same
+/// public blend the board uses. Nationality objectives are left as authored. The reward grows with difficulty and never
+/// the other way. Pure: no state, no random number.
+/// </summary>
+public static class SponsorObjectiveScale
+{
+    public static SponsorObjectiveSpec Scale(SponsorObjectiveSpec spec, int expectedPosition, int fieldSize)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+        if (spec.Kind == SponsorObjectiveSpec.DriverNationalityInLineup)
+        {
+            return spec;
+        }
+
+        var size = Math.Max(1, fieldSize);
+        var expected = Math.Clamp(expectedPosition, 1, size);
+        var span = Math.Max(1, size - 1);
+        var milli = Milli(spec.Kind, expected, span);
+        if (spec.Kind == SponsorObjectiveSpec.ChampionshipPositionAtMost)
+        {
+            var authored = int.Parse(spec.Value, CultureInfo.InvariantCulture);
+            var scaled = (int)Math.Round(authored * (milli / 1000.0), MidpointRounding.AwayFromZero);
+            return spec with { Value = Math.Clamp(scaled, 1, size).ToString(CultureInfo.InvariantCulture) };
+        }
+
+        if (spec.Kind == SponsorObjectiveSpec.PodiumsAtLeast)
+        {
+            var authored = int.Parse(spec.Value, CultureInfo.InvariantCulture);
+            var scaled = (int)Math.Round(authored * (milli / 1000.0), MidpointRounding.AwayFromZero);
+            return spec with { Value = Math.Max(1, scaled).ToString(CultureInfo.InvariantCulture) };
+        }
+
+        if (spec.Kind == SponsorObjectiveSpec.PointsAtLeast)
+        {
+            var authored = decimal.Parse(spec.Value, CultureInfo.InvariantCulture);
+            var scaled = Math.Round(authored * milli / 1000m, 0, MidpointRounding.AwayFromZero);
+            if (scaled < 1)
+            {
+                scaled = 1;
+            }
+
+            return spec with { Value = scaled.ToString(CultureInfo.InvariantCulture) };
+        }
+
+        return spec;
+    }
+
+    /// <summary>Bonus thousandths and trust gained for meeting <paramref name="scaled"/>, compared with the authored base.</summary>
+    public static (int BonusMilli, int Trust) Reward(SponsorObjectiveSpec authored, SponsorObjectiveSpec scaled)
+    {
+        ArgumentNullException.ThrowIfNull(authored);
+        ArgumentNullException.ThrowIfNull(scaled);
+        if (authored.Kind == SponsorObjectiveSpec.DriverNationalityInLineup)
+        {
+            return (SponsorEstimates.BonusMilli, SponsorEstimates.TrustOnMet);
+        }
+
+        var baseValue = decimal.Parse(authored.Value, CultureInfo.InvariantCulture);
+        var scaledValue = decimal.Parse(scaled.Value, CultureInfo.InvariantCulture);
+        if (baseValue <= 0 || scaledValue <= 0)
+        {
+            return (SponsorEstimates.BonusMilli, SponsorEstimates.TrustOnMet);
+        }
+
+        var harder = authored.Kind == SponsorObjectiveSpec.ChampionshipPositionAtMost
+            ? baseValue / scaledValue
+            : scaledValue / baseValue;
+        var bonus = (int)Math.Round(SponsorEstimates.BonusMilli * harder, MidpointRounding.AwayFromZero);
+        var trust = (int)Math.Round(SponsorEstimates.TrustOnMet * harder, MidpointRounding.AwayFromZero);
+        return (
+            Math.Clamp(bonus, 1, SponsorEstimates.MaxObjectiveBonusMilli),
+            Math.Clamp(trust, 1, SponsorEstimates.MaxScaledTrustOnMet));
+    }
+
+    private static int Milli(string kind, int expected, int span)
+    {
+        if (kind == SponsorObjectiveSpec.ChampionshipPositionAtMost)
+        {
+            return SponsorEstimates.ObjectivePositionTopMilli
+                + ((SponsorEstimates.ObjectivePositionBottomMilli - SponsorEstimates.ObjectivePositionTopMilli) * (expected - 1) / span);
+        }
+
+        var fromFront = span - (expected - 1);
+        return SponsorEstimates.ObjectiveAtLeastBottomMilli
+            + ((SponsorEstimates.ObjectiveAtLeastTopMilli - SponsorEstimates.ObjectiveAtLeastBottomMilli) * fromFront / span);
+    }
 }

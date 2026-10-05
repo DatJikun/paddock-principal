@@ -45,8 +45,8 @@ Ustawienia przy tworzeniu kariery. Presety mają nazwy (np. **„Najbardziej his
   - *Potencjał*: prawdziwa kariera wyznacza sufit talentu (z niepewnością), a osiągnięcie go zależy od świata: samochodu, wyników, sztabu, pewności siebie, kontuzji;
   - *Trajektoria*: umiejętności podążają rok po roku za wyliczoną krzywą prawdziwej kariery; świat zmienia wtedy, *gdzie* kierowca jeździ, ale nie *jak dobry* jest.
 - **Siła historii (0–10, PP-057):** jak chętnie aktorzy AI realizują propozycje historyczne (§2.4), gdy są sensowne.
-  - Przy 100% świat bez udziału gracza idzie torem prawdziwej historii, a rozjeżdża się tam, gdzie gracz zainterweniuje. Jeśli zabierzesz Mercedesowi miejsce dla Hamiltona, Mercedes weźmie np. Alonso.
-  - Przy 0% jest czysta symulacja.
+  - Przy 10 świat bez udziału gracza idzie torem prawdziwej historii, a rozjeżdża się tam, gdzie gracz zainterweniuje. Jeśli zabierzesz Mercedesowi miejsce dla Hamiltona, Mercedes weźmie np. Alonso.
+  - Przy 0 jest czysta symulacja.
 - **Osie trybu (PP-046):** ludzie (trajektoria / prawdziwy potencjał / prawdziwe nazwiska z losowymi umiejętnościami / w pełni generowani), przepisy (historyczne / głosowane co sezon), zachowanie AI (odtwarza historię / reaguje na sytuację / czysta losowość). Presety składają te osie, a ręczna zmiana jest zawsze możliwa.
 - **Suwak losowości:** rozwój, forma, awarie.
 - **Śmiertelność** (PP-006), **rok startu**, **zespół** (istniejący albo własny, §3).
@@ -426,7 +426,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 - **Przychody według epoki:** pieniądze startowe → sponsorzy (od 1968) → TV i umowa Concorde → nagrody za pozycję w konstruktorach, sprzedaż silników i samochodów klienckich.
 - **Koszty:** pensje, projekt i budowa aut, silniki, podróże, infrastruktura (także jej starzenie się, §4.3), naprawy po wypadkach.
 - **Sponsorzy** to rynek z celami, a jego wielkość w każdym kraju wynika z popularności. Sponsorzy mają **branże** zmieniające się z epokami: paliwa i opony w latach 50., tytoń od 1968 do zakazów w latach 2000., alkohol, banki, telekomy, IT, kryptowaluty. Zakaz reklamy tytoniu to w trybie historycznym realny szok finansowy dla zespołów od niej zależnych.
-  - **Cele sponsorów pasują do siły zespołu (PP-058):** słaby zespół dostaje osiągalne cele, a premia rośnie z trudnością celu.
+  - **Cele sponsorów pasują do siły zespołu (PP-058):** słaby zespół dostaje osiągalne cele, a premia i zaufanie rosną z trudnością celu. Wartość liczy się z oczekiwanej pozycji (ostatnie miejsce w mistrzostwach, gdy jest znane, i miejsce w budżecie — te same fakty co zarząd). Rodzaj celu i baza zostają w pliku; narodowość kierowcy się nie skaluje.
   - **Miejsca na aucie:** główne, drugorzędne, mniejsze. Każde daje inną część kwoty.
   - **Sponsor tytularny zmienia nazwę zespołu** (historycznie np. „Marlboro McLaren”, „Mild Seven Benetton”). Wymaga prestiżu i długiej umowy, może też chcieć udziałów.
   - **Rozmowy przyspieszają:** zgodna narodowość sponsora i kierowcy, prestiż zespołu, przedłużenie istniejącej umowy.

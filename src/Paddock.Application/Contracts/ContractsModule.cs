@@ -9,10 +9,11 @@ namespace Paddock.Application.Contracts;
 
 /// <summary>
 /// T39 contracts and negotiations in the career loop (#129). It builds the contract book, the engine and the environment of
-/// ports (payroll and reputation from the modules that offer them), registers the six contract commands with their inbox
-/// resolvers and the two contract day handlers (orders 700 and 710), and files the placeholder AI renewals (until T44).
-/// The book is bound to the session's world (<see cref="ContractBook.Bind"/>), so a contract a command signs and a pool change in
-/// the same morning both survive; the contracts section is put into the world by the module's flush.
+/// ports (payroll and reputation from the modules that offer them), and registers the six contract commands with their inbox
+/// resolvers and the two contract day handlers (orders 700 and 710). The AI principals file the renewals (T44).
+/// The book is bound to the session's world (<see cref="ContractBook.Bind"/>). Before a contract command the book reads the
+/// session world, and after one the session stores the inbox and the contracts section, so the next command in the morning
+/// sees the signature. The contracts section is also put into the world by the module's flush.
 /// </summary>
 public sealed class ContractsModule : CareerModule
 {
@@ -45,9 +46,16 @@ public sealed class ContractsModule : CareerModule
         context.AddCommandHandlers(dispatcher => ContractRegistration.Register(dispatcher, resolvers));
         book.Bind(() => session.World, session.StoreWorld);
         context.AddFlush(book.Into);
+        context.AddBeforeCommand(_ => book.UseWorld(session.World));
+        context.AddAfterCommand(command =>
+        {
+            if (command.GetType().Namespace == typeof(OpenNegotiationCommand).Namespace)
+            {
+                session.StoreWorld(inbox.Into(book.Into()));
+            }
+        });
         context.AddDayHandler(new NegotiationDayHandler(engine));
         context.AddDayHandler(new ContractLifecycleHandler(engine));
-        context.AddMorning(queue => AiContractPlaceholder.File(session, engine, queue, context.Ai, trace));
     }
 
     /// <summary>ESTIMATE: one reference salary for every subject until era pay is wired into the career host.</summary>

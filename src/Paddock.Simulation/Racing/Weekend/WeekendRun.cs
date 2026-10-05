@@ -296,7 +296,8 @@ internal sealed partial class WeekendRun
         MechanicalComponent? Component,
         InjuryGrade Injury,
         bool Fatal,
-        string DriverId);
+        string DriverId,
+        bool Sudden = false);
 
     private sealed class Car(RaceEntry entry, int grid, Dictionary<string, TyreCompound> compounds, IRaceStrategist strategist)
     {

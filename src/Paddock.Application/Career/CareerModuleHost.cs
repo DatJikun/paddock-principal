@@ -25,7 +25,7 @@ public sealed class CareerModuleHost
 {
     private readonly CareerModuleContext _context;
     private readonly ControlTable _control;
-    private readonly IReadOnlyList<(ManagerId Manager, OrganizationId Organization)> _humans;
+    private readonly List<(ManagerId Manager, OrganizationId Organization)> _humans;
 
     private CareerModuleHost(
         CareerModuleContext context,
@@ -34,7 +34,7 @@ public sealed class CareerModuleHost
     {
         _context = context;
         _control = control;
-        _humans = humans;
+        _humans = [.. humans];
     }
 
     /// <summary>
@@ -121,6 +121,20 @@ public sealed class CareerModuleHost
             _context.TryGet<InboxBook>(),
             _context.TryGet<ContractBook>(),
             _context.TryGet<BoardBook>());
+    }
+
+    /// <summary>
+    /// Seats a human who took a team after the host was attached (the play shell's wizard, or a resumed save whose
+    /// manager id is not <c>human:{organizationId}</c>). From now on that team is human-run: the AI principal director skips it.
+    /// </summary>
+    public void SeatHuman(ManagerId manager, OrganizationId organization)
+    {
+        if (!_humans.Contains((manager, organization)))
+        {
+            _humans.Add((manager, organization));
+        }
+
+        _control.Assign(manager, organization);
     }
 
     /// <summary>Seats humans and already-registered team AIs, then lets the modules file today's commands.</summary>

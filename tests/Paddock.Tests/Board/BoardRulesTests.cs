@@ -1,5 +1,10 @@
 using Paddock.Application.Board;
+using Paddock.Application.Commands;
+using Paddock.Application.Inbox;
 using Paddock.Domain.Board;
+using Paddock.Domain.Inbox;
+using Paddock.Domain.Principals;
+using Paddock.Domain.Spy;
 using Paddock.Domain.Objectives;
 using Paddock.Domain.People;
 using Paddock.Domain.Time;
@@ -348,5 +353,115 @@ public class BoardRulesTests
         section = section.WithReputationChange("m", Start, -5_000, "k");
         Assert.Equal(0, section.ReputationTenths("m"));
         Assert.Equal(BoardEstimates.InitialReputationTenths, section.ReputationTenths("unknown"));
+    }
+
+    [Fact]
+    public void SeasonTargetRewardsAndPenaltiesRiseFromSafeToAmbitious()
+    {
+        Assert.True(SeasonTarget.RewardTenths(SeasonAmbition.Safe) < SeasonTarget.RewardTenths(SeasonAmbition.Expected));
+        Assert.True(SeasonTarget.RewardTenths(SeasonAmbition.Expected) < SeasonTarget.RewardTenths(SeasonAmbition.Ambitious));
+        Assert.True(SeasonTarget.PenaltyTenths(SeasonAmbition.Safe) < SeasonTarget.PenaltyTenths(SeasonAmbition.Expected));
+        Assert.True(SeasonTarget.PenaltyTenths(SeasonAmbition.Expected) < SeasonTarget.PenaltyTenths(SeasonAmbition.Ambitious));
+        Assert.True(SeasonTarget.Position(3, 5, SeasonAmbition.Safe) > SeasonTarget.Position(3, 5, SeasonAmbition.Expected));
+        Assert.True(SeasonTarget.Position(3, 5, SeasonAmbition.Expected) > SeasonTarget.Position(3, 5, SeasonAmbition.Ambitious));
+        Assert.Equal(SeasonAmbition.Ambitious, SeasonTarget.ForArchetype("Contender"));
+        Assert.Equal(SeasonAmbition.Ambitious, SeasonTarget.ForArchetype("Pretender"));
+        Assert.Equal(SeasonAmbition.Safe, SeasonTarget.ForArchetype("Survivor"));
+        Assert.Equal(SeasonAmbition.Expected, SeasonTarget.ForArchetype("Builder"));
+        Assert.Equal(SeasonAmbition.Expected, SeasonTarget.ForArchetype(null));
+    }
+
+    [Fact]
+    public void AHumanIsAskedBeforeTheSeasonAndAnAmbitiousFailureDismissesOnlyWithoutProtection()
+    {
+        var lab = new Lab(noRaces: true);
+        lab.Appoint(Pam, T3);
+        lab.Advance(1);
+
+        var decision = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.SeasonTargetKind && item.IsOpen);
+        Assert.Equal(SeasonTarget.Expected, decision.DefaultOptionId);
+        Assert.Equal("5", decision.Arguments["safeTarget"]);
+        Assert.Equal("3", decision.Arguments["expectedTarget"]);
+        Assert.Equal("1", decision.Arguments["ambitiousTarget"]);
+        Assert.DoesNotContain(lab.Board.Objectives.OwnedBy(T3), objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
+
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(new ResolveInboxItemCommand
+        {
+            ManagerId = Pam,
+            IssuedOn = Date(lab.Today),
+            ItemId = decision.Id,
+            OptionId = SeasonTarget.Ambitious,
+        }));
+        var season = lab.Board.Objectives.OwnedBy(T3).Single(objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
+        Assert.Equal(1, ((ChampionshipPositionAtMost)season.Predicate).Position);
+        Assert.Equal("30", season.EffectOnMet.Arguments["points"]);
+        Assert.Equal("-400", season.EffectOnFailed.Arguments["tenths"]);
+        Assert.Equal("1", season.EffectOnFailed.Arguments["dismiss"]);
+
+        lab.Facts.Position(T3, 5);
+        lab.AdvanceTo(new GameDate(1955, 12, 31));
+        lab.Advance(1);
+        Assert.Equal(Pam.Value, lab.Section.Board(T3)!.Principal!.Subject);
+
+        var sacked = new Lab(noRaces: true);
+        sacked.Appoint(Pam, T3);
+        sacked.Advance(1);
+        var again = Assert.Single(sacked.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.SeasonTargetKind && item.IsOpen);
+        Assert.IsType<CommandResult.Accepted>(sacked.Submit(new ResolveInboxItemCommand
+        {
+            ManagerId = Pam,
+            IssuedOn = Date(sacked.Today),
+            ItemId = again.Id,
+            OptionId = SeasonTarget.Ambitious,
+        }));
+        var board = sacked.Section.Board(T3)!;
+        sacked.Board.Update(sacked.Section.WithBoard(board with { Principal = board.Principal! with { ProtectedUntil = new GameDate(1955, 1, 2) } }));
+        sacked.Facts.Position(T3, 5);
+        sacked.AdvanceTo(new GameDate(1955, 12, 31));
+        sacked.Advance(1);
+        Assert.NotEqual(Pam.Value, sacked.Section.Board(T3)!.Principal!.Subject);
+        Assert.NotNull(sacked.Section.UnemployedManager(Pam.Value));
+    }
+
+    [Fact]
+    public void ALapsedSeasonTargetBecomesTheExpectedFinish()
+    {
+        var lab = new Lab(noRaces: true);
+        lab.Appoint(Pam, T3);
+        lab.Advance(1);
+        lab.AdvanceTo(new GameDate(1955, 1, 16));
+
+        var decision = lab.Inbox.Section.ItemsOf(Pam.Value).Single(item => item.Kind == BoardEngine.SeasonTargetKind);
+        Assert.Equal(InboxStatus.Expired, decision.Status);
+        Assert.Equal(SeasonTarget.Expected, decision.ChosenOptionId);
+        var season = lab.Board.Objectives.OwnedBy(T3).Single(objective => objective.KindKey == BoardKeys.ObjectiveSeason);
+        Assert.Equal(3, ((ChampionshipPositionAtMost)season.Predicate).Position);
+        Assert.Equal("15", season.EffectOnMet.Arguments["points"]);
+        Assert.Equal("0", season.EffectOnFailed.Arguments["dismiss"]);
+    }
+
+    [Fact]
+    public void AnAiContenderTakesTheAmbitiousTargetAndTheChoiceIsInTheTrace()
+    {
+        var sink = new MemoryOfTraces();
+        var lab = new Lab(trace: sink, noRaces: true);
+        lab.Contracts.UseWorld(lab.World.WithSection(PrincipalsSection.Empty.With(
+            new AiPrincipalRecord(T3, "Contender", null, Start, null, Start, 0, 0, ""))));
+        lab.Advance(1);
+
+        var season = lab.Board.Objectives.OwnedBy(T3).Single(objective => objective.KindKey == BoardKeys.ObjectiveSeason);
+        Assert.Equal(1, ((ChampionshipPositionAtMost)season.Predicate).Position);
+        Assert.Equal(SeasonTarget.Ambitious, season.EffectOnMet.Arguments["ambition"]);
+        var trace = Assert.Single(sink.Traces, item => item.Trigger == "board.seasonTarget:" + T3.Value);
+        Assert.Equal(SeasonTarget.Ambitious, trace.ChosenOptionId);
+    }
+
+    private sealed class MemoryOfTraces : ITraceSink
+    {
+        public bool IsEnabled => true;
+
+        public List<DecisionTrace> Traces { get; } = [];
+
+        public void Record(DecisionTrace trace) => Traces.Add(trace);
     }
 }

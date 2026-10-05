@@ -4,5 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Paddock.Application\Paddock.Application.csproj" />
+    <ProjectReference Include="..\Paddock.Data\Paddock.Data.csproj" />
+    <PackageReference Include="Photino.NET" />
   </ItemGroup>
 </Project>

@@ -30,7 +30,9 @@ public class LayeringTests
         Assert.Equal(["Paddock.Simulation"], ProjectReferences("src/Paddock.Application/Paddock.Application.csproj"));
         Assert.Equal(["Paddock.Domain"], ProjectReferences("src/Paddock.Persistence/Paddock.Persistence.csproj"));
         Assert.Equal(["Paddock.Domain"], ProjectReferences("src/Paddock.Data/Paddock.Data.csproj"));
-        Assert.Equal(["Paddock.Application"], ProjectReferences("src/Paddock.Desktop/Paddock.Desktop.csproj"));
+        Assert.Equal(
+            ["Paddock.Application", "Paddock.Data"],
+            ProjectReferences("src/Paddock.Desktop/Paddock.Desktop.csproj"));
         // SimRunner is the composition root that opens a .paddock file. It writes the snapshot; it does not apply game rules.
         // It also references DataPipeline for `calibrate-race` (#122), which reads the local Jolpica cache with the pipeline's
         // own status mapping instead of copying it.

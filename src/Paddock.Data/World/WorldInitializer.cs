@@ -51,6 +51,27 @@ public static class WorldInitializer
         return new Builder(config, data, people, masterSeed, options ?? new WorldInitOptions()).Build();
     }
 
+    /// <summary>
+    /// Teams a new career can take over in <paramref name="year"/>, from public information only: the authored id and the
+    /// name the world would show. Indianapolis-only entries are left out, the same way <see cref="Create"/> leaves them out.
+    /// This does not build a world and does not draw RNG.
+    /// </summary>
+    public static IReadOnlyList<PublicTeam> PublicTeams(AuthoredData data, int year)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        if (year < CareerConfig.MinStartYear)
+        {
+            throw new ArgumentOutOfRangeException(nameof(year), year, "The career cannot start before 1950.");
+        }
+
+        var config = CareerConfig.FromPreset(CareerPreset.Chaos).WithStartYear(year);
+        var builder = new Builder(config, data, EmptyPeopleProvider.Instance, 1UL, new WorldInitOptions());
+        return builder.Roster();
+    }
+
+    /// <summary>One existing team a player may take over. <see cref="Name"/> is the public name, not a hidden rating.</summary>
+    public sealed record PublicTeam(string Id, string Name);
+
     private sealed record TeamPlan(
         string Id,
         int FromYear,
@@ -147,6 +168,15 @@ public static class WorldInitializer
         }
 
         // ---------------------------------------------------------------- organizations
+
+        public IReadOnlyList<PublicTeam> Roster()
+        {
+            PlanCurrentTeams();
+            return _currentTeams.Values
+                .OrderBy(plan => plan.Id, Ordinal)
+                .Select(plan => new PublicTeam(plan.Id, NameOf(plan.Id)))
+                .ToArray();
+        }
 
         private void PlanCurrentTeams()
         {

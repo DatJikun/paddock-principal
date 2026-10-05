@@ -12,10 +12,12 @@ Jak odpowiedzieć | napisz, co czujesz | np. „sponsorzy podpisują z rywalami 
 
 ## 1. Start kariery
 
-Zaczynasz od wyboru roku i zespołu, a potem ustawiasz, jak mocno świat trzyma się prawdziwej historii.
+Z menu głównego wybierasz Kontynuuj (ostatni zapis), Nową karierę, Wczytaj, Ustawienia albo Wyjdź. Nowa kariera to cztery kroki: Ty, Świat, Zespół i podsumowanie, w którym dopiero „Rozpocznij” startuje grę. W trakcie gry menu otwiera klawisz Esc: Zapisz, Zapisz jako, Wczytaj, Ustawienia i Wyjdź do menu. Gra zapisuje się tylko wtedy, gdy sam o to poprosisz.
 
 ```wybory
-Rok i zespół | pierwszy sezon do testów to 1955, zespół przejmujesz od razu
+Ty | imię, nazwisko, narodowość i jedna cecha szefa, w której jesteś mocniejszy
+Rok i zespół | pierwszy sezon do testów to 1955, zespół wybierasz z kart
+Karta zespołu | skład kierowców, silnik, poziom budżetu, miejsce w poprzednim sezonie (gdy jest znane) i miejsce, którego zarząd od Ciebie oczekuje
 Preset | najbardziej historyczny, zbalansowany albo chaos
 Ludzie | prawdziwa kariera rok po roku, prawdziwy sufit talentu, prawdziwe nazwiska z losowymi umiejętnościami albo wszyscy generowani
 Przepisy | historyczne albo głosowane co sezon

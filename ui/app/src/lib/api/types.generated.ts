@@ -545,6 +545,17 @@ export interface PoolView {
   items: PoolItemView[];
 }
 
+export interface PresetView {
+  ai: string;
+  fatality: string;
+  history: number;
+  name: string;
+  noNumbers: boolean;
+  people: string;
+  randomness: number;
+  rules: string;
+}
+
 export interface RaceResultCall {
   managerId: string;
   round: number | null;
@@ -629,8 +640,10 @@ export interface SaveCareerCall {
 }
 
 export interface SaveListItem {
+  careerName: string;
   date: string;
   name: string;
+  savedAt: string;
   teamId: string;
 }
 
@@ -649,6 +662,7 @@ export interface SessionView {
   organizationId: string | null;
   organizationName: string | null;
   peopleNoticeKey: string | null;
+  presets: PresetView[];
   started: boolean;
   suggestedSeed: string;
   suggestedYear: number;
@@ -822,18 +836,47 @@ export interface SupplyResponseCall {
   organizationId: string;
 }
 
+export interface TeamCardDriver {
+  age: number;
+  name: string;
+  nationality: string;
+  seat: string;
+}
+
+export interface TeamCardEngine {
+  name: string;
+  supplier: string;
+  supplyType: string;
+}
+
 export interface TeamListView {
+  problem: TranslationMessage | null;
   teams: TeamOptionView[];
   year: number;
 }
 
 export interface TeamOptionView {
+  budget: string | null;
+  drivers: TeamCardDriver[];
+  engine: TeamCardEngine | null;
+  expected: number | null;
+  fieldSize: number | null;
   id: string;
+  lastSeason: number | null;
   name: string;
 }
 
 export interface TeamsCall {
+  ai: string | null;
+  fatality: string | null;
+  history: number | null;
   managerId: string;
+  noNumbers: boolean | null;
+  people: string | null;
+  preset: string | null;
+  randomness: number | null;
+  rules: string | null;
+  seed: number | null;
   year: number;
 }
 

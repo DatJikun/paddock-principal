@@ -1,16 +1,20 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { BridgeError, command, connect, HUMAN_MANAGER_ID, query, ready } from './lib/api/client';
-  import type { NextRaceView, SaveListItem, SessionView, ShellView, TeamOptionView } from './lib/api/types.generated';
-  import Fields from './lib/components/Fields.svelte';
-  import StartScreen, { type CareerForm } from './lib/components/StartScreen.svelte';
+  import { BridgeError, canExit, command, connect, exitApp, HUMAN_MANAGER_ID, query, ready } from './lib/api/client';
+  import type { NewCareerCall, NextRaceView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
+  import { latestSave, newestFirst, saveLabel } from './lib/career.mjs';
+  import GameMenu from './lib/components/GameMenu.svelte';
+  import LanguageSetting from './lib/components/LanguageSetting.svelte';
+  import LoadList from './lib/components/LoadList.svelte';
+  import MenuHome from './lib/components/MenuHome.svelte';
+  import NewCareer from './lib/components/NewCareer.svelte';
   import Status from './lib/components/Status.svelte';
-  import Tabs from './lib/components/Tabs.svelte';
   import { addDays, daysBetween, formatDate, weekdayIndex } from './lib/date.mjs';
   import { flagSprite } from './lib/flags.mjs';
   import { getLanguage, loadLanguage, setLanguage, subscribeLanguage, translate, type Language } from './lib/i18n';
   import { formatMoney } from './lib/money.mjs';
   import { afterAdvance, blockingLabel, nextAction } from './lib/protocol.mjs';
+  import { livery } from './lib/livery.mjs';
   import { loadScreen, type ScreenData } from './lib/screens';
   import { NAV, navOwner, parseRoute, screenKey, SETTINGS } from './lib/shell-nav.mjs';
   import { startSmoke } from './lib/smoke';
@@ -33,12 +37,17 @@
   let session = $state<SessionView | null>(null);
   let shell = $state<ShellView | null>(null);
   let nextRace = $state<NextRaceView | null>(null);
-  let teams = $state<TeamOptionView[]>([]);
   let saves = $state<SaveListItem[]>([]);
-  let year = $state(1955);
-  let yearSeeded = false;
-  let saveDraft = $state('career');
+  /* 'menu' is the main menu and its pages; 'game' is the career. The bridge keeps a career in memory in both. */
+  let phase = $state<'menu' | 'game'>('menu');
+  let menuPage = $state<'home' | 'new' | 'load' | 'settings'>('home');
+  let gameMenu = $state(false);
+  /* The file the career was last saved to or loaded from, and the date it held then. Saving is manual only. */
   let savedName = $state<string | null>(null);
+  let savedDate = $state<string | null>(null);
+  let loadPick = $state('');
+  let toast = $state('');
+  let toastTimer: ReturnType<typeof setTimeout> | undefined;
   let route = $state<Route>({ name: 'pulpit', args: [] });
   let screenData = $state<ScreenData>({ kind: 'none' });
   let fault = $state<BridgeError | null>(null);
@@ -69,7 +78,7 @@
 
   function placeNav() {
     if (!marker) return;
-    const current = document.querySelector('#nav a.on') as HTMLElement | null;
+    const current = document.querySelector('#nav .on') as HTMLElement | null;
     if (!current) {
       marker.style.opacity = '0';
       return;
@@ -92,10 +101,6 @@
       shell = null;
       nextRace = null;
       screenData = { kind: 'none' };
-      if (!yearSeeded) {
-        year = nextSession.suggestedYear;
-        yearSeeded = true;
-      }
       const saveList = await query('saves', call);
       if (token !== refreshToken) return;
       saves = saveList.saves;
@@ -151,6 +156,54 @@
     }
   }
 
+  /** Any screen change that is not a route (menu pages, entering the game) gets the same colour sweep. */
+  async function swap(change: () => void | Promise<void>) {
+    if (moving) return;
+    moving = true;
+    try {
+      if (!contentEl || !viewEl || !wipeEl) {
+        await change();
+      } else {
+        await sweep(contentEl, viewEl, wipeEl, async () => {
+          await change();
+          await tick();
+          if (viewEl) viewEl.scrollTop = 0;
+        });
+      }
+    } catch (error) {
+      catchFault(error);
+    } finally {
+      moving = false;
+    }
+  }
+
+  async function refreshSaves() {
+    saves = (await query('saves', call)).saves;
+  }
+
+  function say(text: string) {
+    toast = text;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => (toast = ''), 2800);
+  }
+
+  async function openMenuPage(page: 'home' | 'new' | 'load' | 'settings') {
+    if (page === menuPage || moving) return;
+    fault = null;
+    if (page === 'load') await refreshSaves().catch(catchFault);
+    loadPick = '';
+    await swap(() => {
+      menuPage = page;
+    });
+  }
+
+  async function openGameMenu() {
+    if (gameMenu || phase !== 'game') return;
+    fault = null;
+    await refreshSaves().catch(catchFault);
+    gameMenu = true;
+  }
+
   async function nextDay() {
     if (!shell || busy || moving) return;
     const action = nextAction(shell);
@@ -204,43 +257,26 @@
     }
   }
 
-  async function beginCareer(form: CareerForm) {
+  /** A career is open on the bridge: read it, then show the game under the sweep. */
+  async function enterGame() {
+    route = { name: 'pulpit', args: [] };
+    location.hash = '#/pulpit';
+    await swap(async () => {
+      await refresh();
+      savedDate = shell?.date ?? null;
+      gameMenu = false;
+      phase = 'game';
+    });
+  }
+
+  async function beginCareer(call: NewCareerCall) {
     if (busy) return;
     busy = true;
+    fault = null;
     try {
-      const seed = Number(session?.suggestedSeed);
-      const started = await command('newCareer', {
-        managerId: HUMAN_MANAGER_ID,
-        teamId: form.teamId,
-        givenName: form.givenName,
-        familyName: form.familyName,
-        nationality: form.nationality,
-        tilt: form.tilt,
-        preset: form.preset,
-        year: form.year,
-        seed: Number.isFinite(seed) ? seed : null,
-        ai: null,
-        fatality: null,
-        history: null,
-        name: null,
-        noNumbers: null,
-        people: null,
-        randomness: null,
-        rules: null,
-      });
-      session = {
-        started: true,
-        managerId: started.managerId,
-        date: started.date,
-        organizationId: started.organizationId,
-        organizationName: null,
-        peopleNoticeKey: started.peopleNoticeKey,
-        suggestedYear: session?.suggestedYear ?? form.year,
-        suggestedSeed: session?.suggestedSeed ?? '',
-      };
-      route = { name: 'pulpit', args: [] };
-      location.hash = '#/pulpit';
-      await refresh();
+      await command('newCareer', call);
+      savedName = null;
+      await enterGame();
     } catch (error) {
       catchFault(error);
     } finally {
@@ -251,11 +287,11 @@
   async function loadCareer(name: string) {
     if (busy) return;
     busy = true;
+    fault = null;
     try {
       await command('loadCareer', { managerId: HUMAN_MANAGER_ID, path: name });
-      route = { name: 'pulpit', args: [] };
-      location.hash = '#/pulpit';
-      await refresh();
+      savedName = name;
+      await enterGame();
     } catch (error) {
       catchFault(error);
     } finally {
@@ -263,18 +299,48 @@
     }
   }
 
-  async function saveCareer() {
-    const name = saveDraft.trim();
-    if (!name || busy) return;
+  async function continueCareer() {
+    const last = latestSave(saves);
+    if (last) await loadCareer(last.name);
+  }
+
+  async function saveCareer(name: string) {
+    const wanted = name.trim();
+    if (!wanted || busy) return;
     busy = true;
+    fault = null;
     try {
-      const saved = await command('saveCareer', { managerId: HUMAN_MANAGER_ID, name });
+      const saved = await command('saveCareer', { managerId: HUMAN_MANAGER_ID, name: wanted });
       savedName = saved.name;
-      fault = null;
+      savedDate = shell?.date ?? null;
+      gameMenu = false;
+      say(t('save.saved', { name: saveLabel(saved.name) }));
     } catch (error) {
       catchFault(error);
     } finally {
       busy = false;
+    }
+  }
+
+  async function leaveToMenu() {
+    if (busy) return;
+    gameMenu = false;
+    fault = null;
+    await refreshSaves().catch(catchFault);
+    await swap(() => {
+      phase = 'menu';
+      menuPage = 'home';
+    });
+  }
+
+  function onKey(event: KeyboardEvent) {
+    if (event.key !== 'Escape' || event.defaultPrevented || gameMenu) return;
+    if (phase === 'game') {
+      event.preventDefault();
+      void openGameMenu();
+    } else if (menuPage !== 'home') {
+      event.preventDefault();
+      void openMenuPage('home');
     }
   }
 
@@ -293,17 +359,27 @@
       }
     });
     const onHash = () => {
-      void transition(parseRoute(location.hash));
+      if (phase === 'game') void transition(parseRoute(location.hash));
     };
     window.addEventListener('hashchange', onHash);
+    window.addEventListener('keydown', onKey);
     void ready()
       .then(() => refresh())
+      .then(() => {
+        /* A career that is already open on the bridge (a reloaded page) goes straight back to the game. */
+        if (session?.started) {
+          savedDate = shell?.date ?? null;
+          phase = 'game';
+        }
+      })
       .catch(catchFault);
     return () => {
       stopLang();
       stopSmoke();
       stopBridge();
+      clearTimeout(toastTimer);
       window.removeEventListener('hashchange', onHash);
+      window.removeEventListener('keydown', onKey);
     };
   });
 
@@ -318,27 +394,27 @@
   $effect(() => {
     route;
     shell?.inboxOpen;
+    phase;
+    menuPage;
+    saves.length;
     queueMicrotask(placeNav);
   });
 
   $effect(() => {
-    const id = shell?.organizationId;
-    if (id === 'ferrari' || id === 'lotus' || id === 'tyrrell') document.body.dataset.team = id;
-  });
-
-  $effect(() => {
-    if (!session || session.started) return;
-    const wanted = Number(year);
-    if (!Number.isFinite(wanted) || wanted < 1950) return;
-    let cancel = false;
-    void query('teams', { managerId: HUMAN_MANAGER_ID, year: wanted })
-      .then((list) => {
-        if (!cancel) teams = list.teams;
-      })
-      .catch(catchFault);
-    return () => {
-      cancel = true;
-    };
+    /* Every team is drawn in its own colours; the main menu has none and keeps the default ink. */
+    const id = phase === 'game' ? shell?.organizationId : null;
+    const body = document.body;
+    if (!id) {
+      delete body.dataset.team;
+      for (const name of ['--t1', '--t2', '--on1']) body.style.removeProperty(name);
+      return;
+    }
+    const colours = livery(id);
+    if (id === 'ferrari' || id === 'lotus' || id === 'tyrrell') body.dataset.team = id;
+    else delete body.dataset.team;
+    body.style.setProperty('--t1', colours.main);
+    body.style.setProperty('--t2', colours.accent);
+    body.style.setProperty('--on1', colours.on);
   });
 
   let team = $derived(crest(shell?.organizationName));
@@ -350,7 +426,12 @@
         ? t('ready.blockingItem')
         : '',
   );
-  let started = $derived(session?.started === true);
+  let inGame = $derived(phase === 'game' && session?.started === true);
+  let latest = $derived(latestSave(saves));
+  let ordered = $derived(newestFirst(saves));
+  let faultText = $derived(fault ? t(fault.key, fault.parameters) : '');
+  let unsavedSince = $derived(savedDate !== null && shell && shell.date !== savedDate ? savedDate : null);
+  let menuLit = $derived(menuPage === 'home' ? '' : menuPage);
   let lit = $derived(navOwner(route.name));
   let teamId = $derived(shell?.organizationId ?? '');
   let raceDays = $derived(shell && nextRace?.date ? daysBetween(shell.date, nextRace.date) : null);
@@ -373,9 +454,9 @@
 <div class="app">
   <aside>
     <div class="crest">
-      <div class="team">{started ? team.lead : 'Paddock'}{#if started && team.rest}<span>{team.rest}</span>{:else if !started}<span>Principal</span>{/if}</div>
+      <div class="team">{inGame ? team.lead : 'Paddock'}{#if inGame && team.rest}<span>{team.rest}</span>{:else if !inGame}<span>Principal</span>{/if}</div>
     </div>
-    {#if started}
+    {#if inGame}
       <nav id="nav">
         <span class="nav-ind" aria-hidden="true" bind:this={marker}></span>
         {#each NAV as item, index (item.id ?? `sep-${index}`)}
@@ -398,13 +479,31 @@
           {t(SETTINGS.key)}
         </a>
       </div>
+    {:else}
+      <nav id="nav" class="menu-nav">
+        <span class="nav-ind" aria-hidden="true" bind:this={marker}></span>
+        {#if latest}
+          <button type="button" class="mi" disabled={busy} onclick={continueCareer}>{@html icon(ICON.play)}<span>{t('menu.continue')}</span></button>
+        {/if}
+        <button type="button" class="mi" class:on={menuLit === 'new'} onclick={() => openMenuPage('new')}>{@html icon(ICON.plus)}<span>{t('menu.new')}</span></button>
+        <button type="button" class="mi" class:on={menuLit === 'load'} disabled={saves.length === 0} onclick={() => openMenuPage('load')}>
+          {@html icon(ICON.folder)}<span>{t('menu.load')}</span>
+          {#if saves.length === 0}<small>{t('menu.noSaves')}</small>{/if}
+        </button>
+        <button type="button" class="mi" class:on={menuLit === 'settings'} onclick={() => openMenuPage('settings')}>{@html icon(ICON.gear)}<span>{t('menu.settings')}</span></button>
+        {#if canExit()}
+          <div class="sep"></div>
+          <button type="button" class="mi" onclick={exitApp}>{@html icon(ICON.exit)}<span>{t('menu.quit')}</span></button>
+        {/if}
+      </nav>
     {/if}
     <div class="stripes"></div>
   </aside>
   <div class="content" bind:this={contentEl}>
-    {#if started}
+    {#if inGame}
       <header class="top">
         <div class="hud">
+          <button class="cell menu-btn" type="button" aria-label={t('game.menu.open')} title={t('game.menu.open')} onclick={openGameMenu}>{@html icon(ICON.menu, 22)}</button>
           <span class="cell me">
             <span class="av">{initials(shell?.organizationName ?? '')}</span>
             <span><b>{shell?.organizationName ?? '—'}</b><small>{t('shell.role')}</small></span>
@@ -435,28 +534,33 @@
         </button>
       </header>
     {/if}
-    <main id="view" class:noscroll={started && route.name === 'pulpit'} bind:this={viewEl}>
-      {#if !started}
-        <div class="screen-head">
-          <h1 class="screen">{t('shell.start.title')}</h1>
-          <Tabs
-            group="lang"
-            items={[
-              { value: 'pl', label: t('shell.lang.pl') },
-              { value: 'en', label: t('shell.lang.en') },
-            ]}
-            bind:value={langChoice}
-          />
-        </div>
-        {#if fault}
-          <p class="bad">{t(fault.key, fault.parameters)}</p>
-        {/if}
-        {#if session}
-          <StartScreen bind:year {teams} {saves} {busy} {lang} {t} onStart={beginCareer} onLoad={loadCareer} />
+    <main id="view" class:noscroll={inGame && route.name === 'pulpit'} bind:this={viewEl}>
+      {#if !inGame}
+        {#if menuPage === 'home'}
+          <MenuHome {tr} {latest} {busy} onContinue={continueCareer} />
+        {:else if menuPage === 'new'}
+          <div class="screen-head"><h1 class="screen">{t('menu.new')}</h1></div>
+          {#if session}
+            <NewCareer {tr} presets={session.presets} suggestedYear={session.suggestedYear} suggestedSeed={session.suggestedSeed} {busy} error={faultText} onStart={beginCareer} />
+          {/if}
+        {:else if menuPage === 'load'}
+          <div class="screen-head"><h1 class="screen">{t('menu.load')}</h1></div>
+          <div class="load-page">
+            <LoadList saves={ordered} {tr} selected={loadPick} onSelect={(name) => (loadPick = name)} />
+            {#if faultText}<p class="bad">{faultText}</p>{/if}
+            <div class="confirm">
+              <button class="btn primary" type="button" disabled={!loadPick || busy} onclick={() => loadCareer(loadPick)}>
+                {@html icon(ICON.check, 17)}<span>{t('menu.load')}</span>
+              </button>
+            </div>
+          </div>
+        {:else}
+          <div class="screen-head"><h1 class="screen">{t('menu.settings')}</h1></div>
+          <LanguageSetting {tr} bind:value={langChoice} />
         {/if}
       {:else}
-        {#if fault}
-          <p class="bad">{t(fault.key, fault.parameters)}</p>
+        {#if faultText && !gameMenu}
+          <p class="bad">{faultText}</p>
         {/if}
         {#if screenData.kind === 'pulpit' && route.name === 'pulpit'}
           <div class="pulpit-wrap">
@@ -477,29 +581,7 @@
           <div class="screen-head">
             <h1 class="screen">{t(SETTINGS.key)}</h1>
           </div>
-          <div class="fields">
-            <div class="fld">
-              <span class="meta">{t('shell.language')}</span>
-              <Tabs
-                group="lang"
-                items={[
-                  { value: 'pl', label: t('shell.lang.pl') },
-                  { value: 'en', label: t('shell.lang.en') },
-                ]}
-                bind:value={langChoice}
-              />
-            </div>
-            <label class="fld">
-              <span class="meta">{t('shell.save.name')}</span>
-              <input class="text" type="text" bind:value={saveDraft} autocomplete="off" />
-            </label>
-          </div>
-          <div class="confirm">
-            <button class="btn primary" type="button" disabled={!saveDraft.trim() || busy} onclick={saveCareer}>{t('shell.save')}</button>
-          </div>
-          {#if savedName}
-            <Fields items={[{ label: t('shell.save.name'), value: savedName }]} />
-          {/if}
+          <LanguageSetting {tr} bind:value={langChoice} />
         {:else}
           <div class="screen-head">
             <h1 class="screen">{t(screenKey(route.name))}</h1>
@@ -510,3 +592,20 @@
     <div id="wipe" aria-hidden="true" bind:this={wipeEl}><i></i><i></i><i></i></div>
   </div>
 </div>
+{#if gameMenu && inGame}
+  <GameMenu
+    {tr}
+    {saves}
+    {savedName}
+    {unsavedSince}
+    {busy}
+    error={faultText}
+    bind:lang={langChoice}
+    onClear={() => (fault = null)}
+    onSave={saveCareer}
+    onLoad={loadCareer}
+    onToMenu={leaveToMenu}
+    onClose={() => (gameMenu = false)}
+  />
+{/if}
+{#if toast}<div class="toast" role="status">{toast}</div>{/if}

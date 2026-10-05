@@ -30,6 +30,12 @@ export const ICON = {
   supply: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>',
   scout: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
   mail: '<path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  play: '<path d="M7 5l12 7-12 7z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  folder: '<path d="M3 7h6l2 2h10v10H3z"/>',
+  exit: '<path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',
 };
 
 export function icon(path: string, size?: number) {

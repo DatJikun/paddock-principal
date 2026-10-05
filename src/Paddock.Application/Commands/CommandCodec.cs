@@ -88,6 +88,7 @@ public sealed class CommandCodec
         // CommandCodecs when it joins CareerModules.Default; until then these two stay here so their commands are still saved.
         .. Paddock.Application.Development.DevelopmentCommandCodecs.Entries,
         .. Paddock.Application.Supply.SupplyCommandCodecs.Entries,
+        .. Paddock.Application.Principals.PrincipalCommandCodecs.Entries,
         .. Career.CareerModules.Default.SelectMany(module => module.CommandCodecs),
         CommandCodecEntry.For<ResolveInboxItemCommand>(
             "inbox.resolve/1",

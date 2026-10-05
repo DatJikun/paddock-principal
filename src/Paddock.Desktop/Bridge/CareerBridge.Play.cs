@@ -242,7 +242,7 @@ public sealed partial class CareerBridge
     }
 
     private RaceResultView ReadRace(JsonElement args) =>
-        ChampionshipRead.Result(Session, IntOf(args, "season"), IntOf(args, "round"));
+        ChampionshipRead.Result(Session, IntOf(args, "season"), IntOf(args, "round"), Access());
 
     private StaffListView ReadStaff()
     {

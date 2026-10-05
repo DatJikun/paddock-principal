@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Paddock.Application.Access;
 using Paddock.Application.Board;
@@ -12,7 +13,9 @@ using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
+using Paddock.Application.Racing;
 using Paddock.Application.Sponsors;
+using Paddock.Application.Staff;
 using Paddock.Application.Supply;
 using Paddock.Application.World;
 using Paddock.Data.Authored;
@@ -34,7 +37,7 @@ namespace Paddock.Desktop.Bridge;
 /// One career in this process. The morning, the queue and the ready gate are the same calls
 /// <see cref="CareerHost"/> makes; this type does not add a rule of its own.
 /// </summary>
-public sealed class CareerBridge
+public sealed partial class CareerBridge
 {
     public const string HumanManagerId = "human:player";
 
@@ -42,14 +45,20 @@ public sealed class CareerBridge
 
     public const ulong DefaultSeed = 1;
 
-    private readonly CareerSession _session;
-    private readonly CareerModuleHost _modules;
-    private readonly CommandDispatcher _dispatcher;
-    private readonly CommandQueue _queue;
+    private CareerSession? _fixedSession;
+    private CareerModuleHost? _modules;
+    private CommandDispatcher? _dispatcher;
+    private CommandQueue? _queue;
     private readonly ReadyGate _gate = new();
-    private readonly SessionClock _clock;
-    private readonly HostManagerId _human;
+    private SessionClock? _clock;
+    private HostManagerId _human = new(HumanManagerId);
     private bool _morningDone;
+    private CareerShell? _play;
+    private string? _dataRoot;
+
+    private CareerBridge()
+    {
+    }
 
     private CareerBridge(
         CareerSession session,
@@ -58,7 +67,7 @@ public sealed class CareerBridge
         CommandQueue queue,
         HostManagerId human)
     {
-        _session = session;
+        _fixedSession = session;
         _modules = modules;
         _dispatcher = dispatcher;
         _queue = queue;
@@ -66,9 +75,22 @@ public sealed class CareerBridge
         _clock = new SessionClock(session);
     }
 
-    public string StateHash => _session.World.StateHash();
+    /// <summary>A window with no career yet. The page starts or loads one. Year and seed are the start screen's defaults.</summary>
+    public static CareerBridge Lobby(string dataRoot, int year = DefaultYear, ulong seed = DefaultSeed)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dataRoot);
+        return new CareerBridge { _dataRoot = dataRoot, _suggestedYear = year, _suggestedSeed = seed };
+    }
 
-    public string DateText => _session.Date.ToString()!;
+    public bool HasCareer => _play is not null || _fixedSession is not null;
+
+    private CareerSession Session => _play?.Session ?? _fixedSession ?? throw new InvalidOperationException("No career is open.");
+
+    private CareerModuleContext Box => _play?.Modules ?? _modules?.Context ?? throw new InvalidOperationException("No career is open.");
+
+    public string StateHash => Session.World.StateHash();
+
+    public string DateText => Session.Date.ToString()!;
 
     public static CareerBridge Open(string dataRoot, int year, ulong seed)
     {
@@ -115,13 +137,15 @@ public sealed class CareerBridge
         }
 
         var bridge = new CareerBridge(session, modules, dispatcher, queue, human);
+        bridge._dataRoot = dataRoot;
+        bridge.RememberCircuits(data);
         bridge.BeginDay();
         return bridge;
     }
 
-    public JsonNode? Query(string name)
+    public JsonNode? Query(string name, JsonElement args)
     {
-        var access = AccessContext.ForManager(new AccessManagerId(_human.Value));
+        var access = AccessContext.ForManager(new AccessManagerId(Human.Value));
         return name switch
         {
             "shell" => BridgeValues.ToNode(ReadShell()),
@@ -132,10 +156,19 @@ public sealed class CareerBridge
             "development" => BridgeValues.ToNode(ReadDevelopment(access)),
             "sponsors" => BridgeValues.ToNode(ReadSponsors(access)),
             "finance" => BridgeValues.ToNode(ReadFinance(access)),
-            "board" => BridgeValues.ToNode(Board().View(access, _session.Date)),
+            "board" => BridgeValues.ToNode(Board().View(access, Session.Date)),
             "pool" => BridgeValues.ToNode(Pool().View(access)),
             "supply" => BridgeValues.ToNode(ReadSupply(access)),
             "negotiations" => BridgeValues.ToNode(new NegotiationQuery(Contracts()).View(access)),
+            "session" => BridgeValues.ToNode(ReadSession()),
+            "teams" => BridgeValues.ToNode(ReadTeams(args)),
+            "saves" => BridgeValues.ToNode(ReadSaves()),
+            "calendar" => BridgeValues.ToNode(ChampionshipRead.Calendar(Session, Box.Inputs, Circuits)),
+            "standings" => BridgeValues.ToNode(ChampionshipRead.Standings(Session, Box.Inputs)),
+            "raceResult" => BridgeValues.ToNode(ReadRace(args)),
+            "nextRace" => BridgeValues.ToNode(ChampionshipRead.Next(Session, Circuits)),
+            "staff" => BridgeValues.ToNode(ReadStaff()),
+            "market" => BridgeValues.ToNode(ReadMarket(access)),
             _ => throw new InvalidOperationException("Query '" + name + "' is registered but not implemented."),
         };
     }
@@ -143,8 +176,13 @@ public sealed class CareerBridge
     public CommandResult Submit(ICommand command)
     {
         ArgumentNullException.ThrowIfNull(command);
-        _queue.Enqueue(command);
-        var results = _dispatcher.DispatchAll(_queue, Context());
+        if (_play is not null)
+        {
+            return _play.Submit(command);
+        }
+
+        _queue!.Enqueue(command);
+        var results = _dispatcher!.DispatchAll(_queue, Context());
         return results.Count == 0
             ? throw new InvalidOperationException("The queue accepted a command and then dispatched nothing.")
             : results[^1];
@@ -152,8 +190,13 @@ public sealed class CareerBridge
 
     public AdvanceOutcome Advance()
     {
-        _modules.Context.Managers.SetReady(_human, true);
-        var step = _gate.RequestAdvance(_modules.Context.Managers, _clock);
+        if (_play is not null)
+        {
+            return AdvancePlay();
+        }
+
+        Box.Managers.SetReady(_human, true);
+        var step = _gate.RequestAdvance(Box.Managers, _clock!);
         if (step is AdvanceResult.Refused refused)
         {
             return new AdvanceOutcome(false, refused.Refusal.Reason, null);
@@ -164,11 +207,11 @@ public sealed class CareerBridge
         return new AdvanceOutcome(true, null, DateText);
     }
 
-    public DateOnly IssuedOn => new(_session.Date.Year, _session.Date.Month, _session.Date.Day);
+    public DateOnly IssuedOn => new(Session.Date.Year, Session.Date.Month, Session.Date.Day);
 
-    public bool IsHuman(string managerId) => string.Equals(managerId, _human.Value, StringComparison.Ordinal);
+    public bool IsHuman(string managerId) => string.Equals(managerId, Human.Value, StringComparison.Ordinal);
 
-    public HostManagerId Human => _human;
+    public HostManagerId Human => _play?.Player ?? _human;
 
     private void BeginDay()
     {
@@ -177,19 +220,19 @@ public sealed class CareerBridge
             return;
         }
 
-        _modules.BeginMorning(_queue);
-        _dispatcher.DispatchAll(_queue, Context());
+        _modules!.BeginMorning(_queue!);
+        _dispatcher!.DispatchAll(_queue!, Context());
         _modules.EndMorning();
         _morningDone = true;
     }
 
-    private CommandContext Context() => _modules.CommandContext(_clock, _modules.Context.Managers);
+    private CommandContext Context() => _modules!.CommandContext(_clock!, Box.Managers);
 
     private ShellView ReadShell()
     {
         var team = ReadTeam();
         var inbox = new InboxQuery(Inbox()).View(Access());
-        var blocking = _modules.Context.Managers.Get(_human).BlockingItem;
+        var blocking = Box.Managers.Get(_human).BlockingItem;
         InboxItemView? decision = null;
         foreach (var item in inbox.Items)
         {
@@ -215,31 +258,31 @@ public sealed class CareerBridge
 
     private OwnTeamView ReadTeam()
     {
-        var organization = _modules.Context.Require<BoardBook>().Section.OrganizationOf(_human.Value);
+        var organization = Box.Require<BoardBook>().Section.OrganizationOf(_human.Value);
         if (organization is not OrganizationId id)
         {
             return new OwnTeamView(null, null, null);
         }
 
-        var name = _session.World.GetOrganization(id).NameOn(_session.Date);
+        var name = Session.World.GetOrganization(id).NameOn(Session.Date);
         long? cash = ReadFinance(Access()) is FinanceView.Own own ? own.CashCents : null;
         return new OwnTeamView(id.Value, name, cash);
     }
 
     private DriversView ReadDrivers(AccessContext access)
     {
-        var organization = _modules.Context.Require<BoardBook>().Section.OrganizationOf(_human.Value);
+        var organization = Box.Require<BoardBook>().Section.OrganizationOf(_human.Value);
         var own = new List<OwnDriverView>();
         if (organization is OrganizationId id)
         {
-            foreach (var contract in _session.World.Contracts.OrderBy(item => item.Id.Value, StringComparer.Ordinal))
+            foreach (var contract in Session.World.Contracts.OrderBy(item => item.Id.Value, StringComparer.Ordinal))
             {
-                if (contract.OrganizationId != id || !contract.Role.IsDriver || !contract.IsActiveOn(_session.Date))
+                if (contract.OrganizationId != id || !contract.Role.IsDriver || !contract.IsActiveOn(Session.Date))
                 {
                     continue;
                 }
 
-                var person = _session.World.GetPerson(contract.PersonId);
+                var person = Session.World.GetPerson(contract.PersonId);
                 own.Add(new OwnDriverView(
                     person.Id.Value,
                     person.Name,
@@ -252,7 +295,7 @@ public sealed class CareerBridge
         var market = new List<MarketDriverView>();
         if (organization is OrganizationId observer)
         {
-            foreach (var person in new FreeAgentQuery(Contracts()).List(access, observer, _session.Date, NegotiationSubject.DriverSeat))
+            foreach (var person in new FreeAgentQuery(Contracts()).List(access, observer, Session.Date, NegotiationSubject.DriverSeat))
             {
                 if (!person.IsDriver)
                 {
@@ -272,8 +315,8 @@ public sealed class CareerBridge
 
     private FinanceView ReadFinance(AccessContext access)
     {
-        var organization = _modules.Context.Require<BoardBook>().Section.OrganizationOf(_human.Value);
-        if (organization is not OrganizationId id || _modules.Context.TryGet<FinanceBook>() is null)
+        var organization = Box.Require<BoardBook>().Section.OrganizationOf(_human.Value);
+        if (organization is not OrganizationId id || Box.TryGet<FinanceBook>() is null)
         {
             return new FinanceView.Unknown(TranslationMessage.Of(FinanceKeys.ViewUnknown));
         }
@@ -281,45 +324,45 @@ public sealed class CareerBridge
         return FinanceQuery.Read(
             access,
             id,
-            _session.World,
-            _session.Date,
-            _modules.Context.Require<IOrganizationControl>());
+            Session.World,
+            Session.Date,
+            Box.Require<IOrganizationControl>());
     }
 
     private object ReadDevelopment(AccessContext access)
     {
-        if (_modules.Context.Inputs.RulePeriods is not { } periods)
+        if (Box.Inputs.RulePeriods is not { } periods)
         {
             return new DevelopmentOverview([]);
         }
 
-        var book = DevelopmentBook.ForSession(_session, _session.Clock.MasterSeed);
+        var book = DevelopmentBook.ForSession(Session, Session.Clock.MasterSeed);
         var environment = new DevelopmentEnvironment(
             new PeriodDevelopmentRules(periods),
-            _modules.Context.Require<IOrganizationControl>());
+            Box.Require<IOrganizationControl>());
         return new DevelopmentQuery(book, environment).View(access);
     }
 
     private SponsorView ReadSponsors(AccessContext access)
     {
-        var organization = _modules.Context.Require<BoardBook>().Section.OrganizationOf(_human.Value);
+        var organization = Box.Require<BoardBook>().Section.OrganizationOf(_human.Value);
         if (organization is not OrganizationId id
-            || _modules.Context.TryGet<SponsorBook>() is not { } book
-            || _modules.Context.TryGet<SponsorEnvironment>() is not { } environment)
+            || Box.TryGet<SponsorBook>() is not { } book
+            || Box.TryGet<SponsorEnvironment>() is not { } environment)
         {
             return new SponsorView.Unknown(TranslationMessage.Of(SponsorKeys.ViewUnknown));
         }
 
         var objectives = new ObjectiveQuery(
-            _modules.Context.Require<IObjectiveFacts>(),
-            _modules.Context.Require<IManagerOrganizations>());
-        return SponsorQuery.Read(access, id, book, environment, objectives, _session.Date);
+            Box.Require<IObjectiveFacts>(),
+            Box.Require<IManagerOrganizations>());
+        return SponsorQuery.Read(access, id, book, environment, objectives, Session.Date);
     }
 
     private ManagerSupplyView ReadSupply(AccessContext access)
     {
-        if (_modules.Context.TryGet<SupplyBook>() is not { } book
-            || _modules.Context.TryGet<SupplyEnvironment>() is not { } environment)
+        if (Box.TryGet<SupplyBook>() is not { } book
+            || Box.TryGet<SupplyEnvironment>() is not { } environment)
         {
             return new ManagerSupplyView([], []);
         }
@@ -328,19 +371,19 @@ public sealed class CareerBridge
     }
 
     private CarQuery Cars() => new(
-        new CarBook(() => _session.World, _session.StoreWorld, _session.Clock.MasterSeed),
-        _modules.Context.Require<IOrganizationControl>());
+        new CarBook(() => Session.World, Session.StoreWorld, Session.Clock.MasterSeed),
+        Box.Require<IOrganizationControl>());
 
-    private PoolQuery Pool() => new(PoolBook.ForSession(_session), _modules.Context.Require<IManagerOrganizations>());
+    private PoolQuery Pool() => new(PoolBook.ForSession(Session), Box.Require<IManagerOrganizations>());
 
-    private InboxBook Inbox() => _modules.Context.Require<InboxBook>();
+    private InboxBook Inbox() => Box.Require<InboxBook>();
 
     private BoardQuery Board() => new(
-        _modules.Context.Require<BoardBook>(),
+        Box.Require<BoardBook>(),
         Inbox(),
-        new ObjectiveQuery(_modules.Context.Require<IObjectiveFacts>(), _modules.Context.Require<IManagerOrganizations>()));
+        new ObjectiveQuery(Box.Require<IObjectiveFacts>(), Box.Require<IManagerOrganizations>()));
 
-    private ContractBook Contracts() => _modules.Context.Require<ContractBook>();
+    private ContractBook Contracts() => Box.Require<ContractBook>();
 
     private AccessContext Access() => AccessContext.ForManager(new AccessManagerId(_human.Value));
 
@@ -365,17 +408,24 @@ public sealed class CareerBridge
     /// <summary>The same adapter <see cref="CareerHost"/> keeps private: advancing the gate lives the day.</summary>
     private sealed class SessionClock : IWorldState
     {
-        private readonly CareerSession _session;
+        private readonly CareerSession Session;
 
-        public SessionClock(CareerSession session) => _session = session;
+        public SessionClock(CareerSession session) => Session = session;
 
-        public DateOnly CurrentDate => new(_session.Date.Year, _session.Date.Month, _session.Date.Day);
+        public DateOnly CurrentDate => new(Session.Date.Year, Session.Date.Month, Session.Date.Day);
 
-        public void AdvanceDate() => _session.LiveDay();
+        public void AdvanceDate() => Session.LiveDay();
 
-        public string ContentHash() => _session.World.StateHash();
+        public string ContentHash() => Session.World.StateHash();
     }
 }
 
 /// <summary>What <see cref="CareerBridge.Advance"/> did. A refusal carries the reason key and changes nothing.</summary>
-public sealed record AdvanceOutcome(bool Advanced, TranslationMessage? Reason, string? Date);
+public sealed record AdvanceOutcome(
+    bool Advanced,
+    TranslationMessage? Reason,
+    string? Date,
+    bool SeasonChanged = false,
+    int? RaceSeason = null,
+    int? RaceRound = null,
+    string? RaceLayout = null);

@@ -26,6 +26,10 @@ public sealed class BridgeHost
     public static BridgeHost Open(string? dataRoot = null, int year = CareerBridge.DefaultYear, ulong seed = CareerBridge.DefaultSeed) =>
         new(CareerBridge.Open(dataRoot ?? RepositoryRoot(), year, seed));
 
+    /// <summary>No career yet. The page starts or loads one.</summary>
+    public static BridgeHost Lobby(string? dataRoot = null, int year = CareerBridge.DefaultYear, ulong seed = CareerBridge.DefaultSeed) =>
+        new(CareerBridge.Lobby(dataRoot ?? Path.Combine(RepositoryRoot(), "data"), year, seed));
+
     public string StateHash
     {
         get
@@ -111,7 +115,12 @@ public sealed class BridgeHost
 
             if (endpoint.Kind == BridgeRegistry.Query)
             {
-                return new BridgeExchange(BridgeValues.Response(id, _career.Query(name)), []);
+                if (!_career.HasCareer && name is not ("session" or "teams" or "saves"))
+                {
+                    return Fail(id, BridgeKeys.NoCareer, null);
+                }
+
+                return new BridgeExchange(BridgeValues.Response(id, _career.Query(name, args)), []);
             }
 
             return Command(id, name, args);
@@ -120,6 +129,23 @@ public sealed class BridgeHost
 
     private BridgeExchange Command(string id, string name, JsonElement args)
     {
+        var played = _career.Play(name, args);
+        if (played is not null)
+        {
+            if (played.Error is not null)
+            {
+                return Fail(id, played.Error.Key, Parameters(played.Error));
+            }
+
+            var events = new List<string>();
+            if (played.Inbox)
+            {
+                events.Add(BridgeValues.Event("inboxChanged", null));
+            }
+
+            return new BridgeExchange(BridgeValues.Response(id, played.Data), events);
+        }
+
         switch (name)
         {
             case "advanceDay":
@@ -129,12 +155,26 @@ public sealed class BridgeHost
                     return Fail(id, advance.Reason!.Key, Parameters(advance.Reason));
                 }
 
+                var events = new List<string>
+                {
+                    BridgeValues.Event("dayAdvanced", BridgeValues.ToNode(new AdvanceDayView(advance.Date!))),
+                    BridgeValues.Event("inboxChanged", null),
+                };
+                if (advance.SeasonChanged)
+                {
+                    events.Add(BridgeValues.Event("seasonChanged", BridgeValues.ToNode(new AdvanceDayView(advance.Date!))));
+                }
+
+                if (advance.RaceRound is int round && advance.RaceSeason is int season)
+                {
+                    events.Add(BridgeValues.Event(
+                        "raceFinished",
+                        BridgeValues.ToNode(new RaceFinishedView(season, round, advance.RaceLayout ?? ""))));
+                }
+
                 return new BridgeExchange(
                     BridgeValues.Response(id, BridgeValues.ToNode(new AdvanceDayView(advance.Date!))),
-                    [
-                        BridgeValues.Event("dayAdvanced", BridgeValues.ToNode(new AdvanceDayView(advance.Date!))),
-                        BridgeValues.Event("inboxChanged", null),
-                    ]);
+                    events);
             case "resolveInbox":
                 var itemId = Text(args, "itemId");
                 var optionId = Text(args, "optionId");

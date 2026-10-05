@@ -131,6 +131,9 @@ public sealed class RaceWeekendDay : IDayHandler
             published.Tape,
             Lines(published),
             field.SkippedTeamIds);
+        var world = _context.Session.World;
+        var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;
+        _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId)));
     }
 
     private void ApplyUnderstanding(GameDate today, double lengthKm, IReadOnlyList<CarRaceResult> results)

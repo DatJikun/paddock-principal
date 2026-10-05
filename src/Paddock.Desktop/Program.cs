@@ -36,7 +36,7 @@ internal static class Program
         }
 
         var root = BridgeHost.RepositoryRoot();
-        var host = BridgeHost.Open(Path.Combine(root, "data"), year, seed);
+        var host = BridgeHost.Lobby(Path.Combine(root, "data"), year, seed);
         var ui = Path.Combine(root, "ui", "app", "dist");
         using var server = new DevServer(host, ui, DevServer.FindPort(port));
         server.Start();

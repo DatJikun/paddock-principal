@@ -385,7 +385,7 @@ public static class RunCommand
     /// The base data a save depends on: every authored file, plus the people schedule and drivers files when the run used them
     /// (without them the hash is that of the authored files alone). A resumed run must see the same hash.
     /// </summary>
-    internal static string HashWorldData(string dataRoot, (string Schedule, string Drivers)? people)
+    public static string HashWorldData(string dataRoot, (string Schedule, string Drivers)? people)
     {
         var authored = Path.Combine(Path.GetFullPath(dataRoot), "authored");
         var files = Directory.EnumerateFiles(authored, "*.json", SearchOption.AllDirectories)
@@ -415,7 +415,7 @@ public static class RunCommand
     }
 
     /// <summary>The people schedule and drivers files in use, or null when the run has none (the empty provider).</summary>
-    internal static (string Schedule, string Drivers)? ResolveProviderFiles(string dataRoot, string? schedulePath, string? driversPath)
+    public static (string Schedule, string Drivers)? ResolveProviderFiles(string dataRoot, string? schedulePath, string? driversPath)
     {
         if (schedulePath is null || driversPath is null)
         {
@@ -431,7 +431,7 @@ public static class RunCommand
         return (schedulePath, driversPath);
     }
 
-    internal static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files)
+    public static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files)
     {
         if (files is not var (schedulePath, driversPath))
         {

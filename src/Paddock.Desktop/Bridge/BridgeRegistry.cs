@@ -5,6 +5,7 @@ using Paddock.Application.Development;
 using Paddock.Application.Finance;
 using Paddock.Application.Inbox;
 using Paddock.Application.Pool;
+using Paddock.Application.Racing;
 using Paddock.Application.Sponsors;
 using Paddock.Application.Supply;
 
@@ -12,7 +13,6 @@ namespace Paddock.Desktop.Bridge;
 
 /// <summary>
 /// Names the page may send. The result type is the JSON shape <see cref="BridgeValues"/> writes.
-/// Standings and the calendar are not here: Application has no query for them yet.
 /// </summary>
 public static class BridgeRegistry
 {
@@ -34,9 +34,37 @@ public static class BridgeRegistry
         Endpoint(Query, "pool", typeof(ManagerCall), typeof(PoolView)),
         Endpoint(Query, "supply", typeof(ManagerCall), typeof(ManagerSupplyView)),
         Endpoint(Query, "negotiations", typeof(ManagerCall), typeof(NegotiationsView)),
+        Endpoint(Query, "session", typeof(ManagerCall), typeof(SessionView)),
+        Endpoint(Query, "teams", typeof(TeamsCall), typeof(TeamListView)),
+        Endpoint(Query, "saves", typeof(ManagerCall), typeof(SaveListView)),
+        Endpoint(Query, "calendar", typeof(ManagerCall), typeof(CalendarView)),
+        Endpoint(Query, "standings", typeof(ManagerCall), typeof(StandingsView)),
+        Endpoint(Query, "raceResult", typeof(RaceResultCall), typeof(RaceResultView)),
+        Endpoint(Query, "nextRace", typeof(ManagerCall), typeof(NextRaceView)),
+        Endpoint(Query, "staff", typeof(ManagerCall), typeof(StaffListView)),
+        Endpoint(Query, "market", typeof(ManagerCall), typeof(MarketView)),
         Endpoint(Command, "advanceDay", typeof(ManagerCall), typeof(AdvanceDayView)),
         Endpoint(Command, "resolveInbox", typeof(ResolveInboxCall), typeof(CommandAck)),
         Endpoint(Command, "dismissInbox", typeof(DismissInboxCall), typeof(CommandAck)),
+        Endpoint(Command, "newCareer", typeof(NewCareerCall), typeof(CareerStartedView)),
+        Endpoint(Command, "loadCareer", typeof(LoadCareerCall), typeof(CareerStartedView)),
+        Endpoint(Command, "saveCareer", typeof(SaveCareerCall), typeof(CareerSavedView)),
+        Endpoint(Command, "openNegotiation", typeof(OpenNegotiationCall), typeof(CommandAck)),
+        Endpoint(Command, "submitOffer", typeof(SubmitOfferCall), typeof(CommandAck)),
+        Endpoint(Command, "acceptCounter", typeof(NegotiationIdCall), typeof(CommandAck)),
+        Endpoint(Command, "walkAway", typeof(NegotiationIdCall), typeof(CommandAck)),
+        Endpoint(Command, "renewContract", typeof(RenewContractCall), typeof(CommandAck)),
+        Endpoint(Command, "beginSponsorTalks", typeof(BeginSponsorCall), typeof(CommandAck)),
+        Endpoint(Command, "signSponsor", typeof(SponsorTalkCall), typeof(CommandAck)),
+        Endpoint(Command, "walkAwayFromTalks", typeof(SponsorTalkCall), typeof(CommandAck)),
+        Endpoint(Command, "respondToSponsorOffer", typeof(SponsorOfferCall), typeof(CommandAck)),
+        Endpoint(Command, "setDevelopmentSplit", typeof(DevelopmentSplitCall), typeof(CommandAck)),
+        Endpoint(Command, "commitConcept", typeof(CommitConceptCall), typeof(CommandAck)),
+        Endpoint(Command, "assignScoutFocus", typeof(ScoutFocusCall), typeof(CommandAck)),
+        Endpoint(Command, "fundJunior", typeof(FundJuniorCall), typeof(CommandAck)),
+        Endpoint(Command, "signPoolDriver", typeof(SignPoolCall), typeof(CommandAck)),
+        Endpoint(Command, "proposeSupply", typeof(SupplyProposalCall), typeof(CommandAck)),
+        Endpoint(Command, "respondToSupply", typeof(SupplyResponseCall), typeof(CommandAck)),
     ];
 
     public static bool TryFind(string kind, string name, out BridgeEndpoint endpoint)

@@ -307,3 +307,16 @@ Szczegóły w DESIGN §5.3.
 - **Cele zarządu bez tabeli wyników** są liczone jako niespełnione (zasada „nieznany fakt = niespełniony”), więc zaufanie zarządu spada, ale nikt nie jest zwalniany, bo przeglądy idą w dni wyścigowe. Po T47 stan liczy się od nowa.
 - **Wygasanie pozycji w skrzynce jest aktywne** w przebiegu (wygasłe pozycje rozstrzygają się domyślną opcją jako zapisane komendy).
 - **Poprawka błędu z T39:** kontrakt podpisany komendą nie ginie już na końcu poranka (księga kontraktów jest związana ze światem sesji), co zmienia świat każdego przebiegu względem wcześniejszej wersji.
+
+### Przyjęte 2026-10-05 (siedemnasta runda: pierwsze uwagi testerów)
+
+**PP-057: Uwagi z pierwszego czytania przewodnika „Jak działa gra”** (zmienia PP-018 w części o wieku wejścia do puli; reszta to doprecyzowania DESIGN). Liczby poniżej to szacunki.
+- **Siła historii w skali 0–10** zamiast 0–100. Różnicy między 55 a 56 nie da się odczuć. Losowość zostaje 0–100.
+- **Juniorzy wcześniej, z akademią.** Ludzie wchodzą do puli talentów, gdy kończą karting i trafiają do serii juniorskich, czyli dziś około 14. roku życia. Wiek wejścia zależy od epoki, bo w latach 50. nie było drabinki juniorskiej: do 1969 około 18 lat, w latach 1970–1989 około 16, od 1990 około 14. Zespół ma akademię z ograniczoną liczbą miejsc (na start 3), a juniorzy rozwijają się w niej latami. Późni debiutanci (np. Fangio) wchodzą jak dotąd, kilka lat przed prawdziwym debiutem.
+- **Płynność w latach do 1960 waży 12% oceny ogólnej** zamiast 14%. Dwa punkty przechodzą na zakręty: część kierowców była szybsza, jadąc bokiem.
+- **Podwyżki w trakcie umowy.** Kierowca może zażądać podwyżki przed końcem kontraktu. Jak często, zależy od lojalności i morale: lojalny i zadowolony prosi rzadko. Kwota zależy od tego, ile kierowca jeszcze może zyskać: kierowca na szczycie, bez dużego zapasu potencjału, żąda mniej niż wschodząca gwiazda. Do czasu wprowadzenia morale liczą się lojalność i ostatnie wyniki.
+- **Rozwój auta zależy od epoki.** Projektowanie koncepcji trwa dłużej, gdy auta są bardziej złożone (tak jak produkcja). We wczesnych epokach zyski z projektów są mniejsze, a koncepcja częściej kończy się porażką.
+- **Popularność liczy też walkę o tytuł kierowców.** Wyrównana walka kierowców podnosi popularność nawet przy dominacji jednego zespołu (2016), ale mniej niż walka kilku zespołów (2010–2012).
+- **Nagłe awarie.** Mniej więcej co trzecia awaria przychodzi bez ostrzeżenia, np. pęknięte zawieszenie albo wybuch silnika. Reszta jak dotąd daje kilka okrążeń sygnałów.
+- **Słowa dla gracza:** „widełki” zamiast „pasmo”, „rozrzut czasów” zamiast „szum”.
+- **Bez zmian na razie:** oceny prawdziwych kierowców zostają wstępne (wartość na wejściu i potencjał), dokładniejsze ustalimy później; spadek formy weteranów (np. Alonso) zostaje jak jest.

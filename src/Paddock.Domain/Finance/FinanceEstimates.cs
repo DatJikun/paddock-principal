@@ -22,6 +22,13 @@ public static class FinanceEstimates
     public const double DominanceLoss = 0.08;
 
     /// <summary>
+    /// ESTIMATE (PP-057): added for a close drivers' title, independent of how many teams won.
+    /// Sized so a dead heat between one team's drivers (2016) still finishes below a close fight among several teams,
+    /// and above a season where one driver also runs away with it.
+    /// </summary>
+    public const double DriverFightGain = 0.10;
+
+    /// <summary>
     /// ESTIMATE: share of the typical team's annual benchmark paid as start money across the season
     /// (<c>promoter_individual_deals</c>), then split per race and per entry.
     /// </summary>

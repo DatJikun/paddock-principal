@@ -214,13 +214,13 @@ public class SaveFileTests : IDisposable
         using (var opened = SaveFile.Open(path))
         {
             Assert.Equal(config, opened.ReadMeta().CareerConfig);
-            var invalid = config.WithHistoryStrength(150);
-            Assert.False(invalid.Validate().IsValid);
-            opened.WriteCareerConfig(invalid);
+            var legacy = config.WithHistoryStrength(50);
+            opened.WriteCareerConfig(legacy);
         }
 
         using var reread = SaveFile.Open(path);
-        Assert.Equal(config.WithHistoryStrength(150), reread.ReadMeta().CareerConfig);
+        Assert.Equal(config.WithHistoryStrength(5), reread.ReadMeta().CareerConfig);
+        Assert.Equal(5, reread.ReadMeta().CareerConfig.HistoryStrength);
     }
 
     [Fact]

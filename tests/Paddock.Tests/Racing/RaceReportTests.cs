@@ -348,6 +348,8 @@ public class RaceReportTests
         var keys = Enum.GetValues<MechanicalComponent>().Select(p => RaceReportKeys.RetirementKey(RetirementReason.Mechanical, p)).ToList();
         Assert.Equal(keys.Count, keys.Distinct().Count());
         Assert.DoesNotContain(RaceReportKeys.RetireMechanical, keys);
+        AssertKeyInBothLanguages(RaceReportKeys.RetirementKey(RetirementReason.Mechanical, MechanicalComponent.Engine, sudden: true));
+        Assert.Equal(RaceReportKeys.RetireSudden, RaceReportKeys.RetirementKey(RetirementReason.Mechanical, null, sudden: true));
     }
 
     [Fact]

@@ -104,6 +104,23 @@ public static class SponsorRules
             environment.Finance.Facts(year).TypicalDollars,
             book.Finance.PopularityMilli);
 
+    /// <summary>The authored objective scaled to the team's public strength, or the authored one when that strength is unknown.</summary>
+    public static SponsorObjectiveSpec ForTeam(
+        SponsorObjectiveSpec spec,
+        OrganizationId organization,
+        SponsorEnvironment environment,
+        GameDate on)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+        ArgumentNullException.ThrowIfNull(environment);
+        if (environment.Outlook?.ExpectedPosition(organization, on) is not int expected)
+        {
+            return spec;
+        }
+
+        return SponsorObjectiveScale.Scale(spec, expected, environment.Outlook.FieldSize(on));
+    }
+
     public static ObjectivePredicate PredicateOf(SponsorObjectiveSpec spec) => spec.Kind switch
     {
         SponsorObjectiveSpec.PodiumsAtLeast => new PodiumsAtLeast(int.Parse(spec.Value, CultureInfo.InvariantCulture)),
@@ -131,13 +148,17 @@ public static class SponsorRules
         string? objectiveId = null;
         if (sponsor.Objective is { } spec)
         {
-            var predicate = PredicateOf(spec);
+            var scaled = ForTeam(spec, organization, environment, start);
+            var predicate = PredicateOf(scaled);
             decimal? baseline = predicate is NumericPredicate numeric ? environment.Facts.Number(organization, numeric.FactKey) ?? 0m : null;
-            var bonusDollars = new Money(annualCents * SponsorEstimates.BonusMilli / 1000).WholeDollars;
+            var reward = SponsorObjectiveScale.Reward(spec, scaled);
+            var bonusDollars = new Money(annualCents * reward.BonusMilli / 1000).WholeDollars;
             var arguments = new[]
             {
                 new KeyValuePair<string, string>("sponsorId", sponsor.Id),
                 new KeyValuePair<string, string>("bonus", bonusDollars.ToString(CultureInfo.InvariantCulture)),
+                new KeyValuePair<string, string>("bonusMilli", reward.BonusMilli.ToString(CultureInfo.InvariantCulture)),
+                new KeyValuePair<string, string>("trust", reward.Trust.ToString(CultureInfo.InvariantCulture)),
             };
             var draft = new ObjectiveDraft(
                 organization,

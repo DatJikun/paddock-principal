@@ -41,7 +41,8 @@ internal static class CareerConfigCodec
             throw new InvalidDataException("Career config JSON is not in canonical form.");
         }
 
-        return config;
+        // Old saves store history strength on 0–100. The canonical bytes stay as written; the loaded value is the 0–10 scale.
+        return config.WithHistoryStrength(CareerConfig.ScaleLegacyHistoryStrength(config.HistoryStrength));
     }
 
     private static CareerConfig Parse(string payload)

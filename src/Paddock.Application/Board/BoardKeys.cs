@@ -22,6 +22,36 @@ public static class BoardKeys
     [TranslationKey]
     public const string FounderCannotResign = "board.error.founderCannotResign";
 
+    [TranslationKey]
+    public const string TakeOverOwnTeam = "board.error.takeOver.ownTeam";
+
+    [TranslationKey]
+    public const string TakeOverUnknownTeam = "board.error.takeOver.unknownTeam";
+
+    [TranslationKey]
+    public const string TakeOverNotATeam = "board.error.takeOver.notATeam";
+
+    [TranslationKey]
+    public const string TakeOverNoBoard = "board.error.takeOver.noBoard";
+
+    [TranslationKey]
+    public const string TakeOverNotHuman = "board.error.takeOver.notHuman";
+
+    [TranslationKey]
+    public const string TakeOverAlreadyEmployed = "board.error.takeOver.alreadyEmployed";
+
+    [TranslationKey]
+    public const string TakeOverAlreadyHuman = "board.error.takeOver.alreadyHuman";
+
+    [TranslationKey]
+    public const string TakeOverBadTilt = "board.error.takeOver.badTilt";
+
+    [TranslationKey]
+    public const string TakeOverBadName = "board.error.takeOver.badName";
+
+    [TranslationKey]
+    public const string TakeOverReason = "board.takeOver.reason";
+
     // ---- Inbox items ----
 
     [TranslationKey]

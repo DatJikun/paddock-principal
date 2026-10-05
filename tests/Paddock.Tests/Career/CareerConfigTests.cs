@@ -8,9 +8,9 @@ namespace Paddock.Tests.Career;
 public class CareerConfigTests
 {
     private const string BalancedJson =
-        "{\"peopleSource\":\"RealPotential\",\"rulesSource\":\"Historical\",\"aiBehavior\":\"ReactToSituation\",\"historyStrength\":50,\"randomnessLevel\":50,\"fatalityLevel\":\"Off\",\"startYear\":1950,\"playerTeam\":\"NewTeam\",\"noNumbers\":false,\"presetName\":\"Balanced\"}";
+        "{\"peopleSource\":\"RealPotential\",\"rulesSource\":\"Historical\",\"aiBehavior\":\"ReactToSituation\",\"historyStrength\":5,\"randomnessLevel\":50,\"fatalityLevel\":\"Off\",\"startYear\":1950,\"playerTeam\":\"NewTeam\",\"noNumbers\":false,\"presetName\":\"Balanced\"}";
 
-    private const string BalancedHash = "4A3F951336B028EE6493943EC43C5CCC07F9E707051A468015A153E67E562F2B";
+    private const string BalancedHash = "8875A9A000291F410B04ECD503CB278C431ACCD4B5E7A27F45FE3E6BF734A645";
 
     [Fact]
     public void MostHistoricalPresetMatchesTheTask()
@@ -32,7 +32,8 @@ public class CareerConfigTests
         Assert.Equal(RulesSource.Historical, config.RulesSource);
         Assert.Equal(AiBehavior.ReactToSituation, config.AiBehavior);
         Assert.Equal(CareerConfig.BalancedHistoryStrength, config.HistoryStrength);
-        Assert.Equal(50, config.HistoryStrength);
+        Assert.Equal(5, config.HistoryStrength);
+        Assert.Equal(0.5, config.HistoryStrengthFraction);
         Assert.Equal(CareerPreset.Balanced, config.PresetName);
         AssertValid(config);
     }
@@ -83,7 +84,7 @@ public class CareerConfigTests
         yield return [balanced.WithPeopleSource(PeopleSource.RealTrajectory)];
         yield return [balanced.WithRulesSource(RulesSource.VotedEachSeason)];
         yield return [balanced.WithAiBehavior(AiBehavior.PureRandom)];
-        yield return [balanced.WithHistoryStrength(49)];
+        yield return [balanced.WithHistoryStrength(4)];
         yield return [balanced.WithRandomnessLevel(49)];
         yield return [balanced.WithFatalityLevel(FatalityLevel.On)];
         yield return [balanced.WithStartYear(1951)];
@@ -116,7 +117,7 @@ public class CareerConfigTests
 
     [Theory]
     [InlineData(-1)]
-    [InlineData(101)]
+    [InlineData(11)]
     public void HistoryStrengthOutsideTheRangeIsAnError(int strength)
     {
         var validation = CareerConfig.FromPreset(CareerPreset.Balanced)
@@ -125,7 +126,7 @@ public class CareerConfigTests
         Assert.False(validation.IsValid);
         var issue = Assert.Single(validation.Errors);
         Assert.Equal(CareerConfigCodes.HistoryStrengthRange, issue.Code);
-        Assert.Equal(["0", "100"], issue.Arguments);
+        Assert.Equal(["0", "10"], issue.Arguments);
     }
 
     [Theory]
@@ -208,7 +209,7 @@ public class CareerConfigTests
         var silent = CareerConfig.FromPreset(CareerPreset.Chaos).Validate();
         Assert.Empty(silent.Warnings);
 
-        var outOfRange = CareerConfig.FromPreset(CareerPreset.Chaos).WithHistoryStrength(101).Validate();
+        var outOfRange = CareerConfig.FromPreset(CareerPreset.Chaos).WithHistoryStrength(11).Validate();
         Assert.False(outOfRange.IsValid);
         Assert.Empty(outOfRange.Warnings);
     }
@@ -230,7 +231,7 @@ public class CareerConfigTests
             (PeopleSource)99,
             (RulesSource)99,
             (AiBehavior)99,
-            historyStrength: 50,
+            historyStrength: 5,
             randomnessLevel: 50,
             (FatalityLevel)99,
             startYear: 1950,
@@ -254,7 +255,7 @@ public class CareerConfigTests
             PeopleSource.RealNamesRandomSkills,
             RulesSource.VotedEachSeason,
             AiBehavior.ReplayHistory,
-            historyStrength: 101,
+            historyStrength: 11,
             randomnessLevel: -1,
             FatalityLevel.Off,
             startYear: 2027,
@@ -341,6 +342,23 @@ public class CareerConfigTests
         Assert.Throws<InvalidDataException>(() => CareerConfigCodec.Read(emptyPreset));
         Assert.Throws<InvalidDataException>(() => CareerConfigCodec.Read(""));
         Assert.Throws<ArgumentNullException>(() => CareerConfigCodec.Read(null!));
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(5, 5)]
+    [InlineData(10, 10)]
+    [InlineData(50, 5)]
+    [InlineData(55, 6)]
+    [InlineData(100, 10)]
+    [InlineData(150, 10)]
+    public void AStoredHistoryStrengthAboveTenLoadsAsRoundOfValueOverTen(int stored, int loaded)
+    {
+        Assert.Equal(loaded, CareerConfig.ScaleLegacyHistoryStrength(stored));
+        var config = CareerConfig.FromPreset(CareerPreset.Balanced).WithHistoryStrength(stored);
+        var read = CareerConfigCodec.Read(config.ToCanonicalJson());
+        Assert.Equal(loaded, read.HistoryStrength);
+        Assert.Equal(loaded / 10.0, read.HistoryStrengthFraction);
     }
 
     private static void AssertValid(CareerConfig config)

@@ -41,7 +41,8 @@ public class RunCommandTests
             estimates,
             StringComparison.Ordinal);
         Assert.Contains(CareerDayEstimates.PoolEntryDateText(), estimates, StringComparison.Ordinal);
-        Assert.Contains(first, line => line.StartsWith("AI managers: 1. Human managers: 0.", StringComparison.Ordinal));
+        // The gate manager plus one AI principal per 1950 Chaos team.
+        Assert.Contains(first, line => line.StartsWith("AI managers: 11. Human managers: 0.", StringComparison.Ordinal));
         var season = Assert.Single(first, line => line.StartsWith("Season 1950:", StringComparison.Ordinal));
         Assert.Matches("state hash [0-9a-f]{64}\\.$", season);
         Assert.Equal(HashOf(season), HashOf(Assert.Single(polish, line => line.StartsWith("Sezon 1950:", StringComparison.Ordinal))));

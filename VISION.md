@@ -340,3 +340,11 @@ Szczegóły w DESIGN §5.3.
 - **Dwie krzywe balansu.** To, co pieniądze kupują (sztab, infrastruktura, działy), ma malejące korzyści, a koszt rośnie coraz szybciej. Talent kierowcy działa prawie liniowo, ale jest rzadki, starzeje się i drożeje.
 - **Lista antywzorców** z researchu Pelotona służy do review każdej mechaniki (AGENTS.md).
 - **Na później:** cechy zespołów (np. fabryczny, prywatny, „akademia”) i szef AI dobierany pod zespół.
+
+### Przyjęte 2026-10-05 (dziewiętnasta runda: sztab pod MVP)
+
+**PP-059: Uproszczony sztab na drodze do MVP** (doprecyzowuje DESIGN §6.2 i PP-044).
+- **Wszystkie role sztabu są dostępne od 1950:** dyrektor techniczny, główny projektant, szef aerodynamiki, szef dynamiki pojazdu, inżynier wyścigowy (jeden na kierowcę, z relacją z kierowcą), strateg, szef mechaników, skaut, dyrektor komercyjny. Szef aerodynamiki w latach 50. daje niewiele, bo limit docisku epoki jest bliski zera, więc nie trzeba osobnej reguły.
+- **Projektant silników pracuje u producenta silników, nie w sztabie zespołu.** Zespół, który jest własną fabryką silników (np. Ferrari), ma go w swojej fabryce (program silnikowy, PP-019). Klient, nawet klient numer 1, nie ma na niego wpływu i jedzie tym, co zrobi producent.
+- **Szef zespołu to gracz albo AI, nie członek sztabu.** Ma atrybuty menedżera (PP-044) i pojawia się osobno.
+- **Puste stanowiska wypełniają fikcyjni ludzie,** jak pulę kierowców. Znani prawdziwi ludzie zostają tam, gdzie ich znamy. Oceny personelu to na razie szacunki.

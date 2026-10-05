@@ -10,6 +10,7 @@ using Paddock.Domain.Inbox;
 using Paddock.Domain.Objectives;
 using Paddock.Domain.People;
 using Paddock.Domain.Principals;
+using Paddock.Domain.Racing;
 using Paddock.Domain.Random;
 using Paddock.Domain.Spy;
 using Paddock.Domain.Time;
@@ -131,6 +132,8 @@ public sealed class BoardEngine
         var section = _book.Section.WithInitialReputation(manager.Value, BoardEstimates.InitialReputationTenths).WithoutUnemployed(manager.Value);
         var reputation = section.ReputationTenths(manager.Value);
         var principal = new PrincipalRecord(PrincipalKind.Human, manager.Value, today, ReputationModel.ProtectedUntil(today, reputation), founder);
+        var alreadyRaced = SeasonAlreadyRaced(today)
+            || (board.LastReview is GameDate reviewed && reviewed.Year == today.Year);
         _book.Update(section.WithBoard(board with
         {
             Principal = principal,
@@ -142,7 +145,51 @@ public sealed class BoardEngine
         facts.Add(new BoardFact(
             BoardEventTypes.ManagerAppointed,
             new BoardFactPayload(organization.Value, manager.Value, PrincipalKind.Human.ToString(), outgoing?.Subject ?? string.Empty, string.Empty, reasonKey, 0)));
+        OfferSeasonTargetOnAppointment(organization, manager, today, alreadyRaced);
         return facts;
+    }
+
+    /// <summary>
+    /// A human who takes the seat before the first race of the season is offered the three season targets. An objective the
+    /// previous principal was already given is withdrawn with no effect. After a race has been run, the objective stays.
+    /// </summary>
+    private void OfferSeasonTargetOnAppointment(OrganizationId organization, ManagerId manager, GameDate today, bool alreadyRaced)
+    {
+        if (alreadyRaced)
+        {
+            return;
+        }
+
+        foreach (var objective in _book.Objectives.OwnedBy(organization))
+        {
+            if (objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason && objective.Deadline.Year == today.Year)
+            {
+                _book.Update(_book.Objectives.Withdraw(objective.Id, today));
+            }
+        }
+
+        if (TargetPending(manager.Value, organization))
+        {
+            return;
+        }
+
+        var fieldSize = ActiveTeams(today).Count;
+        var publicExpected = ReputationModel.ExpectedPosition(
+            _book.History.FinalPosition(organization, today.Year - 1),
+            BudgetRank(organization, today),
+            fieldSize);
+        PostSeasonTarget(manager.Value, organization, publicExpected, fieldSize, today);
+        var board = _book.Section.Board(organization);
+        if (board is not null)
+        {
+            _book.Update(_book.Section.WithBoard(board with { ExpectedPosition = publicExpected }));
+        }
+    }
+
+    private bool SeasonAlreadyRaced(GameDate today)
+    {
+        var championship = _book.World.Section<ChampionshipSection>(ChampionshipSection.SectionName);
+        return championship is not null && championship.Season == today.Year && championship.RoundsCompleted > 0;
     }
 
     /// <summary>

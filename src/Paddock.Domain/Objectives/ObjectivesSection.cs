@@ -28,7 +28,7 @@ namespace Paddock.Domain.Objectives;
 /// failed &lt;len&gt;:&lt;effectKey&gt;
 /// failed-arguments &lt;count&gt;
 /// argument &lt;len&gt;:&lt;name&gt; &lt;len&gt;:&lt;value&gt;
-/// status &lt;Open|Met|Failed&gt;
+/// status &lt;Open|Met|Failed|Withdrawn&gt;
 /// settled &lt;len&gt;:&lt;date or -&gt;
 /// </code>
 /// </para>
@@ -125,6 +125,21 @@ public sealed class ObjectivesSection : IWorldSection
         }
 
         var items = new SortedDictionary<long, Objective>(_objectives) { [objective.Number] = objective.Settled(met, today) };
+        return new ObjectivesSection(NextNumber, items);
+    }
+
+    /// <summary>
+    /// Closes an open objective without an outcome. Nothing is told to apply its effect: a withdrawn objective was not met and did not fail.
+    /// </summary>
+    public ObjectivesSection Withdraw(string objectiveId, GameDate today)
+    {
+        var objective = Find(objectiveId) ?? throw new InvalidOperationException($"Unknown objective '{objectiveId}'.");
+        if (!objective.IsOpen)
+        {
+            throw new InvalidOperationException($"Objective '{objectiveId}' is already {objective.Status}.");
+        }
+
+        var items = new SortedDictionary<long, Objective>(_objectives) { [objective.Number] = objective.Withdrawn(today) };
         return new ObjectivesSection(NextNumber, items);
     }
 

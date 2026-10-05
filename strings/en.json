@@ -172,6 +172,7 @@
   "objective.status.open": "In progress",
   "objective.status.met": "Met",
   "objective.status.failed": "Failed",
+  "objective.status.withdrawn": "Withdrawn",
   "objective.forecast.unknown": "No forecast: the figure is not available yet.",
   "objective.forecast.onTrack": "On the current trend this objective is met.",
   "objective.forecast.offTrack": "On the current trend this objective is missed.",

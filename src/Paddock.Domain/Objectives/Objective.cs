@@ -9,6 +9,9 @@ public enum ObjectiveStatus
     Open,
     Met,
     Failed,
+
+    /// <summary>Taken back before it was due. No effect is applied.</summary>
+    Withdrawn,
 }
 
 /// <summary>
@@ -161,4 +164,7 @@ public sealed class Objective
 
     internal Objective Settled(bool met, GameDate on) =>
         new(Number, Created, Draft, met ? ObjectiveStatus.Met : ObjectiveStatus.Failed, on);
+
+    internal Objective Withdrawn(GameDate on) =>
+        new(Number, Created, Draft, ObjectiveStatus.Withdrawn, on);
 }

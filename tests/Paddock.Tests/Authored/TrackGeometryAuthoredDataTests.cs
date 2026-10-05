@@ -63,6 +63,20 @@ public class TrackGeometryAuthoredDataTests
     }
 
     [Fact]
+    public void EveryLayoutRacedFrom1950To1960_HasAuthoredGeometry()
+    {
+        var catalog = TrackGeometryCatalog.Create(Data.Value);
+        var missing = Data.Value.RaceLayoutMap
+            .Where(e => e.Season is >= 1950 and <= 1960)
+            .Select(e => e.LayoutId)
+            .Distinct(StringComparer.Ordinal)
+            .Where(id => !catalog.HasAuthored(id))
+            .ToArray();
+
+        Assert.Empty(missing);
+    }
+
+    [Fact]
     public void CommittedGeometry_RawLengthIsWithinTwoPercentOfTheCircuitLength()
     {
         // The validator allows 15% so a rough sketch can be committed; shapes meant to ship should land much closer,

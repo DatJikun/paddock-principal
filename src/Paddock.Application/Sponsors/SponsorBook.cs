@@ -172,7 +172,8 @@ public sealed class SponsorEnvironment
         IOrganizationControl control,
         IObjectiveFacts facts,
         IOrganizationAppealSource? appeal = null,
-        INegotiatorSkills? negotiators = null)
+        INegotiatorSkills? negotiators = null,
+        ITeamOutlook? outlook = null)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(eras);
@@ -186,6 +187,7 @@ public sealed class SponsorEnvironment
         Facts = facts;
         Appeal = appeal ?? new NeutralAppealSource();
         Negotiators = negotiators ?? new KnownNegotiatorSkills();
+        Outlook = outlook;
     }
 
     public SponsorCatalog Catalog { get; }
@@ -201,4 +203,18 @@ public sealed class SponsorEnvironment
     public IOrganizationAppealSource Appeal { get; }
 
     public INegotiatorSkills Negotiators { get; }
+
+    /// <summary>Public strength of a team. Null keeps the authored objective, which is the base for a team with no public facts.</summary>
+    public ITeamOutlook? Outlook { get; }
+}
+
+/// <summary>
+/// The expected championship position of a team (1 is best) from public facts, on a date. The same blend the board uses.
+/// Null means the facts are missing and the authored objective stands.
+/// </summary>
+public interface ITeamOutlook
+{
+    int FieldSize(GameDate on);
+
+    int? ExpectedPosition(OrganizationId organization, GameDate on);
 }

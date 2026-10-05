@@ -286,7 +286,7 @@ Masz trzy miejsca na sponsorów, a na każde kilku kandydatów.
 ```wybory
 Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, ale rywal może podpisać pierwszy
 Który sponsor na które miejsce | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego
-Cel sponsora | dopasowany do siły zespołu; spełniony daje premię {SponsorEstimates.BonusMilli|m%} rocznej kwoty, niespełniony może zakończyć umowę
+Cel sponsora | dopasowany do siły zespołu (oczekiwana pozycja, jak u zarządu); premia startuje od {SponsorEstimates.BonusMilli|m%} rocznej kwoty i rośnie z trudnością celu, niespełniony może zakończyć umowę
 Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania
 ```
 

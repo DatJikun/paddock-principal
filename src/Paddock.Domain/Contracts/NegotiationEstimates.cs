@@ -190,4 +190,39 @@ public static class NegotiationEstimates
 
     /// <summary>The end of a contract that starts on <paramref name="start"/> and runs <paramref name="years"/> seasons.</summary>
     public static GameDate EndFor(GameDate start, int years) => GameDate.SeasonEnd(start.Year + years - 1);
+
+    // --- A raise asked during a contract (PP-057). All ESTIMATES. ---
+
+    /// <summary>ESTIMATE: chance a fully loyal and happy driver still asks, once per season.</summary>
+    public const double RaiseAskFloor = 0.02;
+
+    /// <summary>ESTIMATE: extra chance when the driver is both disloyal and unhappy. Loyal or happy drivers sit near the floor.</summary>
+    public const double RaiseAskSpan = 0.85;
+
+    /// <summary>ESTIMATE: the smallest raise, as a share of the current salary, asked by a driver already at his reachable stars.</summary>
+    public const double PeakRaiseShare = 0.02;
+
+    /// <summary>ESTIMATE: share of the demanded gap a team offers when it meets the driver part of the way.</summary>
+    public const double PartialRaiseShare = 0.5;
+
+    /// <summary>ESTIMATE: an AI team accepts a demand no larger than this share of the current salary.</summary>
+    public const double AiRaiseAcceptShare = 0.15;
+
+    /// <summary>ESTIMATE: trust points (0–100) lost when a demand is refused.</summary>
+    public const int RaiseTrustHit = 10;
+
+    /// <summary>ESTIMATE: points added to the chance of leaving after a refusal. Read as a penalty on the utility of staying.</summary>
+    public const int RaiseLeaveHit = 15;
+
+    /// <summary>ESTIMATE: trust a pair starts at, 0–100, until a demand is answered.</summary>
+    public const int RaiseTrustStart = 50;
+
+    /// <summary>ESTIMATE: days a raise decision waits before the default (refuse) applies.</summary>
+    public const int RaiseDecisionDays = 14;
+
+    /// <summary>ESTIMATE: happiness used when the team has no recent results to judge morale by.</summary>
+    public const double NeutralMorale = 0.5;
+
+    /// <summary>ESTIMATE: how much one point of leave-bias (0–100) subtracts from the utility of staying.</summary>
+    public const double RaiseLeaveUtility = 0.01;
 }

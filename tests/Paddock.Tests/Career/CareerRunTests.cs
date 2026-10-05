@@ -30,14 +30,15 @@ namespace Paddock.Tests.Career;
 /// does not move this fixture: its one contracted driver stays seated.
 /// It changed again in #184: the AI principal of the fixture team reviews and writes the <c>principals</c> section, and contract
 /// renewals are that principal's commands instead of the renewal placeholder. The gate manager <c>ai:paddock</c> stays, and the
-/// team adds <c>ai:alpha</c>.
+/// team adds <c>ai:alpha</c>. It changed again in #194: the fixture driver is checked for a mid-contract raise, so the
+/// raises section is in the hash. The retired string stayed chief,leap,vet. Two runs with one seed still match (INV-002).
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "4e38dbfa3b6ce1b0638f62ff768d0174f241f3f0b1f1b5b05fe529e9bbb4563a";
+    private const string StoredWorldHash = "dac38d0d34c77d71c3df63f483c64fc6d490a81c4be924bef2a54f5fa60f4aad";
 
     private const string StoredRetired = "chief,leap,vet";
 

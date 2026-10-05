@@ -221,5 +221,6 @@ public static class ContractRegistration
         dispatcher.Register(new TerminateContractHandler());
         resolvers.Register(new NegotiationResponseResolver());
         resolvers.Register(new RenewalPromptResolver());
+        resolvers.Register(new RaiseDemandResolver());
     }
 }

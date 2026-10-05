@@ -153,6 +153,7 @@ Kiedy ruszyć kontrakt rywala | na {NegotiationEstimates.NegotiationWindowDays|d
 Czy dociskać | podwyżka poniżej {NegotiationEstimates.MinMeaningfulImprovementPercent|%%} nie jest zmianą i odbiera zainteresowanie
 Zerwać umowę | płacisz {NegotiationEstimates.TerminationShare|%} reszty pensji
 Gdy rywal kusi Twojego kierowcę | w ostatnim roku umowy; zależnie od morale i lojalności kierowca odchodzi, prosi o lepsze warunki albo zostaje
+Podwyżka w trakcie umowy | co najwyżej raz w sezonie | odmowa zabiera {NegotiationEstimates.RaiseTrustHit} zaufania
 Gdy kierowca prosi o podwyżkę | w trakcie umowy; kierowca na szczycie prosi o mniej niż wschodząca gwiazda
 ```
 

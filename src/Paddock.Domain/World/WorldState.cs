@@ -372,6 +372,25 @@ public sealed partial class WorldState
         return (new WorldState(CurrentDate, ids, _persons, _organizations, contracts, _knowledge, _sections), id);
     }
 
+    /// <summary>The same contract at a new nominal salary. The id, the dates and the role stay.</summary>
+    public WorldState WithContractSalary(ContractId id, long salary)
+    {
+        var existing = RequireContract(id);
+        var contracts = Clone(_contracts);
+        contracts[id.Value] = new Contract(
+            existing.Id,
+            existing.PersonId,
+            existing.OrganizationId,
+            existing.Role,
+            existing.Start,
+            existing.End,
+            salary,
+            existing.Exclusive,
+            existing.Option,
+            existing.ReleaseClause);
+        return new WorldState(CurrentDate, Ids, _persons, _organizations, contracts, _knowledge, _sections);
+    }
+
     /// <summary>Drops the contract. The id stays issued.</summary>
     public WorldState RemoveContract(ContractId id)
     {

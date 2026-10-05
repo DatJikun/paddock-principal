@@ -38,12 +38,12 @@ public sealed class EstimateSupplierProfiles : ISupplierProfiles
     private const string SupplierPrefix = "supplier:";
 
     private readonly int _anchorSeason;
-    private readonly ICarStrengthSource _strength;
+    private readonly ICarStrengthSource? _strength;
 
     public EstimateSupplierProfiles(int anchorSeason, ICarStrengthSource? strength = null)
     {
         _anchorSeason = anchorSeason;
-        _strength = strength ?? EstimateCarStrength.Shared;
+        _strength = strength;
     }
 
     public EngineVersion EngineOf(OrganizationId supplier, int versionSeason)
@@ -54,7 +54,7 @@ public sealed class EstimateSupplierProfiles : ISupplierProfiles
         }
 
         var key = supplier.Value.StartsWith(SupplierPrefix, StringComparison.Ordinal) ? supplier.Value[SupplierPrefix.Length..] : supplier.Value;
-        var baseline = _strength.TryGet(key, _anchorSeason, out var strength) ? strength : CarEstimates.TierFallback;
+        var baseline = _strength is not null && _strength.TryGet(key, _anchorSeason, out var strength) ? strength : CarEstimates.TierFallback;
         var progress = SupplyEstimates.ProgressPerSeason * (versionSeason - _anchorSeason);
         return new EngineVersion(
             CarEstimates.ClampRating(baseline + Spread(supplier.Value, "power", SupplyEstimates.PowerSpread) + progress),

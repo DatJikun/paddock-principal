@@ -1,3 +1,4 @@
+using Paddock.Domain.Cars;
 using Paddock.Domain.World;
 
 namespace Paddock.Data.Authored;
@@ -21,7 +22,8 @@ public sealed class AuthoredData
         IReadOnlyList<CatalogDimension> eraCatalog,
         IReadOnlyList<TimelinePeriod> eraTimeline,
         IReadOnlyList<CpiYear> cpiYears,
-        IReadOnlyList<TrackGeometryFile>? trackGeometries = null)
+        IReadOnlyList<TrackGeometryFile>? trackGeometries = null,
+        ICarStrengthSource? carStrength = null)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(timeline);
@@ -60,6 +62,7 @@ public sealed class AuthoredData
             .ToArray();
         CpiBook = new CpiBook(cpiYears.Select(row => new CpiObservation(row.Year, row.Cpi)).ToArray());
         TrackGeometries = trackGeometries ?? [];
+        CarStrength = carStrength;
         Layouts = circuits.Circuits
             .SelectMany(circuit => circuit.Layouts.Select(layout => new TrackLayout(
                 layout.LayoutId,
@@ -96,6 +99,9 @@ public sealed class AuthoredData
                 stint.To)))
             .ToArray();
     }
+
+    /// <summary>The authored ESTIMATE of constructor car strength, or null when a fixture has none (the tier fallback applies).</summary>
+    public ICarStrengthSource? CarStrength { get; }
 
     public IReadOnlyList<CatalogDimension> Catalog { get; }
 

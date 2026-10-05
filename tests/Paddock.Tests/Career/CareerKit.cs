@@ -34,35 +34,10 @@ internal static class CareerKit
 
     public static CareerSession Open(CareerPreset preset, int startYear, ulong seed) => Opened(preset, startYear, seed).Session;
 
-    public static bool HasRealPeopleCache =>
-        File.Exists(Path.Combine(DataRoot, "cache", "reports", "people_schedule.json"))
-        && File.Exists(Path.Combine(DataRoot, "cache", "jolpica", "normalized", "drivers.json"));
-
-    public static IPeopleProvider RealPeopleProvider()
-    {
-        var cache = Path.Combine(Path.GetFullPath(DataRoot), "cache");
-        var schedulePath = Path.Combine(cache, "reports", "people_schedule.json");
-        var driversPath = Path.Combine(cache, "jolpica", "normalized", "drivers.json");
-        if (!File.Exists(schedulePath) || !File.Exists(driversPath))
-        {
-            return EmptyPeopleProvider.Instance;
-        }
-
-        var schedule = System.Text.Json.JsonSerializer.Deserialize<PeopleScheduleReport>(File.ReadAllText(schedulePath), HistoricalJson.Options)
-            ?? throw new System.Text.Json.JsonException("The people schedule file is empty.");
-        var drivers = System.Text.Json.JsonSerializer.Deserialize<HistoricalDriversDocument>(File.ReadAllText(driversPath), HistoricalJson.Options)
-            ?? throw new System.Text.Json.JsonException("The drivers file is empty.");
-        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers);
-    }
-
-    public static OpenedCareer Opened(CareerPreset preset, int startYear, ulong seed, string? playerTeam = null, IPeopleProvider? peopleProvider = null)
+    public static OpenedCareer Opened(CareerPreset preset, int startYear, ulong seed)
     {
         var config = CareerConfig.FromPreset(preset).WithStartYear(startYear);
-        if (playerTeam is not null)
-        {
-            config = config.WithPlayerTeam(playerTeam);
-        }
-        var provider = peopleProvider ?? (preset == CareerPreset.Chaos ? EmptyPeopleProvider.Instance : RealPeopleProvider());
+        var provider = EmptyPeopleProvider.Instance;
         var created = WorldInitializer.Create(config, Data, provider, seed);
         var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);
         var session = new CareerSession(

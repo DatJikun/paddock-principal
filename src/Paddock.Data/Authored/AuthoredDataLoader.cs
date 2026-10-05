@@ -42,6 +42,9 @@ public static class AuthoredDataLoader
         var founders = TryRead<FoundersFile>(
             Path.Combine(root, "authored", "teams", "founders.json"),
             failures);
+        // Optional: a fixture data directory has no car strengths and its cars start at the tier fallback.
+        var carStrengthPath = Path.Combine(root, "authored", "teams", "car_strength_estimates.json");
+        var carStrength = File.Exists(carStrengthPath) ? TryRead<CarStrengthFile>(carStrengthPath, failures) : null;
         var staff = TryRead<List<StaffMember>>(
             Path.Combine(root, "authored", "people", "staff.json"),
             failures);
@@ -108,7 +111,8 @@ public static class AuthoredDataLoader
             eraCatalog,
             eraTimeline,
             cpiYears,
-            geometryFiles);
+            geometryFiles,
+            carStrength is null ? null : CarStrengthLoader.ToSource(carStrength));
     }
 
     private static T? TryRead<T>(string path, List<string> failures)

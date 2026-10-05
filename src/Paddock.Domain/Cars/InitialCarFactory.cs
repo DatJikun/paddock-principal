@@ -14,76 +14,51 @@ namespace Paddock.Domain.Cars;
 public interface ICarStrengthSource
 {
     bool TryGet(string constructorId, int season, out double strength);
-}
 
-/// <summary>
-/// ESTIMATE stand-in until a ratings run supplies the car effect. Mercedes is strong in 1954–1955 (PP-050).
-/// </summary>
-public sealed class EstimateCarStrength : ICarStrengthSource
-{
-    public static EstimateCarStrength Shared { get; } = new();
-
-    public bool TryGet(string constructorId, int season, out double strength)
+    /// <summary>
+    /// A starting reliability below the strength, for a constructor whose car was quick but fragile. False means reliability starts at the
+    /// strength like every other area.
+    /// </summary>
+    bool TryGetReliability(string constructorId, int season, out double reliability)
     {
-        if (season is >= 1954 and <= 1955)
-        {
-            switch (constructorId)
-            {
-                case "mercedes":
-                    strength = season == 1955 ? 78 : 74;
-                    return true;
-                case "ferrari":
-                    strength = season == 1955 ? 68 : 72;
-                    return true;
-                case "maserati":
-                    strength = season == 1955 ? 66 : 64;
-                    return true;
-                case "lancia":
-                    strength = season == 1955 ? 65 : 60;
-                    return true;
-                case "gordini":
-                    strength = 52;
-                    return true;
-                case "cooper":
-                    strength = 48;
-                    return true;
-                case "connaught":
-                    strength = 47;
-                    return true;
-                case "vanwall":
-                    strength = 45;
-                    return true;
-                case "hwm":
-                    strength = 40;
-                    return true;
-            }
-        }
-
-        strength = 0;
+        reliability = 0;
         return false;
     }
 }
 
-/// <summary>A table of constructor-season strengths, for tests and for a future ratings load.</summary>
+/// <summary>A table of constructor-season strengths: the authored ESTIMATE rows (<c>car_strength_estimates.json</c>), a test table, or a future ratings load.</summary>
 public sealed class MapCarStrengthSource : ICarStrengthSource
 {
     private readonly Dictionary<string, double> _values;
+    private readonly Dictionary<string, double> _reliability = new(StringComparer.Ordinal);
 
     public MapCarStrengthSource(params (string Constructor, int Season, double Strength)[] rows)
+        : this(rows.Select(row => (row.Constructor, row.Season, row.Strength, (double?)null)).ToArray())
+    {
+    }
+
+    public MapCarStrengthSource((string Constructor, int Season, double Strength, double? Reliability)[] rows)
     {
         ArgumentNullException.ThrowIfNull(rows);
         _values = new Dictionary<string, double>(rows.Length, StringComparer.Ordinal);
-        foreach (var (constructor, season, strength) in rows)
+        foreach (var (constructor, season, strength, reliability) in rows)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(constructor);
-            if (strength is < 0d or > 100d)
+            if (strength is < 0d or > 100d || reliability is < 0d or > 100d)
             {
                 throw new ArgumentOutOfRangeException(nameof(rows));
             }
 
             _values.Add(Key(constructor, season), strength);
+            if (reliability is double fragile)
+            {
+                _reliability.Add(Key(constructor, season), fragile);
+            }
         }
     }
+
+    public bool TryGetReliability(string constructorId, int season, out double reliability) =>
+        _reliability.TryGetValue(Key(constructorId, season), out reliability);
 
     public bool TryGet(string constructorId, int season, out double strength) =>
         _values.TryGetValue(Key(constructorId, season), out strength);
@@ -198,6 +173,7 @@ public static class TeamEngineers
 /// <summary>
 /// Builds the opening cars: two per racing team, each with a regular driver and no later swap (PP-050).
 /// Historical strength comes from <see cref="ICarStrengthSource"/> when it knows the constructor; otherwise a tier.
+/// Cars start at that strength (their levels) with <see cref="CarEstimates.InitialHeadroom"/> above it as the development ceiling (#227).
 /// A fully generated world ignores history and draws tiers from <see cref="RngStreamName.Development"/>.
 /// </summary>
 public static class InitialCarFactory
@@ -212,7 +188,6 @@ public static class InitialCarFactory
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(profiles);
-        var source = strength ?? EstimateCarStrength.Shared;
         var cars = new List<TeamCar>();
         long next = 1;
         var opening = GameDate.SeasonStart(season);
@@ -223,11 +198,12 @@ public static class InitialCarFactory
                 continue;
             }
 
-            var carStrength = StrengthOf(organization, season, fullyGenerated, masterSeed, source);
+            var carStrength = StrengthOf(organization, season, fullyGenerated, masterSeed, strength);
+            var reliability = ReliabilityOf(organization, season, fullyGenerated, strength, carStrength);
             var concept = CarConcept.Neutral;
             var ceiling = CarEstimates.ClampRating(carStrength + CarEstimates.InitialHeadroom);
             var effects = ConceptMapping.Effects(concept, ceiling);
-            var levels = PerformanceLevels.Of(carStrength, carStrength, carStrength, carStrength, carStrength);
+            var levels = PerformanceLevels.Of(carStrength, carStrength, carStrength, carStrength, reliability);
             var drivers = RaceDrivers(world, organization.Id, opening);
             for (var seat = 0; seat < CarEstimates.CarsPerTeam; seat++)
             {
@@ -277,12 +253,18 @@ public static class InitialCarFactory
         organization.Kind == OrganizationKind.Team
         && (organization.Dissolved is not GameDate dissolved || dissolved >= opening);
 
+    /// <summary>The starting reliability: the strength, unless the source says the car was fragile (never above the strength).</summary>
+    private static double ReliabilityOf(Organization organization, int season, bool fullyGenerated, ICarStrengthSource? source, double strength) =>
+        !fullyGenerated && source is not null && organization.Id.IsReal && source.TryGetReliability(organization.Id.Value, season, out var reliability)
+            ? Math.Min(strength, CarEstimates.ClampRating(reliability))
+            : strength;
+
     private static double StrengthOf(
         Organization organization,
         int season,
         bool fullyGenerated,
         ulong masterSeed,
-        ICarStrengthSource source)
+        ICarStrengthSource? source)
     {
         if (fullyGenerated)
         {
@@ -295,7 +277,7 @@ public static class InitialCarFactory
             return CarEstimates.ClampRating(mean + noise);
         }
 
-        if (organization.Id.IsReal && source.TryGet(organization.Id.Value, season, out var strength))
+        if (source is not null && organization.Id.IsReal && source.TryGet(organization.Id.Value, season, out var strength))
         {
             return CarEstimates.ClampRating(strength);
         }

@@ -4,45 +4,42 @@ using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
 using Paddock.SimRunner.Calibration;
 using Paddock.Tests.Career;
+using Xunit.Abstractions;
 
 namespace Paddock.Tests.Racing;
 
 /// <summary>
-/// Issue #227: career races must produce finish rates within the race engine calibration band (TECH §8, PP-062).
+/// Issue #227: the races of a career must finish at the rate the race engine was calibrated to (TECH §8, PP-062), not at a fifth of it.
+/// The band is <see cref="CalibrationTargets"/>, the same one <c>calibrate-race</c> judges a season against: the whole 1955 season,
+/// several seeds summed. It uses the Chaos preset (generated people), so it needs no Jolpica cache and gives the same world in CI.
 /// </summary>
-public class CareerRaceFinishRateTests
+public class CareerRaceFinishRateTests(ITestOutputHelper output)
 {
-    // The 1950s calibration band from calibrate-race (#122): simulated rate is ~46.7%, tolerance +-0.08 abs.
-    private const double EraCalibrationFinishRate = 0.467;
+    private static readonly ulong[] Seeds = [1, 2, 3];
 
-    [Theory]
-    [InlineData(CareerPreset.Balanced, 1UL)]
-    [InlineData(CareerPreset.Balanced, 2UL)]
-    [InlineData(CareerPreset.Chaos, 1UL)]
-    [InlineData(CareerPreset.Chaos, 2UL)]
-    public void FirstRoundsOf1955Career_FinishRateIsWithinCalibrationBand(CareerPreset preset, ulong seed)
+    [Fact]
+    public void WholeSeasonOf1955Career_FinishRateIsWithinCalibrationBand()
     {
-        if (preset == CareerPreset.Balanced && !CareerKit.HasRealPeopleCache)
+        var starters = 0;
+        var finishers = 0;
+        var races = 0;
+        foreach (var seed in Seeds)
         {
-            return;
+            var opened = CareerKit.Opened(CareerPreset.Chaos, 1955, seed);
+            _ = CareerHost.RunUntil(opened.Session, new GameDate(1955, 12, 1), null, CareerKit.OptionsFor(opened));
+
+            var archive = opened.Session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName);
+            Assert.NotNull(archive);
+            races += archive.Races.Count;
+            starters += archive.Races.Sum(race => race.Rows.Count);
+            finishers += archive.Races.Sum(race => race.Rows.Count(row => row.Classified));
         }
 
-        var opened = CareerKit.Opened(preset, 1955, seed, "ferrari");
-        _ = CareerHost.RunUntil(opened.Session, new GameDate(1955, 8, 1), null, CareerKit.OptionsFor(opened));
-
-        var archive = opened.Session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName);
-        Assert.NotNull(archive);
-        Assert.True(archive.Races.Count >= 4, $"Expected at least 4 races, got {archive.Races.Count}");
-
-        var starters = archive.Races.Sum(r => r.Rows.Count);
-        var finishers = archive.Races.Sum(r => r.Rows.Count(row => row.Classified));
-        var finishRate = (double)finishers / starters;
-
-        var details = string.Join("\n", archive.Races.SelectMany((race, i) =>
-            race.Rows.Select(r => $"R{i + 1} P{r.Position}. {r.TeamId} {r.DriverId} - {(r.Classified ? "OK" : r.RetirementKey)}")));
-
+        output.WriteLine($"Finish rate {(double)finishers / starters:P1}: {finishers} of {starters} starters over {races} races, seeds {string.Join(",", Seeds)}.");
+        Assert.True(races >= 6 * Seeds.Length, $"Expected a whole season of races per seed, got {races}.");
+        var rate = (double)finishers / starters;
         Assert.True(
-            Math.Abs(finishRate - EraCalibrationFinishRate) <= CalibrationTargets.FinishRateTolerance,
-            $"Expected finish rate within {CalibrationTargets.FinishRateTolerance:P0} of {EraCalibrationFinishRate:P1}, but got {finishers}/{starters} ({finishRate:P1}). Details:\n{details}");
+            Math.Abs(rate - CalibrationTargets.FinishRate1950s) <= CalibrationTargets.FinishRateTolerance,
+            $"Finish rate {rate:P1} ({finishers}/{starters} over {races} races, seeds {string.Join(",", Seeds)}) is outside {CalibrationTargets.FinishRate1950s:P1} +- {CalibrationTargets.FinishRateTolerance:P0}.");
     }
 }

@@ -38,13 +38,16 @@ namespace Paddock.Tests.Career;
 /// hash. The retired string stayed chief,leap,vet. Two runs with one seed still match (INV-002).
 /// It changed again in #199: empty staff chairs are filled and the race-engineer pairing is a world section, so both are
 /// in the hash. The retired string stayed chief,leap,vet. Two runs with one seed still match (INV-002).
+/// It changed again in #227: an opening car races at its strength (its levels are the strength, the development ceiling is the strength
+/// plus <c>CarEstimates.InitialHeadroom</c>) and a newly approved concept maps its full potential to the ceiling instead of about
+/// half of it, so the cars section differs. The retired string stayed chief,leap,vet.
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "193251ff8925f233d9e1eba1f46ba62ef47bb0c74cae8ac56e4109663c5eb372";
+    private const string StoredWorldHash = "4ab94f03e9a5c1b810701bd1b0cae3a9995d58c2848f481cc55cd23a3551ae34";
 
     private const string StoredRetired = "chief,leap,vet";
 

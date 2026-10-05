@@ -22,6 +22,7 @@ namespace Paddock.Tests.Cars;
 public class CarModelTests
 {
     private static readonly GameDate Opening = GameDate.SeasonStart(1955);
+    private static readonly ICarStrengthSource OpeningStrength = new MapCarStrengthSource(("mercedes", 1955, 78));
     private static readonly DateOnly Day = new(1955, 6, 1);
     private static readonly DriverAttributes Ten = new(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
 
@@ -132,23 +133,52 @@ public class CarModelTests
         var ferrari = cars.Of(OrganizationId.Real("ferrari"));
         Assert.Equal(2, mercedes.Count);
         Assert.Equal(2, ferrari.Count);
-        Assert.Equal(78, mercedes[0].ConceptCeiling);
+        Assert.Equal(78 + CarEstimates.InitialHeadroom, mercedes[0].ConceptCeiling);
         Assert.Equal(mercedes[0].ConceptCeiling, mercedes[1].ConceptCeiling);
-        Assert.Equal(50, ferrari[0].ConceptCeiling);
+        Assert.Equal(78, mercedes[0].Levels.Reliability);
+        Assert.Equal(CarEstimates.TierFallback + CarEstimates.InitialHeadroom, ferrari[0].ConceptCeiling);
+        Assert.Equal(CarEstimates.TierFallback, ferrari[0].Levels.Reliability);
         Assert.True(mercedes[0].ConceptCeiling > ferrari[0].ConceptCeiling);
         Assert.Equal([PersonId.Real("moss"), PersonId.Real("collins")], mercedes.Select(car => car.Driver));
         Assert.DoesNotContain(mercedes, car => car.Driver == PersonId.Real("behra"));
     }
 
     [Fact]
+    public void OpeningCarsRaceAtTheirStrengthAndKeepTheInitialHeadroomToDevelop()
+    {
+        // #227: the levels the race engine reads are the strength itself, not a fraction of it, and the development ceiling sits
+        // InitialHeadroom above, so an upgrade has something to close in every area.
+        var car = Grid().Section<CarsSection>(CarsSection.SectionName)!.Of(OrganizationId.Real("mercedes"))[0];
+
+        Assert.Equal(PerformanceLevels.Of(78, 78, 78, 78, 78), car.Levels);
+        foreach (var area in Enum.GetValues<Paddock.Domain.Development.DevArea>())
+        {
+            Assert.Equal(CarEstimates.InitialHeadroom, Paddock.Domain.Development.DevelopmentMath.Headroom(car, area), 6);
+        }
+    }
+
+    [Fact]
+    public void AFragileCarStartsWithLowerReliabilityAndAGeneratedWorldIgnoresIt()
+    {
+        var source = new MapCarStrengthSource([("mercedes", 1955, 70d, 45d)]);
+
+        var fragile = InitialCarFactory.Install(TeamOnly(), 5, 1955, fullyGenerated: false, source, []).Section<CarsSection>(CarsSection.SectionName)!.Cars[0];
+        var generated = InitialCarFactory.Install(TeamOnly(), 5, 1955, fullyGenerated: true, source, []).Section<CarsSection>(CarsSection.SectionName)!.Cars[0];
+
+        Assert.Equal(PerformanceLevels.Of(70, 70, 70, 70, 45), fragile.Levels);
+        Assert.Equal(70 + CarEstimates.InitialHeadroom, fragile.ConceptCeiling);
+        Assert.Equal(generated.Levels.Downforce, generated.Levels.Reliability);
+    }
+
+    [Fact]
     public void AGeneratedWorldIgnoresTheHistoricalStrengthTable()
     {
-        var source = new MapCarStrengthSource(("mercedes", 1955, 99));
+        var source = new MapCarStrengthSource(("mercedes", 1955, 80));
         var historical = InitialCarFactory.Install(TeamOnly(), 5, 1955, fullyGenerated: false, source, []);
         var generated = InitialCarFactory.Install(TeamOnly(), 5, 1955, fullyGenerated: true, source, []);
         var again = InitialCarFactory.Install(TeamOnly(), 5, 1955, fullyGenerated: true, source, []);
-        Assert.Equal(99, Ceiling(historical));
-        Assert.NotEqual(99, Ceiling(generated));
+        Assert.Equal(80 + CarEstimates.InitialHeadroom, Ceiling(historical));
+        Assert.NotEqual(80 + CarEstimates.InitialHeadroom, Ceiling(generated));
         Assert.Equal(generated.StateHash(), again.StateHash());
         Assert.NotEqual(generated.StateHash(), InitialCarFactory.Install(TeamOnly(), 6, 1955, true, source, []).StateHash());
     }
@@ -427,7 +457,7 @@ public class CarModelTests
         world = Seat(world, hawthorn, ferrari, SeatStatus.NumberOne);
         world = Seat(world, castel, ferrari, SeatStatus.NumberTwo);
         world = Employ(world, director, mercedes, StaffRole.TechnicalDirector);
-        return InitialCarFactory.Install(world, 11, 1955, fullyGenerated: false, EstimateCarStrength.Shared, []);
+        return InitialCarFactory.Install(world, 11, 1955, fullyGenerated: false, OpeningStrength, []);
     }
 
     private static WorldState Seat(WorldState world, PersonId person, OrganizationId team, SeatStatus seat)
@@ -559,7 +589,7 @@ public class CarPersistenceTests : IDisposable
             new DriverExperience(8, 2, 1, [new TrackLaps("monza", 44)]));
         var (withTeam, _) = WorldState.At(WorldFixtures.Opening).AddOrganization(
             new OrganizationSpec(OrganizationKind.Team, true, "mercedes", WorldFixtures.Opening, null, 0, [new OrganizationNameSpan("Mercedes", WorldFixtures.Opening, null)]));
-        var world = InitialCarFactory.Install(withTeam, 3, 1955, false, EstimateCarStrength.Shared, [profile]).WithDate(WorldFixtures.Opening);
+        var world = InitialCarFactory.Install(withTeam, 3, 1955, false, new MapCarStrengthSource(("mercedes", 1955, 78)), [profile]).WithDate(WorldFixtures.Opening);
         using var file = SaveFile.Create(Path.Combine(_directory, "cars.paddock"), WorldFixtures.Meta());
         var repository = new WorldRepository(file);
         repository.SaveWorld(world, WorldFixtures.Opening);
@@ -568,6 +598,6 @@ public class CarPersistenceTests : IDisposable
         var restored = loaded.Section<CarsSection>(CarsSection.SectionName)!;
         Assert.Equal(2, restored.Cars.Count);
         Assert.Equal(44, restored.FitOf(PersonId.Real("moss"))!.Experience.LapsByTrack[0].Laps);
-        Assert.Equal(78, restored.Of(OrganizationId.Real("mercedes"))[0].ConceptCeiling);
+        Assert.Equal(78 + CarEstimates.InitialHeadroom, restored.Of(OrganizationId.Real("mercedes"))[0].ConceptCeiling);
     }
 }

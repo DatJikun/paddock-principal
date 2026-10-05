@@ -33,6 +33,8 @@ namespace Paddock.Tests.Career;
 /// team adds <c>ai:alpha</c>.
 /// It changed again for the season-target choice (#197): an AI team still takes the expected finish, but the objective
 /// records that choice, so the objectives section text differs.
+/// It changed again in #194: the fixture driver is checked for a mid-contract raise, so the raises section is in the
+/// hash. The retired string stayed chief,leap,vet. Two runs with one seed still match (INV-002).
 /// It changed again in #199: empty staff chairs are filled and the race-engineer pairing is a world section, so both are
 /// in the hash. The retired string stayed chief,leap,vet. Two runs with one seed still match (INV-002).
 /// </para>
@@ -41,7 +43,7 @@ public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "46b0ad6ef655965b5d55eb8cee3f08ba71e872c4eddf5b059392b249c2cf1e0d";
+    private const string StoredWorldHash = "193251ff8925f233d9e1eba1f46ba62ef47bb0c74cae8ac56e4109663c5eb372";
 
     private const string StoredRetired = "chief,leap,vet";
 

@@ -5,10 +5,11 @@ namespace Paddock.Persistence;
 /// <summary>
 /// Adds the table of the <c>staff</c> world section (PP-059): which race engineer works with which driver, and the
 /// relationship. A save from before this migration has no staff section, which loads as no section.
+/// Numbered after <see cref="V019_RaisesSection"/>, which took 19.
 /// </summary>
-public sealed class V019_StaffSection : ISaveMigration
+public sealed class V020_StaffSection : ISaveMigration
 {
-    public int Version => 19;
+    public int Version => 20;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

@@ -216,6 +216,27 @@ public static class ContractKeys
     public const string RenewalReleaseConsequence = "contract.inbox.renewal.release.consequence";
 
     [TranslationKey]
+    public const string RaiseSubject = "contract.inbox.raise.subject";
+
+    [TranslationKey]
+    public const string RaiseAcceptLabel = "contract.inbox.raise.accept.label";
+
+    [TranslationKey]
+    public const string RaiseAcceptConsequence = "contract.inbox.raise.accept.consequence";
+
+    [TranslationKey]
+    public const string RaiseRefuseLabel = "contract.inbox.raise.refuse.label";
+
+    [TranslationKey]
+    public const string RaiseRefuseConsequence = "contract.inbox.raise.refuse.consequence";
+
+    [TranslationKey]
+    public const string RaisePartialLabel = "contract.inbox.raise.partial.label";
+
+    [TranslationKey]
+    public const string RaisePartialConsequence = "contract.inbox.raise.partial.consequence";
+
+    [TranslationKey]
     public const string NoticeExitExercised = "contract.inbox.exitExercised.subject";
 
     [TranslationKey]

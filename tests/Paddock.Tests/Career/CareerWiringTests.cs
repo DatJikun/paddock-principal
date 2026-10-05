@@ -8,6 +8,7 @@ using Paddock.Domain.Career;
 using Paddock.Domain.Development;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Objectives;
+using Paddock.Domain.People;
 using Paddock.Domain.Supply;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -31,9 +32,10 @@ public sealed class CareerWiringTests
 
         CareerHost.RunUntil(session, new GameDate(1955, 1, 2), null, CareerKit.Options);
 
-        // season change 5 (host), pool 10, ageing 20, last season 25, contract expiry 30, staff refill 35, rollover 40 (the session), negotiations 700, contract lifecycle 710,
-        // sponsors 750, supply 760, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
-        Assert.Equal([5, 10, 15, 20, 25, 30, 35, 40, 700, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
+        // season change 5 (host), pool 10, principal seat watch 15, ageing 20, last season 25, contract expiry 30, staff refill 35,
+        // rollover 40 (the session), negotiations 700, raise demands 705, contract lifecycle 710, sponsors 750, supply 760,
+        // development 780, finance 800, objectives 900, board 910 (TECH 6.2).
+        Assert.Equal([5, 10, 15, 20, 25, 30, 35, 40, 700, 705, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
     }
 
     [Fact]
@@ -290,6 +292,56 @@ public sealed class CareerWiringTests
             directory.Delete(recursive: true);
         }
     }
+
+    [Fact]
+    public void ASavedStaffSectionResumesWithTheSamePairingsAndDoesNotRefill()
+    {
+        var stop = new GameDate(1955, 1, 8);
+        var whole = CareerKit.Opened(CareerPreset.Chaos, 1955, Seed);
+        CareerHost.RunUntil(whole.Session, stop, null, CareerKit.OptionsFor(whole));
+
+        var first = CareerKit.Opened(CareerPreset.Chaos, 1955, Seed);
+        var firstResult = CareerHost.RunUntil(first.Session, new GameDate(1955, 1, 4), null, CareerKit.OptionsFor(first));
+        var before = first.Session.World.Section<StaffSection>(StaffSection.SectionName);
+        Assert.NotNull(before);
+        Assert.NotEmpty(before.Links);
+        Assert.Contains(before.Links, link => link.Relationship == StaffEstimates.RelationshipStart);
+
+        var directory = Directory.CreateTempSubdirectory("paddock-staff-resume-");
+        try
+        {
+            var path = Path.Combine(directory.FullName, "staff.paddock");
+            CareerKit.Save(path, first, first.Session, firstResult.Host);
+            var (resumed, host) = CareerKit.Resume(path);
+            var loaded = resumed.World.Section<StaffSection>(StaffSection.SectionName);
+            Assert.NotNull(loaded);
+            Assert.Equal(Describe(before), Describe(loaded));
+            Assert.Equal(StaffIds(first.Session.World), StaffIds(resumed.World));
+
+            CareerHost.RunUntil(resumed, stop, host, CareerKit.Options);
+            Assert.Equal(
+                Describe(whole.Session.World.Section<StaffSection>(StaffSection.SectionName)!),
+                Describe(resumed.World.Section<StaffSection>(StaffSection.SectionName)!));
+            Assert.Equal(StaffIds(whole.Session.World), StaffIds(resumed.World));
+            Assert.Equal(whole.Session.World.StateHash(), resumed.World.StateHash());
+        }
+        finally
+        {
+            directory.Delete(recursive: true);
+        }
+    }
+
+    private static string[] Describe(StaffSection section) =>
+        section.Links
+            .Select(link => link.Team.Value + " " + link.Engineer.Value + " " + link.Driver.Value + " " + link.Relationship + " " + link.Season)
+            .ToArray();
+
+    private static string[] StaffIds(WorldState world) =>
+        world.Contracts
+            .Where(contract => contract.Role.IsStaff)
+            .Select(contract => contract.PersonId.Value + "@" + contract.OrganizationId.Value + ":" + contract.Role.StaffRole)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
 
     [Fact]
     public void TheHostChangesTheSeasonOnTheFirstOfJanuaryAndDevelopmentFollows()

@@ -340,3 +340,19 @@ Szczegóły w DESIGN §5.3.
 - **Dwie krzywe balansu.** To, co pieniądze kupują (sztab, infrastruktura, działy), ma malejące korzyści, a koszt rośnie coraz szybciej. Talent kierowcy działa prawie liniowo, ale jest rzadki, starzeje się i drożeje.
 - **Lista antywzorców** z researchu Pelotona służy do review każdej mechaniki (AGENTS.md).
 - **Na później:** cechy zespołów (np. fabryczny, prywatny, „akademia”) i szef AI dobierany pod zespół.
+
+### Przyjęte 2026-10-05 (dziewiętnasta runda: sztab pod MVP)
+
+**PP-059: Uproszczony sztab na drodze do MVP** (doprecyzowuje DESIGN §6.2 i PP-044).
+- **Wszystkie role sztabu są dostępne od 1950:** dyrektor techniczny, główny projektant, szef aerodynamiki, szef dynamiki pojazdu, inżynier wyścigowy (jeden na kierowcę, z relacją z kierowcą), strateg, szef mechaników, skaut, dyrektor komercyjny. Szef aerodynamiki w latach 50. daje niewiele, bo limit docisku epoki jest bliski zera, więc nie trzeba osobnej reguły.
+- **Projektant silników pracuje u producenta silników, nie w sztabie zespołu.** Zespół, który jest własną fabryką silników (np. Ferrari), ma go w swojej fabryce (program silnikowy, PP-019). Klient, nawet klient numer 1, nie ma na niego wpływu i jedzie tym, co zrobi producent.
+- **Szef zespołu to gracz albo AI, nie członek sztabu.** Ma atrybuty menedżera (PP-044) i pojawia się osobno.
+- **Puste stanowiska wypełniają fikcyjni ludzie,** jak pulę kierowców. Znani prawdziwi ludzie zostają tam, gdzie ich znamy. Oceny personelu to na razie szacunki.
+
+### Przyjęte 2026-10-05 (dwudziesta runda: MVP z UI)
+
+**PP-060: MVP to sezon 1955 grywalny w prawdziwym oknie przez jednego gracza; multiplayer online jest zaraz po MVP** (doprecyzowuje PP-045 i PP-050; ustalone wcześniej, zapisane dopiero teraz).
+- **MVP = sezon 1955 w przejętym zespole, grywalny w prawdziwym UI, dla jednego gracza.** Sama konsola z bramką fazy 4 (#113) to etap pośredni, a nie MVP.
+- **UI powstaje równolegle z rdzeniem, falami:** ekran podłączamy do prawdziwej gry, gdy gotowy jest system, który pokazuje. Ekranu nie robimy przed systemem, który ma w nim żyć.
+- **Podział:** most UI–rdzeń, okno i typy robi koder backendu; ekrany z prototypu przenosi sesja UI (Claude, PP-024).
+- **Multiplayer jest po MVP i tylko online** (host i goście, TECH §5.1). Rdzeń nadal jest pisany pod wielu graczy (`managerId`, bramka gotowości, jedna kolejka komend), a obliczenia mają być identyczne na Windows i Linux.

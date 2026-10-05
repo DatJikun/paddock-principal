@@ -153,6 +153,7 @@ Kiedy ruszyć kontrakt rywala | na {NegotiationEstimates.NegotiationWindowDays|d
 Czy dociskać | podwyżka poniżej {NegotiationEstimates.MinMeaningfulImprovementPercent|%%} nie jest zmianą i odbiera zainteresowanie
 Zerwać umowę | płacisz {NegotiationEstimates.TerminationShare|%} reszty pensji
 Gdy rywal kusi Twojego kierowcę | w ostatnim roku umowy; zależnie od morale i lojalności kierowca odchodzi, prosi o lepsze warunki albo zostaje
+Podwyżka w trakcie umowy | co najwyżej raz w sezonie | odmowa zabiera {NegotiationEstimates.RaiseTrustHit} zaufania
 Gdy kierowca prosi o podwyżkę | w trakcie umowy; kierowca na szczycie prosi o mniej niż wschodząca gwiazda
 ```
 
@@ -234,7 +235,8 @@ Nowe auto | pierwszego dnia po produkcji, nigdy w środku weekendu
 Konto rozwoju | wiedza na później | traci wartość, gdy rywale idą do przodu
 Zysk | część dystansu do sufitu koncepcji | blisko sufitu każda dziesiątka kosztuje więcej
 Ludzie | skracają czas | nie podnoszą jakości
-Porażka | {DevelopmentEstimates.BaseRisk|%} szansy przed umiejętnościami | koncepcja {DevelopmentEstimates.ConceptRiskMultiple}× ryzykowniejsza
+Porażka | {DevelopmentEstimates.BaseRisk|%} szansy przed umiejętnościami | koncepcja {DevelopmentEstimates.ConceptRiskMultiple}× ryzykowniejsza, a w 1950 jeszcze {DevelopmentEstimates.EarlyConceptRiskScale}×
+Czas koncepcji | {DevelopmentEstimates.ConceptDesignDays1955|dni} w 1955, {DevelopmentEstimates.ConceptDesignDays2025|dni} w 2025 | przy typowej załodze epoki; zysk w 1950 to {DevelopmentEstimates.EarlyGainScale} późniejszego
 Projekty naraz | 1 na {DevelopmentEstimates.HeadcountPerSlot|osób} inżynierów | najwyżej {DevelopmentEstimates.MaxSlots}
 ```
 
@@ -373,7 +375,7 @@ Wyprzedzanie | potrzebna przewaga tempa powyżej {WeekendConstants.OvertakeMargi
 Brudne powietrze | do {PaceConstants.DirtyAirMaxLossSeconds|s} straty na okrążeniu
 Pierwsze okrążenie | {IncidentConstants.FirstLapFactor}× groźniejsze niż zwykle | drugie {IncidentConstants.SecondLapFactor}×
 Pogoda | zmienia się minuta po minucie | prognoza w boksie ma błąd: najlepsza osoba {WeatherConstants.GoodForecasterScale}×, najsłabsza {WeatherConstants.PoorForecasterScale}×
-Ostrzeżenie o awarii | {ReliabilityConstants.DefaultWarningLeadLaps} okrążenia wcześniej | auto zwalnia; około {ReliabilityConstants.SuddenFailureShare} awarii przychodzi nagle, bez ostrzeżenia
+Ostrzeżenie o awarii | {ReliabilityConstants.DefaultWarningLeadLaps} okrążenia wcześniej | auto zwalnia; około {ReliabilityConstants.SuddenFailureShare|%} awarii przychodzi nagle, bez ostrzeżenia
 ```
 
 ```wykres dopasowanie-toru

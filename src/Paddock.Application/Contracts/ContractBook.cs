@@ -193,6 +193,8 @@ public sealed class ContractBook
         var subject = contract.Role.IsDriver ? NegotiationSubject.DriverSeat : NegotiationSubject.Staff(contract.Role.StaffRole);
         var reference = ReferenceSalary(contract.OrganizationId, contract.PersonId, subject, today);
         var context = ContextFor(contract.OrganizationId, contract.PersonId, subject, today, reference);
-        return CounterpartyEvaluator.Evaluate(AsTerms(contract, reference, today), context).Utility;
+        var utility = CounterpartyEvaluator.Evaluate(AsTerms(contract, reference, today), context).Utility;
+        var bias = World.Section<RaisesSection>(RaisesSection.SectionName)?.LeaveBias(contract.PersonId, contract.OrganizationId) ?? 0;
+        return utility - (bias * NegotiationEstimates.RaiseLeaveUtility);
     }
 }

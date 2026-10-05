@@ -19,12 +19,22 @@ public static class DevelopmentEstimates
 
     public const int DefaultPriority = 5;
 
-    /// <summary>ESTIMATE: days a project takes at the era's reference headcount.</summary>
+    /// <summary>ESTIMATE: days an upgrade or a research project takes at the era's reference headcount. Concept design uses the era anchors.</summary>
     public const int UpgradeBaseDays = 42;
 
     public const int ResearchBaseDays = 56;
 
-    public const int ConceptBaseDays = 120;
+    /// <summary>ESTIMATE: concept design days at the reference headcount. About three months in 1950, four in 1955, and about fifteen in 2025.</summary>
+    public const int ConceptDesignDays1950 = 90;
+
+    public const int ConceptDesignDays1955 = 120;
+
+    public const int ConceptDesignDays1990 = 285;
+
+    public const int ConceptDesignDays2025 = 450;
+
+    /// <summary>ESTIMATE: the 1955 concept-design anchor. Kept so older notes can name one number; duration now follows the anchors.</summary>
+    public const int ConceptBaseDays = ConceptDesignDays1955;
 
     /// <summary>ESTIMATE: the shortest and longest a project can get compared with its base duration, whatever the headcount.</summary>
     public const double DurationFloor = 0.4;
@@ -52,6 +62,22 @@ public static class DevelopmentEstimates
     public const double BaseRisk = 0.12;
 
     public const double ConceptRiskMultiple = 2;
+
+    /// <summary>
+    /// ESTIMATE: projects in 1950 close this share of the later gain. It rises to <see cref="SettledGainScale"/> by
+    /// <see cref="EraScaleSettledYear"/> and stays there.
+    /// </summary>
+    public const double EarlyGainScale = 0.7;
+
+    public const double SettledGainScale = 1.0;
+
+    /// <summary>ESTIMATE: a 1950 concept is this many times the settled concept risk. It falls to 1 by <see cref="EraScaleSettledYear"/>.</summary>
+    public const double EarlyConceptRiskScale = 1.5;
+
+    public const double SettledConceptRiskScale = 1.0;
+
+    /// <summary>ESTIMATE: year by which the early-era gain and concept-risk scales have reached their settled values.</summary>
+    public const int EraScaleSettledYear = 1990;
 
     public const double MinRisk = 0.02;
 
@@ -156,6 +182,31 @@ public static class DevelopmentEstimates
     public static readonly IReadOnlyList<(int Year, int Headcount)> HeadcountAnchors =
     [
         (1950, 25), (1970, 100), (1990, 300), (2010, 600), (2025, 1000),
+    ];
+
+    /// <summary>ESTIMATE: concept design days at the era's reference headcount, linear between anchors.</summary>
+    public static readonly IReadOnlyList<(int Year, int Days)> ConceptDesignAnchors =
+    [
+        (1950, ConceptDesignDays1950),
+        (1955, ConceptDesignDays1955),
+        (EraScaleSettledYear, ConceptDesignDays1990),
+        (2025, ConceptDesignDays2025),
+    ];
+
+    /// <summary>ESTIMATE: multiplier on the share a project closes, linear between anchors.</summary>
+    public static readonly IReadOnlyList<(int Year, double Scale)> GainScaleAnchors =
+    [
+        (1950, EarlyGainScale),
+        (EraScaleSettledYear, SettledGainScale),
+        (2025, SettledGainScale),
+    ];
+
+    /// <summary>ESTIMATE: multiplier on <see cref="ConceptRiskMultiple"/>, linear between anchors.</summary>
+    public static readonly IReadOnlyList<(int Year, double Scale)> ConceptRiskScaleAnchors =
+    [
+        (1950, EarlyConceptRiskScale),
+        (EraScaleSettledYear, SettledConceptRiskScale),
+        (2025, SettledConceptRiskScale),
     ];
 
     public static double Quantize(double value) => Math.Round(value, 3, MidpointRounding.AwayFromZero);

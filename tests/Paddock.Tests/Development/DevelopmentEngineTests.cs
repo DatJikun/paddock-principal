@@ -26,7 +26,7 @@ public class DevelopmentEngineTests
         double Gain(long cost)
         {
             var kit = new DevelopmentKit(seed: 7);
-            var share = DevelopmentMath.ExpectedShare(DevKind.Upgrade, cost, Annual, 1d);
+            var share = DevelopmentMath.ExpectedShare(DevKind.Upgrade, cost, Annual, 1d, DevelopmentEstimates.EraScaleSettledYear);
             var before = kit.Level(Alfa, DevArea.Aero);
             kit.PutProject(Upgrade(Alfa, DevArea.Aero, cost, share, days: 10));
             kit.Live(10);
@@ -38,7 +38,10 @@ public class DevelopmentEngineTests
         var half = Gain(500_000);
         Assert.True(full > 0.5);
         Assert.InRange(half / full, 0.48, 0.52);
-        Assert.Equal(DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, 1d), 2 * DevelopmentMath.ExpectedShare(DevKind.Upgrade, 500_000, Annual, 1d), 9);
+        Assert.Equal(
+            DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, 1d, DevelopmentEstimates.EraScaleSettledYear),
+            2 * DevelopmentMath.ExpectedShare(DevKind.Upgrade, 500_000, Annual, 1d, DevelopmentEstimates.EraScaleSettledYear),
+            9);
     }
 
     [Fact]
@@ -111,8 +114,8 @@ public class DevelopmentEngineTests
         Assert.True(bigger.DurationDays(DevelopmentEstimates.UpgradeBaseDays) < capacity.DurationDays(DevelopmentEstimates.UpgradeBaseDays));
         Assert.Equal(capacity.Quality, bigger.Quality);
         Assert.Equal(
-            DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, capacity.Quality),
-            DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, bigger.Quality));
+            DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, capacity.Quality, 1955),
+            DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, bigger.Quality, 1955));
         Assert.True(bigger.Slots >= capacity.Slots);
 
         var weak = new DevelopmentKit(skill: 3);
@@ -578,12 +581,12 @@ public class DevelopmentEngineTests
     [Fact]
     public void FormulasAreMonotoneAndStayInRange()
     {
-        Assert.True(DevelopmentMath.ExpectedShare(DevKind.Concept, 1_000_000, Annual, 0.7) > DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, 0.7));
-        Assert.Equal(DevelopmentEstimates.MaxShare, DevelopmentMath.ExpectedShare(DevKind.Concept, 100_000_000, Annual, 1d));
-        Assert.Equal(0d, DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, 0, 1d));
-        Assert.True(DevelopmentMath.Risk(DevKind.Concept, 10) > DevelopmentMath.Risk(DevKind.Upgrade, 10));
-        Assert.True(DevelopmentMath.Risk(DevKind.Upgrade, 20) < DevelopmentMath.Risk(DevKind.Upgrade, 1));
-        Assert.True(DevelopmentMath.Risk(DevKind.Upgrade, 20) >= DevelopmentEstimates.MinRisk);
+        Assert.True(DevelopmentMath.ExpectedShare(DevKind.Concept, 1_000_000, Annual, 0.7, 1990) > DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, 0.7, 1990));
+        Assert.Equal(DevelopmentEstimates.MaxShare, DevelopmentMath.ExpectedShare(DevKind.Concept, 100_000_000, Annual, 1d, 1990));
+        Assert.Equal(0d, DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, 0, 1d, 1990));
+        Assert.True(DevelopmentMath.Risk(DevKind.Concept, 10, 1990) > DevelopmentMath.Risk(DevKind.Upgrade, 10, 1990));
+        Assert.True(DevelopmentMath.Risk(DevKind.Upgrade, 20, 1990) < DevelopmentMath.Risk(DevKind.Upgrade, 1, 1990));
+        Assert.True(DevelopmentMath.Risk(DevKind.Upgrade, 20, 1990) >= DevelopmentEstimates.MinRisk);
         Assert.InRange(DevelopmentMath.Noise(0), 0.75, 1.25);
         Assert.InRange(DevelopmentMath.Noise(1), 0.75, 1.25);
         Assert.Equal(25, EngineeringCapacity.EraHeadcount(1950));
@@ -594,6 +597,46 @@ public class DevelopmentEngineTests
         Assert.Equal(1000, DevelopmentMath.NextYearShareAfter(990, 1d));
         Assert.Equal(0, DevelopmentMath.StockAfterResearch(0, 0));
         Assert.Equal(100_000, DevelopmentMath.StockAfterResearch(100_000, 0.5));
+    }
+
+    [Theory]
+    [InlineData(1950, DevelopmentEstimates.ConceptDesignDays1950, DevelopmentEstimates.EarlyGainScale, DevelopmentEstimates.EarlyConceptRiskScale)]
+    [InlineData(1955, DevelopmentEstimates.ConceptDesignDays1955, 0.7375, 1.4375)]
+    [InlineData(1990, DevelopmentEstimates.ConceptDesignDays1990, DevelopmentEstimates.SettledGainScale, DevelopmentEstimates.SettledConceptRiskScale)]
+    [InlineData(2025, DevelopmentEstimates.ConceptDesignDays2025, DevelopmentEstimates.SettledGainScale, DevelopmentEstimates.SettledConceptRiskScale)]
+    public void EraCurvesAtTheAnchors(int year, int designDays, double gain, double conceptRisk)
+    {
+        Assert.Equal(designDays, DevelopmentMath.ConceptDesignDays(year));
+        Assert.Equal(gain, DevelopmentMath.GainScale(year), 9);
+        Assert.Equal(conceptRisk, DevelopmentMath.ConceptRiskScale(year), 9);
+        Assert.InRange(DevelopmentMath.ConceptDesignDays(1955), 90, 122);
+        Assert.InRange(DevelopmentMath.ConceptDesignDays(2025), 365, 548);
+    }
+
+    [Fact]
+    public void A1955ConceptFitsASeasonAndA2025ConceptDoesNotFitAFewMonths()
+    {
+        var early = ReferenceCapacity(1955);
+        var modern = ReferenceCapacity(2025);
+        var earlyDesign = early.DurationDays(DevelopmentMath.BaseDays(DevKind.Concept, 1955));
+        var earlyBuild = early.DurationDays(DevelopmentMath.ConceptProductionDays(1955));
+        Assert.True(earlyDesign + earlyBuild <= 365);
+        Assert.True(modern.DurationDays(DevelopmentMath.BaseDays(DevKind.Concept, 2025)) > 120);
+
+        var bigger = modern.WithExtraHeadcount(modern.Headcount);
+        Assert.True(bigger.DurationDays(DevelopmentMath.BaseDays(DevKind.Concept, 2025)) < modern.DurationDays(DevelopmentMath.BaseDays(DevKind.Concept, 2025)));
+        Assert.Equal(modern.Quality, bigger.Quality);
+        Assert.True(
+            DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, 1d, 1955)
+            < DevelopmentMath.ExpectedShare(DevKind.Upgrade, 1_000_000, Annual, 1d, 1990));
+        Assert.True(DevelopmentMath.Risk(DevKind.Concept, 10, 1955) > DevelopmentMath.Risk(DevKind.Concept, 10, 1990));
+        Assert.Equal(DevelopmentMath.Risk(DevKind.Upgrade, 10, 1955), DevelopmentMath.Risk(DevKind.Upgrade, 10, 1990));
+    }
+
+    private static EngineeringCapacity ReferenceCapacity(int year)
+    {
+        var headcount = EngineeringCapacity.EraHeadcount(year);
+        return new EngineeringCapacity(headcount, 0.5, headcount);
     }
 
     private static DeployConceptCommand Deploy(string project, string timing, int races) =>

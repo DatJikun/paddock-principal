@@ -225,7 +225,7 @@ To dokładnie pasuje do modelu zapasu opisanego wyżej.
 
 **Moment zamrożenia koncepcji:** projekt na przyszły rok bierze za punkt wyjścia stan auta w chwili zatwierdzenia koncepcji. Poprawki wprowadzone później pomagają już tylko temu sezonowi. Decyzja „kiedy zamrozić” jest więc realnym wyborem, a konto rozwoju pozwala część późniejszej pracy przenieść dalej.
 
-**Epoka zmienia rozwój (PP-057):** projektowanie koncepcji trwa dłużej, gdy auta są bardziej złożone (tak jak produkcja). We wczesnych epokach zyski z projektów są mniejsze, a koncepcja częściej kończy się porażką.
+**Epoka zmienia rozwój (PP-057):** projektowanie koncepcji trwa dłużej, gdy auta są bardziej złożone (tak jak produkcja): około 3–4 miesięcy w 1955 i 12–18 miesięcy w 2025 przy typowej załodze epoki. We wczesnych epokach zyski z projektów są mniejsze (około 0,7 w latach 50., 1 od około 1990), a koncepcja częściej kończy się porażką (około 1,5× dzisiejszego ryzyka w latach 50., tyle co dziś od około 1990). Liczby to ESTYMATY.
 
 **Wcześniejsze zakończenie projektu:** każdy projekt można zamknąć przed czasem. Dostajesz wtedy proporcjonalną część efektu. Przydaje się, gdy zbliża się ważny wyścig albo kończą się pieniądze.
 
@@ -346,12 +346,13 @@ Personel ma analogiczny profil: tożsamość, atrybuty roli, osobowość, stan, 
 
 **Kluczowi ludzie:** każda rola ma 3–4 własne atrybuty, a nie wspólną listę. Wszyscy mają też doświadczenie, osobowość (ambicja, lojalność) i krzywą wieku. Role pojawiają się razem z epoką.
 
+**Uproszczenie pod MVP (PP-059):** wszystkie role są dostępne od 1950. Szef aerodynamiki w latach 50. daje niewiele, bo limit docisku epoki jest bliski zera; jego znaczenie rośnie samo od skrzydeł (1968). Projektant silników nie jest w sztabie zespołu, tylko u producenta silników (u siebie, jeśli zespół jest własną fabryką silników, PP-019). Szef zespołu to gracz albo AI i nie należy do sztabu. Puste stanowiska wypełniają fikcyjni ludzie.
+
 | Rola | Od | Atrybuty | Na co wpływa |
 |---|---|---|---|
 | Dyrektor techniczny | 1950 | wizja, zarządzanie projektem, innowacyjność | koncepcja auta, ryzyko rewolucji, praca działu technicznego |
 | Główny projektant | 1950 | podwozie, integracja, precyzja | jakość wykonania koncepcji |
-| Projektant silników | 1950 (jeśli budujesz silniki) | moc, niezawodność, wydajność | silnik |
-| Szef aerodynamiki | 1950 | aerodynamika, korelacja tunel–tor, innowacyjność | docisk, trafność rozwoju (limit epoki i tak jest bliski zera przed 1968) |
+| Szef aerodynamiki | 1950 | aerodynamika, korelacja tunel–tor, innowacyjność | docisk, trafność rozwoju |
 | Szef dynamiki pojazdu | 1950 | zawieszenie, opony, temperatura opon | przyczepność mechaniczna, zużycie opon |
 | Inżynier wyścigowy (1 na kierowcę) | 1950 | ustawienia, relacja z kierowcą, analiza danych | tempo w weekendzie, forma kierowcy |
 | Strateg | 1950 | strategia, reakcja, pogoda | decyzje w wyścigu |

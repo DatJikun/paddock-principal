@@ -369,5 +369,5 @@ Szczegóły w DESIGN §5.3.
 - **Zespoły wybiera się z ładnych kart ze wszystkim, co ważne:** kierowcy, auto i silnik, budżet, cel zarządu, siła w poprzednim sezonie. Karta pokazuje tylko to, co szef zespołu może wiedzieć.
 - **Zapis tylko ręczny.** Bez autozapisu na MVP.
 - **Ustawienia na MVP:** język. Barwy epoki lub zespołu, skórka epoki i animowane tło są „kiedyś”. Tryb opinii zamiast liczb też kiedyś; na razie zawsze liczby.
-- **Prędkość oglądania wyścigu wybiera się na ekranie wyścigu,** a nie w ustawieniach.
-- **Pit-stopy na razie ręczne:** decyzja należy do gracza w trakcie oglądanego wyścigu. Strateg, który decyduje za gracza, jest później.
+- **Na MVP wyścig liczy się w całości od razu,** bez pit-stopów i decyzji w trakcie. Rdzeń MVP to kontrakty, sztab, infrastruktura i rozwój bolidu.
+- **Po MVP:** oglądany wyścig z prędkością wybieraną na ekranie wyścigu (nie w ustawieniach) i ręcznymi pit-stopami gracza. Strateg, który decyduje za gracza, jest jeszcze później.

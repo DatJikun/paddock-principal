@@ -7,14 +7,14 @@ using Paddock.Persistence;
 using Paddock.Simulation.Career;
 using Paddock.Simulation.Time;
 
-namespace Paddock.SimRunner;
+namespace Paddock.Career;
 
 /// <summary>
 /// Writes a career at a day boundary through T19 so that <see cref="CareerSaveReader"/> can resume it to the same future
 /// (issue #123): the world, the day-clock queue and counters, the managers, the command log, the RNG stream states, the
-/// talent pool and the run's tallies, all in one transaction. SimRunner is the composition root that sees both the owners'
+/// talent pool and the run's tallies, all in one transaction. This project is the composition root that sees both the owners'
 /// codecs (events in Simulation, commands and managers in Application) and the opaque rows of Persistence, so the mapping
-/// between them lives here and applies no game rules.
+/// between them lives here and applies no game rules. The batch runner and the desktop window both call it.
 /// Emitted day events are not kept (the queue holds only the future). Retirement is part of the world
 /// (<c>persons.retired_on</c>). The talent pool is a section of <see cref="Paddock.Domain.World.WorldState"/> (T40); it is saved
 /// in the <c>talent-pool</c> world section with the rest of the world.

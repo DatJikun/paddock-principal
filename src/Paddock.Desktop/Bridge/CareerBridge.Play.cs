@@ -24,7 +24,7 @@ using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Persistence;
 using Paddock.Simulation.Career;
-using Paddock.SimRunner;
+using Paddock.Career;
 using HostManagerId = Paddock.Application.Managers.ManagerId;
 
 namespace Paddock.Desktop.Bridge;
@@ -272,7 +272,7 @@ public sealed partial class CareerBridge
         }
 
         var root = RequireData();
-        var files = RunCommand.ResolveProviderFiles(root, null, null);
+        var files = CareerData.ResolveProviderFiles(root, null, null);
         string? notice = null;
         if (files is null && config.PeopleSource != PeopleSource.FullyGenerated)
         {
@@ -289,7 +289,7 @@ public sealed partial class CareerBridge
         try
         {
             var data = AuthoredDataLoader.Load(root);
-            var provider = RunCommand.LoadProvider(files);
+            var provider = CareerData.LoadProvider(files);
             var created = WorldInitializer.Create(config, data, provider, seed);
             var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);
             var session = new CareerSession(
@@ -321,7 +321,7 @@ public sealed partial class CareerBridge
             }
 
             shell.BeginDay();
-            Install(shell, config, files, RunCommand.HashWorldData(root, files), TextOf(args, "name") ?? display, notice, data);
+            Install(shell, config, files, CareerData.HashWorldData(root, files), TextOf(args, "name") ?? display, notice, data);
             var own = shell.TeamOf(shell.Player);
             return PlayStep.Ok(
                 BridgeValues.ToNode(new CareerStartedView(
@@ -355,15 +355,15 @@ public sealed partial class CareerBridge
         try
         {
             var root = RequireData();
-            var files = RunCommand.ResolveProviderFiles(root, null, null);
+            var files = CareerData.ResolveProviderFiles(root, null, null);
             var loaded = CareerSaveReader.Read(path);
-            var now = RunCommand.HashWorldData(root, files);
+            var now = CareerData.HashWorldData(root, files);
             if (!string.Equals(now, loaded.Meta.WorldDataHash, StringComparison.Ordinal))
             {
                 return PlayStep.Fail(TranslationMessage.Of(PlayKeys.DataChanged, ("saved", loaded.Meta.WorldDataHash), ("now", now)));
             }
 
-            var provider = RunCommand.LoadProvider(files);
+            var provider = CareerData.LoadProvider(files);
             var date = loaded.Session.World.CurrentDate;
             var standIn = loaded.Session.World.WithDate(date.IsSeasonStart ? GameDate.SeasonStart(date.Year - 1) : date);
             var arrivals = TalentIntakeSchedule.AfterStart(loaded.Meta.CareerConfig, provider, standIn, loaded.Meta.MasterSeed);

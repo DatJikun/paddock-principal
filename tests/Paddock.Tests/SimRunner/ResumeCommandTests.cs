@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Paddock.Persistence;
+using Paddock.Career;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.SimRunner;

@@ -8,7 +8,7 @@ using Paddock.Persistence;
 using Paddock.Simulation.Career;
 using Paddock.Simulation.Time;
 
-namespace Paddock.SimRunner;
+namespace Paddock.Career;
 
 /// <summary>
 /// A save that has no run state (written before V007 or by a world-only save) or whose RNG states are missing.

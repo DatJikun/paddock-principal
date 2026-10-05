@@ -6,6 +6,7 @@ using Paddock.Domain.Career;
 using Paddock.Domain.Time;
 using Paddock.Persistence;
 using Paddock.Simulation.Career;
+using Paddock.Career;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.Career;

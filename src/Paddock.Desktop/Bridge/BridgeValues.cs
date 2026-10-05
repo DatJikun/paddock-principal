@@ -141,7 +141,10 @@ public static class BridgeValues
             return array;
         }
 
-        if (!type.IsValueType && !seen.Add(value))
+        /* "seen" holds the objects being written right now, so a cycle is caught while one object shared by two
+           branches (an offer that is also the first round of the history) is not mistaken for one. */
+        var tracked = !type.IsValueType;
+        if (tracked && !seen.Add(value))
         {
             throw new InvalidOperationException("Bridge value graph has a cycle at " + type.Name + ".");
         }
@@ -166,6 +169,11 @@ public static class BridgeValues
             }
 
             objNode[Names.ConvertName(property.Name)] = ToNode(property.GetValue(value), seen);
+        }
+
+        if (tracked)
+        {
+            seen.Remove(value);
         }
 
         return objNode;

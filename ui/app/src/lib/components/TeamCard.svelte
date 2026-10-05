@@ -23,8 +23,9 @@
 
   let colours = $derived(livery(team.id));
   let level = $derived(team.budget ? (TIERS[team.budget] ?? 0) : 0);
-  /* A season's roster can run to eight names; the grid shows the first four, the summary all of them. */
-  let shown = $derived(wide ? team.drivers : team.drivers.slice(0, 4));
+  /* Race seats are listed; reserves are only counted, so a long roster does not read as a line-up. */
+  let race = $derived(team.drivers.filter((driver) => driver.seat !== 'Reserve'));
+  let reserves = $derived(team.drivers.filter((driver) => driver.seat === 'Reserve'));
   let engineKind = $derived(team.engine ? `team.engine.${team.engine.supplyType}` : '');
 </script>
 
@@ -36,19 +37,21 @@
   <span class="tc-body">
     <span class="tc-block">
       <span class="meta">{tr.t('team.card.drivers')}</span>
-      {#if team.drivers.length > 0}
+      {#if race.length > 0}
         <span class="tc-drivers">
-          {#each shown as driver (driver.name)}
+          {#each race as driver (driver.name)}
             <span class="tc-driver">
               {#if hasFlag(driver.nationality)}<Flag code={driver.nationality} />{/if}
               <b>{driver.name}</b>
               <small class="num" title={countryName(tr, driver.nationality)}>{tr.t('team.card.age', { age: String(driver.age) })}</small>
             </span>
           {/each}
-          {#if shown.length < team.drivers.length}<span class="muted tc-more">{tr.t('team.card.more', { count: String(team.drivers.length - shown.length) })}</span>{/if}
         </span>
       {:else}
-        <span class="muted">{tr.t('team.card.noDrivers')}</span>
+        <span class="muted">{tr.t('team.card.noRace')}</span>
+      {/if}
+      {#if reserves.length > 0}
+        <span class="muted tc-more" title={reserves.map((driver) => driver.name).join(', ')}>{tr.t('team.card.reserve', { count: String(reserves.length) })}</span>
       {/if}
     </span>
     <span class="tc-block">

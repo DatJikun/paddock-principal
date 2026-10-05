@@ -9,7 +9,7 @@ public sealed record StaffAttributeView(string Key, int Low, int High);
 
 /// <summary>
 /// One person on a team roster. Rivals are names and roles only: attributes and the engineer relationship stay null.
-/// The team principal and the engine designer are not on this roster.
+/// The team principal and the engine designer are not on this roster. Nationality and age are public; the contract end is read only for own staff.
 /// </summary>
 public sealed record StaffPersonView(
     string PersonId,
@@ -19,7 +19,10 @@ public sealed record StaffPersonView(
     bool OwnTeam,
     IReadOnlyList<StaffAttributeView>? Attributes,
     string? DriverId,
-    int? Relationship);
+    int? Relationship,
+    string Nationality,
+    int Age,
+    string? ContractEnd);
 
 /// <summary>The staff a manager can see on one day. Reads no truth about a rival and draws no random numbers (INV-003, INV-005).</summary>
 public static class StaffQuery
@@ -66,7 +69,10 @@ public static class StaffQuery
                 own,
                 attributes,
                 pairedHere ? link!.Driver.Value : null,
-                own && pairedHere ? link!.Relationship : null));
+                own && pairedHere ? link!.Relationship : null,
+                person.Nationality,
+                AgeOn(person.BirthDate, on),
+                own ? contract.End.ToString() : null));
         }
 
         return rows
@@ -74,5 +80,16 @@ public static class StaffQuery
             .ThenBy(row => row.Role, StringComparer.Ordinal)
             .ThenBy(row => row.PersonId, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static int AgeOn(GameDate born, GameDate on)
+    {
+        var age = on.Year - born.Year;
+        if (on.Month < born.Month || (on.Month == born.Month && on.Day < born.Day))
+        {
+            age--;
+        }
+
+        return Math.Max(0, age);
     }
 }

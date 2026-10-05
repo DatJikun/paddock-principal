@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { BridgeError, canExit, command, connect, exitApp, HUMAN_MANAGER_ID, query, ready } from './lib/api/client';
-  import type { NewCareerCall, NextRaceView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
+  import type { BridgeCommandName, NewCareerCall, NextRaceView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
   import { latestSave, newestFirst, saveLabel } from './lib/career.mjs';
   import GameMenu from './lib/components/GameMenu.svelte';
   import LanguageSetting from './lib/components/LanguageSetting.svelte';
@@ -16,15 +16,29 @@
   import { afterAdvance, blockingLabel, nextAction } from './lib/protocol.mjs';
   import { livery } from './lib/livery.mjs';
   import { loadScreen, type ScreenData } from './lib/screens';
-  import { NAV, navOwner, parseRoute, screenKey, SETTINGS } from './lib/shell-nav.mjs';
+  import { NAV, navOwner, parseRoute, sameRoute, screenKey, SETTINGS } from './lib/shell-nav.mjs';
   import { startSmoke } from './lib/smoke';
   import { sweep } from './lib/sweep';
   import { icon, ICON, initials, translator } from './lib/ui';
+  import Akademia from './screens/Akademia.svelte';
+  import Auto from './screens/Auto.svelte';
+  import Dostawcy from './screens/Dostawcy.svelte';
+  import Finanse from './screens/Finanse.svelte';
   import Kalendarz from './screens/Kalendarz.svelte';
+  import Kierowca from './screens/Kierowca.svelte';
+  import Kierowcy from './screens/Kierowcy.svelte';
   import Klasyfikacje from './screens/Klasyfikacje.svelte';
+  import Menedzer from './screens/Menedzer.svelte';
+  import Negocjacja from './screens/Negocjacja.svelte';
+  import Osoba from './screens/Osoba.svelte';
+  import Personel from './screens/Personel.svelte';
+  import Porownaj from './screens/Porownaj.svelte';
   import Pulpit from './screens/Pulpit.svelte';
+  import Rynek from './screens/Rynek.svelte';
   import Skrzynka from './screens/Skrzynka.svelte';
+  import Sponsorzy from './screens/Sponsorzy.svelte';
   import Wyscig from './screens/Wyscig.svelte';
+  import Zarzad from './screens/Zarzad.svelte';
 
   type Route = { name: string; args: string[] };
 
@@ -107,20 +121,22 @@
       fault = null;
       return;
     }
+    const asked = route;
     const [nextShell, race, data] = await Promise.all([
       query('shell', call),
       query('nextRace', call),
-      loadScreen(route.name, route.args),
+      loadScreen(asked.name, asked.args),
     ]);
     if (token !== refreshToken) return;
     shell = nextShell;
     nextRace = race;
-    screenData = data;
+    /* A read that was started for a screen the player has since left must not replace the screen that is showing now. */
+    if (sameRoute(asked, route)) screenData = data;
     fault = null;
   }
 
   async function transition(next: Route) {
-    if (next.name === route.name && next.args.join('/') === route.args.join('/')) return;
+    if (sameRoute(next, route)) return;
     if (moving) {
       queued = true;
       return;
@@ -239,6 +255,23 @@
       await refresh();
     } catch (error) {
       catchFault(error);
+    } finally {
+      busy = false;
+    }
+  }
+
+  /** A player command from a screen. The screen shows the refusal (the page's fault line) and asks for its own confirm first. */
+  async function act(name: BridgeCommandName, args: Record<string, unknown>): Promise<boolean> {
+    if (busy) return false;
+    busy = true;
+    fault = null;
+    try {
+      await command(name, { managerId: HUMAN_MANAGER_ID, ...args } as never);
+      await refresh();
+      return true;
+    } catch (error) {
+      catchFault(error);
+      return false;
     } finally {
       busy = false;
     }
@@ -504,14 +537,14 @@
       <header class="top">
         <div class="hud">
           <button class="cell menu-btn" type="button" aria-label={t('game.menu.open')} title={t('game.menu.open')} onclick={openGameMenu}>{@html icon(ICON.menu, 22)}</button>
-          <span class="cell me">
+          <a class="cell me" href="#/menedzer">
             <span class="av">{initials(shell?.organizationName ?? '')}</span>
             <span><b>{shell?.organizationName ?? '—'}</b><small>{t('shell.role')}</small></span>
-          </span>
-          <span class="cell">
+          </a>
+          <a class="cell" href="#/finanse">
             <span class="meta">{t('shell.cash')}</span>
             <span class="num v">{formatMoney(shell?.cashCents ?? null, lang)}</span>
-          </span>
+          </a>
         </div>
         <div class="spacer"></div>
         <div class="hud">
@@ -537,7 +570,7 @@
     <main id="view" class:noscroll={inGame && route.name === 'pulpit'} bind:this={viewEl}>
       {#if !inGame}
         {#if menuPage === 'home'}
-          <MenuHome {tr} {latest} {busy} onContinue={continueCareer} />
+          <MenuHome {tr} {latest} saveCount={saves.length} {busy} canQuit={canExit()} onContinue={continueCareer} onOpen={openMenuPage} onQuit={exitApp} />
         {:else if menuPage === 'new'}
           <div class="screen-head"><h1 class="screen">{t('menu.new')}</h1></div>
           {#if session}
@@ -577,6 +610,34 @@
           <Wyscig data={screenData} {tr} {teamId} />
         {:else if screenData.kind === 'klasyfikacje' && route.name === 'klasyfikacje'}
           <Klasyfikacje data={screenData} {tr} {teamId} {rounds} />
+        {:else if screenData.kind === 'kierowcy' && route.name === 'kierowcy'}
+          <Kierowcy data={screenData} {tr} today={shell?.date ?? ''} />
+        {:else if screenData.kind === 'kierowca' && route.name === 'kierowca'}
+          <Kierowca data={screenData} {tr} today={shell?.date ?? ''} {teamId} {busy} {act} />
+        {:else if screenData.kind === 'porownaj' && route.name === 'porownaj'}
+          <Porownaj data={screenData} {tr} />
+        {:else if screenData.kind === 'personel' && route.name === 'personel'}
+          <Personel data={screenData} {tr} {teamId} />
+        {:else if screenData.kind === 'osoba' && route.name === 'osoba'}
+          <Osoba data={screenData} {tr} id={route.args[0] ?? ''} />
+        {:else if screenData.kind === 'auto' && route.name === 'auto'}
+          <Auto data={screenData} {tr} {teamId} {busy} {act} />
+        {:else if screenData.kind === 'rynek' && route.name === 'rynek'}
+          <Rynek data={screenData} {tr} />
+        {:else if screenData.kind === 'negocjacja' && route.name === 'negocjacja'}
+          <Negocjacja data={screenData} {tr} id={route.args[0] ?? ''} {busy} {act} />
+        {:else if screenData.kind === 'finanse' && route.name === 'finanse'}
+          <Finanse data={screenData} {tr} />
+        {:else if screenData.kind === 'sponsorzy' && route.name === 'sponsorzy'}
+          <Sponsorzy data={screenData} {tr} {teamId} {busy} {act} />
+        {:else if screenData.kind === 'zarzad' && route.name === 'zarzad'}
+          <Zarzad data={screenData} {tr} {teamId} />
+        {:else if screenData.kind === 'menedzer' && route.name === 'menedzer'}
+          <Menedzer data={screenData} {tr} {teamId} />
+        {:else if screenData.kind === 'dostawcy' && route.name === 'dostawcy'}
+          <Dostawcy data={screenData} {tr} {teamId} {busy} {act} />
+        {:else if screenData.kind === 'akademia' && route.name === 'akademia'}
+          <Akademia data={screenData} {tr} {busy} {act} />
         {:else if route.name === 'ustawienia'}
           <div class="screen-head">
             <h1 class="screen">{t(SETTINGS.key)}</h1>

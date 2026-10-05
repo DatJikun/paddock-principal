@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { NAV, navOwner, parseRoute, screenId, screenKey } from './shell-nav.mjs';
+import { NAV, navOwner, parseRoute, sameRoute, screenId, screenKey } from './shell-nav.mjs';
 
 test('a race page is its own route and lights the calendar', () => {
   assert.deepEqual(parseRoute('#/wyscig/3'), { name: 'wyscig', args: ['3'] });
@@ -17,4 +17,22 @@ test('unknown and removed screens fall back to the dashboard', () => {
   assert.deepEqual(parseRoute(''), { name: 'pulpit', args: [] });
   assert.deepEqual(parseRoute('#/kronika'), { name: 'pulpit', args: [] });
   assert.ok(!NAV.some((item) => item.id === 'kronika'));
+});
+
+test('profile and negotiation pages light the entry they came from', () => {
+  assert.deepEqual(parseRoute('#/kierowca/farina'), { name: 'kierowca', args: ['farina'] });
+  assert.deepEqual(parseRoute('#/porownaj/farina/frere'), { name: 'porownaj', args: ['farina', 'frere'] });
+  assert.deepEqual(parseRoute('#/osoba/gen%3A34'), { name: 'osoba', args: ['gen:34'] });
+  assert.equal(navOwner('kierowca'), 'kierowcy');
+  assert.equal(navOwner('porownaj'), 'kierowcy');
+  assert.equal(navOwner('osoba'), 'personel');
+  assert.equal(navOwner('negocjacja'), 'rynek');
+  assert.equal(screenKey('negocjacja'), 'shell.nav.market');
+});
+
+test('a screen read for one route is not shown once the route has moved on', () => {
+  const read = { name: 'kierowca', args: ['farina'] };
+  assert.equal(sameRoute(read, { name: 'kierowca', args: ['farina'] }), true);
+  assert.equal(sameRoute(read, { name: 'rynek', args: [] }), false);
+  assert.equal(sameRoute(read, { name: 'kierowca', args: ['frere'] }), false);
 });

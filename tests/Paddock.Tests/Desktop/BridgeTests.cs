@@ -435,6 +435,152 @@ public class BridgeTests
     }
 
     [Fact]
+    public void ADriverProfileGivesBandsAndContractOnlyForOwnDriversAndChangesNothing()
+    {
+        using var career = Lobby();
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"ferrari","givenName":"Enzo","familyName":"Test","nationality":"ITA","tilt":"none","preset":"Chaos","year":1955,"seed":1}"""));
+        using (var startedJson = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        var hash = career.Host.StateHash;
+        var drivers = career.Host.Handle(Message("drivers", "query", "drivers"));
+        using var driversJson = JsonDocument.Parse(drivers.Response);
+        var data = driversJson.RootElement.GetProperty("data");
+        var ownId = data.GetProperty("own")[0].GetProperty("personId").GetString();
+        var rivals = career.Host.Handle(Message("market", "query", "market"));
+        using var marketJson = JsonDocument.Parse(rivals.Response);
+        var rivalId = marketJson.RootElement.GetProperty("data").GetProperty("contracted")[0].GetProperty("personId").GetString();
+
+        var own = career.Host.Handle(Message("own", "query", "driver", "{\"managerId\":\"human:player\",\"personId\":\"" + ownId + "\"}"));
+        using (var json = JsonDocument.Parse(own.Response))
+        {
+            var profile = json.RootElement.GetProperty("data");
+            Assert.True(profile.GetProperty("found").GetBoolean(), own.Response);
+            Assert.True(profile.GetProperty("own").GetBoolean());
+            Assert.Equal("ferrari", profile.GetProperty("organizationId").GetString());
+            Assert.NotEqual(JsonValueKind.Null, profile.GetProperty("contract").ValueKind);
+            Assert.True(profile.GetProperty("age").GetInt32() > 15);
+            Assert.Equal(JsonValueKind.Array, profile.GetProperty("attributes").ValueKind);
+            Assert.Empty(profile.GetProperty("seasons").EnumerateArray());
+        }
+
+        var rival = career.Host.Handle(Message("rival", "query", "driver", "{\"managerId\":\"human:player\",\"personId\":\"" + rivalId + "\"}"));
+        using (var json = JsonDocument.Parse(rival.Response))
+        {
+            var profile = json.RootElement.GetProperty("data");
+            Assert.True(profile.GetProperty("found").GetBoolean(), rival.Response);
+            Assert.False(profile.GetProperty("own").GetBoolean());
+            Assert.Equal(JsonValueKind.Null, profile.GetProperty("contract").ValueKind);
+            Assert.NotEqual(JsonValueKind.Null, profile.GetProperty("contractEnd").ValueKind);
+        }
+
+        var nobody = career.Host.Handle(Message("nobody", "query", "driver", "{\"managerId\":\"human:player\",\"personId\":\"person:99999\"}"));
+        using (var json = JsonDocument.Parse(nobody.Response))
+        {
+            Assert.False(json.RootElement.GetProperty("data").GetProperty("found").GetBoolean());
+        }
+
+        var staff = career.Host.Handle(Message("staff", "query", "staff"));
+        using (var json = JsonDocument.Parse(staff.Response))
+        {
+            var person = json.RootElement.GetProperty("data").GetProperty("people").EnumerateArray().First(item => item.GetProperty("ownTeam").GetBoolean());
+            Assert.False(string.IsNullOrEmpty(person.GetProperty("nationality").GetString()));
+            Assert.True(person.GetProperty("age").GetInt32() > 15);
+            Assert.NotEqual(JsonValueKind.Null, person.GetProperty("contractEnd").ValueKind);
+            var other = json.RootElement.GetProperty("data").GetProperty("people").EnumerateArray().First(item => !item.GetProperty("ownTeam").GetBoolean());
+            Assert.Equal(JsonValueKind.Null, other.GetProperty("contractEnd").ValueKind);
+        }
+
+        Assert.Equal(hash, career.Host.StateHash);
+    }
+
+    [Fact]
+    public void TheManagerProfileIsThePrincipalTheCareerCreated()
+    {
+        using var career = Lobby();
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"ferrari","givenName":"Enzo","familyName":"Test","nationality":"ITA","tilt":"negotiation","preset":"Chaos","year":1955,"seed":1}"""));
+        using (var startedJson = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        var hash = career.Host.StateHash;
+        var reply = career.Host.Handle(Message("manager", "query", "manager"));
+        using var json = JsonDocument.Parse(reply.Response);
+        var profile = json.RootElement.GetProperty("data");
+        Assert.True(profile.GetProperty("found").GetBoolean(), reply.Response);
+        Assert.Equal("Enzo Test", profile.GetProperty("name").GetString());
+        Assert.Equal("ITA", profile.GetProperty("nationality").GetString());
+        Assert.Equal(40, profile.GetProperty("age").GetInt32());
+        var negotiation = profile.GetProperty("attributes").EnumerateArray().Single(item => item.GetProperty("key").GetString() == "negotiation");
+        var politics = profile.GetProperty("attributes").EnumerateArray().Single(item => item.GetProperty("key").GetString() == "politics");
+        Assert.True(negotiation.GetProperty("low").GetInt32() > politics.GetProperty("low").GetInt32());
+        Assert.Equal(hash, career.Host.StateHash);
+    }
+
+    [Fact]
+    public void AnOpenNegotiationCanBeReadBack()
+    {
+        using var career = Lobby();
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"ferrari","givenName":"Enzo","familyName":"Test","nationality":"ITA","tilt":"none","preset":"Chaos","year":1955,"seed":1}"""));
+        using (var startedJson = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        var market = career.Host.Handle(Message("market", "query", "market"));
+        using var marketJson = JsonDocument.Parse(market.Response);
+        var free = marketJson.RootElement.GetProperty("data").GetProperty("freeAgents")[0].GetProperty("personId").GetString();
+        var opened = career.Host.Handle(Message(
+            "open",
+            "command",
+            "openNegotiation",
+            "{\"managerId\":\"human:player\",\"organizationId\":\"ferrari\",\"personId\":\"" + free + "\",\"subject\":\"driver\",\"deadline\":null}"));
+        using (var openedJson = JsonDocument.Parse(opened.Response))
+        {
+            Assert.True(openedJson.RootElement.GetProperty("ok").GetBoolean(), opened.Response);
+        }
+
+        var negotiations = career.Host.Handle(Message("neg", "query", "negotiations"));
+        using var json = JsonDocument.Parse(negotiations.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), negotiations.Response);
+        var item = Assert.Single(json.RootElement.GetProperty("data").GetProperty("items").EnumerateArray());
+        Assert.Equal(free, item.GetProperty("person").GetString());
+
+        var id = item.GetProperty("id").GetString();
+        var offered = career.Host.Handle(Message(
+            "offer",
+            "command",
+            "submitOffer",
+            "{\"managerId\":\"human:player\",\"negotiationId\":\"" + id + "\",\"salary\":50000,\"pointsBonus\":0,\"winBonus\":0,\"titleBonus\":0,\"years\":1,\"seat\":\"Equal\",\"optionHolder\":null,\"optionYears\":null,\"exitWorseThan\":null}"));
+        using (var offeredJson = JsonDocument.Parse(offered.Response))
+        {
+            Assert.True(offeredJson.RootElement.GetProperty("ok").GetBoolean(), offered.Response);
+        }
+
+        var after = career.Host.Handle(Message("neg2", "query", "negotiations"));
+        using var afterJson = JsonDocument.Parse(after.Response);
+        Assert.True(afterJson.RootElement.GetProperty("ok").GetBoolean(), after.Response);
+        var round = afterJson.RootElement.GetProperty("data").GetProperty("items")[0];
+        Assert.Equal("AwaitingResponse", round.GetProperty("status").GetString());
+        Assert.Equal(50000, round.GetProperty("offer").GetProperty("salary").GetInt64());
+    }
+
+    [Fact]
     public void ASetupTheCareerWouldRefuseComesBackAsTheProblemOfTheTeamList()
     {
         using var career = Lobby();

@@ -15,6 +15,12 @@ public sealed record KnownAttributeView(string Key, int Low, int High);
 public sealed record NegotiationRoundView(int Number, RoundKind Kind, DateOnly On, OfferTerms? Terms, IReadOnlyList<TranslationMessage> Reasons);
 
 /// <summary>
+/// What a negotiation is about, in a shape every reader can take: <see cref="StaffRole"/> is null for a driver seat, because
+/// the domain subject refuses to name a staff role it does not have.
+/// </summary>
+public sealed record NegotiationSubjectView(string Key, NegotiationSubjectKind Kind, StaffRole? StaffRole);
+
+/// <summary>
 /// A negotiation as its manager reads it. The person is shown by name and by the bands the proposing organization believes
 /// (INV-003); the personality, the weights and the true attributes appear nowhere. <see cref="Interest"/> is a word, not a
 /// number. <see cref="Reasons"/> is never empty after a counter or a refusal.
@@ -26,7 +32,7 @@ public sealed record NegotiationView(
     PersonId Person,
     string PersonName,
     string Nationality,
-    NegotiationSubject Subject,
+    NegotiationSubjectView Subject,
     NegotiationStatus Status,
     TranslationMessage StatusText,
     int RoundsUsed,
@@ -81,7 +87,10 @@ public sealed class NegotiationQuery
             negotiation.Counterparty,
             person.Name,
             person.Nationality,
-            negotiation.Subject,
+            new NegotiationSubjectView(
+                negotiation.Subject.Key,
+                negotiation.Subject.Kind,
+                negotiation.Subject.Kind == NegotiationSubjectKind.StaffRole ? negotiation.Subject.StaffRole : null),
             negotiation.Status,
             TranslationMessage.Of(ContractKeys.StatusKey(negotiation.Status)),
             negotiation.RoundsUsed,

@@ -225,6 +225,18 @@ public sealed class InboxSection : IWorldSection
                 writer.Space();
                 writer.Field(option.ConsequenceKey);
                 writer.End();
+                if (option.Arguments.Count > 0)
+                {
+                    writer.Count("option_arguments", option.Arguments.Count);
+                    foreach (var argument in option.Arguments)
+                    {
+                        writer.Begin("option_argument");
+                        writer.Field(argument.Key);
+                        writer.Space();
+                        writer.Field(argument.Value);
+                        writer.End();
+                    }
+                }
             }
 
             writer.TextLine("until", item.ValidUntil?.ToString() ?? "-");

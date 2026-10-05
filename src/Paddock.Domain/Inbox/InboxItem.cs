@@ -17,7 +17,11 @@ public enum InboxStatus
 /// </summary>
 public sealed record InboxOption
 {
-    public InboxOption(string id, string labelKey, string consequenceKey)
+    public InboxOption(
+        string id,
+        string labelKey,
+        string consequenceKey,
+        IEnumerable<KeyValuePair<string, string>>? arguments = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(labelKey);
@@ -25,6 +29,7 @@ public sealed record InboxOption
         Id = id;
         LabelKey = labelKey;
         ConsequenceKey = consequenceKey;
+        Arguments = InboxItemDraft.CopyArguments(arguments);
     }
 
     public string Id { get; }
@@ -32,6 +37,9 @@ public sealed record InboxOption
     public string LabelKey { get; }
 
     public string ConsequenceKey { get; }
+
+    /// <summary>Argument values specific to this option, overriding or augmenting item arguments.</summary>
+    public IReadOnlyDictionary<string, string> Arguments { get; }
 }
 
 /// <summary>

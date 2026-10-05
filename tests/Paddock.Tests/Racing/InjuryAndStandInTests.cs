@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using AccessContext = Paddock.Application.Access.AccessContext;
+using AccessManagerId = Paddock.Application.Access.ManagerId;
 using Paddock.Application.Career;
 using Paddock.Application.Inbox;
 using Paddock.Application.Localization;
@@ -17,7 +19,9 @@ using Paddock.Simulation.Racing.Points;
 using Paddock.Simulation.Racing.Qualifying;
 using Paddock.Simulation.Racing.Weather;
 using Paddock.Simulation.Racing.Weekend;
+using Paddock.Persistence;
 using Paddock.Tests.Career;
+using Paddock.Tests.Persistence;
 
 namespace Paddock.Tests.Racing;
 
@@ -39,7 +43,7 @@ public sealed class InjuryAndStandInTests
         var incidentStream = RngStream.Derive(seed, RngStreamName.Incidents, 1955, 1);
         var rng = incidentStream.DeriveChild($"injury:driver_1:{date}");
 
-        var racesOut = rng.NextDouble() < 0.5 ? 0 : 1;
+        var racesOut = rng.NextDouble() < IncidentConstants.LightInjuryZeroRacesProbability ? 0 : 1;
         Assert.True(racesOut is 0 or 1);
 
         // When 0 races out, InjuredUntil is date of injury:
@@ -295,6 +299,101 @@ public sealed class InjuryAndStandInTests
             Assert.Equal(injuryUntil, resumedDriver.InjuredUntil);
             Assert.True(resumedDriver.IsInjured(new GameDate(1955, 4, 1)));
             Assert.False(resumedDriver.IsInjured(new GameDate(1955, 5, 2)));
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void StandInInboxDecision_OptionsHaveCandidateNameAndTeamDisplayName()
+    {
+        var world = CreateWorldWithTeamAndDrivers(out var teamId, out var driver1Id, out _, out var reserveId);
+        var team = world.GetOrganization(teamId)!;
+        var injuredDriver = world.GetPerson(driver1Id)!;
+        var reserveDriver = world.GetPerson(reserveId)!;
+
+        var today = new GameDate(1955, 5, 25);
+        var nextRaceDate = new GameDate(1955, 6, 5);
+
+        var draft = RaceWeekendDay.BuildStandInDraft(world, team, injuredDriver, CarIds.Format(1), nextRaceDate, today);
+
+        var (inboxSection, item) = InboxSection.Empty.Add("human:player", draft, today);
+        var book = new InboxBook(initial: inboxSection);
+        var query = new InboxQuery(book);
+
+        var view = query.View(AccessContext.ForManager(new AccessManagerId("human:player")));
+        var itemView = Assert.Single(view.Items);
+
+        var localizerPl = new Localizer(Catalog, Language.Pl, new CollectingMissingKeySink());
+        var localizerEn = new Localizer(Catalog, Language.En, new CollectingMissingKeySink());
+
+        var reserveOption = itemView.Options.FirstOrDefault(o => o.Id == reserveId.Value);
+        Assert.NotNull(reserveOption);
+
+        var plLabel = localizerPl.Get(reserveOption.Label.Key, reserveOption.Label.Parameters.ToDictionary(k => k.Key, k => (object?)k.Value));
+        Assert.Contains(reserveDriver.Name, plLabel);
+        Assert.DoesNotContain("{candidate}", plLabel);
+
+        var plConsequence = localizerPl.Get(reserveOption.Consequence.Key, reserveOption.Consequence.Parameters.ToDictionary(k => k.Key, k => (object?)k.Value));
+        Assert.Contains(reserveDriver.Name, plConsequence);
+        Assert.Contains(team.NameOn(today), plConsequence);
+        Assert.DoesNotContain("mercedes", plConsequence);
+        Assert.DoesNotContain("{candidate}", plConsequence);
+        Assert.DoesNotContain("{team}", plConsequence);
+
+        var enLabel = localizerEn.Get(reserveOption.Label.Key, reserveOption.Label.Parameters.ToDictionary(k => k.Key, k => (object?)k.Value));
+        Assert.Contains(reserveDriver.Name, enLabel);
+        Assert.DoesNotContain("{candidate}", enLabel);
+
+        var enConsequence = localizerEn.Get(reserveOption.Consequence.Key, reserveOption.Consequence.Parameters.ToDictionary(k => k.Key, k => (object?)k.Value));
+        Assert.Contains(reserveDriver.Name, enConsequence);
+        Assert.Contains(team.NameOn(today), enConsequence);
+        Assert.DoesNotContain("mercedes", enConsequence);
+        Assert.DoesNotContain("{candidate}", enConsequence);
+        Assert.DoesNotContain("{team}", enConsequence);
+
+        // Also verify free agent option
+        (world, var freeAgentId) = world.AddPerson(new PersonSpec(
+            "Free", "Agent", new GameDate(1926, 1, 1), "ITA", false, null, [PersonRole.Driver],
+            CreateDriverTruth(10)));
+        var freeAgent = world.GetPerson(freeAgentId)!;
+
+        var draftWithFree = RaceWeekendDay.BuildStandInDraft(world, team, injuredDriver, CarIds.Format(1), nextRaceDate, today);
+        var (inboxWithFree, itemWithFree) = InboxSection.Empty.Add("human:player", draftWithFree, today);
+        var viewWithFree = new InboxQuery(new InboxBook(initial: inboxWithFree)).View(AccessContext.ForManager(new AccessManagerId("human:player")));
+        var itemWithFreeView = Assert.Single(viewWithFree.Items);
+        var freeOption = itemWithFreeView.Options.FirstOrDefault(o => o.Id == freeAgentId.Value);
+        Assert.NotNull(freeOption);
+
+        var plFreeLabel = localizerPl.Get(freeOption.Label.Key, freeOption.Label.Parameters.ToDictionary(k => k.Key, k => (object?)k.Value));
+        Assert.Contains(freeAgent.Name, plFreeLabel);
+        Assert.DoesNotContain("{candidate}", plFreeLabel);
+
+        var plFreeConsequence = localizerPl.Get(freeOption.Consequence.Key, freeOption.Consequence.Parameters.ToDictionary(k => k.Key, k => (object?)k.Value));
+        Assert.Contains(freeAgent.Name, plFreeConsequence);
+        Assert.Contains(team.NameOn(today), plFreeConsequence);
+        Assert.DoesNotContain("mercedes", plFreeConsequence);
+        Assert.DoesNotContain("{candidate}", plFreeConsequence);
+        Assert.DoesNotContain("{team}", plFreeConsequence);
+
+        // Verify persistence roundtrip of option arguments through save:
+        var dir = Directory.CreateTempSubdirectory("paddock-inbox-opt-").FullName;
+        try
+        {
+            var savePath = Path.Combine(dir, "opt.paddock");
+            using (var save = SaveFile.Create(savePath, WorldFixtures.Meta()))
+            {
+                var repo = new WorldRepository(save);
+                repo.SaveWorld(world.WithSection(inboxWithFree), WorldFixtures.Opening);
+                var loaded = repo.LoadWorld();
+                var loadedInbox = loaded.Section<InboxSection>(InboxSection.SectionName)!;
+                var loadedItem = loadedInbox.Find(itemWithFree.Id)!;
+                var loadedReserveOpt = loadedItem.Options.First(o => o.Id == reserveId.Value);
+                Assert.Equal(reserveDriver.Name, loadedReserveOpt.Arguments["candidate"]);
+                Assert.Equal(team.NameOn(today), loadedReserveOpt.Arguments["team"]);
+            }
         }
         finally
         {

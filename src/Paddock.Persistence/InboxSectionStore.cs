@@ -25,7 +25,7 @@ public sealed class InboxSectionStore : ISectionStore
         };
 
         // Children first, so foreign keys hold at every statement.
-        foreach (var table in new[] { "inbox_arguments", "inbox_options", "inbox_items", "inbox_counter" })
+        foreach (var table in new[] { "inbox_option_arguments", "inbox_arguments", "inbox_options", "inbox_items", "inbox_counter" })
         {
             Run(connection, transaction, "DELETE FROM " + table, []);
         }
@@ -72,6 +72,14 @@ public sealed class InboxSectionStore : ISectionStore
                     transaction,
                     "INSERT INTO inbox_options (item_number, ordinal, option_id, label_key, consequence_key) VALUES ($n, $ordinal, $id, $label, $consequence)",
                     [("$n", item.Number), ("$ordinal", (long)i), ("$id", option.Id), ("$label", option.LabelKey), ("$consequence", option.ConsequenceKey)]);
+                foreach (var argument in option.Arguments)
+                {
+                    Run(
+                        connection,
+                        transaction,
+                        "INSERT INTO inbox_option_arguments (item_number, option_id, name, value) VALUES ($n, $id, $name, $value)",
+                        [("$n", item.Number), ("$id", option.Id), ("$name", argument.Key), ("$value", argument.Value)]);
+                }
             }
         }
     }
@@ -104,6 +112,24 @@ public sealed class InboxSectionStore : ISectionStore
             }
         }
 
+        var optionArguments = new Dictionary<(long ItemNumber, string OptionId), List<KeyValuePair<string, string>>>();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT item_number, option_id, name, value FROM inbox_option_arguments ORDER BY item_number, option_id, name";
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                var key = (reader.GetInt64(0), reader.GetString(1));
+                if (!optionArguments.TryGetValue(key, out var list))
+                {
+                    list = [];
+                    optionArguments.Add(key, list);
+                }
+
+                list.Add(new(reader.GetString(2), reader.GetString(3)));
+            }
+        }
+
         var options = new Dictionary<long, List<InboxOption>>();
         using (var command = connection.CreateCommand())
         {
@@ -111,7 +137,12 @@ public sealed class InboxSectionStore : ISectionStore
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                Bucket(options, reader.GetInt64(0)).Add(new InboxOption(reader.GetString(1), reader.GetString(2), reader.GetString(3)));
+                var itemNumber = reader.GetInt64(0);
+                var optionId = reader.GetString(1);
+                var labelKey = reader.GetString(2);
+                var consequenceKey = reader.GetString(3);
+                var args = optionArguments.GetValueOrDefault((itemNumber, optionId));
+                Bucket(options, itemNumber).Add(new InboxOption(optionId, labelKey, consequenceKey, args));
             }
         }
 

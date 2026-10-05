@@ -10,6 +10,7 @@ using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Inbox;
+using Paddock.Domain.People;
 using Paddock.Domain.Racing;
 using Paddock.Domain.Random;
 using Paddock.Domain.Spy;
@@ -238,7 +239,7 @@ public sealed class RaceWeekendDay : IDayHandler
                 int racesOut;
                 if (outcome.Injury == InjuryGrade.Light)
                 {
-                    racesOut = rng.NextDouble() < 0.5 ? 0 : 1;
+                    racesOut = rng.NextDouble() < IncidentConstants.LightInjuryZeroRacesProbability ? 0 : 1;
                 }
                 else
                 {
@@ -339,35 +340,7 @@ public sealed class RaceWeekendDay : IDayHandler
                     }
                 }
 
-                var candidates = StandInCandidateFinder.FindCandidates(world, team.Id, nextRaceDate);
-                var options = new List<InboxOption>();
-                foreach (var candidate in candidates.Take(5))
-                {
-                    options.Add(new InboxOption(
-                        candidate.Id.Value,
-                        StandInKeys.OptionCandidateLabel,
-                        StandInKeys.OptionCandidateConsequence));
-                }
-                options.Add(new InboxOption(
-                    StandInResolver.OptionSkip,
-                    StandInKeys.OptionSkipLabel,
-                    StandInKeys.OptionSkipConsequence));
-
-                var defaultOptionId = candidates.Count > 0 ? candidates[0].Id.Value : StandInResolver.OptionSkip;
-
-                var draft = new InboxItemDraft(
-                    StandInResolver.Kind,
-                    StandInKeys.Subject,
-                    [
-                        new("driver", person.Name),
-                        new("driverId", seated.Value),
-                        new("team", team.Id.Value),
-                        new("car", car.Id),
-                        new("raceDate", nextRaceDate.ToString()),
-                    ],
-                    options,
-                    nextRaceDate,
-                    defaultOptionId);
+                var draft = BuildStandInDraft(world, team, person, car.Id, nextRaceDate, today);
 
                 foreach (var human in humans)
                 {
@@ -375,6 +348,92 @@ public sealed class RaceWeekendDay : IDayHandler
                 }
             }
         }
+    }
+
+    internal static InboxItemDraft BuildStandInDraft(
+        WorldState world,
+        Organization team,
+        Person person,
+        string carId,
+        GameDate nextRaceDate,
+        GameDate today)
+    {
+        var candidates = StandInCandidateFinder.FindCandidates(world, team.Id, nextRaceDate);
+        var options = new List<InboxOption>();
+        var teamName = team.NameOn(today);
+
+        foreach (var candidate in candidates.Take(5))
+        {
+            var isReserve = world.Contracts.Any(c =>
+                c.OrganizationId == team.Id
+                && c.PersonId == candidate.Id
+                && c.IsActiveOn(today)
+                && c.Role.IsDriver
+                && c.Role.Seat == SeatStatus.Reserve);
+
+            var belief = world.KnowledgeOf(team.Id, candidate.Id);
+            string bandText;
+            if (belief is { } known && known.Attributes.Count > 0)
+            {
+                var driverAttrs = known.Attributes
+                    .Where(a => GenerationEstimates.DriverAttributeKeys.Contains(a.Key))
+                    .ToList();
+                if (driverAttrs.Count > 0)
+                {
+                    var low = (int)Math.Round(driverAttrs.Average(a => a.Band.Low));
+                    var high = (int)Math.Round(driverAttrs.Average(a => a.Band.High));
+                    bandText = $"{low}–{high}";
+                }
+                else
+                {
+                    bandText = "1–20";
+                }
+            }
+            else
+            {
+                bandText = "1–20";
+            }
+
+            var costText = "$0";
+            var consequenceKey = isReserve
+                ? StandInKeys.OptionReserveConsequence
+                : StandInKeys.OptionFreeAgentConsequence;
+
+            var optionArguments = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["candidate"] = candidate.Name,
+                ["team"] = teamName,
+                ["band"] = bandText,
+                ["cost"] = costText,
+            };
+
+            options.Add(new InboxOption(
+                candidate.Id.Value,
+                StandInKeys.OptionCandidateLabel,
+                consequenceKey,
+                optionArguments));
+        }
+
+        options.Add(new InboxOption(
+            StandInResolver.OptionSkip,
+            StandInKeys.OptionSkipLabel,
+            StandInKeys.OptionSkipConsequence));
+
+        var defaultOptionId = candidates.Count > 0 ? candidates[0].Id.Value : StandInResolver.OptionSkip;
+
+        return new InboxItemDraft(
+            StandInResolver.Kind,
+            StandInKeys.Subject,
+            [
+                new("driver", person.Name),
+                new("driverId", person.Id.Value),
+                new("team", teamName),
+                new("car", carId),
+                new("raceDate", nextRaceDate.ToString()),
+            ],
+            options,
+            nextRaceDate,
+            defaultOptionId);
     }
 
     private static IReadOnlyList<ManagerId> HumanManagers(IOrganizationControl control, ManagerRegistry managers, OrganizationId organization)

@@ -14,6 +14,12 @@ public static class StandInKeys
     public const string OptionCandidateConsequence = "inbox.racing.standin.consequence";
 
     [TranslationKey]
+    public const string OptionReserveConsequence = "inbox.racing.standin.consequence.reserve";
+
+    [TranslationKey]
+    public const string OptionFreeAgentConsequence = "inbox.racing.standin.consequence.freeAgent";
+
+    [TranslationKey]
     public const string OptionSkipLabel = "inbox.racing.standin.skip";
 
     [TranslationKey]

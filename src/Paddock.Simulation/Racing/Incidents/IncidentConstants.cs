@@ -180,4 +180,7 @@ public static class IncidentConstants
 
     /// <summary>ESTIMATE: maximum number of championship races missed from a serious injury.</summary>
     public const int MaxSeriousRaces = 6;
+
+    /// <summary>ESTIMATE: probability that a lightly injured driver misses zero championship races (otherwise one).</summary>
+    public const double LightInjuryZeroRacesProbability = 0.5;
 }

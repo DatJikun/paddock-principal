@@ -61,20 +61,39 @@ public sealed class InboxQuery
 
     private static InboxItemView Describe(InboxItem item)
     {
-        var arguments = item.Arguments.Select(pair => (pair.Key, pair.Value)).ToArray();
+        var itemArguments = item.Arguments.Select(pair => (pair.Key, pair.Value)).ToArray();
         var options = item.Options
-            .Select(option => new InboxOptionView(
-                option.Id,
-                TranslationMessage.Of(option.LabelKey, arguments),
-                TranslationMessage.Of(option.ConsequenceKey, arguments),
-                option.Id == item.DefaultOptionId))
+            .Select(option =>
+            {
+                (string Key, string Value)[] args;
+                if (option.Arguments.Count == 0)
+                {
+                    args = itemArguments;
+                }
+                else
+                {
+                    var merged = new Dictionary<string, string>(item.Arguments, StringComparer.Ordinal);
+                    foreach (var (k, v) in option.Arguments)
+                    {
+                        merged[k] = v;
+                    }
+
+                    args = merged.Select(pair => (pair.Key, pair.Value)).ToArray();
+                }
+
+                return new InboxOptionView(
+                    option.Id,
+                    TranslationMessage.Of(option.LabelKey, args),
+                    TranslationMessage.Of(option.ConsequenceKey, args),
+                    option.Id == item.DefaultOptionId);
+            })
             .ToArray();
         return new InboxItemView(
             item.Id,
             item.ManagerId,
             item.Kind,
             InboxBook.ToDateOnly(item.Created),
-            TranslationMessage.Of(item.SubjectKey, arguments),
+            TranslationMessage.Of(item.SubjectKey, itemArguments),
             item.NeedsDecision,
             options,
             item.ValidUntil is GameDate until ? InboxBook.ToDateOnly(until) : null,

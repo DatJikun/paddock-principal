@@ -207,6 +207,8 @@
   "inbox.racing.standin.subject": "Stand-in driver for {driver}",
   "inbox.racing.standin.option": "Select {candidate}",
   "inbox.racing.standin.consequence": "{candidate} will drive as a stand-in for {team} in the next race.",
+  "inbox.racing.standin.consequence.reserve": "{candidate} (reserve driver, level {band}, cost {cost}) will drive as a stand-in for {team} in the next race.",
+  "inbox.racing.standin.consequence.freeAgent": "{candidate} (free agent, level {band}, cost {cost}) will drive as a stand-in for {team} in the next race.",
   "inbox.racing.standin.skip": "Do not enter car",
   "inbox.racing.standin.skip.consequence": "The car will not start in the next race.",
   "objective.status.open": "In progress",

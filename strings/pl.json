@@ -207,6 +207,8 @@
   "inbox.racing.standin.subject": "Kierowca zastępczy za {driver}",
   "inbox.racing.standin.option": "Wybierz kierowcę {candidate}",
   "inbox.racing.standin.consequence": "{candidate} pojedzie jako zastępca dla zespołu {team} w następnym wyścigu.",
+  "inbox.racing.standin.consequence.reserve": "{candidate} (kierowca rezerwowy, poziom {band}, koszt {cost}) pojedzie jako zastępca dla zespołu {team} w następnym wyścigu.",
+  "inbox.racing.standin.consequence.freeAgent": "{candidate} (wolny agent, poziom {band}, koszt {cost}) pojedzie jako zastępca dla zespołu {team} w następnym wyścigu.",
   "inbox.racing.standin.skip": "Nie wystawiaj bolidu",
   "inbox.racing.standin.skip.consequence": "Bolid nie wystartuje w następnym wyścigu.",
   "objective.status.open": "W toku",

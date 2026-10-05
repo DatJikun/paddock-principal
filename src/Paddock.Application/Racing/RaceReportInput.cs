@@ -18,6 +18,9 @@ namespace Paddock.Application.Racing;
 /// <param name="AirTempC">Air temperature at the start, in degrees Celsius.</param>
 public sealed record RaceReportConditions(WetnessBand Track, double AirTempC);
 
+/// <summary>Information about a stand-in driver participating in the race on behalf of an injured regular driver (PP-061).</summary>
+public sealed record StandInFact(string DriverId, string RegularDriverId, string ConstructorId);
+
 /// <summary>
 /// Everything the report builder reads, as plain values. <see cref="From"/> takes it from a
 /// <see cref="RaceWeekendResult"/>; a test can build it by hand. The developer-only parts of the result (the true weather
@@ -36,20 +39,21 @@ public sealed record RaceReportInput(
     ImmutableArray<PitStopRecord> PitStops,
     ImmutableArray<NeutralisationRecord> Neutralisations,
     int ScheduledLaps,
-    int LapsRun)
+    int LapsRun,
+    ImmutableArray<StandInFact> StandIns = default)
 {
     /// <summary>
     /// Takes the input from a weekend result. The spectator conditions are the one place that touches the true weather, and
     /// only its first sample (the track and the air as they are at the start), nothing about what comes later.
     /// </summary>
-    public static RaceReportInput From(RaceWeekendResult result, int season, int round, string trackId)
+    public static RaceReportInput From(RaceWeekendResult result, int season, int round, string trackId, ImmutableArray<StandInFact> standIns = default)
     {
         ArgumentNullException.ThrowIfNull(result);
-        return From(RacePublishedFacts.From(result), season, round, trackId);
+        return From(RacePublishedFacts.From(result), season, round, trackId, standIns);
     }
 
     /// <summary>The same report input, taken from the facts the simulator publishes. Lap records are not among them.</summary>
-    public static RaceReportInput From(RacePublishedFacts facts, int season, int round, string trackId)
+    public static RaceReportInput From(RacePublishedFacts facts, int season, int round, string trackId, ImmutableArray<StandInFact> standIns = default)
     {
         ArgumentNullException.ThrowIfNull(facts);
         ArgumentException.ThrowIfNullOrWhiteSpace(trackId);
@@ -67,6 +71,7 @@ public sealed record RaceReportInput(
             facts.PitStops,
             facts.Neutralisations,
             facts.ScheduledLaps,
-            facts.LapsRun);
+            facts.LapsRun,
+            standIns.IsDefault ? ImmutableArray<StandInFact>.Empty : standIns);
     }
 }

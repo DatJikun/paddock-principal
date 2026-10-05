@@ -495,6 +495,18 @@ public static class RaceReportBuilder
                 ("total", Math.Max(1, c.Input.LapsRun))));
         }
 
+        if (!c.Input.StandIns.IsDefaultOrEmpty)
+        {
+            foreach (var standIn in c.Input.StandIns)
+            {
+                lines.Add(RaceReportLine.Of(
+                    RaceReportKeys.ResultStandIn,
+                    ("standin", new DriverRef(standIn.DriverId)),
+                    ("regular", new DriverRef(standIn.RegularDriverId)),
+                    ("team", new TeamRef(standIn.ConstructorId))));
+            }
+        }
+
         return new RaceReportSection(RaceReportLine.Of(RaceReportKeys.SectionResult), lines.ToImmutable());
     }
 

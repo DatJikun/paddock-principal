@@ -392,7 +392,7 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 - **współczesność:** mieszanki opon, obowiązkowy postój, samochód bezpieczeństwa i VSC, DRS od 2011.
 
 **Kwalifikacje** mają format epoki.
-**Incydenty i awarie:** ryzyko zależy od epoki (bezpieczeństwo), kierowcy (agresja, opanowanie) i sprzętu. Skutki to kontuzje i końce karier. Śmierć tylko przy włączonej opcji (PP-006). Większość awarii daje kilka okrążeń sygnałów (auto zwalnia), ale mniej więcej co trzecia przychodzi bez ostrzeżenia (PP-057).
+**Incydenty i awarie:** ryzyko zależy od epoki (bezpieczeństwo), kierowcy (agresja, opanowanie) i sprzętu. Skutki to kontuzje i końce karier (PP-061). Lekka kontuzja wyklucza z 0–1 wyścigu, a przy starcie przez 21 dni daje lekką stratę tempa; poważna kontuzja wyłącza na kilka wyścigów (szacunek 2–6). Kończąca karierę i śmiertelna (przy włączonej opcji, PP-006) oznaczają odejście ze sportu. Na czas absencji zespół wystawia zastępcę (jedyny wyjątek od zasady PP-050 o braku zmian w sezonie): najpierw zakontraktowanego kierowcę rezerwowego, a w razie braku – jednorazowego zastępcę z wolnych agentów lub puli talentów (decyzja w skrzynce dla gracza, wybór AI ze śladem decyzji). Gdy nikt nie jest dostępny, auto nie startuje. Regularny kierowca wraca automatycznie po wyzdrowieniu. Większość awarii daje kilka okrążeń sygnałów (auto zwalnia), ale mniej więcej co trzecia przychodzi bez ostrzeżenia (PP-057).
 **Prezentacja:** najpierw backend (PP-020). Wyścig ma wynik natychmiastowy albo relację na żywo w formie tabeli z różnicami czasu i komunikatami. Mapa toru 2D powstanie po zbudowaniu UI.
 
 ---

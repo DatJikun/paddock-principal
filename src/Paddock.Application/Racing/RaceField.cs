@@ -2,11 +2,14 @@ using System.Collections.Immutable;
 using Paddock.Application.Career;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Finance;
+using Paddock.Domain.Inbox;
 using Paddock.Domain.People;
+using Paddock.Domain.Spy;
 using Paddock.Domain.Supply;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Cars;
+using Paddock.Simulation.Racing.Incidents;
 using Paddock.Simulation.Racing.Pace;
 using Paddock.Simulation.Racing.Pits;
 using Paddock.Simulation.Racing.Tyres;
@@ -16,7 +19,10 @@ using Paddock.Simulation.Supply;
 namespace Paddock.Application.Racing;
 
 /// <summary>Who starts a championship round, and who stays home because the race running cost is above the cash on hand.</summary>
-public sealed record RaceField(ImmutableArray<RaceEntry> Entries, IReadOnlyList<string> SkippedTeamIds);
+public sealed record RaceField(
+    ImmutableArray<RaceEntry> Entries,
+    IReadOnlyList<string> SkippedTeamIds,
+    ImmutableArray<StandInFact> StandIns = default);
 
 /// <summary>
 /// Builds the grid from the world (T47, open question 3, PP-050). Each team starts the cars it owns this season, one
@@ -31,7 +37,9 @@ public static class RaceFieldBuilder
         RuleSet rules,
         int racesInSeason,
         SupplySection? supply,
-        ISupplierProfiles? profiles)
+        ISupplierProfiles? profiles,
+        int round = 1,
+        ITraceSink? traceSink = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(rules);
@@ -55,6 +63,7 @@ public static class RaceFieldBuilder
         var formula = rules.Values.TryGetValue("engine_formula", out var engineFormula) ? engineFormula : "";
         var usedDrivers = new HashSet<string>(StringComparer.Ordinal);
         var entries = ImmutableArray.CreateBuilder<RaceEntry>();
+        var standIns = ImmutableArray.CreateBuilder<StandInFact>();
         var skipped = new List<string>();
         foreach (var team in CareerTeams.Active(world, today))
         {
@@ -89,9 +98,96 @@ public static class RaceFieldBuilder
                 }
 
                 var driverId = seated.Value;
-                if (!people.TryGetValue(driverId, out var person) || person.IsRetired || !usedDrivers.Add(driverId))
+                if (!people.TryGetValue(driverId, out var person) || person.IsRetired)
                 {
                     continue;
+                }
+
+                Person driverToEnter = person;
+                StandInFact? standInFact = null;
+
+                if (person.IsInjured(today))
+                {
+                    Person? standIn = null;
+                    var inbox = world.Section<InboxSection>(InboxSection.SectionName);
+                    if (inbox is not null)
+                    {
+                        var item = inbox.Items
+                            .Where(i => i.Kind == StandInResolver.Kind
+                                     && i.Arguments.TryGetValue("driverId", out var dId) && dId == person.Id.Value
+                                     && i.Arguments.TryGetValue("raceDate", out var rDate) && rDate == today.ToString())
+                            .OrderByDescending(i => i.Number)
+                            .FirstOrDefault();
+
+                        if (item is { ChosenOptionId: { } chosen })
+                        {
+                            if (chosen == StandInResolver.OptionSkip)
+                            {
+                                continue;
+                            }
+
+                            if (people.TryGetValue(chosen, out var chosenPerson)
+                                && !chosenPerson.IsRetired
+                                && !chosenPerson.IsInjured(today)
+                                && !usedDrivers.Contains(chosenPerson.Id.Value))
+                            {
+                                standIn = chosenPerson;
+                            }
+                        }
+                    }
+
+                    if (standIn is null)
+                    {
+                        var candidates = StandInCandidateFinder.FindCandidates(world, team.Id, today, usedDrivers);
+                        if (candidates.Count > 0)
+                        {
+                            standIn = candidates[0];
+
+                            if (traceSink is not null && traceSink.IsEnabled)
+                            {
+                                var traceOptions = candidates.Select(c => new TraceOption(c.Id.Value, 1.0, [], true)).ToList();
+                                traceOptions.Add(new TraceOption(StandInResolver.OptionSkip, 0.0, [], true));
+                                traceSink.Record(new DecisionTrace(
+                                    new WeekendKey(today.Year, round),
+                                    "ai:" + team.Id.Value,
+                                    1,
+                                    StandInResolver.Kind,
+                                    traceOptions,
+                                    standIn.Id.Value,
+                                    $"Selected stand-in {standIn.Name} for injured driver {person.Name}",
+                                    null,
+                                    false,
+                                    ImmutableDictionary<string, string>.Empty));
+                            }
+                        }
+                    }
+
+                    if (standIn is null)
+                    {
+                        // Nobody available: car does not start!
+                        continue;
+                    }
+
+                    driverToEnter = standIn;
+                    standInFact = new StandInFact(driverToEnter.Id.Value, person.Id.Value, team.Id.Value);
+                }
+
+                if (!usedDrivers.Add(driverToEnter.Id.Value))
+                {
+                    continue;
+                }
+
+                if (standInFact is not null)
+                {
+                    standIns.Add(standInFact);
+                }
+
+                var paceMultiplier = 1.0;
+                if (driverToEnter.InjuredUntil is GameDate prevInjured
+                    && today > prevInjured
+                    && today <= prevInjured.AddDays(IncidentConstants.LightPaceDays))
+                {
+                    paceMultiplier = 1.0 - IncidentConstants.LightInjuryPacePenalty;
                 }
 
                 var performance = supply is null || profiles is null
@@ -101,7 +197,7 @@ public static class RaceFieldBuilder
                 entries.Add(new RaceEntry(
                     car.Id,
                     team.Id.Value,
-                    [RaceInputMapping.DriverFrom(driverId, AttributesOf(person.Truth), RacingEstimates.DefaultAggression)],
+                    [RaceInputMapping.DriverFrom(driverToEnter.Id.Value, AttributesOf(driverToEnter.Truth), RacingEstimates.DefaultAggression, paceMultiplier: paceMultiplier)],
                     performance,
                     RaceInputMapping.UniformComponents(performance.Reliability),
                     new PitCrew(RacingEstimates.NeutralPitCrewQuality),
@@ -114,7 +210,7 @@ public static class RaceFieldBuilder
         }
 
         skipped.Sort(StringComparer.Ordinal);
-        return new RaceField(entries.ToImmutable(), skipped);
+        return new RaceField(entries.ToImmutable(), skipped, standIns.ToImmutable());
     }
 
     /// <summary>

@@ -213,6 +213,28 @@ public sealed partial class WorldState
         return new WorldState(CurrentDate, Ids, persons, _organizations, contracts, _knowledge, _sections);
     }
 
+    /// <summary>
+    /// Sets the person's injured-until date (health as a world fact, PP-061).
+    /// </summary>
+    public WorldState InjurePerson(PersonId id, GameDate until)
+    {
+        var person = RequirePerson(id);
+        var persons = Clone(_persons);
+        persons[id.Value] = person.Injure(until);
+        return new WorldState(CurrentDate, Ids, persons, _organizations, _contracts, _knowledge, _sections);
+    }
+
+    /// <summary>
+    /// Clears the person's injury when fully healed.
+    /// </summary>
+    public WorldState ClearPersonInjury(PersonId id)
+    {
+        var person = RequirePerson(id);
+        var persons = Clone(_persons);
+        persons[id.Value] = person.ClearInjury();
+        return new WorldState(CurrentDate, Ids, persons, _organizations, _contracts, _knowledge, _sections);
+    }
+
     public (WorldState State, OrganizationId Id) AddOrganization(OrganizationSpec spec)
     {
         ArgumentNullException.ThrowIfNull(spec);

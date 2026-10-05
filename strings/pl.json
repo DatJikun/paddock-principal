@@ -323,6 +323,13 @@
   "inbox.status.resolved": "Rozstrzygnięta",
   "inbox.status.dismissed": "Odrzucona",
   "inbox.status.expired": "Wygasła",
+  "inbox.racing.standin.subject": "Kierowca zastępczy za {driver}",
+  "inbox.racing.standin.option": "Wybierz kierowcę {candidate}",
+  "inbox.racing.standin.consequence": "{candidate} pojedzie jako zastępca dla zespołu {team} w następnym wyścigu.",
+  "inbox.racing.standin.consequence.reserve": "{candidate} (kierowca rezerwowy, poziom {band}, koszt {cost}) pojedzie jako zastępca dla zespołu {team} w następnym wyścigu.",
+  "inbox.racing.standin.consequence.freeAgent": "{candidate} (wolny agent, poziom {band}, koszt {cost}) pojedzie jako zastępca dla zespołu {team} w następnym wyścigu.",
+  "inbox.racing.standin.skip": "Nie wystawiaj bolidu",
+  "inbox.racing.standin.skip.consequence": "Bolid nie wystartuje w następnym wyścigu.",
   "objective.status.open": "W toku",
   "objective.status.met": "Spełniony",
   "objective.status.failed": "Niespełniony",
@@ -507,6 +514,7 @@
     "other": "Najdłużej na prowadzeniu: {driver}, {count} z {total} okrążeń."
   },
   "report.result.shortened": "Wyścig przerwano na okrążeniu {lap} z {total}; obowiązuje wynik z tego okrążenia.",
+  "report.result.standIn": "{standin} zastąpił kierowcę {regular} w zespole {team}.",
   "report.points.driver": {
     "one": "{driver}: {count} punkt",
     "few": "{driver}: {count} punkty",

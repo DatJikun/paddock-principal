@@ -17,12 +17,18 @@ public static class RaceArchive
 
     public const string PeoplePrefix = "people:";
 
-    public static RaceResultsSection Record(RaceResultsSection current, RacePublishedFacts facts, int season, int round, string layoutId)
+    public static RaceResultsSection Record(
+        RaceResultsSection current,
+        RacePublishedFacts facts,
+        int season,
+        int round,
+        string layoutId,
+        System.Collections.Immutable.ImmutableArray<StandInFact> standIns = default)
     {
         ArgumentNullException.ThrowIfNull(current);
         ArgumentNullException.ThrowIfNull(facts);
         ArgumentException.ThrowIfNullOrWhiteSpace(layoutId);
-        var report = RaceReportBuilder.Build(RaceReportInput.From(facts, season, round, layoutId));
+        var report = RaceReportBuilder.Build(RaceReportInput.From(facts, season, round, layoutId, standIns));
         var reasons = Reasons(facts);
         var rows = new RaceResultRow[facts.Classification.Cars.Length];
         for (var i = 0; i < rows.Length; i++)

@@ -1,5 +1,6 @@
 using Paddock.Application.Career;
 using Paddock.Application.Development;
+using Paddock.Application.Inbox;
 using Paddock.Domain.Objectives;
 using Paddock.Domain.Racing;
 using Paddock.Domain.World;
@@ -33,6 +34,10 @@ public sealed class RacingModule : CareerModule
         ArgumentNullException.ThrowIfNull(context);
         var watch = context.Require<RaceWatch>();
         context.AddDayHandler(new RaceWeekendDay(context, watch));
+        if (context.TryGet<InboxResolvers>() is { } resolvers)
+        {
+            resolvers.Register(new StandInResolver());
+        }
         if (context.TryGet<ObjectiveFactRegistry>() is { } facts)
         {
             var session = context.Session;

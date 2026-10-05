@@ -285,12 +285,40 @@ public sealed partial class CareerBridge
                 }
 
                 var person = Session.World.GetPerson(contract.PersonId);
+                string? injury = null;
+                string? returnRange = null;
+                if (person.IsInjured(Session.Date))
+                {
+                    var upcoming = Session.Clock.Queue.Events
+                        .Where(e => e.TypeId == Paddock.Simulation.Time.ScheduledEventType.Race && e.Date >= Session.Date)
+                        .OrderBy(e => e.Date)
+                        .Select(e => e.Date)
+                        .ToList();
+
+                    var isLight = upcoming.Count <= 1 || (person.InjuredUntil is GameDate until && upcoming.Count > 1 && until <= upcoming[0]);
+                    if (isLight)
+                    {
+                        injury = "Light";
+                        var nextRace = upcoming.Count > 0 ? upcoming[0] : Session.Date;
+                        returnRange = $"{Session.Date:yyyy-MM-dd} .. {nextRace:yyyy-MM-dd}";
+                    }
+                    else
+                    {
+                        injury = "Serious";
+                        var minRace = upcoming.Count > 1 ? upcoming[1] : (upcoming.Count > 0 ? upcoming[0] : Session.Date);
+                        var maxRace = upcoming.Count >= 6 ? upcoming[5] : (upcoming.Count > 0 ? upcoming[^1] : Session.Date.AddDays(90));
+                        returnRange = $"{minRace:yyyy-MM-dd} .. {maxRace:yyyy-MM-dd}";
+                    }
+                }
+
                 own.Add(new OwnDriverView(
                     person.Id.Value,
                     person.Name,
                     person.Nationality,
                     contract.Role.Seat.ToString()!,
-                    contract.End.ToString()!));
+                    contract.End.ToString()!,
+                    injury,
+                    returnRange));
             }
         }
 

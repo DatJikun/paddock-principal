@@ -265,6 +265,9 @@ public static class RaceReportKeys
     public const string ResultShortened = "report.result.shortened";
 
     [TranslationKey]
+    public const string ResultStandIn = "report.result.standIn";
+
+    [TranslationKey]
     public const string PointsDriver = "report.points.driver";
 
     [TranslationKey]

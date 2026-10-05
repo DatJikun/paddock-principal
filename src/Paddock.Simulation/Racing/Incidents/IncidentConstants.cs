@@ -166,4 +166,21 @@ public static class IncidentConstants
 
     /// <summary>ESTIMATE: a red-flagged race resumes when the incident is within this fraction of the distance; after that it is not restarted.</summary>
     public const double RedFlagResumeUntilFraction = 0.75;
+
+    // ---- Recovery & Stand-in (PP-061, #219) ----
+
+    /// <summary>ESTIMATE: days after a light injury during which a racing driver has reduced pace.</summary>
+    public const int LightPaceDays = 21;
+
+    /// <summary>ESTIMATE: pace share reduction for a driver racing within <see cref="LightPaceDays"/> of an injury.</summary>
+    public const double LightInjuryPacePenalty = 0.03;
+
+    /// <summary>ESTIMATE: minimum number of championship races missed from a serious injury.</summary>
+    public const int MinSeriousRaces = 2;
+
+    /// <summary>ESTIMATE: maximum number of championship races missed from a serious injury.</summary>
+    public const int MaxSeriousRaces = 6;
+
+    /// <summary>ESTIMATE: probability that a lightly injured driver misses zero championship races (otherwise one).</summary>
+    public const double LightInjuryZeroRacesProbability = 0.5;
 }

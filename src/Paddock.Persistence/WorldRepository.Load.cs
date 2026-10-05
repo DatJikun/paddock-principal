@@ -187,7 +187,7 @@ public sealed partial class WorldRepository
             }
         }
 
-        var persons = ReadPersons(connection);
+        var persons = ReadPersons(connection, HasColumn(connection, null, "persons", "injured_until"));
         var organizations = ReadOrganizations(connection);
         var contracts = ReadContracts(connection);
         var knowledge = ReadKnowledge(connection);
@@ -258,7 +258,7 @@ public sealed partial class WorldRepository
         return sections;
     }
 
-    private static List<Person> ReadPersons(SqliteConnection connection)
+    private static List<Person> ReadPersons(SqliteConnection connection, bool hasInjuredUntil)
     {
         var roles = new Dictionary<string, List<PersonRole>>(StringComparer.Ordinal);
         using (var command = connection.CreateCommand())
@@ -289,7 +289,9 @@ public sealed partial class WorldRepository
         var persons = new List<Person>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT id, is_real, given_name, family_name, birth_date, nationality, retired_on FROM persons ORDER BY id";
+            command.CommandText = hasInjuredUntil
+                ? "SELECT id, is_real, given_name, family_name, birth_date, nationality, retired_on, injured_until FROM persons ORDER BY id"
+                : "SELECT id, is_real, given_name, family_name, birth_date, nationality, retired_on FROM persons ORDER BY id";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -315,7 +317,8 @@ public sealed partial class WorldRepository
                     isReal,
                     personRoles,
                     new PersonTruth(current, potentials[text]),
-                    reader.IsDBNull(6) ? null : ParseDate(reader.GetString(6))));
+                    reader.IsDBNull(6) ? null : ParseDate(reader.GetString(6)),
+                    hasInjuredUntil && !reader.IsDBNull(7) ? ParseDate(reader.GetString(7)) : null));
             }
         }
 

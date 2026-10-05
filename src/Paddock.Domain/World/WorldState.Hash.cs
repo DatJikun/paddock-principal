@@ -37,6 +37,7 @@ public sealed partial class WorldState
     /// born &lt;len&gt;:&lt;date&gt;
     /// nationality &lt;len&gt;:&lt;text&gt;
     /// retired &lt;len&gt;:&lt;date&gt;         (only for a retired person; an active person has no such line)
+    /// injured &lt;len&gt;:&lt;date&gt;         (only for an injured person; an uninjured person has no such line)
     /// roles &lt;count&gt;
     /// role &lt;len&gt;:&lt;driver or staff:RoleName&gt;
     /// attributes &lt;count&gt;
@@ -120,6 +121,11 @@ public sealed partial class WorldState
             if (person.RetiredOn is GameDate retiredOn)
             {
                 canon.TextLine("retired", retiredOn.ToString());
+            }
+
+            if (person.InjuredUntil is GameDate injuredUntil)
+            {
+                canon.TextLine("injured", injuredUntil.ToString());
             }
 
             canon.Count("roles", person.Roles.Count);

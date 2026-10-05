@@ -38,5 +38,20 @@ public interface ISectionStore
 /// <summary>The stores this build knows.</summary>
 public static class SectionStores
 {
-    public static IReadOnlyList<ISectionStore> Production { get; } = Array.AsReadOnly<ISectionStore>([new InboxSectionStore(), new TalentPoolSectionStore(), new ContractsSectionStore(), new FinanceSectionStore(), new CarsSectionStore(), new SponsorsSectionStore(), new ObjectivesSectionStore(), new BoardSectionStore(), new SupplySectionStore(), new DevelopmentSectionStore()]);
+    // One store per line. A system that adds a section adds its store here; a test checks that every section a career module
+    // declares has one.
+    public static IReadOnlyList<ISectionStore> Production { get; } = Array.AsReadOnly<ISectionStore>(
+    [
+        new InboxSectionStore(),
+        new TalentPoolSectionStore(),
+        new ContractsSectionStore(),
+        new FinanceSectionStore(),
+        new CarsSectionStore(),
+        new SponsorsSectionStore(),
+        new ObjectivesSectionStore(),
+        new BoardSectionStore(),
+        new SupplySectionStore(),
+        new DevelopmentSectionStore(),
+        new PrincipalsSectionStore(),
+    ]);
 }

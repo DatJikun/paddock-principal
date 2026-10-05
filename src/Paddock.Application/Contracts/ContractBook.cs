@@ -18,19 +18,45 @@ namespace Paddock.Application.Contracts;
 /// </summary>
 public sealed class ContractBook
 {
+    private WorldState _world;
+    private Func<WorldState>? _read;
+    private Action<WorldState>? _write;
+
     public ContractBook(WorldState world, ContractEnvironment environment, ContractsSection? section = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(environment);
-        World = world;
+        _world = world;
         Environment = environment;
         Section = section ?? world.Section<ContractsSection>(ContractsSection.SectionName) ?? ContractsSection.Empty;
     }
 
     public ContractEnvironment Environment { get; }
 
-    /// <summary>The current world (an immutable value).</summary>
-    public WorldState World { get; private set; }
+    /// <summary>
+    /// True when the book reads and writes the host's own world (<see cref="Bind"/>), so a change a command or handler of
+    /// another system made to it is seen at once and a change made here is not lost when the host puts its own world back.
+    /// </summary>
+    public bool IsLive => _read is not null;
+
+    /// <summary>
+    /// The current world (an immutable value). For a live book this is the host's world as it is now, so the board, the finance
+    /// ledger and the contracts always work on one world.
+    /// </summary>
+    public WorldState World => _read is null ? _world : _read();
+
+    /// <summary>
+    /// Ties the book to the host's world: <paramref name="read"/> gives the world as it is, <paramref name="write"/> stores one
+    /// the book changed. After this <see cref="UseWorld"/> stores to the host instead of keeping a copy. The contracts section
+    /// stays the book's own (it is put into the world by <see cref="Into(WorldState)"/>).
+    /// </summary>
+    public void Bind(Func<WorldState> read, Action<WorldState> write)
+    {
+        ArgumentNullException.ThrowIfNull(read);
+        ArgumentNullException.ThrowIfNull(write);
+        _read = read;
+        _write = write;
+    }
 
     /// <summary>The current contracts and negotiations (an immutable value).</summary>
     public ContractsSection Section { get; private set; }
@@ -49,18 +75,30 @@ public sealed class ContractBook
     public void UseWorld(WorldState world)
     {
         ArgumentNullException.ThrowIfNull(world);
-        World = world;
+        SetWorld(world);
     }
 
     internal void Update(WorldState world, ContractsSection section)
     {
-        World = world;
+        SetWorld(world);
         Section = section;
     }
 
     internal void Update(ContractsSection section) => Section = section;
 
-    internal void Update(WorldState world) => World = world;
+    internal void Update(WorldState world) => SetWorld(world);
+
+    private void SetWorld(WorldState world)
+    {
+        if (_write is null)
+        {
+            _world = world;
+        }
+        else
+        {
+            _write(world);
+        }
+    }
 
     /// <summary>Negotiations an organization may run at once: 3 plus its principal's negotiation attribute over 5 (ESTIMATES).</summary>
     public int Capacity(OrganizationId organization) =>

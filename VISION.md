@@ -287,10 +287,31 @@ Szczegóły w DESIGN §5.3.
 - **Furtka (kontrakt):** (1) całą symulację wyścigu zamyka jeden interfejs (`IRaceSimulator`: wejście = stawka, tor, pogoda, przepisy epoki, ziarno; wyjście = `RaceTape`); (2) taśma ma poza zdarzeniami opcjonalne **klatki pozycji** (czas, auto, miejsce na torze, prędkość) i to z nich rysuje się mapa, niezależnie od silnika; (3) UI, klasyfikacja, zapis i kronika czytają wyłącznie taśmę, nigdy wnętrza silnika; (4) wybór silnika to ustawienie wyścigu (np. okrążeniowy dla wyścigów w tle, ciągły dla oglądanego), ale oba muszą spełniać ten sam kontrakt i niezmienniki TECH §3 (determinizm, osobny strumień RNG, prawda vs wiedza).
 - **Wyścigi w tle** (inne serie, świat bez gracza) mogą zawsze używać szybkiego silnika okrążeniowego; test zgodności (statystyki wyników obu silników w tych samych warunkach mają być zbliżone) jest zadaniem po MVP.
 
-### Przyjęte 2026-10-04 (piętnasta runda: dokumentacja)
+### Przyjęte 2026-10-04 (piętnasta runda: rozwój auta, tory, pętla kariery)
 
-**PP-054: Dokumentacja w HTML generowana z .md i przewodnik „Jak działa gra”** (rozszerza PP-017).
+**PP-053: Rozwój auta: wdrożenie gotowej koncepcji to decyzja gracza i wymaga czasu produkcji** (uzupełnia PP-043).
+- **Decyzja zamiast zegara.** Gdy koncepcja jest gotowa, gracz (lub AI) widzi stan prac i decyduje: wdrażamy teraz, czy czekamy na dalsze zyski. Przetrzymanie gotowej koncepcji (nawet przez zmianę sezonu) jest dozwolone i **nie ma sztucznej kary**: traci się tylko względem rywali, którzy się rozwijają, oraz przez zanik konta rozwojowego. Starsze terminy („po N wyścigach”, „następny sezon”) działają dalej dla zgodności, ale nie są głównym przepływem i mają być wycofane po ustabilizowaniu AI.
+- **Wdrożenie = produkcja.** Zatwierdzenie uruchamia produkcję na realistyczny czas (ESTIMATE: ok. 40 dni w 1955, ok. 190 w 2025, skalowane liczbą inżynierów epoki do czasu zatwierdzenia modelu działów z DESIGN §6.2). Koszt to połowa kosztu rozwoju koncepcji (ESTIMATE), płatna w całości w dniu zatwierdzenia. Stare auto jeździ w czasie produkcji, nowe wchodzi dzień po jej zakończeniu. W trakcie produkcji nie zmienia się terminu ani nie anuluje (koszt jest stracony).
+- **Informacja do decyzji** tylko w granicach wiedzy (INV-003): przedział oczekiwanego dalszego zysku z trwających prac, dni do następnego wyścigu, czas i koszt produkcji. Gdy koncepcja staje się gotowa, trafia do skrzynki decyzja „wdrażamy czy rozwijamy dalej” (domyślnie po 14 dniach: rozwijamy dalej).
+- **Zmianę sezonu 1 stycznia wykonuje host, nie moduł rozwoju.** Rozwój tylko reaguje na zdarzenie zmiany sezonu.
+- **Po MVP:** przełomy technologiczne (PP-042), model działów inżynierskich (DESIGN §6.2), anulowanie produkcji. Zrównoważenie „czekać czy wdrażać” wymaga działających rywali AI i sprawdza je scenariusz bramkowy T48.
+
+**PP-054: Tory z punktów kontrolnych: jedno źródło dla symulacji i UI.**
+- **Jeden plik JSON na układ** (`data/authored/tracks/geometry/<layout_id>.json`: punkty kontrolne w metrach, `source`, `notes`) i zamknięta krzywa Catmulla-Roma liczona z tych punktów. Ten sam format czyta i zapisuje edytor torów. **Symulacja i UI czytają te same pliki**; zmiana pliku zmienia oba. Walidator pilnuje długości (zgodnej z `length_km`), braku samoprzecięć i zbyt ostrych zagięć.
+- **Pokrycie:** wszystkie 26 układów używanych w latach 1950–60. Kolejne okresy kolejnymi porcjami.
+- **Kształty są przybliżone** (ESTIMATE): narysowane z ogólnej wiedzy o układach i publicznych opisów tekstowych, bez obrysowywania cudzych map i bez danych osób trzecich (PP-041). Każdy plik opisuje w `source` i `notes` pewność kształtu. Poprawia się je w edytorze z własnych obrazów właściciela (obrazy nie trafiają do repo).
+- **Znane ograniczenia:** nie da się zadeklarować celowego skrzyżowania (most, tunel), a Nürburgring 1976 rysuje się chwilowo z układu z 1951.
+
+**PP-055: Założenia tymczasowe pętli kariery do czasu wyników wyścigów w pętli (T47).**
+- **Zastępcza kwota startowa:** bez wpływów z wyścigów i sponsorów każdy zespół od razu bankrutowałby (zmierzone: kariera od 1950 bez kontraktów w 1959), więc każdy zespół dostaje co 1 stycznia tę samą kwotę (ESTIMATE: 30% typowego budżetu epoki). Wycofanie jest jednolinijkowe, gdy T47 zacznie księgować prawdziwe wyniki.
+- **Cele zarządu bez tabeli wyników** są liczone jako niespełnione (zasada „nieznany fakt = niespełniony”), więc zaufanie zarządu spada, ale nikt nie jest zwalniany, bo przeglądy idą w dni wyścigowe. Po T47 stan liczy się od nowa.
+- **Wygasanie pozycji w skrzynce jest aktywne** w przebiegu (wygasłe pozycje rozstrzygają się domyślną opcją jako zapisane komendy).
+- **Poprawka błędu z T39:** kontrakt podpisany komendą nie ginie już na końcu poranka (księga kontraktów jest związana ze światem sesji), co zmienia świat każdego przebiegu względem wcześniejszej wersji.
+
+### Przyjęte 2026-10-05 (szesnasta runda: dokumentacja)
+
+**PP-056: Dokumentacja w HTML generowana z .md i przewodnik „Jak działa gra”** (rozszerza PP-017).
 - **Pliki .md zostają jedynym źródłem.** Strona HTML powstaje z nich skryptem `node tools/docs/build-docs.mjs` (katalog `build/docs/`) i nie trafia do repo. Dokumenty linkują się nawzajem: decyzje PP, sekcje (np. DESIGN §5.3) i issues.
-- **Dochodzi szósty dokument, `GUIDE.md`.** Każdy ważny system gry opisany po ludzku, bez kodu: jak działa, co decydujesz, co masz czuć w grze, liczby do strojenia i stan. Służy do zbierania uwag właściciela w trakcie grania.
-- **Liczby i wykresy w przewodniku pochodzą z kodu.** Generator czyta stałe z plików C# przy każdym budowaniu, więc przewodnik nie rozjeżdża się z grą. Stała, której już nie ma, przerywa budowanie (także w CI).
+- **Dochodzi szósty dokument, `GUIDE.md`.** Przewodnik dla graczy i testerów, zbudowany wokół tego, co gracz faktycznie wybiera: wybory, krótkie segmenty, wykresy i pytania o opinię. Bez kodu, numerów zadań i tabel do strojenia. Służy do zbierania uwag od osób testujących grę.
+- **Liczby i wykresy w przewodniku pochodzą z kodu.** Generator czyta stałe z plików C# przy każdym budowaniu (w tekście jako `{Klasa.Stała}`), więc przewodnik nie rozjeżdża się z grą. Stała, której już nie ma, przerywa budowanie (także w CI).
 - Przewodnik nie zastępuje DESIGN ani VISION: decyzje i pełny projekt systemów zostają tam.

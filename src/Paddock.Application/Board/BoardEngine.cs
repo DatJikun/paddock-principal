@@ -382,6 +382,11 @@ public sealed class BoardEngine
             .WithUnemployed(new UnemployedRecord(manager.Value, today, organization, severance, 0, null));
         var board = section.Board(organization) ?? throw new InvalidOperationException("The team has no board.");
         _book.Update(section.WithBoard(board with { Principal = null }));
+        if (severance > 0)
+        {
+            _book.Severance.Pay(organization, manager.Value, severance, today);
+        }
+
         if (_managers.Contains(manager))
         {
             var name = _book.World.GetOrganization(organization).NameOn(today);

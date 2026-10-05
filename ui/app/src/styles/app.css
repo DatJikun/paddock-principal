@@ -229,6 +229,7 @@ a.fld:hover .v{text-decoration:underline;text-underline-offset:4px;text-decorati
 
 /* tabela */
 .table{width:100%;border-collapse:collapse}
+.table.fit{width:max-content;max-width:100%}
 .table th{font:600 12px var(--ui);letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--ink);white-space:nowrap;position:sticky;top:0;background:var(--card);z-index:1}
 .table th.r,.table td.r{text-align:right}
 .table th.c,.table td.c{text-align:center}
@@ -327,5 +328,11 @@ a.person:hover b{text-decoration:underline;text-underline-offset:3px}
   .go{padding:0 12px 0 18px}.go b{font-size:24px}
 }
 button.mail{appearance:none;width:100%;text-align:left;background:transparent;border:0;color:inherit;font:inherit;cursor:pointer}
+.text{box-sizing:border-box;min-height:46px;min-width:8ch;padding:0 14px;border:1.5px solid var(--ink);border-radius:var(--r-ctl);background:var(--card);box-shadow:0 3px 0 var(--ink)}
+.text:focus{outline:none;background:#fff}
+.start{display:grid;gap:22px;align-content:start;max-width:760px}
+.start .fld{padding-left:0;border-left:0}
+.report{display:grid;gap:8px;margin-top:22px;max-width:70ch}
+.report h2{margin-bottom:4px}
 .go[aria-disabled="true"]{cursor:default}
 .go[aria-disabled="true"]:hover,.go[aria-disabled="true"]:active{transform:none;box-shadow:0 5px 0 var(--ink),0 16px 26px -12px color-mix(in oklab,var(--ink) 60%,transparent)}

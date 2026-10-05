@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Paddock.Data.Authored;
+using Paddock.Data.Historical;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
 using Paddock.Domain.People;
@@ -156,6 +157,12 @@ public static class WorldInitializer
                 .OrderBy(id => id, Ordinal);
             foreach (var id in ids)
             {
+                if (OnlyIndianapolis500(id))
+                {
+                    Gap(WorldInitGapCodes.IndianapolisOnly, id);
+                    continue;
+                }
+
                 var (from, to) = SpanOf(id, _reference);
                 var founded = FoundedYear(id, from);
                 _currentTeams[id] = new TeamPlan(id, from, to, founded.Year, CountryOf(id, from), !founded.FromFounders);
@@ -296,6 +303,11 @@ public static class WorldInitializer
                 .ToArray();
             foreach (var entry in today)
             {
+                if (!_teamIds.ContainsKey(entry.ConstructorId))
+                {
+                    continue;
+                }
+
                 var slug = Slug(entry.Supplier);
                 if (slug.Length == 0 || string.Equals(slug, "unknown", StringComparison.Ordinal))
                 {
@@ -898,6 +910,32 @@ public static class WorldInitializer
         }
 
         // ---------------------------------------------------------------- shared helpers
+
+        /// <summary>
+        /// A constructor whose every authored engine row for the reference season cites the Indianapolis 500.
+        /// Those rows are the season's entries we have; calibration already drops that round
+        /// (<see cref="HistoricalEdges.IsIndianapolis500"/>). 1950–1960 only.
+        /// </summary>
+        private bool OnlyIndianapolis500(string constructorId)
+        {
+            if (_reference < HistoricalEdges.IndianapolisFirstSeason || _reference > HistoricalEdges.IndianapolisLastSeason)
+            {
+                return false;
+            }
+
+            var rows = _data.Engines.Entries
+                .Where(entry => entry.Year == _reference && string.Equals(entry.ConstructorId, constructorId, StringComparison.Ordinal))
+                .ToArray();
+            return rows.Length > 0 && rows.All(CitesIndianapolis500);
+        }
+
+        private static bool CitesIndianapolis500(EngineEntry entry)
+        {
+            var source = entry.Source ?? string.Empty;
+            var notes = entry.Notes ?? string.Empty;
+            return source.Contains("Indianapolis_500", StringComparison.Ordinal)
+                || notes.Contains("Indianapolis 500", StringComparison.Ordinal);
+        }
 
         private bool TryBirth(DateOnly? date, int? year, string id, string estimatedCode, out DateOnly birth)
         {

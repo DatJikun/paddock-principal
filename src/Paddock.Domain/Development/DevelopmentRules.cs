@@ -135,7 +135,7 @@ public static class EngineerRoster
                     role,
                     attributes,
                     DevelopmentMath.ExperienceOf(person.BirthDate, on),
-                    DevelopmentMath.AdaptationOf(contract.Start, on))));
+                    DevelopmentMath.AdaptationOf(TenureStart(world, contract), on))));
         }
 
         var ordered = found
@@ -149,5 +149,45 @@ public static class EngineerRoster
         }
 
         return ordered;
+    }
+
+    /// <summary>
+    /// The start of unbroken service: walk back over contracts of the same person and organization that meet end-to-end.
+    /// A renewal is a new contract starting the day after the previous one ends, and it does not reset adaptation.
+    /// </summary>
+    private static GameDate TenureStart(WorldState world, Contract contract)
+    {
+        var start = contract.Start;
+        var guard = 0;
+        while (guard++ < world.Contracts.Count + 1)
+        {
+            Contract? earlier = null;
+            foreach (var candidate in world.Contracts)
+            {
+                if (candidate.PersonId != contract.PersonId || candidate.OrganizationId != contract.OrganizationId)
+                {
+                    continue;
+                }
+
+                if (candidate.End.AddDays(1) != start)
+                {
+                    continue;
+                }
+
+                if (earlier is null || candidate.Start < earlier.Start)
+                {
+                    earlier = candidate;
+                }
+            }
+
+            if (earlier is null)
+            {
+                return start;
+            }
+
+            start = earlier.Start;
+        }
+
+        return start;
     }
 }

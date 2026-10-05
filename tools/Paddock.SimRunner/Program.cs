@@ -2,8 +2,15 @@ namespace Paddock.SimRunner;
 
 internal static class Program
 {
-    private static int Main(string[] args) =>
-        args.Length == 0 ? RngCommand.Execute(args, Console.Out, Console.Error) : args[0] switch
+    private static int Main(string[] args)
+    {
+        if (args.Length > 0 && SimRunnerCli.IsHelp(args[0]))
+        {
+            SimRunnerCli.WriteHelp(Console.Out);
+            return 0;
+        }
+
+        return args.Length == 0 ? RngCommand.Execute(args, Console.Out, Console.Error) : args[0] switch
         {
             "rng" => RngCommand.Execute(args, Console.Out, Console.Error),
             "gen-people" => GenPeopleCommand.Execute(args, Console.Out, Console.Error),
@@ -18,11 +25,12 @@ internal static class Program
             RunCommand.Name => RunCommand.Execute(args, Console.Out, Console.Error),
             _ => Unknown(args[0]),
         };
+    }
 
     private static int Unknown(string command)
     {
         Console.Error.WriteLine(
-            "Unknown command: " + command + ". Expected: rng, gen-people, toy, vote-sim, config, race-replay, race, i18n-check, init-world, run.");
+            "Unknown command: " + command + ". Expected: " + string.Join(", ", SimRunnerCli.Commands.Select(entry => entry.Name)) + ".");
         return 1;
     }
 }

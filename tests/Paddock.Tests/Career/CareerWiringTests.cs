@@ -80,7 +80,9 @@ public sealed class CareerWiringTests
         Assert.Equal(Money.FromDollars(facts.TopDollars).Cents, Opening("mercedes"));
         Assert.Equal(Money.FromDollars(facts.TypicalDollars).Cents, Opening("ferrari"));
         Assert.Equal(Money.FromDollars(facts.LowDollars).Cents, Opening("gordini"));
-        Assert.Equal(Money.FromDollars(facts.TypicalDollars).Cents, Opening("pawl"));
+        // pawl's only 1955 entries are the Indianapolis 500, so that constructor is not planned and has no book.
+        // arzani-volpini is a 1955 Grand Prix team with no authored 1954 standing: missing facts mean Typical.
+        Assert.Equal(Money.FromDollars(facts.TypicalDollars).Cents, Opening("arzani-volpini"));
         Assert.True(facts.TopDollars > facts.TypicalDollars && facts.TypicalDollars > facts.LowDollars);
     }
 
@@ -138,13 +140,16 @@ public sealed class CareerWiringTests
     public void WithThePlaceholderIncomeAnAiOnlyCareerDoesNotRunDryAndKeepsRenewingContracts()
     {
         // Measured without the placeholder: every team is insolvent by 1958 and a Chaos career from 1950 has no contracts by 1959.
+        // A8 does not plan Indianapolis-only constructors. The 1950 Chaos grid is then the Grand Prix teams (two generated
+        // seats each) plus the unsigned new team. Seed 7 ends 1960 with 16 live contracts, and the even years still renew.
+        // The same run with those constructors included ends at 41, which is why the old floor was 30.
         var session = CareerKit.Open(CareerPreset.Chaos, 1950, Seed);
 
         CareerHost.Run(session, 1960, null, CareerKit.Options);
 
         var finance = session.World.Section<FinanceSection>(FinanceSection.SectionName)!;
         Assert.DoesNotContain(session.World.Organizations, organization => finance.HasBook(organization.Id) && finance.IsInsolvent(organization.Id));
-        Assert.True(session.Years[^1].Contracts >= 30, "contracts at the end of 1960: " + session.Years[^1].Contracts);
+        Assert.True(session.Years[^1].Contracts >= 12, "contracts at the end of 1960: " + session.Years[^1].Contracts);
     }
 
     [Fact]

@@ -90,7 +90,8 @@ public sealed record EngineeringCapacity(int Headcount, double Quality, int Refe
     {
         ArgumentNullException.ThrowIfNull(engineers);
         var reference = EraHeadcount(year);
-        var filled = Math.Min(engineers.Count(engineer => engineer.Role is not null), Math.Max(1, keyChairsInEra));
+        var distinctRoles = engineers.Where(engineer => engineer.Role is not null).Select(engineer => engineer.Role).Distinct().Count();
+        var filled = Math.Min(distinctRoles, Math.Max(1, keyChairsInEra));
         var staffFactor = DevelopmentEstimates.StaffFactorFloor
             + ((1d - DevelopmentEstimates.StaffFactorFloor) * filled / Math.Max(1, keyChairsInEra));
         var headcount = Math.Max(1, (int)Math.Round(reference * staffFactor, MidpointRounding.AwayFromZero));

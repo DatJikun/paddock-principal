@@ -363,6 +363,62 @@ public class SupplyNegotiationTests
             contribution);
     }
 
+    [Fact]
+    public void AcceptingACounterIsRefusedWhenTheSupplierBecameExclusive()
+    {
+        var kit = new SupplyKit(Opening);
+        var floor = kit.Floor(SupplyItem.Engine, SupplyKind.Customer);
+        kit.Propose(SupplyKit.Anna, SupplyKit.Alfa, SupplyKit.Acme, floor / 2, Opening);
+        kit.Live(Opening, 8);
+        var countered = kit.Book.Section.Negotiations[0];
+        Assert.Equal(NegotiationStatus.Countered, countered.Status);
+
+        var (withDeal, _) = kit.Book.Section.AddDeal(new SupplyDeal(
+            kit.Book.Section.NextDeal,
+            SupplyItem.Engine,
+            SupplyKind.Customer,
+            SupplyKit.Acme,
+            SupplyKit.Beta,
+            1955,
+            new SupplyTerms(floor, 1, exclusive: true),
+            Opening,
+            SupplyDealStatus.Active,
+            null,
+            0,
+            null));
+        kit.Book.Write(withDeal);
+
+        var accept = new RespondToSupplyOfferCommand
+        {
+            ManagerId = SupplyKit.Anna,
+            IssuedOn = SupplyKit.Day(Opening.AddDays(9)),
+            OrganizationId = SupplyKit.Alfa.Value,
+            NegotiationId = countered.Id,
+            Accept = true,
+        };
+        Assert.Equal(SupplyReasons.ExclusiveTaken, kit.Run(accept));
+        Assert.Single(kit.Book.Section.Deals);
+        Assert.Equal(NegotiationStatus.Countered, kit.Book.Section.FindNegotiation(countered.Id)!.Status);
+    }
+
+    [Fact]
+    public void ADealForASeasonAlreadyOverIsNotSigned()
+    {
+        var offered = new GameDate(1955, 12, 31);
+        var kit = new SupplyKit(offered);
+        var price = kit.Floor(SupplyItem.Engine, SupplyKind.Customer);
+        kit.Propose(SupplyKit.Anna, SupplyKit.Alfa, SupplyKit.Acme, price, offered, seasons: 1);
+
+        kit.Live(offered, 8);
+
+        Assert.Empty(kit.Book.Section.Deals);
+        var talks = Assert.Single(kit.Book.Section.Negotiations);
+        Assert.Equal(NegotiationStatus.Refused, talks.Status);
+        Assert.Contains(SupplyKeys.BadSeason, talks.Reasons);
+        Assert.Contains(SupplyKeys.InboxRefusedSubject, kit.InboxSubjects(SupplyKit.Anna));
+        Assert.DoesNotContain(SupplyKeys.InboxSignedSubject, kit.InboxSubjects(SupplyKit.Anna));
+    }
+
     private sealed class FixedProgrammes : IEngineProgrammes
     {
         private readonly OrganizationId _organization;

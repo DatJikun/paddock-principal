@@ -220,16 +220,15 @@ public sealed class ApproveConceptHandler : CommandHandler<ApproveConceptCommand
         var today = new GameDate(command.IssuedOn.Year, command.IssuedOn.Month, command.IssuedOn.Day);
         var section = _book.Section;
         var stream = RngStream.Derive(_book.MasterSeed, RngStreamName.Development, today.Year);
-        var child = stream.DeriveChild(organization.Value + "|ceiling|" + section.NextCeilingDraw.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        var child = stream.DeriveChild(CeilingTag(organization, today.Year, concept));
         var quality = TeamEngineers.ExecutionQuality(_book.World, organization, today);
         var (ceiling, _) = ConceptMapping.DrawPotential(child, concept.Philosophy, quality);
         var effects = ConceptMapping.Effects(concept, ceiling);
         var levels = ConceptMapping.StartingLevels(concept, ceiling);
-        section = section.AdvanceCeilingDraw();
         var existing = section.Of(organization);
         if (existing.Count == 0)
         {
-            var drivers = InitialCarFactory.RaceDrivers(_book.World, organization, today.Year);
+            var drivers = InitialCarFactory.RaceDrivers(_book.World, organization, today);
             for (var seat = 0; seat < CarEstimates.CarsPerTeam; seat++)
             {
                 PersonId? driver = seat < drivers.Count ? drivers[seat] : null;
@@ -266,6 +265,15 @@ public sealed class ApproveConceptHandler : CommandHandler<ApproveConceptCommand
         _book.Replace(section);
         return [new ConceptApproved(command.ManagerId, command.IssuedOn, organization.Value)];
     }
+
+    /// <summary>
+    /// The ceiling draw is a child of Development tagged with the organization, the season and the concept axes.
+    /// The same concept therefore draws the same ceiling; approving again cannot fish for a better one.
+    /// </summary>
+    private static string CeilingTag(OrganizationId organization, int season, CarConcept concept) =>
+        string.Create(
+            System.Globalization.CultureInfo.InvariantCulture,
+            $"{organization.Value}|ceiling|{season}|{CarEstimates.Milli(concept.Aero)}|{CarEstimates.Milli(concept.Philosophy)}|{CarEstimates.Milli(concept.Window)}|{CarEstimates.Milli(concept.Cooling)}|{CarEstimates.Milli(concept.TyreKindness)}|{CarEstimates.Milli(concept.Integration)}");
 }
 
 public sealed class AcquireCustomerCarHandler : CommandHandler<AcquireCustomerCarCommand>

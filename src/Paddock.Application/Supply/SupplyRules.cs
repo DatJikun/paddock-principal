@@ -139,9 +139,50 @@ public static class SupplyRules
     /// Signs the negotiation at <paramref name="terms"/>: adds the deal, closes the negotiation as agreed, and points the customer's
     /// cars at the engine when it is in force. Returns null (and changes nothing) when a deal signed meanwhile now overlaps.
     /// </summary>
+    /// <summary>
+    /// Why the deal cannot be signed now, or null. Exclusivity and supplier capacity are checked again here: a counter
+    /// accepted later, or a supplier answer, can land after another team has taken the supplier.
+    /// A first season that is already over is rejected too (the proposal check only saw the day the offer was made).
+    /// </summary>
+    public static string? RefusalAtSign(SupplySection section, SupplyNegotiation negotiation, SupplyTerms terms, GameDate today)
+    {
+        ArgumentNullException.ThrowIfNull(section);
+        ArgumentNullException.ThrowIfNull(negotiation);
+        ArgumentNullException.ThrowIfNull(terms);
+        if (negotiation.FirstSeason < today.Year)
+        {
+            return SupplyKeys.BadSeason;
+        }
+
+        var others = section.ServedBy(negotiation.Supplier, negotiation.Item, new GameDate(negotiation.FirstSeason, 1, 1))
+            .Where(deal => deal.Customer != negotiation.Customer)
+            .ToArray();
+        if (others.Any(deal => deal.Terms.Exclusive))
+        {
+            return Paddock.Domain.Supply.SupplyReasons.ExclusiveTaken;
+        }
+
+        if (terms.Exclusive && others.Length > 0)
+        {
+            return Paddock.Domain.Supply.SupplyReasons.ExclusiveUnavailable;
+        }
+
+        if (others.Length >= SupplyEstimates.MaxCustomersPerSupplier)
+        {
+            return Paddock.Domain.Supply.SupplyReasons.NoCapacity;
+        }
+
+        return null;
+    }
+
     public static (WorldState World, SupplyDeal Deal)? Sign(WorldState world, SupplyNegotiation negotiation, SupplyTerms terms, GameDate today)
     {
         var section = world.Section<SupplySection>(SupplySection.SectionName) ?? SupplySection.Empty;
+        if (RefusalAtSign(section, negotiation, terms, today) is not null)
+        {
+            return null;
+        }
+
         var last = negotiation.FirstSeason + terms.Seasons - 1;
         if (section.DealsOf(negotiation.Customer).Any(existing => existing.Item == negotiation.Item && existing.Overlaps(negotiation.FirstSeason, last)))
         {

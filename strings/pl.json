@@ -151,6 +151,7 @@
   "world.init.gap.supplier_unknown": "Zespoły z nieznanym dostawcą silnika",
   "world.init.gap.lineage_truncated": "Łańcuchy ciągłości urwane, bo id konstruktora się powtarza (ciągłość:konstruktor)",
   "world.init.gap.reference_season_clamped": "Lata startu po ostatnim sezonie danych autorskich (użyto zespołów z ostatniego sezonu)",
+  "world.init.gap.indianapolis_only": "Konstruktorzy pominięci, bo w sezonie startowym startowali tylko w Indianapolis 500",
   "world.init.error.invalid_config": "Konfiguracja kariery jest nieprawidłowa: {codes}.",
   "world.init.error.unknown_player_team": "Zespół {team} nie istniał w roku {year}.",
   "inbox.error.itemUnknown": "Taka wiadomość nie istnieje.",

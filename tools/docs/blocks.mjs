@@ -4,12 +4,11 @@
 //   {ClassName.Name}       a constant of any static class in src/ or tools/
 //   {Name|dni}             the same with a format (see formatValue in build-docs.mjs)
 //
-//   ```stan dziala|toku|projekt|pozniej   status of the chapter; the body is one line of detail
+//   ```stan dziala|toku|projekt|pozniej   (legacy, not used in GUIDE.md) status of the chapter
 //   ```pola [path]          fields: Etykieta | wartość | dopisek
 //   ```kroki                numbered flow: Tytuł | opis
 //   ```wybory               player decisions: Decyzja | co zmienia
-//   ```wgrze                feedback map: Jeśli w grze… | sprawdź
-//   ```pytania              questions for testers, one per line
+//   ```pytania              questions for testers, one per line ("Twoja opinia")
 //   ```porownanie A | B     two columns side by side: Wiersz | A | B
 
 import { renderInline, escapeHtml } from './markdown.mjs';

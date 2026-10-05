@@ -4,9 +4,10 @@
 //   node tools/docs/build-docs.mjs            write build/docs/ (open build/docs/index.html)
 //   node tools/docs/build-docs.mjs --out DIR  write somewhere else
 //
-// The .md files stay the source (PP-054). The output is generated and not committed.
+// The .md files stay the source (PP-056). The output is generated and not committed.
 // GUIDE.md may hold custom fences that read the game's code, so the numbers never drift
-// (the segmented blocks pola, kroki, wybory, wgrze, pytania, porownanie and stan are described in blocks.mjs):
+// (the segmented blocks pola, kroki, wybory, pytania and porownanie are described in blocks.mjs;
+// GUIDE.md no longer uses strojenie, stan or wgrze, they stay for old files):
 //   ```strojenie <path to a .cs file>      a table of tunable constants: "Name | opis | format"
 //   ```wykres <name>                       a chart from charts.mjs (the body is its caption)
 //   ```wykres słupki                       a bar chart whose data is in the fence
@@ -198,7 +199,7 @@ function indexBody(r) {
 }
 
 const INDEX_DESC = {
-  GUIDE: 'Każdy system gry po ludzku: jak działa, co decydujesz, co masz czuć w grze i które liczby można stroić.',
+  GUIDE: 'Przewodnik dla testerów: co wybierasz w grze, jak to działa, z wykresami i pytaniami o Twoją opinię.',
   VISION: 'Kierunek projektu, filary i wszystkie przyjęte decyzje PP-001 i dalej.',
   ROADMAP: 'Fazy z bramkami, stan prac i otwarte pytania.',
   DESIGN: 'Pełny projekt systemów: świat, historia, epoki, auto, ludzie, wyścig, AI, ekonomia.',

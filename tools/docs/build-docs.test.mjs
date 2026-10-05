@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { renderMarkdown, resolveRefs, headingId } from './markdown.mjs';
 import { CodeValues, smooth, linear } from './code-values.mjs';
 import { buildSite, unitFor } from './build-docs.mjs';
+import { makeBlocks } from './blocks.mjs';
 import { fmt } from './charts.mjs';
 
 const ctx = (page = 'design.html', extra = {}) => ({
@@ -118,14 +119,37 @@ test('Polish numbers and units', () => {
   assert.equal(unitFor(4, 'sezonów'), 'sezony');
 });
 
+test('pytania renders a list of questions and fills constants', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ppdocs-'));
+  mkdirSync(join(root, 'src'));
+  writeFileSync(join(root, 'src', 'B.cs'), ['public static class B', '{', '    public const int Days = 14;', '}'].join('\n'));
+  const cv = new CodeValues(root);
+  const blocks = makeBlocks({ cv, ctx: ctx(), formatValue: (v, spec) => `${v} ${spec}`.trim() });
+  const html = blocks.pytania(null, ['Czy {B.Days|dni} to dużo?', '', 'Drugie pytanie']);
+  assert.match(html, /^<div class="ask"><span class="ask-head">Twoja opinia<\/span><ul>/);
+  assert.equal((html.match(/<li>/g) ?? []).length, 2, 'blank lines are skipped');
+  assert.match(html, /<span class="num">14 dni<\/span>/);
+});
+
 test('the real docs build: every constant and chart in GUIDE.md resolves', () => {
   const files = buildSite();
   for (const page of ['index.html', 'przewodnik.html', 'vision.html', 'design.html', 'tech.html']) {
     assert.ok(files.get(page)?.includes('</html>'), page);
   }
   const guide = files.get('przewodnik.html');
-  assert.ok((guide.match(/class="chart"/g) ?? []).length >= 15, 'charts rendered');
-  assert.ok((guide.match(/class="t-val"/g) ?? []).length >= 100, 'tunables rendered');
+  assert.ok((guide.match(/class="chart"/g) ?? []).length >= 10, 'charts rendered');
+  assert.ok((guide.match(/class="choices"/g) ?? []).length >= 8, 'player choices rendered');
+  assert.ok((guide.match(/class="ask"/g) ?? []).length >= 8, 'questions for testers rendered');
   assert.doesNotMatch(guide, /@@/, 'every cross reference resolved');
   assert.doesNotMatch(guide, /NaN|undefined/);
+});
+
+test('the guide is for outsiders: no code names, issue numbers or decision ids', () => {
+  const guide = buildSite().get('przewodnik.html');
+  const body = guide.slice(guide.indexOf('<main'), guide.indexOf('</main>'));
+  assert.doesNotMatch(body, /t-name|class="tune"|class="badge/, 'no tuning tables or status badges');
+  assert.doesNotMatch(body, /\{[A-Za-z]/, 'no unresolved placeholders');
+  assert.doesNotMatch(body, /PP-\d{3}/, 'no decision ids');
+  assert.doesNotMatch(body, /#\d{2,}/, 'no issue numbers');
+  assert.doesNotMatch(body, /[A-Z][A-Za-z]+(Estimates|Constants)|\.cs/, 'no class or file names');
 });

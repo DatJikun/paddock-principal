@@ -45,6 +45,7 @@ public static class BridgeRegistry
         Endpoint(Query, "staff", typeof(ManagerCall), typeof(StaffListView)),
         Endpoint(Query, "market", typeof(ManagerCall), typeof(MarketView)),
         Endpoint(Query, "driver", typeof(DriverCall), typeof(DriverProfileView)),
+        Endpoint(Query, "manager", typeof(ManagerCall), typeof(ManagerProfileView)),
         Endpoint(Command, "advanceDay", typeof(ManagerCall), typeof(AdvanceDayView)),
         Endpoint(Command, "resolveInbox", typeof(ResolveInboxCall), typeof(CommandAck)),
         Endpoint(Command, "dismissInbox", typeof(DismissInboxCall), typeof(CommandAck)),

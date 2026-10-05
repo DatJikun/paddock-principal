@@ -2,6 +2,11 @@ import { HUMAN_MANAGER_ID, query } from './api/client';
 import type {
   BoardView,
   CalendarRoundView,
+  FinanceView,
+  ManagerProfileView,
+  ManagerSupplyView,
+  PoolView,
+  SponsorView,
   CalendarView,
   DevelopmentOverview,
   DriverProfileView,
@@ -72,7 +77,20 @@ export type MarketData = {
   drivers: DriversView;
 };
 
+export type FinanceData = { kind: 'finanse'; finance: FinanceView };
+export type SponsorData = { kind: 'sponsorzy'; sponsors: SponsorView; today: string };
+export type BoardData = { kind: 'zarzad'; board: BoardView; manager: ManagerProfileView; today: string };
+export type ManagerData = { kind: 'menedzer'; board: BoardView; manager: ManagerProfileView };
+export type SupplyData = { kind: 'dostawcy'; supply: ManagerSupplyView; today: string };
+export type AcademyData = { kind: 'akademia'; pool: PoolView; today: string };
+
 export type ScreenData =
+  | FinanceData
+  | SponsorData
+  | BoardData
+  | ManagerData
+  | SupplyData
+  | AcademyData
   | PulpitData
   | InboxData
   | CalendarData
@@ -157,6 +175,28 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
     case 'osoba': {
       const [staff, drivers, shell] = await Promise.all([query('staff', call), query('drivers', call), query('shell', call)]);
       return { kind: name, staff, drivers, today: shell.date };
+    }
+    case 'finanse':
+      return { kind: 'finanse', finance: await query('finance', call) };
+    case 'sponsorzy': {
+      const [sponsors, shell] = await Promise.all([query('sponsors', call), query('shell', call)]);
+      return { kind: 'sponsorzy', sponsors, today: shell.date };
+    }
+    case 'zarzad': {
+      const [board, manager, shell] = await Promise.all([query('board', call), query('manager', call), query('shell', call)]);
+      return { kind: 'zarzad', board, manager, today: shell.date };
+    }
+    case 'menedzer': {
+      const [board, manager] = await Promise.all([query('board', call), query('manager', call)]);
+      return { kind: 'menedzer', board, manager };
+    }
+    case 'dostawcy': {
+      const [supply, shell] = await Promise.all([query('supply', call), query('shell', call)]);
+      return { kind: 'dostawcy', supply, today: shell.date };
+    }
+    case 'akademia': {
+      const [pool, shell] = await Promise.all([query('pool', call), query('shell', call)]);
+      return { kind: 'akademia', pool, today: shell.date };
     }
     case 'auto': {
       const [cars, development, staff] = await Promise.all([query('cars', call), query('development', call), query('staff', call)]);

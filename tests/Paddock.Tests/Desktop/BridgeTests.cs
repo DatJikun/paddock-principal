@@ -482,6 +482,34 @@ public class BridgeTests
     }
 
     [Fact]
+    public void TheManagerProfileIsThePrincipalTheCareerCreated()
+    {
+        using var career = Lobby();
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"ferrari","givenName":"Enzo","familyName":"Test","nationality":"ITA","tilt":"negotiation","preset":"Chaos","year":1955,"seed":1}"""));
+        using (var startedJson = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        var hash = career.Host.StateHash;
+        var reply = career.Host.Handle(Message("manager", "query", "manager"));
+        using var json = JsonDocument.Parse(reply.Response);
+        var profile = json.RootElement.GetProperty("data");
+        Assert.True(profile.GetProperty("found").GetBoolean(), reply.Response);
+        Assert.Equal("Enzo Test", profile.GetProperty("name").GetString());
+        Assert.Equal("ITA", profile.GetProperty("nationality").GetString());
+        Assert.Equal(40, profile.GetProperty("age").GetInt32());
+        var negotiation = profile.GetProperty("attributes").EnumerateArray().Single(item => item.GetProperty("key").GetString() == "negotiation");
+        var politics = profile.GetProperty("attributes").EnumerateArray().Single(item => item.GetProperty("key").GetString() == "politics");
+        Assert.True(negotiation.GetProperty("low").GetInt32() > politics.GetProperty("low").GetInt32());
+        Assert.Equal(hash, career.Host.StateHash);
+    }
+
+    [Fact]
     public void AnOpenNegotiationCanBeReadBack()
     {
         using var career = Lobby();

@@ -20,11 +20,15 @@
   import { startSmoke } from './lib/smoke';
   import { sweep } from './lib/sweep';
   import { icon, ICON, initials, translator } from './lib/ui';
+  import Akademia from './screens/Akademia.svelte';
   import Auto from './screens/Auto.svelte';
+  import Dostawcy from './screens/Dostawcy.svelte';
+  import Finanse from './screens/Finanse.svelte';
   import Kalendarz from './screens/Kalendarz.svelte';
   import Kierowca from './screens/Kierowca.svelte';
   import Kierowcy from './screens/Kierowcy.svelte';
   import Klasyfikacje from './screens/Klasyfikacje.svelte';
+  import Menedzer from './screens/Menedzer.svelte';
   import Negocjacja from './screens/Negocjacja.svelte';
   import Osoba from './screens/Osoba.svelte';
   import Personel from './screens/Personel.svelte';
@@ -32,7 +36,9 @@
   import Pulpit from './screens/Pulpit.svelte';
   import Rynek from './screens/Rynek.svelte';
   import Skrzynka from './screens/Skrzynka.svelte';
+  import Sponsorzy from './screens/Sponsorzy.svelte';
   import Wyscig from './screens/Wyscig.svelte';
+  import Zarzad from './screens/Zarzad.svelte';
 
   type Route = { name: string; args: string[] };
 
@@ -529,14 +535,14 @@
       <header class="top">
         <div class="hud">
           <button class="cell menu-btn" type="button" aria-label={t('game.menu.open')} title={t('game.menu.open')} onclick={openGameMenu}>{@html icon(ICON.menu, 22)}</button>
-          <span class="cell me">
+          <a class="cell me" href="#/menedzer">
             <span class="av">{initials(shell?.organizationName ?? '')}</span>
             <span><b>{shell?.organizationName ?? '—'}</b><small>{t('shell.role')}</small></span>
-          </span>
-          <span class="cell">
+          </a>
+          <a class="cell" href="#/finanse">
             <span class="meta">{t('shell.cash')}</span>
             <span class="num v">{formatMoney(shell?.cashCents ?? null, lang)}</span>
-          </span>
+          </a>
         </div>
         <div class="spacer"></div>
         <div class="hud">
@@ -618,6 +624,18 @@
           <Rynek data={screenData} {tr} />
         {:else if screenData.kind === 'negocjacja' && route.name === 'negocjacja'}
           <Negocjacja data={screenData} {tr} id={route.args[0] ?? ''} {busy} {act} />
+        {:else if screenData.kind === 'finanse' && route.name === 'finanse'}
+          <Finanse data={screenData} {tr} />
+        {:else if screenData.kind === 'sponsorzy' && route.name === 'sponsorzy'}
+          <Sponsorzy data={screenData} {tr} {teamId} {busy} {act} />
+        {:else if screenData.kind === 'zarzad' && route.name === 'zarzad'}
+          <Zarzad data={screenData} {tr} {teamId} />
+        {:else if screenData.kind === 'menedzer' && route.name === 'menedzer'}
+          <Menedzer data={screenData} {tr} {teamId} />
+        {:else if screenData.kind === 'dostawcy' && route.name === 'dostawcy'}
+          <Dostawcy data={screenData} {tr} {teamId} {busy} {act} />
+        {:else if screenData.kind === 'akademia' && route.name === 'akademia'}
+          <Akademia data={screenData} {tr} {busy} {act} />
         {:else if route.name === 'ustawienia'}
           <div class="screen-head">
             <h1 class="screen">{t(SETTINGS.key)}</h1>

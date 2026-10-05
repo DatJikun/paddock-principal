@@ -79,7 +79,7 @@ export const SHELL_KEYS = [
 ];
 
 /** Pages that are not in the menu light up their parent: a race page belongs to the calendar, a driver page to the squad. */
-export const PARENT = { wyscig: 'kalendarz', kierowca: 'kierowcy', porownaj: 'kierowcy', osoba: 'personel', negocjacja: 'rynek' };
+export const PARENT = { wyscig: 'kalendarz', kierowca: 'kierowcy', porownaj: 'kierowcy', osoba: 'personel', negocjacja: 'rynek', menedzer: 'zarzad' };
 
 const ids = [...NAV.filter((item) => item.id).map((item) => item.id), SETTINGS.id, ...Object.keys(PARENT)];
 

@@ -281,6 +281,16 @@ export interface ManagerCarRoster {
   rivals: RivalCarView[];
 }
 
+export interface ManagerProfileView {
+  age: number;
+  attributes: KnownAttributeView[];
+  found: boolean;
+  name: string;
+  nationality: string;
+  personId: string;
+  since: string | null;
+}
+
 export interface ManagerSupplyView {
   deals: OwnSupplyDealView[];
   talks: OwnSupplyTalkView[];
@@ -995,6 +1005,7 @@ export interface BridgeQueryMap {
   staff: { args: ManagerCall; result: StaffListView };
   market: { args: ManagerCall; result: MarketView };
   driver: { args: DriverCall; result: DriverProfileView };
+  manager: { args: ManagerCall; result: ManagerProfileView };
 }
 
 export interface BridgeCommandMap {

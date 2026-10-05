@@ -171,6 +171,7 @@ public sealed partial class CareerBridge
             "staff" => BridgeValues.ToNode(ReadStaff()),
             "market" => BridgeValues.ToNode(ReadMarket(access)),
             "driver" => BridgeValues.ToNode(ReadDriver(args)),
+            "manager" => BridgeValues.ToNode(ReadManager()),
             _ => throw new InvalidOperationException("Query '" + name + "' is registered but not implemented."),
         };
     }

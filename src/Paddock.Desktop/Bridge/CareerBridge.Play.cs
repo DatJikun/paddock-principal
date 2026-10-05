@@ -267,6 +267,12 @@ public sealed partial class CareerBridge
         return DriverProfileRead.Of(Session.World, id, Session.Date, person);
     }
 
+    private ManagerProfileView ReadManager()
+    {
+        var organization = Box.Require<BoardBook>().Section.OrganizationOf(Human.Value);
+        return organization is OrganizationId id ? ManagerProfileRead.Of(Session.World, id, Session.Date) : ManagerProfileRead.None;
+    }
+
     private MarketView ReadMarket(Paddock.Application.Access.AccessContext access)
     {
         var organization = Box.Require<BoardBook>().Section.OrganizationOf(Human.Value);

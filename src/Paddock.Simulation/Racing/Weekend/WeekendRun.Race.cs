@@ -396,7 +396,7 @@ internal sealed partial class WeekendRun
 
         if (failure.Retirement is { } retirement && retirement.Lap == lap)
         {
-            w.Retire = new RetireInfo(lap, 0d, RetirementReason.Mechanical, retirement.Component, InjuryGrade.None, false, car.Driver.DriverId);
+            w.Retire = new RetireInfo(lap, 0d, RetirementReason.Mechanical, retirement.Component, InjuryGrade.None, false, car.Driver.DriverId, retirement.Sudden);
         }
     }
 

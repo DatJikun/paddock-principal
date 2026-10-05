@@ -98,7 +98,11 @@ public sealed class CareerBridge
             dispatcher,
             ai,
             CareerModules.Default,
-            LoadInputs(dataRoot, data, created.EngineSupplies));
+            LoadInputs(dataRoot, data, created.EngineSupplies),
+            // Seat the player on his team, so the AI principal director (T44) never runs it.
+            created.PlayerOrganization.IsAssigned
+                ? [new CareerHuman(HumanManagerId, "Principal", created.PlayerOrganization.Value)]
+                : null);
 
         if (created.PlayerOrganization.IsAssigned)
         {

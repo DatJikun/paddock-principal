@@ -209,7 +209,13 @@ public class FailureSamplerTests
         {
             foreach (var failure in new[] { sample.First, sample.Retirement }.OfType<MechanicalFailure>())
             {
-                if (failure.Lap > 5)
+                if (failure.Sudden)
+                {
+                    Assert.Null(failure.WarningLap);
+                    Assert.Equal(0, failure.DegradedPaceLossFraction);
+                    sudden++;
+                }
+                else if (failure.Lap > 5)
                 {
                     Assert.Equal(failure.Lap - 5, failure.WarningLap);
                     Assert.Equal(ReliabilityConstants.DegradedPaceLossFraction, failure.DegradedPaceLossFraction);
@@ -228,11 +234,62 @@ public class FailureSamplerTests
     }
 
     [Fact]
+    public void AboutAThirdOfFailuresWithRoomForAWarningAreSudden_AndHaveNoDegradedPace()
+    {
+        var inputs = ReferenceInputs(1955);
+        var sudden = 0;
+        var eligible = 0;
+
+        foreach (var sample in SampleField(4_000, 80, AllComponents(0.0), inputs))
+        {
+            var failures = sample.Retirement is not null && !ReferenceEquals(sample.Retirement, sample.First)
+                ? new[] { sample.First, sample.Retirement }
+                : new[] { sample.First };
+            foreach (var failure in failures.OfType<MechanicalFailure>())
+            {
+                if (failure.Lap <= ReliabilityConstants.DefaultWarningLeadLaps)
+                {
+                    continue;
+                }
+
+                eligible++;
+                if (!failure.Sudden)
+                {
+                    Assert.Equal(failure.Lap - ReliabilityConstants.DefaultWarningLeadLaps, failure.WarningLap);
+                    continue;
+                }
+
+                sudden++;
+                Assert.Null(failure.WarningLap);
+                Assert.Equal(0, failure.DegradedPaceLossFraction);
+                Assert.Equal(0, failure.DegradedPaceLossOnLap(failure.Lap - 1));
+            }
+        }
+
+        Assert.True(eligible > 500);
+        var share = (double)sudden / eligible;
+        Assert.InRange(share, ReliabilityConstants.SuddenFailureShare - 0.05, ReliabilityConstants.SuddenFailureShare + 0.05);
+    }
+
+    [Fact]
+    public void TheSuddenDrawDoesNotAdvanceTheCarsSequentialDraws()
+    {
+        var race = FailureSampler.DeriveRaceStream(Seed, 1955, 1);
+        var before = NextFour(race.DeriveChild("car:probe"));
+        race.DeriveChild("sudden:probe:lap:12").NextDouble();
+        var after = NextFour(race.DeriveChild("car:probe"));
+        Assert.Equal(before, after);
+    }
+
+    private static double[] NextFour(Xoshiro256StarStar rng) =>
+        [rng.NextDouble(), rng.NextDouble(), rng.NextDouble(), rng.NextDouble()];
+
+    [Fact]
     public void Warning_UsesTheDefaultLeadWhenNoOptionsAreGiven_AndIsActiveUpToTheFailureLap()
     {
         var failure = SampleField(5_000, Laps, AllComponents(0.0), ReferenceInputs(1955))
             .Select(s => s.First)
-            .First(f => f is { Lap: > 10 })!;
+            .First(f => f is { Lap: > 10, Sudden: false })!;
 
         Assert.Equal(failure.Lap - ReliabilityConstants.DefaultWarningLeadLaps, failure.WarningLap);
         Assert.False(failure.WarningActiveOnLap(failure.WarningLap!.Value - 1));

@@ -43,7 +43,8 @@ public sealed class SponsorsModule : CareerModule
             eras,
             finance,
             context.Require<IOrganizationControl>(),
-            context.Require<IObjectiveFacts>());
+            context.Require<IObjectiveFacts>(),
+            outlook: new PublicTeamOutlook(() => session.World));
         var inbox = context.Require<InboxBook>();
         context.Provide(book);
         context.Provide(environment);

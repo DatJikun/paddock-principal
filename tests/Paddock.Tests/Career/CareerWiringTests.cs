@@ -33,14 +33,14 @@ public sealed class CareerWiringTests
 
         // season change 5 (host), pool 10, ageing 20, last season 25, contract expiry 30, rollover 40 (the session), negotiations 700, contract lifecycle 710,
         // sponsors 750, supply 760, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
-        Assert.Equal([5, 10, 20, 25, 30, 40, 700, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
+        Assert.Equal([5, 10, 15, 20, 25, 30, 40, 700, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
     }
 
     [Fact]
     public void TheModuleListIsTheDocumentedOneAndNamesAreUnique()
     {
         Assert.Equal(
-            ["objectives", "finance", "contracts", "pool", "cars", "sponsors", "supply", "development", "board"],
+            ["objectives", "finance", "contracts", "pool", "cars", "sponsors", "supply", "development", "board", "principals"],
             CareerModules.Default.Select(module => module.Name).ToArray());
     }
 
@@ -141,17 +141,24 @@ public sealed class CareerWiringTests
     [Fact]
     public void WithThePlaceholderIncomeAnAiOnlyCareerDoesNotRunDryAndKeepsRenewingContracts()
     {
-        // Measured without the placeholder: every team is insolvent by 1958 and a Chaos career from 1950 has no contracts by 1959.
+        // Measured without the income stand-in: every team is insolvent by 1958 and a Chaos career from 1950 has no contracts by 1959.
         // A8 does not plan Indianapolis-only constructors. The 1950 Chaos grid is then the Grand Prix teams (two generated
-        // seats each) plus the unsigned new team. Seed 7 ends 1960 with 16 live contracts, and the even years still renew.
-        // The same run with those constructors included ends at 41, which is why the old floor was 30.
+        // seats each) plus the unsigned new team. With the renewal placeholder, seed 7 ended 1960 with 16 live contracts.
+        // The AI principals renew and sign through the decade (25 contracts at the end of 1960). They also spend, and alta's
+        // book reaches the insolvency watch; the other books do not.
         var session = CareerKit.Open(CareerPreset.Chaos, 1950, Seed);
 
         CareerHost.Run(session, 1960, null, CareerKit.Options);
 
         var finance = session.World.Section<FinanceSection>(FinanceSection.SectionName)!;
-        Assert.DoesNotContain(session.World.Organizations, organization => finance.HasBook(organization.Id) && finance.IsInsolvent(organization.Id));
-        Assert.True(session.Years[^1].Contracts >= 12, "contracts at the end of 1960: " + session.Years[^1].Contracts);
+        // The renewal placeholder did not spend. The principals do (development, supply, sponsors), so one backmarker
+        // reaches the insolvency watch. The grid does not collapse: 25 contracts at the end of 1960, measured for seed 7.
+        var insolvent = session.World.Organizations
+            .Where(organization => finance.HasBook(organization.Id) && finance.IsInsolvent(organization.Id))
+            .Select(organization => organization.Id.Value)
+            .ToArray();
+        Assert.Equal(["alta"], insolvent);
+        Assert.True(session.Years[^1].Contracts >= 20, "contracts at the end of 1960: " + session.Years[^1].Contracts);
     }
 
     [Fact]
@@ -202,7 +209,7 @@ public sealed class CareerWiringTests
         Assert.NotEqual(first.World.StateHash(), other.World.StateHash());
         var names = first.World.Sections.Select(section => section.Name).ToHashSet(StringComparer.Ordinal);
         Assert.Superset(
-            new HashSet<string>(["board", "cars", "contracts", "development", "finance", "objectives", "talent-pool"], StringComparer.Ordinal),
+            new HashSet<string>(["board", "cars", "contracts", "development", "finance", "objectives", "principals", "talent-pool"], StringComparer.Ordinal),
             names);
     }
 
@@ -258,16 +265,23 @@ public sealed class CareerWiringTests
         Assert.Equal(first.Session.World.StateHash(), second.Session.World.StateHash());
 
         var deals = supply.Deals.Select(deal => deal.Id).ToArray();
+        var whole = CareerKit.Opened(CareerPreset.Chaos, 1955, Seed);
+        CareerHost.RunUntil(whole.Session, new GameDate(1955, 1, 8), null, CareerKit.OptionsFor(whole));
         var directory = Directory.CreateTempSubdirectory("paddock-supply-");
         try
         {
             var path = Path.Combine(directory.FullName, "open.paddock");
             CareerKit.Save(path, first, first.Session, firstResult.Host);
             var (resumed, host) = CareerKit.Resume(path);
-            CareerHost.RunUntil(resumed, new GameDate(1955, 1, 8), host, CareerKit.Options);
+            CareerHost.RunUntil(resumed, new GameDate(1955, 1, 8), host, CareerKit.OptionsFor(whole));
             var again = resumed.World.Section<SupplySection>(SupplySection.SectionName);
             Assert.NotNull(again);
-            Assert.Equal(deals, again.Deals.Select(deal => deal.Id).ToArray());
+            var later = again.Deals.Select(deal => deal.Id).ToArray();
+            Assert.Equal(deals, later.Take(deals.Length).ToArray());
+            Assert.Equal(
+                whole.Session.World.Section<SupplySection>(SupplySection.SectionName)!.Deals.Select(deal => deal.Id).ToArray(),
+                later);
+            Assert.Equal(whole.Session.World.StateHash(), resumed.World.StateHash());
         }
         finally
         {

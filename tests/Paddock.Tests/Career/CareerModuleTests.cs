@@ -102,7 +102,7 @@ public sealed class CareerModuleTests
         var cars = session.World.Section<CarsSection>(CarsSection.SectionName)!;
         Assert.Equal(CarEstimates.CarsPerTeam, cars.Of(alpha).Count);
         var approval = Assert.Single(result.Host.Log.Entries.OfType<ApproveConceptCommand>());
-        Assert.Equal(CareerHost.AiManagerId, approval.ManagerId.Value);
+        Assert.Equal("ai:alpha", approval.ManagerId.Value);
         Assert.Equal("alpha", approval.OrganizationId);
 
         // The cars are there the next morning, so nothing is approved a second time.

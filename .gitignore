@@ -9,6 +9,8 @@ data/cache/
 # web ui
 node_modules/
 dist/
+# generated docs (node tools/docs/build-docs.mjs)
+build/
 # os
 Thumbs.db
 .DS_Store

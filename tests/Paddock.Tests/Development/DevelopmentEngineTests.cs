@@ -413,6 +413,48 @@ public class DevelopmentEngineTests
     }
 
     [Fact]
+    public void TheDayHandlerDevaluesTheAccountWhenTheSeasonChangedEventWasEmitted()
+    {
+        int Stock(int changed)
+        {
+            var rules = new FakeRules()
+                .Set(1955, FakeRules.WithFingerprint(0, 20))
+                .Set(1956, FakeRules.WithFingerprint(changed, 20));
+            var kit = new DevelopmentKit(seed: 4, rules: rules);
+            kit.SetPlan(Alfa, 100, 0, 0);
+            kit.PutAccount(new DevelopmentAccount(Alfa, 50_000, 0, 1955));
+            kit.LiveWithInbox(366);
+            Assert.Equal(1956, kit.Section.AccountOf(Alfa).RulesYear);
+            return kit.Section.AccountOf(Alfa).StockMilli;
+        }
+
+        var none = Stock(0);
+        var more = Stock(4);
+        Assert.True(none > 0);
+        Assert.InRange((double)more / none, 0.48, 0.52);
+    }
+
+    [Fact]
+    public void TheDayWalksOpenProjectsInNumberOrderAndDropsThemWhenTheyClose()
+    {
+        var kit = new DevelopmentKit(seed: 7);
+        kit.PutProject(Upgrade(Alfa, DevArea.Aero, 1_000_000, 0.5, days: 10));
+        AssertSameOpen(kit);
+        kit.Live(10);
+        Assert.Equal(ProjectStatus.Completed, kit.Project(project => project.Number == 1).Status);
+        Assert.DoesNotContain(kit.Section.OpenOf(Alfa), project => project.Number == 1);
+        Assert.Contains(kit.Section.ProjectsOf(Alfa), project => project.Number == 1);
+        AssertSameOpen(kit);
+
+        static void AssertSameOpen(DevelopmentKit kit)
+        {
+            Assert.Equal(
+                kit.Section.ProjectsOf(Alfa).Where(project => project.IsOpen).Select(project => project.Number),
+                kit.Section.OpenOf(Alfa).Select(project => project.Number));
+        }
+    }
+
+    [Fact]
     public void TheEraTestingRulesCapUnderstanding()
     {
         double Reach(string? testing)

@@ -1,10 +1,12 @@
 using Paddock.Application.Board;
 using Paddock.Application.Cars;
 using Paddock.Application.Contracts;
+using Paddock.Application.Development;
 using Paddock.Application.Finance;
 using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
 using Paddock.Application.Sponsors;
+using Paddock.Application.Supply;
 
 namespace Paddock.Application.Career;
 
@@ -16,9 +18,9 @@ namespace Paddock.Application.Career;
 /// fact registry), then finance, contracts, the pool, cars, sponsors, and the board last (it needs the contract book).
 /// The day order is not this list's order: each day handler has its own <see cref="Paddock.Simulation.Time.IDayHandler.Order"/>.
 /// <para>
-/// Day order today: pool 10, ageing 20, last season 25, contract expiry 30, season rollover 40, negotiations 700, contract
-/// lifecycle 710, sponsors 750, finance 800, objectives 900, board 910 (TECH 6.2). T42 development, T43 suppliers and T44 the AI
-/// principals add their lines below.
+/// Day order today: host season change 5, pool 10, ageing 20, last season 25, contract expiry 30, season rollover 40,
+/// negotiations 700, contract lifecycle 710, sponsors 750, supply 760, development 780, finance 800, objectives 900, board 910
+/// (TECH 6.2). T44, the AI principals, still adds its line below.
 /// </para>
 /// </summary>
 public static class CareerModules
@@ -31,6 +33,8 @@ public static class CareerModules
         new PoolModule(),
         new CarsModule(),
         new SponsorsModule(),
+        new SupplyModule(),
+        new DevelopmentModule(),
         new BoardModule(),
     ]);
 }

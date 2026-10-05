@@ -8,4 +8,7 @@ public static class CareerEventType
     public const string ContractExpired = "contract.expired";
 
     public const string SeasonClosed = "season.closed";
+
+    /// <summary>1 January: the host has moved every system to the new season. Emitted once, before the day's other handlers.</summary>
+    public const string SeasonChanged = "season.changed";
 }

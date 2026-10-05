@@ -1,6 +1,7 @@
 using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
 using Paddock.Application.Managers;
+using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Career;
 using Paddock.Simulation.Time;
@@ -27,6 +28,7 @@ public sealed class CareerModuleContext
     private readonly List<Func<WorldState, WorldState>> _flushes = [];
     private readonly List<(int Order, Action<IReadOnlyList<DomainEvent>> Hook)> _afterDay = [];
     private readonly List<Action<CommandQueue>> _morning = [];
+    private readonly List<Action<GameDate>> _seasonChange = [];
     private bool _frozen;
 
     internal CareerModuleContext(CareerSession session, ManagerRegistry managers, CommandDispatcher dispatcher, ManagerId ai, CareerInputs inputs)
@@ -170,6 +172,27 @@ public sealed class CareerModuleContext
         ArgumentNullException.ThrowIfNull(morning);
         Guard();
         _morning.Add(morning);
+    }
+
+    /// <summary>
+    /// Registers a step of the change of season. The host runs every such step once, on 1 January, before any other day handler
+    /// (order order 5), and emits <see cref="CareerEventType.SeasonChanged"/>. A system that has
+    /// something to move to the new year (cars to the new model year, next year's budget) does it here, so the daily handlers only
+    /// react to the season they find (owner decision, #160).
+    /// </summary>
+    public void AddSeasonChange(Action<GameDate> step)
+    {
+        ArgumentNullException.ThrowIfNull(step);
+        Guard();
+        _seasonChange.Add(step);
+    }
+
+    internal void ChangeSeason(GameDate today)
+    {
+        foreach (var step in _seasonChange)
+        {
+            step(today);
+        }
     }
 
     internal void Freeze()

@@ -45,13 +45,14 @@ internal sealed partial class TeamKnowledge
 
         var book = engine.Book;
         var section = book.Section;
+        var active = section.ActiveOf(Organization);
         var contractsById = new Dictionary<string, Contract>(StringComparer.Ordinal);
         var persons = new Dictionary<string, PersonId>(StringComparer.Ordinal);
         var events = new List<DateOnly>();
         var funds = Funds();
 
-        // ---- the team's own talks, as its manager reads them
-        var allTalks = new NegotiationQuery(book).View(Access).Items
+        // The manager's own negotiations, without building the player view (history, reasons, belief bands) the decider does not read.
+        var allTalks = section.OfManager(Manager.Value)
             .Where(item => item.Proposer == Organization)
             .OrderBy(item => item.Id, StringComparer.Ordinal)
             .ToArray();
@@ -62,9 +63,9 @@ internal sealed partial class TeamKnowledge
         foreach (var item in allTalks)
         {
             if (item.Status is NegotiationStatus.Refused or NegotiationStatus.WalkedAway or NegotiationStatus.Lapsed
-                && item.Opened >= Day.AddDays(-AiEstimates.RetryBlockDays))
+                && InboxBookDates.ToDateOnly(item.Opened) >= Day.AddDays(-AiEstimates.RetryBlockDays))
             {
-                failed.Add(item.Person.Value);
+                failed.Add(item.Counterparty.Value);
             }
         }
 
@@ -104,7 +105,7 @@ internal sealed partial class TeamKnowledge
             persons[person.Id.Value] = person.Id;
             contractsById[contract.Id.Value] = contract;
             var renewed = held.Any(other => other.PersonId == contract.PersonId && other.Start > contract.Start && other.End > contract.End);
-            var renewalOpen = section.ActiveOf(Organization).Any(negotiation => negotiation.RenewalOf == contract.Id);
+            var renewalOpen = active.Any(negotiation => negotiation.RenewalOf == contract.Id);
             var ask = book.ReferenceSalary(Organization, person.Id, ContractEngine.SubjectOf(contract), Today);
             incumbents.Add(new Incumbent(
                 contract.Id.Value,
@@ -121,13 +122,13 @@ internal sealed partial class TeamKnowledge
         // ---- the talks
         var talks = new List<Talk>();
         var pendingFills = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (var view in talksView)
+        foreach (var talk in talksView)
         {
-            var subject = view.Subject.Key;
-            var incumbent = incumbents.FirstOrDefault(item => item.Person.Id == view.Person.Value && item.Subject == subject);
-            var person = World.GetPerson(view.Person);
+            var subject = talk.Subject.Key;
+            var incumbent = incumbents.FirstOrDefault(item => item.Person.Id == talk.Counterparty.Value && item.Subject == subject);
+            var person = World.GetPerson(talk.Counterparty);
             persons[person.Id.Value] = person.Id;
-            var state = view.Status switch
+            var state = talk.Status switch
             {
                 NegotiationStatus.Open => TalkState.NeedsOffer,
                 NegotiationStatus.AwaitingResponse => TalkState.Awaiting,
@@ -135,20 +136,21 @@ internal sealed partial class TeamKnowledge
                 NegotiationStatus.PersonAgreed => TalkState.PersonAgreed,
                 _ => TalkState.Considering,
             };
+            var deadline = InboxBookDates.ToDateOnly(talk.Deadline);
             talks.Add(new Talk(
-                view.Id,
+                talk.Id,
                 ViewOf(person, QualityKeys(subject)),
                 subject,
                 state,
-                view.Offer?.Salary ?? 0,
-                view.Offer?.Years ?? 0,
-                view.Counter?.Salary ?? 0,
-                view.Counter?.Years ?? 0,
-                view.Counter?.Seat?.ToString(),
-                Math.Max(0, view.MaxRounds - view.RoundsUsed),
-                view.Deadline,
+                talk.CurrentOffer?.Salary ?? 0,
+                talk.CurrentOffer?.Years ?? 0,
+                talk.Counter?.Salary ?? 0,
+                talk.Counter?.Years ?? 0,
+                talk.Counter?.Seat?.ToString(),
+                Math.Max(0, talk.MaxRounds - talk.RoundsUsed),
+                deadline,
                 incumbent is not null,
-                book.ReferenceSalary(Organization, person.Id, view.Subject, Today),
+                book.ReferenceSalary(Organization, person.Id, talk.Subject, Today),
                 incumbent?.SalaryDollars ?? 0));
             if (incumbent is null)
             {
@@ -157,10 +159,11 @@ internal sealed partial class TeamKnowledge
 
             if (state is TalkState.Awaiting or TalkState.Considering)
             {
-                events.Add((view.RespondOn ?? Day).AddDays(1));
+                var respond = talk.RespondOn is GameDate on ? InboxBookDates.ToDateOnly(on) : Day;
+                events.Add(respond.AddDays(1));
             }
 
-            events.Add(view.Deadline.AddDays(1));
+            events.Add(deadline.AddDays(1));
         }
 
         // ---- what is missing
@@ -181,7 +184,7 @@ internal sealed partial class TeamKnowledge
             }
         }
 
-        var slots = Math.Max(0, book.Capacity(Organization) - section.ActiveOf(Organization).Count);
+        var slots = Math.Max(0, book.Capacity(Organization) - active.Count);
 
         // ---- the people with no contract who could fill it
         var candidates = new List<Candidate>();
@@ -199,25 +202,45 @@ internal sealed partial class TeamKnowledge
             }
         }
 
-        if (wanted.Count > 0 && slots > 0)
+        if (wanted.Count > 0 && slots > 0 && book.Environment.Control.Controls(Manager, Organization))
         {
-            foreach (var view in new FreeAgentQuery(book).List(Access, Organization, Today))
+            // The free-agent list already excluded anyone under an exclusive contract, and the slot count already applied
+            // the parallel-talk limit. ValidateOpen would repeat both by scanning every contract and every past negotiation
+            // once per person. The only check still open is a live talk with that person.
+            var negotiating = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var negotiation in active)
             {
-                if (failed.Contains(view.Person.Value))
+                negotiating.Add(negotiation.Counterparty.Value);
+            }
+
+            var subjects = wanted.OrderBy(item => item, StringComparer.Ordinal).ToArray();
+            // Persons are already in id order. Skip anyone under an exclusive contract that has not ended; that is the free-agent
+            // list. Bands are read only for someone who can fill a vacancy, not for every person in the world.
+            var busy = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var contract in World.Contracts)
+            {
+                if (contract.Exclusive && contract.End >= Today)
+                {
+                    busy.Add(contract.PersonId.Value);
+                }
+            }
+
+            foreach (var person in World.Persons)
+            {
+                if (busy.Contains(person.Id.Value) || person.IsRetired || failed.Contains(person.Id.Value) || negotiating.Contains(person.Id.Value))
                 {
                     continue;
                 }
 
-                var person = World.GetPerson(view.Person);
-                foreach (var subject in wanted.OrderBy(item => item, StringComparer.Ordinal))
+                foreach (var subject in subjects)
                 {
-                    if (!Qualifies(view, subject))
+                    if (!Qualifies(person, subject))
                     {
                         continue;
                     }
 
                     var negotiationSubject = NegotiationSubject.Parse(subject);
-                    if (engine.ValidateOpen(Manager, Organization, person.Id, negotiationSubject, Today, null, null) is not null)
+                    if (!negotiationSubject.IsHeldBy(person.Roles))
                     {
                         continue;
                     }
@@ -235,10 +258,10 @@ internal sealed partial class TeamKnowledge
         return new MarketBundle(input, contractsById, persons, events, roles.Select(role => role.ToString()).ToArray());
     }
 
-    private static bool Qualifies(FreeAgentView view, string subject) =>
+    private static bool Qualifies(Person person, string subject) =>
         MarketSubjects.IsDriver(subject)
-            ? view.IsDriver
-            : view.StaffRoles.Contains(NegotiationSubject.Parse(subject).StaffRole);
+            ? person.Roles.Any(role => role.IsDriver)
+            : person.Roles.Any(role => role.IsStaff && role.StaffRole == NegotiationSubject.Parse(subject).StaffRole);
 
     /// <summary>A contract the market decides about: a driver in a race seat, or key staff other than the principal (the board appoints him).</summary>
     private static bool IsMarketRole(Contract contract) =>

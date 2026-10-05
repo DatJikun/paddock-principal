@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -31,25 +32,34 @@ public sealed class DevelopmentSection : IWorldSection
 
     private readonly SortedDictionary<string, DevelopmentPlan> _plans;
     private readonly SortedDictionary<string, DevelopmentAccount> _accounts;
-    private readonly SortedDictionary<long, DevProject> _projects;
+    private readonly ImmutableSortedDictionary<long, DevProject> _projects;
+
+    /// <summary>
+    /// Projects the day still walks (active, in production, ready), per organization, in project-number order. Closed history
+    /// stays in <see cref="_projects"/> for the save and the queries; the daily step must not copy it.
+    /// </summary>
+    private readonly ImmutableDictionary<string, ImmutableArray<DevProject>> _open;
 
     private DevelopmentSection(
         long nextProject,
         SortedDictionary<string, DevelopmentPlan> plans,
         SortedDictionary<string, DevelopmentAccount> accounts,
-        SortedDictionary<long, DevProject> projects)
+        ImmutableSortedDictionary<long, DevProject> projects,
+        ImmutableDictionary<string, ImmutableArray<DevProject>> open)
     {
         NextProject = nextProject;
         _plans = plans;
         _accounts = accounts;
         _projects = projects;
+        _open = open;
     }
 
     public static DevelopmentSection Empty { get; } = new(
         1,
         new SortedDictionary<string, DevelopmentPlan>(StringComparer.Ordinal),
         new SortedDictionary<string, DevelopmentAccount>(StringComparer.Ordinal),
-        []);
+        ImmutableSortedDictionary<long, DevProject>.Empty,
+        ImmutableDictionary<string, ImmutableArray<DevProject>>.Empty);
 
     public string Name => SectionName;
 
@@ -78,6 +88,12 @@ public sealed class DevelopmentSection : IWorldSection
 
     public IReadOnlyList<DevProject> ProjectsOf(OrganizationId organization) =>
         _projects.Values.Where(project => project.Organization == organization).ToArray();
+
+    /// <summary>The organization's projects the day still has to advance. Empty when it has none.</summary>
+    public IReadOnlyList<DevProject> OpenOf(OrganizationId organization) =>
+        organization.IsAssigned && _open.TryGetValue(organization.Value, out var projects)
+            ? projects
+            : [];
 
     public static DevelopmentSection Restore(
         long nextProject,
@@ -115,7 +131,7 @@ public sealed class DevelopmentSection : IWorldSection
             }
         }
 
-        var projectMap = new SortedDictionary<long, DevProject>();
+        var projectMap = ImmutableSortedDictionary.CreateBuilder<long, DevProject>();
         foreach (var project in projects)
         {
             ArgumentNullException.ThrowIfNull(project);
@@ -129,13 +145,16 @@ public sealed class DevelopmentSection : IWorldSection
                 throw new InvalidOperationException($"Project '{project.Id}' is in production without a finish date.");
             }
 
-            if (!projectMap.TryAdd(project.Number, project))
+            if (projectMap.ContainsKey(project.Number))
             {
                 throw new InvalidOperationException($"Project '{project.Id}' appears twice.");
             }
+
+            projectMap[project.Number] = project;
         }
 
-        return new DevelopmentSection(nextProject, planMap, accountMap, projectMap);
+        var stored = projectMap.ToImmutable();
+        return new DevelopmentSection(nextProject, planMap, accountMap, stored, IndexOpen(stored));
     }
 
     public DevelopmentSection SetPlan(DevelopmentPlan plan)
@@ -143,7 +162,7 @@ public sealed class DevelopmentSection : IWorldSection
         ArgumentNullException.ThrowIfNull(plan);
         Validate(plan);
         var plans = new SortedDictionary<string, DevelopmentPlan>(_plans, StringComparer.Ordinal) { [plan.Organization.Value] = plan };
-        return new DevelopmentSection(NextProject, plans, _accounts, _projects);
+        return new DevelopmentSection(NextProject, plans, _accounts, _projects, _open);
     }
 
     public DevelopmentSection SetAccount(DevelopmentAccount account)
@@ -153,7 +172,7 @@ public sealed class DevelopmentSection : IWorldSection
         {
             [account.Organization.Value] = account,
         };
-        return new DevelopmentSection(NextProject, _plans, accounts, _projects);
+        return new DevelopmentSection(NextProject, _plans, accounts, _projects, _open);
     }
 
     /// <summary>Adds a project. <paramref name="project"/> must carry the number <see cref="NextProject"/>.</summary>
@@ -165,8 +184,8 @@ public sealed class DevelopmentSection : IWorldSection
             throw new InvalidOperationException($"The next project number is {NextProject}.");
         }
 
-        var projects = new SortedDictionary<long, DevProject>(_projects) { [project.Number] = project };
-        return new DevelopmentSection(NextProject + 1, _plans, _accounts, projects);
+        var projects = _projects.SetItem(project.Number, project);
+        return new DevelopmentSection(NextProject + 1, _plans, _accounts, projects, TouchOpen(project));
     }
 
     public DevelopmentSection ReplaceProject(DevProject project)
@@ -177,8 +196,74 @@ public sealed class DevelopmentSection : IWorldSection
             throw new InvalidOperationException($"Project '{project.Id}' is not in the section.");
         }
 
-        var projects = new SortedDictionary<long, DevProject>(_projects) { [project.Number] = project };
-        return new DevelopmentSection(NextProject, _plans, _accounts, projects);
+        var projects = _projects.SetItem(project.Number, project);
+        return new DevelopmentSection(NextProject, _plans, _accounts, projects, TouchOpen(project));
+    }
+
+    private ImmutableDictionary<string, ImmutableArray<DevProject>> TouchOpen(DevProject project)
+    {
+        var org = project.Organization.Value;
+        var listed = _open.TryGetValue(org, out var current);
+        var index = -1;
+        if (listed)
+        {
+            for (var i = 0; i < current.Length; i++)
+            {
+                if (current[i].Number == project.Number)
+                {
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        if (!project.IsOpen)
+        {
+            if (index < 0)
+            {
+                return _open;
+            }
+
+            return current.Length == 1 ? _open.Remove(org) : _open.SetItem(org, current.RemoveAt(index));
+        }
+
+        if (!listed)
+        {
+            return _open.SetItem(org, ImmutableArray.Create(project));
+        }
+
+        // Numbers only rise, so a new project appends in the same order as the full scan.
+        return index < 0
+            ? _open.SetItem(org, current.Add(project))
+            : _open.SetItem(org, current.SetItem(index, project));
+    }
+
+    private static ImmutableDictionary<string, ImmutableArray<DevProject>> IndexOpen(ImmutableSortedDictionary<long, DevProject> projects)
+    {
+        var builders = new Dictionary<string, ImmutableArray<DevProject>.Builder>(StringComparer.Ordinal);
+        foreach (var project in projects.Values)
+        {
+            if (!project.IsOpen)
+            {
+                continue;
+            }
+
+            if (!builders.TryGetValue(project.Organization.Value, out var builder))
+            {
+                builder = ImmutableArray.CreateBuilder<DevProject>();
+                builders.Add(project.Organization.Value, builder);
+            }
+
+            builder.Add(project);
+        }
+
+        var open = ImmutableDictionary.CreateBuilder<string, ImmutableArray<DevProject>>(StringComparer.Ordinal);
+        foreach (var (org, builder) in builders)
+        {
+            open[org] = builder.DrainToImmutable();
+        }
+
+        return open.ToImmutable();
     }
 
     public void WriteCanonical(CanonicalWriter writer)

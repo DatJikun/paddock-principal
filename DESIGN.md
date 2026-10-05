@@ -426,7 +426,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 - **Przychody według epoki:** pieniądze startowe → sponsorzy (od 1968) → TV i umowa Concorde → nagrody za pozycję w konstruktorach, sprzedaż silników i samochodów klienckich.
 - **Koszty:** pensje, projekt i budowa aut, silniki, podróże, infrastruktura (także jej starzenie się, §4.3), naprawy po wypadkach.
 - **Sponsorzy** to rynek z celami, a jego wielkość w każdym kraju wynika z popularności. Sponsorzy mają **branże** zmieniające się z epokami: paliwa i opony w latach 50., tytoń od 1968 do zakazów w latach 2000., alkohol, banki, telekomy, IT, kryptowaluty. Zakaz reklamy tytoniu to w trybie historycznym realny szok finansowy dla zespołów od niej zależnych.
-  - **Cele sponsorów pasują do siły zespołu (PP-058):** słaby zespół dostaje osiągalne cele, a premia rośnie z trudnością celu.
+  - **Cele sponsorów pasują do siły zespołu (PP-058):** słaby zespół dostaje osiągalne cele, a premia i zaufanie rosną z trudnością celu. Wartość liczy się z oczekiwanej pozycji (ostatnie miejsce w mistrzostwach, gdy jest znane, i miejsce w budżecie — te same fakty co zarząd). Rodzaj celu i baza zostają w pliku; narodowość kierowcy się nie skaluje.
   - **Miejsca na aucie:** główne, drugorzędne, mniejsze. Każde daje inną część kwoty.
   - **Sponsor tytularny zmienia nazwę zespołu** (historycznie np. „Marlboro McLaren”, „Mild Seven Benetton”). Wymaga prestiżu i długiej umowy, może też chcieć udziałów.
   - **Rozmowy przyspieszają:** zgodna narodowość sponsora i kierowcy, prestiż zespołu, przedłużenie istniejącej umowy.

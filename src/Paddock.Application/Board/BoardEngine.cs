@@ -604,27 +604,11 @@ public sealed class BoardEngine
     // ---------------------------------------------------------------- facts the board reads
 
     /// <summary>The organizations that run a team today, in ordinal order of their id.</summary>
-    public IReadOnlyList<Organization> ActiveTeams(GameDate today) =>
-        _book.World.Organizations
-            .Where(organization => organization.Kind == OrganizationKind.Team
-                && organization.Founded <= today
-                && (organization.Dissolved is null || organization.Dissolved >= today))
-            .OrderBy(organization => organization.Id.Value, StringComparer.Ordinal)
-            .ToArray();
+    public IReadOnlyList<Organization> ActiveTeams(GameDate today) => PublicStrength.ActiveTeams(_book.World, today);
 
     /// <summary>The rank of the organization's budget among the active teams (1 is the richest). A public fact.</summary>
-    public int BudgetRank(OrganizationId organization, GameDate today)
-    {
-        var teams = ActiveTeams(today);
-        var own = teams.FirstOrDefault(team => team.Id == organization);
-        if (own is null)
-        {
-            return Math.Max(1, teams.Count);
-        }
-
-        return 1 + teams.Count(team => team.Budget > own.Budget
-            || (team.Budget == own.Budget && string.CompareOrdinal(team.Id.Value, own.Id.Value) < 0));
-    }
+    public int BudgetRank(OrganizationId organization, GameDate today) =>
+        PublicStrength.BudgetRank(_book.World, organization, today);
 
     /// <summary>The reputation in tenths that a team asks of a new principal, from its prestige.</summary>
     public int Required(OrganizationId organization, GameDate today) =>

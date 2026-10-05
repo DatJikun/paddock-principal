@@ -144,4 +144,37 @@ public class SponsorDataTests
         Assert.Equal(SponsorReason.Bonus, SponsorKeys.ReasonBonus);
         Assert.All(SponsorIndustries.All, industry => Assert.Contains(SponsorKeys.IndustryName(industry), keys));
     }
+
+    [Fact]
+    public void AHarderTargetPaysMoreAndANationalityObjectiveStaysAuthored()
+    {
+        const int field = 12;
+        var position = new SponsorObjectiveSpec(SponsorObjectiveSpec.ChampionshipPositionAtMost, "6", 364);
+        var podiums = new SponsorObjectiveSpec(SponsorObjectiveSpec.PodiumsAtLeast, "3", 364);
+        var nationality = new SponsorObjectiveSpec(SponsorObjectiveSpec.DriverNationalityInLineup, "FRA", 364);
+        int previousPositionBonus = int.MaxValue;
+        int previousPodiumBonus = int.MaxValue;
+        for (var expected = 1; expected <= field; expected++)
+        {
+            var scaledPosition = SponsorObjectiveScale.Scale(position, expected, field);
+            var scaledPodiums = SponsorObjectiveScale.Scale(podiums, expected, field);
+            var positionBonus = SponsorObjectiveScale.Reward(position, scaledPosition).BonusMilli;
+            var podiumBonus = SponsorObjectiveScale.Reward(podiums, scaledPodiums).BonusMilli;
+            Assert.True(positionBonus <= previousPositionBonus);
+            Assert.True(podiumBonus <= previousPodiumBonus);
+            previousPositionBonus = positionBonus;
+            previousPodiumBonus = podiumBonus;
+            Assert.Equal(nationality, SponsorObjectiveScale.Scale(nationality, expected, field));
+        }
+
+        var top = SponsorObjectiveScale.Scale(position, 1, field);
+        var bottom = SponsorObjectiveScale.Scale(position, field, field);
+        Assert.True(int.Parse(top.Value, System.Globalization.CultureInfo.InvariantCulture) < int.Parse(bottom.Value, System.Globalization.CultureInfo.InvariantCulture));
+        Assert.True(SponsorObjectiveScale.Reward(position, top).BonusMilli > SponsorObjectiveScale.Reward(position, bottom).BonusMilli);
+        Assert.True(SponsorObjectiveScale.Reward(position, top).Trust > SponsorObjectiveScale.Reward(position, bottom).Trust);
+        var topPodiums = int.Parse(SponsorObjectiveScale.Scale(podiums, 1, field).Value, System.Globalization.CultureInfo.InvariantCulture);
+        var bottomPodiums = int.Parse(SponsorObjectiveScale.Scale(podiums, field, field).Value, System.Globalization.CultureInfo.InvariantCulture);
+        Assert.True(topPodiums > bottomPodiums);
+        Assert.Equal((SponsorEstimates.BonusMilli, SponsorEstimates.TrustOnMet), SponsorObjectiveScale.Reward(nationality, nationality));
+    }
 }

@@ -265,3 +265,4 @@ details.tune[open] summary { border-style: solid; margin-bottom: 8px; }
   .ch-num { font-size: 44px; }
   .choices li, .cmp-row { grid-template-columns: 1fr; gap: 4px; }
 }
+.doc .choices, .doc .steps { padding-left: 0; max-width: none; }

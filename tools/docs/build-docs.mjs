@@ -208,13 +208,30 @@ const INDEX_DESC = {
   AGENTS: 'Zasady pracy dla agentów AI w repozytorium (po angielsku).',
 };
 
+/* One self-contained file of the guide to send to testers: styles and script inline, no links to the
+ * internal documents, no source footer. Fonts still come from Google Fonts, with system fallbacks. */
+export const SHAREABLE_GUIDE = 'przewodnik-do-wyslania.html';
+
+export function shareableGuide(html) {
+  const css = readFileSync(join(here, 'assets', 'docs.css'), 'utf8');
+  const js = readFileSync(join(here, 'assets', 'docs.js'), 'utf8');
+  return html
+    .replace('<link rel="stylesheet" href="assets/docs.css">', () => `<style>\n${css}\n</style>`)
+    .replace('<script src="assets/docs.js"></script>', () => `<script>\n${js}\n</script>`)
+    .replace(/<nav class="pages"[\s\S]*?<\/nav>/, '')
+    .replace(/<a class="brand" href="index.html">/, '<a class="brand" href="#tresc">')
+    .replace(/<footer class="src">[\s\S]*?<\/footer>/, '')
+    .replace(/href="(?!#|https?:)[^"]*"/g, 'href="#tresc"');
+}
+
 export function writeSite(outDir, root = REPO_ROOT) {
   const files = buildSite(root);
   mkdirSync(join(outDir, 'assets'), { recursive: true });
   for (const [name, html] of files) writeFileSync(join(outDir, name), html);
   copyFileSync(join(here, 'assets', 'docs.css'), join(outDir, 'assets', 'docs.css'));
   copyFileSync(join(here, 'assets', 'docs.js'), join(outDir, 'assets', 'docs.js'));
-  return [...files.keys()];
+  writeFileSync(join(outDir, SHAREABLE_GUIDE), shareableGuide(files.get('przewodnik.html')));
+  return [...files.keys(), SHAREABLE_GUIDE];
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

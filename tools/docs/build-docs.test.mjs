@@ -153,3 +153,12 @@ test('the guide is for outsiders: no code names, issue numbers or decision ids',
   assert.doesNotMatch(body, /#\d{2,}/, 'no issue numbers');
   assert.doesNotMatch(body, /[A-Z][A-Za-z]+(Estimates|Constants)|\.cs/, 'no class or file names');
 });
+
+test('the shareable guide is one file without links to internal documents', async () => {
+  const { shareableGuide } = await import('./build-docs.mjs');
+  const html = shareableGuide(buildSite().get('przewodnik.html'));
+  assert.doesNotMatch(html, /assets\//);
+  assert.doesNotMatch(html, /class="pages"/);
+  assert.doesNotMatch(html, /href="(?!#|https?:)/);
+  assert.match(html, /<style>/);
+});

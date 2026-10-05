@@ -87,22 +87,12 @@ Czy zdarzyło się, że 40-latek wygrywał seryjnie albo 23-letni talent stał w
 
 ## 3. Oceny prawdziwych kierowców
 
-Nikt nie wpisuje ocen ręcznie. Gra liczy je z wyników wyścigów od 1950.
+Każdy kierowca wchodzi do gry z dwiema liczbami: aktualną oceną i maksymalnym potencjałem. Na razie to wartości wstępne, dokładniejsze ustalimy później.
 
-```wybory
-Kogo porównujesz | ocena mierzy kierowcę ze stawką jego czasów, więc najlepiej porównywać kierowców z jednej epoki
-Komu ufasz | kto ma mało danych, dostaje ocenę przyciągniętą do średniej
-```
-
-```kroki
-Pojedynek z partnerem | to samo auto, więc różnica mówi o kierowcy
-Sieć partnerów | zmiany zespołów łączą całą historię
-Względem epoki | porównanie ze stawką swoich czasów
-Mało danych | kierowca przyciągany do średniej
-```
-
-```wykres skala-ocen
-Przeciętny kierowca F1 swojej epoki ma poziom 12. Powyżej średniej krzywa zbliża się do 20, ale jej nie przekracza.
+```pola
+Ocena na wejściu | jak dobry jest kierowca, gdy pojawia się w grze | gwiazdki 0–5
+Maksymalny potencjał | sufit, do którego może dojść | zależy od świata: auta, ludzi, szczęścia
+Skąd liczby | wyniki wyścigów od 1950, względem stawki jego czasów | wstępne, do poprawki
 ```
 
 ```wykres wagi-oceny
@@ -110,9 +100,8 @@ W latach 50. płynność i kondycja ratowały wyścig, dziś więcej daje regula
 ```
 
 ```pytania
-Czy ocena którejś legendy wydaje Ci się wyraźnie za wysoka albo za niska? Podaj nazwisko i rok.
-Czy wielcy kierowcy mają zbyt podobne oceny, prawie 5★?
-Czy 3★ z lat 50. i dzisiejsze 3★ są dla Ciebie porównywalne?
+Czy któraś legenda ma wyraźnie za wysoką albo za niską ocenę? Podaj nazwisko i rok.
+Czy różnica między oceną a potencjałem młodych kierowców wydaje Ci się sensowna?
 ```
 
 ---

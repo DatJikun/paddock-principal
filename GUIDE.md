@@ -20,7 +20,7 @@ Preset | najbardziej historyczny, zbalansowany albo chaos
 Ludzie | prawdziwa kariera rok po roku, prawdziwy sufit talentu, prawdziwe nazwiska z losowymi umiejętnościami albo wszyscy generowani
 Przepisy | historyczne albo głosowane co sezon
 Zachowanie AI | odtwarza historię, reaguje na sytuację albo gra losowo
-Siła historii | suwak 0–100: jak chętnie AI powtarza prawdziwe zdarzenia
+Siła historii | skala 0–10: jak chętnie AI powtarza prawdziwe zdarzenia
 Losowość | suwak 0–100: rozwój, forma, awarie
 Śmiertelność | domyślnie wyłączona
 ```
@@ -100,7 +100,6 @@ W latach 50. płynność i kondycja ratowały wyścig, dziś więcej daje regula
 ```
 
 ```pytania
-Czy któraś legenda ma wyraźnie za wysoką albo za niską ocenę? Podaj nazwisko i rok.
 Czy różnica między oceną a potencjałem młodych kierowców wydaje Ci się sensowna?
 ```
 
@@ -112,7 +111,7 @@ Nowi ludzie wchodzą do gry przez pulę talentów, czyli świat poza F1. Skauci 
 
 ```wybory
 Obserwuj całą pulę | wolno, wszyscy naraz
-Obserwuj jedną osobę | szybko, jedno pasmo się zawęża
+Obserwuj jedną osobę | szybko, jej widełki się zawężają
 Opłać sezon juniorski | tani i wolny albo drogi i szybki
 Podpisz | kierowca wyścigowy, testowy albo junior z opcją
 ```
@@ -129,7 +128,7 @@ Program przyspiesza rozwój, ale nie podnosi sufitu.
 ```
 
 ```wykres pasmo-skauta
-Pasmo potencjału jest szersze niż pasmo atrybutu. Słaby skaut może się mylić.
+Widełki potencjału są szersze niż widełki atrybutu. Słaby skaut może się mylić.
 ```
 
 ```pytania
@@ -361,7 +360,7 @@ Auto | dopasowanie parametrów do fragmentów toru
 Kierowca | tempo, regularność, opanowanie w deszczu
 Paliwo i opony | ciężar baku, zużycie
 Ruch | brudne powietrze, walka o pozycję
-Szum | mniejszy u regularnych kierowców
+Rozrzut czasów | drobne różnice z okrążenia na okrążenie (błędy, ruch, wiatr); regularny kierowca jeździ równiej
 ```
 
 ```pola
@@ -424,7 +423,7 @@ Jak ocenić rywala | widzisz wyniki, czasy i klasyfikacje; jego finansów, umów
 ```
 
 ```porownanie Widzisz | Nie widzisz
-Kierowcy | swoich dokładnie po czasie, cudzych w pasmach | ukrytego potencjału
+Kierowcy | swoich dokładnie po czasie, cudzych w widełkach | ukrytego potencjału
 Auto | przedziały zysku i sufitu | prawdziwego sufitu
 Rywale | wyniki, czasy, klasyfikacje | finansów, umów, wektora auta
 Pogoda | prognozę z błędem | przyszłej pogody

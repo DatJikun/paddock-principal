@@ -335,9 +335,9 @@ export function namedChart(name, cv, caption) {
       const width = pts => 2 * (min + (start - min) * tau / (tau + pts));
       const months = range(0, 24, 0.5);
       return lineChart({
-        title: 'Szerokość pasma atrybutu u skauta (sieć kontaktów 10/20)',
+        title: 'Szerokość widełek atrybutu u skauta (sieć kontaktów 10/20)',
         x: [0, 24], y: [0, 2 * start], xTicks: range(0, 24, 3), yTicks: [0, 2, 4, 6, 8, 10],
-        xLabel: 'miesiące obserwacji', yLabel: 'szerokość pasma (punkty)',
+        xLabel: 'miesiące obserwacji', yLabel: 'szerokość widełek (punkty)',
         series: [
           { label: 'skupienie na jednej osobie', cls: 'c1', pts: months.map(m => [m, width(m * person * net)]) },
           { label: 'obserwacja całej puli', cls: 'c3', pts: months.map(m => [m, width(m * whole * net)]) },

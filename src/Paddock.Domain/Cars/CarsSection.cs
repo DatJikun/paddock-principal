@@ -60,7 +60,10 @@ public sealed class CarsSection : IWorldSection
 
     public long NextCar { get; }
 
-    /// <summary>The number the next concept-ceiling draw uses. Approval advances it; the draw itself is a child of Development.</summary>
+    /// <summary>
+    /// Kept for the cars-section schema. Approval no longer advances it: the ceiling draw is tagged with the
+    /// organization, the season and the concept axes, so the same concept cannot be re-rolled.
+    /// </summary>
     public long NextCeilingDraw { get; }
 
     public bool IsEmpty => NextCar == 1 && NextCeilingDraw == 1 && _cars.Count == 0 && _fits.Count == 0;

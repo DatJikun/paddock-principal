@@ -10,6 +10,7 @@ using Paddock.Domain.World;
 using Paddock.Persistence;
 using Paddock.Simulation.Career;
 using Paddock.Simulation.Pool;
+using Paddock.Simulation.Time;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.Career;
@@ -20,16 +21,20 @@ namespace Paddock.Tests.Career;
 /// change to the day rules or the fixture. This test prints the actual values and never writes them (there is no command that
 /// rewrites a golden hash: TECH 6.2 says how a changed one is reviewed).
 /// <para>
-/// History of <see cref="StoredWorldHash"/>: it changed once in #160, when the career modules joined the run. The fixture team now
+/// History of <see cref="StoredWorldHash"/>: it changed in #160, when the career modules joined the run. The fixture team now
 /// has its two cars (concept approved by the AI manager, ceilings from the Development stream) and a board with its principal on
 /// the record, which are world sections and so are in the hash. The fixture has no era data, so finance and sponsors stay out.
+/// It changed again in #173 (B3): the ceiling draw is a child of Development tagged with the organization, the season and the
+/// concept axes, and approval no longer advances <c>NextCeilingDraw</c>. The same concept cannot be re-rolled, so the stored
+/// ceiling and the cars-section counter differ from the #160 hash. Two runs with one seed still match (INV-002). Seat sync (B4)
+/// does not move this fixture: its one contracted driver stays seated.
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "1142fff08e543efa88ff16bbdfe4fbdeaef0809bf6d3dbf9cc4fa2854adc8504";
+    private const string StoredWorldHash = "6ef244815712ec8588d9a2e4c20cd5613ca7922677e9d2f884d618872915d56d";
 
     private const string StoredRetired = "chief,leap,vet";
 
@@ -345,6 +350,26 @@ public class CareerRunTests
             provider,
             world,
             Seed));
+    }
+
+    [Fact]
+    public void AnExitClauseEndIsCountedInTheRunTallies()
+    {
+        var session = Session(Seed, target: 0, arrivals: []);
+        session.AttachHandlers([new ExitMarker()]);
+
+        session.LiveDay();
+
+        Assert.Equal(1, session.ContractExpiries);
+        Assert.Equal(1, session.SeasonExpired);
+    }
+
+    private sealed class ExitMarker : IDayHandler
+    {
+        public int Order => 710;
+
+        public void OnDay(DayContext context) =>
+            context.Emit("contract.exitExercised", new MarkerPayload("con:1"));
     }
 
     private static CareerSession WithLastSeasons(IReadOnlyDictionary<string, int> lastSeasons, IReadOnlyList<ScheduledArrival> arrivals) =>

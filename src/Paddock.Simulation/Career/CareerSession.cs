@@ -386,6 +386,16 @@ public sealed class CareerSession
         var expiries = ContractExpiries;
         var lived = _clock.Date;
         var step = WorldClock.AdvanceDay(_clock, _registry);
+        foreach (var emitted in step.Events)
+        {
+            // ContractLifecycleHandler (order 710) ends an exit-clause contract after ContractExpiryHandler (order 30).
+            // The type id is ContractEventTypes.ExitExercised; Simulation does not reference Application.
+            if (emitted.TypeId == "contract.exitExercised")
+            {
+                ContractExpiries++;
+            }
+        }
+
         _clock = step.State;
         World = World.WithDate(_clock.Date);
         _afterDay?.Invoke(step.Events);

@@ -409,18 +409,49 @@ public class NegotiationCommandTests
 
     // --- Renewal, option, termination ---
 
-    private static Lab LabWithTeamOption() => new(
-        customize: world => world.AddContract(new ContractSpec(
-            DriverY,
-            TeamB,
-            ContractRole.Driver(SeatStatus.Equal),
-            new Paddock.Domain.Time.GameDate(1955, 1, 1),
-            new Paddock.Domain.Time.GameDate(1955, 12, 31),
-            100_000,
-            true,
-            new ContractOption(new Paddock.Domain.Time.GameDate(1955, 9, 1), 2),
-            null)).State,
+    private static Lab LabWithTeamOption(bool renewed = false) => new(
+        customize: world =>
+        {
+            var (withCurrent, _) = world.AddContract(new ContractSpec(
+                DriverY,
+                TeamB,
+                ContractRole.Driver(SeatStatus.Equal),
+                new Paddock.Domain.Time.GameDate(1955, 1, 1),
+                new Paddock.Domain.Time.GameDate(1955, 12, 31),
+                100_000,
+                true,
+                new ContractOption(new Paddock.Domain.Time.GameDate(1955, 9, 1), 2),
+                null));
+            if (!renewed)
+            {
+                return withCurrent;
+            }
+
+            var (withRenewal, _) = withCurrent.AddContract(new ContractSpec(
+                DriverY,
+                TeamB,
+                ContractRole.Driver(SeatStatus.Equal),
+                new Paddock.Domain.Time.GameDate(1956, 1, 1),
+                new Paddock.Domain.Time.GameDate(1956, 12, 31),
+                100_000,
+                true,
+                null,
+                null));
+            return withRenewal;
+        },
         customizeSection: section => section.WithTerms(new ContractTerms(ContractId.Generated(4), 5, 6, 7, OptionHolder.Team, null)));
+
+    [Fact]
+    public void ATeamOptionIsRejectedWhenALaterContractIsAlreadySigned()
+    {
+        var lab = LabWithTeamOption(renewed: true);
+        var contract = ContractId.Generated(4);
+
+        var result = lab.Submit(new RenewContractCommand { ManagerId = Bram, IssuedOn = Date(lab.Today), Contract = contract, ExerciseOption = true });
+
+        Assert.Equal(ContractKeys.PersonTaken, Reason(result));
+        Assert.Equal(new Paddock.Domain.Time.GameDate(1955, 12, 31), lab.World.Contracts.Single(candidate => candidate.Id == contract).End);
+    }
 
     [Fact]
     public void ATeamUsesItsOptionToRunTheContractLongerOnTheSameTerms()

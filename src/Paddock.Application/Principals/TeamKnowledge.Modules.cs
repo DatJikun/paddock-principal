@@ -44,10 +44,12 @@ internal sealed partial class TeamKnowledge
             return null;
         }
 
-        var downforce = Band(car.Levels.Downforce, team.Vision, team.Aero);
-        var grip = Band(car.Levels.MechanicalGrip, team.Vision, team.Aero);
-        var reliability = Band(car.Levels.Reliability, team.Vision, team.Aero);
-        var braking = Band(car.Levels.Braking, team.Vision, team.Aero);
+        // same bias key as CarQuery, so a principal reads the bands its own car screen would show
+        var key = car.Organization.Value + "|" + car.Id + "|" + car.Season.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        var downforce = Band(car.Levels.Downforce, team.Vision, team.Aero, key);
+        var grip = Band(car.Levels.MechanicalGrip, team.Vision, team.Aero, key);
+        var reliability = Band(car.Levels.Reliability, team.Vision, team.Aero, key);
+        var braking = Band(car.Levels.Braking, team.Vision, team.Aero, key);
 
         var concepts = own.Projects
             .Where(project => project.Kind == DevKindNames.Concept && project.Status is "Active" or "Ready" && project.Timing is not "Hold")
@@ -79,9 +81,9 @@ internal sealed partial class TeamKnowledge
 
     private static double Mid(CarBandView band) => (band.Low + band.High) / 2.0;
 
-    private static CarBandView Band(double truth, int vision, int aero)
+    private static CarBandView Band(double truth, int vision, int aero, string biasKey)
     {
-        var band = CarKnowledgeBands.Around(truth, vision, aero);
+        var band = CarKnowledgeBands.Around(truth, vision, aero, biasKey);
         return new CarBandView(band.Low, band.High);
     }
 

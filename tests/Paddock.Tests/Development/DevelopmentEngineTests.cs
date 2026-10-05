@@ -1,11 +1,13 @@
 using Paddock.Application.Development;
 using Paddock.Domain.Cars;
+using Paddock.Domain.Contracts;
 using Paddock.Domain.Development;
 using Paddock.Domain.Finance;
 using Paddock.Domain.People;
 using Paddock.Domain.Random;
 using Paddock.Domain.Spy;
 using Paddock.Domain.Time;
+using Paddock.Domain.World;
 using static Paddock.Tests.Development.DevelopmentKit;
 
 namespace Paddock.Tests.Development;
@@ -66,6 +68,37 @@ public class DevelopmentEngineTests
         Assert.True(far > near);
         Assert.True(near > nearer);
         Assert.True(nearer >= 0);
+    }
+
+    [Fact]
+    public void DuplicateKeyRolesDoNotFillExtraChairs()
+    {
+        Engineer Chair(string id) => new(id, StaffRole.TechnicalDirector, new Dictionary<string, int>(), 0.5, 0.5);
+        var one = EngineeringCapacity.Derive([Chair("a")], 1955, keyChairsInEra: 4, 0, Annual);
+        var four = EngineeringCapacity.Derive([Chair("a"), Chair("b"), Chair("c"), Chair("d")], 1955, keyChairsInEra: 4, 0, Annual);
+        Assert.Equal(one.Headcount, four.Headcount);
+    }
+
+    [Fact]
+    public void ARenewalDoesNotResetEngineerAdaptation()
+    {
+        var kit = new DevelopmentKit();
+        var engineer = kit.World.Contracts.First(contract => contract.Role.IsStaff && contract.OrganizationId == Alfa);
+        var (withPrior, _) = kit.World.AddContract(new ContractSpec(
+            engineer.PersonId,
+            Alfa,
+            engineer.Role,
+            new GameDate(1948, 1, 1),
+            new GameDate(1954, 12, 31),
+            engineer.Salary,
+            true,
+            null,
+            null));
+        var on = new GameDate(1955, 6, 1);
+        var seated = Assert.Single(EngineerRoster.Of(withPrior, Alfa, on), person => person.Id == engineer.PersonId.Value);
+        Assert.Equal(1d, seated.Adaptation);
+        var reset = EngineerRoster.Of(kit.World, Alfa, on).Single(person => person.Id == engineer.PersonId.Value);
+        Assert.True(reset.Adaptation < 1d);
     }
 
     [Fact]

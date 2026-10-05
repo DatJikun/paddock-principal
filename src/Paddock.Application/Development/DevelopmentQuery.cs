@@ -178,9 +178,9 @@ public sealed class DevelopmentQuery
             plan.ReliabilityPriority,
             plan.TyresPriority,
             capacity.Headcount,
-            Band(stock, vision, aero),
+            Band(stock, vision, aero, organization.Value + "|account|" + today.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)),
             projects,
-            Forecast(open, cars, vision, aero, today),
+            Forecast(open, cars, vision, aero, today, organization.Value + "|" + today.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)),
             ongoing,
             next is { } race ? today.DaysUntil(race) : null);
         return new OwnedDevelopment(view, vision, aero);
@@ -225,7 +225,7 @@ public sealed class DevelopmentQuery
             project.Status.ToString(),
             (int)Math.Round(project.Progress * 100d, MidpointRounding.AwayFromZero),
             ToDateOnly(today.AddDays(left)),
-            new CarBandView(CarEstimates.ClampRating(expected * (1d - half)), CarEstimates.ClampRating(expected * (1d + half))),
+            GainBand(expected, half, organization.Value + "|gain|" + project.Id),
             project.Timing.ToString(),
             project.TimingRaces,
             project.RacesWaited,
@@ -244,7 +244,8 @@ public sealed class DevelopmentQuery
         IReadOnlyList<TeamCar> cars,
         int vision,
         int aero,
-        GameDate today)
+        GameDate today,
+        string organizationKey)
     {
         var end = GameDate.SeasonEnd(today.Year);
         var until = ToDateOnly(end);
@@ -274,18 +275,24 @@ public sealed class DevelopmentQuery
 
         return new DevelopmentForecast(
             until,
-            Band(levels.Downforce, vision, aero),
-            Band(levels.MechanicalGrip, vision, aero),
-            Band(levels.Braking, vision, aero),
-            Band(levels.Reliability, vision, aero));
+            Band(levels.Downforce, vision, aero, organizationKey + "|forecast|downforce"),
+            Band(levels.MechanicalGrip, vision, aero, organizationKey + "|forecast|grip"),
+            Band(levels.Braking, vision, aero, organizationKey + "|forecast|braking"),
+            Band(levels.Reliability, vision, aero, organizationKey + "|forecast|reliability"));
     }
 
     private static double MeanHeadroom(TeamCar car) =>
         Enum.GetValues<DevArea>().Sum(area => DevelopmentMath.Headroom(car, area)) / 4d;
 
-    private static CarBandView Band(double truth, int vision, int aero)
+    private static CarBandView Band(double truth, int vision, int aero, string biasKey)
     {
-        var band = CarKnowledgeBands.Around(truth, vision, aero);
+        var band = CarKnowledgeBands.Around(truth, vision, aero, biasKey);
+        return new CarBandView(band.Low, band.High);
+    }
+
+    private static CarBandView GainBand(double expected, double halfFraction, string biasKey)
+    {
+        var band = CarKnowledgeBands.OfHalfWidth(expected, Math.Abs(expected) * halfFraction, biasKey);
         return new CarBandView(band.Low, band.High);
     }
 

@@ -44,7 +44,8 @@ public static class CarIds
 
 /// <summary>
 /// One car of one organization for one season. The ceiling and the exact levels are simulation truth.
-/// A manager reads bands, not this type (INV-003). The driver stays for the season (PP-050): nothing here swaps seats.
+/// A manager reads bands, not this type (INV-003). Seats are not swapped between the team's cars mid-season (PP-050).
+/// A seat is cleared when that driver's contract ends, and a newly signed driver can fill an empty seat.
 /// </summary>
 public sealed class TeamCar
 {
@@ -132,6 +133,10 @@ public sealed class TeamCar
     /// <summary>Same car with another engine key (T43: the id of the engine deal in force, or null).</summary>
     public TeamCar WithEngine(string? engineKey) =>
         new(Id, Organization, Season, Concept, Levels, ConceptCeiling, Understanding, TyreWearMultiplier, SupplierChangeCost, engineKey, Driver);
+
+    /// <summary>Same car with another race driver, or none when the seat is empty.</summary>
+    public TeamCar WithDriver(PersonId? driver) =>
+        new(Id, Organization, Season, Concept, Levels, ConceptCeiling, Understanding, TyreWearMultiplier, SupplierChangeCost, EngineKey, driver);
 
     /// <summary>Same car and same driver, with a newly approved design.</summary>
     public TeamCar WithDesign(

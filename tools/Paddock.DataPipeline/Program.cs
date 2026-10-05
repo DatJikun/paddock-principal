@@ -4,6 +4,12 @@ internal static class Program
 {
     private static async Task<int> Main(string[] args)
     {
+        if (args.Length > 0 && DataPipelineCli.IsHelp(args[0]))
+        {
+            DataPipelineCli.WriteHelp(Console.Out);
+            return 0;
+        }
+
         if (args.Length > 0 && string.Equals(args[0], "validate-authored", StringComparison.Ordinal))
         {
             return ValidateAuthoredCommand.Execute(args, Console.Out, Console.Error);

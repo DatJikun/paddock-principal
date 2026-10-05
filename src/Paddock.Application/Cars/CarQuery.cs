@@ -84,6 +84,7 @@ public sealed class CarQuery
     {
         var vision = TeamEngineers.Attribute(world, car.Organization, today, StaffRole.TechnicalDirector, "vision");
         var aero = TeamEngineers.Attribute(world, car.Organization, today, StaffRole.HeadOfAerodynamics, "aerodynamics");
+        var key = car.Organization.Value + "|" + car.Id + "|" + car.Season.ToString(System.Globalization.CultureInfo.InvariantCulture);
         return new OwnCarView(
             car.Id,
             car.Season,
@@ -93,18 +94,18 @@ public sealed class CarQuery
             CarEstimates.Milli(car.Concept.Cooling),
             CarEstimates.Milli(car.Concept.TyreKindness),
             CarEstimates.Milli(car.Concept.Integration),
-            Band(car.Levels.Power, vision, aero),
-            Band(car.Levels.Downforce, vision, aero),
-            Band(car.Levels.MechanicalGrip, vision, aero),
-            Band(car.Levels.Braking, vision, aero),
-            Band(car.Levels.Reliability, vision, aero),
-            Band(car.ConceptCeiling, vision, aero),
-            Band(car.Understanding, vision, aero));
+            Band(car.Levels.Power, vision, aero, key),
+            Band(car.Levels.Downforce, vision, aero, key),
+            Band(car.Levels.MechanicalGrip, vision, aero, key),
+            Band(car.Levels.Braking, vision, aero, key),
+            Band(car.Levels.Reliability, vision, aero, key),
+            Band(car.ConceptCeiling, vision, aero, key),
+            Band(car.Understanding, vision, aero, key));
     }
 
-    private static CarBandView Band(double truth, int vision, int aero)
+    private static CarBandView Band(double truth, int vision, int aero, string biasKey)
     {
-        var band = CarKnowledgeBands.Around(truth, vision, aero);
+        var band = CarKnowledgeBands.Around(truth, vision, aero, biasKey);
         return new CarBandView(band.Low, band.High);
     }
 }

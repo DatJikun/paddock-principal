@@ -50,8 +50,7 @@ const TRACKS = {
     /* zakręty: [ułamek okrążenia od linii mety, nazwa]; położenia szacunkowe, do zastąpienia danymi toru */
     corners:[[.08,'Paddock Hill Bend'],[.17,'Druids'],[.28,'Graham Hill Bend'],[.38,'Surtees'],[.52,'Hawthorns'],[.65,'Westfield'],[.78,'Dingle Dell'],[.88,"Stirling's"],[.96,'Clearways']],
     map:[[38,14],[50,13],[60,12],[66,13],[70,17],[73,22],[77,24],[80,27],[78,31],[73,30],[69,31],[65,34],[58,35],[50,35],[44,36],[40,38],[34,42],[28,46],[21,49],[15,49],[12,46],[10,40],[9,34],[11,29],[15,26],[18,22],[22,20],[24,15],[27,10],[31,9],[35,11]]},
-  nurburgring:{layout:'nurburgring_1951', name:'Nürburgring', len:22.835, profile:{straights:.25,high_speed:.35,low_speed:.2,braking:.2}, tags:['Długi','Wyboisty','Niebezpieczny'],
-    map:[[84,56],[74,57],[66,56],[60,54],[57,50],[53,51],[49,48],[45,50],[41,50],[37,48],[33,49],[31,53],[28,58],[24,60],[20,58],[17,60],[13,58],[10,54],[7,55],[5,51],[6,46],[9,43],[8,38],[11,34],[15,30],[20,26],[25,22],[29,21],[32,17],[35,14],[38,12],[40,15],[43,11],[47,9],[51,11],[55,9],[58,12],[62,11],[66,14],[69,12],[73,15],[75,19],[78,23],[82,27],[86,34],[88,42],[88,50]]},
+  nurburgring:{layout:'nurburgring_1951', name:'Nürburgring', len:22.835, profile:{straights:.25,high_speed:.35,low_speed:.2,braking:.2}, tags:['Długi','Wyboisty','Niebezpieczny']},
   osterreichring:{layout:'red_bull_ring_1970', name:'Österreichring', len:5.911, profile:{straights:.25,high_speed:.45,low_speed:.1,braking:.2}, tags:['Szybki','Niebezpieczny'],
     map:[[20,55],[32,45],[44,35],[52,26],[56,18],[61,14],[67,14],[75,16],[83,20],[88,26],[90,34],[86,42],[80,48],[75,53],[72,58],[65,61],[54,61],[42,62],[30,62],[22,60]]},
   zandvoort:{layout:'zandvoort_1973', name:'Zandvoort', len:4.226, profile:{straights:.2,high_speed:.35,low_speed:.2,braking:.25}, tags:['Techniczny','Wyboisty'],

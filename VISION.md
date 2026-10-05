@@ -315,3 +315,28 @@ Szczegóły w DESIGN §5.3.
 - **Dochodzi szósty dokument, `GUIDE.md`.** Przewodnik dla graczy i testerów, zbudowany wokół tego, co gracz faktycznie wybiera: wybory, krótkie segmenty, wykresy i pytania o opinię. Bez kodu, numerów zadań i tabel do strojenia. Służy do zbierania uwag od osób testujących grę.
 - **Liczby i wykresy w przewodniku pochodzą z kodu.** Generator czyta stałe z plików C# przy każdym budowaniu (w tekście jako `{Klasa.Stała}`), więc przewodnik nie rozjeżdża się z grą. Stała, której już nie ma, przerywa budowanie (także w CI).
 - Przewodnik nie zastępuje DESIGN ani VISION: decyzje i pełny projekt systemów zostają tam.
+
+### Przyjęte 2026-10-05 (siedemnasta runda: pierwsze uwagi testerów)
+
+**PP-057: Uwagi z pierwszego czytania przewodnika „Jak działa gra”** (zmienia PP-018 w części o wieku wejścia do puli; reszta to doprecyzowania DESIGN). Liczby poniżej to szacunki.
+- **Siła historii w skali 0–10** zamiast 0–100. Różnicy między 55 a 56 nie da się odczuć. Losowość zostaje 0–100.
+- **Juniorzy wcześniej, z akademią.** Ludzie wchodzą do puli talentów, gdy kończą karting i trafiają do serii juniorskich, czyli dziś około 14. roku życia. Wiek wejścia zależy od epoki, bo w latach 50. nie było drabinki juniorskiej: do 1969 około 18 lat, w latach 1970–1989 około 16, od 1990 około 14. Zespół ma akademię z ograniczoną liczbą miejsc (na start 3), a juniorzy rozwijają się w niej latami. Późni debiutanci (np. Fangio) wchodzą jak dotąd, kilka lat przed prawdziwym debiutem.
+- **Płynność w latach do 1960 waży 12% oceny ogólnej** zamiast 14%. Dwa punkty przechodzą na zakręty: część kierowców była szybsza, jadąc bokiem.
+- **Podwyżki w trakcie umowy.** Kierowca może zażądać podwyżki przed końcem kontraktu. Jak często, zależy od lojalności i morale: lojalny i zadowolony prosi rzadko. Kwota zależy od tego, ile kierowca jeszcze może zyskać: kierowca na szczycie, bez dużego zapasu potencjału, żąda mniej niż wschodząca gwiazda. Do czasu wprowadzenia morale liczą się lojalność i ostatnie wyniki.
+- **Rozwój auta zależy od epoki.** Projektowanie koncepcji trwa dłużej, gdy auta są bardziej złożone (tak jak produkcja). We wczesnych epokach zyski z projektów są mniejsze, a koncepcja częściej kończy się porażką.
+- **Popularność liczy też walkę o tytuł kierowców.** Wyrównana walka kierowców podnosi popularność nawet przy dominacji jednego zespołu (2016), ale mniej niż walka kilku zespołów (2010–2012).
+- **Nagłe awarie.** Mniej więcej co trzecia awaria przychodzi bez ostrzeżenia, np. pęknięte zawieszenie albo wybuch silnika. Reszta jak dotąd daje kilka okrążeń sygnałów.
+- **Słowa dla gracza:** „widełki” zamiast „pasmo”, „rozrzut czasów” zamiast „szum”.
+- **Bez zmian na razie:** oceny prawdziwych kierowców zostają wstępne (wartość na wejściu i potencjał), dokładniejsze ustalimy później; spadek formy weteranów (np. Alonso) zostaje jak jest.
+
+### Przyjęte 2026-10-05 (osiemnasta runda: co przenieść z Pelotona i Ping-Ponga)
+
+**PP-058: Sprawdzone mechaniki z Ping-Pong Managera i lekcje z researchu Pelotona.** Liczby to szacunki.
+- **Kierowca a oferty rywali.** Rywal może kusić naszego kierowcę dopiero w ostatnim roku jego umowy i nie wcześniej niż po kilku wyścigach sezonu. To, jak się o tym dowiemy, zależy od morale i lojalności kierowcy: niskie oznaczają „odchodzę po sezonie”, średnie „mam lepszą ofertę, przebijecie?” (zwykłe negocjacje), a wysokie „dostaję oferty, ale zostaję”. Pewne odejście tylko przy bardzo niskim morale i lojalności albo przy złamanej obietnicy z kontraktu. Przy gwiazdach plotka najpierw trafia do gazety. Razem z podwyżkami w trakcie umowy (PP-057) to jeden system.
+- **Zarząd daje wybór celu przed sezonem:** bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę).
+- **Cele sponsorów pasują do siły zespołu.** Słaby zespół dostaje osiągalne cele, a premia rośnie z trudnością celu i nigdy nie jest odwrotnie.
+- **Akademia (rozwija PP-057).** Poziom akademii zmienia jakość juniorów, a nie ich liczbę (1–2 nowych na sezon). Akademia kosztuje co sezon. Mniej więcej 10% juniorów nie dochodzi do potencjału. Junior rozwija się szybciej, gdy się ściga. Bez minigry z treningiem: tylko decyzje.
+- **Atrybuty starzeją się różnie.** Fizyczne (kondycja) szczytują wcześnie i spadają pierwsze, mentalne (opanowanie, regularność, informacja zwrotna) rosną najdłużej. Dlatego doświadczony kierowca bywa lepszy od młodszego.
+- **Dwie krzywe balansu.** To, co pieniądze kupują (sztab, infrastruktura, działy), ma malejące korzyści, a koszt rośnie coraz szybciej. Talent kierowcy działa prawie liniowo, ale jest rzadki, starzeje się i drożeje.
+- **Lista antywzorców** z researchu Pelotona służy do review każdej mechaniki (AGENTS.md).
+- **Na później:** cechy zespołów (np. fabryczny, prywatny, „akademia”) i szef AI dobierany pod zespół.

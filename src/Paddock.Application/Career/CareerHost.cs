@@ -14,8 +14,8 @@ using HostManagerId = Paddock.Application.Managers.ManagerId;
 namespace Paddock.Application.Career;
 
 /// <summary>
-/// What one AI-only run produced. Human managers stay at zero, so <see cref="ReadyGate"/> never blocks.
-/// Commands dispatched stay at zero until a later task gives the AI something to order.
+/// What one run produced. An AI-only run has no human manager, so <see cref="ReadyGate"/> never blocks.
+/// The AI principals file the morning's commands; a human's organization is left to that human.
 /// </summary>
 public sealed class CareerRunResult
 {
@@ -80,8 +80,8 @@ public sealed class CareerHostState
 /// <summary>
 /// Wires the day clock (T16), the AI managers and the ready gate (T17), and a world already built (T20).
 /// The systems themselves (contracts, the pool commands, and the ones that follow) are <see cref="ICareerModule"/>s listed in
-/// <see cref="CareerModules.Default"/>; this class only runs the day. Each morning the modules file their placeholder AI
-/// commands (contract renewals until T44), the queue is drained, and the gate advances one day. Zero human managers never block.
+/// <see cref="CareerModules.Default"/>; this class only runs the day. Each morning the modules file their commands (the AI
+/// principals file a team's orders), the queue is drained, and the gate advances one day. Zero human managers never block.
 /// </summary>
 public static class CareerHost
 {
@@ -146,12 +146,26 @@ public static class CareerHost
             managers.Register(hostId, ManagerKind.Ai, "AI");
         }
 
+        foreach (var human in options.Humans)
+        {
+            ArgumentNullException.ThrowIfNull(human);
+            var id = new HostManagerId(human.ManagerId);
+            if (!managers.Contains(id))
+            {
+                managers.Register(id, ManagerKind.Human, human.Name);
+            }
+            else if (managers.KindOf(id) != ManagerKind.Human)
+            {
+                throw new InvalidOperationException("Manager '" + id.Value + "' is already registered and is not human.");
+            }
+        }
+
         var ai = new AiActor(new AccessManagerId(AiManagerId));
         var view = new EmptyKnowledgeView(AccessContext.ForAi(ai.Id));
         var fact = new FactKey("career.day");
         var queue = resumeFrom is null ? new CommandQueue() : new CommandQueue(resumeFrom.NextSubmissionNumber);
         var dispatcher = new CommandDispatcher(log: resumeFrom?.Log);
-        var modulesHost = CareerModuleHost.Attach(session, managers, dispatcher, hostId, options.Modules, options.Inputs);
+        var modulesHost = CareerModuleHost.Attach(session, managers, dispatcher, hostId, options.Modules, options.Inputs, options.Humans);
         var world = new ClockWorld(session);
         var context = modulesHost.CommandContext(world, managers);
         var gate = new ReadyGate();
@@ -160,7 +174,7 @@ public static class CareerHost
         {
             _ = ai.Perceive(view, fact);
             modulesHost.BeginMorning(queue);
-            commands += dispatcher.DispatchAll(queue, context).Count;
+            commands += modulesHost.Dispatch(dispatcher, queue, context).Count;
             modulesHost.EndMorning();
             var step = gate.RequestAdvance(managers, world);
             if (step is AdvanceResult.Refused refused)

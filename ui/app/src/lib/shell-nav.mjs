@@ -105,3 +105,8 @@ export function screenKey(id) {
   const item = NAV.find((entry) => entry.id === owner) ?? (owner === SETTINGS.id ? SETTINGS : NAV[0]);
   return item.key ?? 'shell.nav.home';
 }
+
+/** True when two routes are the same screen with the same arguments. */
+export function sameRoute(a, b) {
+  return a.name === b.name && a.args.join('/') === b.args.join('/');
+}

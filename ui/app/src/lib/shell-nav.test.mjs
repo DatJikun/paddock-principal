@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { NAV, navOwner, parseRoute, screenId, screenKey } from './shell-nav.mjs';
+import { NAV, navOwner, parseRoute, sameRoute, screenId, screenKey } from './shell-nav.mjs';
 
 test('a race page is its own route and lights the calendar', () => {
   assert.deepEqual(parseRoute('#/wyscig/3'), { name: 'wyscig', args: ['3'] });
@@ -28,4 +28,11 @@ test('profile and negotiation pages light the entry they came from', () => {
   assert.equal(navOwner('osoba'), 'personel');
   assert.equal(navOwner('negocjacja'), 'rynek');
   assert.equal(screenKey('negocjacja'), 'shell.nav.market');
+});
+
+test('a screen read for one route is not shown once the route has moved on', () => {
+  const read = { name: 'kierowca', args: ['farina'] };
+  assert.equal(sameRoute(read, { name: 'kierowca', args: ['farina'] }), true);
+  assert.equal(sameRoute(read, { name: 'rynek', args: [] }), false);
+  assert.equal(sameRoute(read, { name: 'kierowca', args: ['frere'] }), false);
 });

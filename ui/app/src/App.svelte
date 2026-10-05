@@ -16,7 +16,7 @@
   import { afterAdvance, blockingLabel, nextAction } from './lib/protocol.mjs';
   import { livery } from './lib/livery.mjs';
   import { loadScreen, type ScreenData } from './lib/screens';
-  import { NAV, navOwner, parseRoute, screenKey, SETTINGS } from './lib/shell-nav.mjs';
+  import { NAV, navOwner, parseRoute, sameRoute, screenKey, SETTINGS } from './lib/shell-nav.mjs';
   import { startSmoke } from './lib/smoke';
   import { sweep } from './lib/sweep';
   import { icon, ICON, initials, translator } from './lib/ui';
@@ -121,20 +121,22 @@
       fault = null;
       return;
     }
+    const asked = route;
     const [nextShell, race, data] = await Promise.all([
       query('shell', call),
       query('nextRace', call),
-      loadScreen(route.name, route.args),
+      loadScreen(asked.name, asked.args),
     ]);
     if (token !== refreshToken) return;
     shell = nextShell;
     nextRace = race;
-    screenData = data;
+    /* A read that was started for a screen the player has since left must not replace the screen that is showing now. */
+    if (sameRoute(asked, route)) screenData = data;
     fault = null;
   }
 
   async function transition(next: Route) {
-    if (next.name === route.name && next.args.join('/') === route.args.join('/')) return;
+    if (sameRoute(next, route)) return;
     if (moving) {
       queued = true;
       return;

@@ -362,3 +362,12 @@ Szczegóły w DESIGN §5.3.
 - **Skutki decyzji są emergentne.** Bramka fazy 4 (#113) nie ustala z góry, ile rzeczy ma się rozjechać po innej decyzji. Raport pokazuje, co się rozjechało, a ocenia właściciel.
 - **Gracz może przejąć dowolny zespół stawki.** Scenariusze testowe biorą zespół jako parametr, a nie gotowe „historie”.
 - **Zostaje kalibracja silnika wyścigu** (`calibrate-race`, #122): odsetek ukończeń, awarie, przewagi. To strojenie mechaniki wyścigu, a nie ocena, kto powinien wygrać.
+
+**PP-063: Menu, nowa kariera, zapis i ustawienia na MVP** (decyzja właściciela z 2026-10-05; doprecyzowuje PP-060).
+- **Menu główne:** Kontynuuj (ostatni zapis), Nowa kariera, Wczytaj, Ustawienia, Wyjdź. W trakcie gry to samo menu pod Esc: Zapisz, Zapisz jako, Wczytaj, Ustawienia, Wyjdź do menu.
+- **Nowa kariera w krokach:** Ty (imię, nazwisko, narodowość, profil szefa) → Świat (rok, ustawienie świata, „Zaawansowane” ze wszystkimi parametrami kariery) → Zespół → podsumowanie i „Rozpocznij”.
+- **Zespoły wybiera się z ładnych kart ze wszystkim, co ważne:** kierowcy, auto i silnik, budżet, cel zarządu, siła w poprzednim sezonie. Karta pokazuje tylko to, co szef zespołu może wiedzieć.
+- **Zapis tylko ręczny.** Bez autozapisu na MVP.
+- **Ustawienia na MVP:** język. Barwy epoki lub zespołu, skórka epoki i animowane tło są „kiedyś”. Tryb opinii zamiast liczb też kiedyś; na razie zawsze liczby.
+- **Prędkość oglądania wyścigu wybiera się na ekranie wyścigu,** a nie w ustawieniach.
+- **Pit-stopy na razie ręczne:** decyzja należy do gracza w trakcie oglądanego wyścigu. Strateg, który decyduje za gracza, jest później.

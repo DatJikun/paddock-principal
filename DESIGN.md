@@ -503,7 +503,7 @@ Podstawą jest kierunek C, czyli „barwy epoki”, z 1976 jako wzorcem jakości
 ### 14.2. Zasady (lista anty-AI-slop)
 - **Każdy ekran ma jeden punkt skupienia.** Na pulpicie są to skrzynka i następny wyścig.
 - **Pulpit i ekrany przeglądowe mieszczą się na jednym ekranie** (od 1440×900 w górę), bez przewijania i bez pustych dziur. Przewijanie jest dozwolone tylko tam, gdzie treść jest z natury długa, np. na liście transferowej z wieloma kolumnami.
-- **Nawigacja:** Pulpit, Skrzynka, Kalendarz, Klasyfikacje · Zespół (Kierowcy, Personel, Akademia, Auto i rozwój, Infrastruktura) · Biznes (Dostawcy, Sponsorzy, Finanse, Zarząd) · Świat (Rynek, Paddock Monthly, FIA i regulamin). Na dole „Ustawienia” (tam m.in. kolory Era/Zespół, skórka epoki, animowane tło, tryb bez liczb). Pozycje menu są duże (16 px).
+- **Nawigacja:** Pulpit, Skrzynka, Kalendarz, Klasyfikacje · Zespół (Kierowcy, Personel, Akademia, Auto i rozwój, Infrastruktura) · Biznes (Dostawcy, Sponsorzy, Finanse, Zarząd) · Świat (Rynek, Paddock Monthly, FIA i regulamin). Na dole „Ustawienia” (na MVP: język; reszta według PP-063). Pozycje menu są duże (16 px).
 - **Data zawsze w formie „Środa, 7 lipca 1976”.**
 - **Klasyfikacje na pulpicie mają przełącznik Kierowcy / Konstruktorzy**, zawsze z pełnym top 6, a nie ze zdaniem w stylu „Tyrrell drugi”.
 - **Ikony są rysowane jednym stylem i jedną grubością linii**, z sensownym motywem (auto to bolid z odkrytymi kołami widziany z góry).

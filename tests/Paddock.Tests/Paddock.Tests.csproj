@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Paddock.Application\Paddock.Application.csproj" />
     <ProjectReference Include="..\..\src\Paddock.Desktop\Paddock.Desktop.csproj" />
+    <ProjectReference Include="..\..\tools\Paddock.TypeGen\Paddock.TypeGen.csproj" />
     <ProjectReference Include="..\..\src\Paddock.Domain\Paddock.Domain.csproj" />
     <ProjectReference Include="..\..\src\Paddock.Simulation\Paddock.Simulation.csproj" />
     <ProjectReference Include="..\..\src\Paddock.Data\Paddock.Data.csproj" />

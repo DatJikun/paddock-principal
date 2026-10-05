@@ -17,6 +17,7 @@ using Paddock.Data.Authored;
 using Paddock.Data.Historical;
 using Paddock.Data.World;
 using Paddock.Domain.Career;
+using Paddock.Domain.Racing;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Objectives;
 using Paddock.Domain.Pool;
@@ -30,7 +31,8 @@ using HostManagerId = Paddock.Application.Managers.ManagerId;
 namespace Paddock.SimRunner;
 
 /// <summary>
-/// <c>play [--load file] [--lang en|pl] [--seed N] [--data-root dir] [--name text] [--autosave path]</c>.
+/// <c>play [--load file] [--lang en|pl] [--seed N] [--data-root dir] [--name text] [--autosave path] [--watch x10]</c>.
+/// <c>--watch</c> replays a race through the playback scheduler at that speed. Without it, a race prints the result only.
 /// A new career is a wizard on stdin (path A only: take over an existing team). After <c>start</c>, or after
 /// <c>--load</c>, the same stdin is the shell. Every printed line is a translation key. The process draws no RNG;
 /// the world is built from <c>--seed</c>.
@@ -60,11 +62,12 @@ public static class PlayCommand
         string? dataRoot = null;
         string? careerName = null;
         string? autosave = null;
+        double? watch = null;
         ulong seed = 1;
         for (var i = 1; i < args.Length; i++)
         {
             var flag = args[i];
-            if (flag is not ("--load" or "--lang" or "--seed" or "--data-root" or "--name" or "--autosave"))
+            if (flag is not ("--load" or "--lang" or "--seed" or "--data-root" or "--name" or "--autosave" or "--watch"))
             {
                 stderr.WriteLine("Unknown argument: " + flag);
                 return 1;
@@ -119,6 +122,20 @@ public static class PlayCommand
 
                     autosave = value;
                     break;
+                case "--watch":
+                    if (watch is not null)
+                    {
+                        return Duplicate(stderr, flag);
+                    }
+
+                    if (!TryWatch(value, out var speed))
+                    {
+                        stderr.WriteLine("Invalid --watch value: " + value);
+                        return 1;
+                    }
+
+                    watch = speed;
+                    break;
                 default:
                     if (!ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out seed))
                     {
@@ -139,7 +156,7 @@ public static class PlayCommand
         var catalog = StringTable.LoadCatalog();
         sink ??= new CollectingMissingKeySink();
         var localizer = new Localizer(catalog, language == "pl" ? Language.Pl : Language.En, sink);
-        var session = new PlaySession(stdin, stdout, localizer, sink, seed, careerName ?? "career", autosave, dataRoot);
+        var session = new PlaySession(stdin, stdout, localizer, sink, seed, careerName ?? "career", autosave, dataRoot, watch);
         var code = load is null ? session.NewCareer() : session.Load(load);
         if (sink.Reports.Count > 0)
         {
@@ -152,6 +169,14 @@ public static class PlayCommand
         }
 
         return code;
+    }
+
+    private static bool TryWatch(string text, out double speed)
+    {
+        var body = text.StartsWith('x') || text.StartsWith('X') ? text[1..] : text;
+        return double.TryParse(body, NumberStyles.Float, CultureInfo.InvariantCulture, out speed)
+            && speed > 0
+            && !double.IsInfinity(speed);
     }
 
     private static int Duplicate(TextWriter stderr, string flag)
@@ -169,6 +194,7 @@ public static class PlayCommand
         private readonly string _careerName;
         private readonly string? _autosave;
         private readonly string? _dataRootFlag;
+        private readonly double? _watch;
         private Localizer _localizer;
         private CareerConfig? _config;
         private string? _dataRoot;
@@ -183,7 +209,8 @@ public static class PlayCommand
             ulong seed,
             string careerName,
             string? autosave,
-            string? dataRoot)
+            string? dataRoot,
+            double? watch)
         {
             _stdin = stdin;
             _stdout = stdout;
@@ -193,6 +220,7 @@ public static class PlayCommand
             _careerName = careerName;
             _autosave = autosave;
             _dataRootFlag = dataRoot;
+            _watch = watch;
         }
 
         public int NewCareer()
@@ -281,7 +309,7 @@ public static class PlayCommand
                 }
 
                 var data = AuthoredDataLoader.Load(_dataRoot!);
-                var shell = CareerShell.Resume(session, loaded.Host, new CareerRunOptions { Inputs = CareerInputsLoader.Load(_dataRoot!, data) }, human);
+                var shell = CareerShell.Resume(session, loaded.Host, new CareerRunOptions { Inputs = CareerInputsLoader.Load(_dataRoot!, data, career: loaded.Meta.CareerConfig) }, human);
                 _config = loaded.Meta.CareerConfig;
                 _worldHash = now;
                 Say(PlayKeys.Loaded, ("date", DateText(shell.Date)), ("team", loaded.Meta.PlayerTeamId), ("hash", shell.WorldHash));
@@ -552,7 +580,7 @@ public static class PlayCommand
                     arrivals,
                     new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
                 var name = wizard.Given + " " + wizard.Family;
-                var shell = CareerShell.Open(session, new CareerRunOptions { Inputs = CareerInputsLoader.Load(_dataRoot!, data) }, name);
+                var shell = CareerShell.Open(session, new CareerRunOptions { Inputs = CareerInputsLoader.Load(_dataRoot!, data, career: config) }, name);
                 var today = new DateOnly(shell.Date.Year, shell.Date.Month, shell.Date.Day);
                 var result = shell.Submit(new TakeOverTeamCommand
                 {
@@ -710,6 +738,7 @@ public static class PlayCommand
                 }
 
                 Say(PlayKeys.Advanced, ("date", DateText(shell.Date)));
+                PrintRace(shell);
                 Autosave(shell);
                 return;
             }
@@ -733,7 +762,118 @@ public static class PlayCommand
             }
 
             Say(PlayKeys.Advanced, ("date", DateText(shell.Date)));
+            PrintRace(shell);
             Autosave(shell);
+        }
+
+        private void PrintRace(CareerShell shell)
+        {
+            if (shell.Modules.TryGet<Paddock.Application.Racing.RaceWatch>() is not { } watch
+                || !watch.TryTake(out _, out var round, out var layout, out var tape, out var lines, out var skipped))
+            {
+                return;
+            }
+
+            if (_watch is double speed && tape is not null)
+            {
+                Say(
+                    PlayKeys.WatchHeader,
+                    ("round", round.ToString(CultureInfo.InvariantCulture)),
+                    ("speed", speed.ToString(CultureInfo.InvariantCulture)));
+                var laps = 0;
+                RacePlayback.Play(tape, speed, raceEvent =>
+                {
+                    switch (raceEvent)
+                    {
+                        case LapCompleted:
+                            laps++;
+                            break;
+                        case PitStop pit:
+                            Say(PlayKeys.WatchPit, ("driver", PersonName(shell, pit.DriverId)));
+                            break;
+                        case Incident:
+                            Say(PlayKeys.WatchIncident);
+                            break;
+                        case Retirement retirement:
+                            Say(
+                                PlayKeys.WatchRetirement,
+                                ("driver", PersonName(shell, retirement.DriverId)),
+                                ("reason", _localizer.Get(ReasonKey(retirement.Reason))));
+                            break;
+                        case SafetyCar:
+                            Say(PlayKeys.WatchSafety);
+                            break;
+                        case Finished finished:
+                            Say(
+                                PlayKeys.WatchFinished,
+                                ("driver", PersonName(shell, finished.DriverId)),
+                                ("position", finished.Position.ToString(CultureInfo.InvariantCulture)));
+                            break;
+                        case RaceEnded:
+                            Say(PlayKeys.WatchEnded);
+                            break;
+                    }
+                });
+                Say(PlayKeys.WatchLaps, ("count", laps.ToString(CultureInfo.InvariantCulture)));
+            }
+
+            Say(
+                PlayKeys.RaceRound,
+                ("round", round.ToString(CultureInfo.InvariantCulture)),
+                ("layout", layout));
+            foreach (var line in lines)
+            {
+                Say(
+                    PlayKeys.RaceRow,
+                    ("position", line.Position.ToString(CultureInfo.InvariantCulture)),
+                    ("driver", PersonName(shell, line.DriverId)),
+                    ("team", TeamName(shell, line.TeamId)),
+                    ("points", line.Points));
+            }
+
+            if (shell.TeamOf(shell.Player) is OrganizationId player)
+            {
+                foreach (var teamId in skipped)
+                {
+                    if (teamId == player.Value)
+                    {
+                        Say(PlayKeys.RaceSkipped, ("team", TeamName(shell, teamId)));
+                    }
+                }
+            }
+        }
+
+        private static string ReasonKey(RetirementReason reason) => reason switch
+        {
+            RetirementReason.Mechanical => "race.status.mechanical",
+            RetirementReason.Accident => "race.status.accident",
+            _ => "race.status.other",
+        };
+
+        private static string PersonName(CareerShell shell, string id)
+        {
+            foreach (var person in shell.Session.World.Persons)
+            {
+                if (person.Id.Value == id)
+                {
+                    return person.Name;
+                }
+            }
+
+            return id;
+        }
+
+        private static string TeamName(CareerShell shell, string id)
+        {
+            foreach (var organization in shell.Session.World.Organizations)
+            {
+                if (organization.Id.Value == id)
+                {
+                    return organization.NameOn(shell.Date);
+                }
+            }
+
+            return id;
         }
 
         private void State(CareerShell shell)
@@ -771,7 +911,16 @@ public static class PlayCommand
                 Say(PlayKeys.StateNoStanding);
             }
 
-            Say(PlayKeys.StateNoRace);
+            var next = shell.Modules.TryGet<Paddock.Application.Development.INextRaceSource>()?.NextRaceOnOrAfter(organization, shell.Date);
+            if (next is GameDate raceDay)
+            {
+                Say(PlayKeys.StateNextRace, ("date", DateText(raceDay)));
+            }
+            else
+            {
+                Say(PlayKeys.StateNoRace);
+            }
+
             var inbox = new InboxQuery(shell.Modules.Require<InboxBook>()).View(access);
             Say(PlayKeys.StateInbox, ("open", inbox.OpenCount.ToString(CultureInfo.InvariantCulture)), ("decisions", inbox.OpenDecisionCount.ToString(CultureInfo.InvariantCulture)));
         }

@@ -175,7 +175,7 @@ public static class RunCommand
                 created.TalentPool,
                 arrivals,
                 new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
-            var result = CareerHost.Run(session, to.Value, null, new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies) });
+            var result = CareerHost.Run(session, to.Value, null, new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config) });
             Print(result, strings, preset, config.PeopleSource.ToString(), from.Value, to.Value, seed.Value, stdout, resumedOn: null);
             if (savePath is not null)
             {
@@ -265,7 +265,7 @@ public static class RunCommand
                 session,
                 to,
                 loaded.Host,
-                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, AuthoredDataLoader.Load(root)) });
+                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, AuthoredDataLoader.Load(root), career: config) });
             var preset = config.PresetName.ToString();
             Print(result, strings, preset, config.PeopleSource.ToString(), session.OpenedYear, to, seed, stdout, resumedOn: date);
             if (savePath is not null)

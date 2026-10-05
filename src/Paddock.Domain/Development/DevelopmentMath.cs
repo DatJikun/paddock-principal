@@ -145,12 +145,21 @@ public static class DevelopmentMath
 
     public static double AnnualBudgetCents(long typicalCents) => typicalCents * DevelopmentEstimates.AnnualBudgetShare;
 
-    public static int BaseDays(DevKind kind) => kind switch
+    public static int BaseDays(DevKind kind, int year) => kind switch
     {
         DevKind.Upgrade => DevelopmentEstimates.UpgradeBaseDays,
         DevKind.Research => DevelopmentEstimates.ResearchBaseDays,
-        _ => DevelopmentEstimates.ConceptBaseDays,
+        _ => ConceptDesignDays(year),
     };
+
+    /// <summary>ESTIMATE: concept design days at the era's reference headcount. A bigger team shortens this afterwards; quality does not change.</summary>
+    public static int ConceptDesignDays(int year) => LerpInt(DevelopmentEstimates.ConceptDesignAnchors, year);
+
+    /// <summary>ESTIMATE: early eras close less of the headroom. Settled by <see cref="DevelopmentEstimates.EraScaleSettledYear"/>.</summary>
+    public static double GainScale(int year) => Lerp(DevelopmentEstimates.GainScaleAnchors, year);
+
+    /// <summary>ESTIMATE: early concepts fail more often. Settled by <see cref="DevelopmentEstimates.EraScaleSettledYear"/>.</summary>
+    public static double ConceptRiskScale(int year) => Lerp(DevelopmentEstimates.ConceptRiskScaleAnchors, year);
 
     /// <summary>
     /// Days a committed concept takes before headcount: the base days times the square root of how much bigger the era's team is than
@@ -169,14 +178,14 @@ public static class DevelopmentMath
     /// Cost of a project: the annual development budget times the plan's share for the kind times the base duration over a year.
     /// It does not depend on headcount, so more engineers finish sooner for the same money.
     /// </summary>
-    public static long CostCents(double annualBudgetCents, int percent, DevKind kind) =>
-        (long)Math.Round(annualBudgetCents * percent / 100d * BaseDays(kind) / 365d, MidpointRounding.AwayFromZero);
+    public static long CostCents(double annualBudgetCents, int percent, DevKind kind, int year) =>
+        (long)Math.Round(annualBudgetCents * percent / 100d * BaseDays(kind, year) / 365d, MidpointRounding.AwayFromZero);
 
     /// <summary>
     /// Hidden expected share of the remaining headroom a project closes. Linear in the funding, so half the resources
     /// is half the share; the cap keeps it from reaching the ceiling in one step.
     /// </summary>
-    public static double ExpectedShare(DevKind kind, long costCents, double annualBudgetCents, double quality)
+    public static double ExpectedShare(DevKind kind, long costCents, double annualBudgetCents, double quality, int year)
     {
         if (annualBudgetCents <= 0d)
         {
@@ -185,14 +194,19 @@ public static class DevelopmentMath
 
         var funding = costCents / annualBudgetCents;
         var multiple = kind == DevKind.Concept ? DevelopmentEstimates.ConceptGainMultiple : 1d;
-        return Math.Clamp(DevelopmentEstimates.GainPerFunding * multiple * funding * quality, 0d, DevelopmentEstimates.MaxShare);
+        return Math.Clamp(
+            DevelopmentEstimates.GainPerFunding * multiple * GainScale(year) * funding * quality,
+            0d,
+            DevelopmentEstimates.MaxShare);
     }
 
     /// <summary>Chance a project fails: lower for a skilled lead, higher for a concept. <paramref name="skill"/> is 1 to 20.</summary>
-    public static double Risk(DevKind kind, int skill)
+    public static double Risk(DevKind kind, int skill, int year)
     {
         var unit = Math.Clamp((skill - 1) / 19d, 0d, 1d);
-        var multiple = kind == DevKind.Concept ? DevelopmentEstimates.ConceptRiskMultiple : 1d;
+        var multiple = kind == DevKind.Concept
+            ? DevelopmentEstimates.ConceptRiskMultiple * ConceptRiskScale(year)
+            : 1d;
         return Math.Max(DevelopmentEstimates.MinRisk, DevelopmentEstimates.BaseRisk * multiple * (1.5d - unit));
     }
 
@@ -279,5 +293,45 @@ public static class DevelopmentMath
     {
         var days = Math.Max(0, start.DaysUntil(today));
         return Math.Clamp(days / (365d * DevelopmentEstimates.AdaptationYears), 0d, 1d);
+    }
+
+    private static int LerpInt(IReadOnlyList<(int Year, int Days)> anchors, int year)
+    {
+        if (year <= anchors[0].Year)
+        {
+            return anchors[0].Days;
+        }
+
+        for (var i = 1; i < anchors.Count; i++)
+        {
+            if (year <= anchors[i].Year)
+            {
+                var (y0, v0) = anchors[i - 1];
+                var (y1, v1) = anchors[i];
+                return v0 + (int)Math.Round((double)(v1 - v0) * (year - y0) / (y1 - y0), MidpointRounding.AwayFromZero);
+            }
+        }
+
+        return anchors[^1].Days;
+    }
+
+    private static double Lerp(IReadOnlyList<(int Year, double Scale)> anchors, int year)
+    {
+        if (year <= anchors[0].Year)
+        {
+            return anchors[0].Scale;
+        }
+
+        for (var i = 1; i < anchors.Count; i++)
+        {
+            if (year <= anchors[i].Year)
+            {
+                var (y0, v0) = anchors[i - 1];
+                var (y1, v1) = anchors[i];
+                return v0 + ((v1 - v0) * (year - y0) / (y1 - y0));
+            }
+        }
+
+        return anchors[^1].Scale;
     }
 }

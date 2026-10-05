@@ -225,7 +225,7 @@ To dokładnie pasuje do modelu zapasu opisanego wyżej.
 
 **Moment zamrożenia koncepcji:** projekt na przyszły rok bierze za punkt wyjścia stan auta w chwili zatwierdzenia koncepcji. Poprawki wprowadzone później pomagają już tylko temu sezonowi. Decyzja „kiedy zamrozić” jest więc realnym wyborem, a konto rozwoju pozwala część późniejszej pracy przenieść dalej.
 
-**Epoka zmienia rozwój (PP-057):** projektowanie koncepcji trwa dłużej, gdy auta są bardziej złożone (tak jak produkcja). We wczesnych epokach zyski z projektów są mniejsze, a koncepcja częściej kończy się porażką.
+**Epoka zmienia rozwój (PP-057):** projektowanie koncepcji trwa dłużej, gdy auta są bardziej złożone (tak jak produkcja): około 3–4 miesięcy w 1955 i 12–18 miesięcy w 2025 przy typowej załodze epoki. We wczesnych epokach zyski z projektów są mniejsze (około 0,7 w latach 50., 1 od około 1990), a koncepcja częściej kończy się porażką (około 1,5× dzisiejszego ryzyka w latach 50., tyle co dziś od około 1990). Liczby to ESTYMATY.
 
 **Wcześniejsze zakończenie projektu:** każdy projekt można zamknąć przed czasem. Dostajesz wtedy proporcjonalną część efektu. Przydaje się, gdy zbliża się ważny wyścig albo kończą się pieniądze.
 

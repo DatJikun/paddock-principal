@@ -346,14 +346,14 @@ internal sealed class TeamDay
             }
 
             var chosen = decision.Chosen;
-            var cost = DevelopmentMath.CostCents(annual, _plan.PercentOf(chosen.Kind), chosen.Kind);
+            var cost = DevelopmentMath.CostCents(annual, _plan.PercentOf(chosen.Kind), chosen.Kind, Today.Year);
             if (cost <= 0)
             {
                 return;
             }
 
-            var share = DevelopmentMath.ExpectedShare(chosen.Kind, cost, annual, capacity.Quality);
-            var risk = DevelopmentMath.Risk(chosen.Kind, chosen.Skill);
+            var share = DevelopmentMath.ExpectedShare(chosen.Kind, cost, annual, capacity.Quality, Today.Year);
+            var risk = DevelopmentMath.Risk(chosen.Kind, chosen.Skill, Today.Year);
             var project = new DevProject(
                 Development.NextProject,
                 _organization,
@@ -361,7 +361,7 @@ internal sealed class TeamDay
                 chosen.Area,
                 chosen.Engineer.Id,
                 Today,
-                capacity.DurationDays(DevelopmentMath.BaseDays(chosen.Kind)),
+                capacity.DurationDays(DevelopmentMath.BaseDays(chosen.Kind, Today.Year)),
                 0,
                 cost,
                 0,

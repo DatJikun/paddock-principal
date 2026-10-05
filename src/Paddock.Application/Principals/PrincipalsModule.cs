@@ -284,19 +284,21 @@ public static class PrincipalTriggers
     }
 }
 
-/// <summary>The follow-up streak, read back from the reviews that filed a command.</summary>
+/// <summary>The follow-up streak, read back when a run resumes.</summary>
 public static class PrincipalStreaks
 {
     public static void Seed(PrincipalDirector director, CommandLog log)
     {
         ArgumentNullException.ThrowIfNull(director);
         ArgumentNullException.ThrowIfNull(log);
+        var latest = new Dictionary<string, RecordPrincipalReviewCommand>(StringComparer.Ordinal);
         var reviews = new Dictionary<string, List<DateOnly>>(StringComparer.Ordinal);
         var filed = new HashSet<(string Manager, DateOnly Day)>();
         foreach (var command in log.Entries)
         {
             if (command is RecordPrincipalReviewCommand review)
             {
+                latest[review.OrganizationId] = review;
                 if (!reviews.TryGetValue(review.OrganizationId, out var days))
                 {
                     days = [];
@@ -311,18 +313,25 @@ public static class PrincipalStreaks
             }
         }
 
-        foreach (var (organization, days) in reviews)
+        foreach (var (organization, review) in latest)
         {
-            var manager = PrincipalKeys.ManagerPrefix + organization;
-            var streak = 0;
-            for (var i = days.Count - 1; i >= 0; i--)
+            // A rejected filing never reaches the log, but it still spends a follow-up. The review command stores the count.
+            // A command from before that field existed is -1, and the count is the trailing reviews that did get a command in.
+            var streak = review.FollowUps;
+            if (streak < 0)
             {
-                if (!filed.Contains((manager, days[i])))
+                var manager = PrincipalKeys.ManagerPrefix + organization;
+                var days = reviews[organization];
+                streak = 0;
+                for (var i = days.Count - 1; i >= 0; i--)
                 {
-                    break;
-                }
+                    if (!filed.Contains((manager, days[i])))
+                    {
+                        break;
+                    }
 
-                streak++;
+                    streak++;
+                }
             }
 
             if (streak > 0 && FinanceIds.TryParse(organization, out var id))

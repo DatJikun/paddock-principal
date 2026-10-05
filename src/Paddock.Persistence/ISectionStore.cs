@@ -56,5 +56,6 @@ public static class SectionStores
         new RaisesSectionStore(),
         new ChampionshipSectionStore(),
         new RegulationsSectionStore(),
+        new StaffSectionStore(),
     ]);
 }

@@ -85,7 +85,9 @@ public class WorldInitializerTests
         Assert.Equal(OrganizationId.Real("supplier:aurum"), engineer.OrganizationId);
         Assert.Equal(StaffRole.EngineDesigner, engineer.Role.StaffRole);
 
-        Assert.Equal(5, result.Report.Counts.StaffPeople);
+        Assert.True(result.Report.Counts.StaffPeople > 5);
+        Assert.Empty(Subjects(result, WorldInitGapCodes.TeamsWithoutStaff));
+        AssertRoster(world, GameDate.SeasonStart(WorldInitFixtures.Year));
         Assert.Throws<InvalidOperationException>(() => world.GetPerson(PersonId.Real("future_guy")));
         Assert.Throws<InvalidOperationException>(() => world.GetPerson(PersonId.Real("past_guy")));
         Assert.Throws<InvalidOperationException>(() => world.GetPerson(PersonId.Real("indy_guy")));
@@ -93,7 +95,6 @@ public class WorldInitializerTests
 
         Assert.Equal(["pat_principal:owner@alpha"], Subjects(result, WorldInitGapCodes.StaffUnmappedRole));
         Assert.Equal(["ghost_writer@zulu"], Subjects(result, WorldInitGapCodes.StaffOrganizationAbsent));
-        Assert.Equal(["charlie"], Subjects(result, WorldInitGapCodes.TeamsWithoutStaff));
         Assert.Equal(["andre_de_vries"], Subjects(result, WorldInitGapCodes.StaffBirthEstimated));
         Assert.Equal(5, Subjects(result, WorldInitGapCodes.StaffWithoutRatings).Length);
     }
@@ -204,12 +205,10 @@ public class WorldInitializerTests
         Assert.Equal(5, result.TalentPool.Count);
         Assert.All(result.TalentPool, id => Assert.DoesNotContain(world.Contracts, contract => contract.PersonId == id));
 
-        // One generated staff member per authored (organization, role) slot: no more, no invented teams.
-        Assert.Equal(6, result.Report.Counts.StaffPeople);
-        Assert.Equal(16, result.Report.Counts.Contracts);
         Assert.Equal(0, result.Report.Counts.RealPersons);
-        Assert.Equal(21, result.Report.Counts.GeneratedPersons);
-        Assert.Equal(["charlie"], Subjects(result, WorldInitGapCodes.TeamsWithoutStaff));
+        Assert.Equal(result.Report.Counts.GeneratedPersons, world.Persons.Count);
+        Assert.Empty(Subjects(result, WorldInitGapCodes.TeamsWithoutStaff));
+        AssertRoster(world, GameDate.SeasonStart(WorldInitFixtures.Year));
 
         foreach (var person in world.Persons)
         {
@@ -222,7 +221,9 @@ public class WorldInitializerTests
 
         var persons = world.Persons.Select(person => person.Id.Value).ToArray();
         Assert.Equal(persons.Length, persons.Distinct(StringComparer.Ordinal).Count());
-        Assert.Equal(Enumerable.Range(1, 21).Select(n => "gen:" + n.ToString(CultureInfo.InvariantCulture)).Order(StringComparer.Ordinal), persons.Order(StringComparer.Ordinal));
+        Assert.Equal(
+            Enumerable.Range(1, persons.Length).Select(n => "gen:" + n.ToString(CultureInfo.InvariantCulture)).Order(StringComparer.Ordinal),
+            persons.Order(StringComparer.Ordinal));
     }
 
     [Fact]
@@ -286,10 +287,9 @@ public class WorldInitializerTests
         var first = WorldInitializer.Create(Config(PeopleSource.RealTrajectory), WorldInitFixtures.Data(), provider, 1);
         var second = WorldInitializer.Create(Config(PeopleSource.RealTrajectory), WorldInitFixtures.Data(), provider, 2);
 
-        // Rated people stay seed-independent. Driver-fit rolls use the People stream, so only the cars section moves.
-        Assert.Equal(
-            first.World.WithoutSection(CarsSection.SectionName).StateHash(),
-            second.World.WithoutSection(CarsSection.SectionName).StateHash());
+        // Rated people stay seed-independent. Empty chairs and driver-fit rolls use the People stream, so the worlds differ.
+        AssertSameTruth(first.World, second.World, PersonId.Real("d_racer1"));
+        AssertSameTruth(first.World, second.World, PersonId.Real("d_pool"));
         Assert.NotEqual(first.World.StateHash(), second.World.StateHash());
     }
 
@@ -315,7 +315,12 @@ public class WorldInitializerTests
         Assert.Equal(OrganizationKind.Team, created.Kind);
         Assert.Equal(GameDate.SeasonStart(WorldInitFixtures.Year), created.Founded);
         Assert.Equal(CareerConfig.NewTeam, created.NameOn(placeholder.World.CurrentDate));
-        Assert.DoesNotContain(placeholder.World.Contracts, contract => contract.OrganizationId == placeholder.PlayerOrganization);
+        Assert.Contains(
+            placeholder.World.Contracts,
+            contract => contract.OrganizationId == placeholder.PlayerOrganization && contract.Role.IsStaff);
+        Assert.DoesNotContain(
+            placeholder.World.Contracts,
+            contract => contract.OrganizationId == placeholder.PlayerOrganization && contract.Role.IsDriver);
         Assert.Equal(5, placeholder.Report.Counts.Teams);
     }
 
@@ -455,15 +460,12 @@ public class WorldInitializerTests
             Seed);
         var world = result.World;
 
-        // Counts pin the current authored files: 18 constructors in 1988, 13 people with a modelled key role.
         Assert.Equal(18, result.Report.Counts.Teams);
-        Assert.Equal(13, result.Report.Counts.StaffPeople);
-        Assert.Equal(14, result.Report.Counts.Contracts);
-        Assert.Equal(13, result.Report.Counts.RealPersons);
-        Assert.Equal(0, result.Report.Counts.GeneratedPersons);
+        Assert.True(result.Report.Counts.StaffPeople > 13);
+        Assert.True(result.Report.Counts.GeneratedPersons > 0);
         Assert.Equal(7, result.Report.Counts.EngineSuppliers);
-        Assert.Equal(10, Subjects(result, WorldInitGapCodes.TeamsWithoutStaff).Length);
-        Assert.DoesNotContain("mclaren", Subjects(result, WorldInitGapCodes.TeamsWithoutStaff));
+        Assert.Empty(Subjects(result, WorldInitGapCodes.TeamsWithoutStaff));
+        AssertRoster(world, new GameDate(1988, 1, 1));
 
         var mclaren = OrganizationId.Real("mclaren");
         var dennis = world.GetPerson(PersonId.Real("ron_dennis"));
@@ -514,6 +516,77 @@ public class WorldInitializerTests
     private static WorldInitResult Create(PeopleSource source) =>
         WorldInitializer.Create(Config(source), WorldInitFixtures.Data(), WorldInitFixtures.Provider(), Seed);
 
+    [Theory]
+    [InlineData(CareerPreset.Balanced)]
+    [InlineData(CareerPreset.Chaos)]
+    public void A1955WorldFillsEveryTeamAndKeepsEngineDesignersOffTheRoster(CareerPreset preset)
+    {
+        var data = LoadRealData();
+        var config = CareerConfig.FromPreset(preset).WithStartYear(1955).WithPlayerTeam("ferrari");
+        var first = WorldInitializer.Create(config, data, EmptyPeopleProvider.Instance, Seed);
+        var second = WorldInitializer.Create(config, data, EmptyPeopleProvider.Instance, Seed);
+        Assert.Equal(first.World.StateHash(), second.World.StateHash());
+
+        var world = first.World;
+        var on = GameDate.SeasonStart(1955);
+        AssertRoster(world, on);
+
+        var ferrari = OrganizationId.Real("ferrari");
+        var roster = Paddock.Application.Staff.StaffQuery.Of(world, ferrari, on);
+        Assert.DoesNotContain(roster, row => row.Role is nameof(StaffRole.EngineDesigner) or nameof(StaffRole.TeamPrincipal));
+        Assert.All(roster.Where(row => row.OwnTeam), row => Assert.NotNull(row.Attributes));
+        Assert.All(roster.Where(row => !row.OwnTeam), row => Assert.Null(row.Attributes));
+        Assert.All(roster.Where(row => !row.OwnTeam), row => Assert.Null(row.Relationship));
+
+        if (preset == CareerPreset.Balanced)
+        {
+            var lampredi = world.Contracts.Single(contract => contract.PersonId == PersonId.Real("aurelio_lampredi"));
+            Assert.Equal(ferrari, lampredi.OrganizationId);
+            Assert.Equal(StaffRole.EngineDesigner, lampredi.Role.StaffRole);
+            var busso = world.Contracts.Single(contract => contract.PersonId == PersonId.Real("giuseppe_busso"));
+            Assert.Equal(OrganizationId.Real("supplier:alfa_romeo"), busso.OrganizationId);
+            Assert.Equal(StaffRole.EngineDesigner, busso.Role.StaffRole);
+            Assert.Contains(
+                world.Contracts,
+                contract => contract.PersonId == PersonId.Real("valerio_colotti")
+                    && contract.OrganizationId == OrganizationId.Real("maserati")
+                    && contract.Role.StaffRole == StaffRole.ChiefDesigner);
+            var maserati = OrganizationId.Real("maserati");
+            var own = Paddock.Application.Staff.StaffQuery.Of(world, maserati, on);
+            Assert.Contains(own, row => row.PersonId == "valerio_colotti" && row.OwnTeam && row.Attributes is not null);
+            Assert.DoesNotContain(roster, row => row.PersonId is "aurelio_lampredi" or "giuseppe_busso" or "enzo_ferrari");
+        }
+
+        var engineers = Paddock.Domain.Development.EngineerRoster.Of(world, ferrari, on);
+        Assert.Contains(engineers, engineer => engineer.Role == StaffRole.ChiefDesigner);
+        Assert.DoesNotContain(engineers, engineer => engineer.Role is null);
+    }
+
     private static string[] Subjects(WorldInitResult result, string code) =>
         result.Report.Gaps.SingleOrDefault(gap => gap.Code == code)?.Subjects.ToArray() ?? [];
+
+    private static void AssertSameTruth(WorldState left, WorldState right, PersonId person)
+    {
+        Assert.Equal(left.TruthOf(person).Attributes, right.TruthOf(person).Attributes);
+        Assert.Equal(left.TruthOf(person).Potential, right.TruthOf(person).Potential);
+    }
+
+    private static void AssertRoster(WorldState world, GameDate on)
+    {
+        var teams = world.Organizations.Where(organization => organization.Kind == OrganizationKind.Team && organization.Dissolved is null).ToArray();
+        Assert.NotEmpty(teams);
+        foreach (var team in teams)
+        {
+            foreach (var role in StaffCatalogue.TeamRoster)
+            {
+                var held = world.Contracts.Count(contract =>
+                    contract.OrganizationId == team.Id
+                    && contract.IsActiveOn(on)
+                    && contract.Role.IsStaff
+                    && contract.Role.StaffRole == role);
+                var needed = role == StaffRole.RaceEngineer ? StaffEstimates.RaceEngineersPerTeam : 1;
+                Assert.True(held >= needed, team.Id.Value + " " + role + " has " + held);
+            }
+        }
+    }
 }

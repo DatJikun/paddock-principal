@@ -22,7 +22,7 @@ public sealed class StaffGenerator
         _blocklist = blocklist ?? EmptyNameBlocklist.Instance;
     }
 
-    public GeneratedStaff Generate(RngStream people, int season, StaffRole role, GenerationRequest request)
+    public GeneratedStaff Generate(RngStream people, int season, StaffRole role, GenerationRequest request, string? drawKey = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         PeopleSampling.EnsureSeason(season);
@@ -46,7 +46,7 @@ public sealed class StaffGenerator
 
         PeopleSampling.EnsurePeopleStream(people);
         StablePersonId id = _ids.Allocate();
-        var rng = PeopleSampling.Child(people, "staff", id.Value);
+        var rng = PeopleSampling.Child(people, "staff", drawKey ?? id.Value);
         string nationality = PeopleSampling.PickNationality(rng, request.NationalityWeights);
         bool female = PeopleSampling.PickFemale(rng, season);
         int age = PeopleSampling.PickAge(rng, GenerationEstimates.StaffAgeMin, GenerationEstimates.StaffAgeMaxExclusive);

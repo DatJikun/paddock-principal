@@ -35,13 +35,15 @@ namespace Paddock.Tests.Career;
 /// records that choice, so the objectives section text differs.
 /// It changed again in #194: the fixture driver is checked for a mid-contract raise, so the raises section is in the
 /// hash. The retired string stayed chief,leap,vet. Two runs with one seed still match (INV-002).
+/// It changed again in #199: empty staff chairs are filled and the race-engineer pairing is a world section, so both are
+/// in the hash. The retired string stayed chief,leap,vet. Two runs with one seed still match (INV-002).
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "0e1637087f2e52fcd1ef08f4633adfb338524c71bf76db28c1ea07d5a9759c65";
+    private const string StoredWorldHash = "193251ff8925f233d9e1eba1f46ba62ef47bb0c74cae8ac56e4109663c5eb372";
 
     private const string StoredRetired = "chief,leap,vet";
 

@@ -130,7 +130,9 @@ public sealed class DevelopmentQuery
             EngineerRoster.ChairsIn(today.Year),
             balance,
             annual);
-        var projects = section.ProjectsOf(organization)
+        // Closed projects stay in the section as history. The view and the forecast only use what is still open.
+        var open = section.OpenOf(organization);
+        var projects = open
             .Where(project => project.Status is ProjectStatus.Active or ProjectStatus.Ready or ProjectStatus.InProduction)
             .Select(project => ProjectView(project, organization, world, cars, skill, today))
             .ToArray();
@@ -152,7 +154,7 @@ public sealed class DevelopmentQuery
             capacity.Headcount,
             Band(stock, vision, aero),
             projects,
-            Forecast(section.ProjectsOf(organization), cars, vision, aero, today),
+            Forecast(open, cars, vision, aero, today),
             ongoing,
             next is { } race ? today.DaysUntil(race) : null);
     }

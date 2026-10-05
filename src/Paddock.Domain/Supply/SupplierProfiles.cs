@@ -1,4 +1,7 @@
+using System.Collections.Concurrent;
+using System.Globalization;
 using Paddock.Domain.Cars;
+using Paddock.Domain.Random;
 using Paddock.Domain.World;
 
 namespace Paddock.Domain.Supply;
@@ -25,12 +28,22 @@ public readonly record struct EngineContribution(double PowerOffset, double Reli
 public interface ISupplierProfiles
 {
     EngineVersion EngineOf(OrganizationId supplier, int versionSeason);
+
+    /// <summary>
+    /// How far the supplier's power moved at random between the version of the season before and the version of
+    /// <paramref name="versionSeason"/>, on top of the general progress (PP-064). Null when there was no step: the anchor season or
+    /// before, or a source without drift. Truth: a manager reads a band of it (INV-003).
+    /// </summary>
+    double? PowerStepOf(OrganizationId supplier, int versionSeason);
 }
 
 /// <summary>
 /// ESTIMATE stand-in for the designer and progress (no data, R13/R14): the base of a supplier at the anchor season is the car strength
 /// the ratings give its constructor (so Mercedes is strong in 1955, PP-050), or the tier fallback, spread by a stable hash of the id;
-/// the engine then gains <see cref="SupplyEstimates.ProgressPerSeason"/> a season. No RNG: the same supplier gives the same engine.
+/// the engine then gains <see cref="SupplyEstimates.ProgressPerSeason"/> a season and a random step per season (PP-064). The step of a
+/// season is a child of the <c>Market</c> stream of that season, derived from the master seed and tagged
+/// <c>engine-season:{supplier}:{season}</c>, so no shared RNG state is read or consumed: the engine stays a pure function of
+/// (seed, supplier, season) and a resumed save gives the same engines (INV-002, INV-004, INV-005). Without a seed there is no drift.
 /// The own-engine programme (T42) replaces this for its own organization by wrapping it (see <see cref="IEngineProgrammes"/>).
 /// </summary>
 public sealed class EstimateSupplierProfiles : ISupplierProfiles
@@ -39,11 +52,17 @@ public sealed class EstimateSupplierProfiles : ISupplierProfiles
 
     private readonly int _anchorSeason;
     private readonly ICarStrengthSource? _strength;
+    private readonly ulong? _masterSeed;
+    private readonly ConcurrentDictionary<(string Supplier, int Season), (double Power, double Reliability)> _steps = new();
 
-    public EstimateSupplierProfiles(int anchorSeason, ICarStrengthSource? strength = null)
+    /// <param name="anchorSeason">The season whose ratings are the baseline; the first random step is the one after it.</param>
+    /// <param name="strength">Car strengths of the baseline, or the tier fallback.</param>
+    /// <param name="masterSeed">The master seed the yearly steps come from. Null means no random drift (tests of the baseline).</param>
+    public EstimateSupplierProfiles(int anchorSeason, ICarStrengthSource? strength = null, ulong? masterSeed = null)
     {
         _anchorSeason = anchorSeason;
         _strength = strength;
+        _masterSeed = masterSeed;
     }
 
     public EngineVersion EngineOf(OrganizationId supplier, int versionSeason)
@@ -56,10 +75,54 @@ public sealed class EstimateSupplierProfiles : ISupplierProfiles
         var key = supplier.Value.StartsWith(SupplierPrefix, StringComparison.Ordinal) ? supplier.Value[SupplierPrefix.Length..] : supplier.Value;
         var baseline = _strength is not null && _strength.TryGet(key, _anchorSeason, out var strength) ? strength : CarEstimates.TierFallback;
         var progress = SupplyEstimates.ProgressPerSeason * (versionSeason - _anchorSeason);
+        var (powerDrift, reliabilityDrift) = DriftUpTo(supplier.Value, versionSeason);
         return new EngineVersion(
-            CarEstimates.ClampRating(baseline + Spread(supplier.Value, "power", SupplyEstimates.PowerSpread) + progress),
-            CarEstimates.ClampRating(baseline + Spread(supplier.Value, "reliability", SupplyEstimates.ReliabilitySpread) + progress),
+            CarEstimates.ClampRating(baseline + Spread(supplier.Value, "power", SupplyEstimates.PowerSpread) + progress + powerDrift),
+            CarEstimates.ClampRating(baseline + Spread(supplier.Value, "reliability", SupplyEstimates.ReliabilitySpread) + progress + reliabilityDrift),
             CarEstimates.ClampRating(50 + Spread(supplier.Value, "efficiency", SupplyEstimates.EfficiencySpread) + progress));
+    }
+
+    public double? PowerStepOf(OrganizationId supplier, int versionSeason)
+    {
+        if (!supplier.IsAssigned)
+        {
+            throw new ArgumentException("Supplier id is unassigned.", nameof(supplier));
+        }
+
+        return _masterSeed is null || versionSeason <= _anchorSeason ? null : StepOf(supplier.Value, versionSeason).Power;
+    }
+
+    /// <summary>The steps of every season after the anchor up to <paramref name="season"/>, added up.</summary>
+    private (double Power, double Reliability) DriftUpTo(string supplier, int season)
+    {
+        double power = 0;
+        double reliability = 0;
+        for (var year = _anchorSeason + 1; year <= season; year++)
+        {
+            var step = StepOf(supplier, year);
+            power += step.Power;
+            reliability += step.Reliability;
+        }
+
+        return (power, reliability);
+    }
+
+    /// <summary>One season's random step, from its own child stream. Zero at or before the anchor, or with no seed.</summary>
+    private (double Power, double Reliability) StepOf(string supplier, int season)
+    {
+        if (_masterSeed is not { } seed || season <= _anchorSeason)
+        {
+            return (0, 0);
+        }
+
+        return _steps.GetOrAdd((supplier, season), key =>
+        {
+            var tag = string.Create(CultureInfo.InvariantCulture, $"engine-season:{key.Supplier}:{key.Season}");
+            var rng = RngStream.Derive(seed, RngStreamName.Market, key.Season).DeriveChild(tag);
+            var power = (rng.NextDouble() * 2 - 1) * SupplyEstimates.PowerDriftStep;
+            var reliability = (rng.NextDouble() * 2 - 1) * SupplyEstimates.ReliabilityDriftStep;
+            return (power, reliability);
+        });
     }
 
     /// <summary>A stable value from -width to +width for an id and a facet (FNV-1a, so it is the same on every platform).</summary>

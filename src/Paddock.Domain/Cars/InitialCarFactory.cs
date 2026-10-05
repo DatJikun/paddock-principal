@@ -25,10 +25,38 @@ public sealed class EstimateCarStrength : ICarStrengthSource
 
     public bool TryGet(string constructorId, int season, out double strength)
     {
-        if (string.Equals(constructorId, "mercedes", StringComparison.Ordinal) && season is >= 1954 and <= 1955)
+        if (season is >= 1954 and <= 1955)
         {
-            strength = season == 1955 ? 78 : 74;
-            return true;
+            switch (constructorId)
+            {
+                case "mercedes":
+                    strength = season == 1955 ? 78 : 74;
+                    return true;
+                case "ferrari":
+                    strength = season == 1955 ? 68 : 72;
+                    return true;
+                case "maserati":
+                    strength = season == 1955 ? 66 : 64;
+                    return true;
+                case "lancia":
+                    strength = season == 1955 ? 65 : 60;
+                    return true;
+                case "gordini":
+                    strength = 52;
+                    return true;
+                case "cooper":
+                    strength = 48;
+                    return true;
+                case "connaught":
+                    strength = 47;
+                    return true;
+                case "vanwall":
+                    strength = 45;
+                    return true;
+                case "hwm":
+                    strength = 40;
+                    return true;
+            }
         }
 
         strength = 0;
@@ -195,10 +223,11 @@ public static class InitialCarFactory
                 continue;
             }
 
-            var ceiling = CeilingOf(organization, season, fullyGenerated, masterSeed, source);
+            var carStrength = StrengthOf(organization, season, fullyGenerated, masterSeed, source);
             var concept = CarConcept.Neutral;
+            var ceiling = CarEstimates.ClampRating(carStrength + CarEstimates.InitialHeadroom);
             var effects = ConceptMapping.Effects(concept, ceiling);
-            var levels = ConceptMapping.StartingLevels(concept, ceiling);
+            var levels = PerformanceLevels.Of(carStrength, carStrength, carStrength, carStrength, carStrength);
             var drivers = RaceDrivers(world, organization.Id, opening);
             for (var seat = 0; seat < CarEstimates.CarsPerTeam; seat++)
             {
@@ -248,7 +277,7 @@ public static class InitialCarFactory
         organization.Kind == OrganizationKind.Team
         && (organization.Dissolved is not GameDate dissolved || dissolved >= opening);
 
-    private static double CeilingOf(
+    private static double StrengthOf(
         Organization organization,
         int season,
         bool fullyGenerated,

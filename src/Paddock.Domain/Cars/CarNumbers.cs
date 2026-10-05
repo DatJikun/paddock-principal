@@ -38,6 +38,9 @@ public static class CarEstimates
     /// <summary>ESTIMATE: car strength when no historical effect and no tier draw applies.</summary>
     public const double TierFallback = 50;
 
+    /// <summary>ESTIMATE: headroom above initial car strength for in-season development.</summary>
+    public const double InitialHeadroom = 15;
+
     /// <summary>ESTIMATE: narrowest half-width of an engineer's band, even for a perfect technical director.</summary>
     public const double MinHalfWidth = 3;
 

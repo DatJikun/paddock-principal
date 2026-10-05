@@ -51,6 +51,14 @@ public static class RaceReportKeys
     [TranslationKey]
     public const string SectionLog = "report.section.log";
 
+    /// <summary>Developer-only heading for the true weather and decision traces (INV-003).</summary>
+    [TranslationKey]
+    public const string SectionSpy = "race.section.spy";
+
+    /// <summary>Developer-only true weather (showery flag, onset, peak wetness). Never sent to a manager.</summary>
+    [TranslationKey]
+    public const string SpyWeather = "race.spy.weather";
+
     [TranslationKey]
     public const string ConditionsDry = "report.conditions.start.dry";
 

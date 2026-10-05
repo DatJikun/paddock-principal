@@ -8,6 +8,8 @@ namespace Paddock.Application.Racing;
 /// <summary>
 /// Writes one finished round into <see cref="RaceResultsSection"/>. The report is keys and arguments (TECH 6.3).
 /// Person and team arguments keep the id, prefixed so a query can swap in a name without reading hidden truth.
+/// The Spy section (true weather) is stored for developer tools; <see cref="ChampionshipRead.Result"/> strips it for a manager
+/// (INV-003).
 /// </summary>
 public static class RaceArchive
 {
@@ -50,10 +52,11 @@ public static class RaceArchive
                 reason ?? "");
         }
 
-        var sections = new StoredReportSection[report.Sections.Length];
+        var reportSections = report.Sections.Add(RaceSpy.Weather(facts.TruthWeather));
+        var sections = new StoredReportSection[reportSections.Length];
         for (var i = 0; i < sections.Length; i++)
         {
-            var section = report.Sections[i];
+            var section = reportSections[i];
             var lines = new StoredReportLine[section.Lines.Length];
             for (var line = 0; line < lines.Length; line++)
             {

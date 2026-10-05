@@ -1,4 +1,5 @@
 using System.Globalization;
+using Paddock.Application.Access;
 using Paddock.Application.Career;
 using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
@@ -12,7 +13,10 @@ namespace Paddock.Application.Racing;
 /// <summary>The public name of a circuit, for a calendar tile. Not a hidden rating.</summary>
 public sealed record CircuitLabel(string CircuitId, string Name, string Country);
 
-/// <summary>One championship round: the days still on the clock, the layout, and whether the race has a result.</summary>
+/// <summary>
+/// One championship round: the planned weekend days, the layout, and whether the race has a result.
+/// Dates come from the season plan, not from the live queue, so a finished round keeps its race day.
+/// </summary>
 public sealed record CalendarRoundView(
     int Season,
     int Round,
@@ -92,6 +96,14 @@ public static class ChampionshipRead
         var season = session.Date.Year;
         var finished = FinishedRounds(session, season);
         var rounds = new Dictionary<int, RoundBuilder>();
+        if (inputs.Layouts is { } layouts && inputs.RaceAssignments is { } assignments)
+        {
+            foreach (var planned in SeasonCalendar.Plan(season, layouts, assignments))
+            {
+                AddSession(rounds, planned.Round, planned.LayoutId, planned.TypeId, planned.Date.ToString());
+            }
+        }
+
         foreach (var scheduled in session.Clock.Queue.Events)
         {
             if (scheduled.Payload is not RaceSessionPayload payload || payload.Season != season)
@@ -99,26 +111,7 @@ public static class ChampionshipRead
                 continue;
             }
 
-            if (!rounds.TryGetValue(payload.Round, out var builder))
-            {
-                builder = new RoundBuilder(payload.Round, payload.LayoutId);
-                rounds.Add(payload.Round, builder);
-            }
-
-            var date = scheduled.Date.ToString();
-            if (scheduled.TypeId == ScheduledEventType.Practice)
-            {
-                builder.Practice = date;
-            }
-            else if (scheduled.TypeId == ScheduledEventType.Qualifying)
-            {
-                builder.Qualifying = date;
-            }
-            else if (scheduled.TypeId == ScheduledEventType.Race)
-            {
-                builder.Race = date;
-                builder.LayoutId = payload.LayoutId;
-            }
+            AddSession(rounds, payload.Round, payload.LayoutId, scheduled.TypeId, scheduled.Date.ToString());
         }
 
         foreach (var race in finished)
@@ -189,7 +182,14 @@ public static class ChampionshipRead
             table.Constructors().Select(row => TeamRow(session.World, session.Date, row)).ToArray());
     }
 
-    public static RaceResultView Result(CareerSession session, int? season, int? round)
+    public static RaceResultView Result(CareerSession session, int? season, int? round) =>
+        Result(session, season, round, access: null);
+
+    /// <summary>
+    /// A finished round. A manager or AI never receives the Spy section (INV-003). Pass
+    /// <see cref="AccessContext.Developer"/> for SimRunner and other tools that may read the true weather.
+    /// </summary>
+    public static RaceResultView Result(CareerSession session, int? season, int? round, AccessContext? access)
     {
         ArgumentNullException.ThrowIfNull(session);
         var archive = session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName);
@@ -219,16 +219,21 @@ public static class ChampionshipRead
                 row.RetirementKey);
         }
 
-        var sections = new ReportSectionView[race.Sections.Count];
-        for (var i = 0; i < sections.Length; i++)
+        var includeSpy = access is { Kind: AccessKind.Developer };
+        var views = new List<ReportSectionView>(race.Sections.Count);
+        foreach (var section in race.Sections)
         {
-            var section = race.Sections[i];
-            sections[i] = new ReportSectionView(
+            if (!includeSpy && RaceSpy.IsSpy(section))
+            {
+                continue;
+            }
+
+            views.Add(new ReportSectionView(
                 Line(session.World, section.Title),
-                section.Lines.Select(line => Line(session.World, line)).ToArray());
+                section.Lines.Select(line => Line(session.World, line)).ToArray()));
         }
 
-        return new RaceResultView(true, race.Season, race.Round, race.LayoutId, rows, sections);
+        return new RaceResultView(true, race.Season, race.Round, race.LayoutId, rows, views);
     }
 
     public static NextRaceView Next(CareerSession session, IReadOnlyDictionary<string, CircuitLabel> circuits)
@@ -259,6 +264,34 @@ public static class ChampionshipRead
         }
 
         return new NextRaceView(null, null, null, null, null, null, null);
+    }
+
+    private static void AddSession(
+        Dictionary<int, RoundBuilder> rounds,
+        int round,
+        string layoutId,
+        string typeId,
+        string date)
+    {
+        if (!rounds.TryGetValue(round, out var builder))
+        {
+            builder = new RoundBuilder(round, layoutId);
+            rounds.Add(round, builder);
+        }
+
+        if (typeId == ScheduledEventType.Practice)
+        {
+            builder.Practice = date;
+        }
+        else if (typeId == ScheduledEventType.Qualifying)
+        {
+            builder.Qualifying = date;
+        }
+        else if (typeId == ScheduledEventType.Race)
+        {
+            builder.Race = date;
+            builder.LayoutId = layoutId;
+        }
     }
 
     private static List<StoredRace> FinishedRounds(CareerSession session, int season)

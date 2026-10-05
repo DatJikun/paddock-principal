@@ -251,6 +251,9 @@ public class BridgeTests
             Assert.Contains(rounds.EnumerateArray(), round => round.GetProperty("finished").GetBoolean());
         }
 
+        AssertCalendarKeepsFinishedRaceDate(career.Host);
+        AssertPlayerRaceResultHasNoSpy(career.Host);
+
         var next = career.Host.Handle(Message("next", "query", "nextRace"));
         using (var json = JsonDocument.Parse(next.Response))
         {
@@ -299,6 +302,22 @@ public class BridgeTests
                 File.Delete(path);
             }
         }
+    }
+
+    [Fact]
+    public void AfterRoundOneTheCalendarStillReturnsThatRoundsRaceDate()
+    {
+        using var career = StartFerrariCareer();
+        AdvanceUntilFirstRace(career.Host);
+        AssertCalendarKeepsFinishedRaceDate(career.Host);
+    }
+
+    [Fact]
+    public void RaceResultForTheHumanPlayerHasNoSpySection()
+    {
+        using var career = StartFerrariCareer();
+        AdvanceUntilFirstRace(career.Host);
+        AssertPlayerRaceResultHasNoSpy(career.Host);
     }
 
     [Fact]
@@ -450,6 +469,102 @@ public class BridgeTests
         Assert.Equal("1955-01-01", json.RootElement.GetProperty("data").GetProperty("date").GetString());
         await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
     }
+
+    private static Opened StartFerrariCareer()
+    {
+        var career = Lobby();
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"ferrari","givenName":"Enzo","familyName":"Test","nationality":"IT","tilt":"none","preset":"Chaos","year":1955,"seed":1}"""));
+        using var json = JsonDocument.Parse(started.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        return career;
+    }
+
+    private static void AdvanceUntilFirstRace(BridgeHost host)
+    {
+        var raced = false;
+        for (var day = 0; day < 90 && !raced; day++)
+        {
+            var pool = host.Handle(Message("pool" + day, "query", "pool"));
+            using (var poolJson = JsonDocument.Parse(pool.Response))
+            {
+                Assert.Equal(JsonValueKind.Null, poolJson.RootElement.GetProperty("data").GetProperty("focus").ValueKind);
+            }
+
+            ClearDecision(host, day);
+            var moved = host.Handle(Message("day" + day, "command", "advanceDay"));
+            using var movedJson = JsonDocument.Parse(moved.Response);
+            Assert.True(movedJson.RootElement.GetProperty("ok").GetBoolean(), moved.Response);
+            var table = host.Handle(Message("table" + day, "query", "standings"));
+            using var tableJson = JsonDocument.Parse(table.Response);
+            Assert.True(tableJson.RootElement.GetProperty("ok").GetBoolean(), table.Response);
+            if (tableJson.RootElement.GetProperty("data").GetProperty("roundsCompleted").GetInt32() >= 1)
+            {
+                raced = true;
+            }
+        }
+
+        Assert.True(raced, "the first 1955 race did not finish");
+    }
+
+    private static void AssertCalendarKeepsFinishedRaceDate(BridgeHost host)
+    {
+        var calendar = host.Handle(Message("calendar-dates", "query", "calendar"));
+        using var json = JsonDocument.Parse(calendar.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), calendar.Response);
+        var rounds = json.RootElement.GetProperty("data").GetProperty("rounds");
+        Assert.True(rounds.GetArrayLength() > 1, calendar.Response);
+        foreach (var round in rounds.EnumerateArray())
+        {
+            Assert.False(
+                string.IsNullOrWhiteSpace(round.GetProperty("race").GetString()),
+                "round " + round.GetProperty("round").GetInt32() + " lost its race date: " + calendar.Response);
+        }
+
+        var first = rounds.EnumerateArray().Single(round => round.GetProperty("round").GetInt32() == 1);
+        Assert.True(first.GetProperty("finished").GetBoolean(), calendar.Response);
+        Assert.Equal("1955-03-01", first.GetProperty("practice").GetString());
+        Assert.Equal("1955-03-02", first.GetProperty("qualifying").GetString());
+        Assert.Equal("1955-03-03", first.GetProperty("race").GetString());
+    }
+
+    private static void AssertPlayerRaceResultHasNoSpy(BridgeHost host)
+    {
+        var result = host.Handle(Message(
+            "spy",
+            "query",
+            "raceResult",
+            "{\"managerId\":\"" + CareerBridge.HumanManagerId + "\",\"season\":null,\"round\":null}"));
+        using var json = JsonDocument.Parse(result.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), result.Response);
+        var data = json.RootElement.GetProperty("data");
+        Assert.True(data.GetProperty("found").GetBoolean(), result.Response);
+        foreach (var section in data.GetProperty("sections").EnumerateArray())
+        {
+            var title = section.GetProperty("title").GetProperty("key").GetString();
+            Assert.False(IsSpyKey(title), "raceResult sent the Spy section to the player: " + result.Response);
+            foreach (var line in section.GetProperty("lines").EnumerateArray())
+            {
+                Assert.False(IsSpyKey(line.GetProperty("key").GetString()), result.Response);
+                foreach (var arg in line.GetProperty("args").EnumerateArray())
+                {
+                    var name = arg.GetProperty("name").GetString();
+                    Assert.NotEqual("showery", name);
+                    Assert.NotEqual("onset", name);
+                    Assert.NotEqual("peak", name);
+                }
+            }
+        }
+    }
+
+    private static bool IsSpyKey(string? key) =>
+        key is not null
+        && (string.Equals(key, "race.section.spy", StringComparison.Ordinal)
+            || string.Equals(key, "race.spy.weather", StringComparison.Ordinal)
+            || key.Contains("spy", StringComparison.OrdinalIgnoreCase));
 
     private static void AcceptExpectedSeasonTarget(BridgeHost host, string id)
     {

@@ -1,3 +1,4 @@
+using Paddock.Application.Access;
 using Paddock.Application.Career;
 using Paddock.Application.Development;
 using Paddock.Application.Racing;
@@ -36,6 +37,14 @@ public class RaceWeekendCareerTests
         Assert.NotNull(first.NextRace);
         Assert.True(first.NextRace > new GameDate(1955, 3, 4));
         Assert.NotEqual(first.Hash, RunToFirstRace(Seed + 1).Hash);
+
+        var session = CareerKit.Open(CareerPreset.Chaos, 1955, Seed);
+        CareerHost.RunUntil(session, new GameDate(1955, 3, 4), null, CareerKit.Options);
+        var archive = session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName);
+        Assert.NotNull(archive);
+        Assert.Contains(archive.Latest()!.Sections, RaceSpy.IsSpy);
+        Assert.DoesNotContain(ChampionshipRead.Result(session, null, null).Sections, RaceSpy.IsSpy);
+        Assert.Contains(ChampionshipRead.Result(session, null, null, AccessContext.Developer).Sections, RaceSpy.IsSpy);
     }
 
     [Fact]

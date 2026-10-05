@@ -76,7 +76,8 @@ public sealed class Person
         bool isReal,
         IReadOnlyList<PersonRole> roles,
         PersonTruth truth,
-        GameDate? retiredOn = null)
+        GameDate? retiredOn = null,
+        GameDate? injuredUntil = null)
     {
         if (!id.IsAssigned)
         {
@@ -106,7 +107,13 @@ public sealed class Person
             throw new ArgumentOutOfRangeException(nameof(retiredOn), retiredOn, "A person cannot retire before they are born.");
         }
 
+        if (injuredUntil is GameDate injured && injured < birthDate)
+        {
+            throw new ArgumentOutOfRangeException(nameof(injuredUntil), injuredUntil, "A person cannot be injured before they are born.");
+        }
+
         RetiredOn = retiredOn;
+        InjuredUntil = injuredUntil;
     }
 
     public PersonId Id { get; }
@@ -132,9 +139,14 @@ public sealed class Person
 
     public bool IsRetired => RetiredOn is not null;
 
-    /// <summary>The same person with other simulation truth (development moves it). Everything else, retirement included, is kept.</summary>
+    /// <summary>The date the person is injured until (unable to race), or null while they are healthy (PP-061).</summary>
+    public GameDate? InjuredUntil { get; }
+
+    public bool IsInjured(GameDate on) => InjuredUntil is not null && on <= InjuredUntil;
+
+    /// <summary>The same person with other simulation truth (development moves it). Everything else, retirement and injury included, is kept.</summary>
     internal Person WithTruth(PersonTruth truth) =>
-        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, truth, RetiredOn);
+        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, truth, RetiredOn, InjuredUntil);
 
     internal Person Retire(GameDate on)
     {
@@ -143,8 +155,14 @@ public sealed class Person
             throw new InvalidOperationException($"Person '{Id}' has already retired.");
         }
 
-        return new Person(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, on);
+        return new Person(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, on, InjuredUntil);
     }
+
+    internal Person Injure(GameDate until) =>
+        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, RetiredOn, until);
+
+    internal Person ClearInjury() =>
+        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, RetiredOn, null);
 
     private static PersonRole[] CanonicalRoles(IReadOnlyList<PersonRole> roles)
     {

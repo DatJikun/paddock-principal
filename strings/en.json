@@ -204,6 +204,11 @@
   "inbox.status.resolved": "Decided",
   "inbox.status.dismissed": "Dismissed",
   "inbox.status.expired": "Lapsed",
+  "inbox.racing.standin.subject": "Stand-in driver for {driver}",
+  "inbox.racing.standin.option": "Select {candidate}",
+  "inbox.racing.standin.consequence": "{candidate} will drive as a stand-in for {team} in the next race.",
+  "inbox.racing.standin.skip": "Do not enter car",
+  "inbox.racing.standin.skip.consequence": "The car will not start in the next race.",
   "objective.status.open": "In progress",
   "objective.status.met": "Met",
   "objective.status.failed": "Failed",
@@ -362,6 +367,7 @@
     "other": "Most time in front: {driver}, {count} of {total} laps."
   },
   "report.result.shortened": "The race was stopped on lap {lap} of {total}; the result stands as of that lap.",
+  "report.result.standIn": "{standin} stood in for {regular} at {team}.",
   "report.points.driver": {
     "one": "{driver}: {count} point",
     "other": "{driver}: {count} points"

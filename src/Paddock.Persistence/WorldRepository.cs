@@ -226,8 +226,12 @@ public sealed partial class WorldRepository
         Execute(connection, transaction, "DELETE FROM id_counters WHERE name IN ('person', 'organization', 'contract')");
 
         var present = new HashSet<string>(StringComparer.Ordinal);
+        var hasInjuredUntil = HasColumn(connection, transaction, "persons", "injured_until");
+        var personColumns = hasInjuredUntil
+            ? ["id", "is_real", "given_name", "family_name", "birth_date", "nationality", "retired_on", "injured_until"]
+            : new[] { "id", "is_real", "given_name", "family_name", "birth_date", "nationality", "retired_on" };
 
-        using (var persons = new Insert(connection, transaction, "persons", "id", "is_real", "given_name", "family_name", "birth_date", "nationality", "retired_on"))
+        using (var persons = new Insert(connection, transaction, "persons", personColumns))
         using (var roles = new Insert(connection, transaction, "person_roles", "person_id", "role"))
         using (var attributes = new Insert(connection, transaction, "person_attributes", "person_id", "attribute_key", "value", "potential"))
         {
@@ -235,7 +239,15 @@ public sealed partial class WorldRepository
             {
                 var id = person.Id.Value;
                 present.Add(id);
-                persons.Run(id, person.IsReal ? 1L : 0L, person.GivenName, person.FamilyName, person.BirthDate.ToString(), person.Nationality, person.RetiredOn?.ToString());
+                if (hasInjuredUntil)
+                {
+                    persons.Run(id, person.IsReal ? 1L : 0L, person.GivenName, person.FamilyName, person.BirthDate.ToString(), person.Nationality, person.RetiredOn?.ToString(), person.InjuredUntil?.ToString());
+                }
+                else
+                {
+                    persons.Run(id, person.IsReal ? 1L : 0L, person.GivenName, person.FamilyName, person.BirthDate.ToString(), person.Nationality, person.RetiredOn?.ToString());
+                }
+
                 foreach (var role in person.Roles)
                 {
                     roles.Run(id, role.ToString());
@@ -452,6 +464,27 @@ public sealed partial class WorldRepository
         command.Transaction = transaction;
         command.CommandText = sql;
         command.ExecuteNonQuery();
+    }
+
+    internal static bool HasColumn(SqliteConnection connection, SqliteTransaction? transaction, string table, string column)
+    {
+        using var command = connection.CreateCommand();
+        if (transaction is not null)
+        {
+            command.Transaction = transaction;
+        }
+
+        command.CommandText = $"PRAGMA table_info({table})";
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            if (string.Equals(reader.GetString(1), column, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string FormatDate(DateOnly date) =>

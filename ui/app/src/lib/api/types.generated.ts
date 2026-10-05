@@ -448,9 +448,11 @@ export interface OwnDevelopmentView {
 
 export interface OwnDriverView {
   end: string;
+  injury: string | null;
   name: string;
   nationality: string;
   personId: string;
+  returnRange: string | null;
   seat: string;
 }
 

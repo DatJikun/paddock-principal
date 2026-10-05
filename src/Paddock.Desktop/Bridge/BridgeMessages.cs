@@ -28,8 +28,15 @@ public sealed record ShellView(
 /// <summary>The team this manager runs, as the shell and the team screen both read it.</summary>
 public sealed record OwnTeamView(string? OrganizationId, string? Name, long? CashCents);
 
-/// <summary>One of the manager's own drivers. Seat is the contract's seat name. End is an ISO date.</summary>
-public sealed record OwnDriverView(string PersonId, string Name, string Nationality, string Seat, string End);
+/// <summary>One of the manager's own drivers. Seat is the contract's seat name. End is an ISO date. Injury and ReturnRange describe current health (PP-061).</summary>
+public sealed record OwnDriverView(
+    string PersonId,
+    string Name,
+    string Nationality,
+    string Seat,
+    string End,
+    string? Injury = null,
+    string? ReturnRange = null);
 
 /// <summary>A person with no contract, as this manager may see them. Attributes stay out until a later screen.</summary>
 public sealed record MarketDriverView(string PersonId, string Name, string Nationality, string? FreeSince);

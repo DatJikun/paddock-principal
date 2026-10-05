@@ -1,11 +1,17 @@
 using System.Globalization;
 using Paddock.Application.Career;
+using Paddock.Application.Contracts;
 using Paddock.Application.Development;
 using Paddock.Application.Finance;
+using Paddock.Application.Inbox;
+using Paddock.Application.Managers;
 using Paddock.Application.Supply;
+using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
 using Paddock.Domain.Finance;
+using Paddock.Domain.Inbox;
 using Paddock.Domain.Racing;
+using Paddock.Domain.Random;
 using Paddock.Domain.Spy;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -86,13 +92,16 @@ public sealed class RaceWeekendDay : IDayHandler
 
         var supply = _context.TryGet<SupplyBook>();
         var profiles = _context.TryGet<SupplyEnvironment>()?.Profiles;
+        var traceSink = _context.TryGet<ITraceSink>();
         var field = RaceFieldBuilder.Build(
             _context.Session.World,
             today,
             rules,
             total,
             supply?.Section,
-            profiles);
+            profiles,
+            payload.Round,
+            traceSink);
         if (field.Entries.IsDefaultOrEmpty)
         {
             return;
@@ -123,7 +132,8 @@ public sealed class RaceWeekendDay : IDayHandler
         StoreChampionship(payload.Season, standings, settled: false);
         ApplyUnderstanding(today, layout.LengthKm, published.CarResults);
         ApplyMoney(today, payload, total, published);
-        ApplyPeople(context, today, published.PersonOutcomes);
+        ApplyPeople(context, today, published.PersonOutcomes, payload);
+        PostDueStandInDecisions(today);
         _watch.Publish(
             payload.Season,
             payload.Round,
@@ -133,7 +143,7 @@ public sealed class RaceWeekendDay : IDayHandler
             field.SkippedTeamIds);
         var world = _context.Session.World;
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;
-        _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId)));
+        _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, field.StandIns)));
     }
 
     private void ApplyUnderstanding(GameDate today, double lengthKm, IReadOnlyList<CarRaceResult> results)
@@ -182,31 +192,202 @@ public sealed class RaceWeekendDay : IDayHandler
         book.Replace(section);
     }
 
-    private void ApplyPeople(DayContext context, GameDate today, IReadOnlyList<PersonRaceOutcome> outcomes)
+    private void ApplyPeople(DayContext context, GameDate today, IReadOnlyList<PersonRaceOutcome> outcomes, RaceSessionPayload payload)
     {
         var ordered = outcomes.OrderBy(outcome => outcome.DriverId, StringComparer.Ordinal).ToArray();
         foreach (var outcome in ordered)
         {
-            if (!outcome.Fatal && outcome.Injury != InjuryGrade.CareerEnding)
+            if (outcome.Fatal || outcome.Injury == InjuryGrade.CareerEnding)
+            {
+                PersonId? id = null;
+                foreach (var person in _context.Session.World.Persons)
+                {
+                    if (person.Id.Value == outcome.DriverId)
+                    {
+                        id = person.Id;
+                        break;
+                    }
+                }
+
+                if (id is PersonId personId)
+                {
+                    _context.Session.RetireForRace(personId, today, context);
+                }
+            }
+            else if (outcome.Injury is InjuryGrade.Light or InjuryGrade.Serious)
+            {
+                PersonId? id = null;
+                foreach (var person in _context.Session.World.Persons)
+                {
+                    if (person.Id.Value == outcome.DriverId)
+                    {
+                        id = person.Id;
+                        break;
+                    }
+                }
+
+                if (id is not PersonId personId)
+                {
+                    continue;
+                }
+
+                // Draw races out from child stream of Incidents (PP-061)
+                var incidentStream = RngStream.Derive(_context.Session.Clock.MasterSeed, RngStreamName.Incidents, payload.Season, payload.Round);
+                var rng = incidentStream.DeriveChild($"injury:{outcome.DriverId}:{today}");
+
+                int racesOut;
+                if (outcome.Injury == InjuryGrade.Light)
+                {
+                    racesOut = rng.NextDouble() < 0.5 ? 0 : 1;
+                }
+                else
+                {
+                    racesOut = rng.NextInt(IncidentConstants.MinSeriousRaces, IncidentConstants.MaxSeriousRaces + 1);
+                }
+
+                var upcomingRaces = _context.Session.Clock.Queue.Events
+                    .Where(e => e.TypeId == ScheduledEventType.Race && e.Date > today)
+                    .OrderBy(e => e.Date)
+                    .Select(e => e.Date)
+                    .ToList();
+
+                GameDate injuredUntil;
+                if (racesOut == 0)
+                {
+                    injuredUntil = today;
+                }
+                else if (upcomingRaces.Count >= racesOut)
+                {
+                    injuredUntil = upcomingRaces[racesOut - 1];
+                }
+                else if (upcomingRaces.Count > 0)
+                {
+                    injuredUntil = upcomingRaces[^1];
+                }
+                else
+                {
+                    injuredUntil = new GameDate(today.Year, 12, 31);
+                }
+
+                _context.Session.StoreWorld(_context.Session.World.InjurePerson(personId, injuredUntil));
+            }
+        }
+    }
+
+    private void PostDueStandInDecisions(GameDate today)
+    {
+        var world = _context.Session.World;
+        var upcomingRaces = _context.Session.Clock.Queue.Events
+            .Where(e => e.TypeId == ScheduledEventType.Race && e.Date > today)
+            .OrderBy(e => e.Date)
+            .Select(e => e.Date)
+            .ToList();
+
+        if (upcomingRaces.Count == 0)
+        {
+            return;
+        }
+
+        var nextRaceDate = upcomingRaces[0];
+        var cars = world.Section<CarsSection>(CarsSection.SectionName);
+        if (cars is null)
+        {
+            return;
+        }
+
+        var control = _context.TryGet<ControlTable>() ?? _context.TryGet<IOrganizationControl>();
+        var managers = _context.Managers;
+        var inbox = _context.TryGet<InboxBook>();
+        if (control is null || managers is null || inbox is null)
+        {
+            return;
+        }
+
+        foreach (var team in CareerTeams.Active(world, today))
+        {
+            var humans = HumanManagers(control, managers, team.Id);
+            if (humans.Count == 0)
             {
                 continue;
             }
 
-            PersonId? id = null;
-            foreach (var person in _context.Session.World.Persons)
+            var owned = cars.Of(team.Id).Where(c => c.Season == today.Year && c.Driver is not null);
+            foreach (var car in owned)
             {
-                if (person.Id.Value == outcome.DriverId)
+                if (car.Driver is not PersonId seated)
                 {
-                    id = person.Id;
-                    break;
+                    continue;
+                }
+
+                var person = world.GetPerson(seated);
+                if (person is null || !person.IsInjured(nextRaceDate))
+                {
+                    continue;
+                }
+
+                var existingSection = world.Section<InboxSection>(InboxSection.SectionName);
+                if (existingSection is not null)
+                {
+                    var alreadyOpen = existingSection.Items.Any(i =>
+                        i.IsOpen
+                        && i.Kind == StandInResolver.Kind
+                        && i.Arguments.TryGetValue("driverId", out var dId) && dId == seated.Value
+                        && i.Arguments.TryGetValue("raceDate", out var rDate) && rDate == nextRaceDate.ToString());
+                    if (alreadyOpen)
+                    {
+                        continue;
+                    }
+                }
+
+                var candidates = StandInCandidateFinder.FindCandidates(world, team.Id, nextRaceDate);
+                var options = new List<InboxOption>();
+                foreach (var candidate in candidates.Take(5))
+                {
+                    options.Add(new InboxOption(
+                        candidate.Id.Value,
+                        StandInKeys.OptionCandidateLabel,
+                        StandInKeys.OptionCandidateConsequence));
+                }
+                options.Add(new InboxOption(
+                    StandInResolver.OptionSkip,
+                    StandInKeys.OptionSkipLabel,
+                    StandInKeys.OptionSkipConsequence));
+
+                var defaultOptionId = candidates.Count > 0 ? candidates[0].Id.Value : StandInResolver.OptionSkip;
+
+                var draft = new InboxItemDraft(
+                    StandInResolver.Kind,
+                    StandInKeys.Subject,
+                    [
+                        new("driver", person.Name),
+                        new("driverId", seated.Value),
+                        new("team", team.Id.Value),
+                        new("car", car.Id),
+                        new("raceDate", nextRaceDate.ToString()),
+                    ],
+                    options,
+                    nextRaceDate,
+                    defaultOptionId);
+
+                foreach (var human in humans)
+                {
+                    inbox.Post(managers, human, draft, today);
                 }
             }
+        }
+    }
 
-            if (id is PersonId personId)
+    private static IReadOnlyList<ManagerId> HumanManagers(IOrganizationControl control, ManagerRegistry managers, OrganizationId organization)
+    {
+        var list = new List<ManagerId>();
+        foreach (var manager in control.ManagersOf(organization))
+        {
+            if (managers.Contains(manager) && managers.KindOf(manager) == ManagerKind.Human)
             {
-                _context.Session.RetireForRace(personId, today, context);
+                list.Add(manager);
             }
         }
+        return list;
     }
 
     private void SettleSeason(GameDate today)

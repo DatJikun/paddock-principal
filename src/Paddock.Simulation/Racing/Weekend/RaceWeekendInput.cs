@@ -125,14 +125,14 @@ public static class RaceInputMapping
     /// There is no aggression attribute yet, so the caller gives it (1..20). Braking, Adaptability, Wet weather,
     /// Fitness and Feedback are not read yet.
     /// </summary>
-    public static DriverEntry DriverFrom(string driverId, DriverAttributes attributes, int aggression1To20, double affinitySeconds = 0d)
+    public static DriverEntry DriverFrom(string driverId, DriverAttributes attributes, int aggression1To20, double affinitySeconds = 0d, double paceMultiplier = 1.0)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(driverId);
         attributes.EnsureValid();
         return new DriverEntry(
             driverId,
             new DriverPace(
-                Scale(attributes.Cornering),
+                Scale(attributes.Cornering) * paceMultiplier,
                 Scale(attributes.Consistency),
                 Scale(attributes.Composure),
                 affinitySeconds),

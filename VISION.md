@@ -356,3 +356,12 @@ Szczegóły w DESIGN §5.3.
 - **UI powstaje równolegle z rdzeniem, falami:** ekran podłączamy do prawdziwej gry, gdy gotowy jest system, który pokazuje. Ekranu nie robimy przed systemem, który ma w nim żyć.
 - **Podział:** most UI–rdzeń, okno i typy robi koder backendu; ekrany z prototypu przenosi sesja UI (Claude, PP-024).
 - **Multiplayer jest po MVP i tylko online** (host i goście, TECH §5.1). Rdzeń nadal jest pisany pod wielu graczy (`managerId`, bramka gotowości, jedna kolejka komend), a obliczenia mają być identyczne na Windows i Linux.
+### Przyjęte 2026-10-05 (dwudziesta pierwsza runda: kontuzje i zastępcy)
+
+**PP-061: Kontuzje wyłączają kierowcę z wyścigów, a zespół wystawia zastępcę** (doprecyzowuje DESIGN §7 i uzupełnia PP-050).
+- **Lekka kontuzja:** kierowca opuszcza 0–1 wyścig, a gdy jedzie, przez krótki czas jest trochę wolniejszy.
+- **Poważna kontuzja:** kierowca pauzuje kilka wyścigów (szacunek 2–6).
+- **Kończąca karierę i śmiertelna (przy włączonej opcji):** jak dziś, odejście ze sportu.
+- **Zastępca:** to jedyny wyjątek od zasady PP-050 „bez zmian kierowców w sezonie”. Przed każdym wyścigiem bolid obsadza kierowca rezerwowy zespołu, a w razie braku – jednorazowy zastępca z wolnych agentów lub puli talentów. Gracz decyduje w skrzynce, AI szef wybiera i zostawia ślad. Gdy brak kandydata, bolid nie startuje. Regularny kierowca wraca automatycznie po wyzdrowieniu.
+- **Wszystkie liczby to szacunki do strojenia.**
+

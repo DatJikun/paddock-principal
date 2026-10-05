@@ -6,9 +6,9 @@ namespace Paddock.Persistence;
 /// Adds the tables of the championship and the voted regulations (T47). A save from before this migration has neither
 /// section, which loads as no section, so its hash is unchanged. Ids are not foreign keys (rules of V003 and V005).
 /// </summary>
-public sealed class V019_RaceSections : ISaveMigration
+public sealed class V020_RaceSections : ISaveMigration
 {
-    public int Version => 19;
+    public int Version => 20;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

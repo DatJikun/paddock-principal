@@ -6,7 +6,7 @@ using static Paddock.Persistence.SectionRows;
 
 namespace Paddock.Persistence;
 
-/// <summary>Saves the <c>regulations</c> section into the tables made by <see cref="V019_RaceSections"/>.</summary>
+/// <summary>Saves the <c>regulations</c> section into the tables made by <see cref="V020_RaceSections"/>.</summary>
 public sealed class RegulationsSectionStore : ISectionStore
 {
     public string SectionName => RegulationsSection.SectionName;

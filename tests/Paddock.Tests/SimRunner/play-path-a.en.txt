@@ -76,6 +76,6 @@ The inbox is empty.
 No decision you may read is on record.
 Ready.
 The date is now 1955-01-02.
-World hash 0142b8b9034f0ca601ade0998af0f9b59c9bb846fb2543173ba9e430a2193cdd.
-Saved SAVE. World hash 0142b8b9034f0ca601ade0998af0f9b59c9bb846fb2543173ba9e430a2193cdd.
+World hash ab99caf1d799ea6d565a140302181624e185177f17f45ba3879d9128be3070a8.
+Saved SAVE. World hash ab99caf1d799ea6d565a140302181624e185177f17f45ba3879d9128be3070a8.
 Session closed.

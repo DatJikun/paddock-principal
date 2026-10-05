@@ -1,6 +1,7 @@
 using Paddock.Application.Career;
 using Paddock.Application.Commands;
 using Paddock.Application.Inbox;
+using Paddock.Domain.Board;
 using Paddock.Application.Managers;
 using Paddock.Domain.Inbox;
 using Paddock.Simulation.Codec;
@@ -79,6 +80,27 @@ public sealed class JobOfferResolver : IInboxResolver
         var manager = new ManagerId(item.ManagerId);
         var today = InboxBook.ToGameDate(context.World.CurrentDate);
         return BoardEvents.Wrap(manager, context.World.CurrentDate, BoardEngine.From(context).AcceptOffer(manager, item, today));
+    }
+}
+
+/// <summary>Carries out the season-target decision. The default option is the expected finish, applied when the decision lapses.</summary>
+public sealed class SeasonTargetResolver : IInboxResolver
+{
+    public string Kind => BoardEngine.SeasonTargetKind;
+
+    public TranslationMessage? Validate(InboxItem item, string optionId, CommandContext context)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(context);
+        return SeasonTarget.TryParse(optionId, out _) ? null : TranslationMessage.Of(InboxKeys.OptionUnknown);
+    }
+
+    public IReadOnlyList<IDomainEvent> Execute(InboxItem item, string optionId, CommandContext context)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(context);
+        BoardEngine.From(context).AcceptSeasonTarget(item, optionId, InboxBook.ToGameDate(context.World.CurrentDate));
+        return [];
     }
 }
 
@@ -215,6 +237,7 @@ public static class BoardRegistration
         dispatcher.Register(new ResignFromTeamHandler());
         dispatcher.Register(new TakeOverTeamHandler());
         resolvers.Register(new JobOfferResolver());
+        resolvers.Register(new SeasonTargetResolver());
     }
 }
 

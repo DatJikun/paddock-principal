@@ -98,6 +98,7 @@ public sealed class CareerShell
             new CommandQueue(host.NextSubmissionNumber),
             options);
         shell.Player = player;
+        shell.SeatPlayer();
         return shell;
     }
 
@@ -124,7 +125,17 @@ public sealed class CareerShell
         _queue.Enqueue(command);
         var results = _dispatcher.DispatchAll(_queue, _modules.CommandContext(_clock, _managers));
         _modules.EndMorning();
+        SeatPlayer();
         return results[results.Count - 1];
+    }
+
+    /// <summary>Once the player runs a team (after taking it over, or on load), the AI principal director leaves it alone.</summary>
+    private void SeatPlayer()
+    {
+        if (Player.IsAssigned && TeamOf(Player) is { } team)
+        {
+            _modules.SeatHuman(Player, team);
+        }
     }
 
     /// <summary>Files and dispatches the morning's commands. Once per morning; a second call on the same date does nothing.</summary>

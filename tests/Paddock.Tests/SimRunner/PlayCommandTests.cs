@@ -36,6 +36,12 @@ public class PlayCommandTests
         var normalized = first.Output.Replace(save, "SAVE", StringComparison.Ordinal).Replace("\r\n", "\n", StringComparison.Ordinal);
         Assert.Equal(normalized, second.Output.Replace(again, "SAVE", StringComparison.Ordinal).Replace("\r\n", "\n", StringComparison.Ordinal));
         var goldenPath = Path.Combine(RepoPaths.Root(), "tests", "Paddock.Tests", "SimRunner", "play-path-a.en.txt");
+        // PADDOCK_UPDATE_FIXTURES=1 rewrites the transcript, as for the track spline fixture (TECH 6.5). Review the diff.
+        if (Environment.GetEnvironmentVariable("PADDOCK_UPDATE_FIXTURES") == "1")
+        {
+            File.WriteAllText(goldenPath, normalized);
+        }
+
         var golden = File.ReadAllText(goldenPath).Replace("\r\n", "\n", StringComparison.Ordinal);
         Assert.Equal(golden, normalized);
 
@@ -53,6 +59,28 @@ public class PlayCommandTests
         Assert.Equal(0, polish.Code);
         Assert.Contains("Kariera zaczęła się", polish.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("play.wizard.started", polish.Output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheAiPrincipalDirectorLeavesThePlayersTeamAlone()
+    {
+        // Regression: the wizard registers the player after the host is attached, so the T44 director ran the player's
+        // team as an AI team (it opened talks and set the scouting focus for Ferrari).
+        var shell = OpenFerrari();
+        TakeOver(shell, "Ada", "Lovelace", "negotiation");
+        for (var day = 0; day < 30; day++)
+        {
+            shell.BeginDay();
+            var pool = shell.Session.World.Section<Paddock.Domain.Pool.TalentPoolSection>(Paddock.Domain.Pool.TalentPoolSection.SectionName);
+            Assert.Null(pool?.FocusOf(OrganizationId.Real("ferrari")));
+            var contracts = shell.Modules.Require<Paddock.Application.Contracts.ContractBook>().Section;
+            Assert.DoesNotContain(contracts.Negotiations, negotiation => negotiation.Proposer.Value == "ferrari");
+            shell.Ready(shell.Player);
+            if (shell.Advance() is AdvanceResult.Refused)
+            {
+                break;
+            }
+        }
     }
 
     [Fact]

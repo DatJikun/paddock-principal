@@ -196,6 +196,25 @@ public class PlayCommandTests
     }
 
     [Fact]
+    public void ACareerWithAWithdrawnObjectiveSavesAndLoads()
+    {
+        // Regression (review of #223): the objectives table only allowed Open, Met and Failed, so saving after a take-over
+        // that withdrew the AI's season objective failed on the CHECK constraint.
+        var shell = OpenFerrari();
+        LiveOneDay(shell);
+        TakeOverOn(shell);
+        var config = CareerConfig.FromPreset(CareerPreset.Chaos).WithStartYear(1955).WithPlayerTeam("ferrari");
+        var path = Path.Combine(_directory, "withdrawn.paddock");
+
+        CareerSaveWriter.Write(path, shell.Session, config, "ferrari", "test-data-hash", "withdrawn", shell.HostState);
+
+        var loaded = CareerSaveReader.Read(path);
+        Assert.Contains(
+            loaded.Session.World.Section<Paddock.Domain.Objectives.ObjectivesSection>(Paddock.Domain.Objectives.ObjectivesSection.SectionName)!.Objectives,
+            objective => objective.Status == ObjectiveStatus.Withdrawn);
+    }
+
+    [Fact]
     public void TakeOverBeforeTheFirstRaceWithdrawsTheAiObjectiveWithoutEffects()
     {
         var shell = OpenFerrari();

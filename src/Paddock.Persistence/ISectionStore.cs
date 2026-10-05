@@ -54,6 +54,8 @@ public static class SectionStores
         new DevelopmentSectionStore(),
         new PrincipalsSectionStore(),
         new RaisesSectionStore(),
+        new ChampionshipSectionStore(),
+        new RegulationsSectionStore(),
         new StaffSectionStore(),
     ]);
 }

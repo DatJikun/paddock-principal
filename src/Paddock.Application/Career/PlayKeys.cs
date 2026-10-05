@@ -99,6 +99,42 @@ public static class PlayKeys
     public const string StateNoRace = "play.state.noRace";
 
     [TranslationKey]
+    public const string StateNextRace = "play.state.nextRace";
+
+    [TranslationKey]
+    public const string RaceRound = "play.race.round";
+
+    [TranslationKey]
+    public const string RaceRow = "play.race.row";
+
+    [TranslationKey]
+    public const string RaceSkipped = "play.race.skipped";
+
+    [TranslationKey]
+    public const string WatchHeader = "play.watch.header";
+
+    [TranslationKey]
+    public const string WatchLaps = "play.watch.laps";
+
+    [TranslationKey]
+    public const string WatchPit = "play.watch.pit";
+
+    [TranslationKey]
+    public const string WatchIncident = "play.watch.incident";
+
+    [TranslationKey]
+    public const string WatchRetirement = "play.watch.retirement";
+
+    [TranslationKey]
+    public const string WatchSafety = "play.watch.safety";
+
+    [TranslationKey]
+    public const string WatchFinished = "play.watch.finished";
+
+    [TranslationKey]
+    public const string WatchEnded = "play.watch.ended";
+
+    [TranslationKey]
     public const string StateInbox = "play.state.inbox";
 
     [TranslationKey]

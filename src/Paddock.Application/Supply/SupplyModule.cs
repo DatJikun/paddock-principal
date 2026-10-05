@@ -10,7 +10,7 @@ namespace Paddock.Application.Supply;
 /// T43 supply deals in the career loop (#160). With the era periods it registers the supply commands and the supply day
 /// handler (order 760, after the sponsors and before the finance review), and, once, builds the opening engine deals from the
 /// world initializer's links after the cars exist (<see cref="InitialSupplyFactory"/>). Without the periods it does nothing.
-/// <c>SupplyPerformance</c> belongs to the race path, which the loop does not have yet.
+/// The race module reads <c>SupplyPerformance</c> when it builds a grid.
 /// </summary>
 public sealed class SupplyModule : CareerModule
 {

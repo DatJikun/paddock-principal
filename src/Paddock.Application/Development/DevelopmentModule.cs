@@ -12,7 +12,8 @@ namespace Paddock.Application.Development;
 /// concept asks its principal), and the host's change of season (<see cref="DevelopmentEngine.ChangeSeason"/>, run by the host on
 /// 1 January before any day handler). Without the periods it does nothing.
 /// <para>
-/// Not here yet: <see cref="DevelopmentRaceHook"/> (the loop has no races) and an <see cref="INextRaceSource"/> (no calendar).
+/// The race module, when the career has a calendar, calls <see cref="DevelopmentRaceHook"/> after each race and offers
+/// <see cref="INextRaceSource"/>. Without that module the hook is not called and the next race stays unknown.
 /// </para>
 /// </summary>
 public sealed class DevelopmentModule : CareerModule
@@ -35,7 +36,10 @@ public sealed class DevelopmentModule : CareerModule
 
         var session = context.Session;
         var book = DevelopmentBook.ForSession(session, session.Clock.MasterSeed);
-        var environment = new DevelopmentEnvironment(new PeriodDevelopmentRules(periods), context.Require<IOrganizationControl>());
+        var environment = new DevelopmentEnvironment(
+            new PeriodDevelopmentRules(periods),
+            context.Require<IOrganizationControl>(),
+            races: context.TryGet<INextRaceSource>());
         context.Provide(book);
         context.Provide(environment);
         var resolvers = context.Require<InboxResolvers>();

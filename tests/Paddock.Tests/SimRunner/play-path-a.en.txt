@@ -18,7 +18,7 @@ Team: Ferrari.
 Cash: 60000.00.
 Forecast to the end of the season: 60000.00.
 No championship position is on the board yet.
-No race is on the calendar yet.
+Next race: 1955-03-03.
 Inbox: 0 open, 0 need a decision.
 gen:21 — Jean Bernard (FRA)
 gen:22 — John Clarke (GBR)
@@ -76,6 +76,6 @@ The inbox is empty.
 No decision you may read is on record.
 Ready.
 The date is now 1955-01-02.
-World hash b27ac4a5ba7ce1f145c4249b8f7023ce0df15167dfc13299405bb3e6187c19db.
-Saved SAVE. World hash b27ac4a5ba7ce1f145c4249b8f7023ce0df15167dfc13299405bb3e6187c19db.
+World hash b5053af8328b285a40a5facc0cf8a532d0f0914ca2ce8521559645ab7b968ed8.
+Saved SAVE. World hash b5053af8328b285a40a5facc0cf8a532d0f0914ca2ce8521559645ab7b968ed8.
 Session closed.

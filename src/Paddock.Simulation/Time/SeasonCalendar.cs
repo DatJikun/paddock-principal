@@ -26,13 +26,15 @@ public static class SeasonCalendar
 
     public const int QualifyingDaysBeforeRace = 1;
 
-    public static WorldClockState Schedule(
-        WorldClockState state,
+    /// <summary>One championship session, not yet given an event id.</summary>
+    public readonly record struct PlannedSession(GameDate Date, string TypeId, int Season, int Round, string LayoutId);
+
+    /// <summary>The practice, qualifying and race days of one season. Empty when the season has no rounds. Does not touch a clock.</summary>
+    public static IReadOnlyList<PlannedSession> Plan(
         int season,
         IReadOnlyList<TrackLayout> layouts,
         IReadOnlyList<RaceAssignment> assignments)
     {
-        ArgumentNullException.ThrowIfNull(state.Queue);
         ArgumentNullException.ThrowIfNull(layouts);
         ArgumentNullException.ThrowIfNull(assignments);
 
@@ -48,7 +50,7 @@ public static class SeasonCalendar
         rounds.Sort();
         if (rounds.Count == 0)
         {
-            return state;
+            return [];
         }
 
         var windowStart = new GameDate(season, WindowStartMonth, WindowStartDay);
@@ -68,8 +70,7 @@ public static class SeasonCalendar
             }
         }
 
-        var nextId = state.NextEventId;
-        var drafts = new ScheduledEvent[rounds.Count * 3];
+        var planned = new PlannedSession[rounds.Count * 3];
         var index = 0;
         for (var i = 0; i < rounds.Count; i++)
         {
@@ -78,15 +79,64 @@ public static class SeasonCalendar
             var race = windowStart.AddDays(lead + (i * step));
             var practice = race.AddDays(-PracticeDaysBeforeRace);
             var qualifying = race.AddDays(-QualifyingDaysBeforeRace);
-            if (practice < state.Date)
+            planned[index++] = new PlannedSession(practice, ScheduledEventType.Practice, season, round, layout.Id);
+            planned[index++] = new PlannedSession(qualifying, ScheduledEventType.Qualifying, season, round, layout.Id);
+            planned[index++] = new PlannedSession(race, ScheduledEventType.Race, season, round, layout.Id);
+        }
+
+        return planned;
+    }
+
+    public static WorldClockState Schedule(
+        WorldClockState state,
+        int season,
+        IReadOnlyList<TrackLayout> layouts,
+        IReadOnlyList<RaceAssignment> assignments)
+    {
+        ArgumentNullException.ThrowIfNull(state.Queue);
+        var planned = Plan(season, layouts, assignments);
+        if (planned.Count == 0)
+        {
+            return state;
+        }
+
+        foreach (var session in planned)
+        {
+            if (session.Date < state.Date)
             {
                 throw new InvalidOperationException(
-                    $"Season {season.ToString(CultureInfo.InvariantCulture)} round {round.ToString(CultureInfo.InvariantCulture)} practice falls on {practice}, before the clock date {state.Date}.");
+                    $"Season {season.ToString(CultureInfo.InvariantCulture)} round {session.Round.ToString(CultureInfo.InvariantCulture)} {session.TypeId} falls on {session.Date}, before the clock date {state.Date}.");
             }
+        }
 
-            drafts[index++] = Session(ref nextId, practice, ScheduledEventType.Practice, season, round, layout.Id);
-            drafts[index++] = Session(ref nextId, qualifying, ScheduledEventType.Qualifying, season, round, layout.Id);
-            drafts[index++] = Session(ref nextId, race, ScheduledEventType.Race, season, round, layout.Id);
+        return Enqueue(state, planned);
+    }
+
+    /// <summary>Queues sessions that are still ahead of the clock. A session already in the past is left out, so a resumed season does not replay it.</summary>
+    public static WorldClockState Enqueue(WorldClockState state, IReadOnlyList<PlannedSession> sessions)
+    {
+        ArgumentNullException.ThrowIfNull(state.Queue);
+        ArgumentNullException.ThrowIfNull(sessions);
+        var ahead = new List<PlannedSession>(sessions.Count);
+        foreach (var session in sessions)
+        {
+            if (session.Date >= state.Date)
+            {
+                ahead.Add(session);
+            }
+        }
+
+        if (ahead.Count == 0)
+        {
+            return state;
+        }
+
+        var nextId = state.NextEventId;
+        var drafts = new ScheduledEvent[ahead.Count];
+        for (var i = 0; i < ahead.Count; i++)
+        {
+            var session = ahead[i];
+            drafts[i] = Session(ref nextId, session.Date, session.TypeId, session.Season, session.Round, session.LayoutId);
         }
 
         return state with

@@ -97,6 +97,36 @@ public sealed class RuleSet
     }
 
     /// <summary>
+    /// A rule set already resolved (a voted season stored in the world). The caller checked the values.
+    /// An empty set is refused: a season with no dimensions is not a rule set.
+    /// </summary>
+    public static RuleSet Restore(int season, IReadOnlyDictionary<string, string> values)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        ArgumentOutOfRangeException.ThrowIfLessThan(season, 1);
+        if (values.Count == 0)
+        {
+            throw new ArgumentException("A rule set needs at least one dimension.", nameof(values));
+        }
+
+        var copy = new Dictionary<string, string>(values.Count, StringComparer.Ordinal);
+        foreach (var (dimension, value) in values)
+        {
+            if (string.IsNullOrWhiteSpace(dimension) || string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("A rule dimension and its value are both required.", nameof(values));
+            }
+
+            if (!copy.TryAdd(dimension, value))
+            {
+                throw new ArgumentException("Dimension '" + dimension + "' is listed twice.", nameof(values));
+            }
+        }
+
+        return new RuleSet(season, copy);
+    }
+
+    /// <summary>
     /// Produces the rule set of <see cref="Season"/> + 1 with <paramref name="changes"/> applied; this
     /// instance is not modified. See <see cref="With(IReadOnlyDictionary{string, RuleDimensionSpec}, int, IReadOnlyList{RuleChange})"/>.
     /// </summary>

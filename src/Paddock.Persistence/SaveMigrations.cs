@@ -25,7 +25,8 @@ public static class SaveMigrations
         new V017_ConceptProduction(),
         new V018_PrincipalsSection(),
         new V019_RaisesSection(),
-        new V020_StaffSection(),
+        new V020_RaceSections(),
+        new V021_StaffSection(),
     ];
 
     static SaveMigrations()

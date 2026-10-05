@@ -17,9 +17,8 @@ namespace Paddock.Application.Finance;
 /// junior funding of the pool, the severance of the board), registers its three commands and the finance day handler (order 800),
 /// and tells the objectives the cash of a team (<c>finance.cash</c>). Without era data it does nothing and the stand-ins stay.
 /// <para>
-/// Not here yet: the results of a race and of a season (<see cref="ApplyRaceResultsCommand"/>, <see cref="ApplySeasonEndedCommand"/>)
-/// have a handler but nobody files them, because the career run has no race calendar. A team founded after the run starts gets no
-/// books.
+/// Race weekends (T47) post <see cref="ApplyRaceResultsCommand"/>'s ledger effect and the season's popularity directly from the
+/// race day, through the same section methods the commands use. A team founded after the run starts gets no books.
 /// </para>
 /// </summary>
 public sealed class FinanceModule : CareerModule
@@ -61,7 +60,6 @@ public sealed class FinanceModule : CareerModule
         context.AddCommandHandler(new OpenBooksHandler(book, control, eras, tiers));
         context.AddCommandHandler(new ApplyRaceResultsHandler(book, eras));
         context.AddCommandHandler(new ApplySeasonEndedHandler(book));
-        context.Add<ILedgerSource>(new PlaceholderStartMoney(session, eras));
         context.AddDayHandler(new FinanceDayHandler(() => session.World, session.StoreWorld, [new AllLedgerSources(context)]));
         context.TryGet<ObjectiveFactRegistry>()?.RegisterNumber(
             ObjectiveFactKeys.Cash,
@@ -96,44 +94,6 @@ public sealed class FinanceModule : CareerModule
         if (changed)
         {
             book.Replace(section);
-        }
-    }
-
-    /// <summary>
-    /// ESTIMATE placeholder, to be removed when the career run has races (T47): the run posts no race money, so without this every
-    /// team would only spend and, after a few seasons, be insolvent and unable to renew a contract (measured: a Chaos career from
-    /// 1950 has no contracts left by 1959). On the first day of each season a team that has books is paid the start money a
-    /// typical team earns over a season (<see cref="FinanceEstimates.StartMoneyShare"/> of the era's typical budget), the same for
-    /// every team. T37's own race posting replaces it with start and prize money by result. A pure read (INV-005).
-    /// </summary>
-    private sealed class PlaceholderStartMoney : ILedgerSource
-    {
-        private readonly CareerSession _session;
-        private readonly IEraFinanceSource _eras;
-
-        public PlaceholderStartMoney(CareerSession session, IEraFinanceSource eras)
-        {
-            _session = session;
-            _eras = eras;
-        }
-
-        public IReadOnlyList<LedgerDraft> Due(GameDate today)
-        {
-            if (!today.IsSeasonStart || _session.World.Section<FinanceSection>(FinanceSection.SectionName) is not { } finance)
-            {
-                return [];
-            }
-
-            var cents = Money.RoundDollars(_eras.Facts(today.Year).TypicalDollars * FinanceEstimates.StartMoneyShare).Cents;
-            if (cents <= 0)
-            {
-                return [];
-            }
-
-            return CareerTeams.Active(_session.World, today)
-                .Where(team => finance.HasBook(team.Id))
-                .Select(team => new LedgerDraft(team.Id, LedgerCategories.StartMoney, null, cents, FinanceReason.StartMoney))
-                .ToArray();
         }
     }
 

@@ -21,7 +21,7 @@ public sealed class ContractsModule : CareerModule
 
     public override string Name => ModuleName;
 
-    public override IReadOnlyList<string> Sections => [ContractsSection.SectionName];
+    public override IReadOnlyList<string> Sections => [ContractsSection.SectionName, RaisesSection.SectionName];
 
     public override IReadOnlyList<CommandCodecEntry> CommandCodecs => ContractCommandCodecs.Entries;
 
@@ -55,6 +55,7 @@ public sealed class ContractsModule : CareerModule
             }
         });
         context.AddDayHandler(new NegotiationDayHandler(engine));
+        context.AddDayHandler(new RaiseDemandHandler(engine));
         context.AddDayHandler(new ContractLifecycleHandler(engine));
     }
 

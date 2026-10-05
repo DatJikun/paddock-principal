@@ -33,7 +33,7 @@ public sealed class CareerWiringTests
 
         // season change 5 (host), pool 10, ageing 20, last season 25, contract expiry 30, rollover 40 (the session), negotiations 700, contract lifecycle 710,
         // sponsors 750, supply 760, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
-        Assert.Equal([5, 10, 15, 20, 25, 30, 40, 700, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
+        Assert.Equal([5, 10, 15, 20, 25, 30, 40, 700, 705, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
     }
 
     [Fact]

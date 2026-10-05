@@ -40,3 +40,9 @@ jobs:
 
       - name: UI prototype tests
         run: node --test "ui/prototype/tests/*.test.mjs"
+
+      - name: Docs tests
+        run: node --test "tools/docs/*.test.mjs"
+
+      - name: Build HTML docs (fails on a constant GUIDE.md names that the code lost)
+        run: node tools/docs/build-docs.mjs

@@ -307,3 +307,11 @@ Szczegóły w DESIGN §5.3.
 - **Cele zarządu bez tabeli wyników** są liczone jako niespełnione (zasada „nieznany fakt = niespełniony”), więc zaufanie zarządu spada, ale nikt nie jest zwalniany, bo przeglądy idą w dni wyścigowe. Po T47 stan liczy się od nowa.
 - **Wygasanie pozycji w skrzynce jest aktywne** w przebiegu (wygasłe pozycje rozstrzygają się domyślną opcją jako zapisane komendy).
 - **Poprawka błędu z T39:** kontrakt podpisany komendą nie ginie już na końcu poranka (księga kontraktów jest związana ze światem sesji), co zmienia świat każdego przebiegu względem wcześniejszej wersji.
+
+### Przyjęte 2026-10-05 (szesnasta runda: dokumentacja)
+
+**PP-056: Dokumentacja w HTML generowana z .md i przewodnik „Jak działa gra”** (rozszerza PP-017).
+- **Pliki .md zostają jedynym źródłem.** Strona HTML powstaje z nich skryptem `node tools/docs/build-docs.mjs` (katalog `build/docs/`) i nie trafia do repo. Dokumenty linkują się nawzajem: decyzje PP, sekcje (np. DESIGN §5.3) i issues.
+- **Dochodzi szósty dokument, `GUIDE.md`.** Przewodnik dla graczy i testerów, zbudowany wokół tego, co gracz faktycznie wybiera: wybory, krótkie segmenty, wykresy i pytania o opinię. Bez kodu, numerów zadań i tabel do strojenia. Służy do zbierania uwag od osób testujących grę.
+- **Liczby i wykresy w przewodniku pochodzą z kodu.** Generator czyta stałe z plików C# przy każdym budowaniu (w tekście jako `{Klasa.Stała}`), więc przewodnik nie rozjeżdża się z grą. Stała, której już nie ma, przerywa budowanie (także w CI).
+- Przewodnik nie zastępuje DESIGN ani VISION: decyzje i pełny projekt systemów zostają tam.

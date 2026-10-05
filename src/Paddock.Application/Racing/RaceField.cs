@@ -39,7 +39,9 @@ public static class RaceFieldBuilder
         SupplySection? supply,
         ISupplierProfiles? profiles,
         int round = 1,
-        ITraceSink? traceSink = null)
+        ITraceSink? traceSink = null,
+        string? circuitCountry = null,
+        IReadOnlyDictionary<string, string>? teamCountries = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(rules);
@@ -59,6 +61,7 @@ public static class RaceFieldBuilder
 
         var races = finance is { Races: > 0 } ? finance.Races : racesInSeason;
         var running = finance is null ? 0L : RunningCost(finance, races);
+        var typical = finance?.TypicalCents ?? 0L;
         var limits = EraPerformanceLimits.EstimateFor(today.Year);
         var formula = rules.Values.TryGetValue("engine_formula", out var engineFormula) ? engineFormula : "";
         var usedDrivers = new HashSet<string>(StringComparer.Ordinal);
@@ -76,7 +79,10 @@ public static class RaceFieldBuilder
                 continue;
             }
 
-            if (finance is not null && running > 0 && finance.HasBook(team.Id) && finance.BalanceOf(team.Id) < running)
+            var transport = TransportCost(team.Id, typical, circuitCountry, teamCountries);
+            if (finance is not null && running + transport > 0
+                && finance.HasBook(team.Id)
+                && finance.BalanceOf(team.Id) < running + transport)
             {
                 skipped.Add(team.Id.Value);
                 continue;
@@ -227,6 +233,30 @@ public static class RaceFieldBuilder
 
         var popularity = finance.PopularityMilli / 1000.0;
         return Money.RoundCents(finance.TypicalCents * FinanceEstimates.RaceRunningShare * popularity / races);
+    }
+
+    /// <summary>
+    /// ESTIMATE extra logistics on top of the uniform race-running share: lorries on the same continent, a ship overseas
+    /// (Argentina in the 1950s). Missing countries are treated as a European lorry hop.
+    /// </summary>
+    public static long TransportCost(
+        OrganizationId organization,
+        long typicalCents,
+        string? circuitCountry,
+        IReadOnlyDictionary<string, string>? teamCountries)
+    {
+        if (typicalCents <= 0)
+        {
+            return 0L;
+        }
+
+        string? home = null;
+        if (teamCountries is not null && organization.IsAssigned)
+        {
+            teamCountries.TryGetValue(organization.Value, out home);
+        }
+
+        return Paddock.Domain.Infrastructure.LogisticsMath.CostCents(home, circuitCountry, typicalCents);
     }
 
     /// <summary>

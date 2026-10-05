@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Paddock.Domain.Infrastructure;
 
 namespace Paddock.Data.Authored;
 
@@ -100,6 +101,29 @@ public static class AuthoredDataLoader
             throw new AuthoredDataLoadException(string.Join(Environment.NewLine, failures));
         }
 
+        FacilityCatalog facilities = FacilityCatalog.Empty;
+        var facilitiesPath = Path.Combine(root, "authored", "infrastructure", "facilities.json");
+        if (File.Exists(facilitiesPath))
+        {
+            var file = TryRead<FacilitiesFile>(facilitiesPath, failures);
+            if (file is not null)
+            {
+                try
+                {
+                    facilities = FacilitiesLoader.ToCatalog(file);
+                }
+                catch (AuthoredDataLoadException exception)
+                {
+                    failures.Add(exception.Message);
+                }
+            }
+        }
+
+        if (failures.Count > 0)
+        {
+            throw new AuthoredDataLoadException(string.Join(Environment.NewLine, failures));
+        }
+
         return new AuthoredData(
             catalog,
             timeline,
@@ -116,7 +140,8 @@ public static class AuthoredDataLoader
             cpiYears,
             geometryFiles,
             carStrength is null ? null : CarStrengthLoader.ToSource(carStrength),
-            teamTiers is null ? null : TeamTiersLoader.ToSource(teamTiers));
+            teamTiers is null ? null : TeamTiersLoader.ToSource(teamTiers),
+            facilities);
     }
 
     private static T? TryRead<T>(string path, List<string> failures)

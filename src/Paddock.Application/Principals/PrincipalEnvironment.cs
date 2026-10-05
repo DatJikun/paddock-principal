@@ -1,6 +1,7 @@
 using Paddock.Application.Cars;
 using Paddock.Application.Contracts;
 using Paddock.Application.Development;
+using Paddock.Application.Infrastructure;
 using Paddock.Application.Managers;
 using Paddock.Application.Objectives;
 using Paddock.Application.Sponsors;
@@ -71,6 +72,9 @@ public sealed record SupplySources(SupplyBook Book, SupplyEnvironment Environmen
 /// <summary>The sponsor module as the principals read and command it.</summary>
 public sealed record SponsorSources(SponsorBook Book, SponsorEnvironment Environment, ObjectiveQuery Objectives);
 
+/// <summary>The infrastructure module as the principals read and command it.</summary>
+public sealed record InfrastructureSources(InfrastructureBook Book, InfrastructureEnvironment Environment);
+
 /// <summary>
 /// Everything an AI principal needs from the host, in one place. The market (contracts) is the core: without <see cref="Contracts"/> only the
 /// development, supply and sponsor decisions run. Each module is optional, and a decision kind is simply skipped when its module is not
@@ -107,6 +111,8 @@ public sealed class PrincipalEnvironment
     public ContractEngine? Contracts { get; init; }
 
     public DevelopmentSources? Development { get; init; }
+
+    public InfrastructureSources? Infrastructure { get; init; }
 
     public SupplySources? Supply { get; init; }
 

@@ -1,3 +1,4 @@
+using Paddock.Application.Infrastructure;
 using Paddock.Domain.Development;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Time;
@@ -22,12 +23,16 @@ public static class ConceptProduction
         ArgumentNullException.ThrowIfNull(concept);
         var annual = (long)DevelopmentMath.AnnualBudgetCents(finance.TypicalCents);
         var balance = finance.HasBook(organization) ? finance.BalanceOf(organization) : 0L;
-        var capacity = EngineeringCapacity.Derive(
-            EngineerRoster.Of(world, organization, today),
-            today.Year,
-            EngineerRoster.ChairsIn(today.Year),
-            balance,
-            annual);
+        var capacity = InfrastructureEffect.Apply(
+            EngineeringCapacity.Derive(
+                EngineerRoster.Of(world, organization, today),
+                today.Year,
+                EngineerRoster.ChairsIn(today.Year),
+                balance,
+                annual),
+            world,
+            organization,
+            today.Year);
         return new ProductionPlan(
             capacity.DurationDays(DevelopmentMath.ConceptProductionDays(today.Year)),
             DevelopmentMath.ProductionCostCents(concept.CostCents));

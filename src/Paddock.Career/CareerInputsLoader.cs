@@ -41,6 +41,29 @@ public static class CareerInputsLoader
             RegulationCatalog = RuleCatalog.ToSpecs(data.Catalog),
             Rules = career?.RulesSource ?? RulesSource.Historical,
             Fatality = career?.FatalityLevel ?? FatalityLevel.Off,
+            Facilities = data.Facilities,
+            TeamCountries = TeamCountriesOf(data.Founders),
         };
+    }
+
+    private static IReadOnlyDictionary<string, string> TeamCountriesOf(FoundersFile founders)
+    {
+        var map = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var organization in founders.Organizations)
+        {
+            if (string.IsNullOrWhiteSpace(organization.Country))
+            {
+                continue;
+            }
+
+            var country = organization.Country.Trim().ToUpperInvariant();
+            map[organization.OrganizationId] = country;
+            foreach (var entry in organization.ConstructorEntries)
+            {
+                map[entry.ConstructorId] = country;
+            }
+        }
+
+        return map;
     }
 }

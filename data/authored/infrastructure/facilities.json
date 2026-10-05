@@ -1,0 +1,22 @@
+{
+  "notes": "ESTIMATE starting absolute quality in milli-units (100000 is the 1950 state of the art). Relative quality is working quality divided by the year's frontier, which grows each season. These are not facts about any real factory. MVP (PP-064): every team has a factory; test-track access is a per-test rental, not an owned facility; engine dyno and foundry wait for a later update. unlockYear gates later kinds (wind tunnel, CFD, simulator).",
+  "kinds": [
+    { "id": "factory", "unlockYear": 1950 },
+    { "id": "windTunnel", "unlockYear": 1968 },
+    { "id": "cfd", "unlockYear": 1990 },
+    { "id": "simulator", "unlockYear": 2012 }
+  ],
+  "defaultQualityMilli": {
+    "factory": 42000
+  },
+  "teams": [
+    { "id": "mercedes", "factory": 78000 },
+    { "id": "ferrari", "factory": 72000 },
+    { "id": "lancia", "factory": 68000 },
+    { "id": "maserati", "factory": 66000 },
+    { "id": "vanwall", "factory": 52000 },
+    { "id": "gordini", "factory": 50000 },
+    { "id": "cooper", "factory": 40000 },
+    { "id": "connaught", "factory": 38000 }
+  ]
+}

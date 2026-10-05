@@ -59,5 +59,6 @@ public static class SectionStores
         new StaffSectionStore(),
         new RaceResultsSectionStore(),
         new RaceCalendarSectionStore(),
+        new InfrastructureSectionStore(),
     ]);
 }

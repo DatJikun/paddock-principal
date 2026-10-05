@@ -258,7 +258,37 @@ Czy czekanie z zatwierdzeniem koncepcji bywa dla Ciebie prawdziwym dylematem?
 
 ---
 
-## 8. Dostawcy
+## 8. Infrastruktura
+
+Każdy zespół ma fabrykę. Jej jakość liczy się względem stanu techniki danego roku, więc bez modernizacji powoli się starzeje. Tor testowy wynajmujesz na konkretny test. Dojazd na wyścig to osobny koszt logistyki: w Europie ciężarówki, do Argentyny statek.
+
+```wybory
+Co rozbudować | fabryka (jakość i tempo części); tunel, CFD i symulator pojawiają się z epoką
+Wynająć tor | jeden test, jeden koszt; limit testów zależy od przepisów sezonu
+Kiedy płacić | rozbudowa z budżetu, obiekt w tym czasie pracuje gorzej; utrzymanie {InfrastructureEstimates.UpkeepShareAtFull|%} typowego budżetu na obiekt przy pełnej jakości, 1 stycznia
+Czy gonić czołówkę | im bliżej stanu sztuki, tym mniejszy zysk i wyższy koszt kolejnego kroku
+```
+
+```pola
+Jakość | względem granicy roku | granica rośnie o {InfrastructureEstimates.FrontierGrowthMilliPerYear|tys.} tysięcznych co sezon
+W budowie | {InfrastructureEstimates.BuildingWorkShare|%} sprawności | aż do dnia końca
+Pierwszy krok | około {InfrastructureEstimates.BaseUpgradeCostShare|%} typowego budżetu i {InfrastructureEstimates.BaseUpgradeDays|dni} | potem drożej i dłużej
+Wynajem toru | około {InfrastructureEstimates.TestRentalShare|%} typowego budżetu za test
+Ciężarówki | {InfrastructureEstimates.LogisticsLorryDays|dni} w Europie, około {InfrastructureEstimates.LogisticsLorryShare|%} typowego budżetu
+Statek | {InfrastructureEstimates.LogisticsShipDays|dni} do rundy za oceanem (Argentyna), około {InfrastructureEstimates.LogisticsShipShare|%} typowego budżetu
+Efekt | przez rozwój auta | nie przez sam poziom fabryki
+```
+
+```pytania
+Czy czujesz, że bez modernizacji fabryka zostaje w tyle?
+Czy wynajem toru jest jasnym kosztem za wiedzę, a nie kolejnym budynkiem?
+Czy wyjazd do Argentyny jest wyczuwalnie droższy i dłuższy niż start w Europie?
+Czy kolejny poziom fabryki jest wystarczająco drogi, żebyś się wahał?
+```
+
+---
+
+## 9. Dostawcy
 
 Rodzaj umowy z dostawcą decyduje, kiedy dostajesz nowości i ile płacisz.
 
@@ -285,7 +315,7 @@ Czy kusi Cię umowa na wiele sezonów z rabatem?
 
 ---
 
-## 9. Sponsorzy
+## 10. Sponsorzy
 
 Masz trzy miejsca na sponsorów, a na każde kilku kandydatów.
 
@@ -315,7 +345,7 @@ Czy cele sponsorów są zrozumiałe i uczciwe?
 
 ---
 
-## 10. Pieniądze i zarząd
+## 11. Pieniądze i zarząd
 
 Każdy przychód i koszt trafia do księgi. Zarząd ocenia Cię po każdym wyścigu i może Cię zwolnić.
 
@@ -353,7 +383,7 @@ Czy wiesz, od czego zależą przychody Twojego zespołu?
 
 ---
 
-## 11. Wyścig
+## 12. Wyścig
 
 Przed wyścigiem przygotowujesz zespół, w wyścigu pracują Twoi ludzie, a wynik powstaje okrążenie po okrążeniu.
 
@@ -423,7 +453,7 @@ Czy wyścig z 1955 i z 1988 wygląda inaczej? Napisz, w czym.
 
 ---
 
-## 12. Rywale i niepewność
+## 13. Rywale i niepewność
 
 Zespoły AI grają według tych samych zasad co Ty. Nie widzą ukrytych wartości i nie znają przyszłości.
 

@@ -5,6 +5,7 @@ using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
 using Paddock.Application.Development;
 using Paddock.Application.Finance;
+using Paddock.Application.Infrastructure;
 using Paddock.Application.Managers;
 using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
@@ -56,6 +57,7 @@ public sealed class PrincipalsModule : CareerModule
         {
             Contracts = context.TryGet<ContractEngine>(),
             Development = DevelopmentOf(context),
+            Infrastructure = InfrastructureOf(context),
             Supply = SupplyOf(context),
             Sponsors = SponsorsOf(context),
             Pool = context.TryGet<PoolBook>(),
@@ -133,6 +135,13 @@ public sealed class PrincipalsModule : CareerModule
         var environment = context.TryGet<DevelopmentEnvironment>();
         var cars = context.TryGet<CarBook>();
         return book is null || environment is null || cars is null ? null : new DevelopmentSources(book, environment, cars);
+    }
+
+    private static InfrastructureSources? InfrastructureOf(CareerModuleContext context)
+    {
+        var book = context.TryGet<InfrastructureBook>();
+        var environment = context.TryGet<InfrastructureEnvironment>();
+        return book is null || environment is null ? null : new InfrastructureSources(book, environment);
     }
 
     private static SupplySources? SupplyOf(CareerModuleContext context)

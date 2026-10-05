@@ -24,11 +24,15 @@ public static class LedgerCategories
 
     public const string Supply = "supply";
 
+    public const string Infrastructure = "infrastructure";
+
+    public const string Logistics = "logistics";
+
     public const string Other = "other";
 
     private static readonly HashSet<string> All = new(StringComparer.Ordinal)
     {
-        StartMoney, PrizeMoney, Sponsor, OwnerFunds, Salary, RaceRunning, CarBuild, Development, Supply, Other,
+        StartMoney, PrizeMoney, Sponsor, OwnerFunds, Salary, RaceRunning, CarBuild, Development, Supply, Infrastructure, Logistics, Other,
     };
 
     public static bool IsKnown(string category) => category is not null && All.Contains(category);

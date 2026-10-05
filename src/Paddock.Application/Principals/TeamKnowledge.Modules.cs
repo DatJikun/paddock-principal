@@ -1,5 +1,6 @@
 using Paddock.Application.Cars;
 using Paddock.Application.Development;
+using Paddock.Application.Infrastructure;
 using Paddock.Application.Sponsors;
 using Paddock.Application.Supply;
 using Paddock.Domain.Cars;
@@ -77,6 +78,29 @@ internal sealed partial class TeamKnowledge
             Funds().Headroom < 0,
             concepts);
         return result;
+    }
+
+    /// <summary>Own facilities as the query shows them: relative quality, cost and eligibility. Null when the host did not give infrastructure.</summary>
+    public InfrastructureInput? Infrastructure()
+    {
+        var sources = _env.Infrastructure;
+        if (sources is null)
+        {
+            return null;
+        }
+
+        var typical = World.Section<Paddock.Domain.Finance.FinanceSection>(Paddock.Domain.Finance.FinanceSection.SectionName)?.TypicalCents ?? 0L;
+        var view = new InfrastructureQuery(sources.Book, sources.Environment).Own(Organization, Today, typical);
+        var cases = view.Facilities
+            .Select(facility => new FacilityCase(
+                facility.Kind,
+                facility.RelativeQuality,
+                facility.UpgradeCostCents,
+                facility.Building,
+                facility.Eligible))
+            .ToArray();
+        var tests = new TestRentalCase(view.Tests.CostCents, view.Tests.Used, view.Tests.Cap, view.Tests.Allowed);
+        return new InfrastructureInput(Day, Funds().CashDollars * 100, cases, tests);
     }
 
     private static double Mid(CarBandView band) => (band.Low + band.High) / 2.0;

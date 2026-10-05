@@ -373,7 +373,7 @@ Wyprzedzanie | potrzebna przewaga tempa powyżej {WeekendConstants.OvertakeMargi
 Brudne powietrze | do {PaceConstants.DirtyAirMaxLossSeconds|s} straty na okrążeniu
 Pierwsze okrążenie | {IncidentConstants.FirstLapFactor}× groźniejsze niż zwykle | drugie {IncidentConstants.SecondLapFactor}×
 Pogoda | zmienia się minuta po minucie | prognoza w boksie ma błąd: najlepsza osoba {WeatherConstants.GoodForecasterScale}×, najsłabsza {WeatherConstants.PoorForecasterScale}×
-Ostrzeżenie o awarii | {ReliabilityConstants.DefaultWarningLeadLaps} okrążenia wcześniej | auto zwalnia; około {ReliabilityConstants.SuddenFailureShare} awarii przychodzi nagle, bez ostrzeżenia
+Ostrzeżenie o awarii | {ReliabilityConstants.DefaultWarningLeadLaps} okrążenia wcześniej | auto zwalnia; około {ReliabilityConstants.SuddenFailureShare|%} awarii przychodzi nagle, bez ostrzeżenia
 ```
 
 ```wykres dopasowanie-toru

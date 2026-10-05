@@ -80,6 +80,21 @@ public class BridgeTests
     }
 
     [Fact]
+    public void TheShellNamesTheDecisionWithItsParameters()
+    {
+        // Regression: the top bar got only the subject key, so "P{safeTarget}" reached the screen unfilled.
+        using var career = Open();
+        var exchange = career.Host.Handle(Message("sh", "query", "shell"));
+        using var json = JsonDocument.Parse(exchange.Response);
+        Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), exchange.Response);
+        var data = json.RootElement.GetProperty("data");
+        Assert.Equal(BoardEngine.SeasonTargetKind, data.GetProperty("decisionKind").GetString());
+        var subject = data.GetProperty("decisionSubject");
+        Assert.Equal(BoardKeys.SeasonTargetSubject, subject.GetProperty("key").GetString());
+        Assert.False(string.IsNullOrWhiteSpace(subject.GetProperty("parameters").GetProperty("safeTarget").GetString()));
+    }
+
+    [Fact]
     public void TheAiPrincipalDirectorLeavesThePlayersTeamAlone()
     {
         // Regression: without seating the player, the T44 director ran the player's team as an AI team

@@ -251,7 +251,8 @@ public sealed partial class CareerBridge
             inbox.OpenDecisionCount,
             blocking?.Kind,
             decision?.Id,
-            decision?.Subject.Key,
+            decision?.Kind,
+            decision?.Subject,
             team.OrganizationId,
             team.Name);
     }

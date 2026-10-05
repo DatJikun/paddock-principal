@@ -24,7 +24,7 @@
   import { flagSprite } from './lib/flags.mjs';
   import { getLanguage, loadLanguage, setLanguage, subscribeLanguage, translate, type Language } from './lib/i18n';
   import { formatMoney } from './lib/money.mjs';
-  import { afterAdvance, nextAction } from './lib/protocol.mjs';
+  import { afterAdvance, blockingLabel, nextAction } from './lib/protocol.mjs';
   import { NAV, screenId, screenKey, SETTINGS } from './lib/shell-nav.mjs';
   import { startSmoke } from './lib/smoke';
   import { sweep } from './lib/sweep';
@@ -384,9 +384,10 @@
   });
 
   let team = $derived(crest(shell?.organizationName));
+  let decision = $derived(blockingLabel(shell));
   let blocking = $derived(
-    shell?.decisionSubjectKey
-      ? t(shell.decisionSubjectKey)
+    decision
+      ? t('shell.go.decision', { area: t(decision.area) })
       : shell?.blockingKind
         ? t('ready.blockingItem')
         : '',
@@ -451,7 +452,7 @@
           {/if}
           <a class="cell date" href="#/kalendarz"><b>{shell ? formatDate(shell.date, lang) : '—'}</b></a>
         </div>
-        <button class="go" type="button" aria-disabled={!shell || busy} onclick={nextDay}>
+        <button class="go" type="button" aria-disabled={!shell || busy} title={decision ? tMsg(decision.subject) : undefined} onclick={nextDay}>
           <span>
             <b>{t('shell.next')}</b>
             {#if blocking}<small><i class="blk"></i>{blocking}</small>{/if}

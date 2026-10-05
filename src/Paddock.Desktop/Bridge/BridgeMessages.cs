@@ -1,3 +1,5 @@
+using Paddock.Application.Commands;
+
 namespace Paddock.Desktop.Bridge;
 
 /// <summary>Argument of every query and of <c>advanceDay</c>. The id is the human manager the view belongs to (INV-003).</summary>
@@ -21,7 +23,8 @@ public sealed record ShellView(
     int InboxDecisions,
     string? BlockingKind,
     string? DecisionItemId,
-    string? DecisionSubjectKey,
+    string? DecisionKind,
+    TranslationMessage? DecisionSubject,
     string? OrganizationId,
     string? OrganizationName);
 

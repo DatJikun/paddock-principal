@@ -70,6 +70,16 @@ export const SHELL_KEYS = [
   'shell.save',
   'shell.save.name',
   'shell.nextRace',
+  'shell.go.decision',
+  'inbox.area.board',
+  'inbox.area.contract',
+  'inbox.area.negotiation',
+  'inbox.area.market',
+  'inbox.area.development',
+  'inbox.area.sponsor',
+  'inbox.area.supply',
+  'inbox.area.scouting',
+  'inbox.area.other',
 ];
 
 const ids = [...NAV.filter((item) => item.id).map((item) => item.id), SETTINGS.id];

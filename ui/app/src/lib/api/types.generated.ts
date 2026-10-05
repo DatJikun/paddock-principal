@@ -655,7 +655,8 @@ export interface ShellView {
   cashCents: number | null;
   date: string;
   decisionItemId: string | null;
-  decisionSubjectKey: string | null;
+  decisionKind: string | null;
+  decisionSubject: TranslationMessage | null;
   inboxDecisions: number;
   inboxOpen: number;
   managerId: string;

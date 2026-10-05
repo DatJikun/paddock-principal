@@ -41,7 +41,8 @@ internal sealed class SponsorKit
         int skill = 0,
         double prestige = 0.5,
         ulong seed = 42UL,
-        bool betaToo = true)
+        bool betaToo = true,
+        ITeamOutlook? outlook = null)
     {
         Start = start;
         Seed = seed;
@@ -77,7 +78,8 @@ internal sealed class SponsorKit
             Control,
             Objectives,
             new FixedAppeal(prestige),
-            new FixedSkill(skill));
+            new FixedSkill(skill),
+            outlook);
         Context = new CommandContext(new StubWorldState(new DateOnly(start.Year, start.Month, start.Day)), Managers, Inbox);
     }
 

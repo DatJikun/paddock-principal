@@ -98,7 +98,8 @@ internal sealed partial class WeekendRun
                 swapped ? [car.Entry.Drivers[0].DriverId, car.Entry.Drivers[1].DriverId] : [car.Entry.Drivers[0].DriverId],
                 carStops.Count,
                 [car.Used[0], .. carStops.Where(s => s.ChangedTyres).Select(s => s.CompoundAfter)],
-                fastest));
+                fastest,
+                !o.Finished && car.Retired?.Sudden == true));
         }
 
         var classification = RaceClassifier.Classify(

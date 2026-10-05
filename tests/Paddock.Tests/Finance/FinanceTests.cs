@@ -74,6 +74,7 @@ public class FinanceTests
     [Fact]
     public void PopularityRisesForACloseTitleFightAndFallsForADominantSeason()
     {
+        // These seasons publish no drivers' table, so the drivers' fight term is zero (PP-057 adds it only when the table is there).
         var close = new SeasonEnded(
             1955,
             8,
@@ -101,6 +102,46 @@ public class FinanceTests
         Assert.Equal(afterClose, section.PopularityMilli);
         Assert.Equal(section.PopularityMilli, FinanceSection.Empty.ApplySeason(close).PopularityMilli);
     }
+
+    [Fact]
+    public void ADriversTitleFightRaisesPopularityLessThanAMultiTeamFightAndARunawayStaysNegative()
+    {
+        var baseline = FinanceEstimates.BaselinePopularityMilli;
+        var multiTeam = PopularityModel.Next(baseline, Season(
+            races: 20,
+            constructors: [(1, 300m), (2, 290m)],
+            winners: 8,
+            drivers: [(1, 180m), (2, 175m)]));
+        var oneTeamTwoDrivers = PopularityModel.Next(baseline, Season(
+            races: 21,
+            constructors: [(1, 400m), (2, 20m)],
+            winners: 1,
+            drivers: [(1, 200m), (2, 199m)]));
+        var oneDriver = PopularityModel.Next(baseline, Season(
+            races: 17,
+            constructors: [(1, 200m), (2, 20m)],
+            winners: 1,
+            drivers: [(1, 180m), (2, 20m)]));
+
+        Assert.True(multiTeam > oneTeamTwoDrivers);
+        Assert.True(oneTeamTwoDrivers > oneDriver);
+        Assert.True(multiTeam > baseline);
+        Assert.True(oneTeamTwoDrivers > baseline);
+        Assert.True(oneDriver < baseline);
+        Assert.Equal(multiTeam, PopularityModel.Next(baseline, Season(20, [(1, 300m), (2, 290m)], 8, [(1, 180m), (2, 175m)])));
+    }
+
+    private static SeasonEnded Season(
+        int races,
+        (int Position, decimal Points)[] constructors,
+        int winners,
+        (int Position, decimal Points)[] drivers) =>
+        new(
+            2016,
+            races,
+            constructors.Select((row, index) => new ConstructorTitleRow(OrganizationId.Real("team-" + index), row.Position, row.Points)).ToArray(),
+            Enumerable.Range(0, winners).Select(index => OrganizationId.Real("team-" + index)).ToArray(),
+            drivers.Select((row, index) => new DriverTitleRow("driver-" + index, row.Position, row.Points)).ToArray());
 
     [Fact]
     public void InsolvencyFiresOnTheAnniversaryAndNotBefore()
@@ -419,6 +460,7 @@ public class FinanceTests
                 Races = 7,
                 Constructors = "alfa|1|40",
                 Winners = "alfa,ferrari",
+                Drivers = "fangio|1|40;ascari|2|39",
             },
         ];
         foreach (var command in commands)

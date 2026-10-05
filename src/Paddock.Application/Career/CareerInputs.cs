@@ -62,6 +62,12 @@ public sealed class CareerInputs
     }
 }
 
+/// <summary>
+/// A human manager and the organization they run. The AI principal of that organization stays quiet. On a resumed career the
+/// same assignment is passed again; a manager id of the form <c>human:{organizationId}</c> is also seated from the saved registry.
+/// </summary>
+public sealed record CareerHuman(string ManagerId, string Name, string OrganizationId);
+
 /// <summary>What a run is given beyond the session: the modules (every career module by default) and the data inputs.</summary>
 public sealed class CareerRunOptions
 {
@@ -69,4 +75,7 @@ public sealed class CareerRunOptions
     public IReadOnlyList<ICareerModule> Modules { get; init; } = CareerModules.Default;
 
     public CareerInputs Inputs { get; init; } = new();
+
+    /// <summary>Human managers to register and seat. Empty for an AI-only run, which never blocks the day.</summary>
+    public IReadOnlyList<CareerHuman> Humans { get; init; } = [];
 }

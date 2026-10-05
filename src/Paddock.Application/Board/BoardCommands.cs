@@ -1,5 +1,7 @@
+using Paddock.Application.Career;
 using Paddock.Application.Commands;
 using Paddock.Application.Inbox;
+using Paddock.Domain.Board;
 using Paddock.Application.Managers;
 using Paddock.Domain.Inbox;
 using Paddock.Simulation.Codec;
@@ -81,6 +83,27 @@ public sealed class JobOfferResolver : IInboxResolver
     }
 }
 
+/// <summary>Carries out the season-target decision. The default option is the expected finish, applied when the decision lapses.</summary>
+public sealed class SeasonTargetResolver : IInboxResolver
+{
+    public string Kind => BoardEngine.SeasonTargetKind;
+
+    public TranslationMessage? Validate(InboxItem item, string optionId, CommandContext context)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(context);
+        return SeasonTarget.TryParse(optionId, out _) ? null : TranslationMessage.Of(InboxKeys.OptionUnknown);
+    }
+
+    public IReadOnlyList<IDomainEvent> Execute(InboxItem item, string optionId, CommandContext context)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(context);
+        BoardEngine.From(context).AcceptSeasonTarget(item, optionId, InboxBook.ToGameDate(context.World.CurrentDate));
+        return [];
+    }
+}
+
 internal static class BoardEvents
 {
     public static IReadOnlyList<IDomainEvent> Wrap(ManagerId manager, DateOnly on, IEnumerable<BoardFact> facts) =>
@@ -151,7 +174,58 @@ public sealed class ResignFromTeamHandler : CommandHandler<ResignFromTeamCommand
             BoardEngine.From(context).Resign(command.ManagerId, InboxBook.ToGameDate(command.IssuedOn)));
 }
 
-/// <summary>Registers the three board handlers and the inbox resolver of a job offer.</summary>
+/// <summary>
+/// A human manager takes over an existing team at the start of a career (PP-050, path A). Founding a team is not this
+/// command: <see cref="CareerStartPath"/> refuses that path and this handler never creates an organization.
+/// </summary>
+public sealed record TakeOverTeamCommand : ICommand
+{
+    public required ManagerId ManagerId { get; init; }
+
+    public long SubmissionNumber { get; init; }
+
+    public required DateOnly IssuedOn { get; init; }
+
+    public required string OrganizationId { get; init; }
+
+    public required string GivenName { get; init; }
+
+    public required string FamilyName { get; init; }
+
+    public required string Nationality { get; init; }
+
+    /// <summary>A principal attribute key, or <see cref="PlayerEstimates.NoTilt"/>.</summary>
+    public required string Tilt { get; init; }
+
+    public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
+}
+
+public sealed class TakeOverTeamHandler : CommandHandler<TakeOverTeamCommand>
+{
+    protected override TranslationMessage? ValidateTyped(TakeOverTeamCommand command, CommandContext context) =>
+        BoardEngine.From(context).ValidateTakeOver(
+            command.ManagerId,
+            command.OrganizationId,
+            command.GivenName,
+            command.FamilyName,
+            command.Nationality,
+            command.Tilt);
+
+    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(TakeOverTeamCommand command, CommandContext context) =>
+        BoardEvents.Wrap(
+            command.ManagerId,
+            command.IssuedOn,
+            BoardEngine.From(context).TakeOver(
+                command.ManagerId,
+                command.OrganizationId,
+                command.GivenName,
+                command.FamilyName,
+                command.Nationality,
+                command.Tilt,
+                InboxBook.ToGameDate(command.IssuedOn)));
+}
+
+/// <summary>Registers the board handlers and the inbox resolver of a job offer.</summary>
 public static class BoardRegistration
 {
     public static void Register(CommandDispatcher dispatcher, InboxResolvers resolvers)
@@ -161,11 +235,13 @@ public static class BoardRegistration
         dispatcher.Register(new AcceptJobOfferHandler());
         dispatcher.Register(new DeclineJobOfferHandler());
         dispatcher.Register(new ResignFromTeamHandler());
+        dispatcher.Register(new TakeOverTeamHandler());
         resolvers.Register(new JobOfferResolver());
+        resolvers.Register(new SeasonTargetResolver());
     }
 }
 
-/// <summary>The save entries of the three board commands (see <see cref="CommandCodec"/>).</summary>
+/// <summary>The save entries of the board commands (see <see cref="CommandCodec"/>).</summary>
 public static class BoardCommandCodecs
 {
     public static IReadOnlyList<CommandCodecEntry> Entries { get; } =
@@ -195,6 +271,28 @@ public static class BoardCommandCodecs
             {
                 FlatJson.Read(body);
                 return new ResignFromTeamCommand { ManagerId = manager, IssuedOn = issued };
+            }),
+        CommandCodecEntry.For<TakeOverTeamCommand>(
+            "board.takeOverTeam/1",
+            command => FlatJson.Write(
+                ("organization", command.OrganizationId),
+                ("given", command.GivenName),
+                ("family", command.FamilyName),
+                ("nationality", command.Nationality),
+                ("tilt", command.Tilt)),
+            (body, manager, issued) =>
+            {
+                var fields = FlatJson.Read(body, "organization", "given", "family", "nationality", "tilt");
+                return new TakeOverTeamCommand
+                {
+                    ManagerId = manager,
+                    IssuedOn = issued,
+                    OrganizationId = fields.String("organization"),
+                    GivenName = fields.String("given"),
+                    FamilyName = fields.String("family"),
+                    Nationality = fields.String("nationality"),
+                    Tilt = fields.String("tilt"),
+                };
             }),
     ];
 }

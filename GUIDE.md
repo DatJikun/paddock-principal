@@ -273,6 +273,7 @@ Dłuższa umowa | −{SupplyEstimates.YearsDiscountMilli|m%} za każdy kolejny s
 
 ```pola
 Postęp silnika | +{SupplyEstimates.ProgressPerSeason|pkt} na sezon
+Losowa zmiana mocy silnika | co sezon każdy dostawca zyskuje albo traci do {SupplyEstimates.PowerDriftStep|pkt} mocy ponad ten postęp, a Ty na początku sezonu dostajesz wiadomość, czy Twój silnik wyszedł mocniejszy, słabszy czy podobny
 Klienci jednego dostawcy | najwyżej {SupplyEstimates.MaxCustomersPerSupplier}
 ```
 

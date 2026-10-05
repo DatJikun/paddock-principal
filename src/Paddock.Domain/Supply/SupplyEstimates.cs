@@ -30,6 +30,21 @@ public static class SupplyEstimates
     /// <summary>ESTIMATE: yearly gain of a supplier's engine, in rating points.</summary>
     public const double ProgressPerSeason = 1.5;
 
+    /// <summary>
+    /// ESTIMATE (PP-064): the most a supplier's engine power moves at random in one season, on top of
+    /// <see cref="ProgressPerSeason"/>, in rating points. Each season's step is drawn from -step to +step, and the steps add up.
+    /// </summary>
+    public const double PowerDriftStep = 3;
+
+    /// <summary>ESTIMATE (PP-064): the most a supplier's engine reliability moves at random in one season, in rating points. Smaller than power.</summary>
+    public const double ReliabilityDriftStep = 2;
+
+    /// <summary>
+    /// ESTIMATE (PP-064): a power step of at least this many rating points, up or down, is worth telling the team about as
+    /// "stronger" or "weaker"; a smaller one is "about the same". The notice never states the step itself.
+    /// </summary>
+    public const double DriftNoticeBand = 1;
+
     /// <summary>ESTIMATE: widest spread of a supplier's power around its base, in rating points.</summary>
     public const double PowerSpread = 10;
 

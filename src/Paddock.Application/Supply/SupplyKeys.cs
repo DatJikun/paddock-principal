@@ -94,6 +94,18 @@ public static class SupplyKeys
     [TranslationKey]
     public const string InboxEndedSubject = "supply.inbox.ended.subject";
 
+    /// <summary>Season-start notice (PP-064): the engine of the new season is stronger than the supplier's usual yearly gain.</summary>
+    [TranslationKey]
+    public const string InboxEngineStrongerSubject = "supply.inbox.engineStronger.subject";
+
+    /// <summary>Season-start notice (PP-064): the engine of the new season is weaker than the supplier's usual yearly gain.</summary>
+    [TranslationKey]
+    public const string InboxEngineWeakerSubject = "supply.inbox.engineWeaker.subject";
+
+    /// <summary>Season-start notice (PP-064): the engine of the new season is about as the supplier's usual yearly gain.</summary>
+    [TranslationKey]
+    public const string InboxEngineSameSubject = "supply.inbox.engineSame.subject";
+
     [TranslationKey]
     public const string ItemEngine = "supply.item.engine";
 

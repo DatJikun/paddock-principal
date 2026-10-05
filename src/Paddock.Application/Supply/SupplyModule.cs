@@ -35,7 +35,7 @@ public sealed class SupplyModule : CareerModule
         var environment = new SupplyEnvironment(
             context.Require<IOrganizationControl>(),
             new PeriodSupplyEras(periods),
-            new EstimateSupplierProfiles(session.OpenedYear, context.Inputs.CarStrength));
+            new EstimateSupplierProfiles(session.OpenedYear, context.Inputs.CarStrength, session.Clock.MasterSeed));
         context.Provide(book);
         context.Provide(environment);
         context.AddCommandHandlers(dispatcher => SupplyRegistration.Register(dispatcher, book, environment));

@@ -91,7 +91,7 @@ internal sealed class SupplyKit
         Environment = new SupplyEnvironment(
             Control,
             new PeriodSupplyEras(Authored.Value.EraPeriods),
-            new EstimateSupplierProfiles(start.Year),
+            new EstimateSupplierProfiles(start.Year, null, seed),
             programmes,
             trace);
         Context = new CommandContext(new StubWorldState(new DateOnly(start.Year, start.Month, start.Day)), Managers, Inbox);

@@ -102,6 +102,11 @@ public sealed class SupplyDayHandler : IDayHandler
             supply = supply.ReplaceDeal(deal.WithPaidSeason(today.Year));
         }
 
+        if (today.IsSeasonStart)
+        {
+            NoticeEngineDrift(supply, today);
+        }
+
         foreach (var deal in supply.Deals.Where(deal => deal.IsActive && today.Year > deal.LastSeason).ToArray())
         {
             supply = supply.ReplaceDeal(deal.Ended(today));
@@ -122,6 +127,32 @@ public sealed class SupplyDayHandler : IDayHandler
         if (!ReferenceEquals(world, start))
         {
             _book.Update(world);
+        }
+    }
+
+    /// <summary>
+    /// PP-064: on the first day of a season each human-run team with an engine deal in force gets one notice about the engine it
+    /// races this season: stronger, weaker or about the same than the supplier's usual yearly gain, as a band of the supplier's
+    /// random step (<see cref="SupplyEstimates.DriftNoticeBand"/>), never the step itself (INV-003). The version is the one the deal
+    /// delivers (a lagging customer reads last season's step). No notice when there was no step (the opening season), and none on any other
+    /// day. Reads the profile only: no RNG is consumed (INV-005).
+    /// </summary>
+    private void NoticeEngineDrift(SupplySection supply, GameDate today)
+    {
+        foreach (var deal in supply.Deals.Where(deal => deal.Item == SupplyItem.Engine && deal.IsInForceOn(today)))
+        {
+            var step = _environment.Profiles.PowerStepOf(deal.Supplier, SupplyContribution.VersionSeason(deal.Kind, today.Year));
+            if (step is not { } power)
+            {
+                continue;
+            }
+
+            var key = power >= SupplyEstimates.DriftNoticeBand
+                ? SupplyKeys.InboxEngineStrongerSubject
+                : power <= -SupplyEstimates.DriftNoticeBand
+                    ? SupplyKeys.InboxEngineWeakerSubject
+                    : SupplyKeys.InboxEngineSameSubject;
+            Post(deal.Customer, key, today, deal.Supplier, deal.Item, deal.Id, humansOnly: true);
         }
     }
 
@@ -243,7 +274,7 @@ public sealed class SupplyDayHandler : IDayHandler
     private void Notice(OrganizationId customer, string subjectKey, SupplyDeal deal, GameDate today) =>
         Post(customer, subjectKey, today, deal.Supplier, deal.Item, deal.Id);
 
-    private void Post(OrganizationId customer, string subjectKey, GameDate today, OrganizationId supplier, SupplyItem item, string reference)
+    private void Post(OrganizationId customer, string subjectKey, GameDate today, OrganizationId supplier, SupplyItem item, string reference, bool humansOnly = false)
     {
         if (_inbox is null || _managers is null)
         {
@@ -253,6 +284,11 @@ public sealed class SupplyDayHandler : IDayHandler
         var name = _book.World.Organizations.FirstOrDefault(organization => organization.Id == supplier)?.NameOn(today) ?? supplier.Value;
         foreach (var manager in _environment.Control.ManagersOf(customer))
         {
+            if (humansOnly && (!_managers.Contains(manager) || _managers.KindOf(manager) != ManagerKind.Human))
+            {
+                continue;
+            }
+
             var draft = new InboxItemDraft(
                 SupplyKeys.InboxKind,
                 subjectKey,

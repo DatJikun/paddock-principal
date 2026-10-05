@@ -1,5 +1,7 @@
+using Paddock.Application.Access;
 using Paddock.Application.Commands;
 using Paddock.Application.Sponsors;
+using AccessManagerId = Paddock.Application.Access.ManagerId;
 using Paddock.Domain.Objectives;
 using Paddock.Domain.Sponsors;
 using Paddock.Domain.Time;
@@ -213,5 +215,73 @@ public class SponsorCommandTests
             var decoded = CommandCodec.Production.Decode(encoded.Tag, encoded.Text, command.ManagerId, command.SubmissionNumber, command.IssuedOn);
             Assert.Equal(command, decoded);
         }
+    }
+
+    [Fact]
+    public void TheSameSponsorAsksLessOfAWeakerTeamAndPaysLessAndTheTalkShowsTheTargetBeforeSigning()
+    {
+        var alfaKit = new SponsorKit(Opening, skill: 20, outlook: new FixedOutlook());
+        var talk = alfaKit.OpenTalk("corvane_fuels", 1, Opening);
+        Assert.Empty(alfaKit.Book.Section.Deals);
+
+        var own = Assert.IsType<SponsorView.Own>(SponsorQuery.Read(
+            AccessContext.ForManager(new AccessManagerId("human:anna")),
+            SponsorKit.Alfa,
+            alfaKit.Book,
+            alfaKit.Environment,
+            alfaKit.ObjectiveQuery(),
+            Opening));
+        var shown = Assert.Single(own.Talks).Objective;
+        Assert.NotNull(shown);
+        Assert.Equal("objective.predicate.championshipPositionAtMost", shown.Key);
+
+        Assert.Null(alfaKit.Run(new SignAtCurrentTermsCommand
+        {
+            ManagerId = SponsorKit.Anna,
+            IssuedOn = SponsorKit.Day(Opening),
+            OrganizationId = SponsorKit.Alfa.Value,
+            TalkId = talk.Id,
+        }));
+        var alfa = alfaKit.Book.Section.Deals.Single();
+        var betaKit = new SponsorKit(Opening, skill: 20, outlook: new FixedOutlook());
+        var betaTalk = betaKit.OpenTalk("corvane_fuels", 1, Opening, SponsorKit.Beta);
+        Assert.Null(betaKit.Run(new SignAtCurrentTermsCommand
+        {
+            ManagerId = SponsorKit.Bram,
+            IssuedOn = SponsorKit.Day(Opening),
+            OrganizationId = SponsorKit.Beta.Value,
+            TalkId = betaTalk.Id,
+        }));
+        var beta = betaKit.Book.Section.Deals.Single();
+        var alfaObjective = alfaKit.Book.Objectives.Find(alfa.ObjectiveId!)!;
+        var betaObjective = betaKit.Book.Objectives.Find(beta.ObjectiveId!)!;
+        var alfaTarget = Assert.IsType<ChampionshipPositionAtMost>(alfaObjective.Predicate).Position;
+        var betaTarget = Assert.IsType<ChampionshipPositionAtMost>(betaObjective.Predicate).Position;
+
+        Assert.True(alfaTarget < betaTarget);
+        Assert.Equal(alfaTarget.ToString(System.Globalization.CultureInfo.InvariantCulture), shown.Parameters["target"]);
+        var alfaBonus = int.Parse(alfaObjective.EffectOnMet.Arguments["bonusMilli"], System.Globalization.CultureInfo.InvariantCulture);
+        var betaBonus = int.Parse(betaObjective.EffectOnMet.Arguments["bonusMilli"], System.Globalization.CultureInfo.InvariantCulture);
+        var alfaTrust = int.Parse(alfaObjective.EffectOnMet.Arguments["trust"], System.Globalization.CultureInfo.InvariantCulture);
+        var betaTrust = int.Parse(betaObjective.EffectOnMet.Arguments["trust"], System.Globalization.CultureInfo.InvariantCulture);
+        Assert.True(alfaBonus > betaBonus);
+        Assert.True(alfaTrust > betaTrust);
+
+        var again = SponsorObjectiveScale.Scale(
+            new SponsorObjectiveSpec(SponsorObjectiveSpec.ChampionshipPositionAtMost, "6", 364),
+            1,
+            10);
+        Assert.Equal(again, SponsorObjectiveScale.Scale(
+            new SponsorObjectiveSpec(SponsorObjectiveSpec.ChampionshipPositionAtMost, "6", 364),
+            1,
+            10));
+        Assert.Equal(alfaTarget.ToString(System.Globalization.CultureInfo.InvariantCulture), again.Value);
+    }
+
+    private sealed class FixedOutlook : ITeamOutlook
+    {
+        public int FieldSize(GameDate on) => 10;
+
+        public int? ExpectedPosition(OrganizationId organization, GameDate on) => organization == SponsorKit.Alfa ? 1 : 10;
     }
 }

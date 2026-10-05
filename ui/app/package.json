@@ -1,0 +1,10 @@
+{
+  "name": "paddock-ui",
+  "private": true,
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3"
+  }
+}

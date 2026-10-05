@@ -1,3 +1,4 @@
+using System.Globalization;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Domain.Finance;
@@ -50,7 +51,8 @@ public static class SponsorOutcomes
             var name = notices.NameOf(deal.SponsorId);
             if (outcome.Met)
             {
-                var bonus = deal.AnnualCents * SponsorEstimates.BonusMilli / 1000;
+                var reward = RewardOf(book, deal);
+                var bonus = deal.AnnualCents * reward.BonusMilli / 1000;
                 if (bonus > 0 && finance.HasBook(deal.Organization))
                 {
                     finance = finance.Post(deal.Organization, today, LedgerCategories.Sponsor, deal.SponsorId, bonus, SponsorReason.Bonus);
@@ -58,7 +60,7 @@ public static class SponsorOutcomes
                 }
 
                 sponsors = sponsors.Replace(deal with { Outcome = DealObjectiveOutcome.Met, BonusCents = bonus });
-                sponsors = sponsors.WithTrust(deal.SponsorId, deal.Organization, trust + SponsorEstimates.TrustOnMet);
+                sponsors = sponsors.WithTrust(deal.SponsorId, deal.Organization, trust + reward.Trust);
                 notices.Post(deal.Organization, SponsorKeys.InboxMetSubject, today, ("sponsor", name), ("bonus", SponsorNotices.Dollars(bonus)));
             }
             else
@@ -77,5 +79,26 @@ public static class SponsorOutcomes
         }
 
         return applied;
+    }
+
+    /// <summary>The bonus and trust fixed when the deal was signed. A deal with no recorded scale pays the unscaled estimates.</summary>
+    private static (int BonusMilli, int Trust) RewardOf(SponsorBook book, SponsorDeal deal)
+    {
+        var arguments = deal.ObjectiveId is { } id ? book.Objectives.Find(id)?.EffectOnMet.Arguments : null;
+        var bonus = SponsorEstimates.BonusMilli;
+        var trust = SponsorEstimates.TrustOnMet;
+        if (arguments is not null && arguments.TryGetValue("bonusMilli", out var bonusText)
+            && int.TryParse(bonusText, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedBonus))
+        {
+            bonus = parsedBonus;
+        }
+
+        if (arguments is not null && arguments.TryGetValue("trust", out var trustText)
+            && int.TryParse(trustText, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedTrust))
+        {
+            trust = parsedTrust;
+        }
+
+        return (bonus, trust);
     }
 }

@@ -385,7 +385,7 @@ public static class RunCommand
     /// The base data a save depends on: every authored file, plus the people schedule and drivers files when the run used them
     /// (without them the hash is that of the authored files alone). A resumed run must see the same hash.
     /// </summary>
-    private static string HashWorldData(string dataRoot, (string Schedule, string Drivers)? people)
+    internal static string HashWorldData(string dataRoot, (string Schedule, string Drivers)? people)
     {
         var authored = Path.Combine(Path.GetFullPath(dataRoot), "authored");
         var files = Directory.EnumerateFiles(authored, "*.json", SearchOption.AllDirectories)
@@ -415,7 +415,7 @@ public static class RunCommand
     }
 
     /// <summary>The people schedule and drivers files in use, or null when the run has none (the empty provider).</summary>
-    private static (string Schedule, string Drivers)? ResolveProviderFiles(string dataRoot, string? schedulePath, string? driversPath)
+    internal static (string Schedule, string Drivers)? ResolveProviderFiles(string dataRoot, string? schedulePath, string? driversPath)
     {
         if (schedulePath is null || driversPath is null)
         {
@@ -431,7 +431,7 @@ public static class RunCommand
         return (schedulePath, driversPath);
     }
 
-    private static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files)
+    internal static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files)
     {
         if (files is not var (schedulePath, driversPath))
         {
@@ -453,7 +453,7 @@ public static class RunCommand
             .Replace("{year}", arguments.Count > 1 ? arguments[1] : Number(config.StartYear), StringComparison.Ordinal);
     }
 
-    private static string? FindDataRoot()
+    internal static string? FindDataRoot()
     {
         foreach (var start in new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory })
         {

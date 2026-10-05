@@ -1,9 +1,11 @@
 using Paddock.Application.Board;
 using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
+using Paddock.Application.Finance;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Application.Objectives;
+using Paddock.Application.Principals;
 using Paddock.Application.World;
 using Paddock.Domain.World;
 using Paddock.Simulation.Career;
@@ -23,17 +25,23 @@ public sealed class CareerModuleHost
 {
     private readonly CareerModuleContext _context;
     private readonly ControlTable _control;
+    private readonly List<(ManagerId Manager, OrganizationId Organization)> _humans;
 
-    private CareerModuleHost(CareerModuleContext context, ControlTable control)
+    private CareerModuleHost(
+        CareerModuleContext context,
+        ControlTable control,
+        IReadOnlyList<(ManagerId Manager, OrganizationId Organization)> humans)
     {
         _context = context;
         _control = control;
+        _humans = [.. humans];
     }
 
     /// <summary>
     /// Builds the host for one run. <paramref name="modules"/> must have distinct names. Each module sees the shared
-    /// infrastructure: <see cref="IOrganizationControl"/> (the AI manager runs every team until the board says otherwise),
-    /// <see cref="IManagerOrganizations"/>, <see cref="InboxResolvers"/> and <see cref="InboxBook"/>.
+    /// infrastructure: one <see cref="ControlTable"/> (who runs which organization; the AI principal of a team is seated
+    /// by the principals module, a human by <paramref name="humans"/>), <see cref="IManagerOrganizations"/>,
+    /// <see cref="InboxResolvers"/> and <see cref="InboxBook"/>.
     /// </summary>
     public static CareerModuleHost Attach(
         CareerSession session,
@@ -41,7 +49,8 @@ public sealed class CareerModuleHost
         CommandDispatcher dispatcher,
         ManagerId ai,
         IReadOnlyList<ICareerModule> modules,
-        CareerInputs? inputs = null)
+        CareerInputs? inputs = null,
+        IReadOnlyList<CareerHuman>? humans = null)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(managers);
@@ -59,10 +68,11 @@ public sealed class CareerModuleHost
 
         var context = new CareerModuleContext(session, managers, dispatcher, ai, inputs ?? new CareerInputs());
         var control = new ControlTable();
-        AssignAll(control, session, ai);
+        var seats = HumanSeats(humans);
         var resolvers = new InboxResolvers();
         context.Provide<IOrganizationControl>(control);
-        context.Provide<IManagerOrganizations>(new FirstOrganizationOnly(session));
+        context.Provide(control);
+        context.Provide<IManagerOrganizations>(new PrincipalOrganizations(new AssignedHumans(seats)));
         context.Provide(resolvers);
         var inbox = InboxBook.From(session.World, resolvers);
         context.Provide(inbox);
@@ -94,7 +104,7 @@ public sealed class CareerModuleHost
             module.Open(context);
         }
 
-        return new CareerModuleHost(context, control);
+        return new CareerModuleHost(context, control, seats);
     }
 
     /// <summary>The services modules provided; a test reads the books from here.</summary>
@@ -113,36 +123,149 @@ public sealed class CareerModuleHost
             _context.TryGet<BoardBook>());
     }
 
-    /// <summary>Hands new organizations to the AI manager and lets the modules file today's commands.</summary>
+    /// <summary>
+    /// Seats a human who took a team after the host was attached (the play shell's wizard, or a resumed save whose
+    /// manager id is not <c>human:{organizationId}</c>). From now on that team is human-run: the AI principal director skips it.
+    /// </summary>
+    public void SeatHuman(ManagerId manager, OrganizationId organization)
+    {
+        if (!_humans.Contains((manager, organization)))
+        {
+            _humans.Add((manager, organization));
+        }
+
+        _control.Assign(manager, organization);
+    }
+
+    /// <summary>Seats humans and already-registered team AIs, then lets the modules file today's commands.</summary>
     public void BeginMorning(CommandQueue queue)
     {
         ArgumentNullException.ThrowIfNull(queue);
-        AssignAll(_control, _context.Session, _context.Ai);
+        Reseat();
         _context.RunMorning(queue);
+    }
+
+    /// <summary>
+    /// Drains the queue. Modules that registered a before/after hook see each command, so a contract command refreshes the
+    /// contract book and writes it back before the next command runs.
+    /// </summary>
+    public IReadOnlyList<CommandResult> Dispatch(CommandDispatcher dispatcher, CommandQueue queue, CommandContext context)
+    {
+        ArgumentNullException.ThrowIfNull(dispatcher);
+        ArgumentNullException.ThrowIfNull(queue);
+        ArgumentNullException.ThrowIfNull(context);
+        var batch = queue.DequeueAll();
+        var results = new List<CommandResult>(batch.Count);
+        foreach (var command in batch)
+        {
+            _context.BeforeCommand(command);
+            results.Add(dispatcher.Dispatch(command, context));
+            _context.AfterCommand(command);
+        }
+
+        return results;
     }
 
     /// <summary>Puts what the morning's commands changed in the books into the session's world.</summary>
     public void EndMorning() => _context.Flush();
 
-    private static void AssignAll(ControlTable control, CareerSession session, ManagerId ai)
+    /// <summary>
+    /// Puts saved seats back onto the one control table. A human named in the run options, or a saved manager id
+    /// <c>human:{organizationId}</c>, runs that organization. An AI manager <c>ai:{organizationId}</c> runs it only when no
+    /// human does. The gate manager <see cref="CareerHost.AiManagerId"/> is not a team principal unless a team has that id.
+    /// </summary>
+    private void Reseat()
     {
-        foreach (var organization in session.World.Organizations)
+        var humanOrgs = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (manager, organization) in _humans)
         {
-            control.Assign(ai, organization.Id);
+            if (Exists(organization))
+            {
+                _control.Assign(manager, organization);
+                humanOrgs.Add(organization.Value);
+            }
+        }
+
+        foreach (var snapshot in _context.Managers.All)
+        {
+            if (snapshot.Kind != ManagerKind.Human || !TrySeat(snapshot.Id.Value, "human:", out var organization) || !Exists(organization))
+            {
+                continue;
+            }
+
+            _control.Assign(snapshot.Id, organization);
+            humanOrgs.Add(organization.Value);
+        }
+
+        foreach (var snapshot in _context.Managers.All)
+        {
+            if (snapshot.Kind != ManagerKind.Ai || !TrySeat(snapshot.Id.Value, PrincipalKeys.ManagerPrefix, out var organization))
+            {
+                continue;
+            }
+
+            if (humanOrgs.Contains(organization.Value) || !Exists(organization))
+            {
+                continue;
+            }
+
+            _control.Assign(snapshot.Id, organization);
         }
     }
 
-    /// <summary>The AI runs whichever organization was created first. Enough for a pool signing; T44 picks per team.</summary>
-    private sealed class FirstOrganizationOnly : IManagerOrganizations
+    private bool Exists(OrganizationId organization)
     {
-        private readonly OrganizationId? _organization;
-
-        public FirstOrganizationOnly(CareerSession session)
+        foreach (var candidate in _context.Session.World.Organizations)
         {
-            var world = session.World;
-            _organization = world.Organizations.Count == 0 ? null : world.Organizations[0].Id;
+            if (candidate.Id == organization)
+            {
+                return true;
+            }
         }
 
-        public OrganizationId? OrganizationOf(string managerId) => _organization;
+        return false;
+    }
+
+    private static List<(ManagerId Manager, OrganizationId Organization)> HumanSeats(IReadOnlyList<CareerHuman>? humans)
+    {
+        var seats = new List<(ManagerId, OrganizationId)>();
+        if (humans is null)
+        {
+            return seats;
+        }
+
+        foreach (var human in humans)
+        {
+            ArgumentNullException.ThrowIfNull(human);
+            seats.Add((new ManagerId(human.ManagerId), FinanceIds.Parse(human.OrganizationId)));
+        }
+
+        return seats;
+    }
+
+    private static bool TrySeat(string managerId, string prefix, out OrganizationId organization)
+    {
+        organization = default;
+        return managerId.StartsWith(prefix, StringComparison.Ordinal)
+            && managerId.Length > prefix.Length
+            && FinanceIds.TryParse(managerId[prefix.Length..], out organization);
+    }
+
+    /// <summary>The humans named for this run. Any other manager is unknown here; an AI principal id is read by <see cref="PrincipalOrganizations"/>.</summary>
+    private sealed class AssignedHumans : IManagerOrganizations
+    {
+        private readonly Dictionary<string, OrganizationId> _byManager;
+
+        public AssignedHumans(IReadOnlyList<(ManagerId Manager, OrganizationId Organization)> humans)
+        {
+            _byManager = new Dictionary<string, OrganizationId>(humans.Count, StringComparer.Ordinal);
+            foreach (var (manager, organization) in humans)
+            {
+                _byManager[manager.Value] = organization;
+            }
+        }
+
+        public OrganizationId? OrganizationOf(string managerId) =>
+            _byManager.TryGetValue(managerId, out var organization) ? organization : null;
     }
 }

@@ -23,6 +23,7 @@ internal static class Program
             I18nCheckCommand.Name => I18nCheckCommand.Execute(args, Console.Out, Console.Error),
             InitWorldCommand.Name => InitWorldCommand.Execute(args, Console.Out, Console.Error),
             RunCommand.Name => RunCommand.Execute(args, Console.Out, Console.Error),
+            PlayCommand.Name => PlayCommand.Execute(args, Console.In, Console.Out, Console.Error),
             _ => Unknown(args[0]),
         };
     }

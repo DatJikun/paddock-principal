@@ -15,9 +15,10 @@ namespace Paddock.Tests.Racing;
 public class RaceSimulatorTests
 {
     // The same golden hashes WeekendRunTests pins for the fixture races. The simulator must reproduce them.
-    private const string Golden1955 = "4dd35b0e98afcb584155821671803de91ba334f78326d3a2a6c960cdc7974afb";
-    private const string Golden1988 = "11a85fb41aafb04382cf00a394ed54f0432d859db38bb472e460ee1a0eecd998";
-    private const string Golden2012 = "119db93981d1adf3cc19396483d798d199aa0c31f41ea918f624e51a4b58e16f";
+    // Same tapes as WeekendRunTests. Moved in #191 because sudden failures drop the pre-failure pace loss.
+    private const string Golden1955 = "4bc04338fb3c1006496eb9f70324d7cc585c8831153bd23b50a7e061c27f12a2";
+    private const string Golden1988 = "b28417dab12b75b2b5c547f8c6a5af7988d34d871e0aa30dd0a45736506e9c30";
+    private const string Golden2012 = "8d1b5c55766db4e1edff8f4bf3732cc0629d3fb8e132a1dd9aae7a3945ece93b";
 
     [Theory]
     [Trait("Category", "Slow")]

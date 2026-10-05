@@ -22,21 +22,26 @@ namespace Paddock.Tests.Career;
 /// rewrites a golden hash: TECH 6.2 says how a changed one is reviewed).
 /// <para>
 /// History of <see cref="StoredWorldHash"/>: it changed in #160, when the career modules joined the run. The fixture team now
-/// has its two cars (concept approved by the AI manager, ceilings from the Development stream) and a board with its principal on
+/// has its two cars (concept approved by the team's AI manager, ceilings from the Development stream) and a board with its principal on
 /// the record, which are world sections and so are in the hash. The fixture has no era data, so finance and sponsors stay out.
 /// It changed again in #173 (B3): the ceiling draw is a child of Development tagged with the organization, the season and the
 /// concept axes, and approval no longer advances <c>NextCeilingDraw</c>. The same concept cannot be re-rolled, so the stored
 /// ceiling and the cars-section counter differ from the #160 hash. Two runs with one seed still match (INV-002). Seat sync (B4)
-/// does not move this fixture: its one contracted driver stays seated. It changed again in #199: empty staff chairs are
-/// filled and the race-engineer pairing is a world section, so both are in the hash. The retired string stayed
-/// chief,leap,vet. Two runs with one seed still match (INV-002).
+/// does not move this fixture: its one contracted driver stays seated.
+/// It changed again in #184: the AI principal of the fixture team reviews and writes the <c>principals</c> section, and contract
+/// renewals are that principal's commands instead of the renewal placeholder. The gate manager <c>ai:paddock</c> stays, and the
+/// team adds <c>ai:alpha</c>.
+/// It changed again for the season-target choice (#197): an AI team still takes the expected finish, but the objective
+/// records that choice, so the objectives section text differs.
+/// It changed again in #199: empty staff chairs are filled and the race-engineer pairing is a world section, so both are
+/// in the hash. The retired string stayed chief,leap,vet. Two runs with one seed still match (INV-002).
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "54dc21c80e9a15834db57df4af57c44935f0e63fa4df4ef50817729644256136";
+    private const string StoredWorldHash = "46b0ad6ef655965b5d55eb8cee3f08ba71e872c4eddf5b059392b249c2cf1e0d";
 
     private const string StoredRetired = "chief,leap,vet";
 
@@ -184,7 +189,7 @@ public class CareerRunTests
         Assert.Equal(new GameDate(1961, 1, 1), left.Date);
         Assert.Equal(11, left.Years);
         Assert.Equal(0, left.Humans);
-        Assert.Equal(1, left.Ai);
+        Assert.Equal(2, left.Ai);
         Assert.True(left.Commands > 0);
         Assert.True(
             left.Hash == StoredWorldHash && left.Retired == StoredRetired,

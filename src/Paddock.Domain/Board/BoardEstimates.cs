@@ -83,8 +83,29 @@ public static class BoardEstimates
     /// <summary>ESTIMATE: years of a multi-year objective.</summary>
     public const int MultiYearSeasons = 3;
 
-    /// <summary>ESTIMATE: confidence change when the season objective is met (15 points) or failed.</summary>
+    /// <summary>ESTIMATE: confidence change when the season objective is met (15 points) or failed. This is the expected target.</summary>
     public const int SeasonObjectiveTenths = 150;
+
+    /// <summary>ESTIMATE (PP-058): days the player has to pick a season target. The default, if the decision lapses, is the expected target.</summary>
+    public const int SeasonTargetDecisionDays = 14;
+
+    /// <summary>ESTIMATE (PP-058): places easier than the expected finish that the safe target asks for.</summary>
+    public const int SafePlacesEasier = 2;
+
+    /// <summary>ESTIMATE (PP-058): places harder than the expected finish that the ambitious target asks for.</summary>
+    public const int AmbitiousPlacesHarder = 2;
+
+    /// <summary>ESTIMATE (PP-058): confidence gained when the safe target is met (5 points). Less than <see cref="SeasonObjectiveTenths"/>.</summary>
+    public const int SafeObjectiveTenths = 50;
+
+    /// <summary>ESTIMATE (PP-058): confidence gained when the ambitious target is met (30 points). More than <see cref="SeasonObjectiveTenths"/>.</summary>
+    public const int AmbitiousObjectiveTenths = 300;
+
+    /// <summary>ESTIMATE (PP-058): confidence lost when the safe target is failed (5 points).</summary>
+    public const int SafeFailTenths = 50;
+
+    /// <summary>ESTIMATE (PP-058): confidence lost when the ambitious target is failed (40 points). Failing it can also dismiss an unprotected principal.</summary>
+    public const int AmbitiousFailTenths = 400;
 
     /// <summary>ESTIMATE: confidence change when the multi-year objective is met (20 points) or failed.</summary>
     public const int MultiYearObjectiveTenths = 200;

@@ -15,7 +15,8 @@ public static class FinanceStandings
         int season,
         int races,
         IReadOnlyList<StandingsRow> constructors,
-        IReadOnlyList<string> distinctWinningOrganizationIds)
+        IReadOnlyList<string> distinctWinningOrganizationIds,
+        IReadOnlyList<StandingsRow>? drivers = null)
     {
         ArgumentNullException.ThrowIfNull(constructors);
         ArgumentNullException.ThrowIfNull(distinctWinningOrganizationIds);
@@ -23,7 +24,10 @@ public static class FinanceStandings
             .Select(row => new ConstructorTitleRow(FinanceIds.Parse(row.Id), row.Position, row.CountedPoints))
             .ToArray();
         var winners = distinctWinningOrganizationIds.Select(FinanceIds.Parse).ToArray();
-        return new SeasonEnded(season, races, rows, winners);
+        var driverRows = (drivers ?? [])
+            .Select(row => new DriverTitleRow(row.Id, row.Position, row.CountedPoints))
+            .ToArray();
+        return new SeasonEnded(season, races, rows, winners, driverRows);
     }
 
     public static RaceResultsPublished Race(

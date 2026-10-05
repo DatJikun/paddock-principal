@@ -2,6 +2,7 @@ using Paddock.Application.Access;
 using Paddock.Application.Commands;
 using Paddock.Application.Finance;
 using Paddock.Application.Objectives;
+using Paddock.Domain.Objectives;
 using Paddock.Domain.Sponsors;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -32,7 +33,8 @@ public sealed record SponsorTalkView(
     long CurrentAnnualCents,
     long CappedAnnualCents,
     bool? RivalKnown,
-    TranslationMessage Note);
+    TranslationMessage Note,
+    TranslationMessage? Objective = null);
 
 public sealed record SponsorOfferView(string Id, string SponsorName, long AnnualCents, DateOnly ValidUntil);
 
@@ -126,7 +128,8 @@ public static class SponsorQuery
             talk.AnnualCentsOn(today),
             talk.CappedAnnualCents,
             insight && talk.Rival != RivalState.Undecided ? talk.Rival == RivalState.Present : null,
-            TranslationMessage.Of(insight && talk.Rival == RivalState.Present ? SponsorKeys.ViewRivalKnown : SponsorKeys.ViewTermsEstimate))).ToArray();
+            TranslationMessage.Of(insight && talk.Rival == RivalState.Present ? SponsorKeys.ViewRivalKnown : SponsorKeys.ViewTermsEstimate),
+            ObjectiveOf(catalog.Find(talk.SponsorId), talk.Organization, environment, today))).ToArray();
 
         var offerViews = section.OpenOffersOf(subject).Select(offer => new SponsorOfferView(
             offer.Id,
@@ -142,6 +145,23 @@ public static class SponsorQuery
     }
 
     private static DateOnly Day(GameDate date) => new(date.Year, date.Month, date.Day);
+
+    /// <summary>The scaled target the player sees before signing. The same function <see cref="SponsorRules.Sign"/> uses.</summary>
+    private static TranslationMessage? ObjectiveOf(SponsorDefinition? sponsor, OrganizationId organization, SponsorEnvironment environment, GameDate today)
+    {
+        if (sponsor?.Objective is not { } spec)
+        {
+            return null;
+        }
+
+        var scaled = SponsorRules.ForTeam(spec, organization, environment, today);
+        var predicate = SponsorRules.PredicateOf(scaled);
+        var (key, parameter) = ObjectiveKeys.PredicateText(predicate);
+        var value = predicate is NumericPredicate numeric
+            ? numeric.Target.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            : scaled.Value;
+        return TranslationMessage.Of(key, (parameter, value));
+    }
 
     /// <summary>
     /// The facts <see cref="SponsorRules.CanBegin"/> rereads for every sponsor. Collected once per view, in the same

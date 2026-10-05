@@ -6,6 +6,7 @@ using Paddock.Domain.Principals;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Persistence;
+using Paddock.Simulation.Codec;
 using Paddock.Tests.Persistence;
 
 namespace Paddock.Tests.Principals;
@@ -149,6 +150,27 @@ public class PrincipalsSectionTests : IDisposable
         var encoded = codec.Encode(command);
         Assert.Equal("principals.review/1", encoded.Tag);
         Assert.Equal(command, codec.Decode(encoded.Tag, encoded.Text, command.ManagerId, command.SubmissionNumber, command.IssuedOn));
+    }
+
+    [Fact]
+    public void AReviewSavedBeforeFollowUpsWereStoredDecodesAsUnknown()
+    {
+        var body = FlatJson.Write(
+            ("organization", "pt_alfa"),
+            ("archetype", "Opportunist"),
+            ("person", "gen:4"),
+            ("nextReview", "1956-02-05"),
+            ("sacrificed", 1956),
+            ("scouted", 1956),
+            ("roles", "ChiefDesigner,TechnicalDirector"));
+        var command = (RecordPrincipalReviewCommand)CommandCodec.Production.Decode(
+            "principals.review/1",
+            body,
+            new ManagerId("ai:pt_alfa"),
+            5,
+            new DateOnly(1956, 1, 6));
+
+        Assert.Equal(-1, command.FollowUps);
     }
 
     private sealed class Rig

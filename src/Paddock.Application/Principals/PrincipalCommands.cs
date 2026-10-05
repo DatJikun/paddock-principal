@@ -85,6 +85,12 @@ public sealed record RecordPrincipalReviewCommand : ICommand
     /// <summary>Key staff roles the principal considers part of the team, sorted and joined by commas.</summary>
     public string StaffRoles { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Follow-up reviews already filed in a row, after this review. <c>-1</c> means a command saved before the count was stored
+    /// (a rejected filing is not in the log, so the count cannot be rebuilt from accepted commands alone).
+    /// </summary>
+    public int FollowUps { get; init; } = -1;
+
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
 
@@ -213,7 +219,7 @@ public sealed class RecordPrincipalReviewHandler : CommandHandler<RecordPrincipa
             return TranslationMessage.Of(PrincipalKeys.BadDate);
         }
 
-        if (command.SacrificedSeason < 0 || command.ScoutSeason < 0)
+        if (command.SacrificedSeason < 0 || command.ScoutSeason < 0 || command.FollowUps < -1)
         {
             return TranslationMessage.Of(PrincipalKeys.BadSeason);
         }
@@ -267,10 +273,14 @@ public static class PrincipalCommandCodecs
                 ("nextReview", command.NextReview.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
                 ("sacrificed", command.SacrificedSeason),
                 ("scouted", command.ScoutSeason),
-                ("roles", command.StaffRoles)),
+                ("roles", command.StaffRoles),
+                ("followUps", command.FollowUps)),
             (body, manager, issued) =>
             {
-                var fields = FlatJson.Read(body, "organization", "archetype", "person", "nextReview", "sacrificed", "scouted", "roles");
+                var stored = body.Contains("\"followUps\"", StringComparison.Ordinal);
+                var fields = stored
+                    ? FlatJson.Read(body, "organization", "archetype", "person", "nextReview", "sacrificed", "scouted", "roles", "followUps")
+                    : FlatJson.Read(body, "organization", "archetype", "person", "nextReview", "sacrificed", "scouted", "roles");
                 return new RecordPrincipalReviewCommand
                 {
                     ManagerId = manager,
@@ -282,6 +292,7 @@ public static class PrincipalCommandCodecs
                     SacrificedSeason = fields.Int32("sacrificed"),
                     ScoutSeason = fields.Int32("scouted"),
                     StaffRoles = fields.String("roles"),
+                    FollowUps = stored ? fields.Int32("followUps") : -1,
                 };
             }),
     ];

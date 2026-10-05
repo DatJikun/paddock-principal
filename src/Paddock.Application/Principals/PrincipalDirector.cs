@@ -257,9 +257,10 @@ public sealed class PrincipalDirector
             follow = false;
         }
 
-        _streaks[key] = filer.Filed > 0 ? streak + 1 : 0;
+        var nextStreak = filer.Filed > 0 ? streak + 1 : 0;
+        _streaks[key] = nextStreak;
         var next = ReviewSchedule.Next(knowledge.Day, follow, vacancyOpen, sponsorTalkOpen, events);
-        filer.RecordReview(archetype, principal?.Id, next, sacrificed, scoutSeason, roles);
+        filer.RecordReview(archetype, principal?.Id, next, sacrificed, scoutSeason, roles, nextStreak);
         return filer.Filed + 1;
     }
 
@@ -341,7 +342,14 @@ internal sealed class CommandFiler
         Filed++;
     }
 
-    public void RecordReview(PrincipalArchetype archetype, PersonId? person, DateOnly next, int sacrificed, int scoutSeason, string roles) =>
+    public void RecordReview(
+        PrincipalArchetype archetype,
+        PersonId? person,
+        DateOnly next,
+        int sacrificed,
+        int scoutSeason,
+        string roles,
+        int followUps) =>
         _queue.Enqueue(new RecordPrincipalReviewCommand
         {
             ManagerId = Manager,
@@ -353,6 +361,7 @@ internal sealed class CommandFiler
             SacrificedSeason = sacrificed,
             ScoutSeason = scoutSeason,
             StaffRoles = roles,
+            FollowUps = followUps,
         });
 
     // ---------------------------------------------------------------- market

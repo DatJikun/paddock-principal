@@ -13,6 +13,7 @@ Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić
 
 | Plik | Co zawiera |
 |---|---|
+| [GUIDE.md](GUIDE.md) | przewodnik dla testerów: co wybierasz w grze, jak to działa, wykresy i pytania o opinię |
 | [VISION.md](VISION.md) | kierunek, filary i wszystkie przyjęte decyzje (PP-xxx) |
 | [ROADMAP.md](ROADMAP.md) | fazy z bramkami i otwarte pytania |
 | [DESIGN.md](DESIGN.md) | systemy gry: świat, historia, epoki, samochód, ludzie, wyścig, AI, ekonomia |
@@ -21,6 +22,8 @@ Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić
 | [ui/HANDOFF_UI.md](ui/HANDOFF_UI.md) | stan prototypu UI i pełne uwagi właściciela |
 
 Dokumentacji ma być mało (PP-017). Szczegóły żyją w kodzie i historii gita.
+
+**Wersja HTML (PP-056):** `node tools/docs/build-docs.mjs`, potem otwórz `build/docs/index.html`. Strony powstają z plików .md, a liczby i wykresy w przewodniku są czytane z kodu gry.
 
 ## Stack
 

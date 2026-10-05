@@ -30,7 +30,12 @@ people, where history can be changed. The owner (DatJikun) reviews; agents build
 ## Hard rules
 - **Invariants in TECH §3 are non-negotiable**: no game logic in UI, determinism,
   isolated RNG streams, truth vs knowledge, passive Spy, stable IDs.
-- **No new docs.** Fold design changes into the existing five files (PP-017).
+- **No new docs.** Fold design changes into the existing files: README, VISION, ROADMAP,
+  DESIGN, TECH and GUIDE (PP-017, PP-056).
+- **GUIDE.md describes the player-facing systems in plain Polish, around what the player
+  chooses**, for friends and testers: no code, issue numbers or PP references. Give numbers as
+  `{Class.Const}` placeholders. Run `node tools/docs/build-docs.mjs`: the build fails if a
+  constant disappears.
   A proposal that changes a decision = a new PP entry, never an edit of an old one.
 - **Code, identifiers, commits in English. Docs in Polish.** Player-facing text
   goes through translation keys in both `pl` and `en` (PP-021).

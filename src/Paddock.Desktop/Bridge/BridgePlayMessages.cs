@@ -69,6 +69,9 @@ public sealed record CareerSavedView(string Name, string Hash);
 /// <summary>Argument of <c>raceResult</c>. Both null means the latest finished round.</summary>
 public sealed record RaceResultCall(string ManagerId, int? Season, int? Round);
 
+/// <summary>Argument of <c>track</c>. A null layout means the next race's layout.</summary>
+public sealed record TrackCall(string ManagerId, string? LayoutId);
+
 /// <summary>The player's own staff, plus rival names and roles.</summary>
 public sealed record StaffListView(IReadOnlyList<Paddock.Application.Staff.StaffPersonView> People);
 

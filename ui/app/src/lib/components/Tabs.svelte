@@ -6,10 +6,12 @@
   let {
     group,
     items,
+    fill = false,
     value = $bindable(),
   }: {
     group: string;
     items: Item[];
+    fill?: boolean;
     value: string;
   } = $props();
 
@@ -20,8 +22,12 @@
     const current = root.querySelector('button.on') as HTMLElement | null;
     const marker = root.querySelector('.ind') as HTMLElement | null;
     if (!current || !marker) return;
+    /* A long set may wrap onto a second row (the start form at a narrow width), so the marker follows both axes. */
     marker.style.width = `${current.offsetWidth}px`;
-    marker.style.transform = `translateX(${current.offsetLeft}px)`;
+    marker.style.height = `${current.offsetHeight}px`;
+    marker.style.top = '0';
+    marker.style.bottom = 'auto';
+    marker.style.transform = `translate(${current.offsetLeft}px, ${current.offsetTop}px)`;
     root.classList.add('ready');
   }
 
@@ -33,7 +39,7 @@
   });
 </script>
 
-<div class="tabs" role="tablist" data-group={group} bind:this={root}>
+<div class="tabs" class:fill role="tablist" data-group={group} bind:this={root}>
   {#each items as item (item.value)}
     <button
       role="tab"

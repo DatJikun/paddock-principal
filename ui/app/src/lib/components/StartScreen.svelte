@@ -52,7 +52,7 @@
   let family = $state('');
   let nationality = $state('');
   let tilt = $state('none');
-  let preset = $state('Chaos');
+  let preset = $state('Balanced');
   let saveName = $state('');
 
   let ready = $derived(

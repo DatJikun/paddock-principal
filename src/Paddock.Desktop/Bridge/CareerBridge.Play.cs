@@ -42,7 +42,11 @@ public sealed partial class CareerBridge
     private int _suggestedYear = DefaultYear;
     private ulong _suggestedSeed = DefaultSeed;
 
+    private Dictionary<string, TrackFacts> _tracks = new(StringComparer.Ordinal);
+
     private IReadOnlyDictionary<string, CircuitLabel> Circuits => _circuits;
+
+    private IReadOnlyDictionary<string, TrackFacts> Tracks => _tracks;
 
     /// <summary>
     /// A player command, or a career command (new, load, save). Null when this host does not own the name.
@@ -462,15 +466,34 @@ public sealed partial class CareerBridge
     private void RememberCircuits(AuthoredData data)
     {
         var circuits = new Dictionary<string, CircuitLabel>(StringComparer.Ordinal);
+        var tracks = new Dictionary<string, TrackFacts>(StringComparer.Ordinal);
+        var shapes = new Dictionary<string, TrackGeometryFile>(StringComparer.Ordinal);
+        foreach (var file in data.TrackGeometries)
+        {
+            shapes[file.LayoutId] = file;
+        }
+
         foreach (var circuit in data.Circuits.Circuits)
         {
             foreach (var layout in circuit.Layouts)
             {
                 circuits[layout.LayoutId] = new CircuitLabel(circuit.CircuitId, circuit.Name, circuit.Country);
+                var points = shapes.TryGetValue(layout.LayoutId, out var shape)
+                    ? shape.ControlPoints.Where(point => point.Length >= 2).Select(point => new TrackPointView(point[0], point[1])).ToArray()
+                    : [];
+                tracks[layout.LayoutId] = new TrackFacts(
+                    layout.LayoutId,
+                    circuit.CircuitId,
+                    circuit.Name,
+                    circuit.Country,
+                    layout.LengthKm,
+                    layout.Character.ToArray(),
+                    points);
             }
         }
 
         _circuits = circuits;
+        _tracks = tracks;
     }
 
     private ICommand? Build(string name, JsonElement args, out TranslationMessage? error)

@@ -21,7 +21,6 @@ public static class ShellKeys
     [TranslationKey] public const string Market = "shell.nav.market";
     [TranslationKey] public const string Monthly = "shell.nav.monthly";
     [TranslationKey] public const string Fia = "shell.nav.fia";
-    [TranslationKey] public const string Chronicle = "shell.nav.chronicle";
     [TranslationKey] public const string Settings = "shell.nav.settings";
     [TranslationKey] public const string Cash = "shell.cash";
     [TranslationKey] public const string Next = "shell.next";

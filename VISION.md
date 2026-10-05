@@ -18,8 +18,8 @@ Trzydzieści lat później pewien Brazylijczyk wygrywa dla Ciebie mistrzostwo w 
 ### 1. Symulacja tworzy wynik
 Historia nie jest skryptem. Prawdziwe wydarzenia są punktem startowym i punktem odniesienia, a nie wyrokiem. Nikt nie wygrywa, bo „tak było naprawdę”. Wygrywa, bo w tym świecie miał najlepszy samochód, talent i ludzi.
 
-### 2. Historia, którą da się zmienić, i gra, która to pokazuje
-Wyróżnik gry to nie prawdziwe nazwiska, tylko **rozbieżność**. Kronika rozbieżności porównuje Twoją oś czasu z prawdziwą: tytuły, zespoły, które nie powstały, technologie wymyślone wcześniej, kariery, które potoczyły się inaczej.
+### 2. Historia, którą da się zmienić
+Wyróżnik gry to nie prawdziwe nazwiska, tylko to, że **od pierwszego dnia historia toczy się po swojemu**. Gra nie porównuje Twojej osi czasu z prawdziwą i nie ocenia, czy świat jest „zgodny z historią” (PP-062). Gracz zna przeszłość sam.
 
 ### 3. Jeden świat, jeden silnik
 Tryb historyczny i proceduralny to ten sam świat. Różnią się tylko **źródłem ludzi** (harmonogram prawdziwych osób albo generator) i **osią czasu epok** (przepisy, technologie, ekonomia). Po wyczerpaniu prawdziwych danych generator płynnie przejmuje pałeczkę, więc kariera jest nieskończona.
@@ -52,7 +52,7 @@ Silnik działa również na fikcyjnych danych. Prawdziwe nazwiska, zespoły i to
 Najbliższy konkurent to **Team Principal: A Racing Manager** (Steam, wczesny dostęp od 02.2026): głęboki menedżer w stylu Grand Prix World, w którym da się edytować wszystko, a epoki są migawkami sezonów robionymi przez modderów. Nie ścigamy się z nim na „więcej funkcji” ani na „edytuj wszystko”. Wyróżniamy się trzema rzeczami, w tej kolejności:
 
 1. **Najlepszy UI w gatunku.** Czytelny, gęsty, piękny; każda blokada i każda decyzja wyjaśniona (STATE / WHY / FORECAST). Ich największa słabość to brak onboardingu i niewyjaśnione blokady.
-2. **Ciągła historia jako rdzeń gry, a nie mod:** ludzie według harmonogramu, epoki, technologie, propozycje historyczne, kronika rozbieżności.
+2. **Ciągła historia jako rdzeń gry, a nie mod:** ludzie według harmonogramu, epoki, technologie, propozycje historyczne.
 3. **Polski i angielski.**
 
 ## Czego NIE robimy
@@ -365,3 +365,17 @@ Szczegóły w DESIGN §5.3.
 - **Zastępca:** to jedyny wyjątek od zasady PP-050 „bez zmian kierowców w sezonie”. Przed każdym wyścigiem bolid obsadza kierowca rezerwowy zespołu, a w razie braku – jednorazowy zastępca z wolnych agentów lub puli talentów. Gracz decyduje w skrzynce, AI szef wybiera i zostawia ślad. Gdy brak kandydata, bolid nie startuje. Regularny kierowca wraca automatycznie po wyzdrowieniu.
 - **Wszystkie liczby to szacunki do strojenia.**
 
+**PP-062: Bez testu wierności historii i bez kroniki rozbieżności** (zastępuje PP-012; usuwa kronikę rozbieżności z wizji, DESIGN §12, ROADMAP fazy 3 i 5 oraz TECH §8; decyzja właściciela z 2026-10-05).
+- **Gra nie porównuje świata z prawdziwą historią.** Nie ma raportu wierności (rozkład mistrzów, dominacja względem rzeczywistości), bramki jakości opartej na nim ani ekranu, który zestawia Twoją oś czasu z prawdziwą. Gracz zna przeszłość sam.
+- **Skutki decyzji są emergentne.** Bramka fazy 4 (#113) nie ustala z góry, ile rzeczy ma się rozjechać po innej decyzji. Raport pokazuje, co się rozjechało, a ocenia właściciel.
+- **Gracz może przejąć dowolny zespół stawki.** Scenariusze testowe biorą zespół jako parametr, a nie gotowe „historie”.
+- **Zostaje kalibracja silnika wyścigu** (`calibrate-race`, #122): odsetek ukończeń, awarie, przewagi. To strojenie mechaniki wyścigu, a nie ocena, kto powinien wygrać.
+
+**PP-063: Menu, nowa kariera, zapis i ustawienia na MVP** (decyzja właściciela z 2026-10-05; doprecyzowuje PP-060).
+- **Menu główne:** Kontynuuj (ostatni zapis), Nowa kariera, Wczytaj, Ustawienia, Wyjdź. W trakcie gry to samo menu pod Esc: Zapisz, Zapisz jako, Wczytaj, Ustawienia, Wyjdź do menu.
+- **Nowa kariera w krokach:** Ty (imię, nazwisko, narodowość, profil szefa) → Świat (rok, ustawienie świata, „Zaawansowane” ze wszystkimi parametrami kariery) → Zespół → podsumowanie i „Rozpocznij”.
+- **Zespoły wybiera się z ładnych kart ze wszystkim, co ważne:** kierowcy, auto i silnik, budżet, cel zarządu, siła w poprzednim sezonie. Karta pokazuje tylko to, co szef zespołu może wiedzieć.
+- **Zapis tylko ręczny.** Bez autozapisu na MVP.
+- **Ustawienia na MVP:** język. Barwy epoki lub zespołu, skórka epoki i animowane tło są „kiedyś”. Tryb opinii zamiast liczb też kiedyś; na razie zawsze liczby.
+- **Na MVP wyścig liczy się w całości od razu,** bez pit-stopów i decyzji w trakcie. Rdzeń MVP to kontrakty, sztab, infrastruktura i rozwój bolidu.
+- **Po MVP:** oglądany wyścig z prędkością wybieraną na ekranie wyścigu (nie w ustawieniach) i ręcznymi pit-stopami gracza. Strateg, który decyduje za gracza, jest jeszcze później.

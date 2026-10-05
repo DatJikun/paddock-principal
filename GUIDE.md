@@ -234,7 +234,8 @@ Nowe auto | pierwszego dnia po produkcji, nigdy w środku weekendu
 Konto rozwoju | wiedza na później | traci wartość, gdy rywale idą do przodu
 Zysk | część dystansu do sufitu koncepcji | blisko sufitu każda dziesiątka kosztuje więcej
 Ludzie | skracają czas | nie podnoszą jakości
-Porażka | {DevelopmentEstimates.BaseRisk|%} szansy przed umiejętnościami | koncepcja {DevelopmentEstimates.ConceptRiskMultiple}× ryzykowniejsza
+Porażka | {DevelopmentEstimates.BaseRisk|%} szansy przed umiejętnościami | koncepcja {DevelopmentEstimates.ConceptRiskMultiple}× ryzykowniejsza, a w 1950 jeszcze {DevelopmentEstimates.EarlyConceptRiskScale}×
+Czas koncepcji | {DevelopmentEstimates.ConceptDesignDays1955|dni} w 1955, {DevelopmentEstimates.ConceptDesignDays2025|dni} w 2025 | przy typowej załodze epoki; zysk w 1950 to {DevelopmentEstimates.EarlyGainScale} późniejszego
 Projekty naraz | 1 na {DevelopmentEstimates.HeadcountPerSlot|osób} inżynierów | najwyżej {DevelopmentEstimates.MaxSlots}
 ```
 

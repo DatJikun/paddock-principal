@@ -140,7 +140,7 @@
   "world.init.gaps.header": "Gaps (count and first ids):",
   "world.init.gap.teams_without_staff": "Teams with no key staff in the data",
   "world.init.gap.drivers_without_ratings": "Real drivers with no rating (a flat stand-in was used)",
-  "world.init.gap.staff_without_ratings": "Real staff with no rating (all attributes set to a placeholder)",
+  "world.init.gap.staff_without_ratings": "Real staff with no authored rating (attributes drawn in the team's band)",
   "world.init.gap.staff_unmapped_role": "Staff stints with a role the world does not model (person:role@org)",
   "world.init.gap.staff_organization_absent": "Staff stints at an organization that is not in the world that season (person@org)",
   "world.init.gap.staff_role_unavailable": "Generated staff roles that did not exist yet (org:role)",

@@ -153,17 +153,20 @@ public static class WorldInitializer
             }
 
             var slots = StaffSlots();
-            if (_config.PeopleSource == PeopleSource.FullyGenerated)
-            {
-                AddGeneratedStaff(slots);
-            }
-            else
+            if (_config.PeopleSource != PeopleSource.FullyGenerated)
             {
                 AddKnownStaff(slots);
             }
 
+            FillStaff();
             ReportTeamsWithoutStaff();
             AddCars();
+            var pairings = StaffRoster.Pair(_world, GameDate.SeasonStart(_start));
+            if (!pairings.IsEmpty)
+            {
+                _world = _world.WithSection(pairings);
+            }
+
             return new WorldInitResult(_world, Report(), _pool.ToArray(), player, _supplies.ToArray());
         }
 
@@ -760,15 +763,21 @@ public static class WorldInitializer
                         continue;
                     }
 
-                    if (!found)
-                    {
-                        Gap(WorldInitGapCodes.StaffOrganizationAbsent, member.Id + "@" + stint.Org);
-                        continue;
-                    }
-
                     if (!TryMapRole(stint.Role, out var role))
                     {
                         Gap(WorldInitGapCodes.StaffUnmappedRole, member.Id + ":" + stint.Role + "@" + stint.Org);
+                        continue;
+                    }
+
+                    if (role == StaffRole.EngineDesigner && stint.Series is null)
+                    {
+                        organization = EngineMaker(stint.Org);
+                        found = organization.IsAssigned;
+                    }
+
+                    if (!found)
+                    {
+                        Gap(WorldInitGapCodes.StaffOrganizationAbsent, member.Id + "@" + stint.Org);
                         continue;
                     }
 
@@ -797,17 +806,8 @@ public static class WorldInitializer
                 var roles = group.Select(slot => slot.Role).Distinct().OrderBy(role => (int)role).ToArray();
                 var (given, family) = SplitName(member.Name);
                 var nationality = NationalityOrUnknown(member.Nationality, member.Id);
-                var attributes = new List<NamedAttribute>();
-                foreach (var role in roles)
-                {
-                    foreach (var key in StaffCatalogue.AttributeKeys(role))
-                    {
-                        if (attributes.All(attribute => !string.Equals(attribute.Key, key, StringComparison.Ordinal)))
-                        {
-                            attributes.Add(new NamedAttribute(key, WorldInitEstimates.UnratedStaffAttribute));
-                        }
-                    }
-                }
+                var band = StaffRoster.BandOf(_world, group.First().Organization);
+                var attributes = StaffRoster.AttributesForKnown(_people, member.Id, roles, band).ToList();
 
                 var spec = new PersonSpec(
                     given,
@@ -822,60 +822,91 @@ public static class WorldInitializer
                 _realIds.Add(member.Id);
                 _staffPeople++;
                 Gap(WorldInitGapCodes.StaffWithoutRatings, member.Id);
+                var known = attributes.Select(attribute => new KnownAttribute(attribute.Key, new AttributeBand(attribute.Value, attribute.Value))).ToArray();
                 foreach (var slot in group)
                 {
                     AddStaffContract(id, slot.Organization, slot.Role);
+                    _world = _world.SetKnowledge(new PersonKnowledge(slot.Organization, id, known, null));
                 }
             }
         }
 
-        private void AddGeneratedStaff(List<StaffSlot> slots)
+        private void FillStaff()
         {
             var countries = _currentTeams.Values.ToDictionary(plan => plan.Id, plan => plan.Country, Ordinal);
-            var unique = slots
-                .Select(slot => (slot.Organization, slot.Role))
-                .Distinct()
-                .OrderBy(slot => slot.Organization.Value, Ordinal)
-                .ThenBy(slot => (int)slot.Role);
-            foreach (var (organization, role) in unique)
+            var filled = StaffRoster.Fill(
+                _world,
+                _people,
+                _names,
+                _blocklist,
+                GameDate.SeasonStart(_start),
+                id => countries.TryGetValue(id.Value, out var country) ? country : null);
+            _world = filled.World;
+            _staffPeople += filled.Hired.Count;
+            foreach (var person in filled.Hired)
             {
-                if (StaffCatalogue.AvailableFrom(role) > _start)
-                {
-                    Gap(WorldInitGapCodes.StaffRoleUnavailable, organization.Value + ":" + role);
-                    continue;
-                }
-
-                countries.TryGetValue(organization.Value, out var country);
-                var generator = new StaffGenerator(new StableIdAllocator(_world.Ids.NextPerson), _names, _blocklist);
-                var request = GenerationRequest.ForNew(
-                    WorldInitEstimates.GeneratedStaffQuality,
-                    NationalityWeights(country),
-                    _start);
-                var staff = generator.Generate(_people, _start, role, request);
-                var attributes = staff.Attributes.ToList();
-                if (attributes.All(attribute => !string.Equals(attribute.Key, StaffCatalogue.InnovationKey, StringComparison.Ordinal)))
-                {
-                    attributes.Add(new NamedAttribute(StaffCatalogue.InnovationKey, staff.Innovation));
-                }
-
-                var spec = new PersonSpec(
-                    staff.GivenName,
-                    staff.FamilyName,
-                    ToGameDate(staff.BirthDate),
-                    staff.Nationality,
-                    false,
-                    null,
-                    [PersonRole.Staff(role)],
-                    new PersonTruth(attributes, attributes));
-                (_world, var id) = _world.AddPerson(spec);
-                if (!string.Equals(id.Value, staff.Id, StringComparison.Ordinal))
-                {
-                    throw new InvalidOperationException("Generated person id " + staff.Id + " does not match the world id " + id.Value + ".");
-                }
-
-                _staffPeople++;
-                AddStaffContract(id, organization, role);
+                var contract = _world.Contracts.First(item => item.PersonId == person);
+                _staffedOrganizations.Add(contract.OrganizationId.Value);
             }
+        }
+
+        /// <summary>
+        /// The engine maker for a team stint. A works engine stays with the team (PP-019). A customer engine goes to
+        /// <c>supplier:{slug}</c>. A maker whose team is not racing this season is still created, so the designer has an employer.
+        /// </summary>
+        private OrganizationId EngineMaker(string constructorId)
+        {
+            if (_currentTeams.ContainsKey(constructorId) && _teamIds.TryGetValue(constructorId, out var team))
+            {
+                var links = _supplies.Where(link => link.Constructor == team).ToArray();
+                if (links.Any(link => string.Equals(link.SupplyType, "works", StringComparison.Ordinal)))
+                {
+                    return team;
+                }
+
+                if (links.Length > 0)
+                {
+                    return links.OrderBy(link => link.Supplier.Value, Ordinal).First().Supplier;
+                }
+
+                return team;
+            }
+
+            var row = _data.Engines.Entries
+                .Where(entry => string.Equals(entry.ConstructorId, constructorId, StringComparison.Ordinal) && entry.Year <= _reference)
+                .OrderByDescending(entry => entry.Year)
+                .ThenBy(entry => string.Equals(entry.Type, "works", StringComparison.Ordinal) ? 0 : 1)
+                .ThenBy(entry => entry.Supplier, Ordinal)
+                .FirstOrDefault();
+            if (row is null)
+            {
+                return default;
+            }
+
+            var slug = Slug(row.Supplier);
+            if (slug.Length == 0 || string.Equals(slug, "unknown", StringComparison.Ordinal))
+            {
+                return default;
+            }
+
+            if (_supplierIds.TryGetValue(slug, out var existing))
+            {
+                return existing;
+            }
+
+            var founded = GameDate.SeasonStart(row.Year);
+            var spec = new OrganizationSpec(
+                OrganizationKind.EngineSupplier,
+                true,
+                SupplierIdText(slug),
+                founded,
+                null,
+                WorldInitEstimates.PlaceholderBudget,
+                [new OrganizationNameSpan(row.Supplier.Trim(), founded, null)]);
+            (_world, var created) = _world.AddOrganization(spec);
+            _supplierIds[slug] = created;
+            Gap(WorldInitGapCodes.SupplierFoundedFromData, created.Value);
+            return created;
         }
 
         private void AddStaffContract(PersonId person, OrganizationId organization, StaffRole role)
@@ -1048,6 +1079,7 @@ public static class WorldInitializer
                     mapped = StaffRole.TeamPrincipal;
                     return true;
                 case "chief_designer":
+                case "designer":
                     mapped = StaffRole.ChiefDesigner;
                     return true;
                 case "head_of_aero":

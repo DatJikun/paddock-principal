@@ -30,8 +30,8 @@ gen:27 — William Johnson (USA)
 gen:28 — Peter Walker (GBR)
 gen:29 — Peter Walker (GBR)
 gen:30 — Robert Smith (USA)
-Talks opened: neg:2 with gen:21.
-neg:2 — Jean Bernard, Open.
+Talks opened: neg:28 with gen:21.
+neg:28 — Jean Bernard, Open.
 Development split: current 50, account 25, next car 25.
 Own car car:7, season 1955.
 Own car car:8, season 1955.
@@ -76,6 +76,6 @@ The inbox is empty.
 No decision you may read is on record.
 Ready.
 The date is now 1955-01-02.
-World hash ab99caf1d799ea6d565a140302181624e185177f17f45ba3879d9128be3070a8.
-Saved SAVE. World hash ab99caf1d799ea6d565a140302181624e185177f17f45ba3879d9128be3070a8.
+World hash b5053af8328b285a40a5facc0cf8a532d0f0914ca2ce8521559645ab7b968ed8.
+Saved SAVE. World hash b5053af8328b285a40a5facc0cf8a532d0f0914ca2ce8521559645ab7b968ed8.
 Session closed.

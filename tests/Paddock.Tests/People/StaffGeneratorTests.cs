@@ -43,13 +43,16 @@ public class StaffGeneratorTests
         var generator = new StaffGenerator(ids, new FixtureNameSource());
         RngStream stream = RngStream.Derive(2, RngStreamName.People, 1950);
         GenerationRequest early = Request(1950);
-        Assert.Throws<ArgumentException>(() => generator.Generate(stream, 1950, StaffRole.Strategist, early));
-        Assert.Throws<ArgumentException>(() => generator.Generate(stream, 1967, StaffRole.HeadOfAerodynamics, Request(1967)));
-        Assert.Throws<ArgumentException>(() => generator.Generate(stream, 1969, StaffRole.RaceEngineer, Request(1969)));
-        Assert.Equal(1, ids.NextSequence);
+        Assert.Equal(GenerationEstimates.MinSeason, StaffCatalogue.AvailableFrom(StaffRole.Strategist));
+        Assert.Equal(GenerationEstimates.MinSeason, StaffCatalogue.AvailableFrom(StaffRole.HeadOfAerodynamics));
+        Assert.Equal(GenerationEstimates.MinSeason, StaffCatalogue.AvailableFrom(StaffRole.RaceEngineer));
+        Assert.Equal(GenerationEstimates.MinSeason, StaffCatalogue.AvailableFrom(StaffRole.CommercialDirector));
+        GeneratedStaff strategistEarly = generator.Generate(stream, 1950, StaffRole.Strategist, early);
+        AssertStaffShape(strategistEarly, 1950);
+        Assert.Equal(2, ids.NextSequence);
 
         GeneratedStaff designer = generator.Generate(stream, 1950, StaffRole.TechnicalDirector, early);
-        Assert.Equal(2, ids.NextSequence);
+        Assert.Equal(3, ids.NextSequence);
         AssertStaffShape(designer, 1950);
         NamedAttribute innovation = Assert.Single(designer.Attributes, attribute => attribute.Key == StaffCatalogue.InnovationKey);
         Assert.Equal(innovation.Value, designer.Innovation);

@@ -37,6 +37,20 @@ export function nextAction(shell) {
   return { type: 'advance' };
 }
 
+/** Inbox areas with their own name. The first part of an item kind ("board.seasonTarget") picks one. */
+export const INBOX_AREAS = ['board', 'contract', 'negotiation', 'market', 'development', 'sponsor', 'supply', 'scouting'];
+
+export function inboxArea(kind) {
+  const area = String(kind ?? '').split('.')[0];
+  return `inbox.area.${INBOX_AREAS.includes(area) ? area : 'other'}`;
+}
+
+/** What the Dalej bar says when a decision holds the clock: the area and the full subject message with its parameters. */
+export function blockingLabel(shell) {
+  if (!shell || !shell.decisionItemId || !shell.decisionSubject) return null;
+  return { area: inboxArea(shell.decisionKind), subject: shell.decisionSubject };
+}
+
 export function afterAdvance(reply) {
   if (reply.ok) return { type: 'advanced', date: reply.data?.date ?? null };
   if (isTimeBlocked(reply.error)) return { type: 'show', screen: 'skrzynka' };

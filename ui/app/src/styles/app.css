@@ -337,3 +337,219 @@ button.mail{appearance:none;width:100%;text-align:left;background:transparent;bo
 .report h2{margin-bottom:4px}
 .go[aria-disabled="true"]{cursor:default}
 .go[aria-disabled="true"]:hover,.go[aria-disabled="true"]:active{transform:none;box-shadow:0 5px 0 var(--ink),0 16px 26px -12px color-mix(in oklab,var(--ink) 60%,transparent)}
+
+/* ---------- screens (ported from ui/prototype/css/screens.css) ---------- */
+a.plain{text-decoration:none}
+a.plain:hover{text-decoration:underline;text-underline-offset:3px}
+.wrap{white-space:normal!important}
+.count{font:700 13px var(--ui);font-feature-settings:"tnum";background:var(--t1);color:var(--on1);border-radius:6px;padding:2px 8px}
+.tbl-scroll{overflow:auto;min-height:0}
+.empty{padding:6px 22px 22px}
+
+/* sylwetki torów */
+.trk{display:block;overflow:visible}
+.trk .road{fill:none;stroke:var(--ink);stroke-width:5.5;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.trk .line{fill:none;stroke:var(--card);stroke-width:1.6;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:.75}
+.trk .sf{stroke:var(--hi);stroke-width:4;vector-effect:non-scaling-stroke;stroke-linecap:round}
+
+/* ---------- Pulpit ---------- */
+.dash{height:100%;display:grid;grid-template-columns:340px minmax(0,1fr) 310px;gap:22px}
+.dash .inbox{display:flex;flex-direction:column}
+.dash .inbox .list{flex:1;min-height:0;overflow:hidden}
+.dash .inbox footer{margin-top:auto}
+.race{display:block;text-decoration:none;padding:20px 24px;position:relative;overflow:hidden;flex:none;transition:transform .2s var(--ease)}
+.race:hover{transform:translateY(-2px)}
+.race .ring{position:absolute;right:-70px;top:-70px;width:180px;height:180px;border-radius:50%;
+  background:conic-gradient(var(--a1) 0 25%,var(--a2) 0 50%,var(--a3) 0 75%,transparent 0);mask:radial-gradient(circle,transparent 57%,#000 58%);opacity:.9}
+.race-top{display:flex;align-items:center;gap:18px}
+.race-top>div{flex:1;min-width:0}
+.race h1{font:900 clamp(42px,5.2vh,60px)/.84 var(--display);text-transform:uppercase;letter-spacing:-.01em}
+.race .where{display:flex;align-items:center;gap:8px;color:var(--ink2);margin-top:10px}
+.dash-map{width:150px;height:92px;flex:none}
+.facts{margin-top:14px;padding:11px 0;border-block:1px solid var(--rule)}
+.voice{display:grid;grid-template-columns:44px 1fr;gap:14px;margin-top:14px}
+.voice .av{width:44px;height:44px;background:var(--t1);color:var(--on1);font-size:17px}
+.voice p{font:500 16.5px/1.4 var(--ui)}
+.voice small{display:block;margin-top:5px;font-size:13px;color:var(--ink2)}
+.voice small b{color:var(--ink)}
+.sectors{margin-top:14px}
+.sectors .v{font-size:15px}
+.monthly{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.monthly .mast{display:flex;align-items:baseline;justify-content:space-between;padding:14px 22px;background:var(--ink);color:#f7eedd;border-radius:20px 20px 0 0}
+.monthly .mast b{font:900 26px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
+.monthly .mast span{font:500 13px var(--ui);color:color-mix(in oklab,#f7eedd 72%,var(--t2))}
+.stories{flex:1;min-height:0;display:grid;grid-template-columns:1.3fr 1fr}
+.stories .lead{padding:16px 22px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden}
+.stories .lead h3{font-size:32px;line-height:.95}
+.stories .lead p{color:var(--ink2)}
+.stories .lead .link{margin-top:auto}
+.stories .side{padding:4px 22px;overflow:hidden}
+.stories .side a{display:block;padding:10px 0;border-bottom:1px solid var(--rule);text-decoration:none}
+.stories .side a:hover .t{text-decoration:underline;text-underline-offset:3px}
+.stories .side a:last-child{border:0}
+.stories .side .t{font:600 15px/1.3 var(--ui);margin-top:2px}
+.msec{font:700 12px var(--ui);letter-spacing:.1em;text-transform:uppercase;color:var(--hi)}
+.crow{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:6px 0}
+.crow .num{font-size:15px}
+.crow .bar{grid-column:1/3}
+.car .body{padding-bottom:10px}
+.car footer,.stand footer{margin-top:auto}
+.car{display:flex;flex-direction:column}
+.stand{flex:1;display:flex;flex-direction:column}
+.stand .tabs-wrap{padding:0 22px 8px}
+.stand .table td{padding-top:6px;padding-bottom:6px}
+.stand .table td:first-child{padding-left:14px}.stand .table td:last-child{padding-right:22px}
+
+/* ---------- Skrzynka ---------- */
+.mailbox{display:grid;grid-template-columns:400px 1fr;gap:22px;height:calc(100% - 64px)}
+.mailbox .list{overflow:auto}
+.mailbox .list>div:first-child .mail{border-top:0}
+.reader{padding:26px 30px;overflow:auto}
+.rhead{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.av.big{width:52px;height:52px;font-size:20px;background:var(--ink);color:var(--t2)}
+.rhead h2{font-size:32px;margin-top:2px}
+.letter{font-size:17px;line-height:1.55;max-width:65ch}
+.reader .choices{margin-top:22px}
+
+/* ---------- Kalendarz ---------- */
+.cal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.rnd{display:grid;grid-template-columns:auto 1fr 84px;gap:14px;align-items:center;padding:14px 18px 14px 16px;border-radius:18px;border:1.5px solid color-mix(in oklab,var(--ink) 80%,transparent);
+  background:color-mix(in oklab,var(--card) 88%,transparent);backdrop-filter:blur(12px);text-decoration:none;transition:transform .18s var(--ease),box-shadow .18s var(--ease)}
+.rnd:hover{transform:translateY(-3px);box-shadow:0 4px 0 color-mix(in oklab,var(--ink) 80%,transparent)}
+.rnd:active{transform:translateY(0);box-shadow:none}
+.rno{font:900 44px/.8 var(--display);color:var(--ink3);min-width:44px;text-align:center}
+.rinfo{display:grid;gap:3px;min-width:0}
+.rdate{font:600 13.5px var(--ui);color:var(--ink2)}
+.rinfo b{display:flex;align-items:center;gap:8px;font:900 21px/.95 var(--display);text-transform:uppercase}
+.rinfo small{font-size:14.5px;color:var(--ink2)}
+.rnd .trk{width:84px;height:54px}
+.rnd .trk .road{stroke-width:3.4}
+.rnd .trk .line{display:none}
+.rnd .trk .sf{stroke-width:3}
+.rnd.past{opacity:.66}
+.rnd.past:hover{opacity:1}
+.rnd.next{background:var(--t1);color:var(--on1);border-color:var(--ink);box-shadow:0 4px 0 var(--ink)}
+.rnd.next .rno,.rnd.next .rdate,.rnd.next small{color:color-mix(in oklab,var(--on1) 82%,transparent)}
+.rnd.next .trk .road{stroke:var(--on1)}
+
+/* ---------- Strona wyścigu ---------- */
+.race-page{display:grid;gap:22px}
+.rp-head{display:flex;align-items:center;gap:26px;padding:18px 26px}
+.rno.big{font-size:110px;color:var(--t1);min-width:110px}
+.rp-title{display:grid;gap:10px;min-width:0}
+.rp-where{display:flex;align-items:center;gap:12px}
+.rp-tools{margin-left:auto;display:flex;gap:10px;align-self:flex-start}
+.rp-grid{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:22px;align-items:start}
+.rp-map{padding:20px 26px;display:grid;place-items:center}
+.rp-map .trk{width:100%;height:210px}
+.rp-map .trk .road{stroke-width:9}
+.rp-map .trk .line{stroke-width:2}
+.record{margin-top:14px;padding-top:14px;border-top:1px solid var(--rule)}
+.profile-bars{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);display:grid;gap:6px}
+.pb{display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:14px}
+.pb .bar{grid-column:1/3}
+.fields.hdr .v{font-size:15px}
+.fields.hdr .fld{padding:0 14px}
+
+/* ---------- Klasyfikacje ---------- */
+.stand-grid{display:grid;grid-template-columns:minmax(0,640px) minmax(0,480px);gap:22px;align-items:start}
+.stand-grid.one{grid-template-columns:minmax(0,520px)}
+.scoring{display:grid;gap:14px}
+.scoring .pts{display:flex;border:1.5px solid var(--ink);border-radius:12px;overflow:hidden;width:max-content}
+.scoring .pts div{display:grid;justify-items:center;gap:1px;padding:8px 16px;border-left:1px solid var(--rule)}
+.scoring .pts div:first-child{border-left:0;background:var(--t2)}
+.scoring .pts b{font:900 26px/1 var(--display)}
+@media (max-width:1560px){
+  .dash{grid-template-columns:320px minmax(0,1fr) 290px;gap:18px}
+}
+
+/* ---------- wave 1: real-data additions to the ported screens ---------- */
+.pulpit-wrap{height:100%;display:flex;flex-direction:column}
+.pulpit-wrap>.dash{flex:1;min-height:0;height:auto}
+.notice{margin:-4px 0 12px}
+.race h1.long{font-size:clamp(32px,4vh,46px)}
+.race .facts{flex-wrap:nowrap}
+.race .facts .fld{padding:0 16px}
+.race .facts .fld:first-child{padding-left:0}
+.race .where{flex-wrap:wrap}
+.race .dash-map{width:170px;height:110px}
+.race-tags{margin-top:14px}
+.season{flex:1;min-height:0;display:flex;flex-direction:column}
+.season>header{padding-bottom:6px}
+.season .rounds{flex:1;min-height:0;overflow:auto;padding:0 12px}
+.srnd{display:grid;grid-template-columns:30px 24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;text-decoration:none;transition:background .15s}
+.srnd:hover{background:var(--tint)}
+.srnd>.num{font:900 20px/1 var(--display);color:var(--ink3);text-align:center}
+.srnd b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srnd .muted{font-size:14px;white-space:nowrap}
+.srnd.past{opacity:.6}
+.srnd.next{background:var(--t1);color:var(--on1)}
+.srnd.next>.num,.srnd.next .muted{color:color-mix(in oklab,var(--on1) 82%,transparent)}
+.season footer{margin-top:auto}
+.last{flex:1;min-height:0;display:flex;flex-direction:column}
+.last>header{padding-bottom:8px;align-items:baseline}
+.last>header h2{white-space:nowrap}
+.last>header .meta{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.race .facts .meta{white-space:nowrap}
+@media (max-width:1600px){.cal{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.rinfo b{flex-wrap:wrap;row-gap:2px}
+.last .tbl-scroll{flex:1}
+.last .table td:first-child{padding-left:16px}.last .table td:last-child{padding-right:22px}
+.last footer{margin-top:auto}
+.brd{flex:none}
+.brd .body{display:grid;padding-bottom:14px}
+.goal-line{display:grid;gap:2px;padding:8px 0;border-top:1px solid var(--rule)}
+.goal-line:first-child{border-top:0;padding-top:0}
+.goal-line b{font-weight:600}
+.goal-line span{font-size:14px;color:var(--ink2);line-height:1.35}
+.mail .av svg.i{width:17px;height:17px}
+.mail .t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mail .from .st.solid{font-size:12px;padding:2px 7px 2px 6px}
+.dash .inbox .mail{padding:11px 18px}
+.dash .inbox .mail .t{font-size:15px}
+.rhead .av.big svg.i{width:24px;height:24px}
+.rstatus{margin-left:auto;align-self:flex-start}
+.reader .choices{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.report-lines{display:grid;gap:12px}
+.report-lines .rl{display:grid;gap:4px}
+.report-lines p{font-size:15px}
+.rp-map.wide{padding:26px}
+.rp-map.wide .trk{height:min(52vh,420px)}
+.panel .scoring-body{padding-top:18px}
+.scoring .fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));row-gap:12px}
+.scoring .fld,.scoring .fld:first-child{padding:0 0 0 14px;border-left:1px solid var(--rule)}
+
+/* the start form: long option sets wrap instead of pushing the page sideways */
+.start .tabs{flex-wrap:wrap;width:auto;max-width:100%}
+.start .fields.boxed{width:auto}
+.start .fields.boxed .fld{flex:1 1 150px}
+.start .text{width:100%}
+#view{overflow-x:hidden}
+
+/* below the 1440 target: every screen stays inside the window, no sideways scroll down to ~1024 px */
+@media (max-width:1320px){
+  .dash{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pulpit-wrap{height:auto}
+  .dash>.inbox{grid-column:1/-1;max-height:420px}
+  #view.noscroll{overflow-y:auto}
+  .cal{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .rp-grid{grid-template-columns:minmax(0,1fr) 340px}
+  .mailbox{grid-template-columns:320px minmax(0,1fr)}
+  .stand-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .rno.big{font-size:80px;min-width:80px}
+  .race .facts{flex-wrap:wrap}
+  .last td.muted{display:none}
+}
+@media (max-width:1120px){
+  .app{grid-template-columns:220px 1fr}
+  .cal{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rp-grid,.stand-grid{grid-template-columns:minmax(0,1fr)}
+  .rp-head{flex-wrap:wrap}
+  .rp-tools{margin-left:0}
+  .top{gap:8px;padding:12px 18px 0}
+  #view{padding:16px 18px 22px}
+  .hud .cell{padding:0 12px}
+  .hud .date b{font-size:20px}
+  .hud .next .ticks{display:none}
+  .go{padding:0 10px 0 14px}.go b{font-size:21px}
+}

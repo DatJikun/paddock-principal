@@ -1,4 +1,5 @@
 using System.Globalization;
+using Paddock.Application.Career;
 using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
 using Paddock.Application.Inbox;
@@ -138,6 +139,135 @@ public sealed class BoardEngine
             BoardEventTypes.ManagerAppointed,
             new BoardFactPayload(organization.Value, manager.Value, PrincipalKind.Human.ToString(), outgoing?.Subject ?? string.Empty, string.Empty, reasonKey, 0)));
         return facts;
+    }
+
+    /// <summary>
+    /// Why a manager cannot take over <paramref name="organizationId"/>, or null. Founding (<see cref="CareerStartPath"/>)
+    /// is refused. The check changes nothing.
+    /// </summary>
+    public TranslationMessage? ValidateTakeOver(
+        ManagerId manager,
+        string organizationId,
+        string givenName,
+        string familyName,
+        string nationality,
+        string tilt)
+    {
+        if (CareerStartPath.IsFounding(organizationId))
+        {
+            return TranslationMessage.Of(BoardKeys.TakeOverOwnTeam);
+        }
+
+        if (!PlayerPrincipal.TryTilt(tilt, out _))
+        {
+            return TranslationMessage.Of(BoardKeys.TakeOverBadTilt, ("tilt", tilt));
+        }
+
+        if (!TryOrganization(organizationId, out var organization, out var rejection))
+        {
+            return rejection;
+        }
+
+        if (!_managers.Contains(manager) || _managers.KindOf(manager) != ManagerKind.Human)
+        {
+            return TranslationMessage.Of(BoardKeys.TakeOverNotHuman);
+        }
+
+        if (_book.Section.OrganizationOf(manager.Value) is not null)
+        {
+            return TranslationMessage.Of(BoardKeys.TakeOverAlreadyEmployed);
+        }
+
+        var board = _book.Section.Board(organization);
+        if (board is null)
+        {
+            return TranslationMessage.Of(BoardKeys.TakeOverNoBoard);
+        }
+
+        if (board.Principal is { Kind: PrincipalKind.Human })
+        {
+            return TranslationMessage.Of(BoardKeys.TakeOverAlreadyHuman);
+        }
+
+        try
+        {
+            _ = PlayerPrincipal.Spec(givenName, familyName, nationality, _book.World.CurrentDate.Year, null);
+        }
+        catch (ArgumentException)
+        {
+            return TranslationMessage.Of(BoardKeys.TakeOverBadName);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// The manager becomes the human principal of an existing team and a person with principal attributes (ESTIMATE).
+    /// The caller has validated. No organization is created.
+    /// </summary>
+    public IReadOnlyList<BoardFact> TakeOver(
+        ManagerId manager,
+        string organizationId,
+        string givenName,
+        string familyName,
+        string nationality,
+        string tilt,
+        GameDate today)
+    {
+        if (!PlayerPrincipal.TryTilt(tilt, out var attribute) || !TryOrganization(organizationId, out var organization, out _))
+        {
+            throw new InvalidOperationException("Take over ran for a command that should have been rejected.");
+        }
+
+        var spec = PlayerPrincipal.Spec(givenName, familyName, nationality, today.Year, attribute);
+        var (withPerson, person) = _book.World.AddPerson(spec);
+        var believed = withPerson.SetKnowledge(PlayerPrincipal.Knowledge(organization, person, spec.Truth));
+        _book.Contracts.Update(believed);
+        var facts = AppointHuman(manager, organization, today, founder: false, BoardKeys.TakeOverReason).ToList();
+        var end = GameDate.SeasonEnd(today.Year + 1);
+        var (withContract, _) = _book.World.AddContract(new ContractSpec(
+            person,
+            organization,
+            ContractRole.Staff(StaffRole.TeamPrincipal),
+            today,
+            end,
+            salary: 0,
+            exclusive: true,
+            option: null,
+            releaseClause: null));
+        _book.Contracts.Update(withContract);
+        return facts;
+    }
+
+    private bool TryOrganization(string organizationId, out OrganizationId organization, out TranslationMessage? rejection)
+    {
+        organization = default;
+        rejection = null;
+        try
+        {
+            organization = OrganizationId.Real(organizationId);
+        }
+        catch (ArgumentException)
+        {
+            rejection = TranslationMessage.Of(BoardKeys.TakeOverUnknownTeam, ("team", organizationId));
+            return false;
+        }
+
+        var id = organization;
+        var found = _book.World.Organizations.FirstOrDefault(candidate => candidate.Id == id);
+        if (found is null)
+        {
+            rejection = TranslationMessage.Of(BoardKeys.TakeOverUnknownTeam, ("team", organizationId));
+            return false;
+        }
+
+        if (found.Kind != OrganizationKind.Team || (found.Dissolved is GameDate dissolved && dissolved < _book.World.CurrentDate))
+        {
+            rejection = TranslationMessage.Of(BoardKeys.TakeOverNotATeam, ("team", organizationId));
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>The manager leaves a team of their own accord: no severance, a small blow to reputation. The caller has validated.</summary>

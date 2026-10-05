@@ -30,6 +30,13 @@ public sealed class CommandDispatcher
         }
     }
 
+    /// <summary>True when a handler for <paramref name="commandType"/> is already registered.</summary>
+    public bool IsRegistered(Type commandType)
+    {
+        ArgumentNullException.ThrowIfNull(commandType);
+        return _handlers.ContainsKey(commandType);
+    }
+
     public CommandResult Dispatch(ICommand command, CommandContext context)
     {
         ArgumentNullException.ThrowIfNull(command);

@@ -114,8 +114,8 @@ public sealed class TrackGeometry
             }
         }
 
-        // 4. Compute curvature for each sample from change of heading over +/- 6 samples
-        var curvature = ComputeCurvature(samples, ds);
+        // 4. Compute curvature for each sample using Menger curvature over +/- 6 samples
+        var curvature = ComputeCurvature(samples);
 
         return new TrackGeometry(finalLengthM, scaleFactor, samples, curvature);
     }
@@ -321,35 +321,36 @@ public sealed class TrackGeometry
             : p1;
     }
 
-    private static double[] ComputeCurvature((double X, double Y)[] samples, double ds)
+    /// <summary>
+    /// Menger curvature from samples i−6, i, and i+6:
+    /// κ = 2·cross(b−a, c−a) / (|b−a|·|c−b|·|c−a|).
+    /// Positive is a left turn. Only +, −, ×, ÷ and <see cref="Math.Sqrt"/> — no Atan2.
+    /// </summary>
+    private static double[] ComputeCurvature((double X, double Y)[] samples)
     {
         var count = samples.Length;
-        var headings = new double[count];
-
-        // 1. Compute heading at each sample using central differences
-        for (var i = 0; i < count; i++)
-        {
-            var prev = samples[(i - 1 + count) % count];
-            var next = samples[(i + 1) % count];
-            var dx = next.X - prev.X;
-            var dy = next.Y - prev.Y;
-            headings[i] = Math.Atan2(dy, dx);
-        }
-
-        // 2. Curvature = change of heading over +/- 6 samples divided by distance
         var curvature = new double[count];
-        var distance = 12.0 * ds;
 
         for (var i = 0; i < count; i++)
         {
-            var hPrev = headings[(i - 6 + count) % count];
-            var hNext = headings[(i + 6) % count];
-            var dHeading = hNext - hPrev;
+            var a = samples[(i - 6 + count) % count];
+            var b = samples[i];
+            var c = samples[(i + 6) % count];
 
-            while (dHeading > Math.PI) dHeading -= 2.0 * Math.PI;
-            while (dHeading < -Math.PI) dHeading += 2.0 * Math.PI;
+            var baX = b.X - a.X;
+            var baY = b.Y - a.Y;
+            var caX = c.X - a.X;
+            var caY = c.Y - a.Y;
+            var cbX = c.X - b.X;
+            var cbY = c.Y - b.Y;
 
-            curvature[i] = dHeading / distance;
+            var cross = baX * caY - baY * caX;
+            var dAB = Math.Sqrt(baX * baX + baY * baY);
+            var dCB = Math.Sqrt(cbX * cbX + cbY * cbY);
+            var dCA = Math.Sqrt(caX * caX + caY * caY);
+
+            var denom = dAB * dCB * dCA;
+            curvature[i] = denom > 1e-12 ? 2.0 * cross / denom : 0.0;
         }
 
         return curvature;

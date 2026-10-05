@@ -1,3 +1,6 @@
+using Paddock.Application.Career;
+using Paddock.Application.Commands;
+
 namespace Paddock.Desktop.Bridge;
 
 /// <summary>Whether a career is open. The start screen reads this before any other query.</summary>
@@ -9,19 +12,60 @@ public sealed record SessionView(
     string? OrganizationName,
     string? PeopleNoticeKey,
     int SuggestedYear,
-    string SuggestedSeed);
+    string SuggestedSeed,
+    IReadOnlyList<PresetView> Presets);
 
-/// <summary>One existing team the player may take over.</summary>
-public sealed record TeamOptionView(string Id, string Name);
+/// <summary>
+/// What a preset sets on every axis, straight from <c>CareerConfig.FromPreset</c>, so the start screen shows the values it will
+/// send and does not keep its own copy of them.
+/// </summary>
+public sealed record PresetView(
+    string Name,
+    string People,
+    string Rules,
+    string Ai,
+    int History,
+    int Randomness,
+    string Fatality,
+    bool NoNumbers);
 
-/// <summary>Public teams of one season.</summary>
-public sealed record TeamListView(int Year, IReadOnlyList<TeamOptionView> Teams);
+/// <summary>
+/// One existing team the player may take over, with what a principal may know of it before he does: the line-up, the engine,
+/// the budget tier, last season's place when the authored order has it, and the position the board will ask for. The card
+/// fields are empty or null when the world could not be previewed for this setup.
+/// </summary>
+public sealed record TeamOptionView(
+    string Id,
+    string Name,
+    IReadOnlyList<TeamCardDriver> Drivers,
+    TeamCardEngine? Engine,
+    string? Budget,
+    int? LastSeason,
+    int? Expected,
+    int? FieldSize);
 
-/// <summary>Argument of <c>teams</c>. Year defaults to 1955 when omitted; the record carries it because the page always sends it.</summary>
-public sealed record TeamsCall(string ManagerId, int Year);
+/// <summary>Public teams of one season. <paramref name="Problem"/> is why the chosen setup cannot start (the refusal <c>newCareer</c> would give), or null.</summary>
+public sealed record TeamListView(int Year, IReadOnlyList<TeamOptionView> Teams, TranslationMessage? Problem);
 
-/// <summary>One save the page can load.</summary>
-public sealed record SaveListItem(string Name, string Date, string TeamId);
+/// <summary>
+/// Argument of <c>teams</c>. Year defaults to 1955 when omitted. The axes are the ones <c>newCareer</c> takes, read the same way:
+/// the cards come from the world they would start, and a setup <c>newCareer</c> would refuse comes back as the problem.
+/// </summary>
+public sealed record TeamsCall(
+    string ManagerId,
+    int Year,
+    string? Preset,
+    string? People,
+    string? Rules,
+    string? Ai,
+    int? History,
+    int? Randomness,
+    string? Fatality,
+    bool? NoNumbers,
+    ulong? Seed);
+
+/// <summary>One save the page can load. CareerName is the principal's name; Date is the career date in it; SavedAt is when the file was written (UTC, ISO), which orders "continue".</summary>
+public sealed record SaveListItem(string Name, string Date, string TeamId, string CareerName, string SavedAt);
 
 /// <summary>Saves in the career folder.</summary>
 public sealed record SaveListView(IReadOnlyList<SaveListItem> Saves);

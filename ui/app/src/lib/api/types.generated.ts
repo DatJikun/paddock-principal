@@ -160,6 +160,51 @@ export interface DismissInboxCall {
   managerId: string;
 }
 
+export interface DriverCall {
+  managerId: string;
+  personId: string;
+}
+
+export interface DriverContractView {
+  contractId: string;
+  end: string;
+  optionDeadline: string | null;
+  optionYears: number | null;
+  releaseAmount: number | null;
+  salary: number;
+  seat: string;
+  start: string;
+}
+
+export interface DriverProfileView {
+  age: number;
+  attributes: KnownAttributeView[];
+  contract: DriverContractView | null;
+  contractEnd: string | null;
+  found: boolean;
+  freeAgent: boolean;
+  name: string;
+  nationality: string;
+  organizationId: string | null;
+  organizationName: string | null;
+  own: boolean;
+  personId: string;
+  potential: KnownAttributeView | null;
+  seasons: DriverSeasonView[];
+  seat: string | null;
+}
+
+export interface DriverSeasonView {
+  best: number | null;
+  podiums: number;
+  retirements: number;
+  season: number;
+  starts: number;
+  teamId: string;
+  teamName: string;
+  wins: number;
+}
+
 export interface DriversView {
   market: MarketDriverView[];
   own: OwnDriverView[];
@@ -249,6 +294,7 @@ export interface MarketDriverView {
 }
 
 export interface MarketPersonView {
+  age: number;
   attributes: KnownAttributeView[];
   contractEnd: string | null;
   freeAgent: boolean;
@@ -278,10 +324,10 @@ export interface NegotiationRoundView {
   terms: OfferTerms | null;
 }
 
-export interface NegotiationSubject {
+export interface NegotiationSubjectView {
   key: string;
   kind: NegotiationSubjectKind;
-  staffRole: StaffRole;
+  staffRole: StaffRole | null;
 }
 
 export interface NegotiationView {
@@ -305,7 +351,7 @@ export interface NegotiationView {
   signedContract: string | null;
   status: NegotiationStatus;
   statusText: TranslationMessage;
-  subject: NegotiationSubject;
+  subject: NegotiationSubjectView;
 }
 
 export interface NegotiationsView {
@@ -772,9 +818,12 @@ export interface StaffListView {
 }
 
 export interface StaffPersonView {
+  age: number;
   attributes: StaffAttributeView[] | null;
+  contractEnd: string | null;
   driverId: string | null;
   name: string;
+  nationality: string;
   organizationId: string;
   ownTeam: boolean;
   personId: string;
@@ -945,6 +994,7 @@ export interface BridgeQueryMap {
   track: { args: TrackCall; result: TrackView };
   staff: { args: ManagerCall; result: StaffListView };
   market: { args: ManagerCall; result: MarketView };
+  driver: { args: DriverCall; result: DriverProfileView };
 }
 
 export interface BridgeCommandMap {

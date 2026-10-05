@@ -17,7 +17,8 @@ public sealed record MarketPersonView(
     string? OrganizationName,
     string? Seat,
     string? ContractEnd,
-    IReadOnlyList<KnownAttributeView> Attributes);
+    IReadOnlyList<KnownAttributeView> Attributes,
+    int Age);
 
 /// <summary>Free agents and contracted drivers, as the observer's team knows them.</summary>
 public sealed record MarketView(IReadOnlyList<MarketPersonView> FreeAgents, IReadOnlyList<MarketPersonView> Contracted);
@@ -46,7 +47,8 @@ public static class MarketRead
                 null,
                 null,
                 person.FreeSince?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
-                person.KnownAttributes));
+                person.KnownAttributes,
+                AgeOn(book.World.GetPerson(person.Person).BirthDate, today)));
         }
 
         var contracted = new List<MarketPersonView>();
@@ -76,9 +78,21 @@ public static class MarketRead
                 organization.NameOn(today),
                 contract.Role.Seat.ToString(),
                 contract.End.ToString(),
-                attributes));
+                attributes,
+                AgeOn(person.BirthDate, today)));
         }
 
         return new MarketView(free, contracted);
+    }
+
+    private static int AgeOn(GameDate born, GameDate on)
+    {
+        var age = on.Year - born.Year;
+        if (on.Month < born.Month || (on.Month == born.Month && on.Day < born.Day))
+        {
+            age--;
+        }
+
+        return Math.Max(0, age);
     }
 }

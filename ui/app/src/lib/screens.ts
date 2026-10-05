@@ -3,9 +3,16 @@ import type {
   BoardView,
   CalendarRoundView,
   CalendarView,
+  DevelopmentOverview,
+  DriverProfileView,
+  DriversView,
   InboxView,
+  ManagerCarRoster,
+  MarketView,
+  NegotiationsView,
   NextRaceView,
   RaceResultView,
+  StaffListView,
   StandingsView,
   TrackView,
 } from './api/types.generated';
@@ -42,7 +49,46 @@ export type RaceData = {
 
 export type StandingsData = { kind: 'klasyfikacje'; standings: StandingsView };
 
-export type ScreenData = PulpitData | InboxData | CalendarData | RaceData | StandingsData | { kind: 'none' };
+export type SquadData = { kind: 'kierowcy'; drivers: DriversView; profiles: DriverProfileView[]; season: number };
+
+export type DriverData = {
+  kind: 'kierowca';
+  profile: DriverProfileView;
+  /** The other drivers of the squad, for the comparison link. */
+  squad: DriversView;
+  negotiations: NegotiationsView;
+};
+
+export type CompareData = { kind: 'porownaj'; a: DriverProfileView; b: DriverProfileView; season: number };
+
+export type StaffData = { kind: 'personel' | 'osoba'; staff: StaffListView; drivers: DriversView; today: string };
+
+export type CarData = { kind: 'auto'; cars: ManagerCarRoster; development: DevelopmentOverview; staff: StaffListView };
+
+export type MarketData = {
+  kind: 'rynek' | 'negocjacja';
+  market: MarketView;
+  negotiations: NegotiationsView;
+  drivers: DriversView;
+};
+
+export type ScreenData =
+  | PulpitData
+  | InboxData
+  | CalendarData
+  | RaceData
+  | StandingsData
+  | SquadData
+  | DriverData
+  | CompareData
+  | StaffData
+  | CarData
+  | MarketData
+  | { kind: 'none' };
+
+function profile(personId: string) {
+  return query('driver', { managerId: HUMAN_MANAGER_ID, personId });
+}
 
 function track(layoutId: string | null | undefined) {
   return layoutId ? query('track', { managerId: HUMAN_MANAGER_ID, layoutId }) : Promise.resolve(null);
@@ -90,6 +136,37 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
     }
     case 'klasyfikacje':
       return { kind: 'klasyfikacje', standings: await query('standings', call) };
+    case 'kierowcy': {
+      const [drivers, shell] = await Promise.all([query('drivers', call), query('shell', call)]);
+      const profiles = await Promise.all(drivers.own.map((driver) => profile(driver.personId)));
+      return { kind: 'kierowcy', drivers, profiles, season: Number(shell.date.slice(0, 4)) };
+    }
+    case 'kierowca': {
+      const [view, squad, negotiations] = await Promise.all([
+        profile(args[0] ?? ''),
+        query('drivers', call),
+        query('negotiations', call),
+      ]);
+      return { kind: 'kierowca', profile: view, squad, negotiations };
+    }
+    case 'porownaj': {
+      const [a, b, shell] = await Promise.all([profile(args[0] ?? ''), profile(args[1] ?? ''), query('shell', call)]);
+      return { kind: 'porownaj', a, b, season: Number(shell.date.slice(0, 4)) };
+    }
+    case 'personel':
+    case 'osoba': {
+      const [staff, drivers, shell] = await Promise.all([query('staff', call), query('drivers', call), query('shell', call)]);
+      return { kind: name, staff, drivers, today: shell.date };
+    }
+    case 'auto': {
+      const [cars, development, staff] = await Promise.all([query('cars', call), query('development', call), query('staff', call)]);
+      return { kind: 'auto', cars, development, staff };
+    }
+    case 'rynek':
+    case 'negocjacja': {
+      const [market, negotiations, drivers] = await Promise.all([query('market', call), query('negotiations', call), query('drivers', call)]);
+      return { kind: name, market, negotiations, drivers };
+    }
     default:
       return { kind: 'none' };
   }

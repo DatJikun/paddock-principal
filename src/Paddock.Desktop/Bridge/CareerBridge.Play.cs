@@ -255,6 +255,18 @@ public sealed partial class CareerBridge
         return new StaffListView(StaffQuery.Of(Session.World, id, Session.Date));
     }
 
+    private DriverProfileView ReadDriver(JsonElement args)
+    {
+        var organization = Box.Require<BoardBook>().Section.OrganizationOf(Human.Value);
+        var person = TextOf(args, "personId") ?? "";
+        if (organization is not OrganizationId id)
+        {
+            return DriverProfileRead.None(person);
+        }
+
+        return DriverProfileRead.Of(Session.World, id, Session.Date, person);
+    }
+
     private MarketView ReadMarket(Paddock.Application.Access.AccessContext access)
     {
         var organization = Box.Require<BoardBook>().Section.OrganizationOf(Human.Value);

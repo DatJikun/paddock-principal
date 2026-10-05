@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { BridgeError, canExit, command, connect, exitApp, HUMAN_MANAGER_ID, query, ready } from './lib/api/client';
-  import type { NewCareerCall, NextRaceView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
+  import type { BridgeCommandName, NewCareerCall, NextRaceView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
   import { latestSave, newestFirst, saveLabel } from './lib/career.mjs';
   import GameMenu from './lib/components/GameMenu.svelte';
   import LanguageSetting from './lib/components/LanguageSetting.svelte';
@@ -20,9 +20,17 @@
   import { startSmoke } from './lib/smoke';
   import { sweep } from './lib/sweep';
   import { icon, ICON, initials, translator } from './lib/ui';
+  import Auto from './screens/Auto.svelte';
   import Kalendarz from './screens/Kalendarz.svelte';
+  import Kierowca from './screens/Kierowca.svelte';
+  import Kierowcy from './screens/Kierowcy.svelte';
   import Klasyfikacje from './screens/Klasyfikacje.svelte';
+  import Negocjacja from './screens/Negocjacja.svelte';
+  import Osoba from './screens/Osoba.svelte';
+  import Personel from './screens/Personel.svelte';
+  import Porownaj from './screens/Porownaj.svelte';
   import Pulpit from './screens/Pulpit.svelte';
+  import Rynek from './screens/Rynek.svelte';
   import Skrzynka from './screens/Skrzynka.svelte';
   import Wyscig from './screens/Wyscig.svelte';
 
@@ -239,6 +247,23 @@
       await refresh();
     } catch (error) {
       catchFault(error);
+    } finally {
+      busy = false;
+    }
+  }
+
+  /** A player command from a screen. The screen shows the refusal (the page's fault line) and asks for its own confirm first. */
+  async function act(name: BridgeCommandName, args: Record<string, unknown>): Promise<boolean> {
+    if (busy) return false;
+    busy = true;
+    fault = null;
+    try {
+      await command(name, { managerId: HUMAN_MANAGER_ID, ...args } as never);
+      await refresh();
+      return true;
+    } catch (error) {
+      catchFault(error);
+      return false;
     } finally {
       busy = false;
     }
@@ -537,7 +562,7 @@
     <main id="view" class:noscroll={inGame && route.name === 'pulpit'} bind:this={viewEl}>
       {#if !inGame}
         {#if menuPage === 'home'}
-          <MenuHome {tr} {latest} {busy} onContinue={continueCareer} />
+          <MenuHome {tr} {latest} saveCount={saves.length} {busy} canQuit={canExit()} onContinue={continueCareer} onOpen={openMenuPage} onQuit={exitApp} />
         {:else if menuPage === 'new'}
           <div class="screen-head"><h1 class="screen">{t('menu.new')}</h1></div>
           {#if session}
@@ -577,6 +602,22 @@
           <Wyscig data={screenData} {tr} {teamId} />
         {:else if screenData.kind === 'klasyfikacje' && route.name === 'klasyfikacje'}
           <Klasyfikacje data={screenData} {tr} {teamId} {rounds} />
+        {:else if screenData.kind === 'kierowcy' && route.name === 'kierowcy'}
+          <Kierowcy data={screenData} {tr} today={shell?.date ?? ''} />
+        {:else if screenData.kind === 'kierowca' && route.name === 'kierowca'}
+          <Kierowca data={screenData} {tr} today={shell?.date ?? ''} {teamId} {busy} {act} />
+        {:else if screenData.kind === 'porownaj' && route.name === 'porownaj'}
+          <Porownaj data={screenData} {tr} />
+        {:else if screenData.kind === 'personel' && route.name === 'personel'}
+          <Personel data={screenData} {tr} {teamId} />
+        {:else if screenData.kind === 'osoba' && route.name === 'osoba'}
+          <Osoba data={screenData} {tr} id={route.args[0] ?? ''} />
+        {:else if screenData.kind === 'auto' && route.name === 'auto'}
+          <Auto data={screenData} {tr} {teamId} {busy} {act} />
+        {:else if screenData.kind === 'rynek' && route.name === 'rynek'}
+          <Rynek data={screenData} {tr} />
+        {:else if screenData.kind === 'negocjacja' && route.name === 'negocjacja'}
+          <Negocjacja data={screenData} {tr} id={route.args[0] ?? ''} {busy} {act} />
         {:else if route.name === 'ustawienia'}
           <div class="screen-head">
             <h1 class="screen">{t(SETTINGS.key)}</h1>

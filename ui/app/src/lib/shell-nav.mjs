@@ -8,7 +8,6 @@ export const NAV = [
   { id: 'personel', key: 'shell.nav.staff', icon: '<circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c1-3 3-5 6-5s5 2 6 5M15 15c3 0 5 1.5 6 4"/>' },
   { id: 'akademia', key: 'shell.nav.academy', icon: '<path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/>' },
   { id: 'auto', key: 'shell.nav.car', icon: '<path d="M8 3.5h8M12 3.5v4M10.5 7.5h3l1 5v4.5l-1.5 3h-3L8.5 17v-4.5z"/><rect x="5" y="7" width="2.6" height="4.2" rx="1"/><rect x="16.4" y="7" width="2.6" height="4.2" rx="1"/><rect x="4.6" y="14.5" width="3" height="4.8" rx="1"/><rect x="16.4" y="14.5" width="3" height="4.8" rx="1"/><path d="M7.5 21h9"/>' },
-  { id: 'infrastruktura', key: 'shell.nav.infrastructure', icon: '<path d="M4 20V9l5-3v14M9 20V4l6 3v13M15 20v-9l5 2v7M3 20h18"/>' },
   { sep: true },
   { id: 'dostawcy', key: 'shell.nav.suppliers', icon: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>' },
   { id: 'sponsorzy', key: 'shell.nav.sponsors', icon: '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>' },
@@ -16,8 +15,6 @@ export const NAV = [
   { id: 'zarzad', key: 'shell.nav.board', icon: '<path d="M4 20h16M6 20V10M10 20V10M14 20V10M18 20V10M3 10l9-6 9 6z"/>' },
   { sep: true },
   { id: 'rynek', key: 'shell.nav.market', icon: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>' },
-  { id: 'monthly', key: 'shell.nav.monthly', icon: '<path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/>' },
-  { id: 'fia', key: 'shell.nav.fia', icon: '<path d="M12 3v18M5 7h14M7 7l-3 7h6zM17 7l-3 7h6z"/>' },
 ];
 
 export const SETTINGS = {
@@ -81,8 +78,8 @@ export const SHELL_KEYS = [
   'inbox.area.other',
 ];
 
-/** Pages that are not in the menu light up their parent: a race page belongs to the calendar. */
-export const PARENT = { wyscig: 'kalendarz' };
+/** Pages that are not in the menu light up their parent: a race page belongs to the calendar, a driver page to the squad. */
+export const PARENT = { wyscig: 'kalendarz', kierowca: 'kierowcy', porownaj: 'kierowcy', osoba: 'personel', negocjacja: 'rynek' };
 
 const ids = [...NAV.filter((item) => item.id).map((item) => item.id), SETTINGS.id, ...Object.keys(PARENT)];
 

@@ -18,3 +18,14 @@ test('unknown and removed screens fall back to the dashboard', () => {
   assert.deepEqual(parseRoute('#/kronika'), { name: 'pulpit', args: [] });
   assert.ok(!NAV.some((item) => item.id === 'kronika'));
 });
+
+test('profile and negotiation pages light the entry they came from', () => {
+  assert.deepEqual(parseRoute('#/kierowca/farina'), { name: 'kierowca', args: ['farina'] });
+  assert.deepEqual(parseRoute('#/porownaj/farina/frere'), { name: 'porownaj', args: ['farina', 'frere'] });
+  assert.deepEqual(parseRoute('#/osoba/gen%3A34'), { name: 'osoba', args: ['gen:34'] });
+  assert.equal(navOwner('kierowca'), 'kierowcy');
+  assert.equal(navOwner('porownaj'), 'kierowcy');
+  assert.equal(navOwner('osoba'), 'personel');
+  assert.equal(navOwner('negocjacja'), 'rynek');
+  assert.equal(screenKey('negocjacja'), 'shell.nav.market');
+});

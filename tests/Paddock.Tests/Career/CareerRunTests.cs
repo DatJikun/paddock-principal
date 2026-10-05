@@ -31,13 +31,15 @@ namespace Paddock.Tests.Career;
 /// It changed again in #184: the AI principal of the fixture team reviews and writes the <c>principals</c> section, and contract
 /// renewals are that principal's commands instead of the renewal placeholder. The gate manager <c>ai:paddock</c> stays, and the
 /// team adds <c>ai:alpha</c>.
+/// It changed again for the season-target choice (#197): an AI team still takes the expected finish, but the objective
+/// records that choice, so the objectives section text differs.
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "4e38dbfa3b6ce1b0638f62ff768d0174f241f3f0b1f1b5b05fe529e9bbb4563a";
+    private const string StoredWorldHash = "bf744635bec6e2a05ab51b68ef1dba376d6feac3b53bd6cc6f46071aa4631b05";
 
     private const string StoredRetired = "chief,leap,vet";
 

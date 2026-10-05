@@ -7,8 +7,8 @@ namespace Paddock.Application.Objectives;
 /// <summary>
 /// T36 objectives in the career loop. It owns the registry of facts an objective reads (one registration per key; finance adds
 /// <c>finance.cash</c>), the objective day handler (order 900), and the settling of whatever outcome no other system applied.
-/// It is listed first, because the other modules read its registry while they attach. The championship facts have no supplier yet:
-/// the run has no race calendar, so a position objective cannot be shown to be met and counts as not met, as the objective rules say.
+/// It is listed first, because the other modules read its registry while they attach. The racing module registers the
+/// championship position, points and podiums. Until a team has a result those facts stay unknown, and an unknown fact is not met.
 /// </summary>
 public sealed class ObjectivesModule : CareerModule
 {

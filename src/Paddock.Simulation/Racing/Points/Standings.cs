@@ -296,5 +296,73 @@ public sealed class Standings
         return 0;
     }
 
+    /// <summary>The round-by-round points and finishing positions of one table entry. Enough to rebuild the table.</summary>
+    public sealed record LedgerSnapshot(string Id, ImmutableArray<decimal> RoundPoints, ImmutableArray<int> Positions);
+
+    /// <summary>Drivers then constructors, each in id order. The rules are not part of the snapshot: the caller supplies the same rules on restore.</summary>
+    public (ImmutableArray<LedgerSnapshot> Drivers, ImmutableArray<LedgerSnapshot> Constructors) Snapshot() =>
+        (SnapshotOf(_drivers), SnapshotOf(_constructors));
+
+    /// <summary>
+    /// Rebuilds a table from <see cref="Snapshot"/>. Every ledger has exactly <paramref name="roundsCompleted"/> round points.
+    /// The same rules and the same snapshot give the same table (INV-002).
+    /// </summary>
+    public static Standings Restore(
+        PointsRules rules,
+        int totalRounds,
+        int roundsCompleted,
+        IReadOnlyList<LedgerSnapshot> drivers,
+        IReadOnlyList<LedgerSnapshot> constructors)
+    {
+        ArgumentNullException.ThrowIfNull(rules);
+        ArgumentNullException.ThrowIfNull(drivers);
+        ArgumentNullException.ThrowIfNull(constructors);
+        ArgumentOutOfRangeException.ThrowIfLessThan(totalRounds, 1);
+        ArgumentOutOfRangeException.ThrowIfNegative(roundsCompleted);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(roundsCompleted, totalRounds);
+        return new Standings(
+            rules,
+            totalRounds,
+            roundsCompleted,
+            RestoreLedgers(drivers, roundsCompleted),
+            RestoreLedgers(constructors, roundsCompleted));
+    }
+
+    private static ImmutableArray<LedgerSnapshot> SnapshotOf(ImmutableSortedDictionary<string, Ledger> ledgers)
+    {
+        var rows = ImmutableArray.CreateBuilder<LedgerSnapshot>(ledgers.Count);
+        foreach (var (id, ledger) in ledgers)
+        {
+            rows.Add(new LedgerSnapshot(id, ledger.RoundPoints, ledger.Positions));
+        }
+
+        return rows.MoveToImmutable();
+    }
+
+    private static ImmutableSortedDictionary<string, Ledger> RestoreLedgers(IReadOnlyList<LedgerSnapshot> rows, int roundsCompleted)
+    {
+        var ledgers = ImmutableSortedDictionary.CreateBuilder<string, Ledger>(StringComparer.Ordinal);
+        foreach (var row in rows)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(row.Id);
+            if (row.RoundPoints.IsDefault || row.RoundPoints.Length != roundsCompleted)
+            {
+                throw new ArgumentException("A ledger must list one points total per completed round.", nameof(rows));
+            }
+
+            if (row.Positions.IsDefault)
+            {
+                throw new ArgumentException("A ledger is missing its finishing positions.", nameof(rows));
+            }
+
+            if (!ledgers.TryAdd(row.Id, new Ledger(row.RoundPoints, row.Positions)))
+            {
+                throw new ArgumentException("Ledger '" + row.Id + "' is listed twice.", nameof(rows));
+            }
+        }
+
+        return ledgers.ToImmutable();
+    }
+
     private sealed record Ledger(ImmutableArray<decimal> RoundPoints, ImmutableArray<int> Positions);
 }

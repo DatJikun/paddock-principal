@@ -1,4 +1,5 @@
 using Paddock.Application.Sponsors;
+using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Sponsors;
@@ -38,6 +39,27 @@ public sealed class CareerInputs
     /// them passes an authored ESTIMATE source, and without any source every team starts as a typical one.
     /// </summary>
     public ITeamTierSource? Tiers { get; init; }
+
+    /// <summary>Track layouts for the championship calendar. Without them the career runs no races.</summary>
+    public IReadOnlyList<TrackLayout>? Layouts { get; init; }
+
+    /// <summary>Which layout each championship round uses.</summary>
+    public IReadOnlyList<RaceAssignment>? RaceAssignments { get; init; }
+
+    /// <summary>Catalog dimension ids, in authored order. Required to resolve a season's <see cref="RuleSet"/>.</summary>
+    public IReadOnlyList<string>? RegulationDimensionIds { get; init; }
+
+    /// <summary>Era catalog dimension ids. Required for fatality risk and the other era facts a race reads.</summary>
+    public IReadOnlyList<string>? EraDimensionIds { get; init; }
+
+    /// <summary>The regulation catalog a voted season proposes against. Historical careers do not need it.</summary>
+    public IReadOnlyList<RuleDimensionSpec>? RegulationCatalog { get; init; }
+
+    /// <summary>How this career treats rules. Historical reads the timeline; voted replaces next year's set on 31 December.</summary>
+    public RulesSource Rules { get; init; } = RulesSource.Historical;
+
+    /// <summary>Whether a race can kill a driver (PP-006). The default is off.</summary>
+    public FatalityLevel Fatality { get; init; } = FatalityLevel.Off;
 
     /// <summary>
     /// The benchmark pay a contract starts from (the era's driver pay, scaled by stars). Without it every contract starts from one

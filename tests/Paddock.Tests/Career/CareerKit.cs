@@ -25,9 +25,11 @@ internal static class CareerKit
     public static AuthoredData Data => Authored.Value;
 
     /// <summary>The run options of the tool: every career module and the authored data inputs.</summary>
-    public static CareerRunOptions Options => new() { Inputs = CareerInputsLoader.Load(DataRoot, Data) };
+    public static CareerRunOptions Options =>
+        new() { Inputs = CareerInputsLoader.Load(DataRoot, Data, career: CareerConfig.FromPreset(CareerPreset.Chaos)) };
 
-    public static CareerRunOptions OptionsFor(OpenedCareer career) => new() { Inputs = CareerInputsLoader.Load(DataRoot, Data, career.Supplies) };
+    public static CareerRunOptions OptionsFor(OpenedCareer career) =>
+        new() { Inputs = CareerInputsLoader.Load(DataRoot, Data, career.Supplies, career.Config) };
 
     public static CareerSession Open(CareerPreset preset, int startYear, ulong seed) => Opened(preset, startYear, seed).Session;
 

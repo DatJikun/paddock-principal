@@ -31,16 +31,16 @@ public sealed class CareerWiringTests
 
         CareerHost.RunUntil(session, new GameDate(1955, 1, 2), null, CareerKit.Options);
 
-        // season change 5 (host), pool 10, ageing 20, last season 25, contract expiry 30, rollover 40 (the session), negotiations 700, contract lifecycle 710,
-        // sponsors 750, supply 760, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
-        Assert.Equal([5, 10, 15, 20, 25, 30, 40, 700, 705, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
+        // season change 5 (host), pool 10, seat 15, ageing 20, last season 25, contract expiry 30, rollover 40, race weekend 50,
+        // negotiations 700, raise demands 705, contract lifecycle 710, sponsors 750, supply 760, development 780, finance 800, objectives 900, board 910.
+        Assert.Equal([5, 10, 15, 20, 25, 30, 40, 50, 700, 705, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
     }
 
     [Fact]
     public void TheModuleListIsTheDocumentedOneAndNamesAreUnique()
     {
         Assert.Equal(
-            ["objectives", "finance", "contracts", "pool", "cars", "sponsors", "supply", "development", "board", "principals"],
+            ["objectives", "finance", "contracts", "pool", "cars", "sponsors", "supply", "racing", "development", "board", "principals"],
             CareerModules.Default.Select(module => module.Name).ToArray());
     }
 
@@ -119,40 +119,33 @@ public sealed class CareerWiringTests
     }
 
     [Fact]
-    public void EveryTeamIsPaidTheSamePlaceholderStartMoneyOnTheFirstDayOfASeason()
+    public void JanuaryDoesNotPayThePlaceholderStartMoney()
     {
+        // T47 removed the January lump (PP-055). Start and prize money are posted from race results.
         var session = CareerKit.Open(CareerPreset.Chaos, 1955, Seed);
 
         CareerHost.RunUntil(session, new GameDate(1955, 1, 2), null, CareerKit.Options);
 
-        var typical = new EraPeriodFinance(CareerKit.Data.EraPeriods).Facts(1955).TypicalDollars;
-        var expected = Money.RoundDollars(typical * FinanceEstimates.StartMoneyShare).Cents;
         var finance = session.World.Section<FinanceSection>(FinanceSection.SectionName)!;
         var teams = CareerTeams.Active(session.World, session.Date);
         Assert.NotEmpty(teams);
         foreach (var team in teams)
         {
-            var income = Assert.Single(finance.EntriesOf(team.Id), entry => entry.Category == LedgerCategories.StartMoney);
-            Assert.Equal(expected, income.AmountCents);
-            Assert.Equal(FinanceReason.StartMoney, income.ReasonKey);
+            Assert.DoesNotContain(finance.EntriesOf(team.Id), entry => entry.Category == LedgerCategories.StartMoney);
         }
     }
 
     [Fact]
-    public void WithThePlaceholderIncomeAnAiOnlyCareerDoesNotRunDryAndKeepsRenewingContracts()
+    public void RaceIncomeKeepsAnAiOnlyCareerRenewingContractsThrough1960()
     {
-        // Measured without the income stand-in: every team is insolvent by 1958 and a Chaos career from 1950 has no contracts by 1959.
-        // A8 does not plan Indianapolis-only constructors. The 1950 Chaos grid is then the Grand Prix teams (two generated
-        // seats each) plus the unsigned new team. With the renewal placeholder, seed 7 ended 1960 with 16 live contracts.
-        // The AI principals renew and sign through the decade (25 contracts at the end of 1960). They also spend, and alta's
-        // book reaches the insolvency watch; the other books do not.
+        // PP-055's January lump is gone. Start money, prize money and the race running cost are booked from results
+        // (estimates). Measured for seed 7, Chaos, 1950 through 1960: no book is on the insolvency watch, and the grid
+        // still has contracts at the end of 1960. Before races, the same run left alta insolvent.
         var session = CareerKit.Open(CareerPreset.Chaos, 1950, Seed);
 
         CareerHost.Run(session, 1960, null, CareerKit.Options);
 
         var finance = session.World.Section<FinanceSection>(FinanceSection.SectionName)!;
-        // The renewal placeholder did not spend. The principals do (development, supply, sponsors), so one backmarker
-        // reaches the insolvency watch. The grid does not collapse: 25 contracts at the end of 1960, measured for seed 7.
         var insolvent = session.World.Organizations
             .Where(organization => finance.HasBook(organization.Id) && finance.IsInsolvent(organization.Id))
             .Select(organization => organization.Id.Value)
@@ -211,7 +204,7 @@ public sealed class CareerWiringTests
         Assert.NotEqual(first.World.StateHash(), other.World.StateHash());
         var names = first.World.Sections.Select(section => section.Name).ToHashSet(StringComparer.Ordinal);
         Assert.Superset(
-            new HashSet<string>(["board", "cars", "contracts", "development", "finance", "objectives", "principals", "talent-pool"], StringComparer.Ordinal),
+            new HashSet<string>(["board", "cars", "championship", "contracts", "development", "finance", "objectives", "principals", "regulations", "talent-pool"], StringComparer.Ordinal),
             names);
     }
 

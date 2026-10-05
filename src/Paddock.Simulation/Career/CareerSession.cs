@@ -299,6 +299,56 @@ public sealed class CareerSession
         World = next;
     }
 
+    /// <summary>True when a championship session of <paramref name="season"/> is already on the clock.</summary>
+    public bool HasChampionship(int season)
+    {
+        foreach (var scheduled in _clock.Queue.Events)
+        {
+            if (scheduled.Payload is RaceSessionPayload payload && payload.Season == season)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Queues one season's weekends. Used when a career opens, before any day is lived. A day handler that schedules the next
+    /// season uses <see cref="DayContext.Schedule"/> instead, because a clock written during a day is replaced when the day ends.
+    /// </summary>
+    public void QueueChampionship(int season, IReadOnlyList<TrackLayout> layouts, IReadOnlyList<RaceAssignment> assignments)
+    {
+        _clock = SeasonCalendar.Schedule(_clock, season, layouts, assignments);
+    }
+
+    /// <summary>Queues sessions that are still ahead of the clock. Sessions already in the past are left out.</summary>
+    public void QueuePlanned(IReadOnlyList<SeasonCalendar.PlannedSession> sessions)
+    {
+        _clock = SeasonCalendar.Enqueue(_clock, sessions);
+    }
+
+    /// <summary>
+    /// Retires a person because a race ended the career (fatal, or a career-ending injury). Same world effect as an age
+    /// retirement: the person stays, the contracts end, the pool drops them, and the day emits <see cref="CareerEventType.Retired"/>.
+    /// A person who has already retired is left as they are.
+    /// </summary>
+    public void RetireForRace(PersonId id, GameDate today, DayContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        if (today != _clock.Date)
+        {
+            throw new ArgumentException("A race retirement is dated on the day being lived.", nameof(today));
+        }
+
+        if (World.GetPerson(id).IsRetired)
+        {
+            return;
+        }
+
+        Retire(id, today, context);
+    }
+
     /// <summary>
     /// Adds day handlers once, before the first day is lived. The career host uses this for the contract handlers, which live
     /// in the application layer and so cannot be constructed here.

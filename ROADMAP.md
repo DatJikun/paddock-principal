@@ -63,7 +63,6 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - Model okrążeń parametryzowany epoką, strategia sztabu, awaryjność, pogoda, incydenty i kontuzje.
 - Race Spy od pierwszego dnia.
 - Wyścig jako strumień zdarzeń, który da się odtwarzać w tempie oglądania (potrzebne do wspólnego oglądania online, PP-045).
-- Test wierności historii: 1950–1960, a potem kolejne dekady.
 
 **Stan (2026-10-04):**
 - [x] T26–T34: strumień zdarzeń, punkty i klasyfikacja, kwalifikacje, model okrążeń, opony i paliwo, awaryjność, pogoda, incydenty, pit stopy ze strategiem; Race Spy (T24) i głosowane przepisy (T23) już wcześniej.
@@ -96,7 +95,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 **Zakres MVP (PP-050):** przejęty istniejący zespół, dwa auta i dwóch kierowców na zespół, trzy miejsca na sponsora. Własny zespół, sponsor założycielski, zakładanie i wykup zespołu są po MVP.
 
 ## Faza 5: Żywa historia
-- Kronika rozbieżności, Hall of Fame, rekordy, kompaktowanie historii.
+- Hall of Fame, rekordy, kompaktowanie historii.
 - Skrzynka i zdarzenia życiowe.
 - Przejście od prawdziwych ludzi do generatora po 2026.
 
@@ -104,7 +103,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 
 ## Faza 6: UI (HTML/TS/Svelte w Photino)
 - Most JSON, tryb deweloperski w przeglądarce, zrzuty ekranu do przeglądu.
-- Prawdziwe ekrany z design systemu (tor równoległy): gęste tabele, ekran wyścigu, kronika, onboarding.
+- Prawdziwe ekrany z design systemu (tor równoległy): gęste tabele, ekran wyścigu, onboarding.
 - **Multiplayer online (PP-045):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo.
 
 **Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.

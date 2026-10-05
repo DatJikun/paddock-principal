@@ -18,8 +18,8 @@ Trzydzieści lat później pewien Brazylijczyk wygrywa dla Ciebie mistrzostwo w 
 ### 1. Symulacja tworzy wynik
 Historia nie jest skryptem. Prawdziwe wydarzenia są punktem startowym i punktem odniesienia, a nie wyrokiem. Nikt nie wygrywa, bo „tak było naprawdę”. Wygrywa, bo w tym świecie miał najlepszy samochód, talent i ludzi.
 
-### 2. Historia, którą da się zmienić, i gra, która to pokazuje
-Wyróżnik gry to nie prawdziwe nazwiska, tylko **rozbieżność**. Kronika rozbieżności porównuje Twoją oś czasu z prawdziwą: tytuły, zespoły, które nie powstały, technologie wymyślone wcześniej, kariery, które potoczyły się inaczej.
+### 2. Historia, którą da się zmienić
+Wyróżnik gry to nie prawdziwe nazwiska, tylko to, że **od pierwszego dnia historia toczy się po swojemu**. Gra nie porównuje Twojej osi czasu z prawdziwą i nie ocenia, czy świat jest „zgodny z historią” (PP-062). Gracz zna przeszłość sam.
 
 ### 3. Jeden świat, jeden silnik
 Tryb historyczny i proceduralny to ten sam świat. Różnią się tylko **źródłem ludzi** (harmonogram prawdziwych osób albo generator) i **osią czasu epok** (przepisy, technologie, ekonomia). Po wyczerpaniu prawdziwych danych generator płynnie przejmuje pałeczkę, więc kariera jest nieskończona.
@@ -52,7 +52,7 @@ Silnik działa również na fikcyjnych danych. Prawdziwe nazwiska, zespoły i to
 Najbliższy konkurent to **Team Principal: A Racing Manager** (Steam, wczesny dostęp od 02.2026): głęboki menedżer w stylu Grand Prix World, w którym da się edytować wszystko, a epoki są migawkami sezonów robionymi przez modderów. Nie ścigamy się z nim na „więcej funkcji” ani na „edytuj wszystko”. Wyróżniamy się trzema rzeczami, w tej kolejności:
 
 1. **Najlepszy UI w gatunku.** Czytelny, gęsty, piękny; każda blokada i każda decyzja wyjaśniona (STATE / WHY / FORECAST). Ich największa słabość to brak onboardingu i niewyjaśnione blokady.
-2. **Ciągła historia jako rdzeń gry, a nie mod:** ludzie według harmonogramu, epoki, technologie, propozycje historyczne, kronika rozbieżności.
+2. **Ciągła historia jako rdzeń gry, a nie mod:** ludzie według harmonogramu, epoki, technologie, propozycje historyczne.
 3. **Polski i angielski.**
 
 ## Czego NIE robimy
@@ -356,3 +356,9 @@ Szczegóły w DESIGN §5.3.
 - **UI powstaje równolegle z rdzeniem, falami:** ekran podłączamy do prawdziwej gry, gdy gotowy jest system, który pokazuje. Ekranu nie robimy przed systemem, który ma w nim żyć.
 - **Podział:** most UI–rdzeń, okno i typy robi koder backendu; ekrany z prototypu przenosi sesja UI (Claude, PP-024).
 - **Multiplayer jest po MVP i tylko online** (host i goście, TECH §5.1). Rdzeń nadal jest pisany pod wielu graczy (`managerId`, bramka gotowości, jedna kolejka komend), a obliczenia mają być identyczne na Windows i Linux.
+
+**PP-062: Bez testu wierności historii i bez kroniki rozbieżności** (zastępuje PP-012; usuwa kronikę rozbieżności z wizji, DESIGN §12, ROADMAP fazy 3 i 5 oraz TECH §8; decyzja właściciela z 2026-10-05).
+- **Gra nie porównuje świata z prawdziwą historią.** Nie ma raportu wierności (rozkład mistrzów, dominacja względem rzeczywistości), bramki jakości opartej na nim ani ekranu, który zestawia Twoją oś czasu z prawdziwą. Gracz zna przeszłość sam.
+- **Skutki decyzji są emergentne.** Bramka fazy 4 (#113) nie ustala z góry, ile rzeczy ma się rozjechać po innej decyzji. Raport pokazuje, co się rozjechało, a ocenia właściciel.
+- **Gracz może przejąć dowolny zespół stawki.** Scenariusze testowe biorą zespół jako parametr, a nie gotowe „historie”.
+- **Zostaje kalibracja silnika wyścigu** (`calibrate-race`, #122): odsetek ukończeń, awarie, przewagi. To strojenie mechaniki wyścigu, a nie ocena, kto powinien wygrać.

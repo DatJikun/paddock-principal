@@ -27,14 +27,15 @@ namespace Paddock.Tests.Career;
 /// It changed again in #173 (B3): the ceiling draw is a child of Development tagged with the organization, the season and the
 /// concept axes, and approval no longer advances <c>NextCeilingDraw</c>. The same concept cannot be re-rolled, so the stored
 /// ceiling and the cars-section counter differ from the #160 hash. Two runs with one seed still match (INV-002). Seat sync (B4)
-/// does not move this fixture: its one contracted driver stays seated.
+/// does not move this fixture: its one contracted driver stays seated. It changed again for the season-target choice: an AI
+/// team still takes the expected finish, but the objective records that choice, so the objectives section text differs.
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "6ef244815712ec8588d9a2e4c20cd5613ca7922677e9d2f884d618872915d56d";
+    private const string StoredWorldHash = "cb25935caaf44ea7555f5a23ce1dd1ad039f71ee6b645a5444bb5114072a3e48";
 
     private const string StoredRetired = "chief,leap,vet";
 

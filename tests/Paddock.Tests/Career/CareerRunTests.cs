@@ -11,6 +11,7 @@ using Paddock.Persistence;
 using Paddock.Simulation.Career;
 using Paddock.Simulation.Pool;
 using Paddock.Simulation.Time;
+using Paddock.Career;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.Career;

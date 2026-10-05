@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using Paddock.Domain.Random;
 using Paddock.Persistence;
+using Paddock.Career;
 using Paddock.SimRunner;
 
 namespace Paddock.Tests.Persistence;

@@ -39,6 +39,13 @@ export interface AdvanceDayView {
   date: string;
 }
 
+export interface BeginSponsorCall {
+  managerId: string;
+  organizationId: string;
+  slot: number;
+  sponsorId: string;
+}
+
 export interface BoardForecastView {
   kind: BoardForecastKind;
   message: TranslationMessage;
@@ -68,13 +75,50 @@ export interface BoardWhyView {
   targetConfidence: number | null;
 }
 
+export interface CalendarRoundView {
+  circuitId: string;
+  circuitName: string;
+  country: string;
+  finished: boolean;
+  layoutId: string;
+  practice: string | null;
+  qualifying: string | null;
+  race: string | null;
+  round: number;
+  season: number;
+}
+
+export interface CalendarView {
+  rounds: CalendarRoundView[];
+  season: number;
+}
+
 export interface CarBandView {
   high: number;
   low: number;
 }
 
+export interface CareerSavedView {
+  hash: string;
+  name: string;
+}
+
+export interface CareerStartedView {
+  date: string;
+  hash: string;
+  managerId: string;
+  organizationId: string;
+  peopleNoticeKey: string | null;
+}
+
 export interface CommandAck {
   accepted: boolean;
+}
+
+export interface CommitConceptCall {
+  managerId: string;
+  organizationId: string;
+  projectId: string;
 }
 
 export interface DeveloperBoardLine {
@@ -97,6 +141,18 @@ export interface DevelopmentForecast {
 
 export interface DevelopmentOverview {
   own: OwnDevelopmentView[];
+}
+
+export interface DevelopmentSplitCall {
+  accountPercent: number;
+  aeroPriority: number;
+  chassisPriority: number;
+  currentPercent: number;
+  managerId: string;
+  nextYearPercent: number;
+  organizationId: string;
+  reliabilityPriority: number;
+  tyresPriority: number;
 }
 
 export interface DismissInboxCall {
@@ -124,6 +180,12 @@ export interface FinanceViewOwn {
 
 export interface FinanceViewUnknown {
   reason: TranslationMessage;
+}
+
+export interface FundJuniorCall {
+  managerId: string;
+  personHandle: string;
+  programme: string;
 }
 
 export interface InboxItemView {
@@ -160,6 +222,11 @@ export interface KnownAttributeView {
   low: number;
 }
 
+export interface LoadCareerCall {
+  managerId: string;
+  path: string;
+}
+
 export interface ManagerCall {
   managerId: string;
 }
@@ -179,6 +246,28 @@ export interface MarketDriverView {
   name: string;
   nationality: string;
   personId: string;
+}
+
+export interface MarketPersonView {
+  attributes: KnownAttributeView[];
+  contractEnd: string | null;
+  freeAgent: boolean;
+  name: string;
+  nationality: string;
+  organizationId: string | null;
+  organizationName: string | null;
+  personId: string;
+  seat: string | null;
+}
+
+export interface MarketView {
+  contracted: MarketPersonView[];
+  freeAgents: MarketPersonView[];
+}
+
+export interface NegotiationIdCall {
+  managerId: string;
+  negotiationId: string;
 }
 
 export interface NegotiationRoundView {
@@ -221,6 +310,36 @@ export interface NegotiationView {
 
 export interface NegotiationsView {
   items: NegotiationView[];
+}
+
+export interface NewCareerCall {
+  ai: string | null;
+  familyName: string;
+  fatality: string | null;
+  givenName: string;
+  history: number | null;
+  managerId: string;
+  name: string | null;
+  nationality: string;
+  noNumbers: boolean | null;
+  people: string | null;
+  preset: string | null;
+  randomness: number | null;
+  rules: string | null;
+  seed: number | null;
+  teamId: string;
+  tilt: string;
+  year: number | null;
+}
+
+export interface NextRaceView {
+  circuitId: string | null;
+  circuitName: string | null;
+  country: string | null;
+  date: string | null;
+  layoutId: string | null;
+  round: number | null;
+  season: number | null;
 }
 
 export interface ObjectiveForecastView {
@@ -275,6 +394,14 @@ export interface OfferTerms {
   titleBonus: number;
   winBonus: number;
   years: number;
+}
+
+export interface OpenNegotiationCall {
+  deadline: string | null;
+  managerId: string;
+  organizationId: string;
+  personId: string;
+  subject: string;
 }
 
 export interface OwnBoardView {
@@ -384,6 +511,14 @@ export interface OwnTeamView {
   organizationId: string | null;
 }
 
+export interface PointsScaleView {
+  constructors: string;
+  doublePointsFinale: boolean;
+  fastestLap: string;
+  positionPoints: number[];
+  resultsCounting: string;
+}
+
 export interface PoolBandView {
   high: number;
   key: string;
@@ -405,6 +540,60 @@ export interface PoolView {
   focus: ScoutFocusKind | null;
   focusHandle: string | null;
   items: PoolItemView[];
+}
+
+export interface RaceResultCall {
+  managerId: string;
+  round: number | null;
+  season: number | null;
+}
+
+export interface RaceResultView {
+  found: boolean;
+  layoutId: string | null;
+  round: number;
+  rows: RaceRowView[];
+  season: number;
+  sections: ReportSectionView[];
+}
+
+export interface RaceRowView {
+  classified: boolean;
+  driverId: string;
+  driverName: string;
+  points: string;
+  position: number;
+  retirementKey: string;
+  teamId: string;
+  teamName: string;
+}
+
+export interface RenewContractCall {
+  contractId: string;
+  exerciseOption: boolean;
+  managerId: string;
+  pointsBonus: number | null;
+  salary: number | null;
+  seat: string | null;
+  titleBonus: number | null;
+  winBonus: number | null;
+  years: number | null;
+}
+
+export interface ReportArgView {
+  name: string;
+  value: string;
+}
+
+export interface ReportLineView {
+  args: ReportArgView[];
+  count: number | null;
+  key: string;
+}
+
+export interface ReportSectionView {
+  lines: ReportLineView[];
+  title: ReportLineView;
 }
 
 export interface ReputationLineView {
@@ -430,6 +619,37 @@ export interface RivalCarView {
   organizationId: string;
 }
 
+export interface SaveCareerCall {
+  managerId: string;
+  name: string;
+}
+
+export interface SaveListItem {
+  date: string;
+  name: string;
+  teamId: string;
+}
+
+export interface SaveListView {
+  saves: SaveListItem[];
+}
+
+export interface ScoutFocusCall {
+  managerId: string;
+  personHandle: string | null;
+}
+
+export interface SessionView {
+  date: string | null;
+  managerId: string;
+  organizationId: string | null;
+  organizationName: string | null;
+  peopleNoticeKey: string | null;
+  started: boolean;
+  suggestedSeed: string;
+  suggestedYear: number;
+}
+
 export interface ShellView {
   blockingKind: string | null;
   cashCents: number | null;
@@ -441,6 +661,12 @@ export interface ShellView {
   managerId: string;
   organizationId: string | null;
   organizationName: string | null;
+}
+
+export interface SignPoolCall {
+  managerId: string;
+  personHandle: string;
+  role: string;
 }
 
 export interface SponsorCandidateView {
@@ -464,6 +690,13 @@ export interface SponsorDealView {
   trust: number;
 }
 
+export interface SponsorOfferCall {
+  accept: boolean;
+  managerId: string;
+  offerId: string;
+  organizationId: string;
+}
+
 export interface SponsorOfferView {
   annualCents: number;
   id: string;
@@ -477,6 +710,12 @@ export interface SponsorSlotView {
   kind: TranslationMessage;
   slot: number;
   talkId: string | null;
+}
+
+export interface SponsorTalkCall {
+  managerId: string;
+  organizationId: string;
+  talkId: string;
 }
 
 export interface SponsorTalkView {
@@ -503,6 +742,93 @@ export interface SponsorViewUnknown {
   reason: TranslationMessage;
 }
 
+export interface StaffAttributeView {
+  high: number;
+  key: string;
+  low: number;
+}
+
+export interface StaffListView {
+  people: StaffPersonView[];
+}
+
+export interface StaffPersonView {
+  attributes: StaffAttributeView[] | null;
+  driverId: string | null;
+  name: string;
+  organizationId: string;
+  ownTeam: boolean;
+  personId: string;
+  relationship: number | null;
+  role: string;
+}
+
+export interface StandingRowView {
+  id: string;
+  name: string;
+  points: string;
+  position: number;
+  wins: number;
+}
+
+export interface StandingsView {
+  constructors: StandingRowView[];
+  drivers: StandingRowView[];
+  roundsCompleted: number;
+  rules: PointsScaleView | null;
+  season: number;
+  totalRounds: number;
+}
+
+export interface SubmitOfferCall {
+  exitWorseThan: number | null;
+  managerId: string;
+  negotiationId: string;
+  optionHolder: string | null;
+  optionYears: number | null;
+  pointsBonus: number;
+  salary: number;
+  seat: string | null;
+  titleBonus: number;
+  winBonus: number;
+  years: number;
+}
+
+export interface SupplyProposalCall {
+  annualPriceCents: number;
+  exclusive: boolean;
+  firstSeason: number;
+  item: string;
+  kind: string;
+  managerId: string;
+  negotiationId: string | null;
+  organizationId: string;
+  seasons: number;
+  supplierId: string;
+}
+
+export interface SupplyResponseCall {
+  accept: boolean;
+  managerId: string;
+  negotiationId: string;
+  organizationId: string;
+}
+
+export interface TeamListView {
+  teams: TeamOptionView[];
+  year: number;
+}
+
+export interface TeamOptionView {
+  id: string;
+  name: string;
+}
+
+export interface TeamsCall {
+  managerId: string;
+  year: number;
+}
+
 export interface TranslationMessage {
   key: string;
   parameters: Record<string, string>;
@@ -525,12 +851,40 @@ export interface BridgeQueryMap {
   pool: { args: ManagerCall; result: PoolView };
   supply: { args: ManagerCall; result: ManagerSupplyView };
   negotiations: { args: ManagerCall; result: NegotiationsView };
+  session: { args: ManagerCall; result: SessionView };
+  teams: { args: TeamsCall; result: TeamListView };
+  saves: { args: ManagerCall; result: SaveListView };
+  calendar: { args: ManagerCall; result: CalendarView };
+  standings: { args: ManagerCall; result: StandingsView };
+  raceResult: { args: RaceResultCall; result: RaceResultView };
+  nextRace: { args: ManagerCall; result: NextRaceView };
+  staff: { args: ManagerCall; result: StaffListView };
+  market: { args: ManagerCall; result: MarketView };
 }
 
 export interface BridgeCommandMap {
   advanceDay: { args: ManagerCall; result: AdvanceDayView };
   resolveInbox: { args: ResolveInboxCall; result: CommandAck };
   dismissInbox: { args: DismissInboxCall; result: CommandAck };
+  newCareer: { args: NewCareerCall; result: CareerStartedView };
+  loadCareer: { args: LoadCareerCall; result: CareerStartedView };
+  saveCareer: { args: SaveCareerCall; result: CareerSavedView };
+  openNegotiation: { args: OpenNegotiationCall; result: CommandAck };
+  submitOffer: { args: SubmitOfferCall; result: CommandAck };
+  acceptCounter: { args: NegotiationIdCall; result: CommandAck };
+  walkAway: { args: NegotiationIdCall; result: CommandAck };
+  renewContract: { args: RenewContractCall; result: CommandAck };
+  beginSponsorTalks: { args: BeginSponsorCall; result: CommandAck };
+  signSponsor: { args: SponsorTalkCall; result: CommandAck };
+  walkAwayFromTalks: { args: SponsorTalkCall; result: CommandAck };
+  respondToSponsorOffer: { args: SponsorOfferCall; result: CommandAck };
+  setDevelopmentSplit: { args: DevelopmentSplitCall; result: CommandAck };
+  commitConcept: { args: CommitConceptCall; result: CommandAck };
+  assignScoutFocus: { args: ScoutFocusCall; result: CommandAck };
+  fundJunior: { args: FundJuniorCall; result: CommandAck };
+  signPoolDriver: { args: SignPoolCall; result: CommandAck };
+  proposeSupply: { args: SupplyProposalCall; result: CommandAck };
+  respondToSupply: { args: SupplyResponseCall; result: CommandAck };
 }
 
 export type BridgeQueryName = keyof BridgeQueryMap;

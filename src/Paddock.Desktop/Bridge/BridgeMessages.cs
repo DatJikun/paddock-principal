@@ -42,3 +42,6 @@ public sealed record AdvanceDayView(string Date);
 
 /// <summary>A command the host accepted. The world changed only through that command (INV-001).</summary>
 public sealed record CommandAck(bool Accepted);
+
+/// <summary>Pushed when a race weekend finishes. The round is the championship round.</summary>
+public sealed record RaceFinishedView(int Season, int Round, string LayoutId);

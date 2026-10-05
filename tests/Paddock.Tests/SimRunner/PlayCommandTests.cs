@@ -1,4 +1,5 @@
 using Paddock.SimRunner;
+using Paddock.Career;
 using Paddock.Application.Board;
 using Paddock.Application.Career;
 using Paddock.Application.Commands;
@@ -328,7 +329,7 @@ public class PlayCommandTests
         var created = WorldInitializer.Create(config, data, EmptyPeopleProvider.Instance, 7UL);
         var arrivals = TalentIntakeSchedule.AfterStart(config, EmptyPeopleProvider.Instance, created.World, 7UL);
         var session = new CareerSession(created.World, 7UL, created.TalentPool, arrivals);
-        return CareerShell.Open(session, new CareerRunOptions { Inputs = Paddock.SimRunner.CareerInputsLoader.Load(Path.Combine(RepoPaths.Root(), "data"), data) }, "Ada Lovelace");
+        return CareerShell.Open(session, new CareerRunOptions { Inputs = Paddock.Career.CareerInputsLoader.Load(Path.Combine(RepoPaths.Root(), "data"), data) }, "Ada Lovelace");
     }
 
     private static string Script(string save) =>

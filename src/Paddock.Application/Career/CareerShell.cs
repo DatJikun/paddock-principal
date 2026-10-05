@@ -69,14 +69,14 @@ public sealed class CareerShell
     public bool QueueIsEmpty => _queue.Count == 0;
 
     /// <summary>A new career. The human is registered and the modules are open. The first morning has not run yet.</summary>
-    public static CareerShell Open(CareerSession session, CareerRunOptions options, string playerName)
+    public static CareerShell Open(CareerSession session, CareerRunOptions options, string playerName, string? managerId = null)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(options);
         ArgumentException.ThrowIfNullOrWhiteSpace(playerName);
         var managers = new ManagerRegistry();
         var shell = Attach(session, managers, new CommandDispatcher(), new CommandQueue(), options);
-        shell.Player = shell.RegisterHuman(playerName);
+        shell.Player = managerId is null ? shell.RegisterHuman(playerName) : shell.RegisterNamedHuman(playerName, managerId);
         return shell;
     }
 
@@ -112,6 +112,21 @@ public sealed class CareerShell
             number++;
         }
         while (_managers.Contains(id));
+
+        _managers.Register(id, ManagerKind.Human, displayName);
+        return id;
+    }
+
+    /// <summary>Registers <paramref name="managerId"/> as the human. The bridge uses a fixed id the page already knows.</summary>
+    public ManagerId RegisterNamedHuman(string displayName, string managerId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(managerId);
+        var id = new ManagerId(managerId);
+        if (_managers.Contains(id))
+        {
+            throw new ArgumentException("Manager '" + managerId + "' is already registered.", nameof(managerId));
+        }
 
         _managers.Register(id, ManagerKind.Human, displayName);
         return id;

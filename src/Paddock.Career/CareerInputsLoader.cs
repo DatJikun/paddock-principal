@@ -5,7 +5,7 @@ using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Supply;
 
-namespace Paddock.SimRunner;
+namespace Paddock.Career;
 
 /// <summary>
 /// Loads the data a career run reads from <c>data/authored</c>: the era periods, the fictional sponsors, and the ESTIMATE of the

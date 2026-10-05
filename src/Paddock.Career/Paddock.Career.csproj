@@ -1,11 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Paddock.Application\Paddock.Application.csproj" />
-    <ProjectReference Include="..\Paddock.Career\Paddock.Career.csproj" />
     <ProjectReference Include="..\Paddock.Data\Paddock.Data.csproj" />
-    <PackageReference Include="Photino.NET" />
+    <ProjectReference Include="..\Paddock.Persistence\Paddock.Persistence.csproj" />
   </ItemGroup>
 </Project>

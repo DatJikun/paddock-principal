@@ -163,8 +163,8 @@ public sealed record CareerConfig
     /// <summary>Inclusive lower bound for <see cref="HistoryStrength"/> and the Chaos preset.</summary>
     public const int MinHistoryStrength = 0;
 
-    /// <summary>Inclusive upper bound for <see cref="HistoryStrength"/> and the Most Historical preset.</summary>
-    public const int MaxHistoryStrength = 100;
+    /// <summary>Inclusive upper bound for <see cref="HistoryStrength"/> and the Most Historical preset (PP-057: 0–10).</summary>
+    public const int MaxHistoryStrength = 10;
 
     /// <summary>Inclusive lower bound for <see cref="RandomnessLevel"/>.</summary>
     public const int MinRandomnessLevel = 0;
@@ -173,9 +173,9 @@ public sealed record CareerConfig
     public const int MaxRandomnessLevel = 100;
 
     /// <summary>
-    /// Balanced history strength. The task describes this as about 50; the stored value is exactly 50.
+    /// Balanced history strength on the 0–10 scale (PP-057). The old 0–100 slider stored 50.
     /// </summary>
-    public const int BalancedHistoryStrength = 50;
+    public const int BalancedHistoryStrength = 5;
 
     /// <summary>
     /// Randomness shared by every preset. The task does not give a per-preset randomness value.
@@ -227,6 +227,28 @@ public sealed record CareerConfig
     public AiBehavior AiBehavior { get; }
 
     public int HistoryStrength { get; }
+
+    /// <summary>
+    /// History strength as a fraction in [0, 1]. A reader that used the old 0–100 percentage
+    /// divides by <see cref="MaxHistoryStrength"/> (PP-057).
+    /// </summary>
+    public double HistoryStrengthFraction => HistoryStrength / (double)MaxHistoryStrength;
+
+    /// <summary>
+    /// A save written on the old 0–100 scale stores a value above <see cref="MaxHistoryStrength"/>.
+    /// That loads as <c>round(value / 10)</c>, clamped into the new range so a second load does not shrink it again.
+    /// A value already inside the range is unchanged. Midpoint rounds away from zero.
+    /// </summary>
+    public static int ScaleLegacyHistoryStrength(int stored)
+    {
+        if (stored <= MaxHistoryStrength)
+        {
+            return stored;
+        }
+
+        var scaled = (int)Math.Round(stored / 10.0, MidpointRounding.AwayFromZero);
+        return Math.Clamp(scaled, MinHistoryStrength, MaxHistoryStrength);
+    }
 
     public int RandomnessLevel { get; }
 

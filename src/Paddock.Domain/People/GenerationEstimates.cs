@@ -130,11 +130,12 @@ public static class GenerationEstimates
         "feedback",
     ];
 
+    // ESTIMATE (PP-057): before 1960 smoothness is 12% of the overall (120 of 1000) and cornering takes the 20 points.
     private static readonly AttributeWeight[] EarlyWeights =
     [
-        new("cornering", 160),
+        new("cornering", 180),
         new("braking", 90),
-        new("smoothness", 140),
+        new("smoothness", 120),
         new("overtaking", 60),
         new("defending", 60),
         new("consistency", 100),

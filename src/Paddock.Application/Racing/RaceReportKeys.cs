@@ -139,6 +139,9 @@ public static class RaceReportKeys
     public const string RetireMechanical = "report.retire.mechanical";
 
     [TranslationKey]
+    public const string RetireSudden = "report.retire.sudden";
+
+    [TranslationKey]
     public const string RetireAccident = "report.retire.accident";
 
     [TranslationKey]
@@ -332,8 +335,21 @@ public static class RaceReportKeys
         _ => throw new ArgumentOutOfRangeException(nameof(severity), severity, null),
     };
 
-    /// <summary>The key of a retirement: the failed part for a mechanical one when it is known, else the general bucket.</summary>
-    public static string RetirementKey(RetirementReason reason, MechanicalComponent? component) => reason switch
+    /// <summary>
+    /// The key of a retirement: the failed part for a mechanical one when it is known, else the general bucket.
+    /// A sudden mechanical failure (no warning) uses <see cref="RetireSudden"/>.
+    /// </summary>
+    public static string RetirementKey(RetirementReason reason, MechanicalComponent? component, bool sudden = false)
+    {
+        if (sudden && reason == RetirementReason.Mechanical)
+        {
+            return RetireSudden;
+        }
+
+        return Key(reason, component);
+    }
+
+    private static string Key(RetirementReason reason, MechanicalComponent? component) => reason switch
     {
         RetirementReason.Mechanical => component switch
         {

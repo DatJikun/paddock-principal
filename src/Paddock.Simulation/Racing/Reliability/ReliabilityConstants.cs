@@ -99,6 +99,12 @@ public static class ReliabilityConstants
     /// <summary>ESTIMATE: laps of warning a failure gives before it happens, unless the caller configures another value.</summary>
     public const int DefaultWarningLeadLaps = 3;
 
+    /// <summary>
+    /// ESTIMATE (PP-057): share of mechanical failures that arrive with no warning and no degraded pace.
+    /// The draw is a child of the Failures stream keyed by the car and the failure lap, so it does not move any other draw.
+    /// </summary>
+    public const double SuddenFailureShare = 0.33;
+
     /// <summary>ESTIMATE: share of lap time a car with a developing failure loses while the warning is active.</summary>
     public const double DegradedPaceLossFraction = 0.015;
 

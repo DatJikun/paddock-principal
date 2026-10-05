@@ -252,6 +252,7 @@
   "report.retire.electrics": "Lap {lap}: {driver} ({team}) is out with an electrical or hydraulic failure.",
   "report.retire.cooling": "Lap {lap}: {driver} ({team}) is out with a cooling failure.",
   "report.retire.mechanical": "Lap {lap}: {driver} ({team}) is out with a mechanical failure.",
+  "report.retire.sudden": "Lap {lap}: {driver} ({team}) is out with a sudden failure.",
   "report.retire.accident": "Lap {lap}: {driver} ({team}) is out after an accident.",
   "report.retire.other": "Lap {lap}: {driver} ({team}) retires.",
   "report.injury.light": "{driver} was lightly injured.",

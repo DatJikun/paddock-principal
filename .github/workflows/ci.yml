@@ -41,9 +41,9 @@ jobs:
         with:
           node-version: 22
 
-      - name: Typecheck bridge types
+      - name: UI app
         working-directory: ui/app
-        run: npm ci && npm run check
+        run: npm ci && npm test && npm run check && npm run build
 
       - name: UI prototype tests
         run: node --test "ui/prototype/tests/*.test.mjs"

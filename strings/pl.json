@@ -279,6 +279,8 @@
   "authored.error.geometry-duplicate": "Geometria toru jest zdefiniowana więcej niż raz dla jednego układu: {detail}",
   "authored.error.geometry-corner": "Nieprawidłowy nazwany zakręt w geometrii toru: {detail}",
   "authored.error.geometry-sharp-bend": "Geometria toru ma zbyt ostre załamanie: {detail}",
+  "authored.error.facility-kind": "Nieprawidłowy rodzaj obiektu: {detail}",
+  "authored.error.facility-quality": "Jakość obiektu jest poza zakresem: {detail}",
   "config.error.people_source": "Nieznane źródło ludzi.",
   "config.error.rules_source": "Nieznane źródło reguł.",
   "config.error.ai_behavior": "Nieznane zachowanie AI.",

@@ -275,6 +275,8 @@
   "authored.error.geometry-duplicate": "Track geometry is defined more than once for one layout: {detail}",
   "authored.error.geometry-corner": "Invalid named corner in track geometry: {detail}",
   "authored.error.geometry-sharp-bend": "Track geometry bends too sharply: {detail}",
+  "authored.error.facility-kind": "Invalid facility kind: {detail}",
+  "authored.error.facility-quality": "Facility quality is out of range: {detail}",
   "config.error.people_source": "Unknown people source.",
   "config.error.rules_source": "Unknown rules source.",
   "config.error.ai_behavior": "Unknown AI behavior.",

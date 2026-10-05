@@ -1,0 +1,81 @@
+Founding or buying your own team comes after the MVP. Choose an existing team.
+Founding or buying your own team comes after the MVP. Choose an existing team.
+Founding or buying your own team comes after the MVP. Choose an existing team.
+arzani-volpini — Arzani Volpini
+connaught — Connaught
+cooper — Cooper
+ferrari — Ferrari
+gordini — Gordini
+hwm — Hwm
+lancia — Lancia
+maserati — Maserati
+mercedes — Mercedes
+vanwall — Vanwall
+Career started on 1955-01-01 with ferrari. You are Ada Lovelace.
+Principal attributes are an uncalibrated estimate: every attribute starts at 10, and the chosen tilt is 4 higher.
+Date: 1955-01-01.
+Team: Ferrari.
+Cash: 60000.00.
+Forecast to the end of the season: 60000.00.
+No championship position is on the board yet.
+No race is on the calendar yet.
+Inbox: 0 open, 0 need a decision.
+gen:21 — Jean Bernard (FRA)
+gen:22 — John Clarke (GBR)
+gen:23 — Karl Schmidt (DEU)
+gen:24 — Peter Walker (GBR)
+gen:25 — John Walker (GBR)
+gen:26 — John Clarke (GBR)
+gen:27 — William Johnson (USA)
+gen:28 — Peter Walker (GBR)
+gen:29 — Peter Walker (GBR)
+gen:30 — Robert Smith (USA)
+Talks opened: neg:2 with gen:21.
+neg:2 — Jean Bernard, Open.
+Development split: current 50, account 25, next car 25.
+Own car car:7, season 1955.
+Own car car:8, season 1955.
+Rival car car:1, team arzani-volpini.
+Rival car car:10, team gordini.
+Rival car car:11, team hwm.
+Rival car car:12, team hwm.
+Rival car car:13, team lancia.
+Rival car car:14, team lancia.
+Rival car car:15, team maserati.
+Rival car car:16, team maserati.
+Rival car car:17, team mercedes.
+Rival car car:18, team mercedes.
+Rival car car:19, team vanwall.
+Rival car car:2, team arzani-volpini.
+Rival car car:20, team vanwall.
+Rival car car:3, team connaught.
+Rival car car:4, team connaught.
+Rival car car:5, team cooper.
+Rival car car:6, team cooper.
+Rival car car:9, team gordini.
+Sponsor slot 1: Technical or patron slot.
+Sponsor slot 2: Technical or patron slot.
+Sponsor slot 3: Technical or patron slot.
+Cash: 60000.00.
+Forecast to the end of the season: 60000.00.
+Board of ferrari: confidence 60.
+Steady
+You cannot be dismissed yet: a new principal is protected for a full season, longer with a good reputation.
+talent-1 — Robert Smith, age 22.
+talent-2 — Peter Walker, age 20.
+talent-3 — Peter Walker, age 30.
+talent-4 — John Walker, age 21.
+talent-5 — Peter Walker, age 25.
+talent-6 — William Johnson, age 32.
+talent-7 — John Clarke, age 31.
+talent-8 — Jean Bernard, age 31.
+talent-9 — Karl Schmidt, age 34.
+talent-10 — John Clarke, age 28.
+Scouting focus set to all.
+The inbox is empty.
+No decision you may read is on record.
+Ready.
+The date is now 1955-01-02.
+World hash 3556245edc2add2f72986c24d9071e7b992c476c41809616466a9d49079f7913.
+Saved SAVE. World hash 3556245edc2add2f72986c24d9071e7b992c476c41809616466a9d49079f7913.
+Session closed.

@@ -9,7 +9,7 @@ using Paddock.Domain.Objectives;
 namespace Paddock.Application.Board;
 
 /// <summary>
-/// T45 reputation, board objectives and dismissal in the career loop (#160). It registers the three board commands and the job offer
+/// T45 reputation, board objectives and dismissal in the career loop (#160). It registers the board commands and the job offer
 /// resolver, the board day handler (order 910, after the objective handler at 900), and applies the outcomes of the board's
 /// objectives after each lived day (<see cref="BoardOutcomes.Apply"/>, before the plain settling). It replaces who-runs-what with
 /// who-holds-the-post (<see cref="TenureControl"/>, <see cref="TenureOrganizations"/>: a dismissed human no longer orders a team

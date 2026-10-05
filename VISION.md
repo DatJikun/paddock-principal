@@ -371,3 +371,11 @@ Szczegóły w DESIGN §5.3.
 - **Ustawienia na MVP:** język. Barwy epoki lub zespołu, skórka epoki i animowane tło są „kiedyś”. Tryb opinii zamiast liczb też kiedyś; na razie zawsze liczby.
 - **Na MVP wyścig liczy się w całości od razu,** bez pit-stopów i decyzji w trakcie. Rdzeń MVP to kontrakty, sztab, infrastruktura i rozwój bolidu.
 - **Po MVP:** oglądany wyścig z prędkością wybieraną na ekranie wyścigu (nie w ustawieniach) i ręcznymi pit-stopami gracza. Strateg, który decyduje za gracza, jest jeszcze później.
+
+**PP-064: Zakres MVP: dowolny zespół, dwóch kierowców, finanse, proste wyścigi; silniki bez fabryk** (decyzja właściciela z 2026-10-06; doprecyzowuje PP-050, PP-060 i PP-063).
+- **Gracz wybiera dowolny zespół stawki.**
+- **Każdy zespół ma dwóch głównych kierowców.** Rezerwowi mogą być, ale nie są ważni na MVP.
+- **Finanse mają działać od pierwszego dnia.** Wyścigi są na razie symulowane w całości (PP-063).
+- **Obiekty związane z silnikami (hamownia, odlewnia) i bycie zespołem fabrycznym albo producentem silników to osobna aktualizacja po MVP.** Na MVP każdy zespół jeździ silnikiem, który ma w 1955, a negocjacje dostaw silników czekają.
+- **Osiągi silników zmieniają się trochę losowo co sezon** (każdy producent osobno, ze stałego strumienia losowego, wynik zależy od ziarna). Mocny silnik może osłabnąć, a słaby dogonić czołówkę. Wielkość zmiany to szacunek.
+- **Infrastruktura na MVP:** fabryka, wynajem toru testowego i transport (ciężarówki, do Argentyny statek). Bez tunelu, symulatora i telemetrii w latach 50.

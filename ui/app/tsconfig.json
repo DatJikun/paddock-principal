@@ -6,7 +6,10 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
-    "lib": ["ES2022", "DOM"]
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": false,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "vite.config.ts"]
 }

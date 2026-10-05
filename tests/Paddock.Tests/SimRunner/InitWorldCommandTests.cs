@@ -17,7 +17,7 @@ public class InitWorldCommandTests
         Assert.Contains("Teams: 19", first);
         Assert.Contains("Drivers under contract: 36", first);
         Assert.Contains(first, line => line.StartsWith("State hash: ", StringComparison.Ordinal) && line.Length == "State hash: ".Length + 64);
-        Assert.Contains(first, line => line.Contains("Teams with no key staff in the data", StringComparison.Ordinal));
+        Assert.DoesNotContain(first, line => line.Contains("Teams with no key staff in the data", StringComparison.Ordinal));
         Assert.NotEqual(first[^1], other[^1]);
     }
 
@@ -29,7 +29,8 @@ public class InitWorldCommandTests
         Assert.Equal(0, code);
         Assert.Contains(lines, line => line.StartsWith("No people schedule found", StringComparison.Ordinal));
         Assert.Contains("Drivers under contract: 0", lines);
-        Assert.Contains("Key staff: 13", lines);
+        var staff = lines.Single(line => line.StartsWith("Key staff: ", StringComparison.Ordinal));
+        Assert.True(int.Parse(staff["Key staff: ".Length..], System.Globalization.CultureInfo.InvariantCulture) > 13);
     }
 
     [Fact]

@@ -27,14 +27,16 @@ namespace Paddock.Tests.Career;
 /// It changed again in #173 (B3): the ceiling draw is a child of Development tagged with the organization, the season and the
 /// concept axes, and approval no longer advances <c>NextCeilingDraw</c>. The same concept cannot be re-rolled, so the stored
 /// ceiling and the cars-section counter differ from the #160 hash. Two runs with one seed still match (INV-002). Seat sync (B4)
-/// does not move this fixture: its one contracted driver stays seated.
+/// does not move this fixture: its one contracted driver stays seated. It changed again in #199: empty staff chairs are
+/// filled and the race-engineer pairing is a world section, so both are in the hash. The retired string stayed
+/// chief,leap,vet. Two runs with one seed still match (INV-002).
 /// </para>
 /// </summary>
 public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "6ef244815712ec8588d9a2e4c20cd5613ca7922677e9d2f884d618872915d56d";
+    private const string StoredWorldHash = "54dc21c80e9a15834db57df4af57c44935f0e63fa4df4ef50817729644256136";
 
     private const string StoredRetired = "chief,leap,vet";
 

@@ -351,13 +351,13 @@ Personel ma analogiczny profil: tożsamość, atrybuty roli, osobowość, stan, 
 | Dyrektor techniczny | 1950 | wizja, zarządzanie projektem, innowacyjność | koncepcja auta, ryzyko rewolucji, praca działu technicznego |
 | Główny projektant | 1950 | podwozie, integracja, precyzja | jakość wykonania koncepcji |
 | Projektant silników | 1950 (jeśli budujesz silniki) | moc, niezawodność, wydajność | silnik |
-| Szef aerodynamiki | ~1968 | aerodynamika, korelacja tunel–tor, innowacyjność | docisk, trafność rozwoju |
+| Szef aerodynamiki | 1950 | aerodynamika, korelacja tunel–tor, innowacyjność | docisk, trafność rozwoju (limit epoki i tak jest bliski zera przed 1968) |
 | Szef dynamiki pojazdu | 1950 | zawieszenie, opony, temperatura opon | przyczepność mechaniczna, zużycie opon |
-| Inżynier wyścigowy (1 na kierowcę) | ~1970 | ustawienia, relacja z kierowcą, analiza danych | tempo w weekendzie, forma kierowcy |
-| Strateg | ~1994 (tankowanie) | strategia, reakcja, pogoda | decyzje w wyścigu |
+| Inżynier wyścigowy (1 na kierowcę) | 1950 | ustawienia, relacja z kierowcą, analiza danych | tempo w weekendzie, forma kierowcy |
+| Strateg | 1950 | strategia, reakcja, pogoda | decyzje w wyścigu |
 | Szef mechaników | 1950 | pit-stopy, jakość montażu, organizacja | czas postojów, awarie |
 | Skaut | 1950 | ocena talentu, sieć kontaktów | zawężanie pasm w puli talentów |
-| Dyrektor komercyjny | ~1968 (sponsorzy) | negocjacje, marketing, sieć | sponsorzy, przychody |
+| Dyrektor komercyjny | 1950 | negocjacje, marketing, sieć | sponsorzy, przychody |
 
 Morale personelu (np. po zwolnieniu kolegi, przy słabych wynikach, przy dużym budżecie) lekko przesuwa jego skuteczność. Szef zespołu (gracz albo AI) ma atrybuty menedżerskie: negocjacje, zarządzanie ludźmi, polityka (wpływ na regulamin) i biznes.
 

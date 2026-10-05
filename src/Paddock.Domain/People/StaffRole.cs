@@ -24,18 +24,26 @@ public static class StaffCatalogue
 {
     public const string InnovationKey = "innovation";
 
+    /// <summary>
+    /// Every team role exists from 1950 (PP-059). The era downforce cap, not this date, is what makes an aero head
+    /// matter little before wings. The old era constants on <see cref="GenerationEstimates"/> stay as history.
+    /// </summary>
     public static int AvailableFrom(StaffRole role)
     {
         EnsureRole(role);
-        return role switch
-        {
-            StaffRole.HeadOfAerodynamics => GenerationEstimates.AeroAvailableFrom,
-            StaffRole.CommercialDirector => GenerationEstimates.CommercialAvailableFrom,
-            StaffRole.RaceEngineer => GenerationEstimates.RaceEngineerAvailableFrom,
-            StaffRole.Strategist => GenerationEstimates.StrategistAvailableFrom,
-            _ => GenerationEstimates.MinSeason,
-        };
+        return GenerationEstimates.MinSeason;
     }
+
+    /// <summary>A chair on the team roster. The engine designer sits at the engine maker and the principal is not staff.</summary>
+    public static bool IsTeamRoster(StaffRole role)
+    {
+        EnsureRole(role);
+        return role is not (StaffRole.EngineDesigner or StaffRole.TeamPrincipal);
+    }
+
+    /// <summary>Team chairs, in enum order, without the engine designer and the team principal.</summary>
+    public static IReadOnlyList<StaffRole> TeamRoster { get; } =
+        Enum.GetValues<StaffRole>().Where(IsTeamRoster).ToArray();
 
     public static IReadOnlyList<string> AttributeKeys(StaffRole role)
     {

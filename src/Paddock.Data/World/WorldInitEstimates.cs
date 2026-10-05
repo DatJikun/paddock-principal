@@ -18,7 +18,7 @@ public static class WorldInitEstimates
     /// <summary>ESTIMATE: nominal budget of a starting organization. Not modelled yet.</summary>
     public const long PlaceholderBudget = 0;
 
-    /// <summary>ESTIMATE: every attribute of a real staff member, on the 1-20 scale. No staff ratings exist yet.</summary>
+    /// <summary>ESTIMATE: the old flat rating of real staff. Chairs now draw a budget band from <see cref="StaffEstimates"/>.</summary>
     public const int UnratedStaffAttribute = 10;
 
     /// <summary>ESTIMATE: strength passed to <c>RandomizeKnownPerson</c> for real names with random skills (full spread).</summary>
@@ -33,7 +33,7 @@ public static class WorldInitEstimates
     /// <summary>ESTIMATE: quality band for a real or random-skill driver in the talent pool.</summary>
     public const QualityBand PoolKnownQuality = QualityBand.Filler;
 
-    /// <summary>ESTIMATE: quality band of generated key staff.</summary>
+    /// <summary>ESTIMATE: the old single band of generated staff. Rank now picks the band in <see cref="StaffEstimates"/>.</summary>
     public const QualityBand GeneratedStaffQuality = QualityBand.Solid;
 
     /// <summary>ESTIMATE: driver seats per team when no seat count is known for it.</summary>

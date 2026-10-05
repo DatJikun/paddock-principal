@@ -31,16 +31,16 @@ public sealed class CareerWiringTests
 
         CareerHost.RunUntil(session, new GameDate(1955, 1, 2), null, CareerKit.Options);
 
-        // season change 5 (host), pool 10, ageing 20, last season 25, contract expiry 30, rollover 40 (the session), negotiations 700, contract lifecycle 710,
+        // season change 5 (host), pool 10, ageing 20, last season 25, contract expiry 30, staff refill 35, rollover 40 (the session), negotiations 700, contract lifecycle 710,
         // sponsors 750, supply 760, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
-        Assert.Equal([5, 10, 20, 25, 30, 40, 700, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
+        Assert.Equal([5, 10, 20, 25, 30, 35, 40, 700, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
     }
 
     [Fact]
     public void TheModuleListIsTheDocumentedOneAndNamesAreUnique()
     {
         Assert.Equal(
-            ["objectives", "finance", "contracts", "pool", "cars", "sponsors", "supply", "development", "board"],
+            ["objectives", "finance", "contracts", "pool", "cars", "staff", "sponsors", "supply", "development", "board"],
             CareerModules.Default.Select(module => module.Name).ToArray());
     }
 

@@ -135,7 +135,7 @@
   "world.init.gaps.header": "Luki (liczba i pierwsze id):",
   "world.init.gap.teams_without_staff": "Zespoły bez kluczowego personelu w danych",
   "world.init.gap.drivers_without_ratings": "Prawdziwi kierowcy bez oceny (użyto płaskiego zastępnika)",
-  "world.init.gap.staff_without_ratings": "Prawdziwy personel bez oceny (wszystkie atrybuty ustawione na wartość zastępczą)",
+  "world.init.gap.staff_without_ratings": "Prawdziwy personel bez oceny w danych (atrybuty losowane w paśmie budżetu zespołu)",
   "world.init.gap.staff_unmapped_role": "Etaty personelu z rolą, której świat nie modeluje (osoba:rola@org)",
   "world.init.gap.staff_organization_absent": "Etaty personelu w organizacji, której nie ma w świecie w tym sezonie (osoba@org)",
   "world.init.gap.staff_role_unavailable": "Role generowanego personelu, które jeszcze nie istniały (org:rola)",

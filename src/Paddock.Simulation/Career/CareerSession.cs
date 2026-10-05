@@ -299,6 +299,13 @@ public sealed class CareerSession
         World = next;
     }
 
+    /// <summary>A person added after the session opened (a staff chair filled mid-career) joins the birthday index.</summary>
+    public void RegisterPerson(Person person, GameDate today)
+    {
+        ArgumentNullException.ThrowIfNull(person);
+        AdmitToWorld(person, today);
+    }
+
     /// <summary>
     /// Adds day handlers once, before the first day is lived. The career host uses this for the contract handlers, which live
     /// in the application layer and so cannot be constructed here.

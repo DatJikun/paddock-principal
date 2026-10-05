@@ -589,7 +589,7 @@ public class DevelopmentEngineTests
         Assert.Equal(25, EngineeringCapacity.EraHeadcount(1950));
         Assert.Equal(1000, EngineeringCapacity.EraHeadcount(2030));
         Assert.True(EngineeringCapacity.EraHeadcount(1980) > EngineeringCapacity.EraHeadcount(1955));
-        Assert.Equal(3, EngineerRoster.ChairsIn(1955));
+        Assert.Equal(4, EngineerRoster.ChairsIn(1955));
         Assert.Equal(999, DevelopmentMath.NextYearShareAfter(990, 0.9));
         Assert.Equal(1000, DevelopmentMath.NextYearShareAfter(990, 1d));
         Assert.Equal(0, DevelopmentMath.StockAfterResearch(0, 0));

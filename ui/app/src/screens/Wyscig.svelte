@@ -4,7 +4,7 @@
   import TrackMap from '../lib/components/TrackMap.svelte';
   import { formatDate, formatDay } from '../lib/date.mjs';
   import { hasFlag } from '../lib/flags.mjs';
-  import { retirementLabel } from '../lib/race.mjs';
+  import { formatLapTime, retirementLabel, timeCell } from '../lib/race.mjs';
   import type { RaceData } from '../lib/screens';
   import { countryName, icon, ICON, km, points, type Tr } from '../lib/ui';
 
@@ -31,6 +31,9 @@
   let report = $derived(result ? result.sections.filter((section) => REPORT[section.title.key] && section.lines.length > 0) : []);
   let track = $derived(data.track?.found ? data.track : null);
   let winners = $derived(track?.winners ?? []);
+  let facts = $derived(result?.facts ?? null);
+  /* The fastest lap of the race is set in bold in the table. */
+  let fastestId = $derived(facts?.fastestLap?.driverId ?? null);
 </script>
 
 {#if round}
@@ -70,18 +73,28 @@
                   <tr>
                     <th class="c">{tr.t('shell.col.position')}</th>
                     <th>{tr.t('shell.col.driver')}</th>
-                    <th>{tr.t('shell.col.team')}</th>
-                    <th>{tr.t('race.status')}</th>
+                    <th class="c">{tr.t('race.grid')}</th>
+                    <th class="c">{tr.t('race.laps')}</th>
+                    <th class="r">{tr.t('race.time')}</th>
+                    <th class="r wrap">{tr.t('race.bestLap')}</th>
                     <th class="c">{tr.t('shell.col.points')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {#each result.rows as row (`${row.position}-${row.driverId}`)}
+                    {@const cell = timeCell(row)}
                     <tr class:mine={row.teamId === teamId}>
                       <td class="c num">{#if row.classified}{row.position}{:else}<span class="bad">{tr.t('race.dnf')}</span>{/if}</td>
-                      <td><span class="person">{#if hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}<b>{row.driverName}</b></span></td>
-                      <td class="muted">{row.teamName}</td>
-                      <td class:muted={!row.retirementKey}>{tr.t(retirementLabel(row.retirementKey))}</td>
+                      <td>
+                        <span class="person">{#if hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}<b>{row.driverName}</b></span>
+                        <span class="meta team">{row.teamName}</span>
+                      </td>
+                      <td class="c num">{row.gridPosition ?? ''}</td>
+                      <td class="c num">{row.lapsCompleted ?? ''}</td>
+                      <td class="r num" class:muted={cell.kind === 'none'}>
+                        {#if cell.kind === 'none'}{tr.t(retirementLabel(row.retirementKey))}{:else if cell.kind === 'lapsDown'}{tr.tCount('race.lapsDown', cell.laps)}{:else}{cell.text}{/if}
+                      </td>
+                      <td class="r num" class:best={row.driverId === fastestId}>{formatLapTime(row.fastestLapMs)}</td>
                       <td class="c num">{row.points === '0' ? '' : points(tr, row.points)}</td>
                     </tr>
                   {/each}
@@ -109,6 +122,23 @@
       <div class="col">
         {#if result}
           <section class="panel rp-map"><TrackMap points={track?.points} cls="big" label={round.circuitName} /></section>
+        {/if}
+        {#if facts}
+          <section class="panel">
+            <header><h2>{tr.t('race.facts')}</h2></header>
+            <div class="body">
+              <div class="fields eq">
+                <div class="fld"><span class="meta">{tr.t('race.laps')}</span><span class="v num">{facts.laps}</span></div>
+                <div class="fld"><span class="meta">{tr.t('race.distance')}</span><span class="v num">{km(tr, facts.distanceMeters / 1000)}</span></div>
+                {#if facts.pole}
+                  <div class="fld"><span class="meta">{tr.t('race.pole')}</span><span class="v">{facts.pole.driverName}</span>{#if facts.pole.timeMs !== null}<span class="v num">{formatLapTime(facts.pole.timeMs)}</span>{/if}</div>
+                {/if}
+                {#if facts.fastestLap}
+                  <div class="fld"><span class="meta">{tr.t('race.fastestLap')}</span><span class="v">{facts.fastestLap.driverName}</span>{#if facts.fastestLap.timeMs !== null}<span class="v num">{formatLapTime(facts.fastestLap.timeMs)}</span>{/if}</div>
+                {/if}
+              </div>
+            </div>
+          </section>
         {/if}
         {#if round.practice || round.qualifying || round.race}
         <section class="panel">

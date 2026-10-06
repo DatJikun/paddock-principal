@@ -267,6 +267,14 @@ public class BridgeTests
             Assert.True(json.RootElement.GetProperty("data").GetProperty("found").GetBoolean());
             Assert.True(json.RootElement.GetProperty("data").GetProperty("rows").GetArrayLength() > 1);
             Assert.True(json.RootElement.GetProperty("data").GetProperty("sections").GetArrayLength() > 0);
+            var facts = json.RootElement.GetProperty("data").GetProperty("facts");
+            Assert.True(facts.GetProperty("laps").GetInt32() > 0);
+            Assert.True(facts.GetProperty("distanceMeters").GetInt32() > 0);
+            Assert.False(string.IsNullOrEmpty(facts.GetProperty("pole").GetProperty("driverName").GetString()));
+            Assert.False(string.IsNullOrEmpty(facts.GetProperty("fastestLap").GetProperty("driverName").GetString()));
+            var first = json.RootElement.GetProperty("data").GetProperty("rows")[0];
+            Assert.True(first.GetProperty("gridPosition").GetInt32() >= 1);
+            Assert.True(first.GetProperty("timeMs").GetInt64() > 0);
         }
 
         var hash = career.Host.StateHash;

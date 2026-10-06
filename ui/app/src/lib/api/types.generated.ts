@@ -614,6 +614,19 @@ export interface PresetView {
   rules: string;
 }
 
+export interface RaceFactDriverView {
+  driverId: string;
+  driverName: string;
+  timeMs: number | null;
+}
+
+export interface RaceFactsView {
+  distanceMeters: number;
+  fastestLap: RaceFactDriverView | null;
+  laps: number;
+  pole: RaceFactDriverView | null;
+}
+
 export interface RaceResultCall {
   managerId: string;
   round: number | null;
@@ -621,6 +634,7 @@ export interface RaceResultCall {
 }
 
 export interface RaceResultView {
+  facts: RaceFactsView | null;
   found: boolean;
   layoutId: string | null;
   round: number;
@@ -633,12 +647,18 @@ export interface RaceRowView {
   classified: boolean;
   driverId: string;
   driverName: string;
+  fastestLapMs: number | null;
+  gapMs: number | null;
+  gridPosition: number | null;
+  lapsCompleted: number | null;
+  lapsDown: number;
   nationality: string;
   points: string;
   position: number;
   retirementKey: string;
   teamId: string;
   teamName: string;
+  timeMs: number | null;
 }
 
 export interface RenewContractCall {

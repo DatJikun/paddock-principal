@@ -84,6 +84,18 @@
   "race.races": "Races",
   "race.retirements": "Retirements",
   "race.dnf": "DNF",
+  "race.grid": "Grid",
+  "race.laps": "Laps",
+  "race.time": "Time",
+  "race.bestLap": "Best lap",
+  "race.pole": "Pole position",
+  "race.fastestLap": "Fastest lap",
+  "race.distance": "Distance",
+  "race.facts": "Race in numbers",
+  "race.lapsDown": {
+    "one": "+{count} lap",
+    "other": "+{count} laps"
+  },
   "race.status": "Status",
   "race.length": "Length",
   "race.retired.engine": "Engine",

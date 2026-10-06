@@ -144,7 +144,7 @@ public sealed class RaceWeekendDay : IDayHandler
             field.SkippedTeamIds);
         var world = _context.Session.World;
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;
-        _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, field.StandIns)));
+        _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, field.StandIns, (int)Math.Round(layout.LengthKm * 1000d, MidpointRounding.AwayFromZero))));
     }
 
     private void ApplyUnderstanding(GameDate today, double lengthKm, IReadOnlyList<CarRaceResult> results)

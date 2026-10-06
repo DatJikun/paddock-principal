@@ -61,8 +61,34 @@ public sealed record StandingsView(
     IReadOnlyList<StandingRowView> Drivers,
     IReadOnlyList<StandingRowView> Constructors);
 
-/// <summary>One classification row. <see cref="RetirementKey"/> is empty when the car was classified.</summary>
-public sealed record RaceRowView(int Position, bool Classified, string DriverId, string DriverName, string Nationality, string TeamId, string TeamName, string Points, string RetirementKey);
+/// <summary>
+/// One classification row. <see cref="RetirementKey"/> is empty when the car was classified. The detail fields are null for a
+/// round stored before they were kept (#230). <see cref="TimeMs"/> is the race time of a finisher, <see cref="GapMs"/> the
+/// gap to the winner for a finisher on the winner's lap (null for the winner), <see cref="LapsDown"/> the laps behind the
+/// winner (0 when on the lead lap or not classified).
+/// </summary>
+public sealed record RaceRowView(
+    int Position,
+    bool Classified,
+    string DriverId,
+    string DriverName,
+    string Nationality,
+    string TeamId,
+    string TeamName,
+    string Points,
+    string RetirementKey,
+    int? GridPosition = null,
+    int? LapsCompleted = null,
+    long? TimeMs = null,
+    long? GapMs = null,
+    int LapsDown = 0,
+    long? FastestLapMs = null);
+
+/// <summary>A driver of a race fact with the name the player may see.</summary>
+public sealed record RaceFactDriverView(string DriverId, string DriverName, long? TimeMs);
+
+/// <summary>The race as a whole: laps, distance in metres, the pole sitter and the fastest lap. Public timing only (INV-003).</summary>
+public sealed record RaceFactsView(int Laps, int DistanceMeters, RaceFactDriverView? Pole, RaceFactDriverView? FastestLap);
 
 /// <summary>One report argument. A person or team value is the name the player may see.</summary>
 public sealed record ReportArgView(string Name, string Value);
@@ -80,7 +106,8 @@ public sealed record RaceResultView(
     int Round,
     string? LayoutId,
     IReadOnlyList<RaceRowView> Rows,
-    IReadOnlyList<ReportSectionView> Sections);
+    IReadOnlyList<ReportSectionView> Sections,
+    RaceFactsView? Facts = null);
 
 /// <summary>The next race on the shared calendar, for the top bar.</summary>
 public sealed record NextRaceView(int? Season, int? Round, string? Date, string? LayoutId, string? CircuitId, string? CircuitName, string? Country);
@@ -203,10 +230,13 @@ public static class ChampionshipRead
             return new RaceResultView(false, season ?? session.Date.Year, round ?? 0, null, [], []);
         }
 
+        var winnerDetail = race.Rows.FirstOrDefault(candidate => candidate.Position == 1)?.Detail;
         var rows = new RaceRowView[race.Rows.Count];
         for (var i = 0; i < rows.Length; i++)
         {
             var row = race.Rows[i];
+            var detail = row.Detail;
+            var onLeadLap = detail is not null && winnerDetail is not null && detail.LapsCompleted == winnerDetail.LapsCompleted;
             rows[i] = new RaceRowView(
                 row.Position,
                 row.Classified,
@@ -216,7 +246,15 @@ public static class ChampionshipRead
                 row.TeamId,
                 TeamName(session.World, session.Date, row.TeamId),
                 row.Points,
-                row.RetirementKey);
+                row.RetirementKey,
+                detail?.GridPosition,
+                detail?.LapsCompleted,
+                detail?.TimeMs,
+                row.Classified && onLeadLap && row.Position > 1 && detail!.TimeMs is long time && winnerDetail!.TimeMs is long leadTime
+                    ? time - leadTime
+                    : null,
+                row.Classified && detail is not null && winnerDetail is not null ? Math.Max(0, winnerDetail.LapsCompleted - detail.LapsCompleted) : 0,
+                detail?.FastestLapMs);
         }
 
         var includeSpy = access is { Kind: AccessKind.Developer };
@@ -233,7 +271,21 @@ public static class ChampionshipRead
                 section.Lines.Select(line => Line(session.World, line)).ToArray()));
         }
 
-        return new RaceResultView(true, race.Season, race.Round, race.LayoutId, rows, views);
+        return new RaceResultView(true, race.Season, race.Round, race.LayoutId, rows, views, FactsOf(session.World, race.Facts));
+    }
+
+    private static RaceFactsView? FactsOf(WorldState world, RaceFacts? facts)
+    {
+        if (facts is null)
+        {
+            return null;
+        }
+
+        return new RaceFactsView(
+            facts.Laps,
+            facts.LapLengthMeters * facts.Laps,
+            facts.PoleDriverId is { } pole ? new RaceFactDriverView(pole, PersonName(world, pole), facts.PoleTimeMs) : null,
+            facts.FastestLapDriverId is { } fastest ? new RaceFactDriverView(fastest, PersonName(world, fastest), facts.FastestLapMs) : null);
     }
 
     public static NextRaceView Next(CareerSession session, IReadOnlyDictionary<string, CircuitLabel> circuits)

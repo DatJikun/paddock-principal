@@ -7,8 +7,10 @@ using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
 using Paddock.Persistence;
 using Paddock.Simulation.Career;
+using Paddock.Simulation.Racing;
 using Paddock.Tests.Career;
 using Paddock.Tests.Persistence;
+using Paddock.Tests.Racing.Weekend;
 
 namespace Paddock.Tests.Racing;
 
@@ -54,6 +56,27 @@ public sealed class RaceResultDetailsTests : IDisposable
         var winner = race.Rows.Single(row => row.Position == 1).Detail!;
         Assert.Equal(facts.Laps, winner.LapsCompleted);
         Assert.NotNull(winner.TimeMs);
+        Assert.All(race.Rows, row => Assert.True(row.Detail!.FastestLapMs is null or > 0));
+    }
+
+    [Fact]
+    public void ANegativeLapOnTheTapeDoesNotThrowWhenTheRoundIsArchived()
+    {
+        var weekend = WeekendTestKit.Run(WeekendTestKit.Input(1955));
+        var driver = weekend.CarResults[0].DriverId;
+        var events = weekend.Tape.Events
+            .Select(raceEvent => raceEvent switch
+            {
+                LapCompleted lap when lap.DriverId == driver => lap with { LapTimeMs = -3 },
+                FastestLap fastest when fastest.DriverId == driver => fastest with { LapTimeMs = -3 },
+                _ => raceEvent,
+            })
+            .ToArray();
+        var facts = RacePublishedFacts.From(weekend) with { Tape = RaceTape.From(events) };
+        var stored = RaceArchive.Record(RaceResultsSection.Empty, facts, 1955, 1, "testring");
+        var row = stored.Latest()!.Rows.Single(item => item.DriverId == driver);
+        Assert.True(row.Detail!.FastestLapMs is null or > 0);
+        Assert.True(stored.Latest()!.Facts!.FastestLapMs is null or > 0);
     }
 
     [Fact]

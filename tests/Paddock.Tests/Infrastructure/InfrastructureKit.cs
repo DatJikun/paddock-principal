@@ -36,7 +36,7 @@ internal sealed class InfrastructureKit
         world = world.WithSection(finance);
         if (cars)
         {
-            world = InitialCarFactory.Install(world, 42UL, 1955, fullyGenerated: false, EstimateCarStrength.Shared, []);
+            world = InitialCarFactory.Install(world, 42UL, 1955, fullyGenerated: false, null, []);
         }
 
         Catalog = new FacilityCatalog(

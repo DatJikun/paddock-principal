@@ -130,7 +130,7 @@ internal sealed class PrincipalKit
         var objectives = new ObjectiveFactRegistry();
         var sponsorBook = SponsorBook.ForSession(Session);
         var sponsorEnvironment = new SponsorEnvironment(
-            SponsorsLoader.ToCatalog(SponsorFile.Value),
+            SponsorsLoader.ToCatalog(SponsorFile.Value, localMarket: true),
             new PeriodSponsorEras(data.EraPeriods),
             new EraPeriodFinance(data.EraPeriods),
             Control,

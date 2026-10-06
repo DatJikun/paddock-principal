@@ -304,6 +304,20 @@ public class ConceptProductionTests : IDisposable
     }
 
     [Fact]
+    public void AnAiPrincipalIsNeverAskedAboutAReadyConceptSoItNeverHoldsTheClock()
+    {
+        var kit = new DevelopmentKit(seed: 3);
+        var ai = new Paddock.Application.Managers.ManagerId("ai:alfa");
+        kit.Managers.Register(ai, Paddock.Application.Managers.ManagerKind.Ai, "AI alfa");
+        kit.Control.Assign(ai, Alfa);
+        kit.PutProject(Concept(Alfa, 1_000_000, 0.5, days: 5));
+        kit.LiveWithInbox(5);
+        Assert.Single(kit.Inbox.Section.ItemsOf(Anna.Value), entry => entry.Kind == DevelopmentKeys.ConceptInboxKind);
+        Assert.Empty(kit.Inbox.Section.ItemsOf(ai.Value));
+        Assert.Null(kit.Managers.Get(ai).BlockingItem);
+    }
+
+    [Fact]
     public void AConceptThatCommitsItselfDoesNotAskAndAnAnsweredDayStaysQuiet()
     {
         var kit = new DevelopmentKit(seed: 3);

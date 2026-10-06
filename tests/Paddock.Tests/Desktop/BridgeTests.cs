@@ -818,6 +818,70 @@ public class BridgeTests
         }
     }
 
+    [Fact]
+    public void ASeasonNeverStallsOnAQuestionThePlayerCannotSee()
+    {
+        using var career = Lobby();
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"maserati","givenName":"Jan","familyName":"Test","nationality":"POL","tilt":"none","preset":"Balanced","year":1955,"seed":1}"""));
+        using (var json = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        string? date = "1955-01-01";
+        for (var day = 0; day < 380 && string.CompareOrdinal(date, "1956-01-02") < 0; day++)
+        {
+            var step = career.Host.Handle(Message("adv" + day, "command", "advanceDay"));
+            using var stepJson = JsonDocument.Parse(step.Response);
+            if (stepJson.RootElement.GetProperty("ok").GetBoolean())
+            {
+                date = stepJson.RootElement.GetProperty("data").GetProperty("date").GetString();
+                continue;
+            }
+
+            // Refused: the clock is held, so the player must be able to see and answer at least one open decision.
+            var answered = AnswerEveryOpenDecisionWithItsLastOption(career.Host, day);
+            Assert.True(answered > 0, "The clock was held on " + date + " but the player has no open decision: " + step.Response);
+        }
+
+        Assert.True(string.CompareOrdinal(date, "1956-01-02") >= 0, "The season stopped on " + date);
+    }
+
+    private static int AnswerEveryOpenDecisionWithItsLastOption(BridgeHost host, int day)
+    {
+        var inbox = host.Handle(Message("inbox-open" + day, "query", "inbox"));
+        using var json = JsonDocument.Parse(inbox.Response);
+        var answered = 0;
+        foreach (var item in json.RootElement.GetProperty("data").GetProperty("items").EnumerateArray())
+        {
+            if (!item.GetProperty("needsDecision").GetBoolean() || item.GetProperty("status").GetString() != "Open")
+            {
+                continue;
+            }
+
+            var options = item.GetProperty("options");
+            if (options.GetArrayLength() == 0)
+            {
+                continue;
+            }
+
+            var itemId = item.GetProperty("id").GetString();
+            var optionId = options[options.GetArrayLength() - 1].GetProperty("id").GetString();
+            host.Handle(Message(
+                "answer" + day + itemId,
+                "command",
+                "resolveInbox",
+                "{\"managerId\":\"human:player\",\"itemId\":\"" + itemId + "\",\"optionId\":\"" + optionId + "\"}"));
+            answered++;
+        }
+
+        return answered;
+    }
+
     private static Opened Open() => new(BridgeHost.Open(Path.Combine(BridgeHost.RepositoryRoot(), "data")));
 
     private static Opened Lobby() => new(BridgeHost.Lobby(Path.Combine(BridgeHost.RepositoryRoot(), "data")));

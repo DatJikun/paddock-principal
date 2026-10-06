@@ -194,7 +194,9 @@ public sealed class SetDevelopmentSplitHandler : CommandHandler<SetDevelopmentSp
         var splitMoved = before.CurrentPercent != after.CurrentPercent
             || before.AccountPercent != after.AccountPercent
             || before.NextYearPercent != after.NextYearPercent;
-        if (splitMoved && Reply(section, organization, today) is { } close)
+        // The engineers answer a human principal. An AI one would never answer back, and the open question would hold the shared clock.
+        var human = context.Managers.KindOf(command.ManagerId) == ManagerKind.Human;
+        if (splitMoved && human && Reply(section, organization, today) is { } close)
         {
             var draft = new InboxItemDraft(
                 DevelopmentKeys.InboxKind,

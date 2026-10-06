@@ -96,6 +96,20 @@ public class DevelopmentCommandTests : IDisposable
     }
 
     [Fact]
+    public void AnAiPrincipalChangingTheSplitGetsNoReplyThatWouldHoldTheClock()
+    {
+        var kit = new DevelopmentKit(seed: 6);
+        var ai = new Paddock.Application.Managers.ManagerId("ai:alfa");
+        kit.Managers.Register(ai, Paddock.Application.Managers.ManagerKind.Ai, "AI alfa");
+        kit.Control.Assign(ai, Alfa);
+        kit.PutProject(Upgrade(Alfa, DevArea.Aero, 1_000_000, 0.2, days: 14));
+        kit.Live(10);
+        Assert.IsType<CommandResult.Accepted>(kit.Submit(Split(20, 40, 40, manager: ai)));
+        Assert.Empty(kit.Inbox.Section.ItemsOf(ai.Value));
+        Assert.Null(kit.Managers.Get(ai).BlockingItem);
+    }
+
+    [Fact]
     public void DeployAndCutAreCheckedForOwnerKindAndStatus()
     {
         var kit = new DevelopmentKit(seed: 3);

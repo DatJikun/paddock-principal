@@ -192,6 +192,13 @@ public sealed class SponsorEnvironment
 
     public SponsorCatalog Catalog { get; }
 
+    /// <summary>
+    /// True when a human runs the team. Manager ids carry their kind (<c>human:</c>, <c>ai:</c>), so this needs no registry. A team with no
+    /// manager is read as an AI team.
+    /// </summary>
+    public bool IsPlayerTeam(OrganizationId team) =>
+        Control.ManagersOf(team).Any(manager => !manager.Value.StartsWith("ai:", StringComparison.Ordinal));
+
     public ISponsorEras Eras { get; }
 
     public IEraFinanceSource Finance { get; }

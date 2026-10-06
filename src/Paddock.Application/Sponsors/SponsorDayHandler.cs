@@ -12,7 +12,11 @@ using Paddock.Simulation.Time;
 
 namespace Paddock.Application.Sponsors;
 
-/// <summary>Posts sponsor notices to the managers who run an organization. Not blocking: a notice needs no decision.</summary>
+/// <summary>
+/// Posts sponsor notices to the human managers who run an organization. A notice is not blocking, but a renewal offer is a decision
+/// with two options. An AI manager gets nothing: it answers through commands and has nobody to read an inbox, so its items
+/// would only pile up (#254).
+/// </summary>
 internal sealed class SponsorNotices
 {
     private readonly SponsorEnvironment _environment;
@@ -33,7 +37,7 @@ internal sealed class SponsorNotices
             return;
         }
 
-        foreach (var manager in _environment.Control.ManagersOf(organization))
+        foreach (var manager in Humans(organization))
         {
             var draft = new InboxItemDraft(
                 SponsorKeys.InboxKind,
@@ -45,6 +49,33 @@ internal sealed class SponsorNotices
             _inbox.Post(_managers, manager, draft, today);
         }
     }
+
+    /// <summary>A renewal offer as a decision: accept, or let the sponsor go. Unanswered by the end of the deal it is declined.</summary>
+    public void PostOffer(OrganizationId organization, GameDate today, GameDate until, params (string Name, string Value)[] arguments)
+    {
+        if (_inbox is null || _managers is null)
+        {
+            return;
+        }
+
+        foreach (var manager in Humans(organization))
+        {
+            var draft = new InboxItemDraft(
+                SponsorOfferCodes.OfferKind,
+                SponsorKeys.InboxOfferSubject,
+                arguments.Select(argument => new KeyValuePair<string, string>(argument.Name, argument.Value)),
+                [
+                    new InboxOption(SponsorOfferCodes.OptionAccept, SponsorKeys.OfferAcceptLabel, SponsorKeys.OfferAcceptConsequence),
+                    new InboxOption(SponsorOfferCodes.OptionDecline, SponsorKeys.OfferDeclineLabel, SponsorKeys.OfferDeclineConsequence),
+                ],
+                until,
+                SponsorOfferCodes.OptionDecline);
+            _inbox.Post(_managers, manager, draft, today);
+        }
+    }
+
+    private IEnumerable<ManagerId> Humans(OrganizationId organization) =>
+        _environment.Control.ManagersOf(organization).Where(manager => _managers!.KindOf(manager) == ManagerKind.Human);
 
     public string NameOf(string sponsorId) => _environment.Catalog.Find(sponsorId)?.Name ?? sponsorId;
 
@@ -122,12 +153,6 @@ public sealed class SponsorDayHandler : IDayHandler
         foreach (var talk in sponsors.Talks.Where(talk => talk.IsOpen))
         {
             var current = talk;
-            if (sponsors.SponsorInDeal(talk.SponsorId) || sponsors.IsTaken(talk.SponsorId, today))
-            {
-                sponsors = Lose(sponsors, current, today, take: false);
-                continue;
-            }
-
             if (current.Rival == RivalState.Undecided)
             {
                 var roll = market.Value.DeriveChild(Tag("rival-presence", current, today: null)).NextDouble();
@@ -223,8 +248,14 @@ public sealed class SponsorDayHandler : IDayHandler
             var start = deal.End.AddDays(1);
             var trust = sponsors.TrustOf(deal.SponsorId, deal.Organization);
             var era = _environment.Eras.Era(start.Year);
-            if (sponsor is null || trust < SponsorEstimates.RenewalMinTrust || !sponsor.ActiveIn(start.Year) || !era.Allows(sponsor.Industry, deal.Kind))
+            if (sponsor is null || trust < SponsorEstimates.RenewalMinTrust || !(sponsor.Local || sponsor.ActiveIn(start.Year)) || !era.Allows(sponsor.Industry, deal.Kind))
             {
+                if (left == SponsorEstimates.RenewalLeadDays)
+                {
+                    // No offer is coming. Say so while there is still time to look for a replacement, never in silence (#254).
+                    _notices.Post(deal.Organization, SponsorKeys.InboxEndingSubject, today, ("sponsor", _notices.NameOf(deal.SponsorId)), ("until", deal.End.ToString()));
+                }
+
                 continue;
             }
 
@@ -232,10 +263,10 @@ public sealed class SponsorDayHandler : IDayHandler
             var amount = full * (SponsorEstimates.RenewalBaseMilli + (SponsorEstimates.RenewalPerTrustMilli * trust)) / 1000;
             var added = sponsors.AddOffer(new SponsorOffer(0, deal.Number, deal.Organization, deal.SponsorId, deal.Slot, deal.Kind, amount, today, deal.End, OfferStatus.Open, null));
             sponsors = added.Section;
-            _notices.Post(
+            _notices.PostOffer(
                 deal.Organization,
-                SponsorKeys.InboxOfferSubject,
                 today,
+                deal.End,
                 ("sponsor", sponsor.Name),
                 ("amount", SponsorNotices.Dollars(amount)),
                 ("offer", added.Offer.Id),

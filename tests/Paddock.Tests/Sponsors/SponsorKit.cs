@@ -65,7 +65,7 @@ internal sealed class SponsorKit
         Managers = new ManagerRegistry();
         Managers.Register(Anna, ManagerKind.Human, "Anna");
         Managers.Register(Bram, ManagerKind.Human, "Bram");
-        Inbox = new InboxBook();
+        Inbox = new InboxBook(new InboxResolvers());
         Objectives = new ObjectiveFactRegistry();
         Objectives.RegisterNumber(ObjectiveFactKeys.SeasonPodiums, _ => Podiums);
         Objectives.RegisterNumber(ObjectiveFactKeys.SeasonPoints, _ => Points);
@@ -80,6 +80,7 @@ internal sealed class SponsorKit
             new FixedAppeal(prestige),
             new FixedSkill(skill),
             outlook);
+        Inbox.Resolvers.Register(new SponsorOfferResolver(Book, Environment));
         Context = new CommandContext(new StubWorldState(new DateOnly(start.Year, start.Month, start.Day)), Managers, Inbox);
     }
 

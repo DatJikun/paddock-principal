@@ -52,6 +52,7 @@ public sealed class SponsorsModule : CareerModule
         context.AddCommandHandler(new SignAtCurrentTermsHandler(book, environment));
         context.AddCommandHandler(new WalkAwayFromTalksHandler(book, environment));
         context.AddCommandHandler(new RespondToSponsorOfferHandler(book, environment));
+        context.Require<InboxResolvers>().Register(new SponsorOfferResolver(book, environment));
         context.AddDayHandler(new SponsorDayHandler(book, environment, inbox, context.Managers));
         context.AddAfterDay(OutcomeOrder, events => SponsorOutcomes.Apply(book, environment, events, inbox, context.Managers));
     }

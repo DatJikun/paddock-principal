@@ -190,12 +190,12 @@ public class SponsorCommandTests
     }
 
     [Fact]
-    public void ASponsorUnderContractWithOneTeamCannotBeApproachedByAnother()
+    public void ASponsorUnderContractWithOneTeamIsStillOfferedToAnother()
     {
         var kit = new SponsorKit(Opening);
         kit.SignDeal("vestoil_works", 1, Opening);
 
-        Assert.Equal(SponsorKeys.SponsorUnavailable, kit.Begin(SponsorKit.Bram, SponsorKit.Beta, "vestoil_works", 1, Opening));
+        Assert.Null(kit.Begin(SponsorKit.Bram, SponsorKit.Beta, "vestoil_works", 1, Opening));
     }
 
     [Fact]

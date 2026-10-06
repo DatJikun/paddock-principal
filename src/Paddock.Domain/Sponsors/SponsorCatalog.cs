@@ -92,6 +92,8 @@ public sealed record SponsorObjectiveSpec(string Kind, string Value, int WithinD
 /// <paramref name="PrestigeNeed"/> is the lowest team prestige (0 to 1) the sponsor accepts.
 /// <paramref name="BudgetLevel"/> is the share of the era's typical team budget it pays a year before popularity and slot factors.
 /// <paramref name="ToYear"/> null means open through the end of the covered window.
+/// <paramref name="Team"/> is null for a named sponsor of the authored file. A backer made by <see cref="LocalSponsorMarket"/> names the one team
+/// whose pool it belongs to (#254, PP-065): no other team is ever offered it.
 /// </summary>
 public sealed record SponsorDefinition(
     string Id,
@@ -103,8 +105,12 @@ public sealed record SponsorDefinition(
     int FromYear,
     int? ToYear,
     IReadOnlyList<SlotKind> Slots,
-    SponsorObjectiveSpec? Objective)
+    SponsorObjectiveSpec? Objective,
+    string? Team = null)
 {
+    /// <summary>True for a backer made by <see cref="LocalSponsorMarket"/> for one team.</summary>
+    public bool Local => Team is not null;
+
     public bool ActiveIn(int year) => FromYear <= year && (ToYear is null || year <= ToYear.Value);
 
     public bool FitsSlot(SlotKind kind) => Slots.Contains(kind);
@@ -171,10 +177,17 @@ public sealed record SponsorEra(bool Livery, bool Tobacco, bool Alcohol)
 public sealed class SponsorCatalog
 {
     private readonly SortedDictionary<string, SponsorDefinition> _byId;
+    private readonly bool _localMarket;
 
-    public SponsorCatalog(IEnumerable<SponsorDefinition> sponsors)
+    /// <param name="sponsors">The authored sponsors.</param>
+    /// <param name="localMarket">
+    /// True to add the yearly local backers of <see cref="LocalSponsorMarket"/>, so the market does not run dry when every authored
+    /// sponsor is under contract with a team that keeps renewing.
+    /// </param>
+    public SponsorCatalog(IEnumerable<SponsorDefinition> sponsors, bool localMarket = false)
     {
         ArgumentNullException.ThrowIfNull(sponsors);
+        _localMarket = localMarket;
         _byId = new SortedDictionary<string, SponsorDefinition>(StringComparer.Ordinal);
         foreach (var sponsor in sponsors)
         {
@@ -188,9 +201,50 @@ public sealed class SponsorCatalog
 
     public IReadOnlyList<SponsorDefinition> All => _byId.Values.ToArray();
 
-    public SponsorDefinition? Find(string id) => id is not null && _byId.TryGetValue(id, out var sponsor) ? sponsor : null;
+    public SponsorDefinition? Find(string id)
+    {
+        if (id is null)
+        {
+            return null;
+        }
 
-    /// <summary>Sponsors that could fill a slot of this kind in this year: active, fitting, and allowed by the era.</summary>
+        if (_byId.TryGetValue(id, out var sponsor))
+        {
+            return sponsor;
+        }
+
+        return _localMarket ? LocalSponsorMarket.Find(id) : null;
+    }
+
+    /// <summary>
+    /// True when the sponsor may be offered to this team (PP-065): a team backer only to its own team, a named sponsor only to a
+    /// player-controlled team. Nothing here reads another team's deals, so no team ever blocks another.
+    /// </summary>
+    public static bool OfferedTo(SponsorDefinition sponsor, OrganizationId team, bool playerTeam)
+    {
+        ArgumentNullException.ThrowIfNull(sponsor);
+        return sponsor.Team is null ? playerTeam : string.Equals(sponsor.Team, team.Value, StringComparison.Ordinal);
+    }
+
+    /// <summary>The sponsors one team can approach for a slot of this kind in this year: its own pool of the season, and the named ones when it is a player team.</summary>
+    public IReadOnlyList<SponsorDefinition> CandidatesFor(int year, SlotKind kind, SponsorEra era, OrganizationId team, bool playerTeam)
+    {
+        ArgumentNullException.ThrowIfNull(era);
+        var named = playerTeam
+            ? Candidates(year, kind, era)
+            : [];
+        if (!_localMarket)
+        {
+            return named;
+        }
+
+        return named
+            .Concat(LocalSponsorMarket.For(year, team)
+                .Where(sponsor => sponsor.FitsSlot(kind) && era.Allows(sponsor.Industry, kind)))
+            .ToArray();
+    }
+
+    /// <summary>Sponsors that could fill a slot of this kind in this year: active, fitting, and allowed by the era. The named ones only.</summary>
     public IReadOnlyList<SponsorDefinition> Candidates(int year, SlotKind kind, SponsorEra era)
     {
         ArgumentNullException.ThrowIfNull(era);

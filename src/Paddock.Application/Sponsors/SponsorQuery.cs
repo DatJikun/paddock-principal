@@ -103,7 +103,7 @@ public static class SponsorQuery
             var talk = talks.FirstOrDefault(candidate => candidate.Slot == slot);
             var candidates = deal is not null || talk is not null
                 ? []
-                : shared.List(book, catalog, era, kind, slot, today);
+                : shared.List(book, catalog, era, kind, slot, today, subject, environment.IsPlayerTeam(subject));
             slots.Add(new SponsorSlotView(slot, TranslationMessage.Of(SponsorKeys.SlotName(kind)), deal?.Id, talk?.Id, candidates));
         }
 
@@ -246,10 +246,12 @@ public static class SponsorQuery
             SponsorEra era,
             SlotKind kind,
             int slot,
-            GameDate today)
+            GameDate today,
+            OrganizationId subject,
+            bool playerTeam)
         {
             var slotBusy = SlotBusy(slot);
-            return catalog.Candidates(today.Year, kind, era)
+            return catalog.CandidatesFor(today.Year, kind, era, subject, playerTeam)
                 .Select(sponsor => new SponsorCandidateView(
                     sponsor.Id,
                     sponsor.Name,
@@ -283,11 +285,6 @@ public static class SponsorQuery
         /// <summary>The first reason CanBegin would return. Kind and era were already applied by <see cref="SponsorCatalog.Candidates"/>.</summary>
         private TranslationMessage? Blocked(SponsorDefinition sponsor, GameDate today, bool slotBusy)
         {
-            if (_inDeal.Contains(sponsor.Id) || _section.IsTaken(sponsor.Id, today))
-            {
-                return TranslationMessage.Of(SponsorKeys.SponsorUnavailable);
-            }
-
             if (slotBusy)
             {
                 return TranslationMessage.Of(SponsorKeys.SlotBusy);

@@ -59,8 +59,8 @@ public static class SponsorsLoader
         }
     }
 
-    /// <summary>Builds the domain catalog. The file must have passed <see cref="SponsorsValidator"/>.</summary>
-    public static SponsorCatalog ToCatalog(SponsorsFile file)
+    /// <summary>Builds the domain catalog. The file must have passed <see cref="SponsorsValidator"/>. <paramref name="localMarket"/> adds the yearly local backers (#254); the game turns it on, the data checks do not.</summary>
+    public static SponsorCatalog ToCatalog(SponsorsFile file, bool localMarket = false)
     {
         ArgumentNullException.ThrowIfNull(file);
         return new SponsorCatalog(file.Sponsors.Select(entry => new SponsorDefinition(
@@ -73,7 +73,8 @@ public static class SponsorsLoader
             entry.From,
             entry.To,
             entry.Slots.Select(slot => SlotKinds.TryParse(slot, out var kind) ? kind : throw new ArgumentException("Unknown slot '" + slot + "'.")).ToArray(),
-            entry.Objective is null ? null : new SponsorObjectiveSpec(entry.Objective.Kind, entry.Objective.Value, entry.Objective.WithinDays))));
+            entry.Objective is null ? null : new SponsorObjectiveSpec(entry.Objective.Kind, entry.Objective.Value, entry.Objective.WithinDays))),
+            localMarket);
     }
 }
 

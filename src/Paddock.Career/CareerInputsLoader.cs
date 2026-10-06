@@ -19,7 +19,7 @@ public static class CareerInputsLoader
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dataRoot);
         ArgumentNullException.ThrowIfNull(data);
-        var sponsors = SponsorsLoader.ToCatalog(SponsorsLoader.Load(dataRoot));
+        var sponsors = SponsorsLoader.ToCatalog(SponsorsLoader.Load(dataRoot), localMarket: true);
         var tiers = TeamTiersLoader.ToSource(TeamTiersLoader.Load(dataRoot));
         var inputs = CareerInputs.From(data.EraPeriods, sponsors, new EraPayBenchmark(data.EraSetFor), tiers);
         return new CareerInputs

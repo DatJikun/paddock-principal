@@ -39,8 +39,11 @@ public static class WorldInitEstimates
     /// <summary>ESTIMATE: the old single band of generated staff. Rank now picks the band in <see cref="StaffEstimates"/>.</summary>
     public const QualityBand GeneratedStaffQuality = QualityBand.Solid;
 
-    /// <summary>ESTIMATE: driver seats per team when no seat count is known for it.</summary>
-    public const int DefaultSeatsPerTeam = 2;
+    /// <summary>Race seats of every team at the start: exactly two main drivers (PP-064, #235). A rule, not a guess.</summary>
+    public const int RaceSeatsPerTeam = 2;
+
+    /// <summary>ESTIMATE: most reserve drivers a team starts with; reserves are unimportant (PP-064).</summary>
+    public const int MaxReservesPerTeam = 2;
 
     /// <summary>ESTIMATE: generated pool size as a share of the generated grid, in percent.</summary>
     public const int PoolPercentOfGrid = 50;

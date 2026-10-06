@@ -10,8 +10,11 @@ namespace Paddock.Data.World;
 /// </summary>
 public sealed record DriverRating(DriverAttributes Current, DriverAttributes Potential);
 
-/// <summary>One season-and-constructor seat of a real driver (a T12 schedule stint, reduced to what the world needs).</summary>
-public sealed record DriverSeat(int Season, string ConstructorId, int FirstRound, string Role);
+/// <summary>
+/// One season-and-constructor seat of a real driver (a T12 schedule stint, reduced to what the world needs).
+/// <see cref="Starts"/> is the number of races the driver started for the constructor that season.
+/// </summary>
+public sealed record DriverSeat(int Season, string ConstructorId, int FirstRound, string Role, int Starts = 0);
 
 /// <summary>
 /// A real driver as the schedule knows them. <see cref="PoolEntryYear"/> is the year the driver enters the
@@ -85,7 +88,7 @@ public sealed class ScheduleBackedPeopleProvider : IPeopleProvider
             }
 
             var seats = scheduled.Stints
-                .Select(stint => new DriverSeat(stint.Season, stint.ConstructorId, stint.FirstRound, stint.Role))
+                .Select(stint => new DriverSeat(stint.Season, stint.ConstructorId, stint.FirstRound, stint.Role, stint.Starts))
                 .ToArray();
             records.Add(new RealDriverRecord(
                 scheduled.DriverId,

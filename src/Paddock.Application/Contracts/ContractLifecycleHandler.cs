@@ -1,8 +1,10 @@
+using System.Globalization;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Inbox;
+using Paddock.Domain.People;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Time;
@@ -13,7 +15,9 @@ namespace Paddock.Application.Contracts;
 /// What happens to a contract as time passes, once per lived day:
 /// <list type="bullet">
 /// <item><b>Renewal prompt.</b> When six months are left (<see cref="NegotiationEstimates.RenewalPromptDays"/>) the employer's human
-/// manager gets a decision item: renew or let the contract run out. Sent once per contract (the section remembers).</item>
+/// manager gets a decision item with a deadline and a default (<see cref="NegotiationEstimates.RenewalDecisionDays"/>, the default is to let it end): negotiate a
+/// renewal, extend on current terms, or let it run out (the default, so doing nothing never keeps anyone on old terms). Drivers and key staff each get one; other staff are one
+/// grouped item; the principal's own contract is extended by the board. Such an item never holds the clock. Sent once per contract.</item>
 /// <item><b>Person's option.</b> On the option's deadline a person who holds the option extends the contract when staying is
 /// worth at least what a new offer would have to be.</item>
 /// <item><b>Free agent at expiry.</b> The day after a contract ends, a person with no contract is a free agent. A public listing
@@ -51,11 +55,12 @@ public sealed class ContractLifecycleHandler : IDayHandler
             return;
         }
 
+        var grouped = new SortedDictionary<string, List<Contract>>(StringComparer.Ordinal);
         foreach (var contract in contracts)
         {
             if (contract.IsActiveOn(today))
             {
-                PromptRenewal(contract, context);
+                PromptRenewal(contract, context, grouped);
                 if (contract.Option is ContractOption option && option.Deadline == today)
                 {
                     ExercisePersonOption(contract, context);
@@ -66,6 +71,8 @@ public sealed class ContractLifecycleHandler : IDayHandler
                 ListFreeAgent(contract, context);
             }
         }
+
+        PostGroupedRenewals(grouped, today);
 
         if (context.DueEvents.Any(due => due.TypeId == ScheduledEventType.Race))
         {
@@ -85,7 +92,12 @@ public sealed class ContractLifecycleHandler : IDayHandler
         }
     }
 
-    private void PromptRenewal(Contract contract, DayContext context)
+    /// <summary>
+    /// Who is asked what when a contract is six months from its end (<see cref="NegotiationEstimates.RenewalPromptDays"/>):
+    /// drivers and key staff get a prompt each, other staff one grouped item per organization, and the principal's own contract is
+    /// the board's matter and is extended without a question. Every prompt has a deadline and a default, and none holds the clock.
+    /// </summary>
+    private void PromptRenewal(Contract contract, DayContext context, SortedDictionary<string, List<Contract>> grouped)
     {
         var book = _engine.Book;
         var today = context.Today;
@@ -102,8 +114,32 @@ public sealed class ContractLifecycleHandler : IDayHandler
             return;
         }
 
+        context.Emit(ContractEventTypes.RenewalPrompt, new MarkerPayload(contract.Id.Value));
+        var managers = _engine.HumanManagersOf(contract.OrganizationId);
+        if (managers.Count == 0)
+        {
+            return;
+        }
+
+        if (contract.Role.IsStaff && contract.Role.StaffRole == StaffRole.TeamPrincipal)
+        {
+            ExtendPrincipal(contract, managers[0], today);
+            return;
+        }
+
+        if (contract.Role.IsStaff && !NegotiationEstimates.IsKeyStaff(contract.Role.StaffRole))
+        {
+            if (!grouped.TryGetValue(contract.OrganizationId.Value, out var list))
+            {
+                grouped[contract.OrganizationId.Value] = list = [];
+            }
+
+            list.Add(contract);
+            return;
+        }
+
         var person = book.World.GetPerson(contract.PersonId);
-        foreach (var manager in _engine.HumanManagersOf(contract.OrganizationId))
+        foreach (var manager in managers)
         {
             var draft = new InboxItemDraft(
                 ContractEngine.RenewalKind,
@@ -112,17 +148,65 @@ public sealed class ContractLifecycleHandler : IDayHandler
                     new(ContractEngine.ContractArgument, contract.Id.Value),
                     new("person", person.Name),
                     new("end", contract.End.ToString()),
+                    new("years", ContractEngine.DefaultRenewalYears.ToString(CultureInfo.InvariantCulture)),
+                    new("days", NegotiationEstimates.RenewalDecisionDays.ToString(CultureInfo.InvariantCulture)),
+                    new(InboxItemDraft.FreeClockArgument, InboxItemDraft.FreeClockValue),
                 ],
                 [
                     new InboxOption(ContractEngine.OptionRenew, ContractKeys.RenewalRenewLabel, ContractKeys.RenewalRenewConsequence),
+                    new InboxOption(ContractEngine.OptionExtend, ContractKeys.RenewalExtendLabel, ContractKeys.RenewalExtendConsequence),
                     new InboxOption(ContractEngine.OptionRelease, ContractKeys.RenewalReleaseLabel, ContractKeys.RenewalReleaseConsequence),
                 ],
-                null,
-                null);
+                today.AddDays(NegotiationEstimates.RenewalDecisionDays),
+                ContractEngine.OptionRelease);
             _engine.PostRenewalPrompt(manager, draft, today);
         }
+    }
 
-        context.Emit(ContractEventTypes.RenewalPrompt, new MarkerPayload(contract.Id.Value));
+    /// <summary>
+    /// The principal's own contract is out of scope for now: the player is simply in the team. It is quietly extended on its
+    /// current terms (no prompt, no inbox item), so it never expires and ends the player's job.
+    /// </summary>
+    private void ExtendPrincipal(Contract contract, ManagerId manager, GameDate today)
+    {
+        if (_engine.ValidateExtend(manager, contract.Id, today, boardDecision: true) is not null)
+        {
+            return;
+        }
+
+        _engine.Extend(manager, contract.Id, today);
+    }
+
+    private void PostGroupedRenewals(SortedDictionary<string, List<Contract>> grouped, GameDate today)
+    {
+        var book = _engine.Book;
+        foreach (var (_, list) in grouped)
+        {
+            var names = string.Join(", ", list.Select(contract => book.World.GetPerson(contract.PersonId).Name));
+            var ids = string.Join(",", list.Select(contract => contract.Id.Value));
+            foreach (var manager in _engine.HumanManagersOf(list[0].OrganizationId))
+            {
+                var draft = new InboxItemDraft(
+                    ContractEngine.RenewalGroupKind,
+                    ContractKeys.RenewalGroupSubject,
+                    [
+                        new(ContractEngine.ContractsArgument, ids),
+                        new("count", list.Count.ToString(CultureInfo.InvariantCulture)),
+                        new("names", names),
+                        new("end", list.Min(contract => contract.End).ToString()),
+                        new("years", ContractEngine.DefaultRenewalYears.ToString(CultureInfo.InvariantCulture)),
+                        new("days", NegotiationEstimates.RenewalDecisionDays.ToString(CultureInfo.InvariantCulture)),
+                        new(InboxItemDraft.FreeClockArgument, InboxItemDraft.FreeClockValue),
+                    ],
+                    [
+                        new InboxOption(ContractEngine.OptionExtend, ContractKeys.RenewalGroupExtendLabel, ContractKeys.RenewalGroupExtendConsequence),
+                        new InboxOption(ContractEngine.OptionRelease, ContractKeys.RenewalGroupReleaseLabel, ContractKeys.RenewalGroupReleaseConsequence),
+                    ],
+                    today.AddDays(NegotiationEstimates.RenewalDecisionDays),
+                    ContractEngine.OptionRelease);
+                _engine.PostRenewalPrompt(manager, draft, today);
+            }
+        }
     }
 
     private void ExercisePersonOption(Contract contract, DayContext context)

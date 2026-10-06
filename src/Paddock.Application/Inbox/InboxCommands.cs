@@ -160,11 +160,12 @@ public sealed class ExpireInboxItemHandler : CommandHandler<ExpireInboxItemComma
         var events = new List<IDomainEvent>();
         string? applied = null;
         IReadOnlyList<IDomainEvent> effects = [];
+        var resolver = item.NeedsDecision ? context.Inbox.Resolvers.Find(item.Kind) : null;
 
         // The default option is declared when the item is posted, so what happens at expiry is known up front.
         // If its owner can no longer carry it out, the item lapses without effect instead of staying open forever.
-        if (item.NeedsDecision && item.DefaultOptionId is string defaultOption
-            && context.Inbox.Resolvers.Find(item.Kind) is IInboxResolver resolver
+        if (item.DefaultOptionId is string defaultOption
+            && resolver is not null
             && resolver.Validate(item, defaultOption, context) is null)
         {
             effects = resolver.Execute(item, defaultOption, context);
@@ -174,6 +175,11 @@ public sealed class ExpireInboxItemHandler : CommandHandler<ExpireInboxItemComma
         context.Inbox.Expire(context.Managers, item.Id, today, applied is not null);
         events.Add(new InboxItemExpired(command.ManagerId, command.IssuedOn, item.Id, item.Kind, applied));
         events.AddRange(effects);
+        if (resolver is not null)
+        {
+            events.AddRange(resolver.OnExpired(item, applied, context));
+        }
+
         return events;
     }
 }

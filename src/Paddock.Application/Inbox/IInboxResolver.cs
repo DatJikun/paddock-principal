@@ -19,6 +19,13 @@ public interface IInboxResolver
 
     /// <summary>Carries the option out and returns the domain events that describe it.</summary>
     IReadOnlyList<IDomainEvent> Execute(InboxItem item, string optionId, CommandContext context);
+
+    /// <summary>
+    /// Runs after an item of this kind lapsed unanswered, inside the expiry command. <paramref name="appliedOptionId"/> is the
+    /// default option that was carried out, or null when it could not be (the item lapsed without effect and nothing may fail
+    /// silently, so the owner tells the manager here). Does nothing unless a resolver overrides it.
+    /// </summary>
+    IReadOnlyList<IDomainEvent> OnExpired(InboxItem item, string? appliedOptionId, CommandContext context) => [];
 }
 
 /// <summary>The resolvers of a game, one per item kind.</summary>

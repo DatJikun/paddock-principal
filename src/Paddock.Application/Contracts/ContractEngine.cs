@@ -47,6 +47,15 @@ public sealed class ContractEngine
 
     public const string OptionRelease = "release";
 
+    /// <summary>Extend on the current terms without a negotiation: the default of every renewal prompt.</summary>
+    public const string OptionExtend = "extend";
+
+    /// <summary>Inbox kind of the grouped renewal of staff who are not key staff.</summary>
+    public const string RenewalGroupKind = "contract.renewalGroup";
+
+    /// <summary>Argument name that lists the contracts of a grouped renewal, comma separated.</summary>
+    public const string ContractsArgument = "contracts";
+
     /// <summary>ESTIMATE: seasons of the renewal offered from the renewal prompt.</summary>
     public const int DefaultRenewalYears = 2;
 
@@ -193,11 +202,6 @@ public sealed class ContractEngine
             return TranslationMessage.Of(ContractKeys.PersonTaken);
         }
 
-        if (!_book.Environment.Payroll.CanCommit(negotiation.Proposer, terms.Salary, terms.Years, today))
-        {
-            return TranslationMessage.Of(ContractKeys.CannotAfford);
-        }
-
         return null;
     }
 
@@ -251,11 +255,6 @@ public sealed class ContractEngine
             {
                 return employment;
             }
-        }
-
-        if (!_book.Environment.Payroll.CanCommit(negotiation.Proposer, terms.Salary, terms.Years, today))
-        {
-            return TranslationMessage.Of(ContractKeys.CannotAfford);
         }
 
         return null;
@@ -341,9 +340,7 @@ public sealed class ContractEngine
             return opening;
         }
 
-        return _book.Environment.Payroll.CanCommit(contract.OrganizationId, offer.Salary, offer.Years, today)
-            ? null
-            : TranslationMessage.Of(ContractKeys.CannotAfford);
+        return null;
     }
 
     /// <summary>The least compensation an employer owes for ending a contract today (ESTIMATE: half the remaining salary).</summary>
@@ -523,6 +520,73 @@ public sealed class ContractEngine
             current.Seat,
             current.Option,
             current.Exit);
+    }
+
+    /// <summary>
+    /// Why a contract cannot be extended on its current terms without a negotiation, or null. The employer must run it, it must
+    /// still be live and not renewed yet, and (unless <paramref name="boardDecision"/>, the board's matter for a principal) the
+    /// budget must carry it and the person must find staying worth at least what a new offer would have to be.
+    /// </summary>
+    public TranslationMessage? ValidateExtend(ManagerId manager, ContractId contractId, GameDate today, bool boardDecision = false)
+    {
+        var contract = FindContract(contractId);
+        if (contract is null || !_book.Environment.Control.Controls(manager, contract.OrganizationId))
+        {
+            return TranslationMessage.Of(ContractKeys.NotEmployer);
+        }
+
+        if (!contract.IsActiveOn(today))
+        {
+            return TranslationMessage.Of(ContractKeys.ContractNotActive);
+        }
+
+        if (HasSignedFuture(contract.PersonId, contract.Id, today)
+            || _book.LiveContractsOf(contract.PersonId, today).Any(other => other.Id != contract.Id && other.End > contract.End))
+        {
+            return TranslationMessage.Of(ContractKeys.PersonTaken);
+        }
+
+        if (boardDecision)
+        {
+            return null;
+        }
+
+        return WouldStay(contract, today) ? null : TranslationMessage.Of(ContractKeys.WantsMore);
+    }
+
+    /// <summary>
+    /// Extends a contract by <see cref="DefaultRenewalYears"/> seasons on its current terms: a new contract that starts the day
+    /// after this one ends. No negotiation, so the negotiation cap does not apply and nothing waits for an answer. Draws no RNG.
+    /// The caller has validated.
+    /// </summary>
+    public IReadOnlyList<IDomainEvent> Extend(ManagerId manager, ContractId contractId, GameDate today)
+    {
+        var contract = FindContract(contractId) ?? throw new InvalidOperationException("Extend ran for a request that should have been rejected.");
+        var start = contract.End.AddDays(1);
+        var finish = NegotiationEstimates.EndFor(start, DefaultRenewalYears);
+        var spec = new ContractSpec(contract.PersonId, contract.OrganizationId, contract.Role, start, finish, contract.Salary, true, null, null);
+        var (world, newId) = _book.World.AddContract(spec);
+        var terms = _book.Section.TermsOf(contract.Id);
+        var section = _book.Section.WithTerms(new ContractTerms(
+            newId,
+            terms?.PointsBonus ?? 0,
+            terms?.WinBonus ?? 0,
+            terms?.TitleBonus ?? 0,
+            null,
+            terms?.Exit));
+        _book.Update(world, section);
+        return [new ContractExtended(manager, InboxBook.ToDateOnly(today), contract.Id.Value, newId.Value)];
+    }
+
+    /// <summary>True when the person finds staying worth at least what a new offer would have to be (the test of a person's option).</summary>
+    public bool WouldStay(Contract contract, GameDate today)
+    {
+        var stay = _book.UtilityOfStaying(contract, today);
+        var subject = SubjectOf(contract);
+        var reference = _book.ReferenceSalary(contract.OrganizationId, contract.PersonId, subject, today);
+        var evaluation = _book.ContextFor(contract.OrganizationId, contract.PersonId, subject, today, reference);
+        var needed = CounterpartyEvaluator.Threshold(CounterpartyEvaluator.Floor(evaluation.Age, null), NegotiationEstimates.InterestStart);
+        return stay >= needed;
     }
 
     public IReadOnlyList<IDomainEvent> Terminate(ManagerId manager, ContractId contractId, long compensation, GameDate today)

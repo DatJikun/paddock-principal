@@ -55,9 +55,6 @@ public static class ContractKeys
     public const string TermsDontFit = "negotiation.error.termsDontFit";
 
     [TranslationKey]
-    public const string CannotAfford = "negotiation.error.cannotAfford";
-
-    [TranslationKey]
     public const string PersonTaken = "negotiation.error.personTaken";
 
     [TranslationKey]
@@ -214,6 +211,36 @@ public static class ContractKeys
 
     [TranslationKey]
     public const string RenewalReleaseConsequence = "contract.inbox.renewal.release.consequence";
+
+    [TranslationKey]
+    public const string RenewalExtendLabel = "contract.inbox.renewal.extend.label";
+
+    [TranslationKey]
+    public const string RenewalExtendConsequence = "contract.inbox.renewal.extend.consequence";
+
+    [TranslationKey]
+    public const string RenewalGroupSubject = "contract.inbox.renewalGroup.subject";
+
+    [TranslationKey]
+    public const string RenewalGroupExtendLabel = "contract.inbox.renewalGroup.extend.label";
+
+    [TranslationKey]
+    public const string RenewalGroupExtendConsequence = "contract.inbox.renewalGroup.extend.consequence";
+
+    [TranslationKey]
+    public const string RenewalGroupReleaseLabel = "contract.inbox.renewalGroup.release.label";
+
+    [TranslationKey]
+    public const string RenewalGroupReleaseConsequence = "contract.inbox.renewalGroup.release.consequence";
+
+    [TranslationKey]
+    public const string NoticeExtendFailed = "contract.inbox.extendFailed.subject";
+
+    [TranslationKey]
+    public const string NoticeNotRenewed = "contract.inbox.notRenewed.subject";
+
+    [TranslationKey]
+    public const string WantsMore = "negotiation.error.wantsMore";
 
     [TranslationKey]
     public const string RaiseSubject = "contract.inbox.raise.subject";

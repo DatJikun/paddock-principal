@@ -40,6 +40,12 @@ public sealed record OptionExercised(ManagerId ManagerId, DateOnly OccurredOn, s
     public string TypeId => "contract.optionExercised";
 }
 
+/// <summary>A contract was extended on its current terms, without a negotiation (the renewal default, or the board for a principal).</summary>
+public sealed record ContractExtended(ManagerId ManagerId, DateOnly OccurredOn, string ContractId, string NewContractId) : IDomainEvent
+{
+    public string TypeId => "contract.extended";
+}
+
 /// <summary>Type ids of the facts the day handlers emit. Machine identifiers, not player text. The marker is an id.</summary>
 public static class ContractEventTypes
 {

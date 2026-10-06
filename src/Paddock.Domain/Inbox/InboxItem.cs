@@ -126,8 +126,25 @@ public sealed class InboxItemDraft
 
     public string? DefaultOptionId { get; }
 
-    /// <summary>True when the item has options. Only such an item holds the clock.</summary>
+    /// <summary>Argument that marks a decision as one that waits without holding the clock (a renewal with a deadline and a default).</summary>
+    public const string FreeClockArgument = "clock";
+
+    /// <summary>Value of <see cref="FreeClockArgument"/> for a decision that does not hold the clock.</summary>
+    public const string FreeClockValue = "free";
+
+    /// <summary>True when the item has options.</summary>
     public bool NeedsDecision => Options.Count > 0;
+
+    /// <summary>
+    /// True when the item holds the clock while open: a decision, unless it names a deadline and a default and says it waits
+    /// without holding the clock (<see cref="FreeClockArgument"/>). A free decision is still answered or lapses on its date.
+    /// </summary>
+    public bool HoldsClock =>
+        NeedsDecision
+        && !(ValidUntil is not null
+            && DefaultOptionId is not null
+            && Arguments.TryGetValue(FreeClockArgument, out var clock)
+            && clock == FreeClockValue);
 
     internal static IReadOnlyDictionary<string, string> CopyArguments(IEnumerable<KeyValuePair<string, string>>? arguments)
     {
@@ -224,8 +241,11 @@ public sealed class InboxItem
 
     public bool IsOpen => Status == InboxStatus.Open;
 
-    /// <summary>True for an open decision item. Such an item holds the shared clock for its manager.</summary>
+    /// <summary>True for an open decision item. Most of them hold the shared clock for their manager; see <see cref="IsHoldingClock"/>.</summary>
     public bool IsOpenDecision => IsOpen && NeedsDecision;
+
+    /// <summary>True for an open decision that holds the shared clock (see <see cref="InboxItemDraft.HoldsClock"/>).</summary>
+    public bool IsHoldingClock => IsOpen && Draft.HoldsClock;
 
     internal InboxItem Closed(InboxStatus status, GameDate on, string? chosenOptionId) =>
         new(Number, ManagerId, Created, Draft, status, on, chosenOptionId);

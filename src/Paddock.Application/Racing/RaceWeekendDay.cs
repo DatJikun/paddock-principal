@@ -341,19 +341,18 @@ public sealed class RaceWeekendDay : IDayHandler
                 continue;
             }
 
-            var owned = cars.Of(team.Id).Where(c => c.Season == today.Year && c.Driver is not null);
+            var owned = cars.Of(team.Id).Where(c => c.Season == today.Year);
             foreach (var car in owned)
             {
-                if (car.Driver is not PersonId seated)
+                // A car with nobody in it (both contracts ended, #253) gets the same decision as an injured driver's car.
+                var seated = car.Driver ?? default;
+                var person = car.Driver is null ? null : world.GetPerson(seated);
+                if (car.Driver is not null && (person is null || !person.IsInjured(nextRaceDate)))
                 {
                     continue;
                 }
 
-                var person = world.GetPerson(seated);
-                if (person is null || !person.IsInjured(nextRaceDate))
-                {
-                    continue;
-                }
+                var subjectId = person is null ? StandInResolver.VacantPrefix + car.Id : seated.Value;
 
                 var existingSection = world.Section<InboxSection>(InboxSection.SectionName);
                 if (existingSection is not null)
@@ -361,7 +360,7 @@ public sealed class RaceWeekendDay : IDayHandler
                     var alreadyOpen = existingSection.Items.Any(i =>
                         i.IsOpen
                         && i.Kind == StandInResolver.Kind
-                        && i.Arguments.TryGetValue("driverId", out var dId) && dId == seated.Value
+                        && i.Arguments.TryGetValue("driverId", out var dId) && dId == subjectId
                         && i.Arguments.TryGetValue("raceDate", out var rDate) && rDate == nextRaceDate.ToString());
                     if (alreadyOpen)
                     {
@@ -382,7 +381,7 @@ public sealed class RaceWeekendDay : IDayHandler
     internal static InboxItemDraft BuildStandInDraft(
         WorldState world,
         Organization team,
-        Person person,
+        Person? person,
         string carId,
         GameDate nextRaceDate,
         GameDate today)
@@ -450,16 +449,24 @@ public sealed class RaceWeekendDay : IDayHandler
 
         var defaultOptionId = candidates.Count > 0 ? candidates[0].Id.Value : StandInResolver.OptionSkip;
 
+        var arguments = new List<KeyValuePair<string, string>>
+        {
+            new("driver", person?.Name ?? string.Empty),
+            new("driverId", person?.Id.Value ?? StandInResolver.VacantPrefix + carId),
+            new("team", teamName),
+            new("car", carId),
+            new("raceDate", nextRaceDate.ToString()),
+        };
+        if (person is null)
+        {
+            // An empty seat is filled by the default on its own, so the question never holds the clock.
+            arguments.Add(new(InboxItemDraft.FreeClockArgument, InboxItemDraft.FreeClockValue));
+        }
+
         return new InboxItemDraft(
             StandInResolver.Kind,
-            StandInKeys.Subject,
-            [
-                new("driver", person.Name),
-                new("driverId", person.Id.Value),
-                new("team", teamName),
-                new("car", carId),
-                new("raceDate", nextRaceDate.ToString()),
-            ],
+            person is null ? StandInKeys.VacantSubject : StandInKeys.Subject,
+            arguments,
             options,
             nextRaceDate,
             defaultOptionId);

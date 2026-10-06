@@ -123,7 +123,7 @@ public sealed class InboxBook
     private void SyncBlocking(ManagerRegistry managers, ManagerId manager)
     {
         var current = managers.Get(manager).BlockingItem;
-        var wanted = Section.OpenDecisionCount(manager.Value) > 0;
+        var wanted = Section.HoldingClockCount(manager.Value) > 0;
         if (wanted && current is null)
         {
             managers.PostBlockingItem(manager, new BlockingItem(BlockingKind));

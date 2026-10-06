@@ -147,6 +147,16 @@ public static class NegotiationEstimates
     /// <summary>ESTIMATE: the renewal prompt goes out when this many days (about six months) are left.</summary>
     public const int RenewalPromptDays = 183;
 
+    /// <summary>
+    /// ESTIMATE: days a renewal prompt waits for the manager. When they pass, the default (extend on current terms if the person
+    /// agrees and the budget allows, otherwise let it run out) applies and the manager is told. The prompt never holds the clock.
+    /// </summary>
+    public const int RenewalDecisionDays = 30;
+
+    /// <summary>ESTIMATE: key staff get a renewal prompt of their own; every other staff role is one grouped item.</summary>
+    public static bool IsKeyStaff(Paddock.Domain.People.StaffRole role) =>
+        role is Paddock.Domain.People.StaffRole.TechnicalDirector or Paddock.Domain.People.StaffRole.ChiefDesigner;
+
     /// <summary>ESTIMATE: an option has to be exercised this many days before the contract ends.</summary>
     public const int OptionNoticeDays = 120;
 

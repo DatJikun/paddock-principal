@@ -8,6 +8,9 @@ public static class StandInKeys
     public const string Subject = "inbox.racing.standin.subject";
 
     [TranslationKey]
+    public const string VacantSubject = "inbox.racing.standin.vacant.subject";
+
+    [TranslationKey]
     public const string OptionCandidateLabel = "inbox.racing.standin.option";
 
     [TranslationKey]

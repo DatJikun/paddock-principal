@@ -59,9 +59,10 @@ public class ContractLifecycleTests
         var item = Assert.Single(lab.Inbox.Section.Items, candidate => candidate.Kind == ContractEngine.RenewalKind);
         Assert.Equal(Bram.Value, item.ManagerId);
         Assert.True(item.IsOpenDecision);
-        Assert.Equal([ContractEngine.OptionRenew, ContractEngine.OptionRelease], item.Options.Select(option => option.Id));
+        Assert.Equal([ContractEngine.OptionRenew, ContractEngine.OptionExtend, ContractEngine.OptionRelease], item.Options.Select(option => option.Id));
+        Assert.Equal(ContractEngine.OptionRelease, item.DefaultOptionId);
         Assert.Equal(VeteranEnd.ToString(), item.Arguments["end"]);
-        Assert.Equal(InboxBook.BlockingKind, lab.Managers.Get(Bram).BlockingItem!.Kind);
+        Assert.Null(lab.Managers.Get(Bram).BlockingItem);
         Assert.Null(lab.Managers.Get(Anna).BlockingItem);
         Assert.Single(lab.EventsOf(ContractEventTypes.RenewalPrompt));
         Assert.True(lab.Section.WasPrompted(lab.World.Contracts.Single(contract => contract.PersonId == Veteran).Id));

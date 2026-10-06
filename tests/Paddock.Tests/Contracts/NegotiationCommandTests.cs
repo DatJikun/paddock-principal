@@ -246,14 +246,14 @@ public class NegotiationCommandTests
     }
 
     [Fact]
-    public void AnOfferTheTeamCannotAffordIsRefused()
+    public void AnOfferAboveWhatTheTeamHasIsNotRefusedForMoney()
     {
+        // Owner decision (#253): no budget gate on contracts; the board judges cash, the contract rules do not.
         var lab = new Lab();
         lab.Payroll.Cap(TeamA, 80_000);
         var id = lab.OpenOk(Anna, TeamA, DriverX);
 
-        Assert.Equal(ContractKeys.CannotAfford, Reason(lab.Offer(Anna, id, Terms(90_000))));
-        Assert.IsType<CommandResult.Accepted>(lab.Offer(Anna, id, Terms(80_000)));
+        Assert.IsType<CommandResult.Accepted>(lab.Offer(Anna, id, Terms(90_000)));
     }
 
     // --- Signing ---

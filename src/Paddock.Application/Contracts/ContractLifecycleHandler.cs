@@ -15,8 +15,8 @@ namespace Paddock.Application.Contracts;
 /// What happens to a contract as time passes, once per lived day:
 /// <list type="bullet">
 /// <item><b>Renewal prompt.</b> When six months are left (<see cref="NegotiationEstimates.RenewalPromptDays"/>) the employer's human
-/// manager gets a decision item with a deadline and a default (<see cref="NegotiationEstimates.RenewalDecisionDays"/>): negotiate a
-/// renewal, extend on current terms (the default), or let it run out. Drivers and key staff each get one; other staff are one
+/// manager gets a decision item with a deadline and a default (<see cref="NegotiationEstimates.RenewalDecisionDays"/>, the default is to let it end): negotiate a
+/// renewal, extend on current terms, or let it run out (the default, so doing nothing never keeps anyone on old terms). Drivers and key staff each get one; other staff are one
 /// grouped item; the principal's own contract is extended by the board. Such an item never holds the clock. Sent once per contract.</item>
 /// <item><b>Person's option.</b> On the option's deadline a person who holds the option extends the contract when staying is
 /// worth at least what a new offer would have to be.</item>
@@ -158,26 +158,23 @@ public sealed class ContractLifecycleHandler : IDayHandler
                     new InboxOption(ContractEngine.OptionRelease, ContractKeys.RenewalReleaseLabel, ContractKeys.RenewalReleaseConsequence),
                 ],
                 today.AddDays(NegotiationEstimates.RenewalDecisionDays),
-                ContractEngine.OptionExtend);
+                ContractEngine.OptionRelease);
             _engine.PostRenewalPrompt(manager, draft, today);
         }
     }
 
     /// <summary>
-    /// The principal's own contract is a board matter, not a renewal the principal can release: it is extended on its current terms
-    /// and the principal is told. Whether the board keeps the principal is the board's review, not a contract question.
+    /// The principal's own contract is out of scope for now: the player is simply in the team. It is quietly extended on its
+    /// current terms (no prompt, no inbox item), so it never expires and ends the player's job.
     /// </summary>
     private void ExtendPrincipal(Contract contract, ManagerId manager, GameDate today)
     {
-        var book = _engine.Book;
         if (_engine.ValidateExtend(manager, contract.Id, today, boardDecision: true) is not null)
         {
             return;
         }
 
         _engine.Extend(manager, contract.Id, today);
-        var extended = book.LiveContractsOf(contract.PersonId, today).Last();
-        _engine.PostContractNotice(manager, extended, ContractKeys.NoticePrincipalExtended, today);
     }
 
     private void PostGroupedRenewals(SortedDictionary<string, List<Contract>> grouped, GameDate today)
@@ -206,7 +203,7 @@ public sealed class ContractLifecycleHandler : IDayHandler
                         new InboxOption(ContractEngine.OptionRelease, ContractKeys.RenewalGroupReleaseLabel, ContractKeys.RenewalGroupReleaseConsequence),
                     ],
                     today.AddDays(NegotiationEstimates.RenewalDecisionDays),
-                    ContractEngine.OptionExtend);
+                    ContractEngine.OptionRelease);
                 _engine.PostRenewalPrompt(manager, draft, today);
             }
         }

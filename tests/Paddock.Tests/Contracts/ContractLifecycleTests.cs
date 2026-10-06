@@ -60,7 +60,7 @@ public class ContractLifecycleTests
         Assert.Equal(Bram.Value, item.ManagerId);
         Assert.True(item.IsOpenDecision);
         Assert.Equal([ContractEngine.OptionRenew, ContractEngine.OptionExtend, ContractEngine.OptionRelease], item.Options.Select(option => option.Id));
-        Assert.Equal(ContractEngine.OptionExtend, item.DefaultOptionId);
+        Assert.Equal(ContractEngine.OptionRelease, item.DefaultOptionId);
         Assert.Equal(VeteranEnd.ToString(), item.Arguments["end"]);
         Assert.Null(lab.Managers.Get(Bram).BlockingItem);
         Assert.Null(lab.Managers.Get(Anna).BlockingItem);

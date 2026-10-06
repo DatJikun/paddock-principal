@@ -155,8 +155,8 @@ Kiedy ruszyć kontrakt rywala | na {NegotiationEstimates.NegotiationWindowDays|d
 Czy dociskać | podwyżka poniżej {NegotiationEstimates.MinMeaningfulImprovementPercent|%%} nie jest zmianą i odbiera zainteresowanie
 Zerwać umowę | płacisz {NegotiationEstimates.TerminationShare|%} reszty pensji
 Koniec umowy | pół roku wcześniej dostajesz pytanie o przedłużenie; kierowcy i kluczowy personel (dyrektor techniczny, główny konstruktor) mają je osobno, reszta personelu jedną wspólną skrzynką
-Bez odpowiedzi | po {NegotiationEstimates.RenewalDecisionDays|dni} umowa sama się przedłuża na obecnych warunkach, jeśli osoba się zgodzi i budżet pozwala; inaczej wygasa i dostajesz o tym wiadomość. Czas przez to nie stoi
-Własna umowa szefa zespołu | przedłuża ją zarząd, nie ma jej do zwolnienia
+Bez odpowiedzi | po {NegotiationEstimates.RenewalDecisionDays|dni} umowa po prostu kończy się w swoim terminie i dostajesz o tym wiadomość; nic nie przedłuża się samo. Przedłużenie na obecnych warunkach wymaga Twojego wyboru i zgody osoby; budżet nie jest warunkiem, o pieniądzach ocenia zarząd. Czas przez te pytania nie stoi
+Własna umowa szefa zespołu | nie wygasa i nie ma o niej pytań; jesteś po prostu w zespole
 Gdy rywal kusi Twojego kierowcę | w ostatnim roku umowy; zależnie od morale i lojalności kierowca odchodzi, prosi o lepsze warunki albo zostaje
 Podwyżka w trakcie umowy | co najwyżej raz w sezonie | odmowa zabiera {NegotiationEstimates.RaiseTrustHit} zaufania
 Gdy kierowca prosi o podwyżkę | w trakcie umowy; kierowca na szczycie prosi o mniej niż wschodząca gwiazda

@@ -55,9 +55,6 @@ public static class ContractKeys
     public const string TermsDontFit = "negotiation.error.termsDontFit";
 
     [TranslationKey]
-    public const string CannotAfford = "negotiation.error.cannotAfford";
-
-    [TranslationKey]
     public const string PersonTaken = "negotiation.error.personTaken";
 
     [TranslationKey]
@@ -240,7 +237,7 @@ public static class ContractKeys
     public const string NoticeExtendFailed = "contract.inbox.extendFailed.subject";
 
     [TranslationKey]
-    public const string NoticePrincipalExtended = "contract.inbox.principalExtended.subject";
+    public const string NoticeNotRenewed = "contract.inbox.notRenewed.subject";
 
     [TranslationKey]
     public const string WantsMore = "negotiation.error.wantsMore";

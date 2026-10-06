@@ -132,23 +132,18 @@ public sealed class RenewalPromptResolver : IInboxResolver
     }
 
     /// <summary>
-    /// When the default could not be carried out (the budget, the person, or a renewal already signed), the manager is told that
-    /// the contract runs out: a prompt never lapses without a word.
+    /// When nobody answered, the default is to let the contract end on its date, and the manager is told so: a prompt never
+    /// lapses without a word. Extending happens only by an explicit choice.
     /// </summary>
     public IReadOnlyList<IDomainEvent> OnExpired(InboxItem item, string? appliedOptionId, CommandContext context)
     {
         ArgumentNullException.ThrowIfNull(item);
         ArgumentNullException.ThrowIfNull(context);
-        if (appliedOptionId is not null)
-        {
-            return [];
-        }
-
         var engine = ContractEngine.From(context);
         var contract = engine.FindContract(ContractIdOf(item));
         if (contract is not null)
         {
-            engine.PostContractNotice(new ManagerId(item.ManagerId), contract, ContractKeys.NoticeExtendFailed, InboxBook.ToGameDate(context.World.CurrentDate));
+            engine.PostContractNotice(new ManagerId(item.ManagerId), contract, ContractKeys.NoticeNotRenewed, InboxBook.ToGameDate(context.World.CurrentDate));
         }
 
         return [];
@@ -207,5 +202,23 @@ public sealed class RenewalGroupResolver : IInboxResolver
         }
 
         return events;
+    }
+
+    /// <summary>Unanswered, every contract of the group ends on its date; the manager is told about each one.</summary>
+    public IReadOnlyList<IDomainEvent> OnExpired(InboxItem item, string? appliedOptionId, CommandContext context)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(context);
+        var engine = ContractEngine.From(context);
+        var today = InboxBook.ToGameDate(context.World.CurrentDate);
+        foreach (var text in item.Arguments[ContractEngine.ContractsArgument].Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (engine.FindContract(RenewalPromptResolver.ContractIdOf(text)) is Contract contract)
+            {
+                engine.PostContractNotice(new ManagerId(item.ManagerId), contract, ContractKeys.NoticeNotRenewed, today);
+            }
+        }
+
+        return [];
     }
 }

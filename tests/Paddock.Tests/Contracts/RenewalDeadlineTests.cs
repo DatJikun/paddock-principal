@@ -68,7 +68,7 @@ public class RenewalDeadlineTests
         lab.World.Contracts.Any(contract => contract.PersonId == person && contract.OrganizationId == team && contract.IsActiveOn(day));
 
     [Fact]
-    public void ASeasonWithNoAnswerToAnyRenewalReachesNewYearWithTheDefaultsApplied()
+    public void ASeasonWithNoAnswerToAnyRenewalReachesNewYearWithTheContractsEndedAndTheManagerTold()
     {
         var lab = Team();
 
@@ -78,13 +78,22 @@ public class RenewalDeadlineTests
         }
 
         var newYear = new GameDate(1956, 1, 1);
-        foreach (var person in new[] { Veteran, TechDirector, Scout, Mechanic, PrincipalB })
+        foreach (var person in new[] { Veteran, TechDirector, Scout, Mechanic })
         {
-            Assert.True(HasContractOn(lab, person, TeamB, newYear), person.Value + " lost the contract. " + string.Join(" | ", lab.Inbox.Section.ItemsOf(Bram.Value).Select(i => i.Kind + ":" + i.Status + ":" + i.ChosenOptionId + ":" + i.SubjectKey)));
+            Assert.False(HasContractOn(lab, person, TeamB, newYear), person.Value + " was extended by doing nothing.");
         }
 
+        Assert.True(HasContractOn(lab, PrincipalB, TeamB, newYear));
         Assert.DoesNotContain(lab.Inbox.Section.Items, item => item.IsOpenDecision);
         Assert.Null(lab.Managers.Get(Bram).BlockingItem);
+        var notes = lab.Inbox.Section.ItemsOf(Bram.Value).Where(item => item.SubjectKey == ContractKeys.NoticeNotRenewed).ToArray();
+        Assert.Equal(4, notes.Length);
+        Assert.All(
+            lab.Inbox.Section.ItemsOf(Bram.Value).Where(item => item.NeedsDecision),
+            item => Assert.Equal(InboxStatus.Expired, item.Status));
+        // The ones that ended are free agents the day after, and the manager is told that too.
+        lab.Advance(1);
+        Assert.Contains(lab.Inbox.Section.ItemsOf(Bram.Value), item => item.SubjectKey == ContractKeys.NoticeExpired);
     }
 
     [Fact]
@@ -115,62 +124,54 @@ public class RenewalDeadlineTests
         Assert.Contains(single, name => name.Contains("Director", StringComparison.Ordinal));
         var group = Assert.Single(items, item => item.Kind == ContractEngine.RenewalGroupKind);
         Assert.Equal("2", group.Arguments["count"]);
-        Assert.Equal(ContractEngine.OptionExtend, group.DefaultOptionId);
         Assert.All(items, item =>
         {
             Assert.Equal(item.Created.AddDays(NegotiationEstimates.RenewalDecisionDays), item.ValidUntil);
-            Assert.Equal(ContractEngine.OptionExtend, item.DefaultOptionId);
+            Assert.Equal(ContractEngine.OptionRelease, item.DefaultOptionId);
         });
     }
 
     [Fact]
-    public void ThePrincipalsOwnContractIsExtendedByTheBoardWithNoPromptToRelease()
+    public void ThePrincipalsOwnContractNeverExpiresAndNeverAsksAnything()
     {
         var lab = Team();
         lab.Advance(31);
 
-        Assert.DoesNotContain(
-            lab.Inbox.Section.ItemsOf(Bram.Value),
-            item => item.Kind != ContractEngine.ContractNoticeKind && item.Arguments.TryGetValue("person", out var name) && name.Contains("Boss", StringComparison.Ordinal));
         Assert.True(HasContractOn(lab, PrincipalB, TeamB, new GameDate(1956, 6, 1)));
-        Assert.Contains(lab.Inbox.Section.ItemsOf(Bram.Value), item => item.SubjectKey == ContractKeys.NoticePrincipalExtended);
+        Assert.DoesNotContain(lab.Inbox.Section.ItemsOf(Bram.Value), item => item.Arguments.TryGetValue("person", out var name) && name.Contains("Boss", StringComparison.Ordinal));
     }
 
     [Fact]
-    public void AnswerRelease_OverridesTheDefaultForTheGroupAndThoseContractsRunOut()
+    public void AnExplicitExtendOfTheGroupKeepsEveryoneWhoAgreesAndFitsTheBudget()
     {
         var lab = Team();
         lab.Advance(31);
         var group = lab.Inbox.Section.Items.Single(item => item.Kind == ContractEngine.RenewalGroupKind);
 
-        var result = lab.Submit(new ResolveInboxItemCommand { ManagerId = Bram, IssuedOn = Date(lab.Today), ItemId = group.Id, OptionId = ContractEngine.OptionRelease });
+        var result = lab.Submit(new ResolveInboxItemCommand { ManagerId = Bram, IssuedOn = Date(lab.Today), ItemId = group.Id, OptionId = ContractEngine.OptionExtend });
         Assert.IsType<CommandResult.Accepted>(result);
         while (lab.Today < new GameDate(1956, 1, 1))
         {
             Assert.IsType<AdvanceResult.Advanced>(LiveOneDay(lab));
         }
 
-        Assert.False(HasContractOn(lab, Scout, TeamB, lab.Today));
-        Assert.False(HasContractOn(lab, Mechanic, TeamB, lab.Today));
-        Assert.True(HasContractOn(lab, Veteran, TeamB, lab.Today));
+        Assert.True(HasContractOn(lab, Scout, TeamB, lab.Today));
+        Assert.True(HasContractOn(lab, Mechanic, TeamB, lab.Today));
+        Assert.False(HasContractOn(lab, Veteran, TeamB, lab.Today));
     }
 
     [Fact]
-    public void WhenTheBudgetCannotCarryTheDefaultTheContractRunsOutAndTheManagerIsTold()
+    public void ExtendingNeverNeedsMoneyOnlyThePersonsAgreement()
     {
+        // Owner decision (#253): no budget gate on contracts.
         var lab = Team();
         lab.Payroll.Cap(TeamB, 10_000);
+        lab.Advance(31);
+        var prompt = lab.Inbox.Section.Items.First(item => item.Kind == ContractEngine.RenewalKind);
 
-        while (lab.Today < new GameDate(1956, 1, 1))
-        {
-            Assert.IsType<AdvanceResult.Advanced>(LiveOneDay(lab));
-        }
+        var result = lab.Submit(new ResolveInboxItemCommand { ManagerId = Bram, IssuedOn = Date(lab.Today), ItemId = prompt.Id, OptionId = ContractEngine.OptionExtend });
 
-        Assert.False(HasContractOn(lab, Veteran, TeamB, lab.Today));
-        var notices = lab.Inbox.Section.ItemsOf(Bram.Value).Where(item => item.SubjectKey == ContractKeys.NoticeExtendFailed).ToArray();
-        Assert.Contains(notices, item => item.Arguments["person"].Contains("Veteran", StringComparison.Ordinal));
-        Assert.Contains(notices, item => item.Arguments["person"].Contains("Director", StringComparison.Ordinal));
-        Assert.Equal(2, notices.Count(item => item.Arguments["person"].Contains("Scout", StringComparison.Ordinal) || item.Arguments["person"].Contains("Mechanic", StringComparison.Ordinal)));
+        Assert.IsType<CommandResult.Accepted>(result);
     }
 
     [Fact]

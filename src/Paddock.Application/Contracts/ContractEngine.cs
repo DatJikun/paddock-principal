@@ -202,11 +202,6 @@ public sealed class ContractEngine
             return TranslationMessage.Of(ContractKeys.PersonTaken);
         }
 
-        if (!_book.Environment.Payroll.CanCommit(negotiation.Proposer, terms.Salary, terms.Years, today))
-        {
-            return TranslationMessage.Of(ContractKeys.CannotAfford);
-        }
-
         return null;
     }
 
@@ -260,11 +255,6 @@ public sealed class ContractEngine
             {
                 return employment;
             }
-        }
-
-        if (!_book.Environment.Payroll.CanCommit(negotiation.Proposer, terms.Salary, terms.Years, today))
-        {
-            return TranslationMessage.Of(ContractKeys.CannotAfford);
         }
 
         return null;
@@ -350,9 +340,7 @@ public sealed class ContractEngine
             return opening;
         }
 
-        return _book.Environment.Payroll.CanCommit(contract.OrganizationId, offer.Salary, offer.Years, today)
-            ? null
-            : TranslationMessage.Of(ContractKeys.CannotAfford);
+        return null;
     }
 
     /// <summary>The least compensation an employer owes for ending a contract today (ESTIMATE: half the remaining salary).</summary>
@@ -561,11 +549,6 @@ public sealed class ContractEngine
         if (boardDecision)
         {
             return null;
-        }
-
-        if (!_book.Environment.Payroll.CanCommit(contract.OrganizationId, contract.Salary, DefaultRenewalYears, today))
-        {
-            return TranslationMessage.Of(ContractKeys.CannotAfford);
         }
 
         return WouldStay(contract, today) ? null : TranslationMessage.Of(ContractKeys.WantsMore);

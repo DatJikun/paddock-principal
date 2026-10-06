@@ -15,7 +15,10 @@ public static class WorldInitEstimates
     /// <summary>ESTIMATE: nominal salary of a starting contract. The economy is a later phase, so this means "not modelled".</summary>
     public const long PlaceholderSalary = 0;
 
-    /// <summary>ESTIMATE: nominal budget of a starting organization. Not modelled yet.</summary>
+    /// <summary>
+    /// ESTIMATE: nominal budget of an organization that has no era budget (an engine supplier, or any team when the data has no era
+    /// budgets). A team of a real career gets the era budget of its tier instead (#234).
+    /// </summary>
     public const long PlaceholderBudget = 0;
 
     /// <summary>ESTIMATE: the old flat rating of real staff. Chairs now draw a budget band from <see cref="StaffEstimates"/>.</summary>

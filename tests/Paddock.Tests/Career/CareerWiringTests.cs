@@ -85,8 +85,8 @@ public sealed class CareerWiringTests
         Assert.Equal(Money.FromDollars(facts.TypicalDollars).Cents, Opening("ferrari"));
         Assert.Equal(Money.FromDollars(facts.LowDollars).Cents, Opening("gordini"));
         // pawl's only 1955 entries are the Indianapolis 500, so that constructor is not planned and has no book.
-        // arzani-volpini is a 1955 Grand Prix team with no authored 1954 standing: missing facts mean Typical.
-        Assert.Equal(Money.FromDollars(facts.TypicalDollars).Cents, Opening("arzani-volpini"));
+        // arzani-volpini is last in the authored 1954 order (10th, it did not race), so it opens Low; missing facts mean Typical.
+        Assert.Equal(Money.FromDollars(facts.LowDollars).Cents, Opening("arzani-volpini"));
         Assert.True(facts.TopDollars > facts.TypicalDollars && facts.TypicalDollars > facts.LowDollars);
     }
 

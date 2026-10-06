@@ -1,4 +1,5 @@
 using Paddock.Domain.Cars;
+using Paddock.Domain.Finance;
 using Paddock.Domain.World;
 
 namespace Paddock.Data.Authored;
@@ -23,7 +24,8 @@ public sealed class AuthoredData
         IReadOnlyList<TimelinePeriod> eraTimeline,
         IReadOnlyList<CpiYear> cpiYears,
         IReadOnlyList<TrackGeometryFile>? trackGeometries = null,
-        ICarStrengthSource? carStrength = null)
+        ICarStrengthSource? carStrength = null,
+        ITeamTierSource? teamTiers = null)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(timeline);
@@ -63,6 +65,7 @@ public sealed class AuthoredData
         CpiBook = new CpiBook(cpiYears.Select(row => new CpiObservation(row.Year, row.Cpi)).ToArray());
         TrackGeometries = trackGeometries ?? [];
         CarStrength = carStrength;
+        TeamTiers = teamTiers;
         Layouts = circuits.Circuits
             .SelectMany(circuit => circuit.Layouts.Select(layout => new TrackLayout(
                 layout.LayoutId,
@@ -102,6 +105,12 @@ public sealed class AuthoredData
 
     /// <summary>The authored ESTIMATE of constructor car strength, or null when a fixture has none (the tier fallback applies).</summary>
     public ICarStrengthSource? CarStrength { get; }
+
+    /// <summary>
+    /// The authored ESTIMATE of the previous season's constructors' order (<c>team_tiers_estimates.json</c>), or null when a fixture
+    /// has none. It sets the opening budget of every team, and finance opens its books from the same tier (#234).
+    /// </summary>
+    public ITeamTierSource? TeamTiers { get; }
 
     public IReadOnlyList<CatalogDimension> Catalog { get; }
 

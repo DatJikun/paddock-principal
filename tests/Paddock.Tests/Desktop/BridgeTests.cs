@@ -320,6 +320,41 @@ public class BridgeTests
         AssertPlayerRaceResultHasNoSpy(career.Host);
     }
 
+    [Theory]
+    [InlineData("mercedes", 1)]
+    [InlineData("ferrari", 2)]
+    [InlineData("lancia", 9)]
+    [InlineData("arzani-volpini", 10)]
+    public void TheTeamCardsExpectWhatTheBoardOffersOnDayOne(string team, int expected)
+    {
+        // #234: the card on the team list and the season target of the first morning read one rule (the budget level of the team,
+        // then the authored 1954 order), so a player is not promised one place and asked for another.
+        using var lobby = Lobby();
+        var cards = lobby.Host.Handle(Message(
+            "cards",
+            "query",
+            "teams",
+            """{"managerId":"human:player","year":1955,"preset":"Chaos","people":null,"seed":1}"""));
+        using var cardsJson = JsonDocument.Parse(cards.Response);
+        var card = cardsJson.RootElement.GetProperty("data").GetProperty("teams").EnumerateArray()
+            .Single(item => item.GetProperty("id").GetString() == team);
+        Assert.Equal(expected, card.GetProperty("expected").GetInt32());
+
+        using var career = Lobby();
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            "{\"managerId\":\"human:player\",\"teamId\":\"" + team + "\",\"givenName\":\"Enzo\",\"familyName\":\"Test\",\"nationality\":\"IT\",\"tilt\":\"none\",\"preset\":\"Chaos\",\"year\":1955,\"seed\":1}"));
+        using var startedJson = JsonDocument.Parse(started.Response);
+        Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        var shell = career.Host.Handle(Message("sh", "query", "shell"));
+        using var shellJson = JsonDocument.Parse(shell.Response);
+        var offered = shellJson.RootElement.GetProperty("data").GetProperty("decisionSubject").GetProperty("parameters");
+        Assert.Equal(card.GetProperty("expected").GetInt32().ToString(System.Globalization.CultureInfo.InvariantCulture), offered.GetProperty("expected").GetString());
+        Assert.Equal(card.GetProperty("fieldSize").GetInt32().ToString(System.Globalization.CultureInfo.InvariantCulture), offered.GetProperty("field").GetString());
+    }
+
     [Fact]
     public void TheTeamCardsShowTheLineUpTheCareerWillStartWithAndChangeNothing()
     {

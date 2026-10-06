@@ -4,6 +4,7 @@ using Paddock.Data.Authored;
 using Paddock.Data.Historical;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
+using Paddock.Domain.Finance;
 using Paddock.Domain.People;
 using Paddock.Domain.Random;
 using Paddock.Domain.Time;
@@ -19,7 +20,8 @@ public sealed record WorldInitOptions(
     INameSource? Names = null,
     INameBlocklist? Blocklist = null,
     IReadOnlyDictionary<string, string>? ConstructorNames = null,
-    ICarStrengthSource? CarStrength = null);
+    ICarStrengthSource? CarStrength = null,
+    ITeamTierSource? Tiers = null);
 
 /// <summary>
 /// Builds the <see cref="WorldState"/> of a career start (T20): organizations with lineage and engine
@@ -93,6 +95,7 @@ public static class WorldInitializer
         private readonly INameBlocklist _blocklist;
         private readonly IReadOnlyDictionary<string, string>? _constructorNames;
         private readonly ICarStrengthSource? _carStrength;
+        private readonly ITeamTierSource? _tiers;
         private readonly ulong _masterSeed;
         private readonly RngStream _people;
         private readonly int _start;
@@ -120,6 +123,7 @@ public static class WorldInitializer
             _blocklist = options.Blocklist ?? EmptyNameBlocklist.Instance;
             _constructorNames = options.ConstructorNames;
             _carStrength = options.CarStrength ?? data.CarStrength;
+            _tiers = options.Tiers ?? data.TeamTiers;
             _masterSeed = masterSeed;
             _start = config.StartYear;
             var lastAuthored = data.Engines.Entries.Count == 0 ? _start : data.Engines.Entries.Max(entry => entry.Year);
@@ -242,7 +246,7 @@ public static class WorldInitializer
                 plan.Id,
                 founded,
                 dissolved,
-                WorldInitEstimates.PlaceholderBudget,
+                OpeningBudget(OrganizationId.Real(plan.Id)),
                 [new OrganizationNameSpan(name, founded, dissolved)]);
             (_world, var id) = _world.AddOrganization(spec);
             _teamIds[plan.Id] = id;
@@ -386,10 +390,26 @@ public static class WorldInitializer
                 null,
                 founded,
                 null,
-                WorldInitEstimates.PlaceholderBudget,
+                OpeningBudget(null),
                 [new OrganizationNameSpan(CareerConfig.NewTeam, founded, null)]);
             (_world, var id) = _world.AddOrganization(spec);
             return id;
+        }
+
+        /// <summary>
+        /// The opening budget of a team in whole dollars: the era budget of its tier, which is the capital finance opens its books
+        /// with (<c>OpenBooksHandler</c>). A team the tier source does not know, and a new team of the player (null), is a typical
+        /// one. Without era budgets the money is not modelled and every team keeps the placeholder (#234).
+        /// </summary>
+        private long OpeningBudget(OrganizationId? team)
+        {
+            if (!EraFinance.Covers(_data.EraPeriods, _start))
+            {
+                return WorldInitEstimates.PlaceholderBudget;
+            }
+
+            var tier = team is OrganizationId known && _tiers is not null ? _tiers.TierOf(known, _start) : TeamTier.Typical;
+            return EraFinance.ForYear(_data.EraPeriods, _start).Dollars(tier);
         }
 
         private (int From, int? To) SpanOf(string constructorId, int year)

@@ -33,6 +33,33 @@ public static class EraFinance
             Dollars(periods, FinanceEstimates.BudgetTop, year));
     }
 
+    /// <summary>True when the periods give the three team budgets (and the revenue model) for the year, so <see cref="ForYear"/> will not throw.</summary>
+    public static bool Covers(IReadOnlyList<RulePeriod> periods, int year)
+    {
+        ArgumentNullException.ThrowIfNull(periods);
+        foreach (var dimension in new[] { FinanceEstimates.BudgetLow, FinanceEstimates.BudgetTypical, FinanceEstimates.BudgetTop, FinanceEstimates.RevenueModelDimension })
+        {
+            var covered = false;
+            foreach (var period in periods)
+            {
+                if (string.Equals(period.DimensionId, dimension, StringComparison.Ordinal)
+                    && period.FromYear <= year
+                    && (period.ToYear is null || year <= period.ToYear.Value))
+                {
+                    covered = true;
+                    break;
+                }
+            }
+
+            if (!covered)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static long Dollars(IReadOnlyList<RulePeriod> periods, string dimension, int year)
     {
         var (current, previous) = Covering(periods, dimension, year);

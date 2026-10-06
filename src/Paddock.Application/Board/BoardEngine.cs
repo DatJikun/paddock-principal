@@ -863,7 +863,7 @@ public sealed class BoardEngine
 
     /// <summary>The rank of the organization's budget among the active teams (1 is the richest). A public fact.</summary>
     public int BudgetRank(OrganizationId organization, GameDate today) =>
-        PublicStrength.BudgetRank(_book.World, organization, today);
+        PublicStrength.BudgetRank(_book.World, organization, today, _book.Ranking);
 
     /// <summary>The reputation in tenths that a team asks of a new principal, from its prestige.</summary>
     public int Required(OrganizationId organization, GameDate today) =>

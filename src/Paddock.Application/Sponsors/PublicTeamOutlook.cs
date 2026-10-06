@@ -13,12 +13,14 @@ public sealed class PublicTeamOutlook : ITeamOutlook
 {
     private readonly Func<WorldState> _world;
     private readonly IBoardHistory _history;
+    private readonly PublicRankKeys? _ranking;
 
-    public PublicTeamOutlook(Func<WorldState> world, IBoardHistory? history = null)
+    public PublicTeamOutlook(Func<WorldState> world, IBoardHistory? history = null, PublicRankKeys? ranking = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         _world = world;
         _history = history ?? new NoBoardHistory();
+        _ranking = ranking;
     }
 
     public int FieldSize(GameDate on) => Math.Max(1, PublicStrength.ActiveTeams(_world(), on).Count);
@@ -34,7 +36,7 @@ public sealed class PublicTeamOutlook : ITeamOutlook
 
         return ReputationModel.ExpectedPosition(
             _history.FinalPosition(organization, on.Year - 1),
-            PublicStrength.BudgetRank(world, organization, on),
+            PublicStrength.BudgetRank(world, organization, on, _ranking),
             teams.Count);
     }
 }

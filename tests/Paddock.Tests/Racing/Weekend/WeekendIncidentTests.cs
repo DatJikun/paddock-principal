@@ -120,6 +120,48 @@ public class WeekendIncidentTests
         Assert.True(after - before > 3 * 60, $"the leader needed {after - before:F0} s for the lap after the red flag");
     }
 
+    /// <summary>
+    /// #261: seed 3 is in the #256 monkey sample (<c>--seed 1</c>, then 1..50). A safety-car weekend is the
+    /// engine path that wrote a negative lap onto the tape.
+    /// </summary>
+    [Fact]
+    public void Phase4MonkeySeed3_OnASafetyCarWeekend_HasPositiveMonotonicLaps()
+    {
+        AssertPositiveMonotonicLaps(WeekendTestKit.Run(Chaos(round: 1, seed: 3, FatalityLevel.On)));
+    }
+
+    [Fact]
+    [Trait("Category", "Slow")]
+    public void LapTimesOnTheTape_ArePositive_AndCumulativeTimeRises()
+    {
+        foreach (var race in FatalitiesOn.Value.Concat(FatalitiesOff.Value))
+        {
+            AssertPositiveMonotonicLaps(race);
+        }
+    }
+
+    private static void AssertPositiveMonotonicLaps(RaceWeekendResult race)
+    {
+        Assert.All(race.Tape.Events.OfType<LapCompleted>(), lap =>
+            Assert.True(lap.LapTimeMs > 0, $"{lap.DriverId} lap {lap.Lap} is {lap.LapTimeMs} ms"));
+        foreach (var car in race.LapRecords.GroupBy(row => row.CarId, StringComparer.Ordinal))
+        {
+            CarLapRecord? previous = null;
+            foreach (var row in car.OrderBy(item => item.Lap))
+            {
+                Assert.True(row.LapSeconds > 0, $"{row.CarId} lap {row.Lap} is {row.LapSeconds} s");
+                if (previous is not null)
+                {
+                    Assert.True(
+                        row.EndSeconds > previous.EndSeconds,
+                        $"{row.CarId} lap {row.Lap} ended at {row.EndSeconds} after {previous.EndSeconds}");
+                }
+
+                previous = row;
+            }
+        }
+    }
+
     // ---- The pass rule -----------------------------------------------------------------------------------------
 
     private sealed class Never : IPassModel

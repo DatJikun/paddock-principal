@@ -51,6 +51,12 @@ public sealed class CareerInputs
     /// <summary>Which layout each championship round uses.</summary>
     public IReadOnlyList<RaceAssignment>? RaceAssignments { get; init; }
 
+    /// <summary>
+    /// The real race dates the host has (from the local cache, PP-041). A season with every round dated and room for a weekend before
+    /// each race is planned on them (#229); any other season keeps the even spacing. Null or empty means even spacing everywhere.
+    /// </summary>
+    public RaceDateBook? RaceDates { get; init; }
+
     /// <summary>Catalog dimension ids, in authored order. Required to resolve a season's <see cref="RuleSet"/>.</summary>
     public IReadOnlyList<string>? RegulationDimensionIds { get; init; }
 

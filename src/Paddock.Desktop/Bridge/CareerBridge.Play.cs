@@ -430,7 +430,7 @@ public sealed partial class CareerBridge
             var display = given + " " + family;
             var shell = CareerShell.Open(
                 session,
-                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config) },
+                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config, CareerData.LoadRaceDates(root)) },
                 display,
                 HumanManagerId);
             var today = new DateOnly(shell.Date.Year, shell.Date.Month, shell.Date.Day);
@@ -516,7 +516,7 @@ public sealed partial class CareerBridge
             var shell = CareerShell.Resume(
                 session,
                 loaded.Host,
-                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, career: loaded.Meta.CareerConfig) },
+                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, career: loaded.Meta.CareerConfig, raceDates: CareerData.LoadRaceDates(root)) },
                 human);
             Install(shell, loaded.Meta.CareerConfig, files, now, loaded.Meta.CareerName, null, data);
             return PlayStep.Ok(

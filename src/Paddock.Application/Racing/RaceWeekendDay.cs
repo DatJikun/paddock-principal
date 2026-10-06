@@ -562,7 +562,13 @@ public sealed class RaceWeekendDay : IDayHandler
             return;
         }
 
-        foreach (var session in SeasonCalendar.Plan(season, layouts, assignments))
+        var (plan, world) = SeasonPlans.Ensure(_context.Session.World, season, layouts, assignments, _context.Inputs.RaceDates);
+        if (!ReferenceEquals(world, _context.Session.World))
+        {
+            _context.Session.StoreWorld(world);
+        }
+
+        foreach (var session in plan)
         {
             if (session.Date > context.Today)
             {

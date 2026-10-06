@@ -125,7 +125,7 @@ public static class ChampionshipRead
         var rounds = new Dictionary<int, RoundBuilder>();
         if (inputs.Layouts is { } layouts && inputs.RaceAssignments is { } assignments)
         {
-            foreach (var planned in SeasonCalendar.Plan(season, layouts, assignments))
+            foreach (var planned in SeasonPlans.Read(session.World, season, layouts, assignments))
             {
                 AddSession(rounds, planned.Round, planned.LayoutId, planned.TypeId, planned.Date.ToString());
             }

@@ -31,6 +31,7 @@ public static class SaveMigrations
         new V023_RaceResultsSection(),
         new V024_PersonInjuredUntil(),
         new V025_RaceResultDetails(),
+        new V026_RaceCalendarSection(),
     ];
 
     static SaveMigrations()

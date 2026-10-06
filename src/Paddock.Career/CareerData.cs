@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Paddock.Data.Historical;
 using Paddock.Data.World;
+using Paddock.Domain.World;
 
 namespace Paddock.Career;
 
@@ -61,6 +62,13 @@ public static class CareerData
 
         return (schedulePath, driversPath);
     }
+
+    /// <summary>
+    /// The real race dates in the local cache under <paramref name="dataRoot"/>, or an empty book when there is no cache. The same
+    /// cache folder as <see cref="ResolveProviderFiles"/>. A host passes it to <see cref="CareerInputsLoader"/>; the tests do not,
+    /// so they never depend on the cache (#229).
+    /// </summary>
+    public static RaceDateBook LoadRaceDates(string dataRoot) => RaceDateLoader.Load(dataRoot);
 
     public static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files)
     {

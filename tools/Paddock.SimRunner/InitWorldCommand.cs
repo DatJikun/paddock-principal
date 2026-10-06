@@ -1,15 +1,17 @@
 using System.Globalization;
 using System.Text.Json;
+using Paddock.Career;
 using Paddock.Data.Authored;
 using Paddock.Data.Historical;
 using Paddock.Data.World;
 using Paddock.Domain.Career;
+using Paddock.Domain.World;
 
 namespace Paddock.SimRunner;
 
 /// <summary>
 /// <c>init-world --preset &lt;name&gt; --year &lt;Y&gt; --seed &lt;N&gt; [--lang en|pl] [--data-root &lt;dir&gt;]
-/// [--schedule &lt;people_schedule.json&gt; --drivers &lt;drivers.json&gt;]</c>:
+/// [--schedule &lt;people_schedule.json&gt; --drivers &lt;drivers.json&gt; [--ratings &lt;ratings.json&gt;]]</c>:
 /// builds the starting world and prints the report (counts per kind, gaps, state hash). Read-only; it writes nothing.
 /// Real drivers come from the local Jolpica cache outputs when they exist; without them the provider is empty.
 /// </summary>
@@ -18,6 +20,7 @@ public static class InitWorldCommand
     public const string Name = "init-world";
 
     private const int SubjectsShown = 12;
+    private const int TopDriversShown = 10;
 
     public static int Execute(string[] args, TextWriter stdout, TextWriter stderr)
     {
@@ -38,10 +41,11 @@ public static class InitWorldCommand
         string? dataRoot = null;
         string? schedulePath = null;
         string? driversPath = null;
+        string? ratingsPath = null;
         for (var i = 1; i < args.Length; i++)
         {
             var flag = args[i];
-            if (flag is not ("--preset" or "--year" or "--seed" or "--lang" or "--data-root" or "--schedule" or "--drivers"))
+            if (flag is not ("--preset" or "--year" or "--seed" or "--lang" or "--data-root" or "--schedule" or "--drivers" or "--ratings"))
             {
                 stderr.WriteLine("Unknown argument: " + flag);
                 return 1;
@@ -61,6 +65,7 @@ public static class InitWorldCommand
                 "--data-root" => Take(ref dataRoot, value),
                 "--schedule" => Take(ref schedulePath, value),
                 "--drivers" => Take(ref driversPath, value),
+                "--ratings" => Take(ref ratingsPath, value),
                 "--year" => TakeYear(ref year, value, stderr),
                 _ => TakeSeed(ref seed, value, stderr),
             };
@@ -89,6 +94,12 @@ public static class InitWorldCommand
             return 1;
         }
 
+        if (ratingsPath is not null && schedulePath is null)
+        {
+            stderr.WriteLine("--ratings goes with --schedule and --drivers.");
+            return 1;
+        }
+
         if (!TryPreset(preset, out var selected))
         {
             stderr.WriteLine("Invalid --preset value: " + preset);
@@ -107,7 +118,7 @@ public static class InitWorldCommand
             }
 
             var data = AuthoredDataLoader.Load(root);
-            var provider = LoadProvider(root, schedulePath, driversPath);
+            var provider = LoadProvider(root, schedulePath, driversPath, ratingsPath);
             var result = WorldInitializer.Create(config, data, provider, seed.Value);
             Print(result, ReferenceEquals(provider, EmptyPeopleProvider.Instance), strings, stdout);
             return 0;
@@ -169,13 +180,30 @@ public static class InitWorldCommand
             }
         }
 
+        var top = result.World.Persons
+            .Where(person => person.IsReal && person.Roles.Contains(PersonRole.Driver))
+            .Select(person => (Person: person, Mean: Mean(person.Truth)))
+            .OrderByDescending(entry => entry.Mean)
+            .ThenBy(entry => entry.Person.Id.Value, StringComparer.Ordinal)
+            .Take(TopDriversShown)
+            .ToArray();
+        if (top.Length > 0)
+        {
+            stdout.WriteLine(strings.Required("world.init.top_drivers") + ":");
+            foreach (var (person, mean) in top)
+            {
+                stdout.WriteLine("  " + person.GivenName + " " + person.FamilyName + ": " + mean.ToString("0.0", CultureInfo.InvariantCulture));
+            }
+        }
+
         stdout.WriteLine(strings.Required("world.init.report.hash").Replace("{hash}", result.World.StateHash(), StringComparison.Ordinal));
     }
 
     private static IPeopleProvider LoadProvider(
         string dataRoot,
         string? schedulePath,
-        string? driversPath)
+        string? driversPath,
+        string? ratingsPath)
     {
         if (schedulePath is null || driversPath is null)
         {
@@ -192,8 +220,12 @@ public static class InitWorldCommand
             ?? throw new JsonException("The people schedule file is empty.");
         var drivers = JsonSerializer.Deserialize<HistoricalDriversDocument>(File.ReadAllText(driversPath), HistoricalJson.Options)
             ?? throw new JsonException("The drivers file is empty.");
-        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers);
+        ratingsPath ??= CareerData.RatingsPathFor(schedulePath);
+        var ratings = ratingsPath is null ? null : FittedDriverRatings.Load(ratingsPath);
+        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers, ratings is null ? null : ratings.RatingFor);
     }
+
+    private static double Mean(PersonTruth truth) => truth.Attributes.Average(attribute => attribute.Value);
 
     private static string Format(string template, IReadOnlyList<string> arguments, CareerConfig config)
     {

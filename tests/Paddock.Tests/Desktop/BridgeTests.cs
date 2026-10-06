@@ -279,7 +279,7 @@ public class BridgeTests
 
         var hash = career.Host.StateHash;
         var name = "bridge-" + Guid.NewGuid().ToString("N");
-        var path = Path.Combine(BridgeHost.RepositoryRoot(), "saves", name + ".paddock");
+        var path = Path.Combine(BridgeTestData.SavesDirectory, name + ".paddock");
         try
         {
             var saved = career.Host.Handle(Message(
@@ -542,7 +542,7 @@ public class BridgeTests
         }
 
         var name = "bridge-" + Guid.NewGuid().ToString("N");
-        var path = Path.Combine(BridgeHost.RepositoryRoot(), "saves", name + ".paddock");
+        var path = Path.Combine(BridgeTestData.SavesDirectory, name + ".paddock");
         var args = "{\"managerId\":\"human:player\",\"name\":\"" + name + "\"}";
         try
         {
@@ -980,9 +980,9 @@ public class BridgeTests
         return answered;
     }
 
-    private static Opened Open() => new(BridgeHost.Open(Path.Combine(BridgeHost.RepositoryRoot(), "data")));
+    private static Opened Open() => new(BridgeHost.Open(BridgeTestData.DataRoot));
 
-    private static Opened Lobby() => new(BridgeHost.Lobby(Path.Combine(BridgeHost.RepositoryRoot(), "data")));
+    private static Opened Lobby() => new(BridgeHost.Lobby(BridgeTestData.DataRoot));
 
     private sealed class Opened : IDisposable
     {

@@ -24,7 +24,7 @@ public class InitWorldCommandTests
     [Fact]
     public void RealPresetsWithoutACacheSeatGeneratedDriversTwoPerTeam()
     {
-        var lines = Run(["init-world", "--preset", "MostHistorical", "--year", "1988", "--seed", "1"], out var code);
+        var lines = Run(["init-world", "--preset", "MostHistorical", "--year", "1988", "--seed", "1", "--data-root", Paddock.Tests.Desktop.BridgeTestData.DataRoot], out var code);
 
         Assert.Equal(0, code);
         Assert.Contains(lines, line => line.StartsWith("No people schedule found", StringComparison.Ordinal));

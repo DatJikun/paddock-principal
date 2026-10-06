@@ -99,6 +99,7 @@ public sealed class CareerShell
             options);
         shell.Player = player;
         shell.SeatPlayer();
+        shell._modules.RestoreSeats();
         return shell;
     }
 

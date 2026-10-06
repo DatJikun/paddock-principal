@@ -112,6 +112,13 @@ public sealed class InboxSection : IWorldSection
         return _items.Values.Count(item => item.ManagerId == managerId && item.IsOpenDecision);
     }
 
+    /// <summary>How many open decisions of this manager hold the clock (a decision with a deadline and a default may not).</summary>
+    public int HoldingClockCount(string managerId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(managerId);
+        return _items.Values.Count(item => item.ManagerId == managerId && item.IsHoldingClock);
+    }
+
     /// <summary>The managers that have at least one item, in ordinal order.</summary>
     public IReadOnlyList<string> Managers() =>
         _items.Values.Select(item => item.ManagerId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();

@@ -3,8 +3,8 @@ using Paddock.Domain.Time;
 namespace Paddock.SimRunner.Scenario;
 
 /// <summary>
-/// Temporary hang labels the gate may record instead of failing. When #252/#253/#254 merge,
-/// delete the matching entries in <see cref="TemporaryHangClassifications"/> so any hang fails.
+/// Temporary hang labels the gate may record instead of failing. #252, #253 and #254 are merged, so the list is empty and
+/// any hang fails the gate. Add a row only for a known, filed issue, and remove it when that issue merges.
 /// </summary>
 public static class Phase4KnownIssues
 {
@@ -17,12 +17,7 @@ public static class Phase4KnownIssues
     /// <summary>
     /// The only list the gate consults. Empty it (or drop a row) when that issue is gone.
     /// </summary>
-    public static readonly IReadOnlyList<(string Id, string Why)> TemporaryHangClassifications =
-    [
-        (ResumeAfterSeasonChange, "Resume after a season change can diverge from the live run (#252)."),
-        (JulyRenewalFlood, "1 July renewal flood and the five-talk cap (#253). The bot releases when a renew is refused."),
-        (SponsorsDryUp, "Sponsor catalog / notices (#254)."),
-    ];
+    public static readonly IReadOnlyList<(string Id, string Why)> TemporaryHangClassifications = [];
 
     public static bool AllowsHang(string? issue) =>
         issue is not null

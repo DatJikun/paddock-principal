@@ -33,4 +33,16 @@ public class InfrastructureDeciderTests
         Assert.Null(decision.Kind);
         Assert.False(decision.BookTest);
     }
+
+    [Fact]
+    public void ANearFrontierPlantIsLeftAloneEvenWithCash()
+    {
+        var input = new InfrastructureInput(
+            new DateOnly(1955, 1, 1),
+            10_000_000,
+            [new FacilityCase(FacilityKindIds.Factory, 0.45, 200_000, false, true)],
+            new TestRentalCase(50_000, 0, 12, true));
+        var decision = InfrastructureDecider.Review(Context(PrincipalArchetype.Builder), input);
+        Assert.Null(decision.Kind);
+    }
 }

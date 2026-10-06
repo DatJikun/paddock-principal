@@ -39,8 +39,8 @@ public static class InfrastructureDecider
         foreach (var facility in input.Facilities.OrderBy(item => item.Kind, StringComparer.Ordinal))
         {
             if (!facility.Eligible || facility.Building || facility.UpgradeCostCents <= 0
-                || input.CashCents < facility.UpgradeCostCents * 8
-                || facility.RelativeQuality >= 0.55)
+                || input.CashCents < facility.UpgradeCostCents * 12
+                || facility.RelativeQuality >= 0.40)
             {
                 continue;
             }
@@ -56,7 +56,7 @@ public static class InfrastructureDecider
                 ]));
         }
 
-        if (input.Tests.Allowed && input.Tests.CostCents > 0 && input.CashCents >= input.Tests.CostCents * 12)
+        if (input.Tests.Allowed && input.Tests.CostCents > 0 && input.CashCents >= input.Tests.CostCents * 16)
         {
             var room = input.Tests.Cap <= 0 ? 0.0 : 1.0 - (input.Tests.Used / (double)input.Tests.Cap);
             var price = input.CashCents <= 0 ? 1.0 : input.Tests.CostCents / (double)input.CashCents;

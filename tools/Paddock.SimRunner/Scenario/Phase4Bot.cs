@@ -110,10 +110,19 @@ public static class Phase4Bot
         }
 
         var config = CareerConfig.FromPreset(CareerPreset.Chaos).WithStartYear(1955).WithPlayerTeam(teamId);
-        var created = WorldInitializer.Create(config, data, EmptyPeopleProvider.Instance, seed);
-        var arrivals = TalentIntakeSchedule.AfterStart(config, EmptyPeopleProvider.Instance, created.World, seed);
-        var session = new CareerSession(created.World, seed, created.TalentPool, arrivals);
-        var options = new CareerRunOptions { Inputs = CareerInputsLoader.Load(dataRoot, data, career: config) };
+        var provider = EmptyPeopleProvider.Instance;
+        var created = WorldInitializer.Create(config, data, provider, seed);
+        var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);
+        var session = new CareerSession(
+            created.World,
+            seed,
+            created.TalentPool,
+            arrivals,
+            new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
+        var options = new CareerRunOptions
+        {
+            Inputs = CareerInputsLoader.Load(dataRoot, data, created.EngineSupplies, config, RaceDateBook.Empty),
+        };
         var shell = CareerShell.Open(session, options, "Gate Bot");
         var take = shell.Submit(new TakeOverTeamCommand
         {

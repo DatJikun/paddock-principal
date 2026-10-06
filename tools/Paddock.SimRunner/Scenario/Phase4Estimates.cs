@@ -28,6 +28,8 @@ public static class Phase4Estimates
 
     public static GameDate Start { get; } = GameDate.SeasonStart(1955);
 
+    public static GameDate StoryUntil { get; } = new(1955, 1, 2);
+
     public static GameDate RobustUntil { get; } = new(1957, 3, 1);
 
     public static GameDate CounterfactualUntil { get; } = GameDate.SeasonEnd(1955);

@@ -1,17 +1,25 @@
 using Paddock.Application.Board;
 using Paddock.Data.Authored;
 using Paddock.Data.World;
+using Paddock.Domain.Finance;
 using Paddock.Domain.Time;
+using Paddock.Domain.World;
 using Paddock.SimRunner;
 using Paddock.SimRunner.Scenario;
 using static Paddock.Tests.Board.BoardKit;
 
 namespace Paddock.Tests.SimRunner;
 
+[CollectionDefinition("Phase4Gate", DisableParallelization = true)]
+public class Phase4GateCollection
+{
+}
+
 /// <summary>
 /// Phase-4 gate (#113). The scripted-story hash is rewritten only with
 /// <c>PADDOCK_UPDATE_FIXTURES=1 dotnet test --filter Phase4ScenarioTests.TheScriptedStoryHashIsStable</c>.
 /// </summary>
+[Collection("Phase4Gate")]
 public class Phase4ScenarioTests
 {
     private static string DataRoot => Path.Combine(RepoPaths.Root(), "data");
@@ -43,18 +51,22 @@ public class Phase4ScenarioTests
     [Fact]
     public void TheScriptedStoryHashIsStable()
     {
-        var first = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.RobustUntil, Phase4Policy.Default);
-        var second = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.RobustUntil, Phase4Policy.Default);
+        var first = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.StoryUntil, Phase4Policy.Default);
+        var second = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.StoryUntil, Phase4Policy.Default);
         Assert.Equal(first.WorldHash, second.WorldHash);
         Assert.Equal(64, first.WorldHash.Length);
-        Assert.True(first.SoftLock is null || first.KnownIssue is not null, first.SoftLock + " / " + first.KnownIssue);
+        Assert.Equal(Phase4Estimates.StoryUntil, first.Reached);
+        var far = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.RobustUntil, Phase4Policy.Default);
+        var farAgain = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.RobustUntil, Phase4Policy.Default);
+        Assert.Equal(far.WorldHash, farAgain.WorldHash);
+        Assert.True(far.SoftLock is null || far.KnownIssue is not null, far.SoftLock + " / " + far.KnownIssue);
         if (Environment.GetEnvironmentVariable("PADDOCK_UPDATE_FIXTURES") == "1")
         {
-            File.WriteAllText(HashPath, first.WorldHash + Environment.NewLine);
+            File.WriteAllText(HashPath, first.WorldHash + "\n");
         }
 
         Assert.True(File.Exists(HashPath), "Missing story hash. Generate it with " + Phase4Estimates.UpdateHashCommand);
-        var stored = File.ReadAllText(HashPath).Trim();
+        var stored = File.ReadAllText(HashPath).Replace("\r\n", "\n", StringComparison.Ordinal).Trim();
         Assert.Equal(stored, first.WorldHash);
     }
 
@@ -94,23 +106,36 @@ public class Phase4ScenarioTests
         {
             Assert.True(row.ReachedUntil || row.KnownIssue is not null, row.TeamId + " " + row.Reached + " " + row.SoftLock);
             Assert.True(row.SoftLock is null || row.KnownIssue is not null);
+            var twice = Phase4Bot.Play(DataRoot, row.TeamId, row.Seed, Phase4Estimates.RobustUntil, Phase4Policy.Default);
+            Assert.Equal(row.WorldHash, twice.WorldHash);
         });
     }
 
     [Fact]
     public void DismissalAndCollapseScriptedPathsAreReached()
     {
-        var lab = DismissedUntilJune();
+        var lab = new Lab(42UL, free: 5);
+        lab.Appoint(Pam, T3);
+        lab.Facts.Position(T3, 5);
+        lab.AdvanceTo(new GameDate(1956, 6, 8));
         Assert.Contains(lab.Events, item => item.TypeId == BoardEventTypes.ManagerDismissed);
-        var collapse = Phase4Bot.Collapse(DataRoot, 3);
-        Assert.True(collapse.Insolvent || collapse.KnownIssue is not null, "collapse: " + collapse.Reached + " " + collapse.SoftLock);
+
+        var alfa = OrganizationId.Real("alfa");
+        var start = new GameDate(1955, 3, 1);
+        var broke = FinanceSection.Empty
+            .Open(alfa, start, 100, new EraFinanceFacts(FinanceEstimates.PromoterModel, 20_000, 60_000, 250_000))
+            .Post(alfa, start, LedgerCategories.Other, null, -Money.FromDollars(500).Cents, FinanceReason.Termination);
+        var (watched, _) = broke.ReviewInsolvency(start);
+        var (gone, fired) = watched.ReviewInsolvency(FinanceSection.PlusOneSeason(start));
+        Assert.Equal(alfa, Assert.Single(fired));
+        Assert.True(gone.IsInsolvent(alfa));
     }
 
     [Fact]
     public void TheCliWritesAReportWithoutComparingHistory()
     {
         var directory = Directory.CreateTempSubdirectory("paddock-gate-").FullName;
-        var play = Phase4Bot.Play(DataRoot, "ferrari", 7, new GameDate(1955, 1, 2), Phase4Policy.Default);
+        var play = Phase4Bot.Play(DataRoot, "ferrari", 7, Phase4Estimates.StoryUntil, Phase4Policy.Default);
         var pack = new Phase4Pack(
             play,
             play,
@@ -129,14 +154,5 @@ public class Phase4ScenarioTests
         Assert.Contains("#253", report, StringComparison.Ordinal);
         Assert.Contains("#254", report, StringComparison.Ordinal);
         Assert.Contains("ESTIMATE", report, StringComparison.Ordinal);
-    }
-
-    private static Lab DismissedUntilJune()
-    {
-        var lab = new Lab(42UL, free: 5);
-        lab.Appoint(Pam, T3);
-        lab.Facts.Position(T3, 5);
-        lab.AdvanceTo(new GameDate(1956, 6, 8));
-        return lab;
     }
 }

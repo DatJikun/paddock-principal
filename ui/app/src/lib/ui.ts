@@ -1,6 +1,7 @@
 import type { TranslationMessage } from './api/types.generated';
 import { flagCode } from './flags.mjs';
 import { translate, type Language } from './i18n';
+import { formatParameters } from './params.mjs';
 
 /** Translation helpers a screen receives from the shell, bound to the active language. */
 export type Tr = {
@@ -15,7 +16,7 @@ export function translator(lang: Language): Tr {
     lang,
     t: (key, parameters = {}) => translate(lang, key, parameters),
     tCount: (key, count, parameters = {}) => translate(lang, key, { ...parameters, count: String(count) }, count),
-    tMsg: (message) => (message ? translate(lang, message.key, message.parameters ?? {}) : ''),
+    tMsg: (message) => (message ? translate(lang, message.key, (formatParameters(lang, message.parameters ?? {}) as Record<string, string>)) : ''),
   };
 }
 
@@ -77,6 +78,16 @@ export function km(tr: Tr, value: number | null | undefined) {
     maximumFractionDigits: 3,
   }).format(value);
   return tr.t('race.km', { km: text });
+}
+
+/** Facility quality in the active language: stored in milli-units, shown with one decimal ("107,5"). */
+export function quality(tr: Tr, milli: number) {
+  return new Intl.NumberFormat(tr.lang === 'en' ? 'en-GB' : 'pl-PL', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(milli / 1000);
+}
+
+/** A share as a whole percent ("79%"). */
+export function percent(tr: Tr, ratio: number) {
+  return `${new Intl.NumberFormat(tr.lang === 'en' ? 'en-GB' : 'pl-PL', { maximumFractionDigits: 0 }).format(ratio * 100)}%`;
 }
 
 /** Points as stored (invariant text, maybe "3.5"), shown with the language's decimal mark. */

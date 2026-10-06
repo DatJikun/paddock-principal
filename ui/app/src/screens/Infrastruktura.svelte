@@ -1,0 +1,126 @@
+<script lang="ts">
+  import type { BridgeCommandName, OwnFacilityView } from '../lib/api/types.generated';
+  import Confirmation from '../lib/components/Confirmation.svelte';
+  import Status from '../lib/components/Status.svelte';
+  import { formatDate } from '../lib/date.mjs';
+  import { formatMoney } from '../lib/money.mjs';
+  import type { InfraData } from '../lib/screens';
+  import { countryName, percent, quality, type Tr } from '../lib/ui';
+
+  let {
+    data,
+    tr,
+    busy,
+    act,
+  }: {
+    data: InfraData;
+    tr: Tr;
+    busy: boolean;
+    act: (name: BridgeCommandName, args: Record<string, unknown>) => Promise<boolean>;
+  } = $props();
+
+  let team = $derived(data.infra.own[0] ?? null);
+  let asking = $state<string | null>(null);
+
+  async function upgrade(kind: string) {
+    if (!team) return;
+    await act('upgradeFacility', { organizationId: team.organizationId, kind });
+    asking = null;
+  }
+
+  async function rent() {
+    if (!team) return;
+    await act('bookTest', { organizationId: team.organizationId });
+    asking = null;
+  }
+
+  const fill = (facility: OwnFacilityView) => Math.max(0, Math.min(100, facility.relativeQuality * 100));
+</script>
+
+<div class="screen-head">
+  <h1 class="screen">{tr.t('shell.nav.infrastructure')}</h1>
+</div>
+
+{#if team}
+  <div class="infra">
+    {#each team.facilities as facility (facility.kind)}
+      <section class="panel fac" class:off={!facility.unlocked}>
+        <header>
+          <h2>{tr.t(`infrastructure.kind.${facility.kind}`)}</h2>
+          {#if !facility.unlocked}
+            <Status text={tr.t('infra.unavailable')} />
+          {:else if facility.building && facility.buildEnds}
+            <Status text={tr.t('infra.building', { date: formatDate(facility.buildEnds, tr.lang) })} tone="hi" />
+          {/if}
+        </header>
+        {#if facility.unlocked}
+          <div class="body">
+            <div class="fields eq">
+              <div class="fld"><span class="meta">{tr.t('infra.own')}</span><span class="v num">{quality(tr, facility.qualityMilli)}</span></div>
+              <div class="fld"><span class="meta">{tr.t('infra.frontier', { year: data.today.slice(0, 4) })}</span><span class="v num">{quality(tr, facility.frontierMilli)}</span></div>
+              <div class="fld"><span class="meta">{tr.t('infra.relative')}</span><span class="v num">{percent(tr, facility.relativeQuality)}</span></div>
+            </div>
+            <div class="bar fac-bar"><i style="width:{fill(facility)}%"></i></div>
+            {#if asking === facility.kind}
+              <Confirmation
+                {tr}
+                {busy}
+                ask={tr.t('infra.upgrade.ask', { name: tr.t(`infrastructure.kind.${facility.kind}`), cost: formatMoney(facility.upgradeCostCents, tr.lang), days: tr.tCount('shell.days', facility.upgradeDays) })}
+                onCancel={() => (asking = null)}
+                onConfirm={() => upgrade(facility.kind)}
+              />
+            {:else}
+              <div class="confirm">
+                <div class="fields">
+                  <div class="fld"><span class="meta">{tr.t('infra.cost')}</span><span class="v num">{formatMoney(facility.upgradeCostCents, tr.lang)}</span></div>
+                  <div class="fld"><span class="meta">{tr.t('infra.duration')}</span><span class="v num">{tr.tCount('shell.days', facility.upgradeDays)}</span></div>
+                </div>
+                <button class="btn primary" type="button" disabled={busy || facility.building || !facility.eligible} onclick={() => (asking = facility.kind)}>{tr.t('infra.upgrade')}</button>
+              </div>
+            {/if}
+          </div>
+        {/if}
+      </section>
+    {/each}
+
+    <section class="panel fac">
+      <header>
+        <h2>{tr.t('infra.tests')}</h2>
+        {#if !team.tests.allowed && team.tests.cap === 0}<Status text={tr.t('infra.tests.banned')} tone="warn" />{/if}
+      </header>
+      <div class="body">
+        <div class="fields eq">
+          <div class="fld"><span class="meta">{tr.t('infra.tests.used')}</span><span class="v num">{team.tests.used} / {team.tests.cap}</span></div>
+          <div class="fld"><span class="meta">{tr.t('infra.tests.cost')}</span><span class="v num">{formatMoney(team.tests.costCents, tr.lang)}</span></div>
+        </div>
+        {#if asking === 'test'}
+          <Confirmation
+            {tr}
+            {busy}
+            ask={tr.t('infra.tests.ask', { cost: formatMoney(team.tests.costCents, tr.lang) })}
+            onCancel={() => (asking = null)}
+            onConfirm={rent}
+          />
+        {:else}
+          <div class="confirm">
+            <button class="btn primary" type="button" disabled={busy || !team.tests.allowed} onclick={() => (asking = 'test')}>{tr.t('infra.tests.rent')}</button>
+          </div>
+        {/if}
+      </div>
+    </section>
+
+    {#if team.nextTransport}
+      <section class="panel fac">
+        <header><h2>{tr.t('infra.transport')}</h2></header>
+        <div class="body">
+          <div class="fields eq">
+            <div class="fld"><span class="meta">{tr.t('infra.transport.to')}</span><span class="v">{countryName(tr, team.nextTransport.circuitCountry)}</span></div>
+            <div class="fld"><span class="meta">{tr.t('infra.transport.mode')}</span><span class="v">{tr.t(`infra.transport.${team.nextTransport.mode}`)}</span></div>
+            <div class="fld"><span class="meta">{tr.t('infra.duration')}</span><span class="v num">{tr.tCount('shell.days', team.nextTransport.days)}</span></div>
+            <div class="fld"><span class="meta">{tr.t('infra.cost')}</span><span class="v num">{formatMoney(team.nextTransport.costCents, tr.lang)}</span></div>
+          </div>
+        </div>
+      </section>
+    {/if}
+  </div>
+{/if}

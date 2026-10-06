@@ -38,8 +38,17 @@ public sealed record BoardStateView(
     int ReviewsBelowBar,
     int ReviewsToDismiss);
 
-/// <summary>WHY: what the board expects (the objectives it granted) and what its last review read.</summary>
-public sealed record BoardWhyView(IReadOnlyList<ObjectiveItemView> Expectations, int? ExpectedPosition, decimal? CurrentPosition, int? TargetConfidence);
+/// <summary>
+/// WHY: what the board expects (the objectives it granted) and what its last review read. <paramref name="Expectations"/> are
+/// the objectives of the season being played (open ones, and ones that closed this season); <paramref name="History"/> are the
+/// closed ones of earlier seasons, newest first, so a long career does not list every old target as if it were still asked.
+/// </summary>
+public sealed record BoardWhyView(
+    IReadOnlyList<ObjectiveItemView> Expectations,
+    int? ExpectedPosition,
+    decimal? CurrentPosition,
+    int? TargetConfidence,
+    IReadOnlyList<ObjectiveItemView> History);
 
 /// <summary>FORECAST: the straight projection of the last review forward (ESTIMATE; no RNG).</summary>
 public sealed record BoardForecastView(BoardForecastKind Kind, int? ReviewsLeft, TranslationMessage Message);
@@ -140,14 +149,25 @@ public sealed class BoardQuery
         var objectives = _objectives.View(access, _book.Objectives, today).Items
             .Where(item => item.Title.Key is BoardKeys.ObjectiveSeason or BoardKeys.ObjectiveMultiYear)
             .ToArray();
+        var current = objectives.Where(item => IsCurrent(item, today)).ToArray();
+        var past = objectives
+            .Where(item => !IsCurrent(item, today))
+            .OrderByDescending(item => item.Deadline)
+            .ThenBy(item => item.Id, StringComparer.Ordinal)
+            .ToArray();
         var position = _book.Facts.Number(board.Organization, Paddock.Domain.Objectives.ObjectiveFactKeys.ChampionshipPosition);
         var why = new BoardWhyView(
-            objectives,
+            current,
             board.ExpectedPosition > 0 ? board.ExpectedPosition : null,
             position,
-            board.LastTargetTenths is int target ? Points(target) : null);
+            board.LastTargetTenths is int target ? Points(target) : null,
+            past);
         return new OwnBoardView(board.Organization.Value, state, why, Forecast(board, protectedNow, threshold, needed));
     }
+
+    /// <summary>An open objective always counts. A closed one counts while its season is still the one being played.</summary>
+    private static bool IsCurrent(ObjectiveItemView item, GameDate today) =>
+        item.State.Status == Paddock.Domain.Objectives.ObjectiveStatus.Open || item.Deadline.Year >= today.Year;
 
     private static BoardForecastView Forecast(BoardRecord board, bool protectedNow, int threshold, int needed)
     {

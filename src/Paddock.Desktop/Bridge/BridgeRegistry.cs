@@ -65,6 +65,8 @@ public static class BridgeRegistry
         Endpoint(Command, "respondToSponsorOffer", typeof(SponsorOfferCall), typeof(CommandAck)),
         Endpoint(Command, "setDevelopmentSplit", typeof(DevelopmentSplitCall), typeof(CommandAck)),
         Endpoint(Command, "commitConcept", typeof(CommitConceptCall), typeof(CommandAck)),
+        Endpoint(Command, "upgradeFacility", typeof(UpgradeFacilityCall), typeof(CommandAck)),
+        Endpoint(Command, "bookTest", typeof(BookTestCall), typeof(CommandAck)),
         Endpoint(Command, "assignScoutFocus", typeof(ScoutFocusCall), typeof(CommandAck)),
         Endpoint(Command, "fundJunior", typeof(FundJuniorCall), typeof(CommandAck)),
         Endpoint(Command, "signPoolDriver", typeof(SignPoolCall), typeof(CommandAck)),

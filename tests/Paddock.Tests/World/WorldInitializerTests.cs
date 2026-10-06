@@ -450,6 +450,17 @@ public class WorldInitializerTests
     }
 
     [Fact]
+    public void ATeamNamedFromItsIdKeepsAnInitialismInCapitals()
+    {
+        // #255: without a constructor name table the id is the name, and "hwm" read "Hwm" on every screen.
+        var teams = WorldInitializer.PublicTeams(LoadRealData(), 1955);
+
+        Assert.Equal("HWM", teams.Single(team => team.Id == "hwm").Name);
+        Assert.Equal("Ferrari", teams.Single(team => team.Id == "ferrari").Name);
+        Assert.Equal("Arzani Volpini", teams.Single(team => team.Id == "arzani-volpini").Name);
+    }
+
+    [Fact]
     public void Authored1988HasMcLarenWithRonDennisAndGordonMurray()
     {
         var data = LoadRealData();

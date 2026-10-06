@@ -7,6 +7,7 @@ using Paddock.Application.Managers;
 using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
 using Paddock.Application.Development;
+using Paddock.Application.Infrastructure;
 using Paddock.Application.Pool;
 using Paddock.Application.Racing;
 using Paddock.Application.Sponsors;
@@ -183,7 +184,12 @@ public sealed partial class CareerBridge
         (string Schedule, string Drivers)? files,
         ulong seed)
     {
-        var key = string.Join('|', root, config.StartYear.ToString(CultureInfo.InvariantCulture), config.PeopleSource, seed.ToString(CultureInfo.InvariantCulture));
+        // The people files are part of the key: the cards must never outlive the cache they were read from, or they would show
+        // other names than the career that starts from the same setup.
+        var people = files is { } named
+            ? string.Join('+', named.Schedule, File.GetLastWriteTimeUtc(named.Schedule).Ticks, named.Drivers, File.GetLastWriteTimeUtc(named.Drivers).Ticks)
+            : "none";
+        var key = string.Join('|', root, config.StartYear.ToString(CultureInfo.InvariantCulture), config.PeopleSource, people, seed.ToString(CultureInfo.InvariantCulture));
         if (_cardsKey == key && _cards is not null)
         {
             return _cards;
@@ -674,6 +680,10 @@ public sealed partial class CareerBridge
                 return Split(args, issued, out error);
             case "commitConcept":
                 return Concept(args, issued, out error);
+            case "upgradeFacility":
+                return Facility(args, issued, out error);
+            case "bookTest":
+                return RentTest(args, issued, out error);
             case "assignScoutFocus":
                 error = null;
                 return new AssignScoutFocusCommand { ManagerId = Human, IssuedOn = issued, PersonHandle = TextOf(args, "personHandle") };
@@ -847,6 +857,33 @@ public sealed partial class CareerBridge
             ReliabilityPriority = IntOf(args, "reliabilityPriority") ?? DevelopmentEstimates.DefaultPriority,
             TyresPriority = IntOf(args, "tyresPriority") ?? DevelopmentEstimates.DefaultPriority,
         };
+    }
+
+    private ICommand? Facility(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        var kind = TextOf(args, "kind");
+        if (organization is null || kind is null)
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new UpgradeFacilityCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization, Kind = kind };
+    }
+
+    private ICommand? RentTest(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        if (organization is null)
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new BookTestCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization };
     }
 
     private ICommand? Concept(JsonElement args, DateOnly issued, out TranslationMessage? error)

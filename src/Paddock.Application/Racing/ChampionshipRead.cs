@@ -34,6 +34,7 @@ public sealed record CalendarView(int Season, IReadOnlyList<CalendarRoundView> R
 
 /// <summary>
 /// The era's points table, as the catalog wrote it. Names are the catalog values, which are identifiers.
+/// <see cref="ResultsCounting"/> is the kind of the counting rule (<c>All</c>, <c>BestOverall</c> or <c>Split</c>), never a printed object.
 /// <see cref="CountedResults"/> is how many results count (0 = all); a split rule also fills the two quotas.
 /// </summary>
 public sealed record PointsScaleView(
@@ -199,7 +200,7 @@ public static class ChampionshipRead
             new PointsScaleView(
                 points.PositionPoints.ToArray(),
                 points.FastestLap.ToString()!,
-                points.ResultsCounting.ToString()!,
+                points.ResultsCounting.Kind.ToString(),
                 points.DoublePointsFinale,
                 points.ConstructorCounting.ToString()!,
                 points.ResultsCounting.TotalCounted,

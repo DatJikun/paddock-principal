@@ -76,6 +76,8 @@ test('a team without a name from the data is named from its id the way the world
   assert.equal(teamLabel('red_bull'), 'Red Bull');
   assert.equal(teamLabel('ferrari'), 'Ferrari');
   assert.equal(teamLabel('cooper-climax'), 'Cooper Climax');
+  assert.equal(teamLabel('hwm'), 'HWM');
+  assert.equal(teamLabel('cooper-brm'), 'Cooper BRM');
 });
 
 test('saves: the label hides the extension and "continue" is the file written last', () => {

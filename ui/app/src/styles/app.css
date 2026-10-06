@@ -926,3 +926,13 @@ select.text.sm{min-height:38px;font-size:14.5px}
 .cand{margin-top:20px}
 .cand .table td{white-space:normal}
 .cand>header{padding:15px 22px 6px}
+
+/* ---------- infrastruktura ---------- */
+.infra{align-items:start;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:1100px}
+.fac .fac-bar{margin-top:14px}
+.fac.off{opacity:.6}
+.fac .confirm{margin-top:14px}
+@media (max-width:900px){.infra{grid-template-columns:minmax(0,1fr)}}
+
+.ledger{margin-top:20px;max-width:1100px}
+.ledger .empty{padding:0 22px 20px}

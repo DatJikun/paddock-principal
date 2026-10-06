@@ -24,6 +24,7 @@
   import Auto from './screens/Auto.svelte';
   import Dostawcy from './screens/Dostawcy.svelte';
   import Finanse from './screens/Finanse.svelte';
+  import Infrastruktura from './screens/Infrastruktura.svelte';
   import Kalendarz from './screens/Kalendarz.svelte';
   import Kierowca from './screens/Kierowca.svelte';
   import Kierowcy from './screens/Kierowcy.svelte';
@@ -626,6 +627,8 @@
           <Rynek data={screenData} {tr} />
         {:else if screenData.kind === 'negocjacja' && route.name === 'negocjacja'}
           <Negocjacja data={screenData} {tr} id={route.args[0] ?? ''} {busy} {act} />
+        {:else if screenData.kind === 'infrastruktura' && route.name === 'infrastruktura'}
+          <Infrastruktura data={screenData} {tr} {busy} {act} />
         {:else if screenData.kind === 'finanse' && route.name === 'finanse'}
           <Finanse data={screenData} {tr} />
         {:else if screenData.kind === 'sponsorzy' && route.name === 'sponsorzy'}

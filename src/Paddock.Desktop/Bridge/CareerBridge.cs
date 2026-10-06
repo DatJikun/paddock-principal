@@ -157,7 +157,7 @@ public sealed partial class CareerBridge
             "development" => BridgeValues.ToNode(ReadDevelopment(access)),
             "infrastructure" => BridgeValues.ToNode(ReadInfrastructure(access)),
             "sponsors" => BridgeValues.ToNode(ReadSponsors(access)),
-            "finance" => BridgeValues.ToNode(ReadFinance(access)),
+            "finance" => BridgeValues.ToNode(ReadFinance(access, withLedger: true)),
             "board" => BridgeValues.ToNode(Board().View(access, Session.Date)),
             "pool" => BridgeValues.ToNode(Pool().View(access)),
             "supply" => BridgeValues.ToNode(ReadSupply(access)),
@@ -347,7 +347,7 @@ public sealed partial class CareerBridge
         return new DriversView(own, market);
     }
 
-    private FinanceView ReadFinance(AccessContext access)
+    private FinanceView ReadFinance(AccessContext access, bool withLedger = false)
     {
         var organization = Box.Require<BoardBook>().Section.OrganizationOf(_human.Value);
         if (organization is not OrganizationId id || Box.TryGet<FinanceBook>() is null)
@@ -360,7 +360,8 @@ public sealed partial class CareerBridge
             id,
             Session.World,
             Session.Date,
-            Box.Require<IOrganizationControl>());
+            Box.Require<IOrganizationControl>(),
+            withLedger: withLedger);
     }
 
     private object ReadDevelopment(AccessContext access)

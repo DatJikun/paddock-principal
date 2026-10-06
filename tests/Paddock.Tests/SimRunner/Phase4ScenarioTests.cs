@@ -59,7 +59,7 @@ public class Phase4ScenarioTests
         var far = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.RobustUntil, Phase4Policy.Default);
         var farAgain = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.RobustUntil, Phase4Policy.Default);
         Assert.Equal(far.WorldHash, farAgain.WorldHash);
-        Assert.True(far.SoftLock is null || far.KnownIssue is not null, far.SoftLock + " / " + far.KnownIssue);
+        Assert.True(far.SoftLock is null || Phase4KnownIssues.AllowsHang(far.KnownIssue), far.SoftLock + " / " + far.KnownIssue);
         if (Environment.GetEnvironmentVariable("PADDOCK_UPDATE_FIXTURES") == "1")
         {
             File.WriteAllText(HashPath, first.WorldHash + "\n");
@@ -104,8 +104,8 @@ public class Phase4ScenarioTests
         Assert.NotEqual(rows[0].TeamId, rows[1].TeamId);
         Assert.All(rows, row =>
         {
-            Assert.True(row.ReachedUntil || row.KnownIssue is not null, row.TeamId + " " + row.Reached + " " + row.SoftLock);
-            Assert.True(row.SoftLock is null || row.KnownIssue is not null);
+            Assert.True(row.ReachedUntil || Phase4KnownIssues.AllowsHang(row.KnownIssue), row.TeamId + " " + row.Reached + " " + row.SoftLock);
+            Assert.True(row.SoftLock is null || Phase4KnownIssues.AllowsHang(row.KnownIssue));
             var twice = Phase4Bot.Play(DataRoot, row.TeamId, row.Seed, Phase4Estimates.RobustUntil, Phase4Policy.Default);
             Assert.Equal(row.WorldHash, twice.WorldHash);
         });
@@ -150,9 +150,26 @@ public class Phase4ScenarioTests
         Assert.Contains("Checklist", report, StringComparison.Ordinal);
         Assert.DoesNotContain("Fangio", report, StringComparison.Ordinal);
         Assert.DoesNotContain("real 1955", report, StringComparison.Ordinal);
-        Assert.Contains("#251", report, StringComparison.Ordinal);
-        Assert.Contains("#253", report, StringComparison.Ordinal);
-        Assert.Contains("#254", report, StringComparison.Ordinal);
+        Assert.DoesNotContain("#251", report, StringComparison.Ordinal);
+        Assert.Contains("TemporaryHangClassifications", report, StringComparison.Ordinal);
+        foreach (var row in Phase4KnownIssues.TemporaryHangClassifications)
+        {
+            Assert.Contains(row.Id, report, StringComparison.Ordinal);
+        }
+
         Assert.Contains("ESTIMATE", report, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TemporaryHangClassificationIsTheOnlyListTheGateConsults()
+    {
+        Assert.Equal(
+            ["#252", "#253", "#254"],
+            Phase4KnownIssues.TemporaryHangClassifications.Select(row => row.Id).ToArray());
+        Assert.Equal("#253", Phase4KnownIssues.Classify(new GameDate(1956, 7, 1), playerHasOpenDecision: false, renewalPromptOpen: true, sponsorItemOpen: false));
+        Assert.Equal("#254", Phase4KnownIssues.Classify(new GameDate(1956, 8, 1), playerHasOpenDecision: false, renewalPromptOpen: false, sponsorItemOpen: true));
+        Assert.Null(Phase4KnownIssues.Classify(new GameDate(1956, 7, 1), playerHasOpenDecision: true, renewalPromptOpen: true, sponsorItemOpen: true));
+        Assert.False(Phase4KnownIssues.AllowsHang("#251"));
+        Assert.True(Phase4KnownIssues.AllowsHang("#253"));
     }
 }

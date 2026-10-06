@@ -475,13 +475,12 @@ public static class Phase4Bot
 
         if (!playerDecision && otherHold)
         {
-            known = Phase4KnownIssues.AiInboxHoldsClock;
             return "soft-lock.other-manager";
         }
 
         var renewals = inbox.Items.Any(item => item.Status == InboxStatus.Open && item.Kind == ContractEngine.RenewalKind);
         var sponsors = inbox.Items.Any(item => item.Status == InboxStatus.Open && item.Kind.StartsWith("sponsor.", StringComparison.Ordinal));
-        known = Phase4KnownIssues.Classify(shell.Date, playerDecision, otherHold, renewals, sponsors);
+        known = Phase4KnownIssues.Classify(shell.Date, playerDecision, renewals, sponsors);
         if (playerDecision)
         {
             return null;

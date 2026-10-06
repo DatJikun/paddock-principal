@@ -30,12 +30,12 @@ public static class Phase4Report
         text.AppendLine("|---|---|---|---|---|");
         Row(text, "scripted story hash (twice)", pack.Story.WorldHash == pack.Repeat.WorldHash && pack.Story.WorldHash.Length == 64, pack.Story.WorldHash, "identical second run", "INV-002");
         Row(text, "calendar to 1 Mar 1957", pack.Story.ReachedUntil, pack.Story.Reached.ToString(), Phase4Estimates.RobustUntil.ToString(), pack.Story.KnownIssue is { } known ? "known " + known : pack.Story.SoftLock ?? "");
-        Row(text, "no unclassified soft lock (story)", pack.Story.SoftLock is null || pack.Story.KnownIssue is not null, pack.Story.SoftLock ?? "none", "none", string.Join("; ", pack.Story.Notes));
+        Row(text, "no unclassified soft lock (story)", pack.Story.SoftLock is null || Phase4KnownIssues.AllowsHang(pack.Story.KnownIssue), pack.Story.SoftLock ?? "none", "none", string.Join("; ", pack.Story.Notes));
         Row(text, "player raced or skipped with reason", pack.Story.RacesEntered + pack.Story.RacesSkipped > 0 || pack.Story.Reached < new GameDate(1955, 5, 1), pack.Story.RacesEntered + "/" + pack.Story.RacesSkipped, "entered or skipped", "skip names running and transport");
         Row(text, "determinism twice", pack.Story.WorldHash == pack.Repeat.WorldHash, pack.Repeat.WorldHash, pack.Story.WorldHash, "");
-        var monkeyOk = pack.Monkey.Count == 0 || pack.Monkey.All(row => row.SoftLock is null || row.KnownIssue is not null);
+        var monkeyOk = pack.Monkey.Count == 0 || pack.Monkey.All(row => row.SoftLock is null || Phase4KnownIssues.AllowsHang(row.KnownIssue));
         Row(text, "monkey unclassified soft lock", monkeyOk, pack.Monkey.Count.ToString(CultureInfo.InvariantCulture) + " seeds", Phase4Estimates.MonkeySeeds.ToString(CultureInfo.InvariantCulture), "CI uses " + Phase4Estimates.TestMonkeySeeds);
-        Row(text, "monkey reached 1 Mar 1957", pack.Monkey.Count == 0 || pack.Monkey.All(row => row.ReachedUntil || row.KnownIssue is not null), pack.Monkey.Count(row => row.ReachedUntil).ToString(CultureInfo.InvariantCulture), "all or known issue", "");
+        Row(text, "monkey reached 1 Mar 1957", pack.Monkey.Count == 0 || pack.Monkey.All(row => row.ReachedUntil || Phase4KnownIssues.AllowsHang(row.KnownIssue)), pack.Monkey.Count(row => row.ReachedUntil).ToString(CultureInfo.InvariantCulture), "all or known issue", "");
         Row(text, "refused talks have a reason key", pack.Explain.RefusedWithoutReason == 0, pack.Explain.RefusedWithoutReason.ToString(CultureInfo.InvariantCulture), "0", "");
         Row(text, "objectives STATE/WHY/FORECAST", pack.Explain.ObjectivesMissingSlice == 0, pack.Explain.ObjectivesMissingSlice.ToString(CultureInfo.InvariantCulture), "0", "");
         Row(text, "`why` leaks no hidden truth", pack.Explain.WhyHiddenLeaks == 0, pack.Explain.WhyHiddenLeaks.ToString(CultureInfo.InvariantCulture), "0", pack.Explain.WhyLines + " visible lines");
@@ -91,11 +91,14 @@ public static class Phase4Report
         }
 
         text.AppendLine();
-        text.AppendLine("## Known issues (not fixed here)");
+        text.AppendLine("## Known issues (temporary hang classification)");
         text.AppendLine();
-        text.AppendLine("- " + Phase4KnownIssues.AiInboxHoldsClock + ": AI inbox can hold the shared clock (#251).");
-        text.AppendLine("- " + Phase4KnownIssues.JulyRenewalFlood + ": 1 July renewal flood and the five-talk cap (#253). The bot releases when a renew is refused.");
-        text.AppendLine("- " + Phase4KnownIssues.SponsorsDryUp + ": sponsor catalog / notices (#254).");
+        text.AppendLine("Source: `Phase4KnownIssues.TemporaryHangClassifications`. Drop a row there when the issue merges; unclassified hangs then fail.");
+        text.AppendLine();
+        foreach (var row in Phase4KnownIssues.TemporaryHangClassifications)
+        {
+            text.AppendLine("- " + row.Id + ": " + row.Why);
+        }
         text.AppendLine();
         text.AppendLine("## Transcript");
         text.AppendLine();

@@ -696,7 +696,9 @@ internal sealed partial class WeekendRun
     private void ResolveSafetyCar(List<LapWork> survivors)
     {
         // The field bunches up behind the safety car: gaps close to a few tenths; the stops come on top.
+        // A car that is far behind still has to complete a positive lap — bunching must not rewind the clock (#261).
         var scLap = _baseLap * WeekendConstants.SafetyCarLapFactor;
+        var minLap = scLap * WeekendConstants.SafetyCarMinLapFactor;
         double previousOld = 0d;
         double previousNew = 0d;
         for (var i = 0; i < survivors.Count; i++)
@@ -704,10 +706,11 @@ internal sealed partial class WeekendRun
             var w = survivors[i];
             var bunched = i == 0
                 ? w.StartCum + scLap
-                : previousNew + Math.Min(w.StartCum - previousOld, WeekendConstants.BunchedGapSeconds);
+                : previousNew + Math.Min(Math.Max(0d, w.StartCum - previousOld), WeekendConstants.BunchedGapSeconds);
             previousOld = w.StartCum;
-            previousNew = bunched;
-            w.End = bunched + w.StopSeconds;
+            var racingEnd = Math.Max(bunched, w.StartCum + minLap);
+            previousNew = racingEnd;
+            w.End = racingEnd + w.StopSeconds;
         }
     }
 

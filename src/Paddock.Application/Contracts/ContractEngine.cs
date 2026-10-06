@@ -552,7 +552,8 @@ public sealed class ContractEngine
             return TranslationMessage.Of(ContractKeys.ContractNotActive);
         }
 
-        if (HasSignedFuture(contract.PersonId, contract.Id, today))
+        if (HasSignedFuture(contract.PersonId, contract.Id, today)
+            || _book.LiveContractsOf(contract.PersonId, today).Any(other => other.Id != contract.Id && other.End > contract.End))
         {
             return TranslationMessage.Of(ContractKeys.PersonTaken);
         }

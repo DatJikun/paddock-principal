@@ -163,13 +163,9 @@ public class Phase4ScenarioTests
     [Fact]
     public void TemporaryHangClassificationIsTheOnlyListTheGateConsults()
     {
-        Assert.Equal(
-            ["#252", "#253", "#254"],
-            Phase4KnownIssues.TemporaryHangClassifications.Select(row => row.Id).ToArray());
-        Assert.Equal("#253", Phase4KnownIssues.Classify(new GameDate(1956, 7, 1), playerHasOpenDecision: false, renewalPromptOpen: true, sponsorItemOpen: false));
-        Assert.Equal("#254", Phase4KnownIssues.Classify(new GameDate(1956, 8, 1), playerHasOpenDecision: false, renewalPromptOpen: false, sponsorItemOpen: true));
-        Assert.Null(Phase4KnownIssues.Classify(new GameDate(1956, 7, 1), playerHasOpenDecision: true, renewalPromptOpen: true, sponsorItemOpen: true));
-        Assert.False(Phase4KnownIssues.AllowsHang("#251"));
-        Assert.True(Phase4KnownIssues.AllowsHang("#253"));
+        Assert.Empty(Phase4KnownIssues.TemporaryHangClassifications);
+        Assert.Null(Phase4KnownIssues.Classify(new GameDate(1956, 7, 1), playerHasOpenDecision: false, renewalPromptOpen: true, sponsorItemOpen: false));
+        Assert.Null(Phase4KnownIssues.Classify(new GameDate(1956, 8, 1), playerHasOpenDecision: false, renewalPromptOpen: false, sponsorItemOpen: true));
+        Assert.False(Phase4KnownIssues.AllowsHang("#253"));
     }
 }

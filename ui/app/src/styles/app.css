@@ -497,6 +497,11 @@ a.plain:hover{text-decoration:underline;text-underline-offset:3px}
 .last .tbl-scroll{flex:1}
 .last .table td:first-child{padding-left:16px}.last .table td:last-child{padding-right:22px}
 .last footer{margin-top:auto}
+.last-facts{padding:12px 22px 14px;border-top:1px solid var(--rule)}
+.results td.best{font-weight:800}
+.results th.wrap{white-space:normal;min-width:96px;line-height:1.15}
+.results td .team{display:block;margin-top:2px}
+.last td.time{white-space:nowrap}
 .brd{flex:none}
 .brd .body{display:grid;padding-bottom:14px}
 .goal-line{display:grid;gap:2px;padding:8px 0;border-top:1px solid var(--rule)}

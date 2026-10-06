@@ -43,18 +43,29 @@ public sealed class RaceResultsSectionStore : ISectionStore
             Run(
                 connection,
                 transaction,
-                "INSERT INTO race_results (season, round, layout_id) VALUES ($season, $round, $layout)",
+                """
+                INSERT INTO race_results (season, round, layout_id, laps, lap_length_m, pole_driver_id, pole_time_ms, fastest_lap_driver_id, fastest_race_lap_ms)
+                VALUES ($season, $round, $layout, $laps, $length, $pole, $poleTime, $fastest, $fastestTime)
+                """,
                 ("$season", (long)race.Season),
                 ("$round", (long)race.Round),
-                ("$layout", race.LayoutId));
+                ("$layout", race.LayoutId),
+                ("$laps", race.Facts is null ? null : (long)race.Facts.Laps),
+                ("$length", race.Facts is null ? null : (long)race.Facts.LapLengthMeters),
+                ("$pole", race.Facts?.PoleDriverId),
+                ("$poleTime", race.Facts?.PoleTimeMs),
+                ("$fastest", race.Facts?.FastestLapDriverId),
+                ("$fastestTime", race.Facts?.FastestLapMs));
             foreach (var row in race.Rows)
             {
                 Run(
                     connection,
                     transaction,
                     """
-                    INSERT INTO race_result_rows (season, round, position, classified, driver_id, team_id, points, retirement_key)
-                    VALUES ($season, $round, $position, $classified, $driver, $team, $points, $reason)
+                    INSERT INTO race_result_rows (season, round, position, classified, driver_id, team_id, points, retirement_key,
+                        grid_position, laps_completed, race_time_ms, fastest_lap_ms)
+                    VALUES ($season, $round, $position, $classified, $driver, $team, $points, $reason,
+                        $grid, $laps, $time, $fastest)
                     """,
                     ("$season", (long)race.Season),
                     ("$round", (long)race.Round),
@@ -63,7 +74,11 @@ public sealed class RaceResultsSectionStore : ISectionStore
                     ("$driver", row.DriverId),
                     ("$team", row.TeamId),
                     ("$points", row.Points),
-                    ("$reason", row.RetirementKey));
+                    ("$reason", row.RetirementKey),
+                    ("$grid", row.Detail is null ? null : (long)row.Detail.GridPosition),
+                    ("$laps", row.Detail is null ? null : (long)row.Detail.LapsCompleted),
+                    ("$time", row.Detail?.TimeMs),
+                    ("$fastest", row.Detail?.FastestLapMs));
             }
 
             for (var sectionIndex = 0; sectionIndex < race.Sections.Count; sectionIndex++)
@@ -81,7 +96,7 @@ public sealed class RaceResultsSectionStore : ISectionStore
     public IWorldSection Load(SqliteConnection connection, int storedSchemaVersion)
     {
         ArgumentNullException.ThrowIfNull(connection);
-        if (storedSchemaVersion != 1)
+        if (storedSchemaVersion is not (1 or 2))
         {
             throw new InvalidDataException(
                 "The stored race-results section has schema version "
@@ -89,21 +104,34 @@ public sealed class RaceResultsSectionStore : ISectionStore
                 + ", which this build cannot read.");
         }
 
-        var races = new List<(int Season, int Round, string Layout)>();
+        var races = new List<(int Season, int Round, string Layout, RaceFacts? Facts)>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT season, round, layout_id FROM race_results ORDER BY season, round";
+            command.CommandText = """
+                SELECT season, round, layout_id, laps, lap_length_m, pole_driver_id, pole_time_ms, fastest_lap_driver_id, fastest_race_lap_ms
+                FROM race_results
+                ORDER BY season, round
+                """;
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                races.Add((checked((int)reader.GetInt64(0)), checked((int)reader.GetInt64(1)), reader.GetString(2)));
+                RaceFacts? facts = reader.IsDBNull(3)
+                    ? null
+                    : new RaceFacts(
+                        checked((int)reader.GetInt64(3)),
+                        reader.IsDBNull(4) ? 0 : checked((int)reader.GetInt64(4)),
+                        reader.IsDBNull(5) ? null : reader.GetString(5),
+                        reader.IsDBNull(6) ? null : reader.GetInt64(6),
+                        reader.IsDBNull(7) ? null : reader.GetString(7),
+                        reader.IsDBNull(8) ? null : reader.GetInt64(8));
+                races.Add((checked((int)reader.GetInt64(0)), checked((int)reader.GetInt64(1)), reader.GetString(2), facts));
             }
         }
 
         var stored = new List<StoredRace>(races.Count);
         foreach (var race in races)
         {
-            stored.Add(new StoredRace(race.Season, race.Round, race.Layout, Rows(connection, race.Season, race.Round), Sections(connection, race.Season, race.Round)));
+            stored.Add(new StoredRace(race.Season, race.Round, race.Layout, Rows(connection, race.Season, race.Round), Sections(connection, race.Season, race.Round), race.Facts));
         }
 
         return RaceResultsSection.Restore(stored);
@@ -155,7 +183,8 @@ public sealed class RaceResultsSectionStore : ISectionStore
         var rows = new List<RaceResultRow>();
         using var command = connection.CreateCommand();
         command.CommandText = """
-            SELECT position, classified, driver_id, team_id, points, retirement_key
+            SELECT position, classified, driver_id, team_id, points, retirement_key,
+                grid_position, laps_completed, race_time_ms, fastest_lap_ms
             FROM race_result_rows
             WHERE season = $season AND round = $round
             ORDER BY position
@@ -171,7 +200,14 @@ public sealed class RaceResultsSectionStore : ISectionStore
                 reader.GetString(2),
                 reader.GetString(3),
                 reader.GetString(4),
-                reader.GetString(5)));
+                reader.GetString(5),
+                reader.IsDBNull(6)
+                    ? null
+                    : new RaceRowDetail(
+                        checked((int)reader.GetInt64(6)),
+                        reader.IsDBNull(7) ? 0 : checked((int)reader.GetInt64(7)),
+                        reader.IsDBNull(8) ? null : reader.GetInt64(8),
+                        reader.IsDBNull(9) ? null : reader.GetInt64(9))));
         }
 
         return rows;

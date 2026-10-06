@@ -6,6 +6,7 @@
   import TrackMap from '../lib/components/TrackMap.svelte';
   import { daysBetween, formatDay, formatWeekday } from '../lib/date.mjs';
   import { hasFlag } from '../lib/flags.mjs';
+  import { formatLapTime, retirementLabel, timeCell } from '../lib/race.mjs';
   import type { PulpitData } from '../lib/screens';
   import { countryName, icon, ICON, km, points, type Tr } from '../lib/ui';
 
@@ -88,16 +89,30 @@
           <table class="table tight">
             <tbody>
               {#each latestRows as row (`${row.position}-${row.driverId}`)}
+                {@const cell = timeCell(row)}
                 <tr class:mine={row.teamId === teamId}>
                   <td class="c num" style="width:48px">{#if row.classified}{row.position}{:else}<span class="bad">{tr.t('race.dnf')}</span>{/if}</td>
                   <td><span class="person">{#if hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}<b>{row.driverName}</b></span></td>
                   <td class="muted">{row.teamName}</td>
+                  <td class="r num time" class:muted={cell.kind === 'none'}>
+                    {#if cell.kind === 'none'}{row.classified ? '' : tr.t(retirementLabel(row.retirementKey))}{:else if cell.kind === 'lapsDown'}{tr.tCount('race.lapsDown', cell.laps)}{:else}{cell.text}{/if}
+                  </td>
                   <td class="r num">{row.points === '0' ? '' : points(tr, row.points)}</td>
                 </tr>
               {/each}
             </tbody>
           </table>
         </div>
+        {#if data.latest.facts && (data.latest.facts.pole || data.latest.facts.fastestLap)}
+          <div class="fields eq last-facts">
+            {#if data.latest.facts.pole}
+              <div class="fld"><span class="meta">{tr.t('race.pole')}</span><span class="v">{data.latest.facts.pole.driverName}</span></div>
+            {/if}
+            {#if data.latest.facts.fastestLap}
+              <div class="fld"><span class="meta">{tr.t('race.fastestLap')}</span><span class="v">{data.latest.facts.fastestLap.driverName}{#if data.latest.facts.fastestLap.timeMs !== null} <span class="num muted">{formatLapTime(data.latest.facts.fastestLap.timeMs)}</span>{/if}</span></div>
+            {/if}
+          </div>
+        {/if}
         <footer><a class="link" href={`#/wyscig/${data.latest.round}`}>{tr.t('pulpit.lastRace.full')}{@html icon(ICON.arrow, 15)}</a></footer>
       </section>
     {:else if data.calendar.rounds.length > 0}

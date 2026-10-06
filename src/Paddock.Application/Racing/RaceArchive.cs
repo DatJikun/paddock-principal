@@ -2,6 +2,7 @@ using System.Globalization;
 using Paddock.Domain.Racing;
 using Paddock.Simulation.Racing;
 using Paddock.Simulation.Racing.Points;
+using Paddock.Simulation.Racing.Weekend;
 
 namespace Paddock.Application.Racing;
 
@@ -25,13 +26,15 @@ public static class RaceArchive
         int season,
         int round,
         string layoutId,
-        System.Collections.Immutable.ImmutableArray<StandInFact> standIns = default)
+        System.Collections.Immutable.ImmutableArray<StandInFact> standIns = default,
+        int lapLengthMeters = 0)
     {
         ArgumentNullException.ThrowIfNull(current);
         ArgumentNullException.ThrowIfNull(facts);
         ArgumentException.ThrowIfNullOrWhiteSpace(layoutId);
         var report = RaceReportBuilder.Build(RaceReportInput.From(facts, season, round, layoutId, standIns));
         var reasons = Reasons(facts);
+        var bestLaps = BestLaps(facts.Tape);
         var rows = new RaceResultRow[facts.Classification.Cars.Length];
         for (var i = 0; i < rows.Length; i++)
         {
@@ -49,7 +52,8 @@ public static class RaceArchive
                 driver,
                 car.ConstructorId,
                 car.CarPoints.ToString(CultureInfo.InvariantCulture),
-                reason ?? "");
+                reason ?? "",
+                Detail(facts, driver, bestLaps));
         }
 
         var reportSections = report.Sections.Add(RaceSpy.Weather(facts.TruthWeather));
@@ -66,7 +70,66 @@ public static class RaceArchive
             sections[i] = new StoredReportSection(Line(section.Title), lines);
         }
 
-        return current.With(new StoredRace(season, round, layoutId, rows, sections));
+        return current.With(new StoredRace(season, round, layoutId, rows, sections, WholeRace(facts, lapLengthMeters)));
+    }
+
+    private static Dictionary<string, long> BestLaps(RaceTape tape)
+    {
+        var best = new Dictionary<string, long>(StringComparer.Ordinal);
+        foreach (var lap in tape.Events.OfType<LapCompleted>())
+        {
+            if (!best.TryGetValue(lap.DriverId, out var current) || lap.LapTimeMs < current)
+            {
+                best[lap.DriverId] = lap.LapTimeMs;
+            }
+        }
+
+        return best;
+    }
+
+    /// <summary>Grid, laps, time at the flag and best lap of one car, read from the weekend result and the tape (no new simulation).</summary>
+    private static RaceRowDetail? Detail(RacePublishedFacts facts, string driver, Dictionary<string, long> bestLaps)
+    {
+        CarRaceResult? result = null;
+        foreach (var candidate in facts.CarResults)
+        {
+            if (string.Equals(candidate.DriverId, driver, StringComparison.Ordinal))
+            {
+                result = candidate;
+                break;
+            }
+        }
+
+        if (result is null)
+        {
+            return null;
+        }
+
+        long? time = null;
+        foreach (var finished in facts.Tape.Events.OfType<Finished>())
+        {
+            if (string.Equals(finished.DriverId, driver, StringComparison.Ordinal))
+            {
+                time = finished.TotalTimeMs;
+                break;
+            }
+        }
+
+        long? fastest = bestLaps.TryGetValue(driver, out var lap) ? lap : null;
+        return new RaceRowDetail(result.GridPosition, result.LapsCompleted, time, fastest);
+    }
+
+    private static RaceFacts WholeRace(RacePublishedFacts facts, int lapLengthMeters)
+    {
+        var pole = facts.Qualifying.Pole;
+        var fastest = facts.Tape.Events.OfType<FastestLap>().LastOrDefault();
+        return new RaceFacts(
+            facts.LapsRun,
+            lapLengthMeters,
+            pole?.DriverId,
+            pole is null ? null : LapTime.FromSeconds(pole.ScoreSeconds).Milliseconds,
+            fastest?.DriverId,
+            fastest?.LapTimeMs);
     }
 
     private static Dictionary<string, string> Reasons(RacePublishedFacts facts)

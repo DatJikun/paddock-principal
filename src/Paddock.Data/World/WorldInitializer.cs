@@ -1315,6 +1315,12 @@ public static class WorldInitializer
             return builder.ToString();
         }
 
+        /// <summary>Constructor ids that are initialisms. Named from the id they would read "Hwm" and "Brm".</summary>
+        private static readonly HashSet<string> Initialisms = new(Ordinal)
+        {
+            "afm", "ags", "ats", "bar", "bmw", "brm", "brp", "emw", "enb", "era", "hrt", "hwm", "jbw", "lds", "lec", "mbm", "osca",
+        };
+
         private static string PrettifyId(string id)
         {
             var words = id.Split(['_', '-'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -1323,7 +1329,9 @@ public static class WorldInitializer
                 return id;
             }
 
-            return string.Join(' ', words.Select(word => char.ToUpperInvariant(word[0]) + word[1..]));
+            return string.Join(
+                ' ',
+                words.Select(word => Initialisms.Contains(word) ? word.ToUpperInvariant() : char.ToUpperInvariant(word[0]) + word[1..]));
         }
 
         private static readonly string[] NameSuffixes = ["Junior", "Júnior", "Jr", "Jr.", "Sr", "Sr.", "Filho"];

@@ -11,6 +11,13 @@ using Paddock.Domain.World;
 namespace Paddock.Application.Finance;
 
 /// <summary>
+/// One posted line of the own ledger, as the principal reads it. <see cref="Category"/> is a ledger category id (the page
+/// names it through a key); <see cref="AmountCents"/> is signed, income positive. The counterparty id stays out: it is
+/// an internal id and the reason already says what the money was for.
+/// </summary>
+public sealed record LedgerLineView(DateOnly On, string Category, long AmountCents, TranslationMessage Reason);
+
+/// <summary>
 /// What a viewer may see (INV-003). The owning manager or AI sees cash, obligations, certain income and a forecast.
 /// Anyone else's organization is <see cref="FinanceView.Unknown"/>. A developer sees the organization's own figures.
 /// The read does not change state and does not draw a random number (INV-005).
@@ -27,20 +34,28 @@ public abstract record FinanceView
         long CertainIncomeCents,
         long ForecastCashCents,
         int LoanOffers,
-        TranslationMessage ForecastNote) : FinanceView;
+        TranslationMessage ForecastNote,
+        IReadOnlyList<LedgerLineView> Ledger) : FinanceView;
 
     public sealed record Unknown(TranslationMessage Reason) : FinanceView;
 }
 
 public static class FinanceQuery
 {
+    /// <summary>
+    /// How many of the latest ledger lines a read carries when it asks for them. The ledger itself keeps every line. Only the
+    /// page asks: the daily reads of the AI need the cash and not a copy of the book.
+    /// </summary>
+    public const int LedgerLines = 60;
+
     public static FinanceView Read(
         AccessContext access,
         OrganizationId subject,
         WorldState world,
         GameDate today,
         IOrganizationControl control,
-        ILoanFacility? loans = null)
+        ILoanFacility? loans = null,
+        bool withLedger = false)
     {
         ArgumentNullException.ThrowIfNull(access);
         ArgumentNullException.ThrowIfNull(world);
@@ -62,7 +77,26 @@ public static class FinanceQuery
             outlook.CertainIncomeCents,
             outlook.ForecastCashCents,
             loans.Offers(subject, today).Count,
-            TranslationMessage.Of(noteKey));
+            TranslationMessage.Of(noteKey),
+            withLedger ? Latest(section.EntriesOf(subject)) : []);
+    }
+
+    /// <summary>The newest lines first. The ledger is kept in posting order, so the tail is the latest.</summary>
+    private static LedgerLineView[] Latest(IReadOnlyList<LedgerEntry> entries)
+    {
+        var count = Math.Min(LedgerLines, entries.Count);
+        var lines = new LedgerLineView[count];
+        for (var at = 0; at < count; at++)
+        {
+            var entry = entries[entries.Count - 1 - at];
+            lines[at] = new LedgerLineView(
+                new DateOnly(entry.Date.Year, entry.Date.Month, entry.Date.Day),
+                entry.Category,
+                entry.AmountCents,
+                TranslationMessage.Of(entry.ReasonKey));
+        }
+
+        return lines;
     }
 }
 

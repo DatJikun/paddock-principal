@@ -429,6 +429,104 @@ public class BridgeTests
         Assert.Equal(own, shown);
     }
 
+    [Theory]
+    [InlineData("Balanced", "Chaos")]
+    [InlineData("Chaos", "Balanced")]
+    public void TheTeamCardsOfOnePresetNameThePeopleThatPresetStartsWithEvenAfterAnotherPresetWasShown(string preset, string shownBefore)
+    {
+        // #255: the picker showed generated drivers while the started career had the real ones. The cards are read from the world
+        // the career would start in, and a setup shown before must not leak into them.
+        using var career = Lobby();
+        string Args(string name) =>
+            "{\"managerId\":\"human:player\",\"year\":1955,\"preset\":\"" + name + "\",\"people\":null,\"seed\":1}";
+        var before = career.Host.Handle(Message("before", "query", "teams", Args(shownBefore)));
+        Assert.True(JsonDocument.Parse(before.Response).RootElement.GetProperty("ok").GetBoolean(), before.Response);
+        var cards = career.Host.Handle(Message("cards", "query", "teams", Args(preset)));
+        using var cardsJson = JsonDocument.Parse(cards.Response);
+        var card = cardsJson.RootElement.GetProperty("data").GetProperty("teams").EnumerateArray()
+            .Single(item => item.GetProperty("id").GetString() == "maserati");
+
+        var started = career.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            "{\"managerId\":\"human:player\",\"teamId\":\"maserati\",\"givenName\":\"Enzo\",\"familyName\":\"Test\",\"nationality\":\"IT\",\"tilt\":\"none\",\"preset\":\"" + preset + "\",\"people\":null,\"year\":1955,\"seed\":1}"));
+        Assert.True(JsonDocument.Parse(started.Response).RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        var drivers = career.Host.Handle(Message("drivers", "query", "drivers"));
+        using var driversJson = JsonDocument.Parse(drivers.Response);
+        var own = driversJson.RootElement.GetProperty("data").GetProperty("own").EnumerateArray()
+            .Select(driver => driver.GetProperty("name").GetString())
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var shown = card.GetProperty("drivers").EnumerateArray()
+            .Select(driver => driver.GetProperty("name").GetString())
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(own, shown);
+    }
+
+    [Fact]
+    public void TheFinanceReadCarriesTheLatestLedgerLinesNewestFirst()
+    {
+        using var career = StartFerrariCareer();
+        var finance = career.Host.Handle(Message("fin", "query", "finance"));
+        using var json = JsonDocument.Parse(finance.Response);
+        var ledger = json.RootElement.GetProperty("data").GetProperty("ledger");
+        Assert.True(ledger.GetArrayLength() >= 1, finance.Response);
+        var first = ledger[0];
+        Assert.True(first.GetProperty("amountCents").GetInt64() != 0);
+        Assert.StartsWith("finance.reason.", first.GetProperty("reason").GetProperty("key").GetString());
+        Assert.False(first.TryGetProperty("counterparty", out _));
+    }
+
+    [Fact]
+    public void AnUpgradeFromThePageStartsTheBuildChargesTheLedgerAndAnUnknownKindIsRefusedWithAReason()
+    {
+        using var career = StartFerrariCareer();
+        using var before = JsonDocument.Parse(career.Host.Handle(Message("i1", "query", "infrastructure")).Response);
+        var own = before.RootElement.GetProperty("data").GetProperty("own")[0];
+        var organization = own.GetProperty("organizationId").GetString();
+        var kind = own.GetProperty("facilities").EnumerateArray()
+            .First(item => item.GetProperty("unlocked").GetBoolean()).GetProperty("kind").GetString();
+
+        var refused = career.Host.Handle(Message(
+            "bad", "command", "upgradeFacility",
+            "{\"managerId\":\"human:player\",\"organizationId\":\"" + organization + "\",\"kind\":\"nonsense\"}"));
+        using (var refusedJson = JsonDocument.Parse(refused.Response))
+        {
+            Assert.False(refusedJson.RootElement.GetProperty("ok").GetBoolean(), refused.Response);
+            Assert.Equal("infrastructure.error.unknownKind", refusedJson.RootElement.GetProperty("error").GetProperty("key").GetString());
+        }
+
+        var started = career.Host.Handle(Message(
+            "up", "command", "upgradeFacility",
+            "{\"managerId\":\"human:player\",\"organizationId\":\"" + organization + "\",\"kind\":\"" + kind + "\"}"));
+        using (var startedJson = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        using var after = JsonDocument.Parse(career.Host.Handle(Message("i2", "query", "infrastructure")).Response);
+        var row = after.RootElement.GetProperty("data").GetProperty("own")[0].GetProperty("facilities").EnumerateArray()
+            .First(item => item.GetProperty("kind").GetString() == kind);
+        Assert.True(row.GetProperty("building").GetBoolean());
+        using var finance = JsonDocument.Parse(career.Host.Handle(Message("fin", "query", "finance")).Response);
+        Assert.Equal("infrastructure.ledger.upgrade", finance.RootElement.GetProperty("data").GetProperty("ledger")[0].GetProperty("reason").GetProperty("key").GetString());
+    }
+
+    [Fact]
+    public void TheStandingsRulesNameTheCountingRuleByItsKindAndNeverPrintAnObject()
+    {
+        // #255: the counting rule was sent as the C# ToString of a record ("ResultsCountingRule { Kind = ... }").
+        using var career = StartFerrariCareer();
+        AdvanceUntilFirstRace(career.Host);
+        var standings = career.Host.Handle(Message("standings", "query", "standings"));
+        using var json = JsonDocument.Parse(standings.Response);
+        var rules = json.RootElement.GetProperty("data").GetProperty("rules");
+        Assert.Contains(rules.GetProperty("resultsCounting").GetString(), new[] { "All", "BestOverall", "Split" });
+        Assert.DoesNotContain("{", rules.GetProperty("resultsCounting").GetString());
+    }
+
     [Fact]
     public void SavingAgainUnderTheSameNameReplacesTheSaveAndTheListShowsWhoAndWhen()
     {

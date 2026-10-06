@@ -72,7 +72,13 @@ export interface BoardWhyView {
   currentPosition: number | null;
   expectations: ObjectiveItemView[];
   expectedPosition: number | null;
+  history: ObjectiveItemView[];
   targetConfidence: number | null;
+}
+
+export interface BookTestCall {
+  managerId: string;
+  organizationId: string;
 }
 
 export interface CalendarRoundView {
@@ -219,6 +225,7 @@ export interface FinanceViewOwn {
   certainIncomeCents: number;
   forecastCashCents: number;
   forecastNote: TranslationMessage;
+  ledger: LedgerLineView[];
   loanOffers: number;
   obligationsCents: number;
 }
@@ -269,6 +276,13 @@ export interface KnownAttributeView {
   high: number;
   key: string;
   low: number;
+}
+
+export interface LedgerLineView {
+  amountCents: number;
+  category: string;
+  on: IsoDate;
+  reason: TranslationMessage;
 }
 
 export interface LoadCareerCall {
@@ -1038,6 +1052,12 @@ export interface TranslationMessage {
   parameters: Record<string, string>;
 }
 
+export interface UpgradeFacilityCall {
+  kind: string;
+  managerId: string;
+  organizationId: string;
+}
+
 export type FinanceView = FinanceViewOwn | FinanceViewUnknown;
 
 export type SponsorView = SponsorViewOwn | SponsorViewUnknown;
@@ -1088,6 +1108,8 @@ export interface BridgeCommandMap {
   respondToSponsorOffer: { args: SponsorOfferCall; result: CommandAck };
   setDevelopmentSplit: { args: DevelopmentSplitCall; result: CommandAck };
   commitConcept: { args: CommitConceptCall; result: CommandAck };
+  upgradeFacility: { args: UpgradeFacilityCall; result: CommandAck };
+  bookTest: { args: BookTestCall; result: CommandAck };
   assignScoutFocus: { args: ScoutFocusCall; result: CommandAck };
   fundJunior: { args: FundJuniorCall; result: CommandAck };
   signPoolDriver: { args: SignPoolCall; result: CommandAck };

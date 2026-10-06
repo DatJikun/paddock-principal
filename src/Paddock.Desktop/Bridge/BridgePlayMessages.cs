@@ -178,6 +178,12 @@ public sealed record DevelopmentSplitCall(
 /// <summary>Commits one concept to production.</summary>
 public sealed record CommitConceptCall(string ManagerId, string OrganizationId, string ProjectId);
 
+/// <summary>Starts the upgrade of one own facility. Kind is a facility id as the <c>infrastructure</c> query names it.</summary>
+public sealed record UpgradeFacilityCall(string ManagerId, string OrganizationId, string Kind);
+
+/// <summary>Rents the test track for one private test of the own team.</summary>
+public sealed record BookTestCall(string ManagerId, string OrganizationId);
+
 /// <summary>Scout focus. A null handle is the whole pool.</summary>
 public sealed record ScoutFocusCall(string ManagerId, string? PersonHandle);
 

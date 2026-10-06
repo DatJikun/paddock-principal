@@ -128,12 +128,15 @@ export function clampYear(value, fallback = 1955) {
   return Math.min(MAX_YEAR, Math.max(MIN_YEAR, year));
 }
 
-/** An authored id the way the world names it when no better name is known ("red_bull" -> "Red Bull"). */
+/** Constructor ids that are initialisms, as the world names them (WorldInitializer): "hwm" reads HWM, not Hwm. */
+const INITIALISMS = new Set(['afm', 'ags', 'ats', 'bar', 'bmw', 'brm', 'brp', 'emw', 'enb', 'era', 'hrt', 'hwm', 'jbw', 'lds', 'lec', 'mbm', 'osca']);
+
+/** An authored id the way the world names it when no better name is known ("red_bull" -> "Red Bull", "hwm" -> "HWM"). */
 export function teamLabel(id) {
   return String(id ?? '')
     .split(/[_-]/)
     .filter(Boolean)
-    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .map((word) => (INITIALISMS.has(word) ? word.toUpperCase() : word[0].toUpperCase() + word.slice(1)))
     .join(' ');
 }
 

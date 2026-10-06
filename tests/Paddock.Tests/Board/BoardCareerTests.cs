@@ -495,6 +495,32 @@ public class BoardCareerTests
     }
 
     [Fact]
+    public void ObjectivesOfEarlierSeasonsAreHistoryAndOnlyTheCurrentSeasonIsExpected()
+    {
+        // #255: the board screen listed the closed season target of every past year as if it were still asked.
+        var lab = new Lab(free: 5);
+        lab.Appoint(Pam, T3, founder: true);
+        lab.Facts.Position(T3, 5);
+        lab.AdvanceTo(new GameDate(1957, 2, 1));
+        var pam = AccessContext.ForManager(new AccessId(Pam.Value));
+
+        var own = lab.Query.View(pam, lab.Today).Own!;
+
+        Assert.NotEmpty(own.Why.History);
+        Assert.All(own.Why.History, item =>
+        {
+            Assert.True(item.Deadline.Year < 1957, item.Id);
+            Assert.NotEqual(Paddock.Domain.Objectives.ObjectiveStatus.Open, item.State.Status);
+        });
+        Assert.All(own.Why.Expectations, item =>
+            Assert.True(item.State.Status == Paddock.Domain.Objectives.ObjectiveStatus.Open || item.Deadline.Year >= 1957, item.Id));
+        Assert.Single(own.Why.Expectations, item => item.Title.Key == BoardKeys.ObjectiveSeason);
+        Assert.Equal(
+            own.Why.History.Select(item => item.Deadline).OrderByDescending(date => date).ToArray(),
+            own.Why.History.Select(item => item.Deadline).ToArray());
+    }
+
+    [Fact]
     public void TheDeveloperSeesEveryBoardWithTheTruthBehindIt()
     {
         var lab = new Lab(free: 5, noRaces: true);

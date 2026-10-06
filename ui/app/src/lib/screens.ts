@@ -11,6 +11,7 @@ import type {
   DevelopmentOverview,
   DriverProfileView,
   DriversView,
+  InfrastructureOverview,
   InboxView,
   ManagerCarRoster,
   MarketView,
@@ -77,6 +78,7 @@ export type MarketData = {
   drivers: DriversView;
 };
 
+export type InfraData = { kind: 'infrastruktura'; infra: InfrastructureOverview; today: string };
 export type FinanceData = { kind: 'finanse'; finance: FinanceView };
 export type SponsorData = { kind: 'sponsorzy'; sponsors: SponsorView; today: string };
 export type BoardData = { kind: 'zarzad'; board: BoardView; manager: ManagerProfileView; today: string };
@@ -86,6 +88,7 @@ export type AcademyData = { kind: 'akademia'; pool: PoolView; today: string };
 
 export type ScreenData =
   | FinanceData
+  | InfraData
   | SponsorData
   | BoardData
   | ManagerData
@@ -175,6 +178,10 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
     case 'osoba': {
       const [staff, drivers, shell] = await Promise.all([query('staff', call), query('drivers', call), query('shell', call)]);
       return { kind: name, staff, drivers, today: shell.date };
+    }
+    case 'infrastruktura': {
+      const [infra, shell] = await Promise.all([query('infrastructure', call), query('shell', call)]);
+      return { kind: 'infrastruktura', infra, today: shell.date };
     }
     case 'finanse':
       return { kind: 'finanse', finance: await query('finance', call) };

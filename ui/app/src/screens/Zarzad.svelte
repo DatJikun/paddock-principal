@@ -79,6 +79,24 @@
         </div>
       </section>
 
+      {#if own.why.history.length > 0}
+        <section class="panel tbl">
+          <header><h2>{tr.t('board.history')}</h2></header>
+          <table class="table tight fit">
+            <thead><tr><th>{tr.t('shell.col.date')}</th><th>{tr.t('board.expects')}</th><th></th></tr></thead>
+            <tbody>
+              {#each own.why.history as goal (goal.id)}
+                <tr>
+                  <td class="num">{formatDate(goal.deadline, tr.lang)}</td>
+                  <td class="wrap"><b>{tr.tMsg(goal.title)}</b> {tr.tMsg(goal.requirement)}</td>
+                  <td><Status text={tr.t(`objective.status.${lc(goal.state.status)}`)} tone={goal.state.status === 'Met' ? 'good' : goal.state.status === 'Failed' ? 'bad' : ''} /></td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </section>
+      {/if}
+
       {#if reputation}
         <section class="panel tbl">
           <header><h2>{tr.t('board.reputation')}</h2><span class="v num">{reputation.points}</span></header>

@@ -2,6 +2,7 @@
   import type { RaceRowView, StandingRowView } from '../lib/api/types.generated';
   import Flag from '../lib/components/Flag.svelte';
   import MailRow from '../lib/components/MailRow.svelte';
+  import Status from '../lib/components/Status.svelte';
   import Tabs from '../lib/components/Tabs.svelte';
   import TrackMap from '../lib/components/TrackMap.svelte';
   import { daysBetween, formatDay, formatWeekday } from '../lib/date.mjs';
@@ -16,7 +17,7 @@
 
   const rank = (item: { status: string; needsDecision: boolean }) =>
     item.status !== 'Open' ? 2 : item.needsDecision ? 0 : 1;
-  let mails = $derived([...data.inbox.items].sort((a, b) => rank(a) - rank(b)).slice(0, 7));
+  let mails = $derived([...data.inbox.items].filter((item) => item.status === 'Open').sort((a, b) => rank(a) - rank(b)).slice(0, 7));
   let next = $derived(data.next.round ? data.calendar.rounds.find((round) => round.round === data.next.round) ?? null : null);
   let daysLeft = $derived(daysBetween(today, data.next.date));
   let titles = $derived(
@@ -41,6 +42,8 @@
     <div class="list">
       {#each mails as item (item.id)}
         <MailRow {item} {tr} />
+      {:else}
+        <div class="empty"><Status text={tr.t('pulpit.inbox.empty')} /></div>
       {/each}
     </div>
     <footer><a class="link" href="#/skrzynka">{tr.t('pulpit.inbox.open')}{@html icon(ICON.arrow, 15)}</a></footer>

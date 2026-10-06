@@ -8,6 +8,7 @@ export const NAV = [
   { id: 'personel', key: 'shell.nav.staff', icon: '<circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c1-3 3-5 6-5s5 2 6 5M15 15c3 0 5 1.5 6 4"/>' },
   { id: 'akademia', key: 'shell.nav.academy', icon: '<path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/>' },
   { id: 'auto', key: 'shell.nav.car', icon: '<path d="M8 3.5h8M12 3.5v4M10.5 7.5h3l1 5v4.5l-1.5 3h-3L8.5 17v-4.5z"/><rect x="5" y="7" width="2.6" height="4.2" rx="1"/><rect x="16.4" y="7" width="2.6" height="4.2" rx="1"/><rect x="4.6" y="14.5" width="3" height="4.8" rx="1"/><rect x="16.4" y="14.5" width="3" height="4.8" rx="1"/><path d="M7.5 21h9"/>' },
+  { id: 'infrastruktura', key: 'shell.nav.infrastructure', icon: '<path d="M3 20V10l6 3V10l6 3V6h4v14z"/><path d="M3 20h18"/>' },
   { sep: true },
   { id: 'dostawcy', key: 'shell.nav.suppliers', icon: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>' },
   { id: 'sponsorzy', key: 'shell.nav.sponsors', icon: '<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/>' },

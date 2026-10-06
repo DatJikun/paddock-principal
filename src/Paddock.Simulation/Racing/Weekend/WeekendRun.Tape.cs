@@ -266,7 +266,7 @@ internal sealed partial class WeekendRun
             var raceEvent = item.Make(seq++, ms);
             builder.Append(raceEvent);
             last = Math.Max(last, ms);
-            if (raceEvent is LapCompleted lc && lc.LapTimeMs < best)
+            if (raceEvent is LapCompleted lc && lc.LapTimeMs > 0 && lc.LapTimeMs < best)
             {
                 best = lc.LapTimeMs;
                 builder.Append(new FastestLap(seq++, lc.Lap, lc.RaceTime, lc.DriverId, lc.LapTimeMs));

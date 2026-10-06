@@ -78,6 +78,11 @@ public static class RaceArchive
         var best = new Dictionary<string, long>(StringComparer.Ordinal);
         foreach (var lap in tape.Events.OfType<LapCompleted>())
         {
+            if (lap.LapTimeMs <= 0)
+            {
+                continue;
+            }
+
             if (!best.TryGetValue(lap.DriverId, out var current) || lap.LapTimeMs < current)
             {
                 best[lap.DriverId] = lap.LapTimeMs;
@@ -110,7 +115,7 @@ public static class RaceArchive
         {
             if (string.Equals(finished.DriverId, driver, StringComparison.Ordinal))
             {
-                time = finished.TotalTimeMs;
+                time = finished.TotalTimeMs > 0 ? finished.TotalTimeMs : null;
                 break;
             }
         }
@@ -122,7 +127,15 @@ public static class RaceArchive
     private static RaceFacts WholeRace(RacePublishedFacts facts, int lapLengthMeters)
     {
         var pole = facts.Qualifying.Pole;
-        var fastest = facts.Tape.Events.OfType<FastestLap>().LastOrDefault();
+        FastestLap? fastest = null;
+        foreach (var candidate in facts.Tape.Events.OfType<FastestLap>())
+        {
+            if (candidate.LapTimeMs > 0)
+            {
+                fastest = candidate;
+            }
+        }
+
         return new RaceFacts(
             facts.LapsRun,
             lapLengthMeters,

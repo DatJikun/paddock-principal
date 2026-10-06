@@ -20,6 +20,7 @@ public static class SimRunnerCli
         new(InitWorldCommand.Name, "init-world --preset <name> --year <Y> --seed <N> [--lang en|pl] [--data-root <dir>] [--schedule <file> --drivers <file>]", "Builds a starting world and prints counts, gaps and the state hash."),
         new(RunCommand.Name, "run --preset <name> --from <Y> --to <Y> --seed <N> [--save <path>] [--lang en|pl] [--data-root <dir>] [--schedule <file> --drivers <file>] | run --resume <save> --to <Y> [--save <path>]", "Lives a career and prints one line per season."),
         new(PlayCommand.Name, "play [--load <file>] [--lang en|pl] [--seed <N>] [--data-root <dir>] [--name <text>] [--autosave <path>]", "Starts or loads a career and reads the wizard and the shell from stdin."),
+        new(ScenarioCommand.Name, "scenario phase4-1955 --seed <N> --team <id> [--out <dir>] [--monkey] [--seeds <n>] [--data-root <dir>]", "Plays a 1955 career with a bot manager and writes the phase-4 gate report."),
     ];
 
     public static bool IsHelp(string token) =>

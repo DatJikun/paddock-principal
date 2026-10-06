@@ -144,6 +144,21 @@ public static class SponsorKeys
     [TranslationKey]
     public const string IndustryElectronics = "sponsor.industry.electronics";
 
+    [TranslationKey]
+    public const string OfferAcceptLabel = "sponsor.offer.accept.label";
+
+    [TranslationKey]
+    public const string OfferAcceptConsequence = "sponsor.offer.accept.consequence";
+
+    [TranslationKey]
+    public const string OfferDeclineLabel = "sponsor.offer.decline.label";
+
+    [TranslationKey]
+    public const string OfferDeclineConsequence = "sponsor.offer.decline.consequence";
+
+    [TranslationKey]
+    public const string InboxEndingSubject = "sponsor.inbox.ending.subject";
+
     /// <summary>Inbox kind of every sponsor notice. A stable code, not text.</summary>
     public const string InboxKind = "sponsor.notice";
 

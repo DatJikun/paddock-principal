@@ -324,6 +324,8 @@ Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.Wa
 Który sponsor na które miejsce | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego
 Cel sponsora | dopasowany do siły zespołu (oczekiwana pozycja, jak u zarządu); premia startuje od {SponsorEstimates.BonusMilli|m%} rocznej kwoty i rośnie z trudnością celu, niespełniony może zakończyć umowę
 Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania
+Odpowiedź na ofertę | oferta przedłużenia przychodzi do skrzynki z wyborem: przedłuż albo puść sponsora; bez odpowiedzi umowa po prostu się kończy. Gdy sponsor nie złoży oferty, dostajesz o tym wiadomość {SponsorEstimates.RenewalLeadDays|dni} przed końcem umowy
+Nowi sponsorzy | co sezon pojawia się {SponsorEstimates.LocalBackersPerSeason} lokalnych sponsorów na rodzaj miejsca, a każdy zostaje na {SponsorEstimates.LocalBackerSeasons} sezony; lista pokazuje najwyżej {SponsorEstimates.LocalListedPerSlot} wolnych, najlepiej płacących
 ```
 
 ```kroki

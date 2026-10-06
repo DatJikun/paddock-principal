@@ -435,7 +435,7 @@ public sealed partial class CareerBridge
 
     private static CareerInputs LoadInputs(string dataRoot, AuthoredData data, IReadOnlyList<EngineSupplyLink> supplies)
     {
-        var sponsors = SponsorsLoader.ToCatalog(SponsorsLoader.Load(dataRoot));
+        var sponsors = SponsorsLoader.ToCatalog(SponsorsLoader.Load(dataRoot), localMarket: true);
         var tiers = TeamTiersLoader.ToSource(TeamTiersLoader.Load(dataRoot));
         var inputs = CareerInputs.From(data.EraPeriods, sponsors, new EraPayBenchmark(data.EraSetFor), tiers);
         return new CareerInputs

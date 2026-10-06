@@ -1,4 +1,5 @@
 using Paddock.Application.Sponsors;
+using Paddock.Application.Inbox;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Objectives;
 using Paddock.Domain.Sponsors;
@@ -225,6 +226,59 @@ public class SponsorDayTests
 
         var offer = Assert.Single(kit.Book.Section.Offers);
         Assert.Equal(OfferStatus.Lapsed, offer.Status);
+    }
+
+    [Fact]
+    public void ARenewalOfferReachesThePlayerAsADecisionAndAcceptingItSignsTheRenewal()
+    {
+        var kit = new SponsorKit(Opening);
+        var deal = kit.SignDeal("rheinwerk_motoren", 1, Opening);
+
+        kit.Live(Opening, 310);
+
+        var item = Assert.Single(kit.Inbox.Section.ItemsOf(SponsorKit.Anna.Value), candidate => candidate.Kind == SponsorOfferCodes.OfferKind);
+        Assert.True(item.NeedsDecision);
+        Assert.Equal([SponsorOfferCodes.OptionAccept, SponsorOfferCodes.OptionDecline], item.Draft.Options.Select(option => option.Id).ToArray());
+        Assert.Equal(SponsorOfferCodes.OptionDecline, item.Draft.DefaultOptionId);
+        Assert.Equal(deal.End, item.Draft.ValidUntil);
+
+        var resolver = new SponsorOfferResolver(kit.Book, kit.Environment);
+        Assert.Null(resolver.Validate(item, SponsorOfferCodes.OptionAccept, kit.Context));
+        resolver.Execute(item, SponsorOfferCodes.OptionAccept, kit.Context);
+
+        var offer = Assert.Single(kit.Book.Section.Offers);
+        Assert.Equal(OfferStatus.Accepted, offer.Status);
+        Assert.Equal(deal.End.AddDays(1), kit.Book.Section.Deals.Last().Start);
+    }
+
+    [Fact]
+    public void LettingTheOfferExpireDeclinesItAndTheDealEndsWithANoticeNotInSilence()
+    {
+        var kit = new SponsorKit(Opening);
+        kit.SignDeal("rheinwerk_motoren", 1, Opening);
+        kit.Live(Opening, 310);
+        var item = Assert.Single(kit.Inbox.Section.ItemsOf(SponsorKit.Anna.Value), candidate => candidate.Kind == SponsorOfferCodes.OfferKind);
+
+        var resolver = new SponsorOfferResolver(kit.Book, kit.Environment);
+        Assert.Null(resolver.Validate(item, item.DefaultOptionId!, kit.Context));
+        resolver.Execute(item, item.DefaultOptionId!, kit.Context);
+        kit.Live(new GameDate(1955, 11, 6), 70);
+
+        Assert.Equal(OfferStatus.Declined, Assert.Single(kit.Book.Section.Offers).Status);
+        Assert.Contains(SponsorKeys.InboxCompletedSubject, kit.InboxSubjects(SponsorKit.Anna));
+    }
+
+    [Fact]
+    public void WhenNoRenewalIsOfferedThePlayerIsToldSixtyDaysAhead()
+    {
+        var kit = new SponsorKit(Opening);
+        kit.SignDeal("rheinwerk_motoren", 1, Opening);
+        kit.Book.Write(kit.Book.Section.WithTrust("rheinwerk_motoren", SponsorKit.Alfa, SponsorEstimates.RenewalMinTrust - 1));
+
+        kit.Live(Opening, 330);
+
+        Assert.Empty(kit.Book.Section.Offers);
+        Assert.Single(kit.InboxSubjects(SponsorKit.Anna), SponsorKeys.InboxEndingSubject);
     }
 
     private static SponsorCatalog QuickCatalog() => new(

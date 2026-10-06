@@ -110,6 +110,19 @@ public static class SponsorEstimates
     /// <summary>ESTIMATE: trust gained for a scaled objective never exceeds this.</summary>
     public const int MaxScaledTrustOnMet = 40;
 
+    /// <summary>
+    /// ESTIMATE (#254): how many new local backers appear each season for each family (technical or livery). The authored sponsors are few
+    /// and a team that renews keeps one for good, so without new backers the AI teams hold every sponsor and the player finds none.
+    /// A grid of about 16 teams has 48 slots; this many new backers leave room even when the AI fills every slot.
+    /// </summary>
+    public const int LocalBackersPerSeason = 60;
+
+    /// <summary>ESTIMATE (#254): a local backer can start a deal in its own season and in this many seasons in all, so old ones leave and their teams look again.</summary>
+    public const int LocalBackerSeasons = 2;
+
+    /// <summary>ESTIMATE (#254): the market lists at most this many free local backers for a slot, the best paying first, so the list stays readable.</summary>
+    public const int LocalListedPerSlot = 12;
+
     /// <summary>ESTIMATE: a secondary livery slot pays this fraction of a main slot, in thousandths.</summary>
     public const int SecondarySlotMilli = 500;
 }

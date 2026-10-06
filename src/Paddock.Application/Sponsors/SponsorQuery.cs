@@ -249,15 +249,29 @@ public static class SponsorQuery
             GameDate today)
         {
             var slotBusy = SlotBusy(slot);
-            return catalog.Candidates(today.Year, kind, era)
-                .Select(sponsor => new SponsorCandidateView(
+            var rows = catalog.Candidates(today.Year, kind, era)
+                .Select(sponsor => (Sponsor: sponsor, View: new SponsorCandidateView(
                     sponsor.Id,
                     sponsor.Name,
                     TranslationMessage.Of(SponsorKeys.IndustryName(sponsor.Industry)),
                     SponsorPricing.FullAnnualCents(sponsor, kind, _typicalDollars, book.Finance.PopularityMilli),
-                    Blocked(sponsor, today, slotBusy)))
+                    Blocked(sponsor, today, slotBusy))))
                 .ToArray();
+
+            // The named sponsors are always listed, with the reason when one is not available. The yearly local backers (#254) are
+            // many: list only the free ones, the best paying first, so the list stays readable.
+            var local = rows
+                .Where(row => row.Sponsor.Local && !IsUnavailable(row.View))
+                .OrderBy(row => row.View.Blocked is null ? 0 : 1)
+                .ThenByDescending(row => row.View.IndicativeAnnualCents)
+                .ThenBy(row => row.Sponsor.Id, StringComparer.Ordinal)
+                .Take(SponsorEstimates.LocalListedPerSlot)
+                .Select(row => row.View);
+            return rows.Where(row => !row.Sponsor.Local).Select(row => row.View).Concat(local).ToArray();
         }
+
+        private static bool IsUnavailable(SponsorCandidateView view) =>
+            view.Blocked is { } blocked && blocked.Key == SponsorKeys.SponsorUnavailable;
 
         private bool SlotBusy(int slot)
         {

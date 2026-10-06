@@ -92,6 +92,7 @@ public sealed record SponsorObjectiveSpec(string Kind, string Value, int WithinD
 /// <paramref name="PrestigeNeed"/> is the lowest team prestige (0 to 1) the sponsor accepts.
 /// <paramref name="BudgetLevel"/> is the share of the era's typical team budget it pays a year before popularity and slot factors.
 /// <paramref name="ToYear"/> null means open through the end of the covered window.
+/// <paramref name="Local"/> marks a backer made by <see cref="LocalSponsorMarket"/> instead of read from the authored file.
 /// </summary>
 public sealed record SponsorDefinition(
     string Id,
@@ -103,7 +104,8 @@ public sealed record SponsorDefinition(
     int FromYear,
     int? ToYear,
     IReadOnlyList<SlotKind> Slots,
-    SponsorObjectiveSpec? Objective)
+    SponsorObjectiveSpec? Objective,
+    bool Local = false)
 {
     public bool ActiveIn(int year) => FromYear <= year && (ToYear is null || year <= ToYear.Value);
 
@@ -171,10 +173,17 @@ public sealed record SponsorEra(bool Livery, bool Tobacco, bool Alcohol)
 public sealed class SponsorCatalog
 {
     private readonly SortedDictionary<string, SponsorDefinition> _byId;
+    private readonly bool _localMarket;
 
-    public SponsorCatalog(IEnumerable<SponsorDefinition> sponsors)
+    /// <param name="sponsors">The authored sponsors.</param>
+    /// <param name="localMarket">
+    /// True to add the yearly local backers of <see cref="LocalSponsorMarket"/>, so the market does not run dry when every authored
+    /// sponsor is under contract with a team that keeps renewing.
+    /// </param>
+    public SponsorCatalog(IEnumerable<SponsorDefinition> sponsors, bool localMarket = false)
     {
         ArgumentNullException.ThrowIfNull(sponsors);
+        _localMarket = localMarket;
         _byId = new SortedDictionary<string, SponsorDefinition>(StringComparer.Ordinal);
         foreach (var sponsor in sponsors)
         {
@@ -188,13 +197,28 @@ public sealed class SponsorCatalog
 
     public IReadOnlyList<SponsorDefinition> All => _byId.Values.ToArray();
 
-    public SponsorDefinition? Find(string id) => id is not null && _byId.TryGetValue(id, out var sponsor) ? sponsor : null;
+    public SponsorDefinition? Find(string id)
+    {
+        if (id is null)
+        {
+            return null;
+        }
+
+        if (_byId.TryGetValue(id, out var sponsor))
+        {
+            return sponsor;
+        }
+
+        return _localMarket ? LocalSponsorMarket.Find(id) : null;
+    }
 
     /// <summary>Sponsors that could fill a slot of this kind in this year: active, fitting, and allowed by the era.</summary>
     public IReadOnlyList<SponsorDefinition> Candidates(int year, SlotKind kind, SponsorEra era)
     {
         ArgumentNullException.ThrowIfNull(era);
-        return _byId.Values
+        var authored = _byId.Values.AsEnumerable();
+        var all = _localMarket ? authored.Concat(LocalSponsorMarket.ActiveIn(year)) : authored;
+        return all
             .Where(sponsor => sponsor.ActiveIn(year) && sponsor.FitsSlot(kind) && era.Allows(sponsor.Industry, kind))
             .ToArray();
     }

@@ -283,30 +283,46 @@ public sealed class RespondToSponsorOfferHandler : CommandHandler<RespondToSpons
         return null;
     }
 
-    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(RespondToSponsorOfferCommand command, CommandContext context)
+    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(RespondToSponsorOfferCommand command, CommandContext context) =>
+        SponsorOfferAnswer.Apply(_book, _environment, command.ManagerId, command.IssuedOn, command.OfferId, command.Accept);
+}
+
+/// <summary>
+/// Answers a renewal offer. The command and the inbox decision both end here, so a click in the inbox and a command from the
+/// sponsors screen do the same thing, and an AI team's answer takes the same path as a player's.
+/// </summary>
+public static class SponsorOfferAnswer
+{
+    public static IReadOnlyList<IDomainEvent> Apply(
+        SponsorBook book,
+        SponsorEnvironment environment,
+        ManagerId manager,
+        DateOnly issuedOn,
+        string offerId,
+        bool accept)
     {
-        var today = FinanceBook.ToGameDate(command.IssuedOn);
-        var section = _book.Section;
-        var offer = section.FindOffer(command.OfferId)!;
-        if (!command.Accept)
+        var today = FinanceBook.ToGameDate(issuedOn);
+        var section = book.Section;
+        var offer = section.FindOffer(offerId)!;
+        if (!accept)
         {
-            _book.Write(section.Replace(offer with { Status = OfferStatus.Declined, ClosedOn = today }));
-            return [new SponsorOfferAnswered(command.ManagerId, command.IssuedOn, offer.Id, false, null)];
+            book.Write(section.Replace(offer with { Status = OfferStatus.Declined, ClosedOn = today }));
+            return [new SponsorOfferAnswered(manager, issuedOn, offer.Id, false, null)];
         }
 
-        var sponsor = _environment.Catalog.Find(offer.SponsorId)!;
+        var sponsor = environment.Catalog.Find(offer.SponsorId)!;
         var (sponsors, objectives, deal) = SponsorRules.Sign(
             section.Replace(offer with { Status = OfferStatus.Accepted, ClosedOn = today }),
-            _book.Objectives,
-            _environment,
+            book.Objectives,
+            environment,
             sponsor,
             offer.Organization,
             offer.Slot,
             offer.Kind,
             offer.AnnualCents,
-            _book.Section.FindDeal(SponsorsSection.DealIdOf(offer.DealNumber))!.End.AddDays(1));
-        _book.Write(sponsors, objectives);
-        return [new SponsorOfferAnswered(command.ManagerId, command.IssuedOn, offer.Id, true, deal.Id)];
+            book.Section.FindDeal(SponsorsSection.DealIdOf(offer.DealNumber))!.End.AddDays(1));
+        book.Write(sponsors, objectives);
+        return [new SponsorOfferAnswered(manager, issuedOn, offer.Id, true, deal.Id)];
     }
 }
 

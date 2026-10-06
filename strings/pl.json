@@ -657,7 +657,7 @@
   "sponsor.error.unknownOrganization": "Taka organizacja nie istnieje.",
   "sponsor.error.noBooks": "Ta organizacja nie ma jeszcze ksiąg, więc nie może przyjąć pieniędzy od sponsora.",
   "sponsor.error.unknownSponsor": "Taki sponsor nie istnieje.",
-  "sponsor.error.sponsorUnavailable": "Ten sponsor jest niedostępny: ma umowę, podpisał z rywalem albo nie działa w tym sezonie.",
+  "sponsor.error.sponsorUnavailable": "Ten sponsor nie jest w tym sezonie w ofercie Twojego zespołu.",
   "sponsor.error.eraForbids": "Przepisy tej epoki nie dopuszczają takiego sponsora.",
   "sponsor.error.industryConflict": "Masz już układ ze sponsorem z tej samej branży.",
   "sponsor.error.prestigeTooLow": "Twój zespół nie ma dość prestiżu dla tego sponsora.",

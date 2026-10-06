@@ -103,7 +103,7 @@ public static class SponsorQuery
             var talk = talks.FirstOrDefault(candidate => candidate.Slot == slot);
             var candidates = deal is not null || talk is not null
                 ? []
-                : shared.List(book, catalog, era, kind, slot, today);
+                : shared.List(book, catalog, era, kind, slot, today, subject, environment.IsPlayerTeam(subject));
             slots.Add(new SponsorSlotView(slot, TranslationMessage.Of(SponsorKeys.SlotName(kind)), deal?.Id, talk?.Id, candidates));
         }
 
@@ -246,32 +246,20 @@ public static class SponsorQuery
             SponsorEra era,
             SlotKind kind,
             int slot,
-            GameDate today)
+            GameDate today,
+            OrganizationId subject,
+            bool playerTeam)
         {
             var slotBusy = SlotBusy(slot);
-            var rows = catalog.Candidates(today.Year, kind, era)
-                .Select(sponsor => (Sponsor: sponsor, View: new SponsorCandidateView(
+            return catalog.CandidatesFor(today.Year, kind, era, subject, playerTeam)
+                .Select(sponsor => new SponsorCandidateView(
                     sponsor.Id,
                     sponsor.Name,
                     TranslationMessage.Of(SponsorKeys.IndustryName(sponsor.Industry)),
                     SponsorPricing.FullAnnualCents(sponsor, kind, _typicalDollars, book.Finance.PopularityMilli),
-                    Blocked(sponsor, today, slotBusy))))
+                    Blocked(sponsor, today, slotBusy)))
                 .ToArray();
-
-            // The named sponsors are always listed, with the reason when one is not available. The yearly local backers (#254) are
-            // many: list only the free ones, the best paying first, so the list stays readable.
-            var local = rows
-                .Where(row => row.Sponsor.Local && !IsUnavailable(row.View))
-                .OrderBy(row => row.View.Blocked is null ? 0 : 1)
-                .ThenByDescending(row => row.View.IndicativeAnnualCents)
-                .ThenBy(row => row.Sponsor.Id, StringComparer.Ordinal)
-                .Take(SponsorEstimates.LocalListedPerSlot)
-                .Select(row => row.View);
-            return rows.Where(row => !row.Sponsor.Local).Select(row => row.View).Concat(local).ToArray();
         }
-
-        private static bool IsUnavailable(SponsorCandidateView view) =>
-            view.Blocked is { } blocked && blocked.Key == SponsorKeys.SponsorUnavailable;
 
         private bool SlotBusy(int slot)
         {
@@ -297,11 +285,6 @@ public static class SponsorQuery
         /// <summary>The first reason CanBegin would return. Kind and era were already applied by <see cref="SponsorCatalog.Candidates"/>.</summary>
         private TranslationMessage? Blocked(SponsorDefinition sponsor, GameDate today, bool slotBusy)
         {
-            if (_inDeal.Contains(sponsor.Id) || _section.IsTaken(sponsor.Id, today))
-            {
-                return TranslationMessage.Of(SponsorKeys.SponsorUnavailable);
-            }
-
             if (slotBusy)
             {
                 return TranslationMessage.Of(SponsorKeys.SlotBusy);

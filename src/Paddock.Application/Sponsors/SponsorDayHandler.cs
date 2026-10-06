@@ -153,12 +153,6 @@ public sealed class SponsorDayHandler : IDayHandler
         foreach (var talk in sponsors.Talks.Where(talk => talk.IsOpen))
         {
             var current = talk;
-            if (sponsors.SponsorInDeal(talk.SponsorId) || sponsors.IsTaken(talk.SponsorId, today))
-            {
-                sponsors = Lose(sponsors, current, today, take: false);
-                continue;
-            }
-
             if (current.Rival == RivalState.Undecided)
             {
                 var roll = market.Value.DeriveChild(Tag("rival-presence", current, today: null)).NextDouble();
@@ -254,7 +248,7 @@ public sealed class SponsorDayHandler : IDayHandler
             var start = deal.End.AddDays(1);
             var trust = sponsors.TrustOf(deal.SponsorId, deal.Organization);
             var era = _environment.Eras.Era(start.Year);
-            if (sponsor is null || trust < SponsorEstimates.RenewalMinTrust || !sponsor.ActiveIn(start.Year) || !era.Allows(sponsor.Industry, deal.Kind))
+            if (sponsor is null || trust < SponsorEstimates.RenewalMinTrust || !(sponsor.Local || sponsor.ActiveIn(start.Year)) || !era.Allows(sponsor.Industry, deal.Kind))
             {
                 if (left == SponsorEstimates.RenewalLeadDays)
                 {

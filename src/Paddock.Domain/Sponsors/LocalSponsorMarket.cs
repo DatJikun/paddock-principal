@@ -1,23 +1,18 @@
 using System.Globalization;
+using Paddock.Domain.World;
 
 namespace Paddock.Domain.Sponsors;
 
 /// <summary>
-/// The yearly local backers (#254): fictional small sponsors made from the year and an index, never stored and never drawn
-/// from a random stream, so every run and every save make the same ones. A sponsor id says what it is
-/// (<c>local_1956_t07</c>: year, family, index), so a deal or a talk that holds the id finds the sponsor again
-/// from the id alone. Every number is an ESTIMATE. The names are invented and match no real company.
-/// <para>
-/// Why they exist: the authored file has a few sponsors, one team at a time backs each, and a team that renews keeps its sponsor
-/// for good. Over a few seasons the AI teams held all of them and the player found none. A new cohort every season, which also
-/// leaves after <see cref="SponsorEstimates.LocalBackerSeasons"/> seasons, keeps the market alive and lets old deals free their teams.
-/// </para>
+/// The sponsors of one team for one season (#254, PP-065): every team has its own pool, new and different each season, made from the team
+/// and the year alone. No sponsor is shared between teams, so no team ever blocks another, and the player's offers do not depend on what any
+/// AI team signs. Nothing is stored and no random stream is drawn: the same team and year always give the same backers, so every run and
+/// every save make the same ones. A sponsor id says what it is (<c>local:1956:maserati:t02</c>: year, team, family, index), so a deal that
+/// holds the id finds the sponsor again from the id alone. Every number is an ESTIMATE. The names are invented and match no real company.
 /// </summary>
 public static class LocalSponsorMarket
 {
-    private const string Prefix = "local_";
-
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, SponsorDefinition[]> Cohorts = new();
+    private const string Prefix = "local:";
 
     private static readonly string[] TechnicalIndustries =
         [SponsorIndustries.Fuel, SponsorIndustries.Oil, SponsorIndustries.Tyres, SponsorIndustries.Patron, SponsorIndustries.MotorClub, SponsorIndustries.Automotive];
@@ -46,36 +41,20 @@ public static class LocalSponsorMarket
         [SponsorIndustries.Electronics] = ["Electric", "Radio", "Instruments", "Electronics", "Telegraph"],
     };
 
-    /// <summary>The local backers that can start a deal in this year (this season's cohort and the earlier ones that have not left yet).</summary>
-    public static IReadOnlyList<SponsorDefinition> ActiveIn(int year)
+    /// <summary>The team's own backers for this season: <see cref="SponsorEstimates.LocalBackersPerSeason"/> technical and as many livery ones.</summary>
+    public static IReadOnlyList<SponsorDefinition> For(int year, OrganizationId team)
     {
         var result = new List<SponsorDefinition>();
-        for (var season = year - SponsorEstimates.LocalBackerSeasons + 1; season <= year; season++)
+        for (var index = 0; index < SponsorEstimates.LocalBackersPerSeason; index++)
         {
-            if (season < 1)
-            {
-                continue;
-            }
-
-            result.AddRange(Cohorts.GetOrAdd(season, Build));
+            result.Add(Make(year, team.Value, technical: true, index));
+            result.Add(Make(year, team.Value, technical: false, index));
         }
 
         return result;
     }
 
-    private static SponsorDefinition[] Build(int season)
-    {
-        var cohort = new List<SponsorDefinition>();
-        for (var index = 0; index < SponsorEstimates.LocalBackersPerSeason; index++)
-        {
-            cohort.Add(Make(season, technical: true, index));
-            cohort.Add(Make(season, technical: false, index));
-        }
-
-        return [.. cohort];
-    }
-
-    /// <summary>The backer an id names, or null when the id is not one of the local ids.</summary>
+    /// <summary>The backer an id names, or null when the id is not one of the team backer ids.</summary>
     public static SponsorDefinition? Find(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
@@ -84,35 +63,51 @@ public static class LocalSponsorMarket
             return null;
         }
 
-        var parts = id[Prefix.Length..].Split('_');
-        if (parts.Length != 2 || parts[1].Length < 2
-            || !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var year)
-            || !int.TryParse(parts[1].AsSpan(1), NumberStyles.None, CultureInfo.InvariantCulture, out var index)
+        var rest = id[Prefix.Length..];
+        var firstColon = rest.IndexOf(':', StringComparison.Ordinal);
+        var lastColon = rest.LastIndexOf(':');
+        if (firstColon <= 0 || lastColon <= firstColon + 1 || rest.Length - lastColon < 3
+            || !int.TryParse(rest.AsSpan(0, firstColon), NumberStyles.None, CultureInfo.InvariantCulture, out var year)
+            || !int.TryParse(rest.AsSpan(lastColon + 2), NumberStyles.None, CultureInfo.InvariantCulture, out var index)
             || index >= SponsorEstimates.LocalBackersPerSeason)
         {
             return null;
         }
 
-        var sponsor = parts[1][0] switch
+        var team = rest[(firstColon + 1)..lastColon];
+        var sponsor = rest[lastColon + 1] switch
         {
-            't' => Make(year, technical: true, index),
-            'l' => Make(year, technical: false, index),
+            't' => Make(year, team, technical: true, index),
+            'l' => Make(year, team, technical: false, index),
             _ => null,
         };
         return sponsor is not null && string.Equals(sponsor.Id, id, StringComparison.Ordinal) ? sponsor : null;
     }
 
-    private static SponsorDefinition Make(int year, bool technical, int index)
+    /// <summary>A stable 32-bit hash of the text (FNV-1a), the same on every machine and run, unlike <see cref="string.GetHashCode()"/>.</summary>
+    private static uint Hash(string text)
     {
-        var industries = technical ? TechnicalIndustries : LiveryIndustries;
-        var industry = industries[index % industries.Length];
-        var suffixes = Suffixes[industry];
-        var round = index / industries.Length;
-        var stem = Stems[((index * 7) + (year * 3)) % Stems.Length];
-        var suffix = suffixes[(round + year) % suffixes.Length];
-        var id = Prefix + year.ToString(CultureInfo.InvariantCulture) + "_" + (technical ? "t" : "l")
+        var hash = 2166136261u;
+        foreach (var character in text)
+        {
+            hash = (hash ^ character) * 16777619u;
+        }
+
+        return hash;
+    }
+
+    private static SponsorDefinition Make(int year, string team, bool technical, int index)
+    {
+        var family = technical ? "t" : "l";
+        var id = Prefix + year.ToString(CultureInfo.InvariantCulture) + ":" + team + ":" + family
             + index.ToString("00", CultureInfo.InvariantCulture);
-        SponsorObjectiveSpec? objective = (index % 3) switch
+        var seed = Hash(id);
+        var industries = technical ? TechnicalIndustries : LiveryIndustries;
+        var industry = industries[(int)((seed >> 3) % (uint)industries.Length)];
+        var suffixes = Suffixes[industry];
+        var stem = Stems[(int)((seed >> 7) % (uint)Stems.Length)];
+        var suffix = suffixes[(int)((seed >> 13) % (uint)suffixes.Length)];
+        SponsorObjectiveSpec? objective = (int)((seed >> 17) % 3) switch
         {
             0 => new SponsorObjectiveSpec(SponsorObjectiveSpec.PointsAtLeast, "2", 364),
             1 => new SponsorObjectiveSpec(SponsorObjectiveSpec.PodiumsAtLeast, "1", 364),
@@ -123,12 +118,12 @@ public static class LocalSponsorMarket
             stem + " " + suffix,
             industry,
             "GBR",
-            PrestigeNeed: (index % 6) * 0.05,
-            BudgetLevel: (technical ? 0.025 : 0.035) + ((index % 5) * 0.008),
+            PrestigeNeed: (int)((seed >> 21) % 6) * 0.05,
+            BudgetLevel: (technical ? 0.025 : 0.035) + ((int)((seed >> 25) % 5) * 0.008),
             FromYear: year,
             ToYear: year + SponsorEstimates.LocalBackerSeasons - 1,
             Slots: technical ? [SlotKind.Technical] : [SlotKind.Main, SlotKind.Secondary],
             Objective: objective,
-            Local: true);
+            Team: team);
     }
 }

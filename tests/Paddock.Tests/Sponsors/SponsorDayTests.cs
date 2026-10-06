@@ -100,11 +100,9 @@ public class SponsorDayTests
     }
 
     [Fact]
-    public void ARivalMayTakeTheSponsorWhileYouWaitAndOnlyTheMarketStreamIsUsed()
+    public void NoRivalEverTakesASponsorWhileYouWait()
     {
-        var lost = 0;
-        var kept = 0;
-        for (ulong seed = 1; seed <= 40; seed++)
+        for (ulong seed = 1; seed <= 20; seed++)
         {
             var kit = new SponsorKit(Opening, seed: seed);
             var talk = kit.OpenTalk("vestoil_works", 1, Opening);
@@ -112,51 +110,11 @@ public class SponsorDayTests
             kit.Live(Opening, 400);
 
             var after = kit.Book.Section.FindTalk(talk.Id)!;
-            Assert.NotEqual(RivalState.Undecided, after.Rival);
-            Assert.All(kit.LastState!.Value.RngStates.Keys, slot => Assert.Equal("Market", slot.Name));
-            if (after.Status == TalkStatus.LostToRival)
-            {
-                lost++;
-                Assert.True(kit.Book.Section.IsTaken("vestoil_works", after.ClosedOn!.Value));
-                Assert.Contains(SponsorKeys.InboxLostSubject, kit.InboxSubjects(SponsorKit.Anna));
-                Assert.Equal(SponsorKeys.SponsorUnavailable, kit.Begin(SponsorKit.Anna, SponsorKit.Alfa, "vestoil_works", 1, after.ClosedOn.Value));
-            }
-            else
-            {
-                kept++;
-                Assert.Equal(TalkStatus.Open, after.Status);
-            }
+            Assert.Equal(RivalState.Absent, after.Rival);
+            Assert.Equal(TalkStatus.Open, after.Status);
+            Assert.DoesNotContain(SponsorKeys.InboxLostSubject, kit.InboxSubjects(SponsorKit.Anna));
+            Assert.Empty(kit.Book.Section.TakenRows());
         }
-
-        Assert.True(lost > 0, "no seed lost the sponsor, so the roll is never exercised");
-        Assert.True(kept > 0, "every seed lost the sponsor, so the roll is not a roll");
-    }
-
-    [Fact]
-    public void AnUnrelatedTalkElsewhereDoesNotChangeThisOrganizationsRivalRolls()
-    {
-        var checkedSomething = 0;
-        for (ulong seed = 1; seed <= 25; seed++)
-        {
-            var alone = new SponsorKit(Opening, seed: seed);
-            var talkAlone = alone.OpenTalk("vestoil_works", 1, Opening);
-            alone.Live(Opening, 300);
-
-            var crowded = new SponsorKit(Opening, seed: seed);
-            crowded.OpenTalk("dunmore_tyres", 1, Opening, SponsorKit.Beta);
-            crowded.SignDeal("corvane_fuels", 3, Opening);
-            var talkCrowded = crowded.OpenTalk("vestoil_works", 1, Opening);
-            crowded.Live(Opening, 300);
-
-            var one = alone.Book.Section.FindTalk(talkAlone.Id)!;
-            var other = crowded.Book.Section.FindTalk(talkCrowded.Id)!;
-            Assert.Equal(one.Rival, other.Rival);
-            Assert.Equal(one.Status, other.Status);
-            Assert.Equal(one.ClosedOn, other.ClosedOn);
-            checkedSomething += one.Rival == RivalState.Present ? 1 : 0;
-        }
-
-        Assert.True(checkedSomething > 0);
     }
 
     [Fact]

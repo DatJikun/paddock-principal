@@ -387,3 +387,9 @@ Szczegóły w DESIGN §5.3.
 - **Obiekty związane z silnikami (hamownia, odlewnia) i bycie zespołem fabrycznym albo producentem silników to osobna aktualizacja po MVP.** Na MVP każdy zespół jeździ silnikiem, który ma w 1955, a negocjacje dostaw silników czekają.
 - **Osiągi silników zmieniają się trochę losowo co sezon** (każdy producent osobno, ze stałego strumienia losowego, wynik zależy od ziarna). Mocny silnik może osłabnąć, a słaby dogonić czołówkę. Wielkość zmiany to szacunek.
 - **Infrastruktura na MVP:** fabryka, wynajem toru testowego i transport (ciężarówki, do Argentyny statek). Bez tunelu, symulatora i telemetrii w latach 50.
+
+**PP-065: Każdy zespół ma własną pulę sponsorów, bez walki o sponsorów** (decyzja właściciela z 2026-10-06; doprecyzowuje PP-050 i PP-064).
+- **Na razie każdy zespół ma własną pulę sponsorów, co sezon nowe i różne propozycje** (nazwy, kwoty, cele). Pula wynika z zespołu i sezonu, więc zespół gracza i zespoły AI grają tą samą regułą.
+- **Zespoły nie walczą o tych samych sponsorów.** Żaden sponsor nie jest wspólny, więc umowa AI nigdy nie odbiera ani nie blokuje oferty gracza, a rywal nie podpisuje sponsora sprzed nosa. Sponsorzy z nazwy (z pliku autorskiego) są dostępni dla zespołu gracza co sezon.
+- **Wspólny rynek sponsorów, z konkurencją, wejdzie później.** Liczby (ile propozycji na miejsce) to szacunek.
+- **Zostaje:** oferta przedłużenia jest decyzją w skrzynce, wiadomość 60 dni przed końcem umowy, AI nie dostaje powiadomień.

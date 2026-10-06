@@ -320,28 +320,28 @@ Czy kusi Cię umowa na wiele sezonów z rabatem?
 Masz trzy miejsca na sponsorów, a na każde kilku kandydatów.
 
 ```wybory
-Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, ale rywal może podpisać pierwszy
+Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, do limitu negocjatora; na razie nikt nie zabierze Ci sponsora
 Który sponsor na które miejsce | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego
 Cel sponsora | dopasowany do siły zespołu (oczekiwana pozycja, jak u zarządu); premia startuje od {SponsorEstimates.BonusMilli|m%} rocznej kwoty i rośnie z trudnością celu, niespełniony może zakończyć umowę
 Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania
 Odpowiedź na ofertę | oferta przedłużenia przychodzi do skrzynki z wyborem: przedłuż albo puść sponsora; bez odpowiedzi umowa po prostu się kończy. Gdy sponsor nie złoży oferty, dostajesz o tym wiadomość {SponsorEstimates.RenewalLeadDays|dni} przed końcem umowy
-Nowi sponsorzy | co sezon pojawia się {SponsorEstimates.LocalBackersPerSeason} lokalnych sponsorów na rodzaj miejsca, a każdy zostaje na {SponsorEstimates.LocalBackerSeasons} sezony; lista pokazuje najwyżej {SponsorEstimates.LocalListedPerSlot} wolnych, najlepiej płacących
+Własna pula | każdy zespół ma własnych sponsorów: co sezon {SponsorEstimates.LocalBackersPerSeason} nowych, innych propozycji na rodzaj miejsca, różnych nazwą, kwotą i celem; do tego dochodzą sponsorzy z nazwy, dostępni dla Ciebie co sezon; żaden sponsor nie jest wspólny, więc zespoły AI nigdy nie odbierają Ci propozycji
 ```
 
 ```kroki
 Otwarcie | sponsor proponuje {SponsorEstimates.OpeningTermsMilli|m%} pełnej ceny
 Czekanie | +{SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, do limitu negocjatora
-Ryzyko | {SponsorEstimates.RivalPresenceChance|%} szans, że rozmawia też rywal; podpisuje z szansą {SponsorEstimates.RivalSignChance|%} dziennie
+Rywal | na razie żadnego: zespoły nie walczą o sponsorów, wspólny rynek sponsorów wejdzie później
 Umowa | {SponsorEstimates.DealDays|dni}, raty co miesiąc, cel sponsora
 ```
 
 ```wykres sponsor-czekanie
-Przerywana linia: ile średnio zdobędziesz, czekając tyle dni, gdy nie wiesz, czy rywal jest przy stole.
+Przerywana linia: ile średnio zdobędziesz, czekając tyle dni, gdyby rywal mógł podpisać pierwszy (po wprowadzeniu wspólnego rynku).
 ```
 
 ```pytania
 Czy podpisałbyś sponsora od razu, czy czekał?
-Według wykresu czekanie średnio się nie opłaca, chyba że dobry negocjator widzi, że rywala nie ma. Czy to dla Ciebie dylemat, czy oczywista decyzja?
+Skoro nikt nie zabiera sponsorów, czekanie zawsze się opłaca do limitu. Czy brakuje Ci tu ryzyka, czy wolisz spokój?
 Czy cele sponsorów są zrozumiałe i uczciwe?
 ```
 

@@ -45,7 +45,7 @@ public static class SponsorRules
         }
 
         var section = book.Section;
-        if (!sponsor.ActiveIn(today.Year) || section.SponsorInDeal(sponsor.Id) || section.IsTaken(sponsor.Id, today))
+        if (!sponsor.ActiveIn(today.Year) || !SponsorCatalog.OfferedTo(sponsor, organization, environment.IsPlayerTeam(organization)))
         {
             return TranslationMessage.Of(SponsorKeys.SponsorUnavailable);
         }

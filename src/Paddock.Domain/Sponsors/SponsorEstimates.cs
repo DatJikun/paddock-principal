@@ -47,8 +47,11 @@ public static class SponsorEstimates
     /// <summary>ESTIMATE: a negotiator at or above this skill can tell that a rival is also talking to the sponsor.</summary>
     public const int RivalInsightSkill = 12;
 
-    /// <summary>ESTIMATE: the chance that a rival is talking to the sponsor when the talks open.</summary>
-    public const double RivalPresenceChance = 0.5;
+    /// <summary>
+    /// ESTIMATE: the chance that a rival is talking to the sponsor when the talks open. Zero for now (PP-065): teams do not fight over
+    /// sponsors, so nobody takes a sponsor from the player. A shared sponsor market, with a rival, comes later.
+    /// </summary>
+    public const double RivalPresenceChance = 0.0;
 
     /// <summary>ESTIMATE: the chance a day that a rival who is talking signs the sponsor.</summary>
     public const double RivalSignChance = 0.02;
@@ -111,17 +114,13 @@ public static class SponsorEstimates
     public const int MaxScaledTrustOnMet = 40;
 
     /// <summary>
-    /// ESTIMATE (#254): how many new local backers appear each season for each family (technical or livery). The authored sponsors are few
-    /// and a team that renews keeps one for good, so without new backers the AI teams hold every sponsor and the player finds none.
-    /// A grid of about 16 teams has 48 slots; this many new backers leave room even when the AI fills every slot.
+    /// ESTIMATE (#254, PP-065): how many new backers each team gets every season for each family (technical or livery). Every team has its
+    /// own pool, different each season, and no sponsor is shared between teams. A handful is enough to choose from.
     /// </summary>
-    public const int LocalBackersPerSeason = 60;
+    public const int LocalBackersPerSeason = 4;
 
-    /// <summary>ESTIMATE (#254): a local backer can start a deal in its own season and in this many seasons in all, so old ones leave and their teams look again.</summary>
-    public const int LocalBackerSeasons = 2;
-
-    /// <summary>ESTIMATE (#254): the market lists at most this many free local backers for a slot, the best paying first, so the list stays readable.</summary>
-    public const int LocalListedPerSlot = 12;
+    /// <summary>ESTIMATE (#254): a team backer can start a new deal only in its own season. It can renew, so a deal can run on.</summary>
+    public const int LocalBackerSeasons = 1;
 
     /// <summary>ESTIMATE: a secondary livery slot pays this fraction of a main slot, in thousandths.</summary>
     public const int SecondarySlotMilli = 500;

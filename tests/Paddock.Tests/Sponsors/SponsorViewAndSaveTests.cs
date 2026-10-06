@@ -51,37 +51,6 @@ public class SponsorViewAndSaveTests : IDisposable
     }
 
     [Fact]
-    public void TheHiddenRivalIsOnlyShownToANegotiatorSkilledEnoughAndTheViewChangesNothing()
-    {
-        bool? Seen(int skill)
-        {
-            for (ulong seed = 1; seed <= 30; seed++)
-            {
-                var kit = new SponsorKit(Opening, seed: seed, skill: skill);
-                kit.OpenTalk("vestoil_works", 1, Opening);
-                kit.Live(Opening, 2);
-                var talk = kit.Book.Section.Talks[0];
-                if (talk.Rival != RivalState.Present)
-                {
-                    continue;
-                }
-
-                var before = kit.World.StateHash();
-                var anna = AccessContext.ForManager(new AccessManagerId("human:anna"));
-                var view = Assert.IsType<SponsorView.Own>(SponsorQuery.Read(anna, SponsorKit.Alfa, kit.Book, kit.Environment, kit.ObjectiveQuery(), new GameDate(1955, 1, 3)));
-                Assert.Equal(before, kit.World.StateHash());
-                Assert.All(kit.LastState!.Value.RngStates.Keys, slot => Assert.Equal("Market", slot.Name));
-                return Assert.Single(view.Talks).RivalKnown;
-            }
-
-            throw new InvalidOperationException("No seed produced a rival.");
-        }
-
-        Assert.Null(Seen(0));
-        Assert.True(Seen(SponsorEstimates.RivalInsightSkill));
-    }
-
-    [Fact]
     public void SponsorsAndObjectivesRoundTripThroughTheSaveWithTheSameHash()
     {
         var kit = new SponsorKit(Opening, skill: 20);

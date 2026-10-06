@@ -186,7 +186,7 @@ public sealed class SignAtCurrentTermsHandler : CommandHandler<SignAtCurrentTerm
             return TranslationMessage.Of(SponsorKeys.TalkClosed);
         }
 
-        return _book.Section.SponsorInDeal(talk.SponsorId) ? TranslationMessage.Of(SponsorKeys.SponsorUnavailable) : null;
+        return null;
     }
 
     protected override IReadOnlyList<IDomainEvent> ExecuteTyped(SignAtCurrentTermsCommand command, CommandContext context)

@@ -623,7 +623,7 @@
   "sponsor.error.unknownOrganization": "That organization does not exist.",
   "sponsor.error.noBooks": "This organization has no books yet, so it cannot take sponsor money.",
   "sponsor.error.unknownSponsor": "That sponsor does not exist.",
-  "sponsor.error.sponsorUnavailable": "That sponsor is not available: it is under contract, signed with a rival, or not active this season.",
+  "sponsor.error.sponsorUnavailable": "That sponsor is not on your team's list this season.",
   "sponsor.error.eraForbids": "The rules of this era do not allow that kind of sponsor.",
   "sponsor.error.industryConflict": "You already deal with a sponsor from the same industry.",
   "sponsor.error.prestigeTooLow": "Your team is not prestigious enough for that sponsor.",

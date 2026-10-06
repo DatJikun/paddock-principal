@@ -98,10 +98,25 @@ public class WeekendRunTests
             Assert.Equal(0, leader.GapToLeaderMs);
             for (var i = 0; i < crossings.Count; i++)
             {
+                Assert.True(crossings[i].LapTimeMs > 0, $"lap {lap.Key}: non-positive lap time");
                 Assert.True(i == 0 || crossings[i].Position > crossings[i - 1].Position, $"lap {lap.Key}: positions do not follow the crossings");
                 Assert.True(crossings[i].GapToLeaderMs >= 0, $"lap {lap.Key}: negative gap");
                 Assert.Equal(crossings[i].RaceTime - leader.RaceTime, crossings[i].GapToLeaderMs);
                 Assert.True(i == 0 || crossings[i].RaceTime >= crossings[i - 1].RaceTime);
+            }
+        }
+
+        foreach (var driver in events.OfType<LapCompleted>().GroupBy(e => e.DriverId, StringComparer.Ordinal))
+        {
+            LapCompleted? previous = null;
+            foreach (var lap in driver.OrderBy(e => e.Lap))
+            {
+                if (previous is not null)
+                {
+                    Assert.True(lap.RaceTime > previous.RaceTime, driver.Key + " cumulative time did not rise");
+                }
+
+                previous = lap;
             }
         }
 

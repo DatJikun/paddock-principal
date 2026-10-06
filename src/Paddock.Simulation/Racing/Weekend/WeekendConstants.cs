@@ -58,6 +58,12 @@ public static class WeekendConstants
     /// <summary>ESTIMATE: under a safety car the gap between neighbouring cars closes to at most this many seconds.</summary>
     public const double BunchedGapSeconds = 0.9d;
 
+    /// <summary>
+    /// ESTIMATE: a safety-car lap is never shorter than this share of the SC lap. Bunching may close a gap; it must not
+    /// rewind a car's race clock (a lap of 0 ms or less).
+    /// </summary>
+    public const double SafetyCarMinLapFactor = 0.25d;
+
     /// <summary>ESTIMATE: a pit stop under a safety car costs this share of its normal time (the field is slow too).</summary>
     public const double SafetyCarPitLossFactor = 0.5d;
 

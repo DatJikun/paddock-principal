@@ -54,7 +54,8 @@ public sealed class BoardBook
         IBoardHistory? history = null,
         BoardSection? section = null,
         ObjectivesSection? objectives = null,
-        IBoardSeverance? severance = null)
+        IBoardSeverance? severance = null,
+        PublicRankKeys? ranking = null)
     {
         ArgumentNullException.ThrowIfNull(contracts);
         ArgumentNullException.ThrowIfNull(facts);
@@ -63,6 +64,7 @@ public sealed class BoardBook
         MasterSeed = masterSeed;
         History = history ?? new NoBoardHistory();
         Severance = severance ?? new NoSeverance();
+        Ranking = ranking;
         _section = section ?? contracts.World.Section<BoardSection>(BoardSection.SectionName) ?? BoardSection.Empty;
         _objectives = objectives ?? contracts.World.Section<ObjectivesSection>(ObjectivesSection.SectionName) ?? ObjectivesSection.Empty;
     }
@@ -72,6 +74,9 @@ public sealed class BoardBook
     public IObjectiveFacts Facts { get; }
 
     public IBoardHistory History { get; }
+
+    /// <summary>What orders two teams of one budget level: the previous place, then the car strength (#234). Null means the id decides.</summary>
+    public PublicRankKeys? Ranking { get; }
 
     /// <summary>Where the severance of a dismissed manager is paid from (the finance ledger in a career). Nothing is paid by default.</summary>
     public IBoardSeverance Severance { get; }

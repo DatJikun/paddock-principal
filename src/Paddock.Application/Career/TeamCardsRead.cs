@@ -1,4 +1,5 @@
 using Paddock.Domain.Board;
+using Paddock.Domain.Cars;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Supply;
 using Paddock.Domain.Time;
@@ -38,13 +39,15 @@ public static class TeamCardsRead
         GameDate on,
         IReadOnlyList<SupplyLink> supplies,
         ITeamTierSource tiers,
-        IReadOnlyDictionary<string, int> lastSeason)
+        IReadOnlyDictionary<string, int> lastSeason,
+        ICarStrengthSource? carStrength = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(supplies);
         ArgumentNullException.ThrowIfNull(tiers);
         ArgumentNullException.ThrowIfNull(lastSeason);
         var teams = CareerTeams.Active(world, on);
+        var ranking = new PublicRankKeys(tiers, carStrength);
         var cards = new List<TeamCardView>(teams.Count);
         foreach (var team in teams)
         {
@@ -79,7 +82,7 @@ public static class TeamCardsRead
                 }
             }
 
-            var rank = PublicStrength.BudgetRank(world, team.Id, on);
+            var rank = PublicStrength.BudgetRank(world, team.Id, on, ranking);
             cards.Add(new TeamCardView(
                 team.Id.Value,
                 team.NameOn(on),

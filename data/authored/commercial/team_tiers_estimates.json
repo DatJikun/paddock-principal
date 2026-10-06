@@ -9,6 +9,7 @@
     { "season": 1954, "constructorId": "connaught", "position": 6, "confidence": "estimate", "note": "Small entries, few points." },
     { "season": 1954, "constructorId": "vanwall", "position": 7, "confidence": "estimate", "note": "A first season with little result." },
     { "season": 1954, "constructorId": "hwm", "position": 8, "confidence": "estimate", "note": "Small entries, no points." },
-    { "season": 1954, "constructorId": "lancia", "position": 9, "confidence": "estimate", "note": "Entered only the last rounds." }
+    { "season": 1954, "constructorId": "lancia", "position": 9, "confidence": "estimate", "note": "Entered only the last rounds." },
+    { "season": 1954, "constructorId": "arzani-volpini", "position": 10, "confidence": "estimate", "note": "Did not race in 1954; it was only entered for Monza 1955, where it did not start." }
   ]
 }

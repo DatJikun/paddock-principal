@@ -132,7 +132,7 @@ public sealed class OrganizationSpec
 
     public GameDate? Dissolved { get; }
 
-    /// <summary>Nominal money placeholder. Not a calibrated season budget.</summary>
+    /// <summary>Nominal opening budget in dollars: the era budget of the tier of a team at career start (an ESTIMATE), a placeholder where the data has none. Not a calibrated season budget.</summary>
     public long Budget { get; }
 
     public IReadOnlyList<OrganizationNameSpan> Names { get; }
@@ -193,7 +193,7 @@ public sealed class Organization
 
     public GameDate? Dissolved { get; }
 
-    /// <summary>Nominal money placeholder. Not a calibrated season budget. See <see cref="WorldText.BudgetExplanation"/>.</summary>
+    /// <summary>Nominal opening budget in dollars: the era budget of the tier of a team at career start (an ESTIMATE), a placeholder where the data has none. Not a calibrated season budget. See <see cref="WorldText.BudgetExplanation"/>.</summary>
     public long Budget { get; }
 
     public IReadOnlyList<OrganizationNameSpan> Names { get; }

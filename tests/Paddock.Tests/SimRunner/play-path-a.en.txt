@@ -72,7 +72,7 @@ talent-8 — Jean Bernard, age 31.
 talent-9 — Karl Schmidt, age 34.
 talent-10 — John Clarke, age 28.
 Scouting focus set to all.
-inb:1 (board.seasonTarget): The board asks how hard this season should be. Safe is P6, expected is P4, ambitious is P2.
+inb:1 (board.seasonTarget): The board asks how hard this season should be. Safe is P4, expected is P2, ambitious is P1.
   safe — Safe
   expected — Expected
   ambitious — Ambitious
@@ -80,6 +80,6 @@ No decision you may read is on record.
 Ready.
 An unresolved matter is holding the clock.
 Waiting for Ada Lovelace.
-World hash 9103f2253231990875a92fd02b361a46e99e46bd4caa15076b5d6e4096f0c5e5.
-Saved SAVE. World hash 9103f2253231990875a92fd02b361a46e99e46bd4caa15076b5d6e4096f0c5e5.
+World hash a548019cf28d455cfe79c1bcab11f27c26f9b50a7615edcc52d5af9386ca91c9.
+Saved SAVE. World hash a548019cf28d455cfe79c1bcab11f27c26f9b50a7615edcc52d5af9386ca91c9.
 Session closed.

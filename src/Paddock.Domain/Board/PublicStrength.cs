@@ -21,8 +21,11 @@ public static class PublicStrength
             .ToArray();
     }
 
-    /// <summary>Rank of the organization's budget among the active teams (1 is the richest). A missing team ranks last.</summary>
-    public static int BudgetRank(WorldState world, OrganizationId organization, GameDate today)
+    /// <summary>
+    /// Rank of the organization's budget among the active teams (1 is the richest). A missing team ranks last. Teams of the same
+    /// budget are ordered by <paramref name="keys"/> (the previous place, then the car strength) and only then by id (#234).
+    /// </summary>
+    public static int BudgetRank(WorldState world, OrganizationId organization, GameDate today, PublicRankKeys? keys = null)
     {
         var teams = ActiveTeams(world, today);
         var own = teams.FirstOrDefault(team => team.Id == organization);
@@ -31,7 +34,29 @@ public static class PublicStrength
             return Math.Max(1, teams.Count);
         }
 
-        return 1 + teams.Count(team => team.Budget > own.Budget
-            || (team.Budget == own.Budget && string.CompareOrdinal(team.Id.Value, own.Id.Value) < 0));
+        return 1 + teams.Count(team => team.Id != own.Id && Ahead(team, own, today.Year, keys));
+    }
+
+    private static bool Ahead(Organization team, Organization own, int season, PublicRankKeys? keys)
+    {
+        if (team.Budget != own.Budget)
+        {
+            return team.Budget > own.Budget;
+        }
+
+        if (keys is not null)
+        {
+            if (keys.Ahead(team.Id, own.Id, season))
+            {
+                return true;
+            }
+
+            if (keys.Ahead(own.Id, team.Id, season))
+            {
+                return false;
+            }
+        }
+
+        return string.CompareOrdinal(team.Id.Value, own.Id.Value) < 0;
     }
 }

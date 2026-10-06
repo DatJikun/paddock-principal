@@ -1,4 +1,5 @@
 using Paddock.Application.Sponsors;
+using Paddock.Domain.Board;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
@@ -70,6 +71,9 @@ public sealed class CareerInputs
     /// flat ESTIMATE salary, which is far too high for the early eras once teams pay from a real budget.
     /// </summary>
     public IPayBenchmark? Pay { get; init; }
+
+    /// <summary>What orders two teams of one budget level on the board and in the sponsors' outlook: the previous place, then the car strength (#234).</summary>
+    public PublicRankKeys RankKeys() => new(Tiers, CarStrength);
 
     /// <summary>The inputs a host builds from the authored era periods, the sponsor catalog, the era pay and a tier source.</summary>
     public static CareerInputs From(IReadOnlyList<RulePeriod> eraPeriods, SponsorCatalog sponsors, IPayBenchmark? pay = null, ITeamTierSource? tiers = null)

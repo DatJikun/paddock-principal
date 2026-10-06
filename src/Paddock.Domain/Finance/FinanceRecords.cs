@@ -179,6 +179,12 @@ public sealed record SeasonEnded
 public interface ITeamTierSource
 {
     TeamTier TierOf(OrganizationId organization, int startSeason);
+
+    /// <summary>
+    /// The place the source knows for the organization in the season before <paramref name="startSeason"/>, or null. The tier is
+    /// read from this place, so the order inside one tier uses the same fact (#234).
+    /// </summary>
+    int? PreviousPlaceOf(OrganizationId organization, int startSeason) => null;
 }
 
 /// <summary>One authored or Jolpica constructors' place. The host supplies these; the Jolpica cache is not in the repo (PP-041).</summary>
@@ -222,14 +228,19 @@ public sealed class PreviousSeasonStandingTier : ITeamTierSource
         }
     }
 
-    public TeamTier TierOf(OrganizationId organization, int startSeason)
+    public int? PreviousPlaceOf(OrganizationId organization, int startSeason)
     {
         if (!organization.IsAssigned)
         {
             throw new ArgumentException("Organization id is unassigned.", nameof(organization));
         }
 
-        if (!_position.TryGetValue((startSeason - 1, organization.Value), out var position))
+        return _position.TryGetValue((startSeason - 1, organization.Value), out var position) ? position : null;
+    }
+
+    public TeamTier TierOf(OrganizationId organization, int startSeason)
+    {
+        if (PreviousPlaceOf(organization, startSeason) is not int position)
         {
             return TeamTier.Typical;
         }

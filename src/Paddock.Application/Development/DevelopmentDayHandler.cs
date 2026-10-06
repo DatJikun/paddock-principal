@@ -77,7 +77,7 @@ public sealed class DevelopmentDayHandler : IDayHandler
     }
 
     /// <summary>
-    /// A concept that was running yesterday and is ready today, and that no timing will commit by itself, asks its principal.
+    /// A concept that was running yesterday and is ready today, and that no timing will commit by itself, asks its human principal.
     /// A <c>WhenReady</c> or <c>AfterRaces</c> concept is committed by the day step, so it needs no question.
     /// </summary>
     private void AskAboutReadyConcepts(DevelopmentSection before, DevelopmentSection after, DevelopmentInputs inputs)
@@ -97,6 +97,12 @@ public sealed class DevelopmentDayHandler : IDayHandler
             var plan = ConceptProduction.Plan(inputs.World, inputs.Finance, project.Organization, project, inputs.Today);
             foreach (var manager in _environment.Control.ManagersOf(project.Organization))
             {
+                // An AI principal answers nothing, so a question to it would hold the shared clock for ever.
+                if (!_managers.Contains(manager) || _managers.KindOf(manager) != ManagerKind.Human)
+                {
+                    continue;
+                }
+
                 var draft = new InboxItemDraft(
                     DevelopmentKeys.ConceptInboxKind,
                     DevelopmentKeys.ConceptSubject,

@@ -71,7 +71,7 @@ public static class RaceFieldBuilder
         foreach (var team in CareerTeams.Active(world, today))
         {
             var owned = cars.Of(team.Id)
-                .Where(car => car.Season == today.Year && car.Driver is not null)
+                .Where(car => car.Season == today.Year)
                 .OrderBy(car => car.Id, StringComparer.Ordinal)
                 .ToArray();
             if (owned.Length == 0)
@@ -98,21 +98,22 @@ public static class RaceFieldBuilder
                 : SupplyPerformance.TyresFor(supply, team.Id, today);
             foreach (var car in owned)
             {
-                if (car.Driver is not PersonId seated)
+                // A car with nobody in it (every contract of its seat ended, #253) is filled the way an injured driver's car is:
+                // the player's choice from the inbox, else reserve, free agent, talent pool; the car stays out only when nobody is left.
+                var vacant = car.Driver is null;
+                Person? person = null;
+                if (car.Driver is PersonId seated
+                    && (!people.TryGetValue(seated.Value, out person) || person.IsRetired))
                 {
                     continue;
                 }
 
-                var driverId = seated.Value;
-                if (!people.TryGetValue(driverId, out var person) || person.IsRetired)
-                {
-                    continue;
-                }
-
-                Person driverToEnter = person;
+                var subjectId = vacant ? StandInResolver.VacantPrefix + car.Id : person!.Id.Value;
+                var subjectName = vacant ? car.Id : person!.Name;
+                Person? driverToEnter = person;
                 StandInFact? standInFact = null;
 
-                if (person.IsInjured(today))
+                if (vacant || person!.IsInjured(today))
                 {
                     Person? standIn = null;
                     var inbox = world.Section<InboxSection>(InboxSection.SectionName);
@@ -120,7 +121,7 @@ public static class RaceFieldBuilder
                     {
                         var item = inbox.Items
                             .Where(i => i.Kind == StandInResolver.Kind
-                                     && i.Arguments.TryGetValue("driverId", out var dId) && dId == person.Id.Value
+                                     && i.Arguments.TryGetValue("driverId", out var dId) && dId == subjectId
                                      && i.Arguments.TryGetValue("raceDate", out var rDate) && rDate == today.ToString())
                             .OrderByDescending(i => i.Number)
                             .FirstOrDefault();
@@ -160,7 +161,7 @@ public static class RaceFieldBuilder
                                     StandInResolver.Kind,
                                     traceOptions,
                                     standIn.Id.Value,
-                                    $"Selected stand-in {standIn.Name} for injured driver {person.Name}",
+                                    $"Selected stand-in {standIn.Name} for {(vacant ? "empty seat" : "injured driver")} {subjectName}",
                                     null,
                                     false,
                                     ImmutableDictionary<string, string>.Empty));
@@ -175,7 +176,15 @@ public static class RaceFieldBuilder
                     }
 
                     driverToEnter = standIn;
-                    standInFact = new StandInFact(driverToEnter.Id.Value, person.Id.Value, team.Id.Value);
+                    if (!vacant)
+                    {
+                        standInFact = new StandInFact(driverToEnter.Id.Value, person!.Id.Value, team.Id.Value);
+                    }
+                }
+
+                if (driverToEnter is null)
+                {
+                    continue;
                 }
 
                 if (!usedDrivers.Add(driverToEnter.Id.Value))

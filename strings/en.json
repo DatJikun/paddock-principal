@@ -340,6 +340,7 @@
   "inbox.status.dismissed": "Dismissed",
   "inbox.status.expired": "Lapsed",
   "inbox.racing.standin.subject": "Stand-in driver for {driver}",
+  "inbox.racing.standin.vacant.subject": "{team}: car {car} has no driver for the race on {raceDate}. If you do not choose, the first candidate drives.",
   "inbox.racing.standin.option": "Select {candidate}",
   "inbox.racing.standin.consequence": "{candidate} will drive as a stand-in for {team} in the next race.",
   "inbox.racing.standin.consequence.reserve": "{candidate} (reserve driver, level {band}, cost {cost}) will drive as a stand-in for {team} in the next race.",

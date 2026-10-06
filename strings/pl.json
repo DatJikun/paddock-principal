@@ -344,6 +344,7 @@
   "inbox.status.dismissed": "Odrzucona",
   "inbox.status.expired": "Wygasła",
   "inbox.racing.standin.subject": "Kierowca zastępczy za {driver}",
+  "inbox.racing.standin.vacant.subject": "{team}: bolid {car} nie ma kierowcy na wyścig {raceDate}. Bez Twojego wyboru pojedzie pierwszy kandydat.",
   "inbox.racing.standin.option": "Wybierz kierowcę {candidate}",
   "inbox.racing.standin.consequence": "{candidate} pojedzie jako zastępca dla zespołu {team} w następnym wyścigu.",
   "inbox.racing.standin.consequence.reserve": "{candidate} (kierowca rezerwowy, poziom {band}, koszt {cost}) pojedzie jako zastępca dla zespołu {team} w następnym wyścigu.",

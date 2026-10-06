@@ -12,6 +12,9 @@ public sealed class StandInResolver : IInboxResolver
     public const string Kind = "racing.standin";
     public const string OptionSkip = "skip";
 
+    /// <summary>Prefix of the <c>driverId</c> argument of an item about a car with no driver; the car id follows.</summary>
+    public const string VacantPrefix = "vacant:";
+
     string IInboxResolver.Kind => Kind;
 
     public TranslationMessage? Validate(InboxItem item, string optionId, CommandContext context)

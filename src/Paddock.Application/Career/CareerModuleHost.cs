@@ -137,6 +137,12 @@ public sealed class CareerModuleHost
         _control.Assign(manager, organization);
     }
 
+    /// <summary>
+    /// Seats the saved managers of a resumed career before its first day is lived. Seats are otherwise set up by the morning, but a
+    /// resumed save lives the day it was saved on first, and that day's notices go to whoever sits at the control table (#252).
+    /// </summary>
+    public void RestoreSeats() => Reseat();
+
     /// <summary>Seats humans and already-registered team AIs, then lets the modules file today's commands.</summary>
     public void BeginMorning(CommandQueue queue)
     {

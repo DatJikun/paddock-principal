@@ -386,4 +386,4 @@ Szczegóły w DESIGN §5.3.
 - **Finanse mają działać od pierwszego dnia.** Wyścigi są na razie symulowane w całości (PP-063).
 - **Obiekty związane z silnikami (hamownia, odlewnia) i bycie zespołem fabrycznym albo producentem silników to osobna aktualizacja po MVP.** Na MVP każdy zespół jeździ silnikiem, który ma w 1955, a negocjacje dostaw silników czekają.
 - **Osiągi silników zmieniają się trochę losowo co sezon** (każdy producent osobno, ze stałego strumienia losowego, wynik zależy od ziarna). Mocny silnik może osłabnąć, a słaby dogonić czołówkę. Wielkość zmiany to szacunek.
-- **Infrastruktura na MVP:** fabryka u każdego zespołu (jakość względem ruchomej granicy roku, PP-026). Tor testowy to wynajem (koszt za test), nie obiekt do rozbudowy. Transport to koszt logistyki (ciężarówki; do Argentyny statek). Tunel, CFD i symulator zostają w danych i odblokowują się z epoką. Bez tunelu, symulatora i telemetrii w latach 50.
+- **Infrastruktura na MVP:** fabryka, wynajem toru testowego i transport (ciężarówki, do Argentyny statek). Bez tunelu, symulatora i telemetrii w latach 50.

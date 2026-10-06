@@ -18,7 +18,7 @@ using Paddock.Simulation.Supply;
 
 namespace Paddock.Application.Racing;
 
-/// <summary>Who starts a championship round, and who stays home because the race running cost is above the cash on hand.</summary>
+/// <summary>Who starts a championship round, and who stays home because running plus transport is above the cash on hand.</summary>
 public sealed record RaceField(
     ImmutableArray<RaceEntry> Entries,
     IReadOnlyList<string> SkippedTeamIds,
@@ -26,8 +26,8 @@ public sealed record RaceField(
 
 /// <summary>
 /// Builds the grid from the world (T47, open question 3, PP-050). Each team starts the cars it owns this season, one
-/// contracted driver per car. A team whose cash is below the race running cost (the same ESTIMATE the ledger charges)
-/// does not start. No private entries and no shared drives.
+/// contracted driver per car. A team whose cash is below the race running cost plus transport (the same ESTIMATES the
+/// ledger charges) does not start. No private entries and no shared drives.
 /// </summary>
 public static class RaceFieldBuilder
 {

@@ -966,7 +966,7 @@
   "play.state.nextRace": "Następny wyścig: {date}.",
   "play.race.round": "Runda {round}, tor {layout}.",
   "play.race.row": "{position}. {driver} ({team}), punkty: {points}.",
-  "play.race.skipped": "{team} nie wystartował. Szacunkowy koszt rozegrania wyścigu jest wyższy niż gotówka.",
+  "play.race.skipped": "{team} nie wystartował. Szacunkowy koszt rozegrania wyścigu i transportu jest wyższy niż gotówka.",
   "play.watch.header": "Oglądanie rundy {round} z prędkością {speed}×.",
   "play.watch.laps": "Ukończone okrążenia: {count}.",
   "play.watch.pit": "{driver} zjechał do alei serwisowej.",

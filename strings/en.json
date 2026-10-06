@@ -932,7 +932,7 @@
   "play.state.nextRace": "Next race: {date}.",
   "play.race.round": "Round {round} at {layout}.",
   "play.race.row": "{position}. {driver} ({team}), {points} points.",
-  "play.race.skipped": "{team} did not start. The estimated race running cost is above the cash on hand.",
+  "play.race.skipped": "{team} did not start. The estimated running and transport cost is above the cash on hand.",
   "play.watch.header": "Watching round {round} at {speed}×.",
   "play.watch.laps": "{count} laps completed.",
   "play.watch.pit": "{driver} pitted.",

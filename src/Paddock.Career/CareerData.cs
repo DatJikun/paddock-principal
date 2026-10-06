@@ -40,6 +40,13 @@ public static class CareerData
                 hash.AppendData(File.ReadAllBytes(file));
                 hash.AppendData("\n"u8);
             }
+
+            if (RatingsPathFor(schedule) is { } ratings)
+            {
+                hash.AppendData("ratings\n"u8);
+                hash.AppendData(File.ReadAllBytes(ratings));
+                hash.AppendData("\n"u8);
+            }
         }
 
         return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
@@ -73,6 +80,15 @@ public static class CareerData
             ?? throw new JsonException("The people schedule file is empty.");
         var drivers = JsonSerializer.Deserialize<HistoricalDriversDocument>(File.ReadAllText(driversPath), HistoricalJson.Options)
             ?? throw new JsonException("The drivers file is empty.");
-        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers);
+        var ratingsPath = RatingsPathFor(schedulePath);
+        var ratings = ratingsPath is null ? null : FittedDriverRatings.Load(ratingsPath);
+        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers, ratings is null ? null : ratings.RatingFor);
+    }
+
+    /// <summary>The fitted ratings file written next to the people schedule (<c>reports/ratings.json</c>), or null when absent.</summary>
+    public static string? RatingsPathFor(string schedulePath)
+    {
+        var path = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(schedulePath)) ?? ".", "ratings.json");
+        return File.Exists(path) ? path : null;
     }
 }

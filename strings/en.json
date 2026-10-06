@@ -300,6 +300,7 @@
   "world.init.count.contracts": "Contracts",
   "world.init.count.real_persons": "Real persons",
   "world.init.count.generated_persons": "Generated persons",
+  "world.init.top_drivers": "Top real drivers by truth overall (mean attribute, 1-20)",
   "world.init.gaps.none": "No gaps.",
   "world.init.gaps.header": "Gaps (count and first ids):",
   "world.init.gap.teams_without_staff": "Teams with no key staff in the data",

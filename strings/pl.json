@@ -304,6 +304,7 @@
   "world.init.count.contracts": "Kontrakty",
   "world.init.count.real_persons": "Prawdziwe osoby",
   "world.init.count.generated_persons": "Osoby generowane",
+  "world.init.top_drivers": "Najlepsi prawdziwi kierowcy wg prawdy (średnia atrybutów, 1-20)",
   "world.init.gaps.none": "Brak luk.",
   "world.init.gaps.header": "Luki (liczba i pierwsze id):",
   "world.init.gap.teams_without_staff": "Zespoły bez kluczowego personelu w danych",

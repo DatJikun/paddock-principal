@@ -103,6 +103,10 @@ public static class InfrastructureEstimates
     /// <summary>ESTIMATE: days a European (same-continent) lorry trip takes.</summary>
     public const int LogisticsLorryDays = 3;
 
-    /// <summary>ESTIMATE: days a transatlantic ship to a round such as Argentina takes.</summary>
+    /// <summary>
+    /// ESTIMATE: days a transatlantic ship to a round such as Argentina takes (load + passage).
+    /// A 16 kt liner Genoa–Buenos Aires is about 16 steaming days; Blue Star's 1950s River Plate cargo
+    /// turnaround was seven weeks including ports. 21 days is the one-way freight stand-in, not a sailing schedule.
+    /// </summary>
     public const int LogisticsShipDays = 21;
 }

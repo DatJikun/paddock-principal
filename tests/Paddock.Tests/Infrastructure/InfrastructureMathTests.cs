@@ -64,5 +64,7 @@ public class InfrastructureMathTests
         Assert.True(argentina.CostCents > spa.CostCents);
         Assert.True(spa.CostCents > monza.CostCents);
         Assert.Equal(InfrastructureEstimates.LogisticsShipDays, argentina.Days);
+        Assert.Equal(LogisticsMode.Ship, LogisticsMath.Quote("DEU", LogisticsMath.Argentina, typical).Mode);
+        Assert.Equal(LogisticsMode.Ship, LogisticsMath.Quote("GBR", LogisticsMath.Argentina, typical).Mode);
     }
 }

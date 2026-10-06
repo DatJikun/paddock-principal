@@ -22,13 +22,13 @@ public class InitWorldCommandTests
     }
 
     [Fact]
-    public void RealPresetsWithoutACacheSayThereAreNoRealDrivers()
+    public void RealPresetsWithoutACacheSeatGeneratedDriversTwoPerTeam()
     {
         var lines = Run(["init-world", "--preset", "MostHistorical", "--year", "1988", "--seed", "1"], out var code);
 
         Assert.Equal(0, code);
         Assert.Contains(lines, line => line.StartsWith("No people schedule found", StringComparison.Ordinal));
-        Assert.Contains("Drivers under contract: 0", lines);
+        Assert.Contains("Drivers under contract: 36", lines);
         var staff = lines.Single(line => line.StartsWith("Key staff: ", StringComparison.Ordinal));
         Assert.True(int.Parse(staff["Key staff: ".Length..], System.Globalization.CultureInfo.InvariantCulture) > 13);
     }

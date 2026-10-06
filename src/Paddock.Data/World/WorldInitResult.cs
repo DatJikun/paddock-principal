@@ -29,6 +29,10 @@ public static class WorldInitGapCodes
 
     public const string DriverConstructorAbsent = "world.init.gap.driver_constructor_absent";
 
+    public const string SeatFilledFromFreeAgents = "world.init.gap.seat_filled_from_free_agents";
+
+    public const string SeatFilledByGeneratedDriver = "world.init.gap.seat_filled_by_generated_driver";
+
     public const string NationalityMissing = "world.init.gap.nationality_missing";
 
     public const string IdCollision = "world.init.gap.id_collision";

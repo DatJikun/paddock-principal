@@ -504,6 +504,7 @@ public static class WorldInitializer
         private void AddKnownDrivers()
         {
             var fallbackCount = new SortedSet<string>(Ordinal);
+            var candidates = new List<SeatCandidate>();
             foreach (var record in _provider.Drivers.OrderBy(driver => driver.DriverId, Ordinal))
             {
                 var racingSeat = SeatOf(record);
@@ -544,17 +545,15 @@ public static class WorldInitializer
                 (_world, var id) = _world.AddPerson(spec);
                 _realIds.Add(record.DriverId);
 
-                if (racingSeat is DriverSeat seat)
+                if (racingSeat is not null)
                 {
-                    if (_teamIds.TryGetValue(seat.ConstructorId, out var team) && _currentTeams.ContainsKey(seat.ConstructorId))
+                    if (HomeOf(record) is DriverSeat home)
                     {
-                        AddDriverContract(id, team, string.Equals(seat.Role, ScheduleRolesSubstitute, StringComparison.Ordinal)
-                            ? SeatStatus.Reserve
-                            : WorldInitEstimates.DefaultSeatStatus);
+                        candidates.Add(new SeatCandidate(id, record.DriverId, home.ConstructorId, IsSubstitute(home), home.Starts));
                     }
                     else
                     {
-                        Gap(WorldInitGapCodes.DriverConstructorAbsent, record.DriverId + "@" + seat.ConstructorId);
+                        Gap(WorldInitGapCodes.DriverConstructorAbsent, record.DriverId + "@" + racingSeat.ConstructorId);
                     }
                 }
                 else
@@ -563,9 +562,125 @@ public static class WorldInitializer
                 }
             }
 
+            SeatKnownDrivers(candidates);
+
             foreach (var id in fallbackCount)
             {
                 Gap(WorldInitGapCodes.DriversWithoutRatings, id);
+            }
+        }
+
+        private sealed record SeatCandidate(PersonId Id, string DriverId, string TeamId, bool Substitute, int Starts);
+
+        /// <summary>
+        /// The seat a driver is placed by: the team of the start season where the driver started the most races
+        /// (a race stint beats a substitute one), then the earliest round, then the constructor id. Null when no
+        /// stint of the season belongs to a team of the world.
+        /// </summary>
+        private DriverSeat? HomeOf(RealDriverRecord record)
+        {
+            DriverSeat? best = null;
+            foreach (var seat in record.Seats)
+            {
+                if (seat.Season != _start || !_teamIds.ContainsKey(seat.ConstructorId) || !_currentTeams.ContainsKey(seat.ConstructorId))
+                {
+                    continue;
+                }
+
+                if (best is null || CompareHomes(seat, best) < 0)
+                {
+                    best = seat;
+                }
+            }
+
+            return best;
+        }
+
+        private static int CompareHomes(DriverSeat left, DriverSeat right)
+        {
+            var substitute = IsSubstitute(left).CompareTo(IsSubstitute(right));
+            if (substitute != 0)
+            {
+                return substitute;
+            }
+
+            var starts = right.Starts.CompareTo(left.Starts);
+            if (starts != 0)
+            {
+                return starts;
+            }
+
+            var round = left.FirstRound.CompareTo(right.FirstRound);
+            return round != 0 ? round : string.CompareOrdinal(left.ConstructorId, right.ConstructorId);
+        }
+
+        private static int CompareCandidates(SeatCandidate left, SeatCandidate right)
+        {
+            var substitute = left.Substitute.CompareTo(right.Substitute);
+            if (substitute != 0)
+            {
+                return substitute;
+            }
+
+            var starts = right.Starts.CompareTo(left.Starts);
+            return starts != 0 ? starts : string.CompareOrdinal(left.DriverId, right.DriverId);
+        }
+
+        /// <summary>
+        /// Every team gets exactly <see cref="WorldInitEstimates.RaceSeatsPerTeam"/> race seats (#235, PP-064): the drivers who started
+        /// the most races for it that season. The substitutes of the team are its reserves, at most
+        /// <see cref="WorldInitEstimates.MaxReservesPerTeam"/>. A team short of drivers takes the best of the drivers left over (free
+        /// agents), then a generated driver. Everybody else stays without a contract: a free agent.
+        /// </summary>
+        private void SeatKnownDrivers(List<SeatCandidate> candidates)
+        {
+            var free = new List<SeatCandidate>();
+            var shortTeams = new List<(string Team, int Missing)>();
+            foreach (var team in _currentTeams.Keys.OrderBy(id => id, Ordinal))
+            {
+                var mine = candidates.Where(candidate => candidate.TeamId == team).ToList();
+                mine.Sort(CompareCandidates);
+                var race = mine.Where(candidate => !candidate.Substitute).ToList();
+                var subs = mine.Where(candidate => candidate.Substitute).ToList();
+                foreach (var driver in race.Take(WorldInitEstimates.RaceSeatsPerTeam))
+                {
+                    AddDriverContract(driver.Id, _teamIds[team], WorldInitEstimates.DefaultSeatStatus);
+                }
+
+                foreach (var driver in subs.Take(WorldInitEstimates.MaxReservesPerTeam))
+                {
+                    AddDriverContract(driver.Id, _teamIds[team], SeatStatus.Reserve);
+                }
+
+                free.AddRange(race.Skip(WorldInitEstimates.RaceSeatsPerTeam));
+                free.AddRange(subs.Skip(WorldInitEstimates.MaxReservesPerTeam));
+                if (race.Count < WorldInitEstimates.RaceSeatsPerTeam)
+                {
+                    shortTeams.Add((team, WorldInitEstimates.RaceSeatsPerTeam - race.Count));
+                }
+            }
+
+            // Only drivers left without a seat are free; the short teams take the best of them first.
+            free.Sort(CompareCandidates);
+            foreach (var (team, missing) in shortTeams)
+            {
+                for (var i = 0; i < missing; i++)
+                {
+                    if (free.Count > 0)
+                    {
+                        var driver = free[0];
+                        free.RemoveAt(0);
+                        AddDriverContract(driver.Id, _teamIds[team], WorldInitEstimates.DefaultSeatStatus);
+                        Gap(WorldInitGapCodes.SeatFilledFromFreeAgents, driver.DriverId + "@" + team);
+                    }
+                    else
+                    {
+                        var plan = _currentTeams[team];
+                        var band = PickBand("init:grid:" + team + ":fill:" + Number(i), WorldInitEstimates.GridQualityWeights);
+                        AddDriverContract(AddGeneratedDriver(band, plan.Country), _teamIds[team], WorldInitEstimates.DefaultSeatStatus);
+                        Gap(WorldInitGapCodes.SeatFilledByGeneratedDriver, team);
+                    }
+                }
             }
         }
 
@@ -631,12 +746,10 @@ public static class WorldInitializer
 
         private void AddGeneratedDrivers()
         {
-            var seatCounts = SeatCounts();
             var grid = 0;
             foreach (var team in _currentTeams.Values.OrderBy(plan => plan.Id, Ordinal))
             {
-                var seats = seatCounts.TryGetValue(team.Id, out var known) ? known : WorldInitEstimates.DefaultSeatsPerTeam;
-                for (var seat = 1; seat <= seats; seat++)
+                for (var seat = 1; seat <= WorldInitEstimates.RaceSeatsPerTeam; seat++)
                 {
                     var band = PickBand("init:grid:" + team.Id + ":" + Number(seat), WorldInitEstimates.GridQualityWeights);
                     var id = AddGeneratedDriver(band, team.Country);
@@ -651,31 +764,6 @@ public static class WorldInitializer
                 var band = PickBand("init:pool:" + Number(i), WorldInitEstimates.PoolQualityWeights);
                 _pool.Add(AddGeneratedDriver(band, null));
             }
-        }
-
-        private Dictionary<string, int> SeatCounts()
-        {
-            var counts = new Dictionary<string, HashSet<string>>(Ordinal);
-            foreach (var record in _provider.Drivers)
-            {
-                foreach (var seat in record.Seats)
-                {
-                    if (seat.Season != _start || string.Equals(seat.Role, ScheduleRolesSubstitute, StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    if (!counts.TryGetValue(seat.ConstructorId, out var drivers))
-                    {
-                        drivers = new HashSet<string>(Ordinal);
-                        counts[seat.ConstructorId] = drivers;
-                    }
-
-                    drivers.Add(record.DriverId);
-                }
-            }
-
-            return counts.ToDictionary(pair => pair.Key, pair => pair.Value.Count, Ordinal);
         }
 
         private PersonId AddGeneratedDriver(QualityBand band, string? homeCountry)

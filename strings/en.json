@@ -312,6 +312,8 @@
   "world.init.gap.driver_birth_estimated": "Drivers with only a birth year (mid-year was used)",
   "world.init.gap.driver_skipped_no_birth": "Drivers left out because no birth year is known",
   "world.init.gap.driver_constructor_absent": "Drivers whose constructor is not in the world (driver@constructor)",
+  "world.init.gap.seat_filled_from_free_agents": "Race seats filled by a driver left without a seat elsewhere (driver@team)",
+  "world.init.gap.seat_filled_by_generated_driver": "Race seats filled by a generated driver, because the data lists fewer than two (team)",
   "world.init.gap.nationality_missing": "People with no nationality in the data",
   "world.init.gap.id_collision": "People whose id is already taken by another person",
   "world.init.gap.organization_name_from_id": "Organizations named after their id (no name data)",

@@ -40,7 +40,7 @@ public sealed record Engineer(string Id, StaffRole? Role, IReadOnlyDictionary<st
 /// PLACEHOLDER for the department model of DESIGN §6.2 (not accepted yet): one headcount and one average quality per team.
 /// Headcount sets how long a project takes. Key people and the budget set quality. More engineers never raise quality.
 /// </summary>
-public sealed record EngineeringCapacity(int Headcount, double Quality, int ReferenceHeadcount)
+public sealed record EngineeringCapacity(int Headcount, double Quality, int ReferenceHeadcount, double DurationScale = 1d)
 {
     public int Slots => Math.Clamp(1 + (Headcount / DevelopmentEstimates.HeadcountPerSlot), 1, DevelopmentEstimates.MaxSlots);
 
@@ -48,12 +48,23 @@ public sealed record EngineeringCapacity(int Headcount, double Quality, int Refe
     public EngineeringCapacity WithExtraHeadcount(int extra) =>
         this with { Headcount = Math.Max(1, Headcount + extra) };
 
+    /// <summary>
+    /// Factory and later aero tools change how well and how fast work is executed. They never set a result by themselves.
+    /// <paramref name="durationScale"/> below 1 shortens projects (faster parts); it does not raise quality.
+    /// </summary>
+    public EngineeringCapacity WithInfrastructure(double qualityScale, double durationScale) =>
+        this with
+        {
+            Quality = DevelopmentEstimates.Quantize(Quality * qualityScale),
+            DurationScale = durationScale,
+        };
+
     /// <summary>Days a project of <paramref name="baseDays"/> takes. Diminishing: it scales with the square root of the headcount ratio.</summary>
     public int DurationDays(int baseDays)
     {
         var ratio = Math.Sqrt((double)ReferenceHeadcount / Math.Max(1, Headcount));
         var scale = Math.Clamp(ratio, DevelopmentEstimates.DurationFloor, DevelopmentEstimates.DurationCeiling);
-        return Math.Max(1, (int)Math.Round(baseDays * scale, MidpointRounding.AwayFromZero));
+        return Math.Max(1, (int)Math.Round(baseDays * scale * DurationScale, MidpointRounding.AwayFromZero));
     }
 
     public static int EraHeadcount(int year)

@@ -94,6 +94,7 @@ public sealed class RaceWeekendDay : IDayHandler
         var supply = _context.TryGet<SupplyBook>();
         var profiles = _context.TryGet<SupplyEnvironment>()?.Profiles;
         var traceSink = _context.TryGet<ITraceSink>();
+        var layout = Layout(payload.LayoutId);
         var field = RaceFieldBuilder.Build(
             _context.Session.World,
             today,
@@ -102,13 +103,14 @@ public sealed class RaceWeekendDay : IDayHandler
             supply?.Section,
             profiles,
             payload.Round,
-            traceSink);
+            traceSink,
+            layout.Country,
+            _context.Inputs.TeamCountries);
         if (field.Entries.IsDefaultOrEmpty)
         {
             return;
         }
 
-        var layout = Layout(payload.LayoutId);
         var era = EraOf(payload.Season);
         var input = new RaceWeekendInput
         {
@@ -132,7 +134,7 @@ public sealed class RaceWeekendDay : IDayHandler
         var standings = LoadStandings(payload.Season, points, total).Apply(published.Classification);
         StoreChampionship(payload.Season, standings, settled: false);
         ApplyUnderstanding(today, layout.LengthKm, published.CarResults);
-        ApplyMoney(today, payload, total, published);
+        ApplyMoney(today, payload, total, published, field, layout.Country);
         ApplyPeople(context, today, published.PersonOutcomes, payload);
         PostDueStandInDecisions(today);
         _watch.Publish(
@@ -164,7 +166,7 @@ public sealed class RaceWeekendDay : IDayHandler
         DevelopmentRaceHook.OnRaceFinished(book, environment, today, runs);
     }
 
-    private void ApplyMoney(GameDate today, RaceSessionPayload payload, int total, RacePublishedFacts published)
+    private void ApplyMoney(GameDate today, RaceSessionPayload payload, int total, RacePublishedFacts published, RaceField field, string circuitCountry)
     {
         if (_context.Inputs.Eras is not { } eras || _context.TryGet<FinanceBook>() is not { } book || !book.Section.HasBooks)
         {
@@ -190,6 +192,33 @@ public sealed class RaceWeekendDay : IDayHandler
 
         var race = FinanceStandings.Race(payload.Season, payload.Round, total, facts.RevenueModel, rows);
         var (section, _) = book.Section.ApplyRace(race, Money.FromDollars(facts.TypicalDollars).Cents, today);
+        var typical = section.TypicalCents;
+        var started = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (var entry in field.Entries)
+        {
+            started.Add(entry.ConstructorId);
+        }
+
+        foreach (var teamId in started)
+        {
+            var organization = default(OrganizationId);
+            if (!Paddock.Application.Cars.CarCommandSupport.TryOrganization(teamId, out organization))
+            {
+                continue;
+            }
+            var due = RaceFieldBuilder.TransportCost(organization, typical, circuitCountry, _context.Inputs.TeamCountries);
+            if (due > 0 && section.HasBook(organization))
+            {
+                section = section.Post(
+                    organization,
+                    today,
+                    LedgerCategories.Logistics,
+                    circuitCountry.Length == 0 ? null : circuitCountry,
+                    -due,
+                    Paddock.Application.Infrastructure.InfrastructureKeys.LedgerLogistics);
+            }
+        }
+
         book.Replace(section);
     }
 

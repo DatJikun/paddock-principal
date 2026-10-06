@@ -261,6 +261,10 @@ export interface InboxView {
   openDecisionCount: number;
 }
 
+export interface InfrastructureOverview {
+  own: OwnInfrastructureView[];
+}
+
 export interface KnownAttributeView {
   high: number;
   key: string;
@@ -270,6 +274,13 @@ export interface KnownAttributeView {
 export interface LoadCareerCall {
   managerId: string;
   path: string;
+}
+
+export interface LogisticsView {
+  circuitCountry: string | null;
+  costCents: number;
+  days: number;
+  mode: string;
 }
 
 export interface ManagerCall {
@@ -517,6 +528,27 @@ export interface OwnEngineView {
   power: CarBandView;
   reliability: CarBandView;
   versionSeason: number;
+}
+
+export interface OwnFacilityView {
+  buildEnds: IsoDate | null;
+  building: boolean;
+  eligible: boolean;
+  frontierMilli: number;
+  kind: string;
+  qualityMilli: number;
+  relativeQuality: number;
+  unlocked: boolean;
+  upgradeCostCents: number;
+  upgradeDays: number;
+}
+
+export interface OwnInfrastructureView {
+  facilities: OwnFacilityView[];
+  homeCountry: string | null;
+  nextTransport: LogisticsView | null;
+  organizationId: string;
+  tests: TestRentalView;
 }
 
 export interface OwnProjectView {
@@ -961,6 +993,13 @@ export interface TeamsCall {
   year: number;
 }
 
+export interface TestRentalView {
+  allowed: boolean;
+  cap: number;
+  costCents: number;
+  used: number;
+}
+
 export interface TrackCall {
   layoutId: string | null;
   managerId: string;
@@ -1010,6 +1049,7 @@ export interface BridgeQueryMap {
   drivers: { args: ManagerCall; result: DriversView };
   cars: { args: ManagerCall; result: ManagerCarRoster };
   development: { args: ManagerCall; result: DevelopmentOverview };
+  infrastructure: { args: ManagerCall; result: InfrastructureOverview };
   sponsors: { args: ManagerCall; result: SponsorView };
   finance: { args: ManagerCall; result: FinanceView };
   board: { args: ManagerCall; result: BoardView };

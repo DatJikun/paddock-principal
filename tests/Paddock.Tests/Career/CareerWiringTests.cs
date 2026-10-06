@@ -34,15 +34,15 @@ public sealed class CareerWiringTests
 
         // season change 5 (host), pool 10, seat 15, ageing 20, last season 25, contract expiry 30, staff refill 35,
         // rollover 40, race weekend 50, negotiations 700, raise demands 705, contract lifecycle 710, sponsors 750, supply 760,
-        // development 780, finance 800, objectives 900, board 910 (TECH 6.2).
-        Assert.Equal([5, 10, 15, 20, 25, 30, 35, 40, 50, 700, 705, 710, 750, 760, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
+        // infrastructure 770, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
+        Assert.Equal([5, 10, 15, 20, 25, 30, 35, 40, 50, 700, 705, 710, 750, 760, 770, 780, 800, 900, 910], session.DayHandlers.Select(handler => handler.Order).ToArray());
     }
 
     [Fact]
     public void TheModuleListIsTheDocumentedOneAndNamesAreUnique()
     {
         Assert.Equal(
-            ["objectives", "finance", "contracts", "pool", "cars", "staff", "sponsors", "supply", "racing", "development", "board", "principals"],
+            ["objectives", "finance", "contracts", "pool", "cars", "staff", "sponsors", "supply", "infrastructure", "racing", "development", "board", "principals"],
             CareerModules.Default.Select(module => module.Name).ToArray());
     }
 

@@ -1,3 +1,4 @@
+using Paddock.Application.Infrastructure;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Development;
 using Paddock.Domain.Finance;
@@ -327,7 +328,11 @@ internal sealed class TeamDay
 
         var engineers = EngineerRoster.Of(_inputs.World, _organization, Today);
         var balance = Finance.HasBook(_organization) ? Finance.BalanceOf(_organization) : 0L;
-        var capacity = EngineeringCapacity.Derive(engineers, Today.Year, EngineerRoster.ChairsIn(Today.Year), balance, (long)annual);
+        var capacity = InfrastructureEffect.Apply(
+            EngineeringCapacity.Derive(engineers, Today.Year, EngineerRoster.ChairsIn(Today.Year), balance, (long)annual),
+            _inputs.World,
+            _organization,
+            Today.Year);
         for (var slot = running.Count; slot < capacity.Slots; slot++)
         {
             var decision = EngineerChoice.Choose(
@@ -387,7 +392,8 @@ internal sealed class TeamDay
     private void GrowUnderstanding()
     {
         var active = Projects().Count(project => project.IsActive);
-        var points = DevelopmentEstimates.UnderstandingPerDay + (DevelopmentEstimates.UnderstandingPerActiveProject * active);
+        var points = (DevelopmentEstimates.UnderstandingPerDay + (DevelopmentEstimates.UnderstandingPerActiveProject * active))
+            * InfrastructureEffect.Factors(_inputs.World, _organization, Today.Year).UnderstandingScale;
         var cap = _era.UnderstandingCap;
         foreach (var car in Cars.Of(_organization))
         {

@@ -10,7 +10,8 @@ public sealed class TrackLayout
         string circuitId,
         double lengthKm,
         IReadOnlyDictionary<string, double> profileWeights,
-        IReadOnlyList<string> characterTags)
+        IReadOnlyList<string> characterTags,
+        string country = "")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(circuitId);
@@ -22,6 +23,7 @@ public sealed class TrackLayout
         LengthKm = lengthKm;
         ProfileWeights = new Dictionary<string, double>(profileWeights, StringComparer.Ordinal);
         CharacterTags = characterTags.ToArray();
+        Country = string.IsNullOrWhiteSpace(country) ? "" : country.Trim().ToUpperInvariant();
     }
 
     public string Id { get; }
@@ -33,4 +35,7 @@ public sealed class TrackLayout
     public IReadOnlyDictionary<string, double> ProfileWeights { get; }
 
     public IReadOnlyList<string> CharacterTags { get; }
+
+    /// <summary>ISO-3 country of the circuit, or empty when the catalog did not name one.</summary>
+    public string Country { get; }
 }

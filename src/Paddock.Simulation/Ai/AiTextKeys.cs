@@ -78,6 +78,8 @@ public static class AiTextKeys
     public const string ReasonSponsorSigned = "ai.reason.sponsorSigned";
     public const string ReasonSponsorWaits = "ai.reason.sponsorWaits";
     public const string ReasonScouting = "ai.reason.scouting";
+    public const string ReasonInfrastructure = "ai.reason.infrastructure";
+    public const string ReasonBookTest = "ai.reason.bookTest";
 
     /// <summary>
     /// The translation key of the text of an option id. A fixed id (<c>renew</c>) maps to <c>ai.option.renew</c>; <c>split/balanced</c> to
@@ -94,7 +96,7 @@ public static class AiTextKeys
         }
 
         var head = optionId[..slash];
-        return head is OptionCandidate or "supplier" or "sponsor"
+        return head is OptionCandidate or "supplier" or "sponsor" or "upgrade"
             ? "ai.option." + head
             : "ai.option." + head + "." + optionId[(slash + 1)..];
     }

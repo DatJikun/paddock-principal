@@ -4,6 +4,7 @@ using Paddock.Application.Contracts;
 using Paddock.Application.Development;
 using Paddock.Application.Finance;
 using Paddock.Application.Inbox;
+using Paddock.Application.Infrastructure;
 using Paddock.Application.Pool;
 using Paddock.Application.Racing;
 using Paddock.Application.Sponsors;
@@ -28,6 +29,7 @@ public static class BridgeRegistry
         Endpoint(Query, "drivers", typeof(ManagerCall), typeof(DriversView)),
         Endpoint(Query, "cars", typeof(ManagerCall), typeof(ManagerCarRoster)),
         Endpoint(Query, "development", typeof(ManagerCall), typeof(DevelopmentOverview)),
+        Endpoint(Query, "infrastructure", typeof(ManagerCall), typeof(InfrastructureOverview)),
         Endpoint(Query, "sponsors", typeof(ManagerCall), typeof(SponsorView)),
         Endpoint(Query, "finance", typeof(ManagerCall), typeof(FinanceView)),
         Endpoint(Query, "board", typeof(ManagerCall), typeof(BoardView)),

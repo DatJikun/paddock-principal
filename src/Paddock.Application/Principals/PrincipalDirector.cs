@@ -2,6 +2,7 @@ using Paddock.Application.Cars;
 using Paddock.Application.Commands;
 using Paddock.Application.Contracts;
 using Paddock.Application.Development;
+using Paddock.Application.Infrastructure;
 using Paddock.Application.Managers;
 using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
@@ -221,6 +222,12 @@ public sealed class PrincipalDirector
             {
                 sacrificed = today.Year;
             }
+        }
+
+        if (knowledge.Infrastructure() is { } infrastructure)
+        {
+            var decision = InfrastructureDecider.Review(context, infrastructure);
+            filer.Infrastructure(decision);
         }
 
         if (knowledge.Supply() is { } supply)
@@ -485,6 +492,30 @@ internal sealed class CommandFiler
                 ProjectId = timing.ProjectId,
                 Timing = timing.Timing,
                 Races = timing.Races,
+            });
+        }
+    }
+
+    public void Infrastructure(InfrastructureDecision decision)
+    {
+        if (decision.Kind is { } kind)
+        {
+            File(new UpgradeFacilityCommand
+            {
+                ManagerId = Manager,
+                IssuedOn = Day,
+                OrganizationId = Organization,
+                Kind = kind,
+            });
+        }
+
+        if (decision.BookTest)
+        {
+            File(new BookTestCommand
+            {
+                ManagerId = Manager,
+                IssuedOn = Day,
+                OrganizationId = Organization,
             });
         }
     }

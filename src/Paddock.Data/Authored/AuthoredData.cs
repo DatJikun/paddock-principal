@@ -1,5 +1,6 @@
 using Paddock.Domain.Cars;
 using Paddock.Domain.Finance;
+using Paddock.Domain.Infrastructure;
 using Paddock.Domain.World;
 
 namespace Paddock.Data.Authored;
@@ -25,7 +26,8 @@ public sealed class AuthoredData
         IReadOnlyList<CpiYear> cpiYears,
         IReadOnlyList<TrackGeometryFile>? trackGeometries = null,
         ICarStrengthSource? carStrength = null,
-        ITeamTierSource? teamTiers = null)
+        ITeamTierSource? teamTiers = null,
+        FacilityCatalog? facilities = null)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(timeline);
@@ -72,7 +74,8 @@ public sealed class AuthoredData
                 circuit.CircuitId,
                 layout.LengthKm,
                 ProfileWeights(layout.ProfileGuess),
-                layout.Character)))
+                layout.Character,
+                circuit.Country)))
             .ToArray();
         RaceAssignments = raceLayoutMap
             .Select(entry => new RaceAssignment(entry.Season, entry.Round, entry.LayoutId))
@@ -101,6 +104,7 @@ public sealed class AuthoredData
                 stint.From,
                 stint.To)))
             .ToArray();
+        Facilities = facilities ?? FacilityCatalog.Empty;
     }
 
     /// <summary>The authored ESTIMATE of constructor car strength, or null when a fixture has none (the tier fallback applies).</summary>
@@ -161,6 +165,8 @@ public sealed class AuthoredData
     public IReadOnlyList<LineageSpan> LineageSpans { get; }
 
     public IReadOnlyList<StaffAssignment> StaffAssignments { get; }
+
+    public FacilityCatalog Facilities { get; }
 
     public RuleSet RuleSetFor(int season) => RuleSet.For(season, DimensionIds, Periods);
 

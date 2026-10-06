@@ -10,6 +10,7 @@ using Paddock.Application.Contracts;
 using Paddock.Application.Development;
 using Paddock.Application.Finance;
 using Paddock.Application.Inbox;
+using Paddock.Application.Infrastructure;
 using Paddock.Application.Managers;
 using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
@@ -154,6 +155,7 @@ public sealed partial class CareerBridge
             "drivers" => BridgeValues.ToNode(ReadDrivers(access)),
             "cars" => BridgeValues.ToNode(Cars().View(access)),
             "development" => BridgeValues.ToNode(ReadDevelopment(access)),
+            "infrastructure" => BridgeValues.ToNode(ReadInfrastructure(access)),
             "sponsors" => BridgeValues.ToNode(ReadSponsors(access)),
             "finance" => BridgeValues.ToNode(ReadFinance(access)),
             "board" => BridgeValues.ToNode(Board().View(access, Session.Date)),
@@ -373,6 +375,17 @@ public sealed partial class CareerBridge
             new PeriodDevelopmentRules(periods),
             Box.Require<IOrganizationControl>());
         return new DevelopmentQuery(book, environment).View(access);
+    }
+
+    private object ReadInfrastructure(AccessContext access)
+    {
+        if (Box.TryGet<InfrastructureBook>() is not { } book
+            || Box.TryGet<InfrastructureEnvironment>() is not { } environment)
+        {
+            return new InfrastructureOverview([]);
+        }
+
+        return new InfrastructureQuery(book, environment).View(access, ChampionshipRead.Next(Session, Circuits).Country);
     }
 
     private SponsorView ReadSponsors(AccessContext access)

@@ -1,6 +1,7 @@
 using Paddock.Application.Access;
 using Paddock.Application.Cars;
 using Paddock.Application.Contracts;
+using Paddock.Application.Infrastructure;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Development;
 using Paddock.Domain.People;
@@ -150,12 +151,16 @@ public sealed class DevelopmentQuery
         var cars = _book.Cars.Of(organization);
         var annual = (long)DevelopmentMath.AnnualBudgetCents(_book.Finance.TypicalCents);
         var balance = _book.Finance.HasBook(organization) ? _book.Finance.BalanceOf(organization) : 0L;
-        var capacity = EngineeringCapacity.Derive(
-            staff.Engineers,
-            today.Year,
-            EngineerRoster.ChairsIn(today.Year),
-            balance,
-            annual);
+        var capacity = InfrastructureEffect.Apply(
+            EngineeringCapacity.Derive(
+                staff.Engineers,
+                today.Year,
+                EngineerRoster.ChairsIn(today.Year),
+                balance,
+                annual),
+            world,
+            organization,
+            today.Year);
         // Closed projects stay in the section as history. The view and the forecast only use what is still open.
         var open = section.OpenOf(organization);
         var projects = open

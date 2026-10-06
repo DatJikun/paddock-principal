@@ -159,6 +159,8 @@ Nie ma końca drzewka. **W 1972 nie może być endgame'u.** Trzy mechanizmy:
 2. **Nowe rodzaje obiektów z epokami:** hamownia → tunel aerodynamiczny → pełnoskalowy tunel → CFD → symulator kierowcy → hamownia jednostki hybrydowej itd. Każdy otwiera nowy wymiar rozwoju.
 3. **Zmiany regulaminu i limity:** reset przepisów częściowo zeruje przewagę wiedzy. Od ery limitów (godziny w tunelu, limit wydatków) wygrywa efektywność, a nie sama wielkość.
 
+**Na MVP (PP-064):** każdy zespół ma fabrykę. Jej jakość liczy się względem ruchomej granicy roku (PP-026), więc bez modernizacji obiekt się starzeje. Tor testowy jest wynajmem (koszt za test i limit epoki), a nie obiektem do rozbudowy. Transport na rundę to koszt logistyki: ciężarówki na tym samym kontynencie, do Argentyny statek (dłużej i drożej). Tunel, CFD i symulator zostają w danych i odblokowują się z epoką; w latach 50. ich nie ma. Hamownia i odlewnia czekają na osobną aktualizację.
+
 ---
 
 ## 5. Samochód (PP-027)

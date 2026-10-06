@@ -1,0 +1,22 @@
+{
+  "notes": "ESTIMATE starting absolute quality in milli-units (100000 is the 1950 state of the art). Relative quality is working quality divided by the year's frontier, which grows each season. These are not invoice facts about any real plant. Ranking for 1955 follows industrial scale of the racing department, not race results: Mercedes-Benz revised the W196 at Untertürkheim (mercedes-benz-archive W 196 R 1955); Ferrari at Maranello; Lancia entered the D50 as a full works team then collapsed financially mid-season (1955 championship); Maserati ran a large 250F works-and-customer programme (seven cars at the Argentine GP); Vanwall (Vandervell Products) was an emerging British works and skipped Argentina (rounds 2 and 4 only); Equipe Gordini was a small French works that did make the Atlantic trip; Cooper Car Company and Connaught Engineering were tiny Surbiton/Send shops that started only the British GP. Sources: Wikipedia 1955 Formula One season (entry list); Motor Sport Magazine Jan 1999 'Don't Fry For Me' (five works teams crossed the Atlantic: Mercedes, Ferrari, Maserati, Lancia, Gordini); 1955 Argentine Grand Prix entry. Test-track access is a rental, not an owned facility (PP-064; Fiorano is 1972). Engine dyno and foundry wait. unlockYear gates later kinds (wind tunnel with the 1968 wing era, CFD, simulator).",
+  "kinds": [
+    { "id": "factory", "unlockYear": 1950 },
+    { "id": "windTunnel", "unlockYear": 1968 },
+    { "id": "cfd", "unlockYear": 1990 },
+    { "id": "simulator", "unlockYear": 2012 }
+  ],
+  "defaultQualityMilli": {
+    "factory": 42000
+  },
+  "teams": [
+    { "id": "mercedes", "factory": 78000 },
+    { "id": "ferrari", "factory": 72000 },
+    { "id": "lancia", "factory": 68000 },
+    { "id": "maserati", "factory": 66000 },
+    { "id": "vanwall", "factory": 52000 },
+    { "id": "gordini", "factory": 50000 },
+    { "id": "cooper", "factory": 40000 },
+    { "id": "connaught", "factory": 38000 }
+  ]
+}

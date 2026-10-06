@@ -4,6 +4,7 @@ using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Finance;
+using Paddock.Domain.Infrastructure;
 using Paddock.Domain.Sponsors;
 using Paddock.Domain.Supply;
 using Paddock.Domain.World;
@@ -29,6 +30,12 @@ public sealed class CareerInputs
 
     /// <summary>The opening engine supplies the world initializer reported. Supply builds its first deals from them on a new career.</summary>
     public IReadOnlyList<SupplyLink>? SupplyLinks { get; init; }
+
+    /// <summary>Authored facility kinds and ESTIMATE starting levels. Infrastructure needs it.</summary>
+    public FacilityCatalog? Facilities { get; init; }
+
+    /// <summary>ISO-3 home country of a constructor id, from founders. Logistics (PP-064) needs it.</summary>
+    public IReadOnlyDictionary<string, string>? TeamCountries { get; init; }
 
     /// <summary>Era slot rules for sponsors. Sponsors need it.</summary>
     public ISponsorEras? SponsorEras { get; init; }

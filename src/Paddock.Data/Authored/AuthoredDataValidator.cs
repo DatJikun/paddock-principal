@@ -1,4 +1,5 @@
 using System.Globalization;
+using Paddock.Domain.Infrastructure;
 using Paddock.Domain.World;
 using Paddock.Domain.World.Tracks;
 
@@ -132,7 +133,55 @@ public static partial class AuthoredDataValidator
         AppendTechnologiesTeamsAndStaff(errors, data);
         AppendEraErrors(errors, data);
         AppendTrackGeometryErrors(errors, data);
+        AppendFacilities(errors, data);
         return errors;
+    }
+
+    public const string FacilityKind = "facility-kind";
+
+    public const string FacilityQuality = "facility-quality";
+
+    private static void AppendFacilities(List<AuthoredDataError> errors, AuthoredData data)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var spec in data.Facilities.Kinds)
+        {
+            var id = FacilityKindIds.Of(spec.Kind);
+            if (!seen.Add(id))
+            {
+                errors.Add(new AuthoredDataError(FacilityKind, $"facility kind '{id}' appears twice"));
+            }
+
+            if (spec.UnlockYear < FirstSeason)
+            {
+                errors.Add(new AuthoredDataError(
+                    FacilityKind,
+                    $"facility kind '{id}' unlocks in {spec.UnlockYear.ToString(CultureInfo.InvariantCulture)}, before {FirstSeason.ToString(CultureInfo.InvariantCulture)}"));
+            }
+        }
+
+        foreach (var (kind, milli) in data.Facilities.DefaultQualityMilli)
+        {
+            if (milli is < 0 or > InfrastructureEstimates.MaxQualityMilli)
+            {
+                errors.Add(new AuthoredDataError(
+                    FacilityQuality,
+                    $"default quality of '{FacilityKindIds.Of(kind)}' is {milli.ToString(CultureInfo.InvariantCulture)}, out of 0..{InfrastructureEstimates.MaxQualityMilli.ToString(CultureInfo.InvariantCulture)}"));
+            }
+        }
+
+        foreach (var (team, qualities) in data.Facilities.TeamQualityMilli)
+        {
+            foreach (var (kind, milli) in qualities)
+            {
+                if (milli is < 0 or > InfrastructureEstimates.MaxQualityMilli)
+                {
+                    errors.Add(new AuthoredDataError(
+                        FacilityQuality,
+                        $"team '{team}' quality of '{FacilityKindIds.Of(kind)}' is {milli.ToString(CultureInfo.InvariantCulture)}, out of range"));
+                }
+            }
+        }
     }
 
     private static Dictionary<string, CatalogDimension> IndexCatalog(IReadOnlyList<CatalogDimension> catalog)

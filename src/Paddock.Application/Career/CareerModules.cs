@@ -3,6 +3,7 @@ using Paddock.Application.Cars;
 using Paddock.Application.Contracts;
 using Paddock.Application.Development;
 using Paddock.Application.Finance;
+using Paddock.Application.Infrastructure;
 using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
 using Paddock.Application.Principals;
@@ -25,7 +26,7 @@ namespace Paddock.Application.Career;
 /// <para>
 /// Day order today: host season change 5, pool 10, principal seat watch 15, ageing 20, last season 25, contract expiry 30,
 /// staff refill 35, season rollover 40, race weekend 50, negotiations 700, raise demands 705, contract lifecycle 710,
-/// sponsors 750, supply 760, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
+/// sponsors 750, supply 760, infrastructure 770, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
 /// </para>
 /// </summary>
 public static class CareerModules
@@ -40,6 +41,7 @@ public static class CareerModules
         new StaffModule(),
         new SponsorsModule(),
         new SupplyModule(),
+        new InfrastructureModule(),
         new RacingModule(),
         new DevelopmentModule(),
         new BoardModule(),

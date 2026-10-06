@@ -20,7 +20,7 @@ public sealed class RacingModule : CareerModule
     public override string Name => ModuleName;
 
     public override IReadOnlyList<string> Sections =>
-        [ChampionshipSection.SectionName, RegulationsSection.SectionName, RaceResultsSection.SectionName];
+        [ChampionshipSection.SectionName, RegulationsSection.SectionName, RaceResultsSection.SectionName, RaceCalendarSection.SectionName];
 
     public override void Configure(CareerModuleContext context)
     {
@@ -70,13 +70,12 @@ public sealed class RacingModule : CareerModule
             return;
         }
 
-        try
+        var (plan, world) = SeasonPlans.Ensure(context.Session.World, season, layouts, assignments, context.Inputs.RaceDates);
+        if (!ReferenceEquals(world, context.Session.World))
         {
-            context.Session.QueueChampionship(season, layouts, assignments);
+            context.Session.StoreWorld(world);
         }
-        catch (InvalidOperationException)
-        {
-            context.Session.QueuePlanned(SeasonCalendar.Plan(season, layouts, assignments));
-        }
+
+        context.Session.QueuePlanned(plan);
     }
 }

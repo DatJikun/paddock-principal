@@ -5,7 +5,8 @@ using Paddock.Domain.World;
 namespace Paddock.Simulation.Time;
 
 /// <summary>
-/// Placeholder championship weekends built from <see cref="RaceCalendar"/>.
+/// Championship weekends built from <see cref="RaceCalendar"/>. Race days are the real ones when the host gives a
+/// <see cref="RaceDateBook"/> that covers the season (#229); otherwise the placeholder spacing below applies.
 /// The authored layout map has no race dates, so each round becomes three days and no race is simulated.
 /// The window is <see cref="WindowStartMonth"/>/<see cref="WindowStartDay"/> through
 /// <see cref="WindowEndMonth"/>/<see cref="WindowEndDay"/> of the season year.
@@ -33,7 +34,8 @@ public static class SeasonCalendar
     public static IReadOnlyList<PlannedSession> Plan(
         int season,
         IReadOnlyList<TrackLayout> layouts,
-        IReadOnlyList<RaceAssignment> assignments)
+        IReadOnlyList<RaceAssignment> assignments,
+        RaceDateBook? dates = null)
     {
         ArgumentNullException.ThrowIfNull(layouts);
         ArgumentNullException.ThrowIfNull(assignments);
@@ -53,22 +55,8 @@ public static class SeasonCalendar
             return [];
         }
 
-        var windowStart = new GameDate(season, WindowStartMonth, WindowStartDay);
-        var windowEnd = new GameDate(season, WindowEndMonth, WindowEndDay);
         var lead = Math.Max(PracticeDaysBeforeRace, QualifyingDaysBeforeRace);
-        var span = windowStart.DaysUntil(windowEnd);
-        var step = 0;
-        if (rounds.Count > 1)
-        {
-            var available = span - lead;
-            var minimumGap = lead + 1;
-            step = available / (rounds.Count - 1);
-            if (available < 0 || step < minimumGap)
-            {
-                throw new InvalidOperationException(
-                    $"Season {season.ToString(CultureInfo.InvariantCulture)} has {rounds.Count.ToString(CultureInfo.InvariantCulture)} rounds, which do not fit in the placeholder window without overlapping weekends.");
-            }
-        }
+        var races = RealRaceDays(season, rounds, dates, lead) ?? EvenRaceDays(season, rounds.Count, lead);
 
         var planned = new PlannedSession[rounds.Count * 3];
         var index = 0;
@@ -76,7 +64,7 @@ public static class SeasonCalendar
         {
             var round = rounds[i];
             var layout = RaceCalendar.LayoutFor(season, round, layouts, assignments);
-            var race = windowStart.AddDays(lead + (i * step));
+            var race = races[i];
             var practice = race.AddDays(-PracticeDaysBeforeRace);
             var qualifying = race.AddDays(-QualifyingDaysBeforeRace);
             planned[index++] = new PlannedSession(practice, ScheduledEventType.Practice, season, round, layout.Id);
@@ -85,6 +73,68 @@ public static class SeasonCalendar
         }
 
         return planned;
+    }
+
+    /// <summary>
+    /// The real race days of <paramref name="rounds"/> when <paramref name="dates"/> has every one of them and a weekend fits
+    /// before each race inside the season without touching the previous weekend. Otherwise null, and the even spacing applies
+    /// (a season that cannot keep its real dates falls back as a whole, so its rounds never mix two kinds of dates).
+    /// </summary>
+    private static GameDate[]? RealRaceDays(int season, List<int> rounds, RaceDateBook? dates, int lead)
+    {
+        if (dates is null)
+        {
+            return null;
+        }
+
+        var days = new GameDate[rounds.Count];
+        for (var i = 0; i < days.Length; i++)
+        {
+            if (!dates.TryGet(season, rounds[i], out var date) || date.Year != season)
+            {
+                return null;
+            }
+
+            days[i] = date;
+            if (i == 0 && date.AddDays(-lead).Year != season)
+            {
+                return null;
+            }
+
+            if (i > 0 && days[i - 1].DaysUntil(date) < lead + 1)
+            {
+                return null;
+            }
+        }
+
+        return days;
+    }
+
+    private static GameDate[] EvenRaceDays(int season, int count, int lead)
+    {
+        var windowStart = new GameDate(season, WindowStartMonth, WindowStartDay);
+        var windowEnd = new GameDate(season, WindowEndMonth, WindowEndDay);
+        var span = windowStart.DaysUntil(windowEnd);
+        var step = 0;
+        if (count > 1)
+        {
+            var available = span - lead;
+            var minimumGap = lead + 1;
+            step = available / (count - 1);
+            if (available < 0 || step < minimumGap)
+            {
+                throw new InvalidOperationException(
+                    $"Season {season.ToString(CultureInfo.InvariantCulture)} has {count.ToString(CultureInfo.InvariantCulture)} rounds, which do not fit in the placeholder window without overlapping weekends.");
+            }
+        }
+
+        var days = new GameDate[count];
+        for (var i = 0; i < count; i++)
+        {
+            days[i] = windowStart.AddDays(lead + (i * step));
+        }
+
+        return days;
     }
 
     public static WorldClockState Schedule(

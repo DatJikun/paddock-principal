@@ -106,7 +106,7 @@ public class WorldInitializerTests
         var world = result.World;
         var alpha = OrganizationId.Real("alpha");
 
-        Assert.Equal(9, result.Report.Counts.RacingDrivers);
+        Assert.Equal(10, result.Report.Counts.RacingDrivers);
         Assert.Equal(1, result.Report.Counts.PoolDrivers);
         Assert.Equal([PersonId.Real("d_pool")], result.TalentPool);
 
@@ -178,7 +178,7 @@ public class WorldInitializerTests
             Assert.True(truth.Potential[i].Value >= truth.Attributes[i].Value);
         }
 
-        Assert.Equal(9, result.Report.Counts.RacingDrivers);
+        Assert.Equal(10, result.Report.Counts.RacingDrivers);
         Assert.Equal(1, result.Report.Counts.PoolDrivers);
         Assert.Equal(real.World.Persons.Count, result.World.Persons.Count);
     }
@@ -550,6 +550,47 @@ public class WorldInitializerTests
         Assert.Equal(["a1", "a2"], Of(seat => seat != SeatStatus.Reserve));
         Assert.Equal(["s1", "s2"], Of(seat => seat == SeatStatus.Reserve));
         Assert.Contains(world.Contracts, contract => contract.PersonId == PersonId.Real("bravo_only") && contract.OrganizationId == OrganizationId.Real("bravo"));
+    }
+
+    [Fact]
+    public void ATeamShortOfDriversFillsFromItsOwnStintsThenLastSeasonThenGeneratesAndLeftoversBecomeReserves()
+    {
+        static DriverSeat Seat(int year, string team, int starts) => new(year, team, 1, "race", starts);
+        static RealDriverRecord Driver(string id, params DriverSeat[] seats) =>
+            new(id, "Given", id, new DateOnly(1940, 1, 1), null, "British", 1960, 1958, seats);
+        var year = WorldInitFixtures.Year;
+        var provider = new FixtureProvider(
+            [
+                Driver("a1", Seat(year, "alpha", 10)),
+                Driver("a2", Seat(year, "alpha", 8)),
+                Driver("a3", Seat(year, "alpha", 5)),
+                Driver("x_split", Seat(year, "alpha", 3), Seat(year, "bravo", 2)),
+                Driver("b1", Seat(year, "bravo", 7)),
+                Driver("c1", Seat(year, "charlie", 5)),
+                Driver("p_last_year", Seat(year - 1, "charlie", 12)),
+                Driver("zz_other_team", Seat(year - 1, "echo", 4), Seat(year, "zulu", 9)),
+            ],
+            new Dictionary<string, DriverRating>(StringComparer.Ordinal));
+        var result = WorldInitializer.Create(Config(PeopleSource.RealTrajectory), WorldInitFixtures.Data(), provider, Seed);
+        var world = result.World;
+
+        string[] Seats(string team, bool reserve) => world.Contracts
+            .Where(contract => contract.OrganizationId == OrganizationId.Real(team) && contract.Role.IsDriver && (contract.Role.Seat == SeatStatus.Reserve) == reserve)
+            .Select(contract => contract.PersonId.Value)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(["a1", "a2"], Seats("alpha", false));
+        Assert.Equal(["a3"], Seats("alpha", true));
+        Assert.Equal(["b1", "x_split"], Seats("bravo", false));
+        Assert.Equal(["c1", "p_last_year"], Seats("charlie", false));
+        Assert.All(Seats("echo", false), id => Assert.StartsWith("gen:", id, StringComparison.Ordinal));
+        Assert.Equal(2, Seats("echo", false).Length);
+        Assert.DoesNotContain(world.Contracts, contract => contract.PersonId == PersonId.Real("zz_other_team"));
+
+        Assert.Equal(["x_split@bravo"], Subjects(result, WorldInitGapCodes.SeatFilledFromSameSeasonStint));
+        Assert.Equal(["p_last_year@charlie"], Subjects(result, WorldInitGapCodes.SeatFilledFromPreviousSeasonStint));
+        Assert.Equal(["echo"], Subjects(result, WorldInitGapCodes.SeatFilledByGeneratedDriver));
     }
 
     private static FixtureProvider CrowdedProvider()

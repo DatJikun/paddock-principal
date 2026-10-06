@@ -29,7 +29,9 @@ public static class WorldInitGapCodes
 
     public const string DriverConstructorAbsent = "world.init.gap.driver_constructor_absent";
 
-    public const string SeatFilledFromFreeAgents = "world.init.gap.seat_filled_from_free_agents";
+    public const string SeatFilledFromSameSeasonStint = "world.init.gap.seat_filled_same_season_stint";
+
+    public const string SeatFilledFromPreviousSeasonStint = "world.init.gap.seat_filled_previous_season_stint";
 
     public const string SeatFilledByGeneratedDriver = "world.init.gap.seat_filled_by_generated_driver";
 

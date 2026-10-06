@@ -14,7 +14,7 @@ public class RenewalSeasonTests
     [Fact]
     public void ALetAllContractsEndSeasonStillStartsTheNextSeasonsFirstRaceWithTwoDrivers()
     {
-        var host = BridgeHost.Lobby(Path.Combine(BridgeHost.RepositoryRoot(), "data"));
+        var host = BridgeHost.Lobby(BridgeTestData.DataRoot);
         var started = host.Handle(Message(
             "start",
             "command",

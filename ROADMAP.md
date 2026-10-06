@@ -88,7 +88,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - [ ] #160 (w PR): finanse, sponsorzy, auta i zarząd podpięte do pętli kariery przez jedną listę modułów (`CareerModules.Default`, TECH §6.2). T42, T43 i T44 dołączają jedną linijką. W pętli nadal brakuje wyścigów (T47) i AI sponsorów i zarządu (T44).
 - [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
 - [ ] W toku: T43 dostawy i silniki (#108): umowy dostaw bez własnego programu silnikowego, ten czeka na T42 (`IEngineProgrammes`).
-- [ ] Reszta otwarta: T42, T44, T47, T48.
+- [ ] Reszta otwarta: T42, T44, T47, T48 (`scenario phase4-1955`, #113).
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 

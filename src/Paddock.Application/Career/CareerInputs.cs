@@ -73,8 +73,11 @@ public sealed class CareerInputs
     /// <summary>The regulation catalog a voted season proposes against. Historical careers do not need it.</summary>
     public IReadOnlyList<RuleDimensionSpec>? RegulationCatalog { get; init; }
 
-    /// <summary>How this career treats rules. Historical reads the timeline; voted replaces next year's set on 31 December.</summary>
+    /// <summary>How this career treats rules. Historical reads the timeline; voted runs the proposals and ballots of the regulations module (#275).</summary>
     public RulesSource Rules { get; init; } = RulesSource.Historical;
+
+    /// <summary>How a voted career counts votes: one vote each, or with a bank of votes (PP-048, #275). Means nothing for historical rules.</summary>
+    public VoteMode VoteMode { get; init; } = VoteMode.OneVoteEach;
 
     /// <summary>Whether a race can kill a driver (PP-006). The default is off.</summary>
     public FatalityLevel Fatality { get; init; } = FatalityLevel.Off;

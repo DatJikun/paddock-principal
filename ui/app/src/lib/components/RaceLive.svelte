@@ -11,11 +11,12 @@
     clockNow,
     conditionAt,
     covered,
-    eventsBetween,
+    fastestAt,
     flagAt,
     formatClock,
     formatTowerGap,
     lastIndexAt,
+    radioAt,
     sampleAt,
     towerAt,
     transcriptAt,
@@ -34,7 +35,6 @@
   /* How far ahead of the race time frames are fetched, in seconds of real time at the current speed. */
   const LOOKAHEAD_S = 12;
   const MAX_WINDOW_MS = 300_000;
-  const POPUP_MS = 4_500;
 
   let race = $state<LiveRaceView | null>(null);
   let clock = $state<LiveClockView | null>(null);
@@ -46,14 +46,14 @@
   let selected = $state<string | null>(null);
   let following = $state(false);
   let curtain = $state(true);
-  let popups = $state<{ id: number; kind: 'radio' | 'control'; event: LiveEventView }[]>([]);
+  /* Speed of the selected car, read from the frames a few times a second (km/h). */
+  let selectedKmh = $state<number | null>(null);
   let mapHost: HTMLDivElement | undefined = $state();
   let canvas: HTMLCanvasElement | undefined = $state();
 
   let map: RaceMap | null = null;
   let windows: LiveFramesView[] = [];
   let fetching = false;
-  let lastPopupAt = 0;
   let lastSamples = new Map<string, ReturnType<typeof sampleAt>>();
   /* Cars that have retired by now leave the map (read from the tower, refreshed with it). */
   let gone = new Set<string>();
@@ -105,22 +105,6 @@
     map?.render(cars);
   }
 
-  function popupsUpTo(t: number) {
-    if (!race) return;
-    if (t < lastPopupAt || t - lastPopupAt > 120_000) {
-      lastPopupAt = t;
-      return;
-    }
-    for (const event of eventsBetween(race.events, lastPopupAt, t)) {
-      const kind = event.kind === 'call' ? 'radio' : ['sc', 'scEnd', 'red', 'weather'].includes(event.kind) ? 'control' : null;
-      if (!kind || !event.key) continue;
-      const id = event.seq;
-      popups = [...popups.slice(-2), { id, kind, event }];
-      setTimeout(() => (popups = popups.filter((p) => p.id !== id)), POPUP_MS);
-    }
-    lastPopupAt = t;
-  }
-
   function line(event: LiveEventView) {
     const parameters: Record<string, string> = {};
     for (const arg of event.args) {
@@ -169,7 +153,7 @@
   /* The track is fitted to the area the overlays leave free, so no part of it sits under the tower or the pit wall. */
   function placeMap() {
     if (!map) return;
-    map.setInset({ l: tower ? 348 : 12, t: 82, r: 344, b: 56 });
+    map.setInset({ l: tower ? 290 : 12, t: 82, r: 344, b: 56 });
     map.fit();
     map.draw();
   }
@@ -180,7 +164,21 @@
   });
 
   function colors() {
-    return { bg: '#15181e', road: '#2c3038', kerb: 'rgba(255,255,255,.07)', pit: '#22262d', label: 'rgba(236,231,220,.8)', accent: '#f5c518', own: getComputedStyle(document.body).getPropertyValue('--t2').trim() || '#e03a3e' };
+    return {
+      bg: '#121512',
+      infield: '#172119',
+      grass: '#1b2a1d',
+      runoff: '#2a2c27',
+      road: '#33363d',
+      edge: 'rgba(240,236,226,.55)',
+      kerbRed: '#b8231f',
+      kerbWhite: '#e9e4d8',
+      wall: '#8d8a82',
+      boxes: 'rgba(240,236,226,.35)',
+      label: 'rgba(236,231,220,.85)',
+      accent: '#f5c518',
+      own: getComputedStyle(document.body).getPropertyValue('--t2').trim() || '#e03a3e',
+    };
   }
 
   onMount(() => {
@@ -223,7 +221,8 @@
       tick = setInterval(() => {
         if (!clock) return;
         now = clockNow(clock, readAt, performance.now());
-        popupsUpTo(now);
+        const sample = selected ? lastSamples.get(selected) : null;
+        selectedKmh = sample ? Math.round(sample.speedMps * 3.6) : null;
       }, 250);
       poll = setInterval(() => {
         void query('liveClock', call).then((view) => {
@@ -265,6 +264,8 @@
   /* Recomputed on every event boundary only; the map moves every animation frame on its own. */
   let eventIndex = $derived(race ? lastIndexAt(race.events, now) : -1);
   let speed = $derived(clock?.speed ?? 0);
+  let fastest = $derived(race ? fastestAt(race.events, now) : null);
+  let radio = $derived(race ? radioAt(race, now) : []);
   let teamName = $derived(race?.cars.find((car) => car.own)?.teamName ?? '');
 </script>
 
@@ -296,6 +297,12 @@
         <span class="meta">{tr.t('live.ui.time')}</span>
         <b class="num">{formatClock(now)}</b>
       </div>
+      {#if fastest}
+        <div class="seg">
+          <span class="meta">{tr.t('live.ui.fastest')}</span>
+          <b class="fl">{cars.get(fastest.carId ?? '')?.shortName ?? ''} <small class="num">{fastest.lapTimeMs ? formatLapTime(fastest.lapTimeMs) : ''}</small></b>
+        </div>
+      {/if}
       {#if condition}
         <div class="seg">
           <span class="meta">{tr.t('live.ui.track')}</span>
@@ -317,10 +324,6 @@
             {/each}
           </div>
         </div>
-        <div class="seg">
-          <span class="meta">&nbsp;</span>
-          <button type="button" class="ctl" title={tr.t('live.ui.resultTitle')} onclick={() => control('skipToEnd')}>{tr.t('live.ui.result')} ⏭</button>
-        </div>
       {:else}
         <div class="seg back">
           <button type="button" class="rm-btn primary" onclick={onexit}>{tr.t('live.ui.back')}</button>
@@ -334,41 +337,27 @@
         <b>{tr.t('live.ui.tower')}</b>
         <button type="button" class="ctl ico" title={tr.t('live.ui.towerKey')} onclick={() => (tower = false)}>✕</button>
       </header>
-      <table>
-        <thead>
-          <tr>
-            <th class="c">{tr.t('live.ui.pos')}</th>
-            <th>{tr.t('live.ui.driver')}</th>
-            <th class="r">{tr.t('live.ui.toLeader')}</th>
-            <th class="r">{tr.t('live.ui.interval')}</th>
-            <th class="c">{tr.t('live.ui.tyres')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each towerView?.rows ?? [] as row (row.carId)}
-            {@const car = cars.get(row.carId)}
-            {@const colours = livery(car?.teamId ?? '')}
-            <tr class:mine={car?.own} class:sel={selected === row.carId} class:out={row.out} onclick={() => select(row.carId)}>
-              <td class="c pos">{row.out ? '—' : row.pos}</td>
-              <td class="nm">
-                <i class="sw" style:background={colours.main} style:border-color={colours.accent}></i>{car?.shortName ?? row.carId}
-                {#if row.inPit}<span class="tag pit">{tr.t('live.ui.inPit')}</span>{/if}
-                {#if row.finished}<span class="chq"></span>{/if}
-              </td>
-              <td class="r num" class:lead={row.pos === 1}>
+      <ol>
+        {#each towerView?.rows ?? [] as row (row.carId)}
+          {@const car = cars.get(row.carId)}
+          {@const colours = livery(car?.teamId ?? '')}
+          <li>
+            <button type="button" class:mine={car?.own} class:sel={selected === row.carId} class:out={row.out} onclick={() => select(row.carId)}>
+              <b class="pos">{row.out ? '—' : row.pos}</b>
+              <i class="sw" style:background={colours.main} style:border-color={colours.accent}></i>
+              <span class="nm">{car?.shortName ?? row.carId}</span>
+              {#if row.inPit}<span class="tag pit">{tr.t('live.ui.inPit')}</span>{:else if row.finished}<span class="chq"></span>{/if}
+              <span class="gap num">
                 {#if row.out}{tr.t('live.ui.out')}
                 {:else if row.pos === 1}{tr.t('live.ui.leader')}
                 {:else if row.lapsDown > 0}{tr.tCount('race.lapsDown', row.lapsDown)}
                 {:else}{formatTowerGap(row.gapMs)}{/if}
-              </td>
-              <td class="r num">{row.out || row.pos === 1 ? '' : formatTowerGap(row.intervalMs)}</td>
-              <td class="c">
-                {#if row.tyres}<span class="tc c-{tyreLetter(row.tyres)}">{tyreLetter(row.tyres)}</span>{/if}
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+              </span>
+              <span class="ty">{#if row.tyres}<span class="tc c-{tyreLetter(row.tyres)}">{tyreLetter(row.tyres)}</span>{/if}</span>
+            </button>
+          </li>
+        {/each}
+      </ol>
     </div>
 
     <div class="rm-right">
@@ -384,12 +373,15 @@
             <button type="button" class="ctl ico" title={tr.t('live.ui.close')} onclick={() => select(null)}>✕</button>
           </header>
           <div class="tiles">
+            <div><span class="meta">{tr.t('live.ui.speedNow')}</span><b class="num">{selectedKmh !== null && !card.out ? tr.t('live.ui.kmh', { speed: String(selectedKmh) }) : '—'}</b></div>
             <div><span class="meta">{tr.t('live.ui.lastLap')}</span><b class="num">{card.lastLapMs ? formatLapTime(card.lastLapMs) : '—'}</b></div>
             <div><span class="meta">{tr.t('live.ui.bestLap')}</span><b class="num">{card.bestLapMs ? formatLapTime(card.bestLapMs) : '—'}</b></div>
-            <div><span class="meta">{tr.t('live.ui.stops')}</span><b class="num">{card.stops}</b></div>
+            <div><span class="meta">{tr.t('live.ui.toLeader')}</span><b class="num">{card.pos === 1 ? tr.t('live.ui.leader') : card.lapsDown > 0 ? tr.tCount('race.lapsDown', card.lapsDown) : formatTowerGap(card.gapMs) || '—'}</b></div>
             <div><span class="meta">{tr.t('live.ui.toAhead')}</span><b class="num">{formatTowerGap(card.intervalMs) || '—'}</b></div>
+            <div><span class="meta">{tr.t('live.ui.gained')}</span><b class="num" class:up={card.gained > 0} class:down={card.gained < 0}>{card.gained > 0 ? `+${card.gained}` : card.gained}</b></div>
             <div><span class="meta">{tr.t('live.ui.tyres')}</span><b>{card.tyres && tyreFamily(card.tyres) ? tr.t(`live.tyre.${tyreFamily(card.tyres)}`) : card.tyres ?? '—'}</b></div>
-            <div><span class="meta">{tr.t('live.ui.lap')}</span><b class="num">{card.laps}</b></div>
+            <div><span class="meta">{tr.t('live.ui.tyreAge')}</span><b class="num">{card.tyreLaps}</b></div>
+            <div><span class="meta">{tr.t('live.ui.stops')}</span><b class="num">{card.stops}</b></div>
           </div>
           <button type="button" class="rm-btn sm" class:on={following} onclick={() => setFollow(!following)}>
             {following ? tr.t('live.ui.following') : tr.t('live.ui.follow')}
@@ -415,6 +407,23 @@
         {/each}
         <p class="note">{tr.t('live.ui.autoStrategy')}</p>
       </div>
+
+      <div class="ov rm-radio">
+        <header><b>{tr.t('live.ui.radioLog')}</b></header>
+        <ol>
+          {#each radio as event, index (event.seq)}
+            <li class:fresh={index === 0} class:call={event.kind === 'call'}>
+              <span class="meta">
+                {event.kind === 'call' ? `${tr.t('live.ui.radio')} · ${cars.get(event.carId ?? '')?.shortName ?? ''}` : tr.t('live.ui.control')}
+                {#if event.lap > 0}· {tr.t('live.ui.lap')} {event.lap}{/if}
+              </span>
+              <span>{line(event)}</span>
+            </li>
+          {:else}
+            <li class="empty">{tr.t('live.ui.noRadio')}</li>
+          {/each}
+        </ol>
+      </div>
     </div>
 
     <button type="button" class="ctl rm-log-tab" aria-pressed={transcript} onclick={() => (transcript = !transcript)}>{tr.t('live.ui.transcriptKey')}</button>
@@ -439,15 +448,6 @@
         </ol>
       </div>
     {/if}
-
-    <div class="rm-popups">
-      {#each popups as popup (popup.id)}
-        <div class="ov popup {popup.kind}">
-          <span class="meta">{popup.kind === 'radio' ? `${tr.t('live.ui.radio')} · ${cars.get(popup.event.carId ?? '')?.shortName ?? ''}` : tr.t('live.ui.control')}</span>
-          <b>{line(popup.event)}</b>
-        </div>
-      {/each}
-    </div>
 
     {#if podium.length > 0}
       <div class="ov rm-finish">
@@ -686,10 +686,60 @@
   .rm-tower {
     top: 82px;
     left: 12px;
+    width: 266px;
     max-height: calc(100% - 94px);
     overflow: auto;
-    padding: 8px 6px 6px;
+    padding: 8px 4px 4px;
     transition: transform 0.42s var(--ease), opacity 0.3s;
+  }
+  .rm-tower ol {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+  }
+  .rm-tower li button {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    height: 27px;
+    padding: 0 6px;
+    border-radius: 6px;
+  }
+  .rm-tower li button:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .rm-tower li button.mine {
+    background: linear-gradient(90deg, color-mix(in oklab, var(--t1, #c4161c) 60%, transparent), transparent);
+  }
+  .rm-tower li button.sel {
+    background: rgba(245, 197, 24, 0.16);
+    box-shadow: inset 3px 0 0 var(--gold);
+  }
+  .rm-tower li button.out {
+    color: var(--ov-ink3);
+  }
+  .rm-tower li button:focus-visible {
+    outline: 2px solid var(--gold);
+  }
+  .rm-tower .nm {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rm-tower .gap {
+    font-size: 12px;
+    color: var(--ov-ink2);
+    text-align: right;
+  }
+  .rm-tower .ty {
+    width: 17px;
+    display: inline-flex;
   }
   .rm[data-tower='off'] .rm-tower {
     transform: translateX(calc(-100% - 24px));
@@ -716,58 +766,13 @@
     color: var(--ov-ink2);
     font-size: 12px;
   }
-  table {
-    border-collapse: collapse;
-  }
-  th {
-    font: 600 10px/1 var(--ui);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ov-ink3);
-    padding: 8px 6px 6px;
-    text-align: left;
-  }
-  td {
-    padding: 0 6px;
-    height: 26px;
-    white-space: nowrap;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
-  }
-  tbody tr {
-    cursor: pointer;
-  }
-  tbody tr:hover td {
-    background: rgba(255, 255, 255, 0.05);
-  }
-  tr.mine td {
-    background: color-mix(in oklab, var(--t1, #c4161c) 34%, transparent);
-  }
-  tr.sel td {
-    background: rgba(245, 197, 24, 0.16);
-  }
-  tr.out td {
-    color: var(--ov-ink3);
-  }
-  .c {
-    text-align: center;
-  }
-  .r {
-    text-align: right;
-  }
   .pos {
-    font: 800 16px/1 var(--display);
-    width: 26px;
+    font: 800 15px/1 var(--display);
+    width: 22px;
+    text-align: right;
   }
   .nm {
     font-weight: 700;
-  }
-  td.num {
-    font-size: 13px;
-    color: var(--ov-ink2);
-    min-width: 64px;
-  }
-  td.lead {
-    color: var(--ov-ink);
   }
   .sw {
     display: inline-block;
@@ -780,7 +785,6 @@
   }
   .tag {
     display: inline-block;
-    margin-left: 8px;
     font: 700 10px/1 var(--ui);
     letter-spacing: 0.07em;
     text-transform: uppercase;
@@ -795,7 +799,6 @@
     display: inline-block;
     width: 14px;
     height: 10px;
-    margin-left: 8px;
     border-radius: 2px;
     background: repeating-conic-gradient(#f4efe4 0 25%, #111 0 50%) 0 0/7px 5px;
   }
@@ -845,11 +848,11 @@
     position: absolute;
     top: 82px;
     right: 12px;
-    bottom: 64px;
+    bottom: 48px;
     width: 320px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     pointer-events: none;
   }
   .rm-right > .ov {
@@ -858,6 +861,9 @@
   }
   .rm-right > .rm-pit {
     margin-top: auto;
+  }
+  .rm-card .tiles {
+    margin: 12px 0 10px;
   }
   .rm-card {
     padding: 14px;
@@ -1005,40 +1011,63 @@
     gap: 2px;
   }
 
-  .rm-popups {
-    position: absolute;
-    top: 82px;
-    left: 50%;
-    transform: translateX(-50%);
+  .rm-radio {
+    padding: 10px 8px 8px;
+  }
+  .rm-radio > header {
+    padding: 0 4px 8px 8px;
+    border-bottom: 1px solid var(--ov-line);
+  }
+  .rm-radio > header b {
+    font: 800 17px/1 var(--display);
+    text-transform: uppercase;
+  }
+  .rm-radio ol {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0 0;
+  }
+  .rm-radio li {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    pointer-events: none;
+    gap: 3px;
+    padding: 6px 8px;
+    border-left: 3px solid var(--ov-line);
+    margin-top: 4px;
+    font-size: 12.5px;
+    color: var(--ov-ink2);
   }
-  .popup {
-    position: relative;
-    padding: 10px 14px;
-    max-width: 420px;
+  .rm-radio li.call {
+    border-left-color: var(--gold);
+  }
+  .rm-radio li.fresh {
+    color: var(--ov-ink);
+    font-weight: 700;
     animation: pop 0.35s var(--ease);
   }
-  .popup b {
-    display: block;
-    margin-top: 5px;
-    font-weight: 700;
-  }
-  .popup.radio {
-    border-color: color-mix(in oklab, var(--gold) 50%, transparent);
-  }
-  .popup.control .meta {
-    color: var(--gold);
+  .rm-radio li.empty {
+    border: 0;
+    color: var(--ov-ink3);
   }
   @keyframes pop {
     from {
       opacity: 0;
-      transform: translateY(-8px);
+      transform: translateY(-6px);
     }
   }
-
+  .fl small {
+    font: 600 12px var(--ui);
+    color: var(--ov-ink2);
+  }
+  .fl {
+    font: 700 14px/1 var(--ui) !important;
+  }
+  .up {
+    color: #4cc46a;
+  }
+  .down {
+    color: #ff6b57;
+  }
   .rm-finish {
     left: 50%;
     top: 50%;

@@ -396,7 +396,7 @@ Przed wyścigiem przygotowujesz zespół, w wyścigu pracują Twoi ludzie, a wyn
 Strateg | steruje postojami i tempem; słabszy gorzej ocenia zużycie opon i plany. Jego umiejętność to w {RaceStaffEstimates.StrategyWeight|%} strategia, reszta to „Reakcja”; atrybut „Pogoda” decyduje o trafności prognozy. Rywale mają swoich strategów na tych samych zasadach
 Ekipa w boksie | jej jakość to atrybut „Pit stopy” szefa mechaników; od niej zależy ryzyko błędu: +{PitConstants.ErrorMinSeconds|s}–{PitConstants.ErrorMaxSeconds|s} straty
 Kierowca i auto pod tor | tor nagradza różne parametry auta
-Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, klasyfikacja, przebieg i polecenia stratega przez radio; tempo ×1, ×5, ×10, ×20, pauza albo od razu do mety
+Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, klasyfikacja, przebieg i polecenia stratega przez radio; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości
 Ręczna kontrola | w planach jako opcja kariery: ręczne pit-stopy i polecenia tempa
 ```
 

@@ -54,7 +54,7 @@ public class LiveRaceTests
     }
 
     [Fact]
-    public void TheRaceClockRunsAtTheChosenSpeedPausesSkipsAndRefusesASpeedItDoesNotOffer()
+    public void TheRaceClockRunsAtTheChosenSpeedPausesStopsAtTheFlagAndRefusesASpeedItDoesNotOffer()
     {
         var clock = new ManualClock();
         var playback = new LiveRacePlayback(1955, 1, 600_000, clock);
@@ -79,7 +79,8 @@ public class LiveRaceTests
         Assert.Equal(paused, playback.RaceTimeMs);
         Assert.True(playback.Paused);
 
-        Assert.Null(playback.Apply("human:b", LiveRaceAction.SkipToEnd));
+        Assert.Null(playback.Apply("human:b", LiveRaceAction.Play));
+        clock.Now += 600_000;
         Assert.True(playback.View().Finished);
         Assert.Equal(600_000, playback.View().RaceTimeMs);
         Assert.Null(playback.Apply("human:a", LiveRaceAction.Play));
@@ -87,7 +88,7 @@ public class LiveRaceTests
         Assert.Equal(600_000, playback.RaceTimeMs);
 
         Assert.Equal(
-            [LiveRaceAction.Play, LiveRaceAction.SetSpeed, LiveRaceAction.Pause, LiveRaceAction.SkipToEnd, LiveRaceAction.Play],
+            [LiveRaceAction.Play, LiveRaceAction.SetSpeed, LiveRaceAction.Pause, LiveRaceAction.Play, LiveRaceAction.Play],
             playback.Log.Select(order => order.Action));
         Assert.Equal(["human:a", "human:b", "human:a", "human:b", "human:a"], playback.Log.Select(order => order.ManagerId));
     }
@@ -107,7 +108,7 @@ public class LiveRaceTests
     [Theory]
     [InlineData("play", true)]
     [InlineData("SetSpeed", true)]
-    [InlineData("skipToEnd", true)]
+    [InlineData("skipToEnd", false)]
     [InlineData("rewind", false)]
     [InlineData("1", false)]
     [InlineData(null, false)]

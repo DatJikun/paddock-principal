@@ -1434,13 +1434,10 @@
   "live.ui.pause": "Pause (space)",
   "live.ui.play": "Resume (space)",
   "live.ui.live": "Live",
-  "live.ui.result": "To the flag",
-  "live.ui.resultTitle": "Skip to the chequered flag",
   "live.ui.back": "Back to the game",
   "live.ui.tower": "Classification",
   "live.ui.towerKey": "Classification (T)",
   "live.ui.toLeader": "To leader",
-  "live.ui.interval": "Interval",
   "live.ui.pos": "Pos",
   "live.ui.driver": "Driver",
   "live.ui.tyres": "Tyres",
@@ -1489,5 +1486,11 @@
   "live.condition.damp": "Damp",
   "live.condition.wet": "Wet",
   "live.condition.extreme": "Downpour",
-  "live.ui.watch": "Watch the race"
+  "live.ui.watch": "Watch the race",
+  "live.ui.speedNow": "Speed",
+  "live.ui.tyreAge": "Laps on tyres",
+  "live.ui.gained": "Since start",
+  "live.ui.fastest": "Fastest lap",
+  "live.ui.radioLog": "Radio and race control",
+  "live.ui.noRadio": "The radio is quiet so far."
 }

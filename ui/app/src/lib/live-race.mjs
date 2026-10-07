@@ -76,6 +76,7 @@ export function towerAt(race, t) {
       bestLapMs: null,
       stops: 0,
       tyres: null,
+      stintFrom: 0,
       inPit: false,
       out: false,
       finished: false,
@@ -108,6 +109,7 @@ export function towerAt(race, t) {
         if (!row) break;
         row.inPit = false;
         row.stops += 1;
+        row.stintFrom = row.laps;
         if (e.tyres) row.tyres = e.tyres;
         break;
       case 'retire':
@@ -142,6 +144,8 @@ export function towerAt(race, t) {
   let previous = null;
   rows.forEach((row, index) => {
     row.pos = index + 1;
+    row.tyreLaps = row.laps - row.stintFrom;
+    row.gained = row.out || row.grid === 999 ? 0 : row.grid - row.pos;
     row.lapsDown = row.laps > 0 ? Math.max(0, leadersBefore(row.crossMs) - row.laps) : 0;
     row.gapMs = row.laps > 0 && leaderCross[row.laps] !== undefined ? row.crossMs - leaderCross[row.laps] : null;
     row.intervalMs =
@@ -168,6 +172,24 @@ export function transcriptAt(race, t, mine = false) {
   }
   return out;
 }
+
+/** The fastest lap so far at time `t` (the last "fastest" event), or null. */
+export function fastestAt(events, t) {
+  for (let i = lastIndexAt(events, t); i >= 0; i--) if (events[i].kind === 'fastest') return events[i];
+  return null;
+}
+
+/** What the pit wall hears up to `t`, newest first: our strategist's calls and race control (flags and weather). */
+export function radioAt(race, t, limit = 4) {
+  const out = [];
+  for (let i = lastIndexAt(race.events, t); i >= 0 && out.length < limit; i--) {
+    const e = race.events[i];
+    if (e.key && RADIO_KINDS.has(e.kind)) out.push(e);
+  }
+  return out;
+}
+
+const RADIO_KINDS = new Set(['call', 'sc', 'scEnd', 'red', 'weather']);
 
 /** Events that became due between two race times (exclusive, inclusive], in tape order, for the radio and race-control pop-ups. */
 export function eventsBetween(events, from, to) {

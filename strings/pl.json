@@ -1470,13 +1470,10 @@
   "live.ui.pause": "Pauza (spacja)",
   "live.ui.play": "Wznów (spacja)",
   "live.ui.live": "Na żywo",
-  "live.ui.result": "Do mety",
-  "live.ui.resultTitle": "Przewiń do flagi w szachownicę",
   "live.ui.back": "Wróć do gry",
   "live.ui.tower": "Klasyfikacja",
   "live.ui.towerKey": "Klasyfikacja (T)",
   "live.ui.toLeader": "Do lidera",
-  "live.ui.interval": "Odstęp",
   "live.ui.pos": "Poz.",
   "live.ui.driver": "Kierowca",
   "live.ui.tyres": "Opony",
@@ -1525,5 +1522,11 @@
   "live.condition.damp": "Wilgotno",
   "live.condition.wet": "Mokro",
   "live.condition.extreme": "Ulewa",
-  "live.ui.watch": "Oglądaj wyścig"
+  "live.ui.watch": "Oglądaj wyścig",
+  "live.ui.speedNow": "Prędkość",
+  "live.ui.tyreAge": "Okr. na oponach",
+  "live.ui.gained": "Od startu",
+  "live.ui.fastest": "Najszybsze okr.",
+  "live.ui.radioLog": "Radio i dyrekcja",
+  "live.ui.noRadio": "Na razie cisza w radiu."
 }

@@ -10,7 +10,7 @@ namespace Paddock.Desktop.Bridge;
 /// <summary>Argument of <c>liveFrames</c>: a window of race time in milliseconds.</summary>
 public sealed record LiveFramesCall(string ManagerId, long FromMs, long ToMs);
 
-/// <summary>Argument of <c>liveRaceControl</c>: <c>play</c>, <c>pause</c>, <c>setSpeed</c> (with <see cref="Speed"/>) or <c>skipToEnd</c>.</summary>
+/// <summary>Argument of <c>liveRaceControl</c>: <c>play</c>, <c>pause</c>, or <c>setSpeed</c> (with <see cref="Speed"/>).</summary>
 public sealed record LiveRaceControlCall(string ManagerId, string Action, double? Speed);
 
 /// <summary>

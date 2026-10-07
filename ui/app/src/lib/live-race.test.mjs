@@ -5,9 +5,11 @@ import {
   conditionAt,
   covered,
   eventsBetween,
+  fastestAt,
   flagAt,
   formatClock,
   formatTowerGap,
+  radioAt,
   sampleAt,
   towerAt,
   transcriptAt,
@@ -153,4 +155,22 @@ test('clock and gap text', () => {
   assert.equal(formatTowerGap(4_340), '+4.3');
   assert.equal(formatTowerGap(64_300), '+1:04.3');
   assert.equal(formatTowerGap(null), '');
+});
+
+test('tyre age counts from the last stop, and places gained count from the grid', () => {
+  const a = towerAt(race, 210_000).rows.find((r) => r.carId === 'a');
+  assert.equal(a.tyreLaps, 1);
+  assert.equal(a.gained, 0);
+  const b = towerAt(race, 300_000).rows.find((r) => r.carId === 'b');
+  assert.equal(b.gained, 0);
+  const c = towerAt(race, 96_000).rows.find((r) => r.carId === 'c');
+  assert.equal(c.gained, 0);
+});
+
+test('the fastest lap and the pit wall radio read only what has happened', () => {
+  assert.equal(fastestAt(race.events, 100_000), null);
+  const fast = { ...race, events: [...race.events.slice(0, 2), ev(90_001, 'fastest', { carId: 'a', key: 'live.event.fastest' })] };
+  assert.equal(fastestAt(fast.events, 95_000).carId, 'a');
+  assert.deepEqual(radioAt(race, 160_000).map((e) => e.kind), ['scEnd', 'weather', 'sc']);
+  assert.equal(radioAt(race, 160_000, 1).length, 1);
 });

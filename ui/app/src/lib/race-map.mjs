@@ -51,8 +51,10 @@ export class TrackSpline {
         const y = v * v * v * b[1] + 3 * v * v * u * b1[1] + 3 * v * u * u * b2[1] + u * u * u * c[1];
         const dx = 3 * v * v * (b1[0] - b[0]) + 6 * v * u * (b2[0] - b1[0]) + 3 * u * u * (c[0] - b2[0]);
         const dy = 3 * v * v * (b1[1] - b[1]) + 6 * v * u * (b2[1] - b1[1]) + 3 * u * u * (c[1] - b2[1]);
+        const ddx = 6 * v * (b2[0] - 2 * b1[0] + b[0]) + 6 * u * (c[0] - 2 * b2[0] + b1[0]);
+        const ddy = 6 * v * (b2[1] - 2 * b1[1] + b[1]) + 6 * u * (c[1] - 2 * b2[1] + b1[1]);
         const len = Math.hypot(dx, dy) || 1e-6;
-        raw.push({ x, y, nx: -dy / len, ny: dx / len });
+        raw.push({ x, y, nx: -dy / len, ny: dx / len, k: Math.abs(dx * ddy - dy * ddx) / len ** 3 });
       }
     }
     this.samples = [];
@@ -133,6 +135,11 @@ export function separate(items, spacing) {
   }
   return out;
 }
+
+/** ESTIMATE, drawn only: road width, grass verge and the radius below which a bend gets kerbs, in metres. */
+const TRACK_WIDTH_M = 12;
+const VERGE_M = 30;
+const KERB_RADIUS_M = 160;
 
 /** The pit lane along the main straight, as a fraction of the lap (ESTIMATE: drawn, not simulated). */
 const PIT_FROM = 0.93;
@@ -303,7 +310,9 @@ export class RaceMap {
       (e) => {
         e.preventDefault();
         const [x, y] = local(e);
-        this.zoomBy(e.deltaY < 0 ? 1.2 : 1 / 1.2, x, y);
+        /* While following a car the zoom keeps that car in the middle; otherwise it zooms on the pointer. */
+        if (this.follow) this.zoomBy(e.deltaY < 0 ? 1.2 : 1 / 1.2);
+        else this.zoomBy(e.deltaY < 0 ? 1.2 : 1 / 1.2, x, y);
       },
       { passive: false, signal: this.abort.signal },
     );
@@ -326,12 +335,17 @@ export class RaceMap {
     return Math.max(5.5, Math.min(11, 5.5 * Math.sqrt(this.zoom / this.fitZoom)));
   }
 
+  /* Drawn widths grow with the zoom, so a close-up shows a real road with verges; the floor keeps the whole lap readable. */
   roadPx() {
-    return Math.max(8, Math.min(28, 9 * Math.sqrt(this.zoom / this.fitZoom)));
+    return Math.max(9, Math.min(150, TRACK_WIDTH_M * this.zoom));
+  }
+
+  pitWidth() {
+    return this.roadPx() * 0.6;
   }
 
   pitOffset() {
-    return this.roadPx() * 0.5 + Math.max(6, this.roadPx() * 0.45);
+    return this.roadPx() * 0.5 + Math.max(5, this.roadPx() * 0.35) + this.pitWidth() / 2;
   }
 
   layout(cars) {
@@ -403,38 +417,133 @@ export class RaceMap {
     }
   }
 
+  /* Points of the centre line offset sideways by `off` px, over [from, to] of the lap, as one canvas path. */
+  offsetPath(ctx, off, from, to, close = false) {
+    this.path(ctx, off, from, to);
+    if (close) ctx.closePath();
+  }
+
   drawTrack(ctx) {
     const road = this.roadPx();
+    const verge = Math.max(10, Math.min(260, VERGE_M * this.zoom));
     const c = this.colors;
     ctx.lineJoin = 'round';
+    ctx.lineCap = 'butt';
+
+    /* Infield and the grass either side of the road. */
+    this.offsetPath(ctx, 0, 0, 1, true);
+    ctx.fillStyle = c.infield;
+    ctx.fill();
+    ctx.strokeStyle = c.grass;
+    ctx.lineWidth = road + verge * 2;
+    ctx.stroke();
+    ctx.strokeStyle = c.runoff;
+    ctx.lineWidth = road + Math.max(4, verge * 0.35);
+    ctx.stroke();
+
+    /* Pit lane: its own strip of tarmac beside the main straight, joined to the track at both ends, with a wall and boxes. */
+    const pitOff = -this.pitOffset();
+    const pitW = this.pitWidth();
     ctx.lineCap = 'round';
-    this.path(ctx, -this.pitOffset(), PIT_FROM, PIT_FROM + PIT_SPAN);
-    ctx.strokeStyle = c.pit;
-    ctx.lineWidth = Math.max(4, road * 0.5);
+    ctx.strokeStyle = c.road;
+    ctx.lineWidth = pitW;
+    this.path(ctx, pitOff, PIT_FROM, PIT_FROM + PIT_SPAN);
     ctx.stroke();
-    this.path(ctx);
-    ctx.closePath();
-    ctx.strokeStyle = c.kerb;
-    ctx.lineWidth = road + 6;
+    for (const [a, b] of [
+      [PIT_FROM - 0.012, PIT_FROM],
+      [PIT_FROM + PIT_SPAN, PIT_FROM + PIT_SPAN + 0.012],
+    ]) {
+      const p0 = this.screen(a, a < PIT_FROM ? 0 : pitOff);
+      const p1 = this.screen(b, a < PIT_FROM ? pitOff : 0);
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.lineWidth = pitW * 0.8;
+      ctx.stroke();
+    }
+    ctx.lineCap = 'butt';
+    this.path(ctx, -road / 2 - Math.max(2, (this.pitOffset() - pitW / 2 - road / 2) / 2), PIT_FROM + 0.008, PIT_FROM + PIT_SPAN - 0.008);
+    ctx.strokeStyle = c.wall;
+    ctx.lineWidth = Math.max(1.5, road * 0.08);
     ctx.stroke();
+    if (road > 22) {
+      this.path(ctx, pitOff - pitW / 2 + 1, PIT_FROM + 0.01, PIT_FROM + PIT_SPAN - 0.01);
+      ctx.strokeStyle = c.boxes;
+      ctx.lineWidth = Math.max(2, pitW * 0.25);
+      ctx.setLineDash([Math.max(3, road * 0.25), Math.max(3, road * 0.2)]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    /* Road and its white edge lines. */
+    this.offsetPath(ctx, 0, 0, 1, true);
     ctx.strokeStyle = c.road;
     ctx.lineWidth = road;
     ctx.stroke();
+    for (const side of [-1, 1]) {
+      this.offsetPath(ctx, side * (road / 2 - Math.max(1, road * 0.04)), 0, 1, true);
+      ctx.strokeStyle = c.edge;
+      ctx.lineWidth = Math.max(1, road * 0.03);
+      ctx.stroke();
+    }
+
+    /* Kerbs on the tight bends, red and white, on both edges. */
+    const kerbW = Math.max(2, road * 0.1);
+    for (const [from, to] of this.bends()) {
+      for (const side of [-1, 1]) {
+        this.path(ctx, side * (road / 2 + kerbW / 2 - 1), from, to);
+        ctx.lineWidth = kerbW;
+        ctx.strokeStyle = c.kerbWhite;
+        ctx.stroke();
+        ctx.setLineDash([kerbW * 1.6, kerbW * 1.6]);
+        ctx.strokeStyle = c.kerbRed;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    /* Start and finish: a chequer across the road. */
     const p = this.sp.at(0);
     const x = this.panX + p.x * this.zoom;
     const y = this.panY + p.y * this.zoom;
-    const half = road / 2 + 3;
-    const sq = Math.max(2.5, road / 6);
+    const half = road / 2;
+    const sq = Math.max(2.5, road / 8);
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(Math.atan2(p.ny, p.nx));
     for (let i = -half, k = 0; i < half; i += sq, k++) {
       for (let j = 0; j < 2; j++) {
         ctx.fillStyle = (k + j) % 2 ? '#111' : '#f4efe4';
-        ctx.fillRect(i, -sq + j * sq, sq, sq);
+        ctx.fillRect(i, -sq + j * sq, Math.min(sq, half - i), sq);
       }
     }
     ctx.restore();
+  }
+
+  /* A point on the centre line, in screen px, offset sideways by `off`. */
+  screen(fraction, off) {
+    const p = this.sp.at(fraction);
+    return { x: this.panX + p.x * this.zoom + p.nx * off, y: this.panY + p.y * this.zoom + p.ny * off };
+  }
+
+  /* Lap fractions [from, to] of the bends tighter than KERB_RADIUS_M, found once from the samples' curvature. */
+  bends() {
+    if (this.bendList) return this.bendList;
+    const S = this.sp.samples;
+    const out = [];
+    let start = -1;
+    for (let i = 0; i <= S.length; i++) {
+      const tight = i < S.length && S[i].k > 1 / KERB_RADIUS_M;
+      if (tight && start < 0) start = i;
+      if (!tight && start >= 0) {
+        const from = S[start].d / this.sp.total;
+        const to = (i < S.length ? S[i].d : this.sp.total) / this.sp.total;
+        if (to - from > 0.002) out.push([from, to]);
+        start = -1;
+      }
+    }
+    this.bendList = out;
+    return out;
   }
 
   /*

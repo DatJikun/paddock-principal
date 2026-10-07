@@ -82,7 +82,8 @@ public class LiveRaceBridgeTests
         Assert.True(frames.GetProperty("found").GetBoolean());
         Assert.NotEmpty(frames.GetProperty("cars").EnumerateArray());
 
-        Control(host, "skipToEnd");
+        Control(host, "play");
+        clock.Now += duration;
         var end = Data(host, "query", "liveClock");
         Assert.True(end.GetProperty("finished").GetBoolean());
         Assert.Equal(duration, end.GetProperty("raceTimeMs").GetInt64());

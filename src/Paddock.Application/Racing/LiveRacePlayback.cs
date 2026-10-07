@@ -9,7 +9,6 @@ public enum LiveRaceAction
     Play,
     Pause,
     SetSpeed,
-    SkipToEnd,
 }
 
 /// <summary>
@@ -40,8 +39,8 @@ public sealed record LiveClockView(
 
 /// <summary>
 /// The host's playback of one race (multiplayer foundation, TECH §5.1): a single race clock, owned by the host, that every viewer
-/// reads. A single player is a host with no guests. Speeds are the watching speeds of DESIGN (live, ×5, ×10, ×20); "result only"
-/// is <see cref="LiveRaceAction.SkipToEnd"/>. It reads only the injected <see cref="IClock"/>, so tests drive it by hand.
+/// reads. A single player is a host with no guests. Speeds are the watching speeds of DESIGN (live, ×5, ×10, ×20). There is no
+/// jump to the flag: the race is watched as it runs (owner's call, #276). It reads only the injected <see cref="IClock"/>, so tests drive it by hand.
 /// </summary>
 public sealed class LiveRacePlayback
 {
@@ -125,10 +124,6 @@ public sealed class LiveRacePlayback
             case LiveRaceAction.SetSpeed:
                 Speed = speed;
                 Paused = false;
-                break;
-            case LiveRaceAction.SkipToEnd:
-                _anchorRaceMs = DurationMs;
-                Paused = true;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, "Unknown race action.");

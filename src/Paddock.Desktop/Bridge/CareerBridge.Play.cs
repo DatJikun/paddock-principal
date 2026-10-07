@@ -197,15 +197,17 @@ public sealed partial class CareerBridge
 
         try
         {
-            var created = WorldInitializer.Create(config, data, CareerData.LoadProvider(files), seed);
-            var tiers = TeamTiersLoader.Load(root);
-            var last = tiers.Standings
-                .Where(entry => entry.Season == config.StartYear - 1)
-                .ToDictionary(entry => entry.ConstructorId, entry => entry.Position, StringComparer.Ordinal);
+            // The same starting sources as newCareer (#271), so a card shows the car and the budget the career will start with.
+            var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
+            var created = WorldInitializer.Create(config, data, CareerData.LoadProvider(files), seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
+            var tiers = starting.Tiers ?? TeamTiersLoader.ToSource(TeamTiersLoader.Load(root));
+            var last = created.World.Organizations
+                .Where(organization => organization.IsReal && tiers.PreviousPlaceOf(organization.Id, config.StartYear) is not null)
+                .ToDictionary(organization => organization.Id.Value, organization => tiers.PreviousPlaceOf(organization.Id, config.StartYear)!.Value, StringComparer.Ordinal);
             var supplies = created.EngineSupplies
                 .Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType))
                 .ToArray();
-            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, TeamTiersLoader.ToSource(tiers), last, data.CarStrength);
+            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength);
             _cardsKey = key;
             _cards = cards;
             return cards;
@@ -425,7 +427,8 @@ public sealed partial class CareerBridge
         {
             var data = AuthoredDataLoader.Load(root);
             var provider = CareerData.LoadProvider(files);
-            var created = WorldInitializer.Create(config, data, provider, seed);
+            var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
+            var created = WorldInitializer.Create(config, data, provider, seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
             var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);
             var session = new CareerSession(
                 created.World,
@@ -436,7 +439,7 @@ public sealed partial class CareerBridge
             var display = given + " " + family;
             var shell = CareerShell.Open(
                 session,
-                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config, CareerData.LoadRaceDates(root)) },
+                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config, CareerData.LoadRaceDates(root), starting) },
                 display,
                 HumanManagerId);
             var today = new DateOnly(shell.Date.Year, shell.Date.Month, shell.Date.Day);
@@ -522,7 +525,15 @@ public sealed partial class CareerBridge
             var shell = CareerShell.Resume(
                 session,
                 loaded.Host,
-                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, career: loaded.Meta.CareerConfig, raceDates: CareerData.LoadRaceDates(root)) },
+                new CareerRunOptions
+                {
+                    Inputs = CareerInputsLoader.Load(
+                        root,
+                        data,
+                        career: loaded.Meta.CareerConfig,
+                        raceDates: CareerData.LoadRaceDates(root),
+                        starting: CareerData.LoadStartingSources(root, data, session.OpenedYear)),
+                },
                 human);
             Install(shell, loaded.Meta.CareerConfig, files, now, loaded.Meta.CareerName, null, data);
             return PlayStep.Ok(

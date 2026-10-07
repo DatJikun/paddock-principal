@@ -25,6 +25,7 @@ internal static class Program
             RunCommand.Name => RunCommand.Execute(args, Console.Out, Console.Error),
             PlayCommand.Name => PlayCommand.Execute(args, Console.In, Console.Out, Console.Error),
             ScenarioCommand.Name => ScenarioCommand.Execute(args, Console.Out, Console.Error),
+            StartSweepCommand.Name => StartSweepCommand.Execute(args, Console.Out, Console.Error),
             _ => Unknown(args[0]),
         };
     }

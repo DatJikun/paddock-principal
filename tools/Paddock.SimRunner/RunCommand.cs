@@ -165,7 +165,8 @@ public static class RunCommand
             var data = AuthoredDataLoader.Load(root);
             var files = ResolveProviderFiles(root, schedulePath, driversPath);
             var provider = LoadProvider(files);
-            var created = WorldInitializer.Create(config, data, provider, seed.Value);
+            var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
+            var created = WorldInitializer.Create(config, data, provider, seed.Value, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
             var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed.Value);
             var session = new CareerSession(
                 created.World,
@@ -173,7 +174,7 @@ public static class RunCommand
                 created.TalentPool,
                 arrivals,
                 new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
-            var result = CareerHost.Run(session, to.Value, null, new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config) });
+            var result = CareerHost.Run(session, to.Value, null, new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config, starting: starting) });
             Print(result, strings, preset, config.PeopleSource.ToString(), from.Value, to.Value, seed.Value, stdout, resumedOn: null);
             if (savePath is not null)
             {
@@ -259,11 +260,15 @@ public static class RunCommand
                 loaded.Session,
                 arrivals,
                 new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
+            var data = AuthoredDataLoader.Load(root);
             var result = CareerHost.Run(
                 session,
                 to,
                 loaded.Host,
-                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, AuthoredDataLoader.Load(root), career: config) });
+                new CareerRunOptions
+                {
+                    Inputs = CareerInputsLoader.Load(root, data, career: config, starting: CareerData.LoadStartingSources(root, data, session.OpenedYear)),
+                });
             var preset = config.PresetName.ToString();
             Print(result, strings, preset, config.PeopleSource.ToString(), session.OpenedYear, to, seed, stdout, resumedOn: date);
             if (savePath is not null)

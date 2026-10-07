@@ -364,6 +364,78 @@ public class BridgeTests
     }
 
     [Fact]
+    public void TheTeamCardsComeInOrderOfLastSeasonWithABudgetAndRoughLevels()
+    {
+        // #266: the cards are listed by last season's finish (teams without a known place last), carry the opening budget as money,
+        // and show four coarse levels from 1 to 5 that follow the paddock's picture of a team, not a hidden score.
+        using var lobby = Lobby();
+        var response = lobby.Host.Handle(Message(
+            "cards",
+            "query",
+            "teams",
+            """{"managerId":"human:player","year":1955,"preset":"Chaos","people":null,"seed":1}"""));
+        using var json = JsonDocument.Parse(response.Response);
+        var teams = json.RootElement.GetProperty("data").GetProperty("teams").EnumerateArray().ToArray();
+        var places = teams
+            .Select(team => team.GetProperty("lastSeason").ValueKind == JsonValueKind.Null ? int.MaxValue : team.GetProperty("lastSeason").GetInt32())
+            .ToArray();
+        Assert.Equal(places.OrderBy(place => place).ToArray(), places);
+        Assert.Contains(places, place => place != int.MaxValue);
+
+        foreach (var team in teams)
+        {
+            Assert.True(team.GetProperty("budgetCents").GetInt64() > 0, team.GetRawText());
+            foreach (var area in new[] { "car", "infrastructure", "drivers", "staff" })
+            {
+                var level = team.GetProperty("levels").GetProperty(area);
+                if (level.ValueKind != JsonValueKind.Null)
+                {
+                    Assert.InRange(level.GetInt32(), 1, 5);
+                }
+            }
+        }
+
+        JsonElement Card(string id) => teams.Single(team => team.GetProperty("id").GetString() == id);
+        Assert.True(Card("mercedes").GetProperty("levels").GetProperty("car").GetInt32() > Card("cooper").GetProperty("levels").GetProperty("car").GetInt32());
+        Assert.True(Card("mercedes").GetProperty("levels").GetProperty("infrastructure").GetInt32() > Card("cooper").GetProperty("levels").GetProperty("infrastructure").GetInt32());
+    }
+
+    [Fact]
+    public void TheShellNamesTheNewestOpenImportantItemSoAutomaticPlayCanStopOnIt()
+    {
+        using var career = StartFerrariCareer();
+        var shell = career.Host.Handle(Message("sh", "query", "shell"));
+        using var shellJson = JsonDocument.Parse(shell.Response);
+        var data = shellJson.RootElement.GetProperty("data");
+        // The board's season target asks for an answer, so it is important and holds the clock.
+        Assert.Equal(data.GetProperty("decisionItemId").GetString(), data.GetProperty("importantItemId").GetString());
+        Assert.Equal("board.seasonTarget", data.GetProperty("importantKind").GetString());
+        Assert.Equal(JsonValueKind.Object, data.GetProperty("importantSubject").ValueKind);
+
+        var inbox = career.Host.Handle(Message("in", "query", "inbox"));
+        using var inboxJson = JsonDocument.Parse(inbox.Response);
+        foreach (var item in inboxJson.RootElement.GetProperty("data").GetProperty("items").EnumerateArray())
+        {
+            // Every item that asks for an answer is important.
+            if (item.GetProperty("needsDecision").GetBoolean())
+            {
+                Assert.True(item.GetProperty("important").GetBoolean(), item.GetRawText());
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData("board.seasonTarget", true, true)]
+    [InlineData("contract.notice", false, true)]
+    [InlineData("infrastructure.buildFinished", false, true)]
+    [InlineData("sponsor.notice", false, false)]
+    [InlineData("negotiation.notice", false, false)]
+    public void OnlyDecisionsAndNoticesThatChangeTheSituationAreImportant(string kind, bool needsDecision, bool important)
+    {
+        Assert.Equal(important, Paddock.Application.Inbox.InboxImportance.IsImportant(kind, needsDecision));
+    }
+
+    [Fact]
     public void TheTeamCardsShowTheLineUpTheCareerWillStartWithAndChangeNothing()
     {
         using var career = Lobby();

@@ -4,7 +4,12 @@
   import { inboxArea } from '../protocol.mjs';
   import { areaIcon, icon, type Tr } from '../ui';
 
-  let { item, tr, selected = false }: { item: InboxItemView; tr: Tr; selected?: boolean } = $props();
+  let {
+    item,
+    tr,
+    selected = false,
+    onDelete = null,
+  }: { item: InboxItemView; tr: Tr; selected?: boolean; onDelete?: ((id: string) => void) | null } = $props();
 
   let area = $derived(inboxArea(item.kind));
   let open = $derived(item.status === 'Open');
@@ -28,4 +33,16 @@
     <div class="t">{tr.tMsg(item.subject)}</div>
   </div>
   <span class="when">{formatDay(item.created, tr.lang)}</span>
+  {#if onDelete}
+    <button
+      type="button"
+      class="row-x"
+      aria-label={tr.t('inbox.delete')}
+      title={tr.t('inbox.delete')}
+      onclick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onDelete(item.id);
+      }}>×</button>
+  {/if}
 </a>

@@ -170,10 +170,14 @@ public sealed partial class CareerBridge
             }
         }
 
+        // Last season's finish first, the way the paddock lists teams; teams with no known place follow, richest first, then by name.
         var teams = roster
             .Select(team => cards.TryGetValue(team.Id, out var card)
-                ? new TeamOptionView(team.Id, team.Name, card.Drivers, card.Engine, card.Budget, card.LastSeason, card.Expected, card.FieldSize)
-                : new TeamOptionView(team.Id, team.Name, [], null, null, null, null, null))
+                ? new TeamOptionView(team.Id, team.Name, card.Drivers, card.Engine, card.Budget, card.LastSeason, card.Expected, card.FieldSize, card.BudgetCents, card.Levels)
+                : new TeamOptionView(team.Id, team.Name, [], null, null, null, null, null, null, null))
+            .OrderBy(team => team.LastSeason ?? int.MaxValue)
+            .ThenByDescending(team => team.BudgetCents ?? 0L)
+            .ThenBy(team => team.Name, StringComparer.Ordinal)
             .ToArray();
         return new TeamListView(year, teams, problem);
     }
@@ -213,7 +217,7 @@ public sealed partial class CareerBridge
             var supplies = created.EngineSupplies
                 .Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType))
                 .ToArray();
-            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength);
+            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength, starting.Facilities);
             _cardsKey = key;
             _cards = cards;
             return cards;

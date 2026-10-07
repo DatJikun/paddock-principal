@@ -217,7 +217,7 @@ public sealed partial class CareerBridge
             var supplies = created.EngineSupplies
                 .Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType))
                 .ToArray();
-            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength, starting.Facilities);
+            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength, data.Facilities);
             _cardsKey = key;
             _cards = cards;
             return cards;

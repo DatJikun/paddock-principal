@@ -548,8 +548,7 @@
       if (type === 'raceFinished') racedNow = true;
       if (type === 'seasonChanged') seasonNow = true;
       /* While days run, the loop reads the world once per day itself. */
-      if (running) return;
-      if (type === 'dayAdvanced' || type === 'inboxChanged' || type === 'seasonChanged' || type === 'raceFinished') {
+      if (!running && (type === 'dayAdvanced' || type === 'inboxChanged' || type === 'seasonChanged' || type === 'raceFinished')) {
         void refresh().catch(catchFault);
       }
       /* The race ran today: watch it live (the result is already written; leaving early skips nothing). */

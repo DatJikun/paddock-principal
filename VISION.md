@@ -401,3 +401,11 @@ Szczegóły w DESIGN §5.3.
 - **Polecenie nie zmienia tego, co gracz już widział.** Wyścig liczy się od nowa z tymi samymi losami i działa tylko na dalszą część.
 - **Ekran wyścigu ma dawać coś do roboty i do oglądania:** radio kierowcy, dane własnych aut, walki o pozycję, komunikaty i auto-pauza. Kropki zwalniają w zakrętach (tylko wyświetlanie; czas okrążenia jak dotąd).
 - **Koszty tempa i progi radia to szacunek** do kalibracji.
+
+**PP-066: Rozwój auta v2: automat inżynierów, koncepcje na kilka sezonów, liczby czytelne dla gracza** (decyzja właściciela z 2026-10-07 po pierwszym teście; zastępuje w grze konto rozwoju i priorytety obszarów z PP-043, reszta PP-032, PP-043, PP-053 i PP-057 zostaje).
+- **Części do auta wybierają i dowożą inżynierowie, tak samo w zespole gracza i AI.** Wynik zależy od ludzi: od umiejętności i od cechy **innowacyjność**. Tańszy, innowacyjny inżynier bywa nieprzewidywalny i czasem daje przełom, więc najlepiej opłacany sztab nie jest gwarancją najlepszego auta. Losowanie idzie ze strumienia `Development`.
+- **Gracz wybiera tylko trzy rzeczy:** suwak podziału ludzi między auto, które jedzie, a następną koncepcję; charakter następnej koncepcji (ewolucja albo rewolucja, aerodynamika na proste albo na zakręty) z liczbami; moment wprowadzenia gotowej koncepcji. Nie ma konta rozwoju, priorytetów w procentach ani „sumy 100%”.
+- **Koncepcja może jeździć kilka sezonów** (w latach 50. auto ewoluuje 2–3 lata). Nowa co rok nie jest wymuszona: ewolucja startuje blisko pułapu i ma wąski zakres, rewolucja startuje niżej, ma szeroki i wyższy zakres. Budowa gotowej koncepcji trwa 1–2 miesiące zależnie od epoki, a potem zastępuje starą razem ze spadkiem zrozumienia auta.
+- **Prawda i wiedza.** Gracz i AI widzą cztery obszary (silnik, aerodynamika, prowadzenie, niezawodność) jako zakresy z oceny sztabu technicznego (lepszy sztab, węższy zakres) oraz zakresy czołowej trójki rywali jako wiedzę publiczną. Symulacja czyta prawdę. Zrozumienie auta rośnie z testami i kilometrami, a brak zrozumienia kosztuje osiągi.
+- **Skrzynka:** nowa część (obszar, zakres przed i po, miejsce wobec czołowej trójki), gotowa koncepcja jako decyzja z liczbami (zysk, czas budowy, koszt, pierwszy wyścig), porażka i wejście koncepcji do auta. Koncepcje mają nazwy „zespół rok”, nigdy numer projektu.
+- **Wszystkie liczby to szacunki do strojenia.**

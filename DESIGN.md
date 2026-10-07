@@ -194,7 +194,18 @@ Projekt roczny to zestaw decyzji na osiach, w których **każdy biegun ma swoją
 
 Do tego technologie, które zespół opanował dzięki przełomom (§4.2). **Jakość wykonania** zależy od personelu (§6.2), infrastruktury (§4.3) i budżetu. Kierowca z dobrą informacją zwrotną pomaga rozwijać auto w sezonie.
 
-### 5.3. Rozwój: potencjał koncepcji, konto rozwoju, moment wdrożenia (PP-032)
+### 5.3. Rozwój: potencjał koncepcji, konto rozwoju, moment wdrożenia (PP-032, PP-066)
+
+**Rozwój v2 (PP-066) obowiązuje ponad resztą tego punktu.** Z gry znikają konto rozwoju i priorytety obszarów (stare akapity niżej zostają jako opis modelu, nie jako to, co ustawia gracz). Część do auta (zysk jako udział w pozostałym zapasie) dowożą inżynierowie sami, a gracz wybiera trzy rzeczy:
+1. **Suwak** podziału ludzi: auto, które jedzie, a następna koncepcja. Większy udział skraca projekt koncepcji i kosztuje więcej, a części do bieżącego auta dostają mniej.
+2. **Charakter następnej koncepcji:** ewolucja (start około 85% jej pułapu, wąski zakres) albo rewolucja (start niżej, szeroki i wyższy zakres), oraz aerodynamika na proste albo na zakręty, pokazane jako procenty dla prostych i zakrętów. Pułap nowej koncepcji losuje strumień `Development` względem pułapu koncepcji w aucie, z przesunięciem i rozrzutem zależnymi od charakteru, jakości sztabu i innowacyjności lidera.
+3. **Moment wprowadzenia:** gotowa koncepcja czeka na decyzję w skrzynce (liczby: zakres pułapu i zysk, poziom na starcie, czas budowy, koszt, pierwszy wyścig). Wprowadzona zastępuje starą koncepcję, a zrozumienie auta spada. Dopóki czeka, nowa nie powstaje.
+
+**Koncepcja żyje kilka sezonów:** co sezon traci kawałek pułapu, bo rywale i przepisy idą do przodu, więc trzymanie jednej koncepcji w końcu przestaje się opłacać, a zmiana co rok kosztuje start poniżej obecnego poziomu, zrozumienie i pieniądze. Żadna z dróg nie wygrywa zawsze (liczby kontrolnych przebiegów w opisie PR).
+
+**Innowacyjność** (cecha inżynierów technicznych) nie zmienia średniej, tylko rozrzut wyniku i szansę na przełom: część daje wtedy wielokrotnie więcej, a pułap koncepcji rośnie. Umiejętności ustalają średnią, więc tańszy i innowacyjny inżynier bywa lepszy, ale nie na pewno.
+
+**Wiedza i prawda:** gracz i AI widzą auto jako zakresy z oceny sztabu technicznego (lepszy sztab, węższy zakres) i czołową trójkę rywali jako szersze zakresy z wiedzy publicznej. Zrozumienie auta (rośnie z testami i kilometrami) odejmuje do kilku punktów osiągów w każdym obszarze poza mocą.
 
 **Nie ma wspólnej krzywej, na której „stoi” auto.** Tempo rozwoju wynika z **zapasu własnej koncepcji**:
 - **Sufit (potencjał) koncepcji:** każda koncepcja ma własny. Zależy od pomysłu (osie z §5.2 i technologie), od regulaminu i od jakości ludzi, którzy ją wymyślili. Nikt nie zna go dokładnie. Dyrektor techniczny podaje szacunek z niepewnością, a jego trafność zależy od umiejętności.
@@ -202,7 +213,7 @@ Do tego technologie, które zespół opanował dzięki przełomom (§4.2). **Jak
 - **Skutek:** zespół, który trafił w lepszą koncepcję, rozwija się dłużej. Zespół z przeciętną koncepcją szybko się zatrzymuje i musi podjąć decyzję o zmianie (jak Mercedes z koncepcją „zero sidepods” w 2022). Stawka ściska się naturalnie, gdy wszyscy zbliżają się do podobnych sufitów w dojrzałych przepisach. Dominacje rodzą się z trafionych koncepcji (podwójny dyfuzor w 2009), a nie z pozycji na krzywej.
 - **Nowy regulamin:** nowe koncepcje, nowe sufity. Część wiedzy przechodzi (ludzie, narzędzia, rozumienie opon), a część przepada.
 
-**Konto rozwoju („oszczędności”):** nie każdą pracę trzeba od razu zamieniać na części do bieżącego auta. Część wyników badań można odłożyć na konto wiedzy i wykorzystać później: w kolejnej poprawce, w nowej koncepcji albo w aucie na przyszły rok. Konto traci wartość, gdy regulamin się zmienia, bo wiedza o zakazanym rozwiązaniu jest nic niewarta. Trzymanie wszystkiego na zapas też kosztuje, bo rywale uciekają.
+**Konto rozwoju („oszczędności”; wycofane z gry przez PP-066, zostaje w modelu z wartością zero):** nie każdą pracę trzeba od razu zamieniać na części do bieżącego auta. Część wyników badań można odłożyć na konto wiedzy i wykorzystać później: w kolejnej poprawce, w nowej koncepcji albo w aucie na przyszły rok. Konto traci wartość, gdy regulamin się zmienia, bo wiedza o zakazanym rozwiązaniu jest nic niewarta. Trzymanie wszystkiego na zapas też kosztuje, bo rywale uciekają.
 
 **Nowa koncepcja jako projekt, z wdrożeniem kiedy chcesz** (i kiedy pozwala regulamin):
 - W trakcie sezonu, gdy projekt jest gotowy. Wtedy zrozumienie auta spada do zera i trzeba je odbudować, a epoka może to blokować (homologacja podwozia, zamrożenia, limity testów).

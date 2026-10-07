@@ -224,6 +224,118 @@ public static class DevelopmentMath
     /// <summary>Execution noise from one uniform draw: 0.75 to 1.25, mean 1.</summary>
     public static double Noise(double uniform) => DevelopmentEstimates.NoiseLow + (DevelopmentEstimates.NoiseSpan * uniform);
 
+    // ---- Car development v2 (PP-066) ----
+
+    /// <summary>0 to 1 from an innovation attribute of 1 to 20.</summary>
+    public static double InnovationUnit(int innovation) => Math.Clamp((innovation - 1) / 19d, 0d, 1d);
+
+    /// <summary>
+    /// Execution noise of an engineer with this innovation: the span grows with it and the mean stays 1, so a cautious engineer is
+    /// predictable and an innovative one is a gamble (PP-066: skill sets the mean, innovation the spread and the breakthroughs).
+    /// </summary>
+    public static double Noise(double uniform, int innovation)
+    {
+        var span = DevelopmentEstimates.NoiseSpan * (1d + (DevelopmentEstimates.InnovationNoise * InnovationUnit(innovation)));
+        return 1d + (span * (uniform - 0.5d));
+    }
+
+    /// <summary>Chance a finished project is a breakthrough. Small for everyone, real for an innovative engineer.</summary>
+    public static double BreakthroughChance(int innovation)
+    {
+        var unit = InnovationUnit(innovation);
+        return DevelopmentEstimates.BreakthroughBase + (DevelopmentEstimates.BreakthroughSpan * unit * unit);
+    }
+
+    /// <summary>0 for pure evolution, 1 for pure revolution, from the milli value of the philosophy axis.</summary>
+    public static double CharacterUnit(int philosophyMilli) => ConceptMapping.PhilosophyUnit(Math.Clamp(philosophyMilli, -1000, 1000) / 1000d);
+
+    /// <summary>Share of its own ceiling a new concept of this character starts at (about 85% for evolution).</summary>
+    public static double StartFraction(int philosophyMilli) =>
+        Lerp(DevelopmentEstimates.EvolutionStartFraction, DevelopmentEstimates.RevolutionStartFraction, CharacterUnit(philosophyMilli));
+
+    /// <summary>
+    /// Mean shift of a new concept's ceiling against the one it replaces. <paramref name="quality"/> is the design staff's execution
+    /// quality (0 to 1); 0.5 changes nothing.
+    /// </summary>
+    public static double CeilingShift(int philosophyMilli, double quality) =>
+        Lerp(DevelopmentEstimates.EvolutionCeilingShift, DevelopmentEstimates.RevolutionCeilingShift, CharacterUnit(philosophyMilli))
+        + (DevelopmentEstimates.QualityShiftSpan * (Math.Clamp(quality, 0d, 1d) - 0.5d));
+
+    /// <summary>Spread of a new concept's ceiling. Evolution is narrow, revolution wide, and an innovative lead widens both.</summary>
+    public static double CeilingSpread(int philosophyMilli, int innovation) =>
+        Lerp(DevelopmentEstimates.EvolutionCeilingSd, DevelopmentEstimates.RevolutionCeilingSd, CharacterUnit(philosophyMilli))
+        * (1d + (DevelopmentEstimates.InnovationSpread * InnovationUnit(innovation)));
+
+    /// <summary>The expected ceiling of a new concept, before the draw (the middle of what the engineers can tell the principal).</summary>
+    public static double ExpectedCeiling(double anchor, int philosophyMilli, double quality) =>
+        CarEstimates.ClampRating(anchor + CeilingShift(philosophyMilli, quality));
+
+    /// <summary>
+    /// The drawn ceiling of a finished new concept. <paramref name="fraction"/> is how much of the design was done (1 unless the project
+    /// was cut), and scales the shift and the spread. A breakthrough lifts it. Twelve uniforms are consumed from <paramref name="rng"/>.
+    /// </summary>
+    public static double DrawCeiling(
+        Paddock.Domain.Random.Xoshiro256StarStar rng,
+        double anchor,
+        int philosophyMilli,
+        double quality,
+        int innovation,
+        bool breakthrough,
+        double fraction)
+    {
+        ArgumentNullException.ThrowIfNull(rng);
+        double sum = 0;
+        for (var i = 0; i < CarEstimates.NormalSampleCount; i++)
+        {
+            sum += rng.NextDouble();
+        }
+
+        var normal = sum - (CarEstimates.NormalSampleCount / 2d);
+        var done = Math.Clamp(fraction, 0d, 1d);
+        var drawn = anchor
+            + (done * (CeilingShift(philosophyMilli, quality) + (CeilingSpread(philosophyMilli, innovation) * normal)))
+            + (breakthrough ? DevelopmentEstimates.BreakthroughConceptLift * done : 0d);
+        return CarEstimates.Quantize(CarEstimates.ClampRating(drawn));
+    }
+
+    /// <summary>Failure chance of a concept of this character: a revolution fails more often.</summary>
+    public static double ConceptRisk(int skill, int year, int philosophyMilli) =>
+        Math.Max(
+            DevelopmentEstimates.MinRisk,
+            Risk(DevKind.Concept, skill, year) * (1d + (DevelopmentEstimates.RevolutionRiskExtra * CharacterUnit(philosophyMilli))));
+
+    /// <summary>The concept after a redesign: the new aero and philosophy, the other four axes carried over.</summary>
+    public static CarConcept Redesigned(CarConcept old, int philosophyMilli, int aeroMilli) =>
+        new(
+            Math.Clamp(aeroMilli, -1000, 1000) / 1000d,
+            Math.Clamp(philosophyMilli, -1000, 1000) / 1000d,
+            old.Window,
+            old.Cooling,
+            old.TyreKindness,
+            old.Integration);
+
+    /// <summary>The levels a car has on the day a redesigned concept goes live: the full vector times the character's start fraction.</summary>
+    public static PerformanceLevels StartLevels(CarConcept concept, double ceiling, int philosophyMilli) =>
+        ConceptMapping.Effects(concept, ceiling).Full.Scale(StartFraction(philosophyMilli));
+
+    /// <summary>The mean of the five components: one number for "how fast is this car" that a comparison can use.</summary>
+    public static double Overall(PerformanceLevels levels) =>
+        (levels.Power + levels.Downforce + levels.MechanicalGrip + levels.Braking + levels.Reliability) / 5d;
+
+    /// <summary>
+    /// What an aero direction does to the car, as percent of its performance on a straight and in a corner. Read off the same table the
+    /// concept uses (<see cref="ConceptMapping.Effects"/>): downforce leans corners, drag lean leans straights.
+    /// </summary>
+    public static (int Straights, int Corners) AeroEffectPercent(int aeroMilli)
+    {
+        var aero = Math.Clamp(aeroMilli, -1000, 1000) / 1000d;
+        return (
+            (int)Math.Round(-12d * aero, MidpointRounding.AwayFromZero),
+            (int)Math.Round(18d * aero, MidpointRounding.AwayFromZero));
+    }
+
+    private static double Lerp(double from, double to, double t) => from + ((to - from) * t);
+
     /// <summary>Points gained: the realised share of the headroom, never more than the headroom.</summary>
     public static double Gain(double headroom, double share) =>
         CarEstimates.Quantize(Math.Max(0d, headroom) * Math.Clamp(share, 0d, 1d));

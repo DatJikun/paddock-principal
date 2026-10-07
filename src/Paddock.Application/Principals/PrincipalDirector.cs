@@ -476,6 +476,18 @@ internal sealed class CommandFiler
             });
         }
 
+        if (outcome.Character is { } character)
+        {
+            File(new SetNextConceptCommand
+            {
+                ManagerId = Manager,
+                IssuedOn = Day,
+                OrganizationId = Organization,
+                PhilosophyMilli = character.PhilosophyMilli,
+                AeroMilli = character.AeroMilli,
+            });
+        }
+
         foreach (var timing in outcome.Timings)
         {
             if (timing.Commit)

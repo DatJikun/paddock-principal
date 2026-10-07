@@ -52,19 +52,34 @@ internal sealed partial class TeamKnowledge
         var reliability = Band(car.Levels.Reliability, team.Vision, team.Aero, key);
         var braking = Band(car.Levels.Braking, team.Vision, team.Aero, key);
 
-        var concepts = own.Projects
-            .Where(project => project.Kind == DevKindNames.Concept && project.Status is "Active" or "Ready" && project.Timing is not "Hold")
-            .Select(project => new ConceptCase(
-                project.ProjectId,
-                project.Status == "Ready",
-                project.Timing,
-                (project.ExpectedGain.Low + project.ExpectedGain.High) / 2.0,
-                project.ProductionDays ?? 0))
-            .ToArray();
+        // only a finished concept is decided on, from the same ranges the player reads: nobody commits to a ceiling it has not seen
+        var concepts = own.Next.Decision is { } decision
+            ? new[]
+            {
+                new ConceptCase(
+                    decision.ProjectId,
+                    true,
+                    "Hold",
+                    Mid(decision.Gain),
+                    decision.BuildDays,
+                    Mid(decision.StartLevel) - Mid(decision.LevelNow)),
+            }
+            : [];
         var year = Today.Year;
+        var next = new NextCharacterView(
+            own.Next.PhilosophyMilli,
+            own.Next.AeroMilli,
+            Mid(own.Concept.Ceiling),
+            own.Next.Characters
+                .Select(option => new CharacterCase(
+                    option.PhilosophyMilli,
+                    Mid(option.Ceiling),
+                    (option.Ceiling.High - option.Ceiling.Low) / 2.0,
+                    option.StartSharePercent / 100.0))
+                .ToArray());
         var result = new DevelopmentInput(
             Day,
-            new DevelopmentPlanView(own.CurrentPercent, own.AccountPercent, own.NextYearPercent, own.AeroPriority, own.ChassisPriority, own.ReliabilityPriority, own.TyresPriority),
+            new DevelopmentPlanView(100 - own.Next.SharePercent, 0, own.Next.SharePercent, 5, 5, 5, 5),
             Mid(downforce),
             Mid(grip),
             Mid(reliability),
@@ -76,7 +91,8 @@ internal sealed partial class TeamKnowledge
             _env.Outlook.ChangeAfter(year),
             record?.SacrificedSeason ?? 0,
             Funds().Headroom < 0,
-            concepts);
+            concepts,
+            next);
         return result;
     }
 

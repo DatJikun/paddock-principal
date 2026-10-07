@@ -32,7 +32,7 @@ gen:29 — Peter Walker (GBR)
 gen:30 — Robert Smith (USA)
 Talks opened: neg:28 with gen:21.
 neg:28 — Jean Bernard, Open.
-Development split: current 50, account 25, next car 25.
+Development split: current car 75, next concept 25.
 Own car car:7, season 1955.
 Own car car:8, season 1955.
 Rival car car:1, team arzani-volpini.

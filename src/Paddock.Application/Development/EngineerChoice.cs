@@ -8,6 +8,18 @@ using Paddock.Domain.World;
 
 namespace Paddock.Application.Development;
 
+/// <summary>Which of the two streams of work a choice is for (PP-066). <see cref="All"/> is the first model, where one pipeline held all three kinds.</summary>
+public enum ProjectStream
+{
+    All,
+
+    /// <summary>Upgrades and research: the parts the engineers pick for the car that races.</summary>
+    Parts,
+
+    /// <summary>The next concept: only the lead engineer is picked here.</summary>
+    Concept,
+}
+
 /// <summary>One proposal on the table: an engineer, a kind of project, an area, and why it scores what it scores.</summary>
 public sealed record Proposal(
     string Id,
@@ -39,7 +51,8 @@ public static class EngineerChoice
         IReadOnlyList<(DevKind Kind, DevArea? Area)> running,
         GameDate today,
         ulong masterSeed,
-        int slot)
+        int slot,
+        ProjectStream stream = ProjectStream.All)
     {
         ArgumentNullException.ThrowIfNull(engineers);
         ArgumentNullException.ThrowIfNull(plan);
@@ -53,7 +66,13 @@ public static class EngineerChoice
         var reference = cars[0];
         var proposals = new List<Proposal>();
         var total = plan.TotalSpentCents;
-        double Deficit(DevKind kind) => (plan.PercentOf(kind) / 100d) - (total > 0 ? (double)plan.SpentOf(kind) / total : 0d);
+        var partsTotal = plan.SpentCurrentCents + plan.SpentAccountCents;
+        var partsPlan = plan.CurrentPercent + plan.AccountPercent;
+        double Deficit(DevKind kind) => stream == ProjectStream.Parts
+            ? (partsPlan > 0 ? (double)plan.PercentOf(kind) / partsPlan : 0d) - (partsTotal > 0 ? (double)plan.SpentOf(kind) / partsTotal : 0d)
+            : (plan.PercentOf(kind) / 100d) - (total > 0 ? (double)plan.SpentOf(kind) / total : 0d);
+        var parts = stream != ProjectStream.Concept;
+        var concept = stream != ProjectStream.Parts;
 
         double meanHeadroom = 0;
         foreach (var area in Enum.GetValues<DevArea>())
@@ -63,7 +82,7 @@ public static class EngineerChoice
 
         foreach (var engineer in engineers)
         {
-            if (plan.PercentOf(DevKind.Upgrade) > 0)
+            if (parts && plan.PercentOf(DevKind.Upgrade) > 0)
             {
                 foreach (var (area, key) in engineer.Areas)
                 {
@@ -86,7 +105,7 @@ public static class EngineerChoice
                 }
             }
 
-            if (plan.PercentOf(DevKind.Research) > 0
+            if (parts && plan.PercentOf(DevKind.Research) > 0
                 && account.StockMilli < DevelopmentEstimates.AccountFullMilli
                 && !running.Contains((DevKind.Research, (DevArea?)null)))
             {
@@ -102,8 +121,8 @@ public static class EngineerChoice
                     0d));
             }
 
-            if (plan.PercentOf(DevKind.Concept) > 0
-                && meanHeadroom >= DevelopmentEstimates.MinWorthHeadroom
+            if (concept && plan.PercentOf(DevKind.Concept) > 0
+                && (stream == ProjectStream.Concept || meanHeadroom >= DevelopmentEstimates.MinWorthHeadroom)
                 && !running.Contains((DevKind.Concept, (DevArea?)null)))
             {
                 proposals.Add(Score(

@@ -58,41 +58,28 @@ public class DevelopmentCommandTests : IDisposable
     }
 
     [Fact]
-    public void ChangingTheSplitLetsTheEngineersReplyAndThePlayerKeepsOrCuts()
+    public void ChangingTheSplitAsksNothingBecauseUpgradesAreNotMicromanaged()
     {
-        DevelopmentKit Nearly()
-        {
-            var kit = new DevelopmentKit(seed: 6);
-            kit.PutProject(Upgrade(Alfa, DevArea.Aero, 1_000_000, 0.2, days: 14));
-            kit.Live(10);
-            return kit;
-        }
+        var kit = new DevelopmentKit(seed: 6);
+        kit.PutProject(Upgrade(Alfa, DevArea.Aero, 1_000_000, 0.2, days: 14));
+        kit.Live(10);
+        Assert.IsType<CommandResult.Accepted>(kit.Submit(Split(20, 0, 80)));
+        Assert.Empty(kit.Inbox.Section.ItemsOf(Anna.Value));
+        Assert.True(kit.Section.Find("dev:1")!.IsActive);
+    }
 
-        var keep = Nearly();
-        Assert.IsType<CommandResult.Accepted>(keep.Submit(Split(20, 40, 40)));
-        var item = keep.Inbox.Section.ItemsOf(Anna.Value).Single(entry => entry.Kind == DevelopmentKeys.InboxKind);
-        Assert.True(item.NeedsDecision);
-        Assert.Equal("dev:1", item.Arguments[DevelopmentKeys.ProjectArgument]);
-        Assert.Equal("1", item.Arguments["weeks"]);
-        Assert.Equal(DevelopmentKeys.OptionKeep, item.Draft.DefaultOptionId);
-        Assert.IsType<CommandResult.Accepted>(keep.Submit(new ResolveInboxItemCommand { ManagerId = Anna, IssuedOn = Day(keep.Today), ItemId = item.Id, OptionId = DevelopmentKeys.OptionKeep }));
-        Assert.True(keep.Section.Find("dev:1")!.IsActive);
-
-        var cut = Nearly();
-        Assert.IsType<CommandResult.Accepted>(cut.Submit(Split(20, 40, 40)));
-        var cutItem = cut.Inbox.Section.ItemsOf(Anna.Value).Single(entry => entry.Kind == DevelopmentKeys.InboxKind);
-        Assert.IsType<CommandResult.Accepted>(cut.Submit(new ResolveInboxItemCommand { ManagerId = Anna, IssuedOn = Day(cut.Today), ItemId = cutItem.Id, OptionId = DevelopmentKeys.OptionCut }));
-        Assert.Equal(ProjectStatus.Cut, cut.Section.Find("dev:1")!.Status);
-
-        var same = Nearly();
-        Assert.IsType<CommandResult.Accepted>(same.Submit(Split(60, 20, 20)));
-        Assert.Empty(same.Inbox.Section.ItemsOf(Anna.Value));
-
-        var early = new DevelopmentKit(seed: 6);
-        early.PutProject(Upgrade(Alfa, DevArea.Aero, 1_000_000, 0.2, days: 40));
-        early.Live(3);
-        Assert.IsType<CommandResult.Accepted>(early.Submit(Split(20, 40, 40)));
-        Assert.Empty(early.Inbox.Section.ItemsOf(Anna.Value));
+    [Fact]
+    public void TheNextConceptCharacterIsStoredValidatedAndRoundTripsThroughTheCodec()
+    {
+        var kit = new DevelopmentKit();
+        var command = new SetNextConceptCommand { ManagerId = Anna, IssuedOn = Day(Opening), OrganizationId = "alfa", PhilosophyMilli = 1000, AeroMilli = -500, SubmissionNumber = 2 };
+        Assert.IsType<CommandResult.Accepted>(kit.Submit(command));
+        var plan = kit.Section.PlanOf(Alfa)!;
+        Assert.Equal((1000, -500), (plan.NextPhilosophyMilli, plan.NextAeroMilli));
+        Assert.Equal(DevelopmentKeys.BadCharacter, Key(kit.Submit(command with { PhilosophyMilli = 1001 })));
+        Assert.Equal(DevelopmentKeys.NoControl, Key(kit.Submit(command with { OrganizationId = "beta" })));
+        var encoded = CommandCodec.Production.Encode(command);
+        Assert.Equal(command, CommandCodec.Production.Decode(encoded.Tag, encoded.Text, command.ManagerId, command.SubmissionNumber, command.IssuedOn));
     }
 
     [Fact]
@@ -145,7 +132,7 @@ public class DevelopmentCommandTests : IDisposable
         var bram = query.View(AccessContext.ForAi(new AccessManagerId(Bram.Value)));
         Assert.Equal([Alfa.Value], anna.Own.Select(view => view.OrganizationId));
         Assert.Equal([Beta.Value], bram.Own.Select(view => view.OrganizationId));
-        Assert.Equal((10, 10, 80), (anna.Own[0].CurrentPercent, anna.Own[0].AccountPercent, anna.Own[0].NextYearPercent));
+        Assert.Equal(80, anna.Own[0].Next.SharePercent);
         var alfaProjects = kit.Section.ProjectsOf(Alfa).Select(project => project.Id).ToHashSet();
         Assert.NotEmpty(anna.Own[0].Projects);
         Assert.DoesNotContain(bram.Own[0].Projects, project => alfaProjects.Contains(project.ProjectId));
@@ -165,14 +152,15 @@ public class DevelopmentCommandTests : IDisposable
 
         Assert.Equal(before, kit.World.StateHash());
         var again = query.View(AccessContext.ForManager(new AccessManagerId(Anna.Value))).Own[0];
-        Assert.Equal(view with { Projects = [] }, again with { Projects = [] });
+        Assert.Equal(System.Text.Json.JsonSerializer.Serialize(view), System.Text.Json.JsonSerializer.Serialize(again));
         Assert.Equal(view.Projects, again.Projects);
         Assert.All(view.Projects, project => Assert.True(project.ExpectedGain.High >= project.ExpectedGain.Low));
-        Assert.True(view.Account.High > view.Account.Low);
-        Assert.Equal(new DateOnly(1955, 12, 31), view.Forecast.Until);
         var truth = kit.AlfaCars[0].Levels;
-        Assert.True(view.Forecast.Downforce.Low <= truth.Downforce + 1 + 16 && view.Forecast.Downforce.High >= truth.Downforce);
-        Assert.True(view.Forecast.Downforce.High > view.Forecast.Downforce.Low);
+        var aero = view.Areas.Single(area => area.Area == DevelopmentQuery.AreaAero);
+        Assert.True(aero.Own.Low <= truth.Downforce + 1 && aero.Own.High >= truth.Downforce - 1);
+        Assert.True(aero.Own.High > aero.Own.Low);
+        Assert.Equal(DevelopmentEstimates.TopRivals, aero.Rivals.Count);
+        Assert.All(aero.Rivals, rival => Assert.True(rival.Band.High > rival.Band.Low));
         Assert.True(view.Headcount > 0);
     }
 

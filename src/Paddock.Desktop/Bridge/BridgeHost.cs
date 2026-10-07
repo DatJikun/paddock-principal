@@ -175,6 +175,17 @@ public sealed class BridgeHost
                 return new BridgeExchange(
                     BridgeValues.Response(id, BridgeValues.ToNode(new AdvanceDayView(advance.Date!))),
                     events);
+            case "liveRaceControl":
+                var (clock, refusal) = _career.ControlLiveRace(args);
+                if (clock is null)
+                {
+                    return Fail(id, refusal!.Key, Parameters(refusal));
+                }
+
+                // Every viewer follows the host's clock: the order's sender gets the reply, everyone gets the push.
+                return new BridgeExchange(
+                    BridgeValues.Response(id, BridgeValues.ToNode(clock)),
+                    [BridgeValues.Event("raceClock", BridgeValues.ToNode(clock))]);
             case "resolveInbox":
                 var itemId = Text(args, "itemId");
                 var optionId = Text(args, "optionId");

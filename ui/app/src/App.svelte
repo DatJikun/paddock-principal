@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { BridgeError, canExit, command, connect, exitApp, HUMAN_MANAGER_ID, query, ready } from './lib/api/client';
-  import type { BridgeCommandName, NewCareerCall, NextRaceView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
+  import type { BridgeCommandName, LiveClockView, NewCareerCall, NextRaceView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
   import { latestSave, newestFirst, saveLabel } from './lib/career.mjs';
   import GameMenu from './lib/components/GameMenu.svelte';
   import LanguageSetting from './lib/components/LanguageSetting.svelte';
   import LoadList from './lib/components/LoadList.svelte';
   import MenuHome from './lib/components/MenuHome.svelte';
   import NewCareer from './lib/components/NewCareer.svelte';
+  import RaceLive from './lib/components/RaceLive.svelte';
   import Status from './lib/components/Status.svelte';
   import { addDays, daysBetween, formatDate, weekdayIndex } from './lib/date.mjs';
   import { flagSprite } from './lib/flags.mjs';
@@ -70,6 +71,12 @@
   let moving = false;
   let queued = false;
   let refreshToken = 0;
+  /* Race mode (PP-052): a separate full-screen root. While it is open the shell node is taken out of the document, not hidden. */
+  let racing = $state(false);
+  let raceClock = $state<LiveClockView | null>(null);
+  let liveOpen = $state(false);
+  let appEl: HTMLElement | undefined = $state();
+  let appSlot: { parent: Node; next: Node | null } | null = null;
 
   let air: HTMLCanvasElement | undefined = $state();
   let contentEl: HTMLElement | undefined = $state();
@@ -131,6 +138,9 @@
     if (token !== refreshToken) return;
     shell = nextShell;
     nextRace = race;
+    const live = await query('liveClock', call).catch(() => null);
+    if (token !== refreshToken) return;
+    liveOpen = live !== null && live.active && !live.finished;
     /* A read that was started for a screen the player has since left must not replace the screen that is showing now. */
     if (sameRoute(asked, route)) screenData = data;
     fault = null;
@@ -367,8 +377,19 @@
     });
   }
 
+  function enterRace() {
+    if (phase !== 'game' || racing) return;
+    gameMenu = false;
+    racing = true;
+  }
+
+  function leaveRace() {
+    racing = false;
+    void refresh().catch(catchFault);
+  }
+
   function onKey(event: KeyboardEvent) {
-    if (event.key !== 'Escape' || event.defaultPrevented || gameMenu) return;
+    if (event.key !== 'Escape' || event.defaultPrevented || gameMenu || racing) return;
     if (phase === 'game') {
       event.preventDefault();
       void openGameMenu();
@@ -387,10 +408,16 @@
       lang = getLanguage();
     });
     const stopSmoke = air ? startSmoke(air) : () => {};
-    const stopBridge = connect((type) => {
+    const stopBridge = connect((type, data) => {
+      if (type === 'raceClock') {
+        raceClock = data as LiveClockView;
+        return;
+      }
       if (type === 'dayAdvanced' || type === 'inboxChanged' || type === 'seasonChanged' || type === 'raceFinished') {
         void refresh().catch(catchFault);
       }
+      /* The race ran today: watch it live (the result is already written; leaving early skips nothing). */
+      if (type === 'raceFinished') enterRace();
     });
     const onHash = () => {
       if (phase === 'game') void transition(parseRoute(location.hash));
@@ -419,6 +446,18 @@
 
   $effect(() => {
     document.documentElement.lang = lang;
+  });
+
+  $effect(() => {
+    /* The shell keeps its state while the race is on: the node is detached and put back exactly where it was. */
+    if (!appEl) return;
+    if (racing && !appSlot && appEl.parentNode) {
+      appSlot = { parent: appEl.parentNode, next: appEl.nextSibling };
+      appEl.remove();
+    } else if (!racing && appSlot) {
+      appSlot.parent.insertBefore(appEl, appSlot.next);
+      appSlot = null;
+    }
   });
 
   $effect(() => {
@@ -485,7 +524,7 @@
 
 {@html flagSprite()}
 <canvas id="air" aria-hidden="true" bind:this={air}></canvas>
-<div class="app">
+<div class="app" bind:this={appEl}>
   <aside>
     <div class="crest">
       <div class="team">{inGame ? team.lead : 'Paddock'}{#if inGame && team.rest}<span>{team.rest}</span>{:else if !inGame}<span>Principal</span>{/if}</div>
@@ -549,6 +588,12 @@
         </div>
         <div class="spacer"></div>
         <div class="hud">
+          {#if liveOpen}
+            <button class="cell live" type="button" onclick={enterRace}>
+              <span class="meta">{t('live.ui.live')}</span>
+              <b>{t('live.ui.watch')}</b>
+            </button>
+          {/if}
           {#if nextRace?.circuitName && nextRace.round}
             <a class="cell next" href={`#/wyscig/${nextRace.round}`}>
               <span class="meta">{nextRace.circuitName} · {raceDays !== null && raceDays > 0 ? tr.tCount('shell.days', raceDays) : t('shell.today')}</span>
@@ -656,6 +701,9 @@
     <div id="wipe" aria-hidden="true" bind:this={wipeEl}><i></i><i></i><i></i></div>
   </div>
 </div>
+{#if racing && inGame}
+  <RaceLive {tr} pushed={raceClock} onexit={leaveRace} />
+{/if}
 {#if gameMenu && inGame}
   <GameMenu
     {tr}

@@ -127,7 +127,8 @@ public sealed class RaceWeekendDay : IDayHandler
             TotalLaps = RaceDistance.LapsFor(rules, layout),
             Entries = field.Entries,
         };
-        var request = RaceSimulationRequest.ForWeekend(input, NullSink.Instance);
+        var calls = new StrategyCalls();
+        var request = RaceSimulationRequest.ForWeekend(input, calls);
         _ = RaceSession.Run(request);
         var published = request.Published ?? throw new InvalidOperationException("The lap engine published no race facts.");
         var points = PointsRules.For(rules);
@@ -143,7 +144,8 @@ public sealed class RaceWeekendDay : IDayHandler
             payload.LayoutId,
             published.Tape,
             Lines(published),
-            field.SkippedTeamIds);
+            field.SkippedTeamIds,
+            ByDriver(calls.Calls, field.Entries));
         var world = _context.Session.World;
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;
         _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, field.StandIns, (int)Math.Round(layout.LengthKm * 1000d, MidpointRounding.AwayFromZero))));
@@ -749,6 +751,21 @@ public sealed class RaceWeekendDay : IDayHandler
         }
 
         return ledgers;
+    }
+
+    /// <summary>The strategist names the car; the tape and the screen name the driver who started it.</summary>
+    private static StrategyCall[] ByDriver(IReadOnlyList<StrategyCall> calls, IReadOnlyList<RaceEntry> entries)
+    {
+        var drivers = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var entry in entries)
+        {
+            drivers[entry.CarId] = entry.Primary.DriverId;
+        }
+
+        return calls
+            .Where(call => drivers.ContainsKey(call.CarId))
+            .Select(call => call with { CarId = drivers[call.CarId] })
+            .ToArray();
     }
 
     private static RaceResultLine[] Lines(RacePublishedFacts published)

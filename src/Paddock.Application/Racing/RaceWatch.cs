@@ -26,13 +26,17 @@ public sealed class RaceWatch
     /// <summary>Teams that had cars and did not start because the race running cost was above the cash on hand.</summary>
     public IReadOnlyList<string> SkippedTeamIds { get; private set; } = [];
 
+    /// <summary>Every strategist call of the race, by the driver of the car (all teams; a read for a manager keeps its own).</summary>
+    public IReadOnlyList<StrategyCall> Calls { get; private set; } = [];
+
     public void Publish(
         int season,
         int round,
         string layoutId,
         RaceTape tape,
         IReadOnlyList<RaceResultLine> lines,
-        IReadOnlyList<string> skippedTeamIds)
+        IReadOnlyList<string> skippedTeamIds,
+        IReadOnlyList<StrategyCall>? calls = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(layoutId);
         ArgumentNullException.ThrowIfNull(tape);
@@ -44,6 +48,7 @@ public sealed class RaceWatch
         Tape = tape;
         Lines = lines;
         SkippedTeamIds = skippedTeamIds;
+        Calls = calls ?? [];
         Pending = true;
     }
 

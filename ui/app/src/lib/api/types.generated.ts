@@ -285,6 +285,97 @@ export interface LedgerLineView {
   reason: TranslationMessage;
 }
 
+export interface LiveCarFramesView {
+  carId: string;
+  distanceM: number[];
+  inPit: boolean[];
+  pitM: number[];
+  speedMps: number[];
+  timeMs: number[];
+}
+
+export interface LiveCarView {
+  carId: string;
+  driverName: string;
+  grid: number | null;
+  nationality: string;
+  own: boolean;
+  shortName: string;
+  teamId: string;
+  teamName: string;
+}
+
+export interface LiveClockView {
+  active: boolean;
+  durationMs: number;
+  finished: boolean;
+  paused: boolean;
+  raceTimeMs: number;
+  round: number;
+  season: number;
+  speed: number;
+  speeds: number[];
+}
+
+export interface LiveEventView {
+  args: ReportArgView[];
+  carId: string | null;
+  durationMs: number | null;
+  gapMs: number | null;
+  key: string | null;
+  kind: string;
+  lap: number;
+  lapTimeMs: number | null;
+  others: string[];
+  own: boolean;
+  position: number | null;
+  seq: number;
+  timeMs: number;
+  tyres: string | null;
+}
+
+export interface LiveFramesCall {
+  fromMs: number;
+  managerId: string;
+  toMs: number;
+}
+
+export interface LiveFramesView {
+  cars: LiveCarFramesView[];
+  found: boolean;
+  fromMs: number;
+  toMs: number;
+}
+
+export interface LiveRaceControlCall {
+  action: string;
+  managerId: string;
+  speed: number | null;
+}
+
+export interface LiveRaceView {
+  cars: LiveCarView[];
+  circuitName: string | null;
+  country: string | null;
+  durationMs: number;
+  events: LiveEventView[];
+  found: boolean;
+  framesApproximate: boolean;
+  lapLengthM: number;
+  layoutId: string | null;
+  round: number;
+  season: number;
+  startAirC: string | null;
+  startCondition: string | null;
+  strategy: LiveStrategyView;
+  totalLaps: number;
+}
+
+export interface LiveStrategyView {
+  strategistId: string | null;
+  strategistName: string | null;
+}
+
 export interface LoadCareerCall {
   managerId: string;
   path: string;
@@ -1088,6 +1179,9 @@ export interface BridgeQueryMap {
   market: { args: ManagerCall; result: MarketView };
   driver: { args: DriverCall; result: DriverProfileView };
   manager: { args: ManagerCall; result: ManagerProfileView };
+  liveRace: { args: ManagerCall; result: LiveRaceView };
+  liveFrames: { args: LiveFramesCall; result: LiveFramesView };
+  liveClock: { args: ManagerCall; result: LiveClockView };
 }
 
 export interface BridgeCommandMap {
@@ -1115,6 +1209,7 @@ export interface BridgeCommandMap {
   signPoolDriver: { args: SignPoolCall; result: CommandAck };
   proposeSupply: { args: SupplyProposalCall; result: CommandAck };
   respondToSupply: { args: SupplyResponseCall; result: CommandAck };
+  liveRaceControl: { args: LiveRaceControlCall; result: LiveClockView };
 }
 
 export type BridgeQueryName = keyof BridgeQueryMap;

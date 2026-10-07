@@ -79,6 +79,8 @@ public static class RaceFieldBuilder
                 continue;
             }
 
+            var staff = RaceStaff.Of(world, team.Id, today);
+
             var transport = TransportCost(team.Id, typical, circuitCountry, teamCountries);
             if (finance is not null && running + transport > 0
                 && finance.HasBook(team.Id)
@@ -215,9 +217,9 @@ public static class RaceFieldBuilder
                     [RaceInputMapping.DriverFrom(driverToEnter.Id.Value, AttributesOf(driverToEnter.Truth), RacingEstimates.DefaultAggression, paceMultiplier: paceMultiplier)],
                     performance,
                     RaceInputMapping.UniformComponents(performance.Reliability),
-                    new PitCrew(RacingEstimates.NeutralPitCrewQuality),
-                    RacingEstimates.NeutralStrategistSkill,
-                    RacingEstimates.NeutralForecastQuality,
+                    new PitCrew(staff.PitCrewQuality),
+                    staff.StrategistSkill,
+                    staff.ForecastQuality,
                     tyreProfile,
                     partnerTuned,
                     FuelOf(formula, engineName)));

@@ -395,7 +395,8 @@ Szczegóły w DESIGN §5.3.
 - **Zostaje:** oferta przedłużenia jest decyzją w skrzynce, wiadomość 60 dni przed końcem umowy, AI nie dostaje powiadomień.
 
 **PP-066: Polecenia z boksu w trakcie oglądanego wyścigu, na razie w szybkim wyścigu** (wersja testowa na prośbę właściciela z 2026-10-07, do dalszej analizy; doprecyzowuje PP-029, PP-052 i PP-064).
-- **W trakcie wyścigu gracz może przejąć auto od stratega:** ustawić tempo kierowcy (oszczędzanie, normalne, atak), zamówić zjazd z wyborem opon i go odwołać. Domyślnie nadal wszystko robi strateg (PP-029), a gracz może mu auto oddać.
+- **W trakcie wyścigu gracz może przejąć auto od stratega:** ustawić tempo kierowcy w pięciu stopniach (od pełnego oszczędzania do tempa jak w kwalifikacjach), tryb silnika w trzech (oszczędny, normalny, pełna moc), włączyć polecenie zespołowe „przepuść kolegę” oraz zamówić zjazd z wyborem opon i go odwołać (doprecyzowanie właściciela z 2026-10-07). Domyślnie nadal wszystko robi strateg (PP-029), a gracz może mu tempo oddać.
+- **Każdy tryb ma koszt powiązany z resztą wyścigu:** szybciej znaczy więcej zużycia opon i paliwa, tempo kwalifikacyjne także większe ryzyko wypadku, pełna moc częstsze awarie silnika. Wyścig bez poleceń zostaje dokładnie taki jak przedtem.
 - **Na razie tylko w szybkim wyścigu,** bo tam wynik nie jest zapisany przed oglądaniem. W karierze wyścig nadal liczy się w całości w dniu wyścigu (PP-064), a boks pokazuje dane aut bez poleceń. Polecenia w karierze wymagają, żeby dzień wyścigu czekał na oglądanie; to osobna decyzja.
 - **Polecenie nie zmienia tego, co gracz już widział.** Wyścig liczy się od nowa z tymi samymi losami i działa tylko na dalszą część.
 - **Ekran wyścigu ma dawać coś do roboty i do oglądania:** radio kierowcy, dane własnych aut, walki o pozycję, komunikaty i auto-pauza. Kropki zwalniają w zakrętach (tylko wyświetlanie; czas okrążenia jak dotąd).

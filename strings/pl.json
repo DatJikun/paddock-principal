@@ -293,6 +293,8 @@
   "config.error.replay_needs_real_people": "Odtwarzanie historii wymaga prawdziwych ludzi.",
   "config.error.late_start_needs_generated_people": "Start po {year} wymaga w pełni generowanych ludzi.",
   "config.warning.history_strength_with_pure_random": "Siła historii nic nie zmienia, gdy AI jest czysto losowe.",
+  "start.year.unavailable.no_data": "Ten rok nie ma jeszcze danych startowych na tym komputerze.",
+  "start.year.unavailable.procedural": "Od 2026 sezony są generowane. Start w tym roku nie jest jeszcze dostępny.",
   "world.init.report.title": "Świat zainicjowany na rok {year} (sezon danych autorskich {reference}), źródło ludzi: {source}.",
   "world.init.report.hash": "Hash stanu: {hash}",
   "world.init.provider.none": "Nie znaleziono harmonogramu ludzi, więc nie ma prawdziwych kierowców. Zbuduj cache Jolpica i uruchom komendę schedule albo podaj --schedule i --drivers.",

@@ -289,6 +289,8 @@
   "config.error.replay_needs_real_people": "Replaying history needs real people.",
   "config.error.late_start_needs_generated_people": "A start after {year} needs fully generated people.",
   "config.warning.history_strength_with_pure_random": "History strength is unused while AI is purely random.",
+  "start.year.unavailable.no_data": "This year has no starting data on this computer yet.",
+  "start.year.unavailable.procedural": "From 2026 the seasons are generated. Starting there is not available yet.",
   "world.init.report.title": "World initialized for {year} (authored data season {reference}), people source: {source}.",
   "world.init.report.hash": "State hash: {hash}",
   "world.init.provider.none": "No people schedule found, so there are no real drivers. Build the Jolpica cache and run the schedule command, or pass --schedule and --drivers.",

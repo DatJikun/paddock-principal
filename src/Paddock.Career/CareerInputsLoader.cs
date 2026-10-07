@@ -1,5 +1,6 @@
 using Paddock.Application.Career;
 using Paddock.Data.Authored;
+using Paddock.Data.Historical;
 using Paddock.Data.World;
 using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
@@ -11,16 +12,17 @@ namespace Paddock.Career;
 /// <summary>
 /// Loads the data a career run reads from <c>data/authored</c>: the era periods, the fictional sponsors, and the ESTIMATE of the
 /// previous season's constructors' order (the Jolpica standings stay local, PP-041). The same inputs for <c>run</c>, for
-/// <c>run --resume</c> and for the tests, so they all see one economy.
+/// <c>run --resume</c> and for the tests, so they all see one economy. With <c>starting</c> (#271) the car strengths and the tiers
+/// are the ones the world was built with: the authored files layered over the local starting data of the start year.
 /// </summary>
 public static class CareerInputsLoader
 {
-    public static CareerInputs Load(string dataRoot, AuthoredData data, IReadOnlyList<EngineSupplyLink>? supplies = null, CareerConfig? career = null, RaceDateBook? raceDates = null)
+    public static CareerInputs Load(string dataRoot, AuthoredData data, IReadOnlyList<EngineSupplyLink>? supplies = null, CareerConfig? career = null, RaceDateBook? raceDates = null, StartingSources? starting = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dataRoot);
         ArgumentNullException.ThrowIfNull(data);
         var sponsors = SponsorsLoader.ToCatalog(SponsorsLoader.Load(dataRoot), localMarket: true);
-        var tiers = TeamTiersLoader.ToSource(TeamTiersLoader.Load(dataRoot));
+        var tiers = starting?.Tiers ?? TeamTiersLoader.ToSource(TeamTiersLoader.Load(dataRoot));
         var inputs = CareerInputs.From(data.EraPeriods, sponsors, new EraPayBenchmark(data.EraSetFor), tiers);
         return new CareerInputs
         {
@@ -29,7 +31,7 @@ public static class CareerInputsLoader
             Sponsors = inputs.Sponsors,
             Pay = inputs.Pay,
             Tiers = inputs.Tiers,
-            CarStrength = data.CarStrength,
+            CarStrength = starting is null ? data.CarStrength : starting.CarStrength,
             EraPeriods = inputs.EraPeriods,
             RulePeriods = data.Periods,
             SupplyLinks = supplies?.Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType)).ToArray(),

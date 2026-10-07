@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Paddock.Data.Authored;
 using Paddock.Data.Historical;
 using Paddock.Data.World;
 using Paddock.Domain.World;
@@ -15,7 +16,8 @@ public static class CareerData
 {
     /// <summary>
     /// The base data a save depends on: every authored file, plus the people schedule and drivers files when the run used them
-    /// (without them the hash is that of the authored files alone). A resumed run must see the same hash.
+    /// (without them the hash is that of the authored files alone), plus the local starting data when there is one (#271).
+    /// A resumed run must see the same hash.
     /// </summary>
     public static string HashWorldData(string dataRoot, (string Schedule, string Drivers)? people)
     {
@@ -50,7 +52,27 @@ public static class CareerData
             }
         }
 
+        var starting = StartingDataLoader.DefaultPath(dataRoot);
+        if (File.Exists(starting))
+        {
+            hash.AppendData("starting\n"u8);
+            hash.AppendData(File.ReadAllBytes(starting));
+            hash.AppendData("\n"u8);
+        }
+
         return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
+    }
+
+    /// <summary>
+    /// The car strengths and tiers a career that starts in <paramref name="startYear"/> is built with: the authored ones of
+    /// <paramref name="data"/>, layered over the local starting data under <paramref name="dataRoot"/> when the pipeline has written it
+    /// (#271). The same call for a new career and for a resumed one, so both read the same sources. The tests do not call it, so they
+    /// never depend on the cache.
+    /// </summary>
+    public static StartingSources LoadStartingSources(string dataRoot, AuthoredData data, int startYear)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        return StartingSources.For(startYear, StartingDataLoader.TryLoad(dataRoot), data.CarStrength, data.TeamTiers);
     }
 
     /// <summary>The people schedule and drivers files in use, or null when the run has none (the empty provider).</summary>

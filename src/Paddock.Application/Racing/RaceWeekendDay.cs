@@ -79,16 +79,60 @@ public sealed class RaceWeekendDay : IDayHandler
 
     private void RunRace(DayContext context, GameDate today, RaceSessionPayload payload)
     {
+        if (Simulate(today, payload) is not { } run)
+        {
+            return;
+        }
+
+        var published = run.Published;
+        var points = PointsRules.For(run.Rules);
+        var standings = LoadStandings(payload.Season, points, run.TotalRounds).Apply(published.Classification);
+        StoreChampionship(payload.Season, standings, settled: false);
+        ApplyUnderstanding(today, run.Layout.LengthKm, published.CarResults);
+        ApplyMoney(today, payload, run.TotalRounds, published, run.Field, run.Layout.Country);
+        ApplyPeople(context, today, published.PersonOutcomes, payload);
+        PostDueStandInDecisions(today);
+        Publish(payload, run);
+    }
+
+    /// <summary>
+    /// One round raced on its own, outside the championship (the quick race, #280). The weekend is the one
+    /// <see cref="RunRace"/> runs, from the same field, rules and streams, so a quick race has no rules of its own (PP-058).
+    /// Only the watch and the round archive get the race: no table, money, kilometres or injuries. False when the round
+    /// cannot be raced (no rules for the season, no field).
+    /// </summary>
+    public bool RunAlone(GameDate day, RaceSessionPayload payload)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+        if (Simulate(day, payload) is not { } run)
+        {
+            return false;
+        }
+
+        Publish(payload, run);
+        return true;
+    }
+
+    private sealed record WeekendRun(
+        RuleSet Rules,
+        int TotalRounds,
+        TrackLayout Layout,
+        RaceField Field,
+        RacePublishedFacts Published,
+        StrategyCalls Calls);
+
+    private WeekendRun? Simulate(GameDate today, RaceSessionPayload payload)
+    {
         var rules = ActiveRules(payload.Season);
         if (rules is null)
         {
-            return;
+            return null;
         }
 
         var total = RoundsIn(payload.Season);
         if (total < 1)
         {
-            return;
+            return null;
         }
 
         var supply = _context.TryGet<SupplyBook>();
@@ -108,7 +152,7 @@ public sealed class RaceWeekendDay : IDayHandler
             _context.Inputs.TeamCountries);
         if (field.Entries.IsDefaultOrEmpty)
         {
-            return;
+            return null;
         }
 
         var era = EraOf(payload.Season);
@@ -131,24 +175,24 @@ public sealed class RaceWeekendDay : IDayHandler
         var request = RaceSimulationRequest.ForWeekend(input, calls);
         _ = RaceSession.Run(request);
         var published = request.Published ?? throw new InvalidOperationException("The lap engine published no race facts.");
-        var points = PointsRules.For(rules);
-        var standings = LoadStandings(payload.Season, points, total).Apply(published.Classification);
-        StoreChampionship(payload.Season, standings, settled: false);
-        ApplyUnderstanding(today, layout.LengthKm, published.CarResults);
-        ApplyMoney(today, payload, total, published, field, layout.Country);
-        ApplyPeople(context, today, published.PersonOutcomes, payload);
-        PostDueStandInDecisions(today);
+        return new WeekendRun(rules, total, layout, field, published, calls);
+    }
+
+    /// <summary>The race goes to the watch (the shell and the race mode) and to the round archive.</summary>
+    private void Publish(RaceSessionPayload payload, WeekendRun run)
+    {
+        var published = run.Published;
         _watch.Publish(
             payload.Season,
             payload.Round,
             payload.LayoutId,
             published.Tape,
             Lines(published),
-            field.SkippedTeamIds,
-            ByDriver(calls.Calls, field.Entries));
+            run.Field.SkippedTeamIds,
+            ByDriver(run.Calls.Calls, run.Field.Entries));
         var world = _context.Session.World;
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;
-        _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, field.StandIns, (int)Math.Round(layout.LengthKm * 1000d, MidpointRounding.AwayFromZero))));
+        _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, run.Field.StandIns, (int)Math.Round(run.Layout.LengthKm * 1000d, MidpointRounding.AwayFromZero))));
     }
 
     private void ApplyUnderstanding(GameDate today, double lengthKm, IReadOnlyList<CarRaceResult> results)

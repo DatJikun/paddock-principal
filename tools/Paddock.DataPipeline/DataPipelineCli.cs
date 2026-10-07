@@ -15,6 +15,7 @@ public static class DataPipelineCli
         new("stats", "stats [--cache <dir>] [--from <year>] [--to <year>]", "Prints aggregate statistics of the normalized cache."),
         new("ratings", "ratings [--cache <dir>] [--from <year>] [--to <year>] [--w-race <float>] [--w-quali <float>] [--lambda-time <float>] [--lambda-0 <float>]", "Fits driver and car ratings from the normalized results."),
         new("schedule", "schedule [--cache <dir>] [--pool-lead-years <years>]", "Builds the people schedule from the normalized cache."),
+        new("starting-data", "starting-data [--cache <dir>] [--from <year>] [--to <year>]", "Writes each season's starting car strength, constructors' order and engine from the ratings fit."),
     ];
 
     public static bool IsHelp(string token) =>

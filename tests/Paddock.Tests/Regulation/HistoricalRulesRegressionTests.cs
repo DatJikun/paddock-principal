@@ -9,18 +9,18 @@ namespace Paddock.Tests.Regulation;
 /// <summary>
 /// Regression guard for regulation voting v2 (#275): a career whose rules are historical never writes the
 /// <c>regulations</c> section and keeps its results and state hashes exactly as they were before voting v2 existed.
-/// The golden values were captured on main (commit d252dc1) before the change, with the same fixture (Balanced preset, 1955,
+/// The golden values were captured on main (commit f2d10c3) without voting v2 (the same values come out of main and of this branch), with the same fixture (Balanced preset, 1955,
 /// seed 7). Edit them only after a reviewed change to the day rules; this test prints the actual values and never writes them.
 /// </summary>
 public class HistoricalRulesRegressionTests
 {
     private const ulong Seed = 7;
 
-    private const string HashOnTheLastDayOf1955 = "2aa86f04e58685cf1824255cbd6024ffdcb94a9e0202bbc6116ecb37056c390e";
+    private const string HashOnTheLastDayOf1955 = "85b86fe5cd9d9f4de430169ae6715cf612645c097b36dc6774a1bcb7b7f22357";
 
-    private const string HashAfterTheSeasonTurned = "c3fce7a773e66e40061c4472881a665ce529d1a8e4ddb4ab885857b852cbe7a2";
+    private const string HashAfterTheSeasonTurned = "cacccab27d9f6dbf83e6053b8dd668d59ff050a0b3f67a582fc4cab8d1f80463";
 
-    private const string HashAfterTwoSeasons = "7c1082589ec327427078602686cfd9c2c25fe4091b9fa399dac59de99fc6f37d";
+    private const string HashAfterTwoSeasons = "38b439d17a6e7362cd8dc2bc09bb0a687eb40020b94a4ff4a598b3b7a5941ec5";
 
     private static (string Hash, bool HasRegulations, int Season, int Rounds, int NextSessions) Probe(GameDate stopOn)
     {

@@ -949,6 +949,19 @@
       "confidence": "medium"
     },
     {
+      "id": "lancia_d50_handed_to_ferrari_1955",
+      "date": "1955-07-01",
+      "date_precision": "month",
+      "kind": "team_sold",
+      "organization": "lancia",
+      "constructorId": "lancia",
+      "summary": "In July 1955 Lancia handed over the D50 cars, technical drawings, and manufacturing material to Ferrari. Fiat paid Ferrari an ESTIMATE of 50 million lire per year for 5 years (1956–1960) as compensation for taking over development and racing.",
+      "preconditions": "Lancia was in financial trouble and exiting Formula One. Ferrari existed as an established works team capable of absorbing the D50 programme. Fiat, as Lancia's parent company, negotiated the transfer and provided compensation through Ferrari's 1956–1960 budget.",
+      "source": "https://en.wikipedia.org/wiki/Lancia_D50",
+      "confidence": "high",
+      "counterparty": "ferrari"
+    },
+    {
       "id": "mercedes_withdrew_1955",
       "date": "1955-01-01",
       "date_precision": "year",

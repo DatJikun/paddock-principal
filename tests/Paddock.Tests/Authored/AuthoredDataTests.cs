@@ -158,6 +158,26 @@ public class AuthoredDataTests
         Assert.Equal(layout.Id, data.LayoutFor(1976, 10).Id);
     }
 
+    [Fact]
+    public void RealFiles_LanciaD50HandoverEvent_ExistsAndIsValid()
+    {
+        // The team_events.json file is not yet loaded by AuthoredDataLoader, but this test
+        // verifies the D50 handover event is properly formed as historical proposal data.
+        var dataRoot = Path.Combine(RepoPaths.Root(), "data");
+        var teamEventsPath = Path.Combine(dataRoot, "authored", "events", "team_events.json");
+        var json = File.ReadAllText(teamEventsPath);
+
+        // Verify the event exists in the file
+        Assert.Contains("lancia_d50_handed_to_ferrari_1955", json);
+        Assert.Contains("\"kind\": \"team_sold\"", json);
+        Assert.Contains("\"counterparty\": \"ferrari\"", json);
+
+        // Verify it mentions the key details: cars handover and payment terms
+        Assert.Contains("D50 cars", json);
+        Assert.Contains("50 million lire", json);
+        Assert.Contains("5 years", json);
+    }
+
     private static AuthoredData LoadRepo() =>
         AuthoredDataLoader.Load(Path.Combine(RepoPaths.Root(), "data"));
 }

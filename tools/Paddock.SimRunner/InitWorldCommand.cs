@@ -223,7 +223,11 @@ public static class InitWorldCommand
             ?? throw new JsonException("The drivers file is empty.");
         ratingsPath ??= CareerData.RatingsPathFor(schedulePath);
         var ratings = ratingsPath is null ? null : FittedDriverRatings.Load(ratingsPath);
-        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers, ratings is null ? null : ratings.RatingFor);
+        return new ScheduleBackedPeopleProvider(
+            schedule,
+            drivers.Drivers,
+            ratings is null ? null : ratings.RatingFor,
+            CareerData.ConstructorIdsFor(driversPath));
     }
 
     private static double Mean(PersonTruth truth) => truth.Attributes.Average(attribute => attribute.Value);

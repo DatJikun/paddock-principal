@@ -557,7 +557,8 @@ public static class WorldInitializer
                 return null;
             }
 
-            if (_realIds.Contains(record.DriverId))
+            // An id an organization already holds (a provider that did not rename the driver) is a gap, not a crash (INV-009).
+            if (_realIds.Contains(record.DriverId) || _world.Ids.WasIssued(record.DriverId))
             {
                 Gap(WorldInitGapCodes.IdCollision, record.DriverId);
                 return null;
@@ -987,7 +988,7 @@ public static class WorldInitializer
             foreach (var group in slots.GroupBy(slot => slot.PersonId, Ordinal).OrderBy(group => group.Key, Ordinal))
             {
                 var member = group.First().Member;
-                if (_realIds.Contains(member.Id))
+                if (_realIds.Contains(member.Id) || _world.Ids.WasIssued(member.Id))
                 {
                     Gap(WorldInitGapCodes.IdCollision, member.Id);
                     continue;

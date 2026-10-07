@@ -405,6 +405,64 @@ public class WorldInitializerTests
     }
 
     [Fact]
+    public void DriverWhoseIdIsAlsoATeamIdJoinsTheWorldUnderADriverId()
+    {
+        // Jolpica gives Bruce McLaren the driver id "mclaren", the same text as the McLaren team. One string is one id in the
+        // world (INV-009), so the provider renames the driver, and a 1968 start no longer throws.
+        var schedule = new Paddock.Data.Historical.PeopleScheduleReport(
+            2.5m,
+            1980,
+            [
+                new Paddock.Data.Historical.ScheduledDriver(
+                    "alpha",
+                    1940,
+                    "British",
+                    1962,
+                    1970,
+                    1960,
+                    [new Paddock.Data.Historical.DriverStint(1970, "alpha", 1, 10, 10, "race")],
+                    []),
+                new Paddock.Data.Historical.ScheduledDriver("indy", 1930, "American", 1960, 1960, 1958, [], []),
+            ],
+            [],
+            [],
+            []);
+        var table = new[]
+        {
+            new Paddock.Data.Historical.HistoricalDriver("alpha", "Bruce", "Alpha", "1940-05-05", "British", null, null, null),
+            new Paddock.Data.Historical.HistoricalDriver("indy", "Indy", "Builder", "1930-01-01", "American", null, null, null),
+        };
+        var provider = new ScheduleBackedPeopleProvider(
+            schedule,
+            table,
+            (id, season) => id == "alpha" && season == 1970 ? WorldInitFixtures.Rating(12, 15) : null,
+            ["indy"]);
+
+        Assert.Equal(["driver:alpha", "driver:indy"], provider.Drivers.Select(driver => driver.DriverId).ToArray());
+        Assert.NotNull(provider.RatingFor("driver:alpha", 1970));
+
+        var result = WorldInitializer.Create(Config(PeopleSource.RealPotential), WorldInitFixtures.Data(), provider, Seed);
+        var bruce = PersonId.Real("driver:alpha");
+        var contract = result.World.Contracts.Single(candidate => candidate.PersonId == bruce);
+        Assert.Equal(OrganizationId.Real("alpha"), contract.OrganizationId);
+        Assert.Equal("Alpha", result.World.GetPerson(bruce).FamilyName);
+        Assert.Equal(12, result.World.TruthOf(bruce).Value("braking"));
+    }
+
+    [Fact]
+    public void ProviderDriverIdThatIsATeamIdIsAGapNotACrash()
+    {
+        var provider = new FixtureProvider(
+            [new RealDriverRecord("alpha", "Bruce", "Alpha", new DateOnly(1940, 5, 5), null, "British", 1962, 1960, [new DriverSeat(WorldInitFixtures.Year, "alpha", 1, "race")])],
+            new Dictionary<string, DriverRating>(StringComparer.Ordinal));
+
+        var result = WorldInitializer.Create(Config(PeopleSource.RealPotential), WorldInitFixtures.Data(), provider, Seed);
+
+        Assert.Equal(["alpha"], Subjects(result, WorldInitGapCodes.IdCollision));
+        Assert.DoesNotContain(result.World.Persons, person => person.Id.Value == "alpha");
+    }
+
+    [Fact]
     public void InitializerUsesOnlyThePeopleStream()
     {
         var path = Path.Combine(RepoPaths.Root(), "src", "Paddock.Data", "World", "WorldInitializer.cs");

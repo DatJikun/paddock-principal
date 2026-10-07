@@ -112,7 +112,24 @@ public static class CareerData
             ?? throw new JsonException("The drivers file is empty.");
         var ratingsPath = RatingsPathFor(schedulePath);
         var ratings = ratingsPath is null ? null : FittedDriverRatings.Load(ratingsPath);
-        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers, ratings is null ? null : ratings.RatingFor);
+        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers, ratings is null ? null : ratings.RatingFor, ConstructorIdsFor(driversPath));
+    }
+
+    /// <summary>
+    /// The constructor ids of the normalized constructor table next to the drivers file (<c>constructors.json</c>), or none when
+    /// it is absent. The provider renames a driver whose id is one of them, so a person never takes a team's id.
+    /// </summary>
+    public static IReadOnlyList<string> ConstructorIdsFor(string driversPath)
+    {
+        var path = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(driversPath)) ?? ".", "constructors.json");
+        if (!File.Exists(path))
+        {
+            return [];
+        }
+
+        var document = JsonSerializer.Deserialize<HistoricalConstructorsDocument>(File.ReadAllText(path), HistoricalJson.Options)
+            ?? throw new JsonException("The constructors file is empty.");
+        return document.Constructors.Select(constructor => constructor.ConstructorId).ToArray();
     }
 
     /// <summary>The fitted ratings file written next to the people schedule (<c>reports/ratings.json</c>), or null when absent.</summary>

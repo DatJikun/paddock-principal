@@ -59,19 +59,30 @@ public sealed class EmptyPeopleProvider : IPeopleProvider
 /// Joins the T12 <see cref="PeopleScheduleReport"/> with the normalized driver table (names, birth date,
 /// nationality). Ratings come from an optional callback because the ratings model output is a separate task.
 /// A scheduled driver with no row in the driver table is left out, because the world needs a name.
+/// Jolpica gives some drivers the same id as a constructor (Bruce McLaren is <c>mclaren</c>, John Surtees <c>surtees</c>).
+/// One string is one id in the world (INV-009), so such a driver is renamed to <c>driver:{id}</c> here, once, for every
+/// consumer of the provider. A constructor id is any id in a seat of the schedule or in <c>organizationIds</c>
+/// (the normalized constructor table). <see cref="RatingFor"/> takes the renamed id.
 /// </summary>
 public sealed class ScheduleBackedPeopleProvider : IPeopleProvider
 {
+    public const string RenamedDriverPrefix = "driver:";
+
     private readonly Func<string, int, DriverRating?>? _ratings;
+    private readonly Dictionary<string, string> _sourceIds = new(StringComparer.Ordinal);
 
     public ScheduleBackedPeopleProvider(
         PeopleScheduleReport schedule,
         IReadOnlyList<HistoricalDriver> drivers,
-        Func<string, int, DriverRating?>? ratings = null)
+        Func<string, int, DriverRating?>? ratings = null,
+        IEnumerable<string>? organizationIds = null)
     {
         ArgumentNullException.ThrowIfNull(schedule);
         ArgumentNullException.ThrowIfNull(drivers);
         _ratings = ratings;
+
+        var constructors = new HashSet<string>(organizationIds ?? [], StringComparer.Ordinal);
+        constructors.UnionWith(schedule.Drivers.SelectMany(driver => driver.Stints).Select(stint => stint.ConstructorId));
 
         var table = new Dictionary<string, HistoricalDriver>(StringComparer.Ordinal);
         foreach (var driver in drivers)
@@ -90,8 +101,15 @@ public sealed class ScheduleBackedPeopleProvider : IPeopleProvider
             var seats = scheduled.Stints
                 .Select(stint => new DriverSeat(stint.Season, stint.ConstructorId, stint.FirstRound, stint.Role, stint.Starts))
                 .ToArray();
+            var id = scheduled.DriverId;
+            if (constructors.Contains(id))
+            {
+                id = RenamedDriverPrefix + id;
+                _sourceIds[id] = scheduled.DriverId;
+            }
+
             records.Add(new RealDriverRecord(
-                scheduled.DriverId,
+                id,
                 row.GivenName,
                 row.FamilyName,
                 ParseDate(row.DateOfBirth),
@@ -107,7 +125,8 @@ public sealed class ScheduleBackedPeopleProvider : IPeopleProvider
 
     public IReadOnlyList<RealDriverRecord> Drivers { get; }
 
-    public DriverRating? RatingFor(string driverId, int season) => _ratings?.Invoke(driverId, season);
+    public DriverRating? RatingFor(string driverId, int season) =>
+        _ratings?.Invoke(_sourceIds.GetValueOrDefault(driverId, driverId), season);
 
     private static DateOnly? ParseDate(string? text)
     {

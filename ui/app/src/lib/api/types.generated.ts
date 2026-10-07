@@ -351,19 +351,23 @@ export interface LiveFramesView {
 export interface LiveOrderView {
   atMs: number;
   carId: string;
+  engine: string | null;
   kind: string;
   lap: number;
+  on: boolean;
   pace: string | null;
   tyres: string | null;
 }
 
 export interface LivePitWallLapView {
   carId: string;
+  engine: string;
   feel: string;
   fuelKg: number;
   fuelLaps: number;
   lap: number;
   lapsLeft: number;
+  letBy: boolean;
   manual: boolean;
   pace: string;
   startMs: number;
@@ -392,7 +396,9 @@ export interface LiveRaceControlCall {
 export interface LiveRaceOrderCall {
   action: string;
   carId: string;
+  engine: string | null;
   managerId: string;
+  on: boolean | null;
   pace: string | null;
   tyres: string | null;
 }

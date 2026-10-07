@@ -50,12 +50,18 @@
   /* A race-time step longer than this between two ticks is a jump (a skip), not playback: nothing pops up for it. */
   const JUMP_MS = 60_000;
   const TOAST_MS = 4_500;
-  /* The pace options in the order a pit wall reads them; "auto" hands the car back to the strategist. */
+  /* The driver modes from the gentlest to the fastest; "auto" (a separate button) hands the pace back to the strategist. */
   const PACES = [
-    { id: 'auto', key: 'live.ui.paceAuto' },
-    { id: 'save', key: 'live.ui.paceSave' },
-    { id: 'standard', key: 'live.ui.paceStandard' },
-    { id: 'push', key: 'live.ui.pacePush' },
+    { id: 'conserve', key: 'live.ui.paceConserve', short: 'live.ui.paceConserveShort' },
+    { id: 'save', key: 'live.ui.paceSave', short: 'live.ui.paceSaveShort' },
+    { id: 'standard', key: 'live.ui.paceStandard', short: 'live.ui.paceStandardShort' },
+    { id: 'push', key: 'live.ui.pacePush', short: 'live.ui.pacePushShort' },
+    { id: 'qualifying', key: 'live.ui.paceQualifying', short: 'live.ui.paceQualifyingShort' },
+  ] as const;
+  const ENGINES = [
+    { id: 'lean', key: 'live.ui.engineLean' },
+    { id: 'standard', key: 'live.ui.engineStandard' },
+    { id: 'full', key: 'live.ui.engineFull' },
   ] as const;
 
   let race = $state<LiveRaceView | null>(null);
@@ -118,11 +124,23 @@
     }
   }
 
-  async function order(carId: string, action: string, pace: string | null = null, tyres: string | null = null) {
+  type OrderArgs = { pace?: string; tyres?: string | null; engine?: string; on?: boolean };
+
+  async function order(carId: string, action: string, extra: OrderArgs = {}) {
     sending = carId;
     refusal = { ...refusal, [carId]: '' };
     try {
-      adopt(await command('liveRaceOrder', { managerId: HUMAN_MANAGER_ID, carId, action, pace, tyres }));
+      adopt(
+        await command('liveRaceOrder', {
+          managerId: HUMAN_MANAGER_ID,
+          carId,
+          action,
+          pace: extra.pace ?? null,
+          tyres: extra.tyres ?? null,
+          engine: extra.engine ?? null,
+          on: extra.on ?? null,
+        }),
+      );
       if (action === 'pit') pick = { ...pick, [carId]: '' };
     } catch (error) {
       refusal = { ...refusal, [carId]: error instanceof BridgeError ? error.key : 'live.order.unsafe' };
@@ -133,13 +151,18 @@
 
   function setPace(carId: string, pace: string) {
     if (paceOf(carId) === pace) return;
-    void (pace === 'auto' ? order(carId, 'auto') : order(carId, 'pace', pace));
+    void (pace === 'auto' ? order(carId, 'auto') : order(carId, 'pace', { pace }));
+  }
+
+  function setEngine(carId: string, engine: string) {
+    if (engineOf(carId) === engine) return;
+    void order(carId, 'engine', { engine });
   }
 
   function confirmPit(carId: string) {
     const choice = pick[carId];
     if (!choice) return;
-    void order(carId, 'pit', null, choice === 'fuel' ? null : choice);
+    void order(carId, 'pit', { tyres: choice === 'fuel' ? null : choice });
   }
 
   /* The pace this pit wall last asked of a car ("auto" when it never took the car over or gave it back). */
@@ -152,6 +175,19 @@
       if (item.kind === 'pace') return item.pace ?? 'standard';
     }
     return 'auto';
+  }
+
+  /* The last engine mode and team order this pit wall gave a car (the host's list, in the order it took them). */
+  function engineOf(carId: string) {
+    const orders = race?.pitWall.orders ?? [];
+    for (let i = orders.length - 1; i >= 0; i--) if (orders[i].carId === carId && orders[i].kind === 'engine') return orders[i].engine ?? 'standard';
+    return 'standard';
+  }
+
+  function letByOf(carId: string) {
+    const orders = race?.pitWall.orders ?? [];
+    for (let i = orders.length - 1; i >= 0; i--) if (orders[i].carId === carId && orders[i].kind === 'letBy') return orders[i].on;
+    return false;
   }
 
   function tyreName(id: string) {
@@ -531,6 +567,7 @@
           {@const car = cars.get(row.carId)}
           {@const known = wall.get(row.carId)}
           {@const running = !row.out && !row.finished && !finished}
+          {@const pace = paceOf(row.carId)}
           <div class="car" class:sel={orderCar === row.carId}>
             <button
               type="button"
@@ -563,19 +600,52 @@
             {/if}
             {#if running && race.pitWall.canOrder && orderCar === row.carId}
               <div class="orders">
-                <span class="meta">{tr.t('live.ui.driverPace')}</span>
-                <div class="paces">
+                <div class="line">
+                  <span class="meta">
+                    {tr.t('live.ui.driverPace')} ·
+                    {tr.t(PACES.find((option) => option.id === (pace === 'auto' ? known?.lap.pace : pace))?.key ?? 'live.ui.paceStandard')}
+                  </span>
+                  <button type="button" class="ctl chip" aria-pressed={pace === 'auto'} disabled={sending === row.carId} onclick={() => setPace(row.carId, 'auto')}>
+                    {tr.t('live.ui.paceAuto')}
+                  </button>
+                </div>
+                <div class="paces five">
                   {#each PACES as option (option.id)}
                     <button
                       type="button"
                       class="ctl"
-                      class:now={paceOf(row.carId) === 'auto' && option.id !== 'auto' && known?.lap.pace === option.id}
-                      aria-pressed={paceOf(row.carId) === option.id}
+                      class:now={pace === 'auto' && known?.lap.pace === option.id}
+                      aria-pressed={pace === option.id}
+                      title={tr.t(option.key)}
                       disabled={sending === row.carId}
-                      onclick={() => setPace(row.carId, option.id)}>{tr.t(option.key)}</button
+                      onclick={() => setPace(row.carId, option.id)}>{tr.t(option.short)}</button
                     >
                   {/each}
                 </div>
+                <span class="meta">{tr.t('live.ui.engine')}</span>
+                <div class="paces three">
+                  {#each ENGINES as option (option.id)}
+                    <button
+                      type="button"
+                      class="ctl"
+                      aria-pressed={engineOf(row.carId) === option.id}
+                      disabled={sending === row.carId}
+                      onclick={() => setEngine(row.carId, option.id)}>{tr.t(option.key)}</button
+                    >
+                  {/each}
+                </div>
+                {#if ownRows.some((other) => other.carId !== row.carId && !other.out && !other.finished)}
+                  <div class="line">
+                    <span class="meta">{tr.t('live.ui.teamOrder')}</span>
+                    <button
+                      type="button"
+                      class="ctl chip"
+                      aria-pressed={letByOf(row.carId)}
+                      disabled={sending === row.carId}
+                      onclick={() => order(row.carId, 'letBy', { on: !letByOf(row.carId) })}>{tr.t('live.ui.letBy')}</button
+                    >
+                  </div>
+                {/if}
                 <span class="meta">{tr.t('live.ui.pitStop')}</span>
                 {#if known?.stop}
                   <div class="called">
@@ -1232,7 +1302,7 @@
   .paces,
   .tyres {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 1px;
     padding: 2px;
     border-radius: 10px;
@@ -1240,6 +1310,21 @@
   }
   .tyres {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .paces.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .line .ctl.chip {
+    height: 28px;
+    font-size: 12px;
+    border: 1px solid var(--ov-line);
   }
   .paces .ctl,
   .tyres .ctl {

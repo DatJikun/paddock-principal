@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Paddock.Application.Board;
+using Paddock.Application.Career;
 using Paddock.Application.Commands;
 using Paddock.Application.Racing;
+using Paddock.Simulation.Career;
 using Paddock.Simulation.Racing.Playback;
 
 namespace Paddock.Desktop.Bridge;
@@ -33,29 +35,40 @@ public sealed partial class CareerBridge
             : null;
     }
 
-    private LiveRaceView ReadLiveRace() =>
-        Box.TryGet<RaceWatch>() is { } watch && LiveFor(watch) is not null
-            ? LiveRaceRead.Read(Session, watch, Box.TryGet<BoardBook>()?.Section.OrganizationOf(Human.Value), Circuits, Tracks)
-            : LiveRaceRead.Read(Session, new RaceWatch(), null, Circuits, Tracks);
+    /// <summary>
+    /// The race being watched: an open quick race (#280) first, otherwise the career's. Null when there is neither.
+    /// </summary>
+    private (CareerSession Session, CareerModuleContext Box, LiveRacePlayback? Live)? Watched() =>
+        _quick is { } quick ? (quick.Session, quick.Modules, _quickLive)
+        : HasCareer ? (Session, Box, _live)
+        : null;
+
+    private LiveRaceView ReadLiveRace()
+    {
+        var watched = Watched() ?? throw new InvalidOperationException("No career is open.");
+        return watched.Box.TryGet<RaceWatch>() is { } watch && LiveFor(watch, watched.Live) is not null
+            ? LiveRaceRead.Read(watched.Session, watch, watched.Box.TryGet<BoardBook>()?.Section.OrganizationOf(Human.Value), Circuits, Tracks)
+            : LiveRaceRead.Read(watched.Session, new RaceWatch(), null, Circuits, Tracks);
+    }
 
     private LiveFramesView ReadLiveFrames(JsonElement args)
     {
         var from = RaceMsOf(args, "fromMs") ?? 0;
         var to = RaceMsOf(args, "toMs") ?? from;
-        return Box.TryGet<RaceWatch>() is { } watch && LiveFor(watch) is not null
+        return Watched() is { } watched && watched.Box.TryGet<RaceWatch>() is { } watch && LiveFor(watch, watched.Live) is not null
             ? LiveRaceRead.Frames(watch, from, to)
             : new LiveFramesView(false, from, to, []);
     }
 
     private LiveClockView ReadLiveClock() =>
-        HasCareer && Box.TryGet<RaceWatch>() is { } watch && LiveFor(watch) is { } live
+        Watched() is { } watched && watched.Box.TryGet<RaceWatch>() is { } watch && LiveFor(watch, watched.Live) is { } live
             ? live.View()
             : new LiveClockView(false, 0, 0, 0, 0, LiveRacePlayback.DefaultSpeed, true, false, LiveRacePlayback.Speeds);
 
     /// <summary>Applies one viewing order. A refusal is a key; the clock is unchanged.</summary>
     public (LiveClockView? Clock, TranslationMessage? Error) ControlLiveRace(JsonElement args)
     {
-        if (!HasCareer || Box.TryGet<RaceWatch>() is not { } watch || LiveFor(watch) is not { } live)
+        if (Watched() is not { } watched || watched.Box.TryGet<RaceWatch>() is not { } watch || LiveFor(watch, watched.Live) is not { } live)
         {
             return (null, TranslationMessage.Of(LiveRaceText.NoRace));
         }
@@ -71,8 +84,8 @@ public sealed partial class CareerBridge
     }
 
     /// <summary>The playback of the race the watch holds, or null when the watch moved on (a new career, another race).</summary>
-    private LiveRacePlayback? LiveFor(RaceWatch watch) =>
-        _live is { } live && watch.Tape is not null && watch.Season == live.Season && watch.Round == live.Round ? live : null;
+    private static LiveRacePlayback? LiveFor(RaceWatch watch, LiveRacePlayback? playback) =>
+        playback is { } live && watch.Tape is not null && watch.Season == live.Season && watch.Round == live.Round ? live : null;
 
     private static long? RaceMsOf(JsonElement args, string name) =>
         args.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out var number)

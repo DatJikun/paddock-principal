@@ -115,7 +115,7 @@ public sealed class BridgeHost
 
             if (endpoint.Kind == BridgeRegistry.Query)
             {
-                if (!_career.HasCareer && name is not ("session" or "teams" or "saves"))
+                if (!_career.CanRead(name))
                 {
                     return Fail(id, BridgeKeys.NoCareer, null);
                 }

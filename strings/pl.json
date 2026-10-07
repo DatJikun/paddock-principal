@@ -1528,5 +1528,17 @@
   "live.ui.gained": "Od startu",
   "live.ui.fastest": "Najszybsze okr.",
   "live.ui.radioLog": "Radio i dyrekcja",
-  "live.ui.noRadio": "Na razie cisza w radiu."
+  "live.ui.noRadio": "Na razie cisza w radiu.",
+  "menu.quick": "Szybki wyścig",
+  "quick.step.season": "Sezon",
+  "quick.step.team": "Zespół",
+  "quick.step.track": "Tor",
+  "quick.rounds": "Rundy",
+  "quick.noRounds": "Ten sezon nie ma kalendarza.",
+  "quick.start": "Na start",
+  "quick.starting": "Ustawiam pole startowe…",
+  "quick.back": "Wróć do menu",
+  "quick.error.noRound": "Runda {round} nie należy do tego sezonu.",
+  "quick.error.notRaced": "Rundy {round} nie da się rozegrać: brak przepisów albo stawki.",
+  "quick.error.noTeam": "Zespół {teamId} nie startuje w tym sezonie."
 }

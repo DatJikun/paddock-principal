@@ -51,6 +51,7 @@ public static class BridgeRegistry
         Endpoint(Query, "liveRace", typeof(ManagerCall), typeof(LiveRaceView)),
         Endpoint(Query, "liveFrames", typeof(LiveFramesCall), typeof(LiveFramesView)),
         Endpoint(Query, "liveClock", typeof(ManagerCall), typeof(LiveClockView)),
+        Endpoint(Query, "quickRounds", typeof(QuickRoundsCall), typeof(QuickRoundsView)),
         Endpoint(Command, "advanceDay", typeof(ManagerCall), typeof(AdvanceDayView)),
         Endpoint(Command, "resolveInbox", typeof(ResolveInboxCall), typeof(CommandAck)),
         Endpoint(Command, "dismissInbox", typeof(DismissInboxCall), typeof(CommandAck)),
@@ -76,6 +77,8 @@ public static class BridgeRegistry
         Endpoint(Command, "proposeSupply", typeof(SupplyProposalCall), typeof(CommandAck)),
         Endpoint(Command, "respondToSupply", typeof(SupplyResponseCall), typeof(CommandAck)),
         Endpoint(Command, "liveRaceControl", typeof(LiveRaceControlCall), typeof(LiveClockView)),
+        Endpoint(Command, "startQuickRace", typeof(QuickRaceCall), typeof(QuickRaceStartedView)),
+        Endpoint(Command, "closeQuickRace", typeof(ManagerCall), typeof(CommandAck)),
     ];
 
     public static bool TryFind(string kind, string name, out BridgeEndpoint endpoint)

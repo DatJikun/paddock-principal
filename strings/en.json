@@ -1492,5 +1492,17 @@
   "live.ui.gained": "Since start",
   "live.ui.fastest": "Fastest lap",
   "live.ui.radioLog": "Radio and race control",
-  "live.ui.noRadio": "The radio is quiet so far."
+  "live.ui.noRadio": "The radio is quiet so far.",
+  "menu.quick": "Quick race",
+  "quick.step.season": "Season",
+  "quick.step.team": "Team",
+  "quick.step.track": "Track",
+  "quick.rounds": "Rounds",
+  "quick.noRounds": "This season has no calendar.",
+  "quick.start": "To the grid",
+  "quick.starting": "Setting up the grid…",
+  "quick.back": "Back to menu",
+  "quick.error.noRound": "Round {round} is not part of this season.",
+  "quick.error.notRaced": "Round {round} cannot be raced: no rules or no field.",
+  "quick.error.noTeam": "Team {teamId} does not race this season."
 }

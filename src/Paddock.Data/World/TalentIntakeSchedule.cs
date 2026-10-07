@@ -64,7 +64,8 @@ public static class TalentIntakeSchedule
                 true,
                 record.DriverId,
                 [PersonRole.Driver],
-                truth);
+                truth,
+                record.IsFemale);
             var on = new GameDate(entry, CareerDayEstimates.PoolEntryMonth, CareerDayEstimates.PoolEntryDay);
             arrivals.Add(new ScheduledArrival(on, spec));
         }

@@ -576,7 +576,8 @@ public static class WorldInitializer
                 true,
                 record.DriverId,
                 [PersonRole.Driver],
-                truth);
+                truth,
+                record.IsFemale);
             (_world, var id) = _world.AddPerson(spec);
             _realIds.Add(record.DriverId);
             return id;
@@ -863,7 +864,8 @@ public static class WorldInitializer
                 false,
                 null,
                 [PersonRole.Driver],
-                PersonTruth.FromDriver(driver.Attributes, driver.PotentialAttributes));
+                PersonTruth.FromDriver(driver.Attributes, driver.PotentialAttributes),
+                driver.IsFemale == true);
             (_world, var id) = _world.AddPerson(spec);
             if (!string.Equals(id.Value, driver.Id, StringComparison.Ordinal))
             {

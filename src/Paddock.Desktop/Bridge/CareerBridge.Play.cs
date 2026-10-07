@@ -34,6 +34,7 @@ namespace Paddock.Desktop.Bridge;
 public sealed partial class CareerBridge
 {
     private CareerConfig? _config;
+    private Paddock.Data.Historical.DriverCareerHistory? _history;
     private string? _worldDataHash;
     private string? _peopleNotice;
     private string _careerName = "career";
@@ -239,7 +240,7 @@ public sealed partial class CareerBridge
         {
             // The same starting sources as newCareer (#271), so a card shows the car and the budget the career will start with.
             var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
-            var created = WorldInitializer.Create(config, data, CareerData.LoadProvider(files), seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
+            var created = WorldInitializer.Create(config, data, CareerData.LoadProvider(files, root), seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
             var tiers = starting.Tiers ?? TeamTiersLoader.ToSource(TeamTiersLoader.Load(root));
             var last = created.World.Organizations
                 .Where(organization => organization.IsReal && tiers.PreviousPlaceOf(organization.Id, config.StartYear) is not null)
@@ -312,7 +313,32 @@ public sealed partial class CareerBridge
             return DriverProfileRead.None(person);
         }
 
-        return DriverProfileRead.Of(Session.World, id, Session.Date, person);
+        var profile = DriverProfileRead.Of(Session.World, id, Session.Date, person, EarlierSeasons(person));
+        if (!profile.Found)
+        {
+            return profile;
+        }
+
+        // The slider of the offer form: from what this team believes the driver is worth (#265).
+        var reference = Contracts().ReferenceSalary(id, Person(person), NegotiationSubject.DriverSeat, Session.Date);
+        return profile with { SalaryGuide = PeopleViews.SalaryGuide(reference) };
+    }
+
+    /// <summary>
+    /// The seasons a real driver raced before this career began, as plain counts from the local data. A generated driver, a career
+    /// with no local data, or a driver the data does not know has none.
+    /// </summary>
+    private IReadOnlyList<DriverSeasonView> EarlierSeasons(string personId)
+    {
+        if (_config is null || _dataRoot is null || personId.StartsWith("gen:", StringComparison.Ordinal))
+        {
+            return [];
+        }
+
+        _history ??= Paddock.Data.Historical.DriverCareerHistory.Load(_dataRoot);
+        return _history.Before(personId, _config.StartYear)
+            .Select(line => new DriverSeasonView(line.Season, line.ConstructorId, line.ConstructorName, line.Starts, line.Wins, line.Podiums, line.Retirements, line.Best))
+            .ToArray();
     }
 
     private ManagerProfileView ReadManager()
@@ -514,7 +540,7 @@ public sealed partial class CareerBridge
         string display)
     {
         var data = AuthoredDataLoader.Load(root);
-        var provider = CareerData.LoadProvider(files);
+        var provider = CareerData.LoadProvider(files, root);
         var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
         var created = WorldInitializer.Create(config, data, provider, seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
         var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);
@@ -557,7 +583,7 @@ public sealed partial class CareerBridge
                 return PlayStep.Fail(TranslationMessage.Of(PlayKeys.DataChanged, ("saved", loaded.Meta.WorldDataHash), ("now", now)));
             }
 
-            var provider = CareerData.LoadProvider(files);
+            var provider = CareerData.LoadProvider(files, root);
             var date = loaded.Session.World.CurrentDate;
             var standIn = loaded.Session.World.WithDate(date.IsSeasonStart ? GameDate.SeasonStart(date.Year - 1) : date);
             var arrivals = TalentIntakeSchedule.AfterStart(loaded.Meta.CareerConfig, provider, standIn, loaded.Meta.MasterSeed);
@@ -678,6 +704,7 @@ public sealed partial class CareerBridge
         _fixedSession = null;
         _modules = null;
         _config = config;
+        _history = null;
         _peopleFiles = files;
         _worldDataHash = worldDataHash;
         _careerName = careerName;
@@ -1122,7 +1149,7 @@ public sealed partial class CareerBridge
             exit = new ExitClause(worse);
         }
 
-        return new OfferTerms(salary, LongOf(args, "pointsBonus") ?? 0, LongOf(args, "winBonus") ?? 0, LongOf(args, "titleBonus") ?? 0, years, seat, option, exit);
+        return new OfferTerms(salary, 0, LongOf(args, "winBonus") ?? 0, LongOf(args, "titleBonus") ?? 0, years, seat, option, exit);
     }
 
     private static bool TrySubject(string text, out NegotiationSubject subject)

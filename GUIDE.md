@@ -150,7 +150,8 @@ Czy niepewność skauta pomaga w decyzji, czy tylko irytuje?
 Kierowca ocenia ofertę według swojej osobowości. Jednej „wartości rynkowej” nie ma.
 
 ```wybory
-Pensja | porównywana z typową pensją tego poziomu w epoce
+Pensja | suwak; sugerowany przedział wynika z umiejętności osoby, tak jak widzi je Twój zespół. Premii za punkt nie ma, zostają premia za wygraną i za tytuł
+Przedkontrakt | kierowcę, któremu umowa kończy się w tym roku, można podpisać już teraz na następny sezon; umowa startuje dzień po końcu obecnej
 Długość | do {NegotiationEstimates.MaxYears|sezonów}; długość, opcje i klauzula wyjścia liczą się jako ryzyko
 Status | numer 1, równy albo numer 2
 Kiedy ruszyć kontrakt rywala | na {NegotiationEstimates.NegotiationWindowDays|dni} przed jego końcem
@@ -174,7 +175,7 @@ Ryzyko (minus) | waga {NegotiationEstimates.WeightRisk} | długość, opcje, kla
 
 ```kroki
 Oferta | pensja, lata, status, opcje, klauzule
-Odpowiedź | po kilku dniach, najwcześniej po {NegotiationEstimates.ResponseDelayMinDays|dni}
+Odpowiedź | dzień zależy od osoby: najwcześniej po {NegotiationEstimates.ResponseDelayMinDays|dni}, mniej zawodowa osoba odpowiada nawet o {NegotiationEstimates.ResponseDelayCarelessDays|dni} później. Po wysłaniu oferty dostajesz w skrzynce wiadomość, do kiedy czekasz
 Rundy | {NegotiationEstimates.MinRounds}–{NegotiationEstimates.MaxRounds}, zależnie od charakteru
 Decyzja | najlepsza oferta; przy remisie zaufanie
 ```

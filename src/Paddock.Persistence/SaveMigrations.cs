@@ -33,6 +33,7 @@ public static class SaveMigrations
         new V025_RaceResultDetails(),
         new V026_RaceCalendarSection(),
         new V027_InfrastructureSection(),
+        new V028_PersonGender(),
     ];
 
     static SaveMigrations()

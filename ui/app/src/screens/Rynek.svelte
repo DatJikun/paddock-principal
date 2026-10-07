@@ -4,29 +4,35 @@
   import Status from '../lib/components/Status.svelte';
   import Tabs from '../lib/components/Tabs.svelte';
   import { formatDate, formatDay } from '../lib/date.mjs';
-  import { sortRows } from '../lib/people.mjs';
+  import { formatMoney } from '../lib/money.mjs';
+  import { endsThisSeason, sortRows } from '../lib/people.mjs';
   import type { MarketData } from '../lib/screens';
   import type { Tr } from '../lib/ui';
 
   let { data, tr }: { data: MarketData; tr: Tr } = $props();
 
-  type Key = 'name' | 'age' | 'team' | 'seat' | 'end';
+  type Key = 'name' | 'age' | 'overall' | 'salary' | 'end' | 'team';
 
-  let filter = $state('free');
-  let sortKey = $state<Key>('name');
-  let direction = $state<'asc' | 'desc'>('asc');
+  /* "All" first, "Free" next to it; drivers and staff are two lists of one market. */
+  let filter = $state('all');
+  let kind = $state('driver');
+  let sortKey = $state<Key>('overall');
+  let direction = $state<'asc' | 'desc'>('desc');
 
   let all = $derived([...data.market.freeAgents, ...data.market.contracted]);
-  let shown = $derived(filter === 'free' ? data.market.freeAgents : filter === 'contracted' ? data.market.contracted : all);
+  let ofKind = $derived(all.filter((person) => (kind === 'driver' ? person.kind === 'driver' : person.kind !== 'driver')));
+  let shown = $derived(filter === 'free' ? ofKind.filter((person) => person.freeAgent) : ofKind);
   let rows = $derived(
     sortRows(shown, (person: MarketPersonView) => {
       switch (sortKey) {
         case 'age':
           return person.age;
+        case 'overall':
+          return person.overall;
+        case 'salary':
+          return person.expectedSalary;
         case 'team':
-          return person.organizationName;
-        case 'seat':
-          return person.seat ? tr.t(`seat.${person.seat}`) : null;
+          return person.organizationName ?? (person.freeAgent ? '' : null);
         case 'end':
           return person.contractEnd;
         default:
@@ -34,34 +40,41 @@
       }
     }, direction),
   );
-  /* A list of free agents has no team, seat or contract to show, so those columns only appear next to someone who has them. */
-  let employed = $derived(rows.some((person) => !person.freeAgent));
   let open = $derived(data.negotiations.items.filter((item) => !['Agreed', 'Refused', 'WalkedAway', 'Lost', 'Lapsed'].includes(item.status)));
+  let today = $derived(data.today);
 
   function sortBy(key: Key) {
     if (sortKey === key) direction = direction === 'asc' ? 'desc' : 'asc';
     else {
       sortKey = key;
-      direction = 'asc';
+      direction = key === 'name' || key === 'team' || key === 'end' ? 'asc' : 'desc';
     }
   }
 
   const sortClass = (key: Key) => (sortKey === key ? `sorted ${direction}` : '');
+  const href = (person: MarketPersonView) => `#/${person.kind === 'driver' ? 'kierowca' : 'osoba'}/${encodeURIComponent(person.personId)}`;
 </script>
 
 <div class="screen-head">
   <h1 class="screen">{tr.t('shell.nav.market')}</h1>
   <div class="fields">
-    <div class="fld"><span class="meta">{tr.t('market.free')}</span><span class="v num">{data.market.freeAgents.length}</span></div>
+    <div class="fld"><span class="meta">{tr.t('market.free')}</span><span class="v num">{ofKind.filter((person) => person.freeAgent).length}</span></div>
     <div class="fld"><span class="meta">{tr.t('market.talks')}</span><span class="v num">{open.length}</span></div>
   </div>
   <div class="tools">
     <Tabs
+      group="market-kind"
+      items={[
+        { value: 'driver', label: tr.t('market.kind.driver') },
+        { value: 'staff', label: tr.t('market.kind.staff') },
+      ]}
+      bind:value={kind}
+    />
+    <Tabs
       group="market-filter"
       items={[
-        { value: 'free', label: tr.t('market.filter.free') },
-        { value: 'contracted', label: tr.t('market.filter.contracted') },
         { value: 'all', label: tr.t('market.filter.all') },
+        { value: 'free', label: tr.t('market.filter.free') },
       ]}
       bind:value={filter}
     />
@@ -70,28 +83,28 @@
 
 <div class="market-wrap">
   <section class="panel tbl market">
-    <table class="table">
+    <table class="table fit">
       <thead>
         <tr>
-          <th data-sort class={sortClass('name')} onclick={() => sortBy('name')}><span>{tr.t('shell.col.driver')}</span></th>
+          <th data-sort class={sortClass('name')} onclick={() => sortBy('name')}><span>{tr.t(kind === 'driver' ? 'shell.col.driver' : 'staff.person')}</span></th>
+          {#if kind === 'staff'}<th>{tr.t('staff.role')}</th>{/if}
           <th data-sort class={`c ${sortClass('age')}`} onclick={() => sortBy('age')}><span>{tr.t('drivers.age')}</span></th>
-          {#if employed}
-            <th data-sort class={sortClass('team')} onclick={() => sortBy('team')}><span>{tr.t('shell.col.team')}</span></th>
-            <th data-sort class={sortClass('seat')} onclick={() => sortBy('seat')}><span>{tr.t('drivers.seat')}</span></th>
-            <th data-sort class={`c ${sortClass('end')}`} onclick={() => sortBy('end')}><span>{tr.t('drivers.contract')}</span></th>
-          {/if}
+          <th data-sort class={`c ${sortClass('overall')}`} onclick={() => sortBy('overall')}><span>{tr.t('shell.col.overall')}</span></th>
+          <th data-sort class={`c ${sortClass('salary')}`} onclick={() => sortBy('salary')}><span>{tr.t('market.salary')}</span></th>
+          <th data-sort class={`c ${sortClass('end')}`} onclick={() => sortBy('end')}><span>{tr.t('drivers.contract')}</span></th>
+          <th data-sort class={sortClass('team')} onclick={() => sortBy('team')}><span>{tr.t('shell.col.team')}</span></th>
         </tr>
       </thead>
       <tbody>
         {#each rows as person (person.personId)}
-          <tr class="go-row" onclick={() => (location.hash = `#/kierowca/${encodeURIComponent(person.personId)}`)}>
-            <td><PersonCell name={person.name} href={`#/kierowca/${encodeURIComponent(person.personId)}`} nationality={person.nationality} /></td>
+          <tr class="go-row" onclick={() => (location.hash = href(person))}>
+            <td><PersonCell name={person.name} href={href(person)} nationality={person.nationality} /></td>
+            {#if kind === 'staff'}<td>{tr.t(`staff.role.${person.kind}`)}</td>{/if}
             <td class="c num">{person.age}</td>
-            {#if employed}
-              <td>{#if person.freeAgent}<Status text={tr.t('driver.free')} tone="hi" />{:else}{person.organizationName ?? ''}{/if}</td>
-              <td>{person.seat ? tr.t(`seat.${person.seat}`) : ''}</td>
-              <td class="c num">{person.contractEnd ? formatDate(person.contractEnd, tr.lang) : ''}</td>
-            {/if}
+            <td class="c num attr-ov">{person.overall ?? ''}</td>
+            <td class="c num">{person.expectedSalary > 0 ? formatMoney(person.expectedSalary * 100, tr.lang) : ''}</td>
+            <td class="c num" class:bad={!person.freeAgent && endsThisSeason(person.contractEnd, today)}>{person.contractEnd && !person.freeAgent ? formatDate(person.contractEnd, tr.lang) : ''}</td>
+            <td>{#if person.freeAgent}<Status text={tr.t('driver.free')} tone="hi" />{:else}{person.organizationName ?? ''}{/if}</td>
           </tr>
         {/each}
       </tbody>

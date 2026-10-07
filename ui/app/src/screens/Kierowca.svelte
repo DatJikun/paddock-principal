@@ -73,6 +73,9 @@
             <span class="meta">{tr.t('shell.col.team')}</span>
             <span class="v">{#if profile.freeAgent}<Status text={tr.t('driver.free')} tone="hi" />{:else}{profile.organizationName ?? '—'}{/if}</span>
           </div>
+          {#if profile.overall !== null}
+            <div class="fld"><span class="meta">{tr.t('shell.col.overall')}</span><span class="v num">{profile.overall}</span></div>
+          {/if}
           {#if profile.seat}
             <div class="fld"><span class="meta">{tr.t('drivers.seat')}</span><span class="v">{tr.t(`seat.${profile.seat}`)}</span></div>
           {/if}
@@ -143,10 +146,19 @@
                   <div class="fld"><span class="meta">{tr.t('driver.release')}</span><span class="v num">{formatMoney(profile.contract.releaseAmount * 100, tr.lang)}</span></div>
                 {/if}
               </div>
+              {#if profile.upcoming}
+                <div class="fields next">
+                  <div class="fld"><span class="meta">{tr.t('driver.contract.from')}</span><span class="v num">{formatDate(profile.upcoming.start, tr.lang)}</span></div>
+                  <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v num">{formatDate(profile.upcoming.end, tr.lang)}</span></div>
+                  {#if profile.upcoming.salary > 0}
+                    <div class="fld"><span class="meta">{tr.t('offer.salary')}</span><span class="v num">{formatMoney(profile.upcoming.salary * 100, tr.lang)}</span></div>
+                  {/if}
+                </div>
+              {/if}
               {#if asking === 'option'}
                 <Confirmation {tr} {busy} ask={tr.t('driver.option.ask', { name: profile.name })} onCancel={() => (asking = null)} onConfirm={exerciseOption} />
               {:else if renewing}
-                <OfferForm {tr} initial={null} {busy} label={tr.t('driver.renew.send')} onSubmit={renew} />
+                <OfferForm {tr} initial={null} guide={profile.salaryGuide} {busy} label={tr.t('driver.renew.send')} onSubmit={renew} />
                 <div class="confirm"><button class="btn sm" type="button" onclick={() => (renewing = false)}>{tr.t('game.menu.cancel')}</button></div>
               {:else}
                 <div class="confirm">
@@ -158,7 +170,10 @@
               {/if}
             {:else if profile.contractEnd}
               <div class="fields">
-                <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v num">{formatDate(profile.contractEnd, tr.lang)}</span></div>
+                <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v num" class:bad={endsThisSeason(profile.contractEnd, today)}>{formatDate(profile.contractEnd, tr.lang)}</span></div>
+                {#if profile.upcomingStart}
+                  <div class="fld"><span class="meta">{tr.t('driver.contract.from')}</span><span class="v">{formatDate(profile.upcomingStart, tr.lang)}{#if profile.upcomingOrganizationName}<small class="muted"> {profile.upcomingOrganizationName}</small>{/if}</span></div>
+                {/if}
               </div>
             {:else}
               <Status text={tr.t('driver.free')} tone="hi" />
@@ -167,7 +182,7 @@
         </section>
 
         <section class="panel tbl">
-          <header><h2>{tr.t('driver.seasons')}</h2></header>
+          <header><h2>{tr.t('driver.career')}</h2></header>
           {#if profile.seasons.length > 0}
             <table class="table tight">
               <thead>

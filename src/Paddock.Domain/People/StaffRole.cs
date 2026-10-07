@@ -38,7 +38,9 @@ public static class StaffCatalogue
     public static bool IsTeamRoster(StaffRole role)
     {
         EnsureRole(role);
-        return role is not (StaffRole.EngineDesigner or StaffRole.TeamPrincipal);
+        // Strategist and ChiefMechanic are hidden (#265): nothing in the simulation reads them yet. The enum values stay so old
+        // saves load; their holders just are not shown, hired or replaced. They come back when a system reads them.
+        return role is not (StaffRole.EngineDesigner or StaffRole.TeamPrincipal or StaffRole.Strategist or StaffRole.ChiefMechanic);
     }
 
     /// <summary>Team chairs, in enum order, without the engine designer and the team principal.</summary>

@@ -453,7 +453,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 
 ## 10. Rynek i kontrakty
 
-- **Pola kontraktu:** pensja, premie (za punkty, zwycięstwa, tytuł), długość, status (#1 / równy / #2 / rezerwowy). Kierowcy wnoszący sponsora mają osobne pole.
+- **Pola kontraktu:** pensja (suwak z sugerowanym przedziałem wokół pensji, jaką zespół uważa za adekwatną), premie (za zwycięstwa i tytuł; premia za punkt wycofana w #265), długość, status (#1 / równy / #2 / rezerwowy). Kierowcy wnoszący sponsora mają osobne pole.
 - **Klauzule** (głęboki system, którego nikt w gatunku nie ma):
   - **wyjścia z umowy:** kierowca może odejść, jeśli zespół spadnie poniżej np. 5. miejsca w konstruktorach albo nie da mu podium w ciągu N wyścigów; zespół może rozwiązać umowę, jeśli kierowca przegra pojedynek z partnerem albo nie zdobędzie punktów;
   - **opcja przedłużenia** po stronie zespołu albo kierowcy;

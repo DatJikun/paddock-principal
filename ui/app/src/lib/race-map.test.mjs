@@ -31,3 +31,11 @@ test('a lone car keeps its spot and a pack goes two-wide in order', () => {
   assert.equal(pack.get('c').lane, -1);
   assert.ok(pack.get('a').s > pack.get('b').s && pack.get('b').s > pack.get('c').s);
 });
+
+test('the heading points along the direction of travel', () => {
+  const sp = new TrackSpline(fallbackPoints(4000));
+  const a = sp.at(0.1);
+  const b = sp.at(0.1001);
+  const dot = (b.x - a.x) * a.tx + (b.y - a.y) * a.ty;
+  assert.ok(dot > 0);
+});

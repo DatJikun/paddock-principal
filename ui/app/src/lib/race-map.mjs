@@ -96,7 +96,7 @@ export class TrackSpline {
     const nx = L(p0.nx, p1.nx);
     const ny = L(p0.ny, p1.ny);
     const nl = Math.hypot(nx, ny) || 1;
-    return { x: L(p0.x, p1.x), y: L(p0.y, p1.y), nx: nx / nl, ny: ny / nl };
+    return { x: L(p0.x, p1.x), y: L(p0.y, p1.y), nx: nx / nl, ny: ny / nl, tx: ny / nl, ty: -nx / nl };
   }
 }
 
@@ -350,7 +350,12 @@ export class RaceMap {
       const l = placed.get(c.carId);
       const p = this.sp.at(l.s / arcPx);
       const side = pitIds.has(c.carId) ? -this.pitOffset() : l.lane * (r + 1);
-      return { id: c.carId, x: this.panX + p.x * this.zoom + p.nx * side, y: this.panY + p.y * this.zoom + p.ny * side };
+      return {
+        id: c.carId,
+        x: this.panX + p.x * this.zoom + p.nx * side,
+        y: this.panY + p.y * this.zoom + p.ny * side,
+        heading: Math.atan2(p.ty, p.tx),
+      };
     });
   }
 
@@ -432,7 +437,10 @@ export class RaceMap {
     ctx.restore();
   }
 
-  /* The renderer swap point of the prototype: one car in screen space, a dot in team colours today. */
+  /*
+   * The renderer swap point (PP-052): one car in screen space. `p` = { x, y, heading } with heading the direction of travel in
+   * radians. Today a dot in team colours; a car sprite per era rotates by `p.heading` here and nothing else changes.
+   */
   renderCar(ctx, p, entry, r, selected, hovered) {
     const lv = entry.livery;
     ctx.save();

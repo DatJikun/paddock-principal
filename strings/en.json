@@ -1488,5 +1488,6 @@
   "live.condition.dry": "Dry",
   "live.condition.damp": "Damp",
   "live.condition.wet": "Wet",
-  "live.condition.extreme": "Downpour"
+  "live.condition.extreme": "Downpour",
+  "live.ui.watch": "Watch the race"
 }

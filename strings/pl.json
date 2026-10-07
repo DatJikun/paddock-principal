@@ -1450,7 +1450,7 @@
   "live.event.ownFinish": "{driver} kończy wyścig na P{position}.",
   "live.call.pit": "Box, box. Zjeżdżaj na tym okrążeniu.",
   "live.call.pitTyres": "Box, box. Zjeżdżaj, zakładamy {tyres}.",
-  "live.call.push": "Cisnij, mamy tempo do odrobienia.",
+  "live.call.push": "Ciśnij, mamy tempo do odrobienia.",
   "live.call.save": "Zwolnij trochę, oszczędzaj opony i paliwo.",
   "live.call.standard": "Wracamy do normalnego tempa.",
   "live.error.noRace": "Nie ma wyścigu do oglądania.",
@@ -1524,5 +1524,6 @@
   "live.condition.dry": "Sucho",
   "live.condition.damp": "Wilgotno",
   "live.condition.wet": "Mokro",
-  "live.condition.extreme": "Ulewa"
+  "live.condition.extreme": "Ulewa",
+  "live.ui.watch": "Oglądaj wyścig"
 }

@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { BridgeError, canExit, command, connect, exitApp, HUMAN_MANAGER_ID, query, ready } from './lib/api/client';
-  import type { BridgeCommandName, LiveClockView, NewCareerCall, NextRaceView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
+  import type { BridgeCommandName, LiveClockView, NewCareerCall, NextRaceView, QuickRaceCall, QuickRaceStartedView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
   import { latestSave, newestFirst, saveLabel } from './lib/career.mjs';
   import GameMenu from './lib/components/GameMenu.svelte';
   import LanguageSetting from './lib/components/LanguageSetting.svelte';
   import LoadList from './lib/components/LoadList.svelte';
   import MenuHome from './lib/components/MenuHome.svelte';
   import NewCareer from './lib/components/NewCareer.svelte';
+  import QuickRace from './lib/components/QuickRace.svelte';
   import RaceLive from './lib/components/RaceLive.svelte';
   import Status from './lib/components/Status.svelte';
   import { addDays, daysBetween, formatDate, weekdayIndex } from './lib/date.mjs';
@@ -56,7 +57,7 @@
   let saves = $state<SaveListItem[]>([]);
   /* 'menu' is the main menu and its pages; 'game' is the career. The bridge keeps a career in memory in both. */
   let phase = $state<'menu' | 'game'>('menu');
-  let menuPage = $state<'home' | 'new' | 'load' | 'settings'>('home');
+  let menuPage = $state<'home' | 'new' | 'quick' | 'load' | 'settings'>('home');
   let gameMenu = $state(false);
   /* The file the career was last saved to or loaded from, and the date it held then. Saving is manual only. */
   let savedName = $state<string | null>(null);
@@ -75,6 +76,8 @@
   let racing = $state(false);
   let raceClock = $state<LiveClockView | null>(null);
   let liveOpen = $state(false);
+  /* A quick race (#280) is watched from the main menu. The bridge holds it next to the career, which stays as it was. */
+  let quick = $state<QuickRaceStartedView | null>(null);
   let appEl: HTMLElement | undefined = $state();
   let appSlot: { parent: Node; next: Node | null } | null = null;
 
@@ -214,7 +217,7 @@
     toastTimer = setTimeout(() => (toast = ''), 2800);
   }
 
-  async function openMenuPage(page: 'home' | 'new' | 'load' | 'settings') {
+  async function openMenuPage(page: 'home' | 'new' | 'quick' | 'load' | 'settings') {
     if (page === menuPage || moving) return;
     fault = null;
     if (page === 'load') await refreshSaves().catch(catchFault);
@@ -388,6 +391,33 @@
     void refresh().catch(catchFault);
   }
 
+  async function startQuickRace(call: QuickRaceCall) {
+    if (busy || racing) return;
+    busy = true;
+    fault = null;
+    try {
+      quick = await command('startQuickRace', call);
+      raceClock = null;
+      racing = true;
+    } catch (error) {
+      catchFault(error);
+    } finally {
+      busy = false;
+    }
+  }
+
+  /** The flag fell on a quick race: close it on the bridge and come back to the form, ready for another. */
+  async function leaveQuickRace() {
+    racing = false;
+    quick = null;
+    raceClock = null;
+    try {
+      await command('closeQuickRace', call);
+    } catch (error) {
+      catchFault(error);
+    }
+  }
+
   function onKey(event: KeyboardEvent) {
     if (event.key !== 'Escape' || event.defaultPrevented || gameMenu || racing) return;
     if (phase === 'game') {
@@ -475,7 +505,7 @@
 
   $effect(() => {
     /* Every team is drawn in its own colours; the main menu has none and keeps the default ink. */
-    const id = phase === 'game' ? shell?.organizationId : null;
+    const id = quick ? quick.organizationId : phase === 'game' ? shell?.organizationId : null;
     const body = document.body;
     if (!id) {
       delete body.dataset.team;
@@ -559,6 +589,7 @@
           <button type="button" class="mi" disabled={busy} onclick={continueCareer}>{@html icon(ICON.play)}<span>{t('menu.continue')}</span></button>
         {/if}
         <button type="button" class="mi" class:on={menuLit === 'new'} onclick={() => openMenuPage('new')}>{@html icon(ICON.plus)}<span>{t('menu.new')}</span></button>
+        <button type="button" class="mi" class:on={menuLit === 'quick'} onclick={() => openMenuPage('quick')}>{@html icon(ICON.flag)}<span>{t('menu.quick')}</span></button>
         <button type="button" class="mi" class:on={menuLit === 'load'} disabled={saves.length === 0} onclick={() => openMenuPage('load')}>
           {@html icon(ICON.folder)}<span>{t('menu.load')}</span>
           {#if saves.length === 0}<small>{t('menu.noSaves')}</small>{/if}
@@ -621,6 +652,11 @@
           <div class="screen-head"><h1 class="screen">{t('menu.new')}</h1></div>
           {#if session}
             <NewCareer {tr} presets={session.presets} suggestedYear={session.suggestedYear} suggestedSeed={session.suggestedSeed} {busy} error={faultText} onStart={beginCareer} />
+          {/if}
+        {:else if menuPage === 'quick'}
+          <div class="screen-head"><h1 class="screen">{t('menu.quick')}</h1></div>
+          {#if session}
+            <QuickRace {tr} suggestedYear={session.suggestedYear} {busy} error={faultText} onStart={startQuickRace} />
           {/if}
         {:else if menuPage === 'load'}
           <div class="screen-head"><h1 class="screen">{t('menu.load')}</h1></div>
@@ -701,7 +737,9 @@
     <div id="wipe" aria-hidden="true" bind:this={wipeEl}><i></i><i></i><i></i></div>
   </div>
 </div>
-{#if racing && inGame}
+{#if racing && quick}
+  <RaceLive {tr} pushed={raceClock} onexit={leaveQuickRace} backKey="quick.back" />
+{:else if racing && inGame}
   <RaceLive {tr} pushed={raceClock} onexit={leaveRace} />
 {/if}
 {#if gameMenu && inGame}

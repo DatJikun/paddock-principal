@@ -29,7 +29,12 @@
   import type { Tr } from '../ui';
   import Flag from './Flag.svelte';
 
-  let { tr, pushed, onexit }: { tr: Tr; pushed: LiveClockView | null; onexit: () => void } = $props();
+  let {
+    tr,
+    pushed,
+    onexit,
+    backKey = 'live.ui.back',
+  }: { tr: Tr; pushed: LiveClockView | null; onexit: () => void; backKey?: string } = $props();
 
   const call = { managerId: HUMAN_MANAGER_ID };
   /* How far ahead of the race time frames are fetched, in seconds of real time at the current speed. */
@@ -277,7 +282,7 @@
   {#if race && !race.found}
     <div class="ov rm-empty">
       <p>{tr.t('live.error.noRace')}</p>
-      <button type="button" class="rm-btn primary" onclick={onexit}>{tr.t('live.ui.back')}</button>
+      <button type="button" class="rm-btn primary" onclick={onexit}>{tr.t(backKey)}</button>
     </div>
   {:else if race}
     <div class="ov rm-status">
@@ -326,7 +331,7 @@
         </div>
       {:else}
         <div class="seg back">
-          <button type="button" class="rm-btn primary" onclick={onexit}>{tr.t('live.ui.back')}</button>
+          <button type="button" class="rm-btn primary" onclick={onexit}>{tr.t(backKey)}</button>
         </div>
       {/if}
     </div>
@@ -462,7 +467,7 @@
             </li>
           {/each}
         </ol>
-        <button type="button" class="rm-btn primary big" onclick={onexit}>{tr.t('live.ui.back')}</button>
+        <button type="button" class="rm-btn primary big" onclick={onexit}>{tr.t(backKey)}</button>
       </div>
     {/if}
 

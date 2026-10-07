@@ -1,5 +1,4 @@
 using Paddock.Application.Career;
-using Paddock.Application.Localization;
 using Paddock.Application.Racing;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Finance;
@@ -13,11 +12,11 @@ using Paddock.Tests.Persistence;
 
 namespace Paddock.Tests.Infrastructure;
 
-/// <summary>A team that can pay race running but not running plus transport stays home, with a named reason.</summary>
-public sealed class InfrastructureRaceSkipTests
+/// <summary>The team always races (#264): cash is not a gate, the bill just pushes the balance below zero.</summary>
+public sealed class RaceAlwaysStartsTests
 {
     [Fact]
-    public void ATeamThatCoversRunningButNotTransportIsSkippedAndTheCopyNamesBoth()
+    public void ATeamWithoutCashStillStartsTheRace()
     {
         var today = GameDate.SeasonStart(1955);
         var world = WorldState.At(today);
@@ -44,23 +43,14 @@ public sealed class InfrastructureRaceSkipTests
         var facts = new EraFinanceFacts("test", 200_000, 1_000_000, 3_000_000);
         var finance = FinanceSection.Empty.Open(teamId, today, 0, facts);
         var typical = finance.TypicalCents;
-        var running = RaceFieldBuilder.RunningCost(finance, races);
         var transport = RaceFieldBuilder.TransportCost(
             teamId,
             typical,
             LogisticsMath.Argentina,
             new Dictionary<string, string>(StringComparer.Ordinal) { ["alfa"] = "ITA" });
-        Assert.True(running > 0);
         Assert.True(transport > 0);
-        finance = finance.Post(
-            teamId,
-            today,
-            LedgerCategories.OwnerFunds,
-            null,
-            running,
-            FinanceReason.OpeningCapital);
         world = world.WithSection(finance);
-        Assert.Equal(running, finance.BalanceOf(teamId));
+        Assert.Equal(0L, finance.BalanceOf(teamId));
 
         var field = RaceFieldBuilder.Build(
             world,
@@ -71,16 +61,8 @@ public sealed class InfrastructureRaceSkipTests
             null,
             circuitCountry: LogisticsMath.Argentina,
             teamCountries: new Dictionary<string, string>(StringComparer.Ordinal) { ["alfa"] = "ITA" });
-        Assert.Contains(teamId.Value, field.SkippedTeamIds);
-        Assert.Empty(field.Entries);
-
-        var catalog = TranslationLoader.LoadDirectory(Path.Combine(RepoPaths.Root(), "strings"));
-        var en = new Localizer(catalog, Language.En, new CollectingMissingKeySink())
-            .Get(PlayKeys.RaceSkipped, new Dictionary<string, object?> { ["team"] = "Alfa" });
-        var pl = new Localizer(catalog, Language.Pl, new CollectingMissingKeySink())
-            .Get(PlayKeys.RaceSkipped, new Dictionary<string, object?> { ["team"] = "Alfa" });
-        Assert.Contains("running and transport", en, StringComparison.Ordinal);
-        Assert.Contains("rozegrania wyścigu i transportu", pl, StringComparison.Ordinal);
+        Assert.Single(field.Entries);
+        Assert.Equal(teamId.Value, field.Entries[0].ConstructorId);
     }
 
     private static PersonTruth DriverTruth(int value)

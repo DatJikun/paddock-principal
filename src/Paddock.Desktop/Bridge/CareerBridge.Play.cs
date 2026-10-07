@@ -717,6 +717,8 @@ public sealed partial class CareerBridge
                 return Concept(args, issued, out error);
             case "upgradeFacility":
                 return Facility(args, issued, out error);
+            case "cancelTest":
+                return CancelTest(args, issued, out error);
             case "bookTest":
                 return RentTest(args, issued, out error);
             case "assignScoutFocus":
@@ -919,6 +921,21 @@ public sealed partial class CareerBridge
         }
 
         return new BookTestCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization };
+    }
+
+    private ICommand? CancelTest(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        if (organization is null
+            || TextOf(args, "testOn") is not { } text
+            || !DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var on))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new CancelTestCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization, TestOn = on };
     }
 
     private ICommand? Concept(JsonElement args, DateOnly issued, out TranslationMessage? error)

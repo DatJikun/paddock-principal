@@ -89,6 +89,22 @@ public sealed class InfrastructureSection : IWorldSection
         return new InfrastructureSection(CopyFacilities(), next);
     }
 
+    /// <summary>Drops one booking that has not happened yet. Throws when the booking is not there.</summary>
+    public InfrastructureSection RemoveTest(TestBooking booking)
+    {
+        ArgumentNullException.ThrowIfNull(booking);
+        var index = Array.IndexOf(_tests, booking);
+        if (index < 0)
+        {
+            throw new InvalidOperationException("The test booking is not in the section.");
+        }
+
+        var next = new TestBooking[_tests.Length - 1];
+        Array.Copy(_tests, 0, next, 0, index);
+        Array.Copy(_tests, index + 1, next, index, _tests.Length - index - 1);
+        return new InfrastructureSection(CopyFacilities(), next);
+    }
+
     public static InfrastructureSection Restore(IEnumerable<Facility> facilities, IEnumerable<TestBooking>? tests = null)
     {
         ArgumentNullException.ThrowIfNull(facilities);

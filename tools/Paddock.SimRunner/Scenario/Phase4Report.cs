@@ -31,7 +31,7 @@ public static class Phase4Report
         Row(text, "scripted story hash (twice)", pack.Story.WorldHash == pack.Repeat.WorldHash && pack.Story.WorldHash.Length == 64, pack.Story.WorldHash, "identical second run", "INV-002");
         Row(text, "calendar to 1 Mar 1957", pack.Story.ReachedUntil, pack.Story.Reached.ToString(), Phase4Estimates.RobustUntil.ToString(), pack.Story.KnownIssue is { } known ? "known " + known : pack.Story.SoftLock ?? "");
         Row(text, "no unclassified soft lock (story)", pack.Story.SoftLock is null || Phase4KnownIssues.AllowsHang(pack.Story.KnownIssue), pack.Story.SoftLock ?? "none", "none", string.Join("; ", pack.Story.Notes));
-        Row(text, "player raced or skipped with reason", pack.Story.RacesEntered + pack.Story.RacesSkipped > 0 || pack.Story.Reached < new GameDate(1955, 5, 1), pack.Story.RacesEntered + "/" + pack.Story.RacesSkipped, "entered or skipped", "skip names running and transport");
+        Row(text, "player raced", pack.Story.RacesEntered > 0 || pack.Story.Reached < new GameDate(1955, 5, 1), pack.Story.RacesEntered.ToString(), "at least one start", "cash is not a gate");
         Row(text, "determinism twice", pack.Story.WorldHash == pack.Repeat.WorldHash, pack.Repeat.WorldHash, pack.Story.WorldHash, "");
         var monkeyOk = pack.Monkey.Count == 0 || pack.Monkey.All(row => row.SoftLock is null || Phase4KnownIssues.AllowsHang(row.KnownIssue));
         Row(text, "monkey unclassified soft lock", monkeyOk, pack.Monkey.Count.ToString(CultureInfo.InvariantCulture) + " seeds", Phase4Estimates.MonkeySeeds.ToString(CultureInfo.InvariantCulture), "CI uses " + Phase4Estimates.TestMonkeySeeds);

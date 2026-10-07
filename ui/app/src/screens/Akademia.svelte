@@ -4,6 +4,7 @@
   import Confirmation from '../lib/components/Confirmation.svelte';
   import PersonCell from '../lib/components/PersonCell.svelte';
   import Status from '../lib/components/Status.svelte';
+  import { formatMoney } from '../lib/money.mjs';
   import { bandOf, bandText, DRIVER_ATTRS, sortRows } from '../lib/people.mjs';
   import type { AcademyData } from '../lib/screens';
   import type { Tr } from '../lib/ui';
@@ -38,7 +39,8 @@
       return target ? tr.t('academy.ask.person', { name: name(target) }) : tr.t('academy.ask.pool');
     }
     const target = data.pool.items.find((item) => item.handle === ask.handle);
-    return tr.t(ask.programme === 'CheapSlow' ? 'academy.ask.cheap' : 'academy.ask.fast', { name: target ? name(target) : '' });
+    const cost = formatMoney(ask.programme === 'CheapSlow' ? data.pool.cheapProgrammeCostCents : data.pool.fastProgrammeCostCents, tr.lang);
+    return tr.t(ask.programme === 'CheapSlow' ? 'academy.ask.cheap' : 'academy.ask.fast', { name: target ? name(target) : '', cost });
   }
 
   async function run() {
@@ -123,8 +125,8 @@
           {:else}
             <div class="confirm acad-actions">
               <button class="btn" type="button" disabled={busy || data.pool.focusHandle === current.handle} onclick={() => (asking = watch)}>{tr.t('academy.watch')}</button>
-              <button class="btn" type="button" disabled={busy || current.yourFunding !== null} onclick={() => (asking = cheap)}>{tr.t('pool.programme.cheapSlow')}</button>
-              <button class="btn primary" type="button" disabled={busy || current.yourFunding !== null} onclick={() => (asking = fast)}>{tr.t('pool.programme.expensiveFast')}</button>
+              <button class="btn" type="button" disabled={busy || current.yourFunding !== null} onclick={() => (asking = cheap)}>{tr.t('pool.programme.cheapSlow')} · {formatMoney(data.pool.cheapProgrammeCostCents, tr.lang)}</button>
+              <button class="btn primary" type="button" disabled={busy || current.yourFunding !== null} onclick={() => (asking = fast)}>{tr.t('pool.programme.expensiveFast')} · {formatMoney(data.pool.fastProgrammeCostCents, tr.lang)}</button>
             </div>
           {/if}
         </div>

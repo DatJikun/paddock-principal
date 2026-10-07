@@ -85,7 +85,7 @@ public class InfrastructureCommandTests
     }
 
     [Fact]
-    public void BookingATestCostsMoneyAndRaisesUnderstanding()
+    public void ABookedTestRunsOnItsDayThenChargesRaisesUnderstandingAndTellsTheInbox()
     {
         var kit = new InfrastructureKit();
         var car = kit.Book.Cars.Of(Alfa)[0];
@@ -99,9 +99,58 @@ public class InfrastructureCommandTests
             IssuedOn = Day(Opening),
             OrganizationId = Alfa.Value,
         }));
+
+        // Booked, not yet run: nothing is charged and the car has learned nothing (#264).
+        Assert.Equal(beforeCash, kit.Book.Finance.BalanceOf(Alfa));
+        Assert.Equal(before, kit.Book.Cars.Of(Alfa)[0].Understanding);
+        Assert.Equal(1, kit.Book.Section.TestsUsed(Alfa, 1955));
+
+        kit.Live(InfrastructureEstimates.TestLeadDays + 1);
         Assert.True(kit.Book.Finance.BalanceOf(Alfa) < beforeCash);
         Assert.True(kit.Book.Cars.Of(Alfa)[0].Understanding > before);
-        Assert.Equal(1, kit.Book.Section.TestsUsed(Alfa, 1955));
+        var lines = kit.Book.Finance.EntriesOf(Alfa).Where(entry => entry.ReasonKey == InfrastructureKeys.LedgerTest).ToArray();
+        Assert.Single(lines);
+        var notice = Assert.Single(kit.Inbox.Section.ItemsOf(Anna.Value), item => item.Kind == InfrastructureKeys.TestNoticeKind);
+        Assert.Equal(InfrastructureKeys.TestDoneSubject, notice.SubjectKey);
+    }
+
+    [Fact]
+    public void ABookedTestCanBeCancelledBeforeItsDayAndThenCostsAndGivesNothing()
+    {
+        var kit = new InfrastructureKit();
+        var beforeCash = kit.Book.Finance.BalanceOf(Alfa);
+        var before = kit.Book.Cars.Of(Alfa)[0].Understanding;
+        Assert.IsType<CommandResult.Accepted>(kit.Submit(new BookTestCommand { ManagerId = Anna, IssuedOn = Day(Opening), OrganizationId = Alfa.Value }));
+        var testOn = Day(InfrastructureMath.TestDate(Opening));
+        Assert.IsType<CommandResult.Accepted>(kit.Submit(new CancelTestCommand { ManagerId = Anna, IssuedOn = Day(Opening), OrganizationId = Alfa.Value, TestOn = testOn }));
+        Assert.Equal(0, kit.Book.Section.TestsUsed(Alfa, 1955));
+        Assert.Equal(InfrastructureKeys.NoSuchTest, Key(kit.Submit(new CancelTestCommand { ManagerId = Anna, IssuedOn = Day(Opening), OrganizationId = Alfa.Value, TestOn = testOn })));
+
+        // The same days without any booking: upkeep on 1 January is the only difference to the opening balance.
+        var control = new InfrastructureKit();
+        control.Live(InfrastructureEstimates.TestLeadDays + 1);
+        kit.Live(InfrastructureEstimates.TestLeadDays + 1);
+        Assert.Equal(control.Book.Finance.BalanceOf(Alfa), kit.Book.Finance.BalanceOf(Alfa));
+        Assert.True(beforeCash >= kit.Book.Finance.BalanceOf(Alfa));
+        Assert.Equal(before, kit.Book.Cars.Of(Alfa)[0].Understanding);
+        Assert.DoesNotContain(kit.Inbox.Section.ItemsOf(Anna.Value), item => item.Kind == InfrastructureKeys.TestNoticeKind);
+    }
+
+    [Fact]
+    public void ATestThatAlreadyHappenedCannotBeCancelled()
+    {
+        var kit = new InfrastructureKit();
+        Assert.IsType<CommandResult.Accepted>(kit.Submit(new BookTestCommand { ManagerId = Anna, IssuedOn = Day(Opening), OrganizationId = Alfa.Value }));
+        var testOn = Day(InfrastructureMath.TestDate(Opening));
+        kit.Live(InfrastructureEstimates.TestLeadDays);
+        Assert.Equal(InfrastructureKeys.NoSuchTest, Key(kit.Submit(new CancelTestCommand { ManagerId = Anna, IssuedOn = Day(kit.Today), OrganizationId = Alfa.Value, TestOn = testOn })));
+    }
+
+    [Fact]
+    public void ATestBookedLateInTheYearRunsBeforeItEndsSoTheEraCapStaysPerYear()
+    {
+        var late = new Paddock.Domain.Time.GameDate(1955, 12, 28);
+        Assert.Equal(new Paddock.Domain.Time.GameDate(1955, 12, 31), InfrastructureMath.TestDate(late));
     }
 
     [Fact]
@@ -150,6 +199,7 @@ public class InfrastructureCommandTests
         [
             new UpgradeFacilityCommand { ManagerId = manager, IssuedOn = issued, OrganizationId = Alfa.Value, Kind = FacilityKindIds.Factory, SubmissionNumber = 3 },
             new BookTestCommand { ManagerId = manager, IssuedOn = issued, OrganizationId = Alfa.Value, SubmissionNumber = 4 },
+            new CancelTestCommand { ManagerId = manager, IssuedOn = issued, OrganizationId = Alfa.Value, TestOn = new DateOnly(1955, 1, 8), SubmissionNumber = 5 },
         ];
         foreach (var command in commands)
         {

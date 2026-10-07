@@ -21,8 +21,11 @@ public sealed record OwnFacilityView(
     bool Unlocked,
     bool Eligible);
 
-/// <summary>Posted cost and remaining private tests this year. Availability is the era cap.</summary>
-public sealed record TestRentalView(long CostCents, int Used, int Cap, bool Allowed);
+/// <summary>
+/// Posted cost and remaining private tests this year. Availability is the era cap. <paramref name="NextDate"/> is the day a test
+/// booked today would run; <paramref name="Booked"/> are the booked tests that have not happened yet (they can be cancelled).
+/// </summary>
+public sealed record TestRentalView(long CostCents, int Used, int Cap, bool Allowed, DateOnly NextDate, IReadOnlyList<DateOnly> Booked);
 
 /// <summary>ESTIMATE quote of the next race's transport from the team's home country.</summary>
 public sealed record LogisticsView(string Mode, int Days, long CostCents, string? CircuitCountry);
@@ -115,7 +118,18 @@ public sealed class InfrastructureQuery
 
         var cap = InfrastructureMath.TestsAllowed(_environment.TestingRule(year));
         var used = section.TestsUsed(organization, year);
-        var tests = new TestRentalView(InfrastructureMath.TestRentalCents(typicalCents), used, cap, cap > 0 && used < cap);
+        var next = InfrastructureMath.TestDate(today);
+        var booked = section.TestsOf(organization, year)
+            .Where(test => test.Date > today)
+            .Select(test => new DateOnly(test.Date.Year, test.Date.Month, test.Date.Day))
+            .ToArray();
+        var tests = new TestRentalView(
+            InfrastructureMath.TestRentalCents(typicalCents),
+            used,
+            cap,
+            cap > 0 && used < cap,
+            new DateOnly(next.Year, next.Month, next.Day),
+            booked);
         var home = _environment.HomeCountry(organization);
         LogisticsView? transport = null;
         if (!string.IsNullOrWhiteSpace(nextCircuitCountry))

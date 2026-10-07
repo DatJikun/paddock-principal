@@ -188,7 +188,6 @@ public sealed class RaceWeekendDay : IDayHandler
             payload.LayoutId,
             published.Tape,
             Lines(published),
-            run.Field.SkippedTeamIds,
             ByDriver(run.Calls.Calls, run.Field.Entries));
         var world = _context.Session.World;
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;

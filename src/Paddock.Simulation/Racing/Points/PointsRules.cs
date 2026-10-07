@@ -37,7 +37,7 @@ public enum SharedDriveRule
 /// <summary>Catalog dimension <c>constructors_points_counting</c>.</summary>
 public enum ConstructorCounting
 {
-    /// <summary>There is no constructors' title.</summary>
+    /// <summary>The era data has no official constructors' title. <see cref="PointsRules.For"/> turns it into a classification anyway (#264).</summary>
     NoChampionship,
 
     /// <summary>Only the best-placed classified car of a constructor scores in a race.</summary>
@@ -145,7 +145,9 @@ public sealed record PointsRules
             },
             ConstructorCounting = rules.Value("constructors_points_counting") switch
             {
-                "no_championship" => ConstructorCounting.NoChampionship,
+                // The game always runs a constructors' classification (#264): the era data may say there was no official title,
+                // but the board, the standings and the UI need a table. Best finishing car is the rule the first title used in 1958.
+                "no_championship" => ConstructorCounting.BestFinishingCarOnly,
                 "best_finishing_car_only" => ConstructorCounting.BestFinishingCarOnly,
                 "all_cars" => ConstructorCounting.AllCars,
                 var other => throw Unknown("constructors_points_counting", other),

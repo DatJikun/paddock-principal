@@ -119,7 +119,8 @@ public static class InitWorldCommand
 
             var data = AuthoredDataLoader.Load(root);
             var provider = LoadProvider(root, schedulePath, driversPath, ratingsPath);
-            var result = WorldInitializer.Create(config, data, provider, seed.Value);
+            var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
+            var result = WorldInitializer.Create(config, data, provider, seed.Value, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
             Print(result, ReferenceEquals(provider, EmptyPeopleProvider.Instance), strings, stdout);
             return 0;
         }

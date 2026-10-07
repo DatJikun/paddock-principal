@@ -1,0 +1,604 @@
+{
+  "schemaVersion": 1,
+  "notes": "ESTIMATE test fixture for the start sweep (#271). The constructor ids are the engine book's; every strength, effect and place is invented for the test and is not a historical fact.",
+  "fromYear": 1964,
+  "toYear": 1966,
+  "seasons": [
+    {
+      "season": 1964,
+      "newEntrantStrength": 40.0,
+      "constructors": [
+        {
+          "constructorId": "brabham-brm",
+          "strength": 64.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.0417,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P56"
+        },
+        {
+          "constructorId": "brabham-climax",
+          "strength": 56.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.375,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FWMV"
+        },
+        {
+          "constructorId": "brabham-ford",
+          "strength": 48.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.2917,
+          "engineSupplier": "Ford",
+          "engineName": "Ford 109E"
+        },
+        {
+          "constructorId": "brm",
+          "strength": 40.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.9583,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P56"
+        },
+        {
+          "constructorId": "brp",
+          "strength": 77.5,
+          "strengthSource": "car-effect",
+          "carEffect": 2.125,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P56"
+        },
+        {
+          "constructorId": "cooper-climax",
+          "strength": 69.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.4583,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FWMV"
+        },
+        {
+          "constructorId": "derrington",
+          "strength": 61.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.7917,
+          "engineSupplier": "ATS",
+          "engineName": "ATS 100"
+        },
+        {
+          "constructorId": "ferrari",
+          "strength": 53.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.125,
+          "engineSupplier": "Ferrari",
+          "engineName": "Ferrari 178"
+        },
+        {
+          "constructorId": "honda",
+          "strength": 45.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.5417,
+          "engineSupplier": "Honda",
+          "engineName": "Honda RA271E"
+        },
+        {
+          "constructorId": "lotus-brm",
+          "strength": 37.5,
+          "strengthSource": "car-effect",
+          "carEffect": -1.2083,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P56"
+        },
+        {
+          "constructorId": "lotus-climax",
+          "strength": 74.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.875,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FWMV"
+        },
+        {
+          "constructorId": "porsche",
+          "strength": 66.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.2083,
+          "engineSupplier": "Porsche",
+          "engineName": "Porsche 547/3"
+        },
+        {
+          "constructorId": "scirocco",
+          "strength": 58.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.5417,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FWMV"
+        }
+      ],
+      "standings": [
+        {
+          "constructorId": "brp",
+          "position": 1,
+          "points": 30
+        },
+        {
+          "constructorId": "lotus-climax",
+          "position": 2,
+          "points": 26
+        },
+        {
+          "constructorId": "cooper-climax",
+          "position": 3,
+          "points": 22
+        },
+        {
+          "constructorId": "porsche",
+          "position": 4,
+          "points": 18
+        },
+        {
+          "constructorId": "brabham-brm",
+          "position": 5,
+          "points": 14
+        },
+        {
+          "constructorId": "derrington",
+          "position": 6,
+          "points": 10
+        },
+        {
+          "constructorId": "scirocco",
+          "position": 7,
+          "points": 6
+        },
+        {
+          "constructorId": "brabham-climax",
+          "position": 8,
+          "points": 2
+        },
+        {
+          "constructorId": "ferrari",
+          "position": 9,
+          "points": 0
+        },
+        {
+          "constructorId": "brabham-ford",
+          "position": 10,
+          "points": 0
+        },
+        {
+          "constructorId": "honda",
+          "position": 11,
+          "points": 0
+        },
+        {
+          "constructorId": "brm",
+          "position": 12,
+          "points": 0
+        },
+        {
+          "constructorId": "lotus-brm",
+          "position": 13,
+          "points": 0
+        }
+      ]
+    },
+    {
+      "season": 1965,
+      "newEntrantStrength": 40.0,
+      "constructors": [
+        {
+          "constructorId": "alfa",
+          "strength": 65.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.125,
+          "engineSupplier": "Alfa Romeo",
+          "engineName": "Alfa Romeo Giulietta"
+        },
+        {
+          "constructorId": "brabham-brm",
+          "strength": 57.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.4583,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P56"
+        },
+        {
+          "constructorId": "brabham-climax",
+          "strength": 49.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.2083,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FWMV"
+        },
+        {
+          "constructorId": "brabham-ford",
+          "strength": 41.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.875,
+          "engineSupplier": "Ford",
+          "engineName": "Ford 109E"
+        },
+        {
+          "constructorId": "brm",
+          "strength": 78.5,
+          "strengthSource": "car-effect",
+          "carEffect": 2.2083,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P56"
+        },
+        {
+          "constructorId": "cooper-climax",
+          "strength": 70.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.5417,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FPF"
+        },
+        {
+          "constructorId": "cooper-ford",
+          "strength": 62.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.875,
+          "engineSupplier": "Ford",
+          "engineName": "Ford 109E"
+        },
+        {
+          "constructorId": "cooper-maserati",
+          "strength": 54.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.2083,
+          "engineSupplier": "Maserati",
+          "engineName": "unknown"
+        },
+        {
+          "constructorId": "ferrari",
+          "strength": 46.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.4583,
+          "engineSupplier": "Ferrari",
+          "engineName": "Ferrari 205B"
+        },
+        {
+          "constructorId": "honda",
+          "strength": 38.5,
+          "strengthSource": "car-effect",
+          "carEffect": -1.125,
+          "engineSupplier": "Honda",
+          "engineName": "Honda RA272E"
+        },
+        {
+          "constructorId": "lds-alfa_romeo",
+          "strength": 75.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.9583,
+          "engineSupplier": "Alfa Romeo",
+          "engineName": "Alfa Romeo Giulietta"
+        },
+        {
+          "constructorId": "lds-climax",
+          "strength": 67.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.2917,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FPF"
+        },
+        {
+          "constructorId": "lotus-brm",
+          "strength": 59.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.625,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P56"
+        },
+        {
+          "constructorId": "lotus-climax",
+          "strength": 51.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.0417,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FPF"
+        },
+        {
+          "constructorId": "lotus-ford",
+          "strength": 43.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.7083,
+          "engineSupplier": "Ford",
+          "engineName": "Ford 109E"
+        },
+        {
+          "constructorId": "re",
+          "strength": 35.5,
+          "strengthSource": "car-effect",
+          "carEffect": -1.375,
+          "engineSupplier": "Alfa Romeo",
+          "engineName": "unknown"
+        }
+      ],
+      "standings": [
+        {
+          "constructorId": "brm",
+          "position": 1,
+          "points": 30
+        },
+        {
+          "constructorId": "lds-alfa_romeo",
+          "position": 2,
+          "points": 26
+        },
+        {
+          "constructorId": "cooper-climax",
+          "position": 3,
+          "points": 22
+        },
+        {
+          "constructorId": "lds-climax",
+          "position": 4,
+          "points": 18
+        },
+        {
+          "constructorId": "alfa",
+          "position": 5,
+          "points": 14
+        },
+        {
+          "constructorId": "cooper-ford",
+          "position": 6,
+          "points": 10
+        },
+        {
+          "constructorId": "lotus-brm",
+          "position": 7,
+          "points": 6
+        },
+        {
+          "constructorId": "brabham-brm",
+          "position": 8,
+          "points": 2
+        },
+        {
+          "constructorId": "cooper-maserati",
+          "position": 9,
+          "points": 0
+        },
+        {
+          "constructorId": "lotus-climax",
+          "position": 10,
+          "points": 0
+        },
+        {
+          "constructorId": "brabham-climax",
+          "position": 11,
+          "points": 0
+        },
+        {
+          "constructorId": "ferrari",
+          "position": 12,
+          "points": 0
+        },
+        {
+          "constructorId": "lotus-ford",
+          "position": 13,
+          "points": 0
+        },
+        {
+          "constructorId": "brabham-ford",
+          "position": 14,
+          "points": 0
+        },
+        {
+          "constructorId": "honda",
+          "position": 15,
+          "points": 0
+        },
+        {
+          "constructorId": "re",
+          "position": 16,
+          "points": 0
+        }
+      ]
+    },
+    {
+      "season": 1966,
+      "newEntrantStrength": 40.0,
+      "constructors": [
+        {
+          "constructorId": "brabham-brm",
+          "strength": 66.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.2083,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P60"
+        },
+        {
+          "constructorId": "brabham-climax",
+          "strength": 58.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.5417,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FPF"
+        },
+        {
+          "constructorId": "brabham-repco",
+          "strength": 50.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.125,
+          "engineSupplier": "Repco",
+          "engineName": "Repco 620"
+        },
+        {
+          "constructorId": "brm",
+          "strength": 42.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.7917,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P60"
+        },
+        {
+          "constructorId": "cooper-ferrari",
+          "strength": 79.5,
+          "strengthSource": "car-effect",
+          "carEffect": 2.2917,
+          "engineSupplier": "Ferrari",
+          "engineName": "Ferrari Tipo 168"
+        },
+        {
+          "constructorId": "cooper-maserati",
+          "strength": 71.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.625,
+          "engineSupplier": "Maserati",
+          "engineName": "Maserati 9/F1"
+        },
+        {
+          "constructorId": "eagle-climax",
+          "strength": 63.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.9583,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FPF"
+        },
+        {
+          "constructorId": "eagle-weslake",
+          "strength": 55.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.2917,
+          "engineSupplier": "Weslake",
+          "engineName": "Weslake 58"
+        },
+        {
+          "constructorId": "ferrari",
+          "strength": 47.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.375,
+          "engineSupplier": "Ferrari",
+          "engineName": "Ferrari 218"
+        },
+        {
+          "constructorId": "honda",
+          "strength": 39.5,
+          "strengthSource": "car-effect",
+          "carEffect": -1.0417,
+          "engineSupplier": "Honda",
+          "engineName": "Honda RA273E"
+        },
+        {
+          "constructorId": "lotus-brm",
+          "strength": 76.5,
+          "strengthSource": "car-effect",
+          "carEffect": 2.0417,
+          "engineSupplier": "BRM",
+          "engineName": "BRM P60"
+        },
+        {
+          "constructorId": "lotus-climax",
+          "strength": 68.5,
+          "strengthSource": "car-effect",
+          "carEffect": 1.375,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FWMV"
+        },
+        {
+          "constructorId": "mclaren-ford",
+          "strength": 60.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.7083,
+          "engineSupplier": "Ford",
+          "engineName": "Ford 406"
+        },
+        {
+          "constructorId": "mclaren-seren",
+          "strength": 52.5,
+          "strengthSource": "car-effect",
+          "carEffect": 0.0417,
+          "engineSupplier": "Serenissima",
+          "engineName": "Serenissima M166"
+        },
+        {
+          "constructorId": "shannon",
+          "strength": 44.5,
+          "strengthSource": "car-effect",
+          "carEffect": -0.625,
+          "engineSupplier": "Coventry Climax",
+          "engineName": "Climax FPE"
+        }
+      ],
+      "standings": [
+        {
+          "constructorId": "cooper-ferrari",
+          "position": 1,
+          "points": 30
+        },
+        {
+          "constructorId": "lotus-brm",
+          "position": 2,
+          "points": 26
+        },
+        {
+          "constructorId": "cooper-maserati",
+          "position": 3,
+          "points": 22
+        },
+        {
+          "constructorId": "lotus-climax",
+          "position": 4,
+          "points": 18
+        },
+        {
+          "constructorId": "brabham-brm",
+          "position": 5,
+          "points": 14
+        },
+        {
+          "constructorId": "eagle-climax",
+          "position": 6,
+          "points": 10
+        },
+        {
+          "constructorId": "mclaren-ford",
+          "position": 7,
+          "points": 6
+        },
+        {
+          "constructorId": "brabham-climax",
+          "position": 8,
+          "points": 2
+        },
+        {
+          "constructorId": "eagle-weslake",
+          "position": 9,
+          "points": 0
+        },
+        {
+          "constructorId": "mclaren-seren",
+          "position": 10,
+          "points": 0
+        },
+        {
+          "constructorId": "brabham-repco",
+          "position": 11,
+          "points": 0
+        },
+        {
+          "constructorId": "ferrari",
+          "position": 12,
+          "points": 0
+        },
+        {
+          "constructorId": "shannon",
+          "position": 13,
+          "points": 0
+        },
+        {
+          "constructorId": "brm",
+          "position": 14,
+          "points": 0
+        },
+        {
+          "constructorId": "honda",
+          "position": 15,
+          "points": 0
+        }
+      ]
+    }
+  ]
+}

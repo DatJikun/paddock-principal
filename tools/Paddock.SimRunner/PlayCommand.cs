@@ -310,7 +310,8 @@ public static class PlayCommand
                 }
 
                 var data = AuthoredDataLoader.Load(_dataRoot!);
-                var shell = CareerShell.Resume(session, loaded.Host, new CareerRunOptions { Inputs = CareerInputsLoader.Load(_dataRoot!, data, career: loaded.Meta.CareerConfig) }, human);
+                var starting = CareerData.LoadStartingSources(_dataRoot!, data, session.OpenedYear);
+                var shell = CareerShell.Resume(session, loaded.Host, new CareerRunOptions { Inputs = CareerInputsLoader.Load(_dataRoot!, data, career: loaded.Meta.CareerConfig, starting: starting) }, human);
                 _config = loaded.Meta.CareerConfig;
                 _worldHash = now;
                 Say(PlayKeys.Loaded, ("date", DateText(shell.Date)), ("team", loaded.Meta.PlayerTeamId), ("hash", shell.WorldHash));
@@ -572,7 +573,8 @@ public static class PlayCommand
             {
                 var data = AuthoredDataLoader.Load(_dataRoot!);
                 var provider = RunCommand.LoadProvider(_peopleFiles);
-                var created = WorldInitializer.Create(config, data, provider, _seed);
+                var starting = CareerData.LoadStartingSources(_dataRoot!, data, config.StartYear);
+                var created = WorldInitializer.Create(config, data, provider, _seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
                 var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, _seed);
                 var session = new CareerSession(
                     created.World,
@@ -581,7 +583,7 @@ public static class PlayCommand
                     arrivals,
                     new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
                 var name = wizard.Given + " " + wizard.Family;
-                var shell = CareerShell.Open(session, new CareerRunOptions { Inputs = CareerInputsLoader.Load(_dataRoot!, data, career: config) }, name);
+                var shell = CareerShell.Open(session, new CareerRunOptions { Inputs = CareerInputsLoader.Load(_dataRoot!, data, career: config, starting: starting) }, name);
                 var today = new DateOnly(shell.Date.Year, shell.Date.Month, shell.Date.Day);
                 var result = shell.Submit(new TakeOverTeamCommand
                 {

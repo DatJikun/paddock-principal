@@ -2,26 +2,33 @@
   /*
    * Race mode (PP-052, HANDOFF_UI "Tryb wyścigu"): the race the career just ran, played back from its tape on the host's
    * clock. Display only: the result is already written, every viewer reads the same clock, and an order (pause, speed, skip)
-   * moves it for everyone. Strategy is the strategist's: the panel shows his calls, it does not make them.
+   * moves it for everyone. Strategy is the strategist's unless the pit wall takes a car over (#286): in a race whose result
+   * is not booked yet (the quick race) the panel sends pace and stop orders, the host re-runs the race with them and every
+   * viewer reads it again. The screen only sends the order; the lap it applies to and the refusal are the host's.
    */
   import { onMount } from 'svelte';
-  import { command, HUMAN_MANAGER_ID, query } from '../api/client';
+  import { BridgeError, command, HUMAN_MANAGER_ID, query } from '../api/client';
   import type { LiveClockView, LiveEventView, LiveFramesView, LiveRaceView } from '../api/types.generated';
   import {
+    battlesAt,
     clockNow,
     conditionAt,
     covered,
+    eventsBetween,
     fastestAt,
     flagAt,
     formatClock,
     formatTowerGap,
+    fromTheCar,
     lastIndexAt,
+    pitWallAt,
     radioAt,
     sampleAt,
     towerAt,
     transcriptAt,
     tyreFamily,
     tyreLetter,
+    wakesUp,
   } from '../live-race.mjs';
   import { livery } from '../livery.mjs';
   import { fallbackPoints, RaceMap, TrackSpline } from '../race-map.mjs';
@@ -40,6 +47,16 @@
   /* How far ahead of the race time frames are fetched, in seconds of real time at the current speed. */
   const LOOKAHEAD_S = 12;
   const MAX_WINDOW_MS = 300_000;
+  /* A race-time step longer than this between two ticks is a jump (a skip), not playback: nothing pops up for it. */
+  const JUMP_MS = 60_000;
+  const TOAST_MS = 4_500;
+  /* The pace options in the order a pit wall reads them; "auto" hands the car back to the strategist. */
+  const PACES = [
+    { id: 'auto', key: 'live.ui.paceAuto' },
+    { id: 'save', key: 'live.ui.paceSave' },
+    { id: 'standard', key: 'live.ui.paceStandard' },
+    { id: 'push', key: 'live.ui.pacePush' },
+  ] as const;
 
   let race = $state<LiveRaceView | null>(null);
   let clock = $state<LiveClockView | null>(null);
@@ -53,6 +70,20 @@
   let curtain = $state(true);
   /* Speed of the selected car, read from the frames a few times a second (km/h). */
   let selectedKmh = $state<number | null>(null);
+  /* Stop the clock for flags, rain and news about our cars (the viewer's choice; the pause itself is the host's). */
+  let wake = $state(false);
+  let toast = $state<LiveEventView | null>(null);
+  let toastTimer: ReturnType<typeof setTimeout> | undefined;
+  let lastTick = -1;
+  /* The stop being prepared per own car (a compound id, or "fuel"), sent only on "Potwierdź zjazd". */
+  let pick = $state<Record<string, string>>({});
+  let refusal = $state<Record<string, string>>({});
+  let sending = $state<string | null>(null);
+  /* The own car whose orders are open; the others show their numbers only, so the panel fits beside the map. */
+  let wallCar = $state<string | null>(null);
+  let reloading = false;
+  /* Grows when the race is read again after an order, so a frame window fetched for the old race is dropped. */
+  let generation = 0;
   let mapHost: HTMLDivElement | undefined = $state();
   let canvas: HTMLCanvasElement | undefined = $state();
 
@@ -66,6 +97,80 @@
   function adopt(view: LiveClockView) {
     clock = view;
     readAt = performance.now();
+    if (race?.found && view.revision !== race.pitWall.revision) void reload();
+  }
+
+  /* An order re-ran the race (#286): read it again. What was already seen is the same, so the map keeps its cars. */
+  async function reload() {
+    if (reloading) return;
+    reloading = true;
+    try {
+      const view = await query('liveRace', call);
+      if (view.found) {
+        generation += 1;
+        windows = [];
+        race = view;
+      }
+    } catch {
+      /* The next clock reading tries again. */
+    } finally {
+      reloading = false;
+    }
+  }
+
+  async function order(carId: string, action: string, pace: string | null = null, tyres: string | null = null) {
+    sending = carId;
+    refusal = { ...refusal, [carId]: '' };
+    try {
+      adopt(await command('liveRaceOrder', { managerId: HUMAN_MANAGER_ID, carId, action, pace, tyres }));
+      if (action === 'pit') pick = { ...pick, [carId]: '' };
+    } catch (error) {
+      refusal = { ...refusal, [carId]: error instanceof BridgeError ? error.key : 'live.order.unsafe' };
+    } finally {
+      sending = null;
+    }
+  }
+
+  function setPace(carId: string, pace: string) {
+    if (paceOf(carId) === pace) return;
+    void (pace === 'auto' ? order(carId, 'auto') : order(carId, 'pace', pace));
+  }
+
+  function confirmPit(carId: string) {
+    const choice = pick[carId];
+    if (!choice) return;
+    void order(carId, 'pit', null, choice === 'fuel' ? null : choice);
+  }
+
+  /* The pace this pit wall last asked of a car ("auto" when it never took the car over or gave it back). */
+  function paceOf(carId: string) {
+    const orders = race?.pitWall.orders ?? [];
+    for (let i = orders.length - 1; i >= 0; i--) {
+      const item = orders[i];
+      if (item.carId !== carId) continue;
+      if (item.kind === 'auto') return 'auto';
+      if (item.kind === 'pace') return item.pace ?? 'standard';
+    }
+    return 'auto';
+  }
+
+  function tyreName(id: string) {
+    const family = tyreFamily(id);
+    return family ? tr.t(`live.tyre.${family}`) : id;
+  }
+
+  /* Pop-ups for what became due since the last tick, and the wake-up pause when the viewer asked for it. */
+  function announce(t: number) {
+    if (!race || !clock) return;
+    const from = lastTick;
+    lastTick = t;
+    if (from < 0 || t <= from || t - from > JUMP_MS) return;
+    const due: LiveEventView[] = eventsBetween(race.events, from, t).filter((event: LiveEventView) => event.key && wakesUp(event));
+    if (due.length === 0) return;
+    toast = due[due.length - 1];
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => (toast = null), TOAST_MS);
+    if (wake && !clock.paused && !clock.finished) void control('pause');
   }
 
   $effect(() => {
@@ -86,9 +191,10 @@
     const from = Math.max(0, t - 2_000);
     const to = Math.min(race?.durationMs ?? t, from + Math.min(MAX_WINDOW_MS, ahead));
     fetching = true;
+    const asked = generation;
     try {
       const view = await query('liveFrames', { managerId: HUMAN_MANAGER_ID, fromMs: from, toMs: to });
-      if (view.found) windows = [...windows.filter((w) => w.toMs >= t - 5_000).slice(-2), view];
+      if (view.found && asked === generation) windows = [...windows.filter((w) => w.toMs >= t - 5_000).slice(-2), view];
     } finally {
       fetching = false;
     }
@@ -226,6 +332,7 @@
       tick = setInterval(() => {
         if (!clock) return;
         now = clockNow(clock, readAt, performance.now());
+        announce(now);
         const sample = selected ? lastSamples.get(selected) : null;
         selectedKmh = sample ? Math.round(sample.speedMps * 3.6) : null;
       }, 250);
@@ -245,6 +352,7 @@
       cancelAnimationFrame(raf);
       clearInterval(poll);
       clearInterval(tick);
+      clearTimeout(toastTimer);
       map?.destroy();
       window.removeEventListener('keydown', onKey, true);
       window.removeEventListener('resize', resize);
@@ -261,7 +369,10 @@
   let cars = $derived(new Map((race?.cars ?? []).map((car) => [car.carId, car])));
   let card = $derived(selected && towerView ? towerView.rows.find((row) => row.carId === selected) ?? null : null);
   let cardCar = $derived(selected ? cars.get(selected) ?? null : null);
-  let ownRows = $derived(towerView ? towerView.rows.filter((row) => cars.get(row.carId)?.own) : []);
+  /* Our cars in a fixed order (the grid), so a pit wall button never moves under the pointer when the cars swap places. */
+  let ownRows = $derived(
+    towerView ? towerView.rows.filter((row) => cars.get(row.carId)?.own).sort((a, b) => a.grid - b.grid) : [],
+  );
   let finished = $derived(clock?.finished || flag === 'chequered');
   let podium = $derived(
     towerView && clock?.finished ? towerView.rows.filter((row) => row.finished).slice(0, 6) : [],
@@ -272,6 +383,16 @@
   let fastest = $derived(race ? fastestAt(race.events, now) : null);
   let radio = $derived(race ? radioAt(race, now) : []);
   let teamName = $derived(race?.cars.find((car) => car.own)?.teamName ?? '');
+  let wall = $derived(race ? pitWallAt(race, now) : new Map());
+  let fights = $derived(towerView ? battlesAt(towerView.rows) : new Set<string>());
+  let orderCar = $derived(
+    ownRows.find((row) => row.carId === wallCar && !row.out && !row.finished)?.carId ??
+      ownRows.find((row) => !row.out && !row.finished)?.carId ??
+      null,
+  );
+  let stopOptions = $derived(
+    race?.pitWall.tyreChange ? race.pitWall.compounds : race?.pitWall.refuelling ? ['fuel'] : [],
+  );
 </script>
 
 <div class="rm" data-tower={tower ? 'on' : 'off'} data-event={eventIndex}>
@@ -319,6 +440,12 @@
     <div class="ov rm-pace">
       {#if !finished}
         <div class="seg">
+          <span class="meta">{tr.t('live.ui.wake')}</span>
+          <div class="speeds">
+            <button type="button" class="ctl" aria-pressed={wake} title={tr.t('live.ui.wakeHint')} onclick={() => (wake = !wake)}>{wake ? '●' : '○'}</button>
+          </div>
+        </div>
+        <div class="seg">
           <span class="meta">{tr.t('live.ui.pace')}</span>
           <div class="speeds">
             <button type="button" class="ctl" aria-pressed={clock?.paused ?? true} title={clock?.paused ? tr.t('live.ui.play') : tr.t('live.ui.pause')} onclick={togglePause}>
@@ -347,7 +474,7 @@
           {@const car = cars.get(row.carId)}
           {@const colours = livery(car?.teamId ?? '')}
           <li>
-            <button type="button" class:mine={car?.own} class:sel={selected === row.carId} class:out={row.out} onclick={() => select(row.carId)}>
+            <button type="button" class:mine={car?.own} class:sel={selected === row.carId} class:out={row.out} class:fight={fights.has(row.carId)} title={fights.has(row.carId) ? tr.t('live.ui.battle') : undefined} onclick={() => select(row.carId)}>
               <b class="pos">{row.out ? '—' : row.pos}</b>
               <i class="sw" style:background={colours.main} style:border-color={colours.accent}></i>
               <span class="nm">{car?.shortName ?? row.carId}</span>
@@ -402,24 +529,97 @@
         </p>
         {#each ownRows as row (row.carId)}
           {@const car = cars.get(row.carId)}
-          <button type="button" class="own" class:sel={selected === row.carId} onclick={() => select(row.carId)}>
-            <span class="pos">{row.out ? '—' : `P${row.pos}`}</span>
-            <span class="nm">{car?.shortName}</span>
-            {#if row.tyres}<span class="tc c-{tyreLetter(row.tyres)}">{tyreLetter(row.tyres)}</span>{/if}
-            <span class="stops">{tr.t('live.ui.stops')}: {row.stops}</span>
-            <small>{row.call ? line(row.call) : tr.t('live.ui.noCall')}</small>
-          </button>
+          {@const known = wall.get(row.carId)}
+          {@const running = !row.out && !row.finished && !finished}
+          <div class="car" class:sel={orderCar === row.carId}>
+            <button
+              type="button"
+              class="own"
+              onclick={() => {
+                wallCar = row.carId;
+                select(row.carId);
+              }}
+            >
+              <span class="pos">{row.out ? '—' : `P${row.pos}`}</span>
+              <span class="nm">{car?.shortName}</span>
+              {#if row.tyres}<span class="tc c-{tyreLetter(row.tyres)}">{tyreLetter(row.tyres)}</span>{/if}
+              <span class="age num">{tr.tCount('live.ui.lapsCount', row.tyreLaps)}</span>
+            </button>
+            {#if known && running}
+              <div class="stats">
+                <div>
+                  <span class="meta">{tr.t('live.ui.fuel')}</span>
+                  <b class="num" class:short={known.lap.fuelLaps < known.lap.lapsLeft}>{tr.tCount('live.ui.lapsCount', Math.floor(known.lap.fuelLaps))}</b>
+                </div>
+                <div>
+                  <span class="meta">{tr.t('live.ui.feel')}</span>
+                  <b class="feel {known.lap.feel}">{tr.t(`live.feel.${known.lap.feel}`)}</b>
+                </div>
+                <div>
+                  <span class="meta">{tr.t('live.ui.stops')}</span>
+                  <b class="num">{row.stops}</b>
+                </div>
+              </div>
+            {/if}
+            {#if running && race.pitWall.canOrder && orderCar === row.carId}
+              <div class="orders">
+                <span class="meta">{tr.t('live.ui.driverPace')}</span>
+                <div class="paces">
+                  {#each PACES as option (option.id)}
+                    <button
+                      type="button"
+                      class="ctl"
+                      class:now={paceOf(row.carId) === 'auto' && option.id !== 'auto' && known?.lap.pace === option.id}
+                      aria-pressed={paceOf(row.carId) === option.id}
+                      disabled={sending === row.carId}
+                      onclick={() => setPace(row.carId, option.id)}>{tr.t(option.key)}</button
+                    >
+                  {/each}
+                </div>
+                <span class="meta">{tr.t('live.ui.pitStop')}</span>
+                {#if known?.stop}
+                  <div class="called">
+                    <b>{tr.t('live.ui.stopCalled', { lap: String(known.stop.lap) })}</b>
+                    {#if known.stop.tyres}<span class="tc c-{tyreLetter(known.stop.tyres)}">{tyreLetter(known.stop.tyres)}</span>{/if}
+                    <button type="button" class="rm-btn sm" disabled={sending === row.carId} onclick={() => order(row.carId, 'cancelPit')}>{tr.t('live.ui.cancelPit')}</button>
+                  </div>
+                {:else if stopOptions.length > 0}
+                  <div class="tyres">
+                    {#each stopOptions as option (option)}
+                      <button
+                        type="button"
+                        class="ctl"
+                        aria-pressed={pick[row.carId] === option}
+                        title={option === 'fuel' ? undefined : tyreName(option)}
+                        onclick={() => (pick = { ...pick, [row.carId]: pick[row.carId] === option ? '' : option })}
+                      >
+                        {#if option === 'fuel'}{tr.t('live.ui.fuelOnly')}{:else}<span class="tc c-{tyreLetter(option)}">{tyreLetter(option)}</span>{tyreName(option)}{/if}
+                      </button>
+                    {/each}
+                  </div>
+                  <button type="button" class="rm-btn sm primary" disabled={!pick[row.carId] || sending === row.carId} onclick={() => confirmPit(row.carId)}>
+                    {tr.t('live.ui.confirmPit')}
+                  </button>
+                {:else}
+                  <p class="note">{tr.t('live.ui.noPitStops')}</p>
+                {/if}
+                {#if refusal[row.carId]}<p class="refused">{tr.t(refusal[row.carId])}</p>{/if}
+              </div>
+            {/if}
+          </div>
         {/each}
-        <p class="note">{tr.t('live.ui.autoStrategy')}</p>
+        {#if !race.pitWall.canOrder && race.pitWall.locked && !finished}
+          <p class="note">{tr.t(race.pitWall.locked)}</p>
+        {/if}
       </div>
 
       <div class="ov rm-radio">
         <header><b>{tr.t('live.ui.radioLog')}</b></header>
         <ol>
           {#each radio as event, index (event.seq)}
-            <li class:fresh={index === 0} class:call={event.kind === 'call'}>
+            <li class:fresh={index === 0} class:call={fromTheCar(event)} class:driver={event.kind !== 'call' && fromTheCar(event)}>
               <span class="meta">
-                {event.kind === 'call' ? `${tr.t('live.ui.radio')} · ${cars.get(event.carId ?? '')?.shortName ?? ''}` : tr.t('live.ui.control')}
+                {fromTheCar(event) ? `${tr.t('live.ui.radio')} · ${cars.get(event.carId ?? '')?.shortName ?? ''}` : tr.t('live.ui.control')}
                 {#if event.lap > 0}· {tr.t('live.ui.lap')} {event.lap}{/if}
               </span>
               <span>{line(event)}</span>
@@ -469,6 +669,18 @@
         </ol>
         <button type="button" class="rm-btn primary big" onclick={onexit}>{tr.t(backKey)}</button>
       </div>
+    {/if}
+
+    {#if toast}
+      {#key toast.seq}
+        <div class="ov rm-toast {toast.kind}" class:ours={toast.own} role="status">
+          <span class="meta">
+            {fromTheCar(toast) ? `${tr.t('live.ui.radio')} · ${cars.get(toast.carId ?? '')?.shortName ?? ''}` : tr.t('live.ui.control')}
+            {#if toast.lap > 0}· {tr.t('live.ui.lap')} {toast.lap}{/if}
+          </span>
+          <b>{line(toast)}</b>
+        </div>
+      {/key}
     {/if}
 
     {#if race.framesApproximate}
@@ -727,6 +939,22 @@
   .rm-tower li button.out {
     color: var(--ov-ink3);
   }
+  .rm-tower li button.fight .gap::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    vertical-align: 1px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: fight 0.9s ease-in-out infinite alternate;
+  }
+  @keyframes fight {
+    from {
+      opacity: 0.35;
+    }
+  }
   .rm-tower li button:focus-visible {
     outline: 2px solid var(--gold);
   }
@@ -934,6 +1162,15 @@
   .rm-pit p.who .meta {
     margin-bottom: 4px;
   }
+  .car {
+    margin-top: 6px;
+    padding: 2px 0 8px;
+    border-radius: 10px;
+    border-top: 1px solid var(--ov-line);
+  }
+  .car.sel {
+    background: rgba(255, 255, 255, 0.04);
+  }
   .own {
     all: unset;
     box-sizing: border-box;
@@ -946,18 +1183,105 @@
     padding: 7px 8px;
     border-radius: 9px;
   }
-  .own:hover,
-  .own.sel {
+  .own:hover {
     background: rgba(255, 255, 255, 0.06);
   }
-  .own .stops {
+  .own .age {
     font-size: 12px;
     color: var(--ov-ink2);
   }
-  .own small {
-    grid-column: 1 / -1;
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 2px 8px 8px;
+    background: var(--ov-line);
+    border: 1px solid var(--ov-line);
+    border-radius: 9px;
+    overflow: hidden;
+  }
+  .stats > div {
+    background: #1b1f26;
+    padding: 7px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .stats b {
+    font: 700 13px/1 var(--ui);
+  }
+  .stats b.short,
+  .feel.gone {
+    color: #ff6b5e;
+  }
+  .feel.worn {
     color: var(--gold);
+  }
+  .feel.good {
+    color: #7fd18b;
+  }
+  .orders {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 8px;
+  }
+  .orders > .meta {
+    margin-top: 2px;
+  }
+  .paces,
+  .tyres {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    padding: 2px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .tyres {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .paces .ctl,
+  .tyres .ctl {
+    height: 32px;
+    min-width: 0;
+    padding: 0 4px;
     font-size: 12px;
+  }
+  .tyres .ctl {
+    justify-content: flex-start;
+    padding-left: 8px;
+  }
+  .paces .ctl.now {
+    box-shadow: inset 0 -2px 0 var(--gold);
+  }
+  .called {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px 6px 10px;
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--gold) 16%, transparent);
+    color: var(--gold);
+    animation: pop 0.35s var(--ease);
+  }
+  .called b {
+    font: 800 14px/1 var(--display);
+    text-transform: uppercase;
+  }
+  .called .rm-btn.sm {
+    width: auto;
+  }
+  .refused {
+    margin: 0;
+    font-size: 12px;
+    color: #ff6b5e;
+  }
+  .ctl:disabled,
+  .rm-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
   }
   .note {
     margin: 8px 8px 0;
@@ -1018,6 +1342,9 @@
 
   .rm-radio {
     padding: 10px 8px 8px;
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow: hidden;
   }
   .rm-radio > header {
     padding: 0 4px 8px 8px;
@@ -1044,6 +1371,9 @@
   }
   .rm-radio li.call {
     border-left-color: var(--gold);
+  }
+  .rm-radio li.driver {
+    border-left-color: var(--t2, #e03a3e);
   }
   .rm-radio li.fresh {
     color: var(--ov-ink);
@@ -1110,6 +1440,44 @@
     transform: translate(-50%, -50%);
     padding: 20px;
     text-align: center;
+  }
+  .rm-toast {
+    top: 82px;
+    left: 50%;
+    width: min(440px, calc(100% - 720px));
+    min-width: 300px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-left: 4px solid var(--ov-ink2);
+    transform: translateX(-50%);
+    animation: toast 0.45s var(--ease) both;
+    pointer-events: none;
+  }
+  .rm-toast b {
+    font: 700 15px/1.3 var(--ui);
+  }
+  .rm-toast.sc,
+  .rm-toast.call {
+    border-left-color: var(--gold);
+  }
+  .rm-toast.red,
+  .rm-toast.retire {
+    border-left-color: #ff6b5e;
+  }
+  .rm-toast.weather {
+    border-left-color: #3b8be8;
+  }
+  .rm-toast.ours.driver,
+  .rm-toast.ours.incident {
+    border-left-color: var(--t2, #e03a3e);
+  }
+  @keyframes toast {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-14px) scale(0.96);
+    }
   }
   .rm-approx {
     position: absolute;

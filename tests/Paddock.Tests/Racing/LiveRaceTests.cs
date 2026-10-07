@@ -156,6 +156,7 @@ public class LiveRaceTests
         keys.AddRange(LiveRaceKeys.RetireCauses.Select(cause => LiveRaceKeys.Retire("report.retire." + cause, Paddock.Domain.Racing.RetirementReason.Other)));
         keys.AddRange(LiveRaceKeys.CallKinds.Select(call => LiveRaceKeys.Call(call, withTyres: false)));
         keys.Add(LiveRaceKeys.Call(StrategyCalls.Pit, withTyres: true));
+        keys.AddRange([LiveRaceKeys.TyresWorn, LiveRaceKeys.TyresGone, LiveRaceKeys.FuelShort, .. LiveRaceKeys.Acks, .. LiveOrderKeys.All]);
 
         foreach (var language in new[] { "pl", "en" })
         {

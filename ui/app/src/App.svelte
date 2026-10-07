@@ -439,7 +439,8 @@
     });
     const stopSmoke = air ? startSmoke(air) : () => {};
     const stopBridge = connect((type, data) => {
-      if (type === 'raceClock') {
+      /* raceTape: a pit wall order re-ran the race (#286); the clock it carries tells the race screen to read it again. */
+      if (type === 'raceClock' || type === 'raceTape') {
         raceClock = data as LiveClockView;
         return;
       }

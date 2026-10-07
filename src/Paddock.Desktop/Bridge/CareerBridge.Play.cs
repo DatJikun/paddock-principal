@@ -110,6 +110,7 @@ public sealed partial class CareerBridge
             raceSeason = watch.Season;
             raceRound = watch.Round;
             layout = watch.LayoutId;
+            OpenLiveRace(watch.Season, watch.Round);
         }
 
         return new AdvanceOutcome(true, null, DateText, play.Date.Year != before, raceSeason, raceRound, layout);

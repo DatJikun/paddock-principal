@@ -20,7 +20,7 @@
     busy: boolean;
     canQuit: boolean;
     onContinue: () => void;
-    onOpen: (page: 'new' | 'load' | 'settings') => void;
+    onOpen: (page: 'new' | 'quick' | 'load' | 'settings') => void;
     onQuit: () => void;
   } = $props();
 </script>
@@ -48,6 +48,9 @@
     {/if}
     <button type="button" class="tm" onclick={() => onOpen('new')}>
       <span class="tm-icon">{@html icon(ICON.plus, 24)}</span><b>{tr.t('menu.new')}</b>{@html icon(ICON.arrow, 22)}
+    </button>
+    <button type="button" class="tm" onclick={() => onOpen('quick')}>
+      <span class="tm-icon">{@html icon(ICON.flag, 24)}</span><b>{tr.t('menu.quick')}</b>{@html icon(ICON.arrow, 22)}
     </button>
     <button type="button" class="tm" disabled={saveCount === 0} onclick={() => onOpen('load')}>
       <span class="tm-icon">{@html icon(ICON.folder, 24)}</span><b>{tr.t('menu.load')}</b>

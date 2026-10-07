@@ -751,6 +751,40 @@ export interface PresetView {
   rules: string;
 }
 
+export interface QuickRaceCall {
+  managerId: string;
+  round: number;
+  seed: number | null;
+  teamId: string;
+  year: number;
+}
+
+export interface QuickRaceStartedView {
+  layoutId: string;
+  organizationId: string;
+  round: number;
+  season: number;
+}
+
+export interface QuickRoundView {
+  circuitName: string | null;
+  country: string | null;
+  date: string;
+  layoutId: string;
+  points: TrackPointView[];
+  round: number;
+}
+
+export interface QuickRoundsCall {
+  managerId: string;
+  year: number;
+}
+
+export interface QuickRoundsView {
+  rounds: QuickRoundView[];
+  season: number;
+}
+
 export interface RaceFactDriverView {
   driverId: string;
   driverName: string;
@@ -1182,6 +1216,7 @@ export interface BridgeQueryMap {
   liveRace: { args: ManagerCall; result: LiveRaceView };
   liveFrames: { args: LiveFramesCall; result: LiveFramesView };
   liveClock: { args: ManagerCall; result: LiveClockView };
+  quickRounds: { args: QuickRoundsCall; result: QuickRoundsView };
 }
 
 export interface BridgeCommandMap {
@@ -1210,6 +1245,8 @@ export interface BridgeCommandMap {
   proposeSupply: { args: SupplyProposalCall; result: CommandAck };
   respondToSupply: { args: SupplyResponseCall; result: CommandAck };
   liveRaceControl: { args: LiveRaceControlCall; result: LiveClockView };
+  startQuickRace: { args: QuickRaceCall; result: QuickRaceStartedView };
+  closeQuickRace: { args: ManagerCall; result: CommandAck };
 }
 
 export type BridgeQueryName = keyof BridgeQueryMap;

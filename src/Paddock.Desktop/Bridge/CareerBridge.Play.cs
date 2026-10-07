@@ -65,6 +65,11 @@ public sealed partial class CareerBridge
                 return Load(args);
             case "saveCareer":
                 return Save(args);
+            case "startQuickRace":
+                return StartQuickRace(args);
+            case "closeQuickRace":
+                CloseQuickRace();
+                return PlayStep.Ok(BridgeValues.ToNode(new CommandAck(true)), inbox: false);
             default:
                 var command = Build(name, args, out var error);
                 if (error is not null)
@@ -304,13 +309,14 @@ public sealed partial class CareerBridge
         out CareerConfig config,
         out string root,
         out (string Schedule, string Drivers)? files,
-        out string? notice)
+        out string? notice,
+        CareerPreset fallback = CareerPreset.Chaos)
     {
         config = null!;
         root = null!;
         files = null;
         notice = null;
-        var presetText = TextOf(args, "preset") ?? nameof(CareerPreset.Chaos);
+        var presetText = TextOf(args, "preset") ?? fallback.ToString();
         if (!Enum.TryParse<CareerPreset>(presetText, ignoreCase: false, out var preset) || preset == CareerPreset.Custom || !Enum.IsDefined(preset))
         {
             return TranslationMessage.Of(PlayKeys.BadPreset, ("preset", presetText));
@@ -426,23 +432,8 @@ public sealed partial class CareerBridge
 
         try
         {
-            var data = AuthoredDataLoader.Load(root);
-            var provider = CareerData.LoadProvider(files);
-            var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
-            var created = WorldInitializer.Create(config, data, provider, seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
-            var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);
-            var session = new CareerSession(
-                created.World,
-                seed,
-                created.TalentPool,
-                arrivals,
-                new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
             var display = given + " " + family;
-            var shell = CareerShell.Open(
-                session,
-                new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config, CareerData.LoadRaceDates(root), starting) },
-                display,
-                HumanManagerId);
+            var (shell, data, _) = OpenShell(config, root, files, seed, display);
             var today = new DateOnly(shell.Date.Year, shell.Date.Month, shell.Date.Day);
             var taken = shell.Submit(new TakeOverTeamCommand
             {
@@ -475,6 +466,36 @@ public sealed partial class CareerBridge
         {
             return PlayStep.Fail(TranslationMessage.Of(ex.Code));
         }
+    }
+
+    /// <summary>
+    /// A new career's world and shell, before anyone takes a team or lives a morning. <c>newCareer</c> and the quick race (#280)
+    /// both start here, so a quick race is raced in exactly the world a career would open in.
+    /// </summary>
+    private static (CareerShell Shell, AuthoredData Data, WorldInitResult Created) OpenShell(
+        CareerConfig config,
+        string root,
+        (string Schedule, string Drivers)? files,
+        ulong seed,
+        string display)
+    {
+        var data = AuthoredDataLoader.Load(root);
+        var provider = CareerData.LoadProvider(files);
+        var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
+        var created = WorldInitializer.Create(config, data, provider, seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
+        var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);
+        var session = new CareerSession(
+            created.World,
+            seed,
+            created.TalentPool,
+            arrivals,
+            new CareerSessionOptions { LastSeasons = LastSeasons.From(provider) });
+        var shell = CareerShell.Open(
+            session,
+            new CareerRunOptions { Inputs = CareerInputsLoader.Load(root, data, created.EngineSupplies, config, CareerData.LoadRaceDates(root), starting) },
+            display,
+            HumanManagerId);
+        return (shell, data, created);
     }
 
     private PlayStep Load(JsonElement args)
@@ -619,6 +640,7 @@ public sealed partial class CareerBridge
         AuthoredData data)
     {
         _play = shell;
+        CloseQuickRace();
         _fixedSession = null;
         _modules = null;
         _config = config;
@@ -631,7 +653,9 @@ public sealed partial class CareerBridge
         RememberCircuits(data);
     }
 
-    private void RememberCircuits(AuthoredData data)
+    private void RememberCircuits(AuthoredData data) => (_circuits, _tracks) = CircuitsOf(data);
+
+    private static (Dictionary<string, CircuitLabel> Circuits, Dictionary<string, TrackFacts> Tracks) CircuitsOf(AuthoredData data)
     {
         var circuits = new Dictionary<string, CircuitLabel>(StringComparer.Ordinal);
         var tracks = new Dictionary<string, TrackFacts>(StringComparer.Ordinal);
@@ -660,8 +684,7 @@ public sealed partial class CareerBridge
             }
         }
 
-        _circuits = circuits;
-        _tracks = tracks;
+        return (circuits, tracks);
     }
 
     private ICommand? Build(string name, JsonElement args, out TranslationMessage? error)

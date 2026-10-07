@@ -432,6 +432,13 @@ a.plain:hover{text-decoration:underline;text-underline-offset:3px}
 .rnd.next{background:var(--t1);color:var(--on1);border-color:var(--ink);box-shadow:0 4px 0 var(--ink)}
 .rnd.next .rno,.rnd.next .rdate,.rnd.next small{color:color-mix(in oklab,var(--on1) 82%,transparent)}
 .rnd.next .trk .road{stroke:var(--on1)}
+button.rnd{font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%}
+button.rnd:focus-visible{outline:2.5px solid var(--hi);outline-offset:3px}
+.rnd.sel,.rnd.sel:hover{background:var(--t1);color:var(--on1);border-color:var(--ink);box-shadow:0 4px 0 var(--ink);transform:translateY(-3px)}
+.rnd.sel .rno,.rnd.sel .rdate,.rnd.sel small{color:color-mix(in oklab,var(--on1) 82%,transparent)}
+.rnd.sel .trk .road{stroke:var(--on1)}
+.quick input.text.year{width:180px;font-size:28px}
+.quick-pick{justify-content:start;column-gap:36px}
 
 /* ---------- Strona wyścigu ---------- */
 .race-page{display:grid;gap:22px}

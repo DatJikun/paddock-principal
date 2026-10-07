@@ -311,6 +311,7 @@ export interface LiveClockView {
   finished: boolean;
   paused: boolean;
   raceTimeMs: number;
+  revision: number;
   round: number;
   season: number;
   speed: number;
@@ -347,10 +348,53 @@ export interface LiveFramesView {
   toMs: number;
 }
 
+export interface LiveOrderView {
+  atMs: number;
+  carId: string;
+  kind: string;
+  lap: number;
+  pace: string | null;
+  tyres: string | null;
+}
+
+export interface LivePitWallLapView {
+  carId: string;
+  feel: string;
+  fuelKg: number;
+  fuelLaps: number;
+  lap: number;
+  lapsLeft: number;
+  manual: boolean;
+  pace: string;
+  startMs: number;
+  tyreLaps: number;
+  tyres: string;
+}
+
+export interface LivePitWallView {
+  canOrder: boolean;
+  compounds: string[];
+  laps: LivePitWallLapView[];
+  locked: string | null;
+  orders: LiveOrderView[];
+  refuelling: boolean;
+  revision: number;
+  startTyres: string | null;
+  tyreChange: boolean;
+}
+
 export interface LiveRaceControlCall {
   action: string;
   managerId: string;
   speed: number | null;
+}
+
+export interface LiveRaceOrderCall {
+  action: string;
+  carId: string;
+  managerId: string;
+  pace: string | null;
+  tyres: string | null;
 }
 
 export interface LiveRaceView {
@@ -363,6 +407,7 @@ export interface LiveRaceView {
   framesApproximate: boolean;
   lapLengthM: number;
   layoutId: string | null;
+  pitWall: LivePitWallView;
   round: number;
   season: number;
   startAirC: string | null;
@@ -1245,6 +1290,7 @@ export interface BridgeCommandMap {
   proposeSupply: { args: SupplyProposalCall; result: CommandAck };
   respondToSupply: { args: SupplyResponseCall; result: CommandAck };
   liveRaceControl: { args: LiveRaceControlCall; result: LiveClockView };
+  liveRaceOrder: { args: LiveRaceOrderCall; result: LiveClockView };
   startQuickRace: { args: QuickRaceCall; result: QuickRaceStartedView };
   closeQuickRace: { args: ManagerCall; result: CommandAck };
 }

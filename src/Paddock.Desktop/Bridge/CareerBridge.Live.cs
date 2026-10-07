@@ -5,6 +5,7 @@ using Paddock.Application.Career;
 using Paddock.Application.Commands;
 using Paddock.Application.Racing;
 using Paddock.Simulation.Career;
+using Paddock.Simulation.Racing.Pits;
 using Paddock.Simulation.Racing.Playback;
 
 namespace Paddock.Desktop.Bridge;
@@ -14,6 +15,13 @@ public sealed record LiveFramesCall(string ManagerId, long FromMs, long ToMs);
 
 /// <summary>Argument of <c>liveRaceControl</c>: <c>play</c>, <c>pause</c>, or <c>setSpeed</c> (with <see cref="Speed"/>).</summary>
 public sealed record LiveRaceControlCall(string ManagerId, string Action, double? Speed);
+
+/// <summary>
+/// Argument of <c>liveRaceOrder</c> (#286): an order to one of the manager's cars. <see cref="Action"/> is <c>pace</c> (with
+/// <see cref="Pace"/>: <c>push</c>, <c>standard</c> or <c>save</c>), <c>pit</c> (with <see cref="Tyres"/>, or none for fuel only),
+/// <c>cancelPit</c> or <c>auto</c>. The host picks the lap from the race time.
+/// </summary>
+public sealed record LiveRaceOrderCall(string ManagerId, string CarId, string Action, string? Pace, string? Tyres);
 
 /// <summary>
 /// The race the career just ran, watched live (PP-052). The bridge is the host of TECH §5.1: it owns the one race clock, every
@@ -81,6 +89,54 @@ public sealed partial class CareerBridge
         var speed = args.TryGetProperty("speed", out var value) && value.ValueKind == JsonValueKind.Number ? value.GetDouble() : 0;
         var refusal = live.Apply(Human.Value, action, speed);
         return refusal is null ? (live.View(), null) : (null, TranslationMessage.Of(refusal));
+    }
+
+    /// <summary>
+    /// Takes one pit wall order (#286). The race is re-run with every order so far and the clock goes on from the same instant;
+    /// a refusal is a key and changes nothing. The host then tells every viewer to read the race again (<c>raceTape</c>).
+    /// </summary>
+    public (LiveClockView? Clock, TranslationMessage? Error) OrderLiveRace(JsonElement args)
+    {
+        if (Watched() is not { } watched || watched.Box.TryGet<RaceWatch>() is not { } watch || LiveFor(watch, watched.Live) is not { } live)
+        {
+            return (null, TranslationMessage.Of(LiveRaceText.NoRace));
+        }
+
+        var car = TextOf(args, "carId");
+        LiveOrderAction? action = TextOf(args, "action") switch
+        {
+            "pace" => LiveOrderAction.Pace,
+            "pit" => LiveOrderAction.Pit,
+            "cancelPit" => LiveOrderAction.CancelPit,
+            "auto" => LiveOrderAction.Auto,
+            _ => null,
+        };
+        PaceMode? pace = TextOf(args, "pace") switch
+        {
+            "push" => PaceMode.Push,
+            "save" => PaceMode.Save,
+            "standard" or null => PaceMode.Standard,
+            _ => null,
+        };
+        if (car is null || action is not { } what || pace is not { } mode)
+        {
+            return (null, TranslationMessage.Of(LiveRaceText.BadAction));
+        }
+
+        if (live.Finished)
+        {
+            return (null, TranslationMessage.Of(LiveOrderKeys.NotRunning));
+        }
+
+        var observer = watched.Box.TryGet<BoardBook>()?.Section.OrganizationOf(Human.Value);
+        var request = new LiveOrderRequest(car, what, mode, TextOf(args, "tyres"));
+        if (LiveRaceOrders.Issue(watched.Session, watch, Human.Value, observer, request, live.RaceTimeMs) is { } refusal)
+        {
+            return (null, TranslationMessage.Of(refusal));
+        }
+
+        live.Retime(watch.Tape!.Events[^1].RaceTime, watch.Steering?.Revision ?? 0);
+        return (live.View(), null);
     }
 
     /// <summary>The playback of the race the watch holds, or null when the watch moved on (a new career, another race).</summary>

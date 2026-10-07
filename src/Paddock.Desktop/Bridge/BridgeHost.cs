@@ -186,6 +186,17 @@ public sealed class BridgeHost
                 return new BridgeExchange(
                     BridgeValues.Response(id, BridgeValues.ToNode(clock)),
                     [BridgeValues.Event("raceClock", BridgeValues.ToNode(clock))]);
+            case "liveRaceOrder":
+                var (orderedClock, orderRefusal) = _career.OrderLiveRace(args);
+                if (orderedClock is null)
+                {
+                    return Fail(id, orderRefusal!.Key, Parameters(orderRefusal));
+                }
+
+                // The race was re-run (#286): every viewer reads it again and follows the clock from the same instant.
+                return new BridgeExchange(
+                    BridgeValues.Response(id, BridgeValues.ToNode(orderedClock)),
+                    [BridgeValues.Event("raceTape", BridgeValues.ToNode(orderedClock))]);
             case "resolveInbox":
                 var itemId = Text(args, "itemId");
                 var optionId = Text(args, "optionId");

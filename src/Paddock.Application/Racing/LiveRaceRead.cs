@@ -48,7 +48,8 @@ public sealed record LiveStrategyView(string? StrategistId, string? StrategistNa
 /// <summary>
 /// What the pit wall knows about one of its own cars at the start of a lap (#286): tyres and their age, fuel and how many laps
 /// it lasts at the pace the car runs (<see cref="FuelLaps"/>), laps still to run counting this one, the pace and whether it is the
-/// pit wall's order (<see cref="Manual"/>), and how the driver says the tyres feel (<c>good</c>, <c>worn</c>, <c>gone</c>).
+/// pit wall's order (<see cref="Manual"/>), how the driver says the tyres feel (<c>good</c>, <c>worn</c>, <c>gone</c>), the engine mode
+/// (<c>lean</c>, <c>standard</c>, <c>full</c>) and whether the team order to let the team-mate by is on.
 /// </summary>
 public sealed record LivePitWallLapView(
     string CarId,
@@ -61,10 +62,12 @@ public sealed record LivePitWallLapView(
     int LapsLeft,
     string Pace,
     bool Manual,
-    string Feel);
+    string Feel,
+    string Engine,
+    bool LetBy);
 
 /// <summary>One pit wall order the host took (#286): the car, the lap it acts on, when it was given, and what it asks.</summary>
-public sealed record LiveOrderView(string CarId, int Lap, long AtMs, string Kind, string? Pace, string? Tyres);
+public sealed record LiveOrderView(string CarId, int Lap, long AtMs, string Kind, string? Pace, string? Tyres, string? Engine, bool On);
 
 /// <summary>
 /// The player's side of the pit wall (#286). <see cref="CanOrder"/> says whether orders are taken now; when not,
@@ -272,7 +275,9 @@ public static class LiveRaceRead
                     o.AtMs,
                     Camel(o.Order.Kind.ToString()),
                     o.Order.Kind == PitWallOrderKind.Pace ? PaceText(o.Order.Pace) : null,
-                    o.Order.CompoundId))
+                    o.Order.CompoundId,
+                    o.Order.Kind == PitWallOrderKind.Engine ? EngineText(o.Order.Engine) : null,
+                    o.Order.On))
                 .ToArray();
         var tyres = watch.Tyres;
         return new LivePitWallView(
@@ -298,12 +303,7 @@ public static class LiveRaceRead
                 continue;
             }
 
-            var burn = lap.BurnKg * lap.Pace switch
-            {
-                PaceMode.Push => PitConstants.PushBurnFactor,
-                PaceMode.Save => 1d - TyreFuelConstants.FuelSavingBurnReduction,
-                _ => 1d,
-            };
+            var burn = lap.BurnKg * PaceEffects.Of(lap.Pace).BurnFactor * PaceEffects.Burn(lap.Engine);
             laps.Add(new LivePitWallLapView(
                 lap.CarId,
                 lap.Lap,
@@ -315,7 +315,9 @@ public static class LiveRaceRead
                 Math.Max(0, totalLaps - lap.Lap + 1),
                 PaceText(lap.Pace),
                 lap.Manual,
-                Camel(lap.Feel.ToString())));
+                Camel(lap.Feel.ToString()),
+                EngineText(lap.Engine),
+                lap.LetBy));
         }
 
         return laps;
@@ -382,10 +384,19 @@ public static class LiveRaceRead
         }
     }
 
-    private static string PaceText(PaceMode pace) => pace switch
+    internal static string PaceText(PaceMode pace) => pace switch
     {
         PaceMode.Push => "push",
         PaceMode.Save => "save",
+        PaceMode.Conserve => "conserve",
+        PaceMode.Qualifying => "qualifying",
+        _ => "standard",
+    };
+
+    internal static string EngineText(EngineMode engine) => engine switch
+    {
+        EngineMode.Lean => "lean",
+        EngineMode.Full => "full",
         _ => "standard",
     };
 
@@ -676,13 +687,19 @@ public static class LiveRaceKeys
 
     /// <summary>Every answer a driver gives to an order (#286).</summary>
     public static IReadOnlyList<string> Acks { get; } =
-        ["live.ack.push", "live.ack.save", "live.ack.standard", "live.ack.auto", "live.ack.pit", "live.ack.pitTyres"];
+        [
+            "live.ack.push", "live.ack.save", "live.ack.standard", "live.ack.conserve", "live.ack.qualifying", "live.ack.auto",
+            "live.ack.pit", "live.ack.pitTyres", "live.ack.engine.lean", "live.ack.engine.standard", "live.ack.engine.full",
+            "live.ack.letByOn", "live.ack.letByOff",
+        ];
 
     /// <summary>The driver's answer to <paramref name="order"/>.</summary>
     public static string Ack(PitWallOrder order) => order.Kind switch
     {
-        PitWallOrderKind.Pace => "live.ack." + (order.Pace switch { PaceMode.Push => "push", PaceMode.Save => "save", _ => "standard" }),
+        PitWallOrderKind.Pace => "live.ack." + LiveRaceRead.PaceText(order.Pace),
         PitWallOrderKind.Auto => "live.ack.auto",
+        PitWallOrderKind.Engine => "live.ack.engine." + LiveRaceRead.EngineText(order.Engine),
+        PitWallOrderKind.LetBy => order.On ? "live.ack.letByOn" : "live.ack.letByOff",
         _ => order.CompoundId is null ? "live.ack.pit" : "live.ack.pitTyres",
     };
 }

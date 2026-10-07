@@ -74,6 +74,13 @@ public class PitWallOrderBridgeTests
             Assert.NotEmpty(pushed);
             Assert.All(pushed, l => Assert.Equal("push", l.GetProperty("pace").GetString()));
             Assert.All(pushed, l => Assert.True(l.GetProperty("startMs").GetInt64() >= 200_000));
+
+            Data(host, "command", "liveRaceOrder", Order(own, "engine", engine: "full"));
+            Data(host, "command", "liveRaceOrder", Order(own, "pace", pace: "qualifying"));
+            after = Data(host, "query", "liveRace");
+            var last = after.GetProperty("pitWall").GetProperty("laps").EnumerateArray().Last(l => l.GetProperty("carId").GetString() == own);
+            Assert.Equal("full", last.GetProperty("engine").GetString());
+            Assert.Equal("qualifying", last.GetProperty("pace").GetString());
             return after.GetProperty("events").GetRawText();
         }
 
@@ -99,9 +106,10 @@ public class PitWallOrderBridgeTests
             .Where(e => e.GetProperty("timeMs").GetInt64() < nowMs && e.GetProperty("kind").GetString() is not ("order" or "driver" or "call"))
             .Select(e => e.GetRawText())];
 
-    private static string Order(string car, string action, string? pace = null, string? tyres = null) =>
+    private static string Order(string car, string action, string? pace = null, string? tyres = null, string? engine = null) =>
         "{\"managerId\":\"human:player\",\"carId\":\"" + car + "\",\"action\":\"" + action + "\""
         + (pace is null ? "" : ",\"pace\":\"" + pace + "\"")
+        + (engine is null ? "" : ",\"engine\":\"" + engine + "\"")
         + (tyres is null ? "" : ",\"tyres\":\"" + tyres + "\"") + "}";
 
     private static BridgeHost QuickRace(IClock clock)

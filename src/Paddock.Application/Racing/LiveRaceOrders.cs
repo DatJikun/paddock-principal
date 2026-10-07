@@ -18,12 +18,24 @@ public enum LiveOrderAction
     /// <summary>Take back a stop the pit wall called that has not happened yet.</summary>
     CancelPit,
 
-    /// <summary>Give the car back to the strategist.</summary>
+    /// <summary>Give the car's pace back to the strategist.</summary>
     Auto,
+
+    /// <summary>Run the engine in a mode from the next lap on.</summary>
+    Engine,
+
+    /// <summary>Switch the team order to let the team-mate by on or off, from the next lap on.</summary>
+    LetBy,
 }
 
-/// <summary>One order from the screen: the car (by its tape id), the action, the pace and the tyres it needs.</summary>
-public sealed record LiveOrderRequest(string CarId, LiveOrderAction Action, PaceMode Pace = PaceMode.Standard, string? CompoundId = null);
+/// <summary>One order from the screen: the car (by its tape id), the action, and the pace, tyres, engine mode or switch it needs.</summary>
+public sealed record LiveOrderRequest(
+    string CarId,
+    LiveOrderAction Action,
+    PaceMode Pace = PaceMode.Standard,
+    string? CompoundId = null,
+    EngineMode Engine = EngineMode.Standard,
+    bool On = false);
 
 /// <summary>
 /// Takes a pit wall order during a watched race (#286). The host decides the lap from the race time (never the screen), checks
@@ -70,7 +82,7 @@ public static class LiveRaceOrders
         PitWallOrder order;
         switch (request.Action)
         {
-            case LiveOrderAction.Pace or LiveOrderAction.Auto:
+            case LiveOrderAction.Pace or LiveOrderAction.Auto or LiveOrderAction.Engine or LiveOrderAction.LetBy:
             {
                 var lap = nowMs <= car.LapStartMs ? car.Current : car.Current + 1;
                 if (lap > started.TotalLaps)
@@ -78,9 +90,18 @@ public static class LiveRaceOrders
                     return LiveOrderKeys.TooLate;
                 }
 
-                order = request.Action == LiveOrderAction.Auto
-                    ? new PitWallOrder(request.CarId, lap, PitWallOrderKind.Auto)
-                    : new PitWallOrder(request.CarId, lap, PitWallOrderKind.Pace, request.Pace);
+                if (request.Action == LiveOrderAction.LetBy && request.On && !MateRunning(session, watch, tape, request.CarId, nowMs))
+                {
+                    return LiveOrderKeys.NoMate;
+                }
+
+                order = request.Action switch
+                {
+                    LiveOrderAction.Auto => new PitWallOrder(request.CarId, lap, PitWallOrderKind.Auto),
+                    LiveOrderAction.Engine => new PitWallOrder(request.CarId, lap, PitWallOrderKind.Engine, Engine: request.Engine),
+                    LiveOrderAction.LetBy => new PitWallOrder(request.CarId, lap, PitWallOrderKind.LetBy, On: request.On),
+                    _ => new PitWallOrder(request.CarId, lap, PitWallOrderKind.Pace, request.Pace),
+                };
                 break;
             }
 
@@ -128,6 +149,15 @@ public static class LiveRaceOrders
     internal static string? TeamOf(CareerSession session, RaceWatch watch, string carId) =>
         session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName)?.Find(watch.Season, watch.Round)?.Rows
             .FirstOrDefault(row => row.DriverId == carId)?.TeamId;
+
+    // Another car of the same team still in the race: the only one a team order can let by.
+    private static bool MateRunning(CareerSession session, RaceWatch watch, RaceTape tape, string carId, long nowMs)
+    {
+        var team = TeamOf(session, watch, carId);
+        var started = (RaceStarted)tape.Events[0];
+        return started.DriverIds.Any(other =>
+            other != carId && TeamOf(session, watch, other) == team && !Laps(tape, other, nowMs).Over);
+    }
 
     private static CarLaps Laps(RaceTape tape, string carId, long nowMs)
     {
@@ -192,6 +222,7 @@ public static class LiveOrderKeys
     public const string NoStop = "live.order.noStop";
     public const string NoPit = "live.order.noPit";
     public const string Unsafe = "live.order.unsafe";
+    public const string NoMate = "live.order.noMate";
 
-    public static IReadOnlyList<string> All { get; } = [Locked, NotOwn, NotRunning, TooLate, BadTyre, NoStop, NoPit, Unsafe];
+    public static IReadOnlyList<string> All { get; } = [Locked, NotOwn, NotRunning, TooLate, BadTyre, NoStop, NoPit, Unsafe, NoMate];
 }

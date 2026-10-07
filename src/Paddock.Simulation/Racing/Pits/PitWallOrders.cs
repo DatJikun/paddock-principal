@@ -11,8 +11,14 @@ public enum PitWallOrderKind
     /// <summary>Come in at the end of the order's lap, for <see cref="PitWallOrder.CompoundId"/> (null keeps the tyres) and the fuel to the flag.</summary>
     Pit,
 
-    /// <summary>Give the car back to the strategist from the order's lap on.</summary>
+    /// <summary>Give the car's pace back to the strategist from the order's lap on.</summary>
     Auto,
+
+    /// <summary>Run the engine in <see cref="PitWallOrder.Engine"/> from the order's lap on.</summary>
+    Engine,
+
+    /// <summary>Team order: from the order's lap on, let the team-mate by when it is right behind (<see cref="PitWallOrder.On"/>), or stop.</summary>
+    LetBy,
 }
 
 /// <summary>
@@ -25,7 +31,16 @@ public enum PitWallOrderKind
 /// <param name="Kind">What the order does.</param>
 /// <param name="Pace">The pace of a <see cref="PitWallOrderKind.Pace"/> order.</param>
 /// <param name="CompoundId">The tyres of a <see cref="PitWallOrderKind.Pit"/> order; null for no tyre change.</param>
-public sealed record PitWallOrder(string CarId, int Lap, PitWallOrderKind Kind, PaceMode Pace = PaceMode.Standard, string? CompoundId = null);
+/// <param name="Engine">The engine mode of an <see cref="PitWallOrderKind.Engine"/> order.</param>
+/// <param name="On">Whether a <see cref="PitWallOrderKind.LetBy"/> order switches the team order on or off.</param>
+public sealed record PitWallOrder(
+    string CarId,
+    int Lap,
+    PitWallOrderKind Kind,
+    PaceMode Pace = PaceMode.Standard,
+    string? CompoundId = null,
+    EngineMode Engine = EngineMode.Standard,
+    bool On = false);
 
 /// <summary>How the driver says the tyres feel. The pit wall hears this on the radio; it is not the true wear (INV-003).</summary>
 public enum TyreFeel
@@ -54,6 +69,8 @@ public enum TyreFeel
 /// <param name="Pace">The pace the car runs this lap.</param>
 /// <param name="Manual">True when the pace is the pit wall's order, not the strategist's.</param>
 /// <param name="Feel">How the driver says the tyres feel.</param>
+/// <param name="Engine">The engine mode this lap.</param>
+/// <param name="LetBy">True while the team order to let the team-mate by is on.</param>
 public sealed record PitWallLap(
     string CarId,
     int Lap,
@@ -64,7 +81,9 @@ public sealed record PitWallLap(
     double BurnKg,
     PaceMode Pace,
     bool Manual,
-    TyreFeel Feel);
+    TyreFeel Feel,
+    EngineMode Engine = EngineMode.Standard,
+    bool LetBy = false);
 
 /// <summary>The driver's sense of the tyres. ESTIMATE thresholds, uncalibrated.</summary>
 public static class TyreFeelBands

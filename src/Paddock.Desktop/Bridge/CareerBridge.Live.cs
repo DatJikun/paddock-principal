@@ -18,10 +18,11 @@ public sealed record LiveRaceControlCall(string ManagerId, string Action, double
 
 /// <summary>
 /// Argument of <c>liveRaceOrder</c> (#286): an order to one of the manager's cars. <see cref="Action"/> is <c>pace</c> (with
-/// <see cref="Pace"/>: <c>push</c>, <c>standard</c> or <c>save</c>), <c>pit</c> (with <see cref="Tyres"/>, or none for fuel only),
-/// <c>cancelPit</c> or <c>auto</c>. The host picks the lap from the race time.
+/// <see cref="Pace"/>: <c>conserve</c>, <c>save</c>, <c>standard</c>, <c>push</c> or <c>qualifying</c>), <c>pit</c> (with <see cref="Tyres"/>,
+/// or none for fuel only), <c>cancelPit</c>, <c>auto</c>, <c>engine</c> (with <see cref="Engine"/>: <c>lean</c>, <c>standard</c> or <c>full</c>)
+/// or <c>letBy</c> (with <see cref="On"/>). The host picks the lap from the race time.
 /// </summary>
-public sealed record LiveRaceOrderCall(string ManagerId, string CarId, string Action, string? Pace, string? Tyres);
+public sealed record LiveRaceOrderCall(string ManagerId, string CarId, string Action, string? Pace, string? Tyres, string? Engine, bool? On);
 
 /// <summary>
 /// The race the career just ran, watched live (PP-052). The bridge is the host of TECH §5.1: it owns the one race clock, every
@@ -109,16 +110,28 @@ public sealed partial class CareerBridge
             "pit" => LiveOrderAction.Pit,
             "cancelPit" => LiveOrderAction.CancelPit,
             "auto" => LiveOrderAction.Auto,
+            "engine" => LiveOrderAction.Engine,
+            "letBy" => LiveOrderAction.LetBy,
             _ => null,
         };
         PaceMode? pace = TextOf(args, "pace") switch
         {
             "push" => PaceMode.Push,
             "save" => PaceMode.Save,
+            "conserve" => PaceMode.Conserve,
+            "qualifying" => PaceMode.Qualifying,
             "standard" or null => PaceMode.Standard,
             _ => null,
         };
-        if (car is null || action is not { } what || pace is not { } mode)
+        EngineMode? engine = TextOf(args, "engine") switch
+        {
+            "lean" => EngineMode.Lean,
+            "full" => EngineMode.Full,
+            "standard" or null => EngineMode.Standard,
+            _ => null,
+        };
+        var on = args.TryGetProperty("on", out var flag) && flag.ValueKind == JsonValueKind.True;
+        if (car is null || action is not { } what || pace is not { } mode || engine is not { } engineMode)
         {
             return (null, TranslationMessage.Of(LiveRaceText.BadAction));
         }
@@ -129,7 +142,7 @@ public sealed partial class CareerBridge
         }
 
         var observer = watched.Box.TryGet<BoardBook>()?.Section.OrganizationOf(Human.Value);
-        var request = new LiveOrderRequest(car, what, mode, TextOf(args, "tyres"));
+        var request = new LiveOrderRequest(car, what, mode, TextOf(args, "tyres"), engineMode, on);
         if (LiveRaceOrders.Issue(watched.Session, watch, Human.Value, observer, request, live.RaceTimeMs) is { } refusal)
         {
             return (null, TranslationMessage.Of(refusal));

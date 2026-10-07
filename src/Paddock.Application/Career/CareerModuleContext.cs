@@ -49,6 +49,12 @@ public sealed class CareerModuleContext
 
     public ManagerRegistry Managers { get; }
 
+    /// <summary>
+    /// The teams a human was seated at when the run started. A module that gives teams a starting state at <see cref="ICareerModule.Open"/>
+    /// reads it to treat the player's team differently from the AI teams (regulation voting: the player starts with no cooldown).
+    /// </summary>
+    public IReadOnlyList<OrganizationId> SeatedHumans { get; internal set; } = [];
+
     /// <summary>The accepted commands of this run. A module may read them while attaching; it does not append.</summary>
     public CommandLog CommandLog => _dispatcher.Log;
 

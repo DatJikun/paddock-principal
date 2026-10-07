@@ -8,6 +8,7 @@ using Paddock.Application.Objectives;
 using Paddock.Application.Pool;
 using Paddock.Application.Principals;
 using Paddock.Application.Racing;
+using Paddock.Application.Regulation;
 using Paddock.Application.Sponsors;
 using Paddock.Application.Staff;
 using Paddock.Application.Supply;
@@ -25,7 +26,7 @@ namespace Paddock.Application.Career;
 /// The day order is not this list's order: each day handler has its own <see cref="Paddock.Simulation.Time.IDayHandler.Order"/>.
 /// <para>
 /// Day order today: host season change 5, pool 10, principal seat watch 15, ageing 20, last season 25, contract expiry 30,
-/// staff refill 35, season rollover 40, race weekend 50, negotiations 700, raise demands 705, contract lifecycle 710,
+/// staff refill 35, season rollover 40, race weekend 50, regulation politics 55, negotiations 700, raise demands 705, contract lifecycle 710,
 /// sponsors 750, supply 760, infrastructure 770, development 780, finance 800, objectives 900, board 910 (TECH 6.2).
 /// </para>
 /// </summary>
@@ -43,6 +44,7 @@ public static class CareerModules
         new SupplyModule(),
         new InfrastructureModule(),
         new RacingModule(),
+        new RegulationsModule(),
         new DevelopmentModule(),
         new BoardModule(),
         new PrincipalsModule(),

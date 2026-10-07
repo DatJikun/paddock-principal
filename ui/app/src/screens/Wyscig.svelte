@@ -1,9 +1,11 @@
 <script lang="ts">
   import type { ReportLineView } from '../lib/api/types.generated';
   import Flag from '../lib/components/Flag.svelte';
+  import Tabs from '../lib/components/Tabs.svelte';
   import TrackMap from '../lib/components/TrackMap.svelte';
-  import { formatDate, formatDay } from '../lib/date.mjs';
+  import { formatDate } from '../lib/date.mjs';
   import { hasFlag } from '../lib/flags.mjs';
+  import { livery } from '../lib/livery.mjs';
   import { formatLapTime, retirementLabel, timeCell } from '../lib/race.mjs';
   import type { RaceData } from '../lib/screens';
   import { countryName, icon, ICON, km, points, type Tr } from '../lib/ui';
@@ -30,11 +32,29 @@
   let result = $derived(data.result?.found ? data.result : null);
   let report = $derived(result ? result.sections.filter((section) => REPORT[section.title.key] && section.lines.length > 0) : []);
   let track = $derived(data.track?.found ? data.track : null);
-  let winners = $derived(track?.winners ?? []);
+  let past = $derived(track?.past ?? []);
+  let tab = $state('race');
+  /* A new round opens on its race. */
+  $effect(() => {
+    round?.round;
+    tab = 'race';
+  });
+  /* Qualifying is what the weekend stored: the grid each car started from and the pole time. Practice is not simulated, so it has no tab. */
+  let grid = $derived(result ? result.rows.filter((row) => row.gridPosition !== null).sort((a, b) => (a.gridPosition ?? 0) - (b.gridPosition ?? 0)) : []);
+  let tabs = $derived(grid.length > 0 ? [{ value: 'qualifying', label: tr.t('race.tab.qualifying') }, { value: 'race', label: tr.t('race.tab.race') }] : []);
+  let shown = $derived(tabs.length > 0 ? tab : 'race');
   let facts = $derived(result?.facts ?? null);
   /* The fastest lap of the race is set in bold in the table. */
   let fastestId = $derived(facts?.fastestLap?.driverId ?? null);
 </script>
+
+{#snippet who(name: string, nationality: string)}
+  <span class="person">{#if hasFlag(nationality)}<Flag code={nationality} />{/if}<b>{name}</b></span>
+{/snippet}
+
+{#snippet teamTag(id: string, name: string)}
+  <span class="meta team"><i class="tdot" style={`background:${livery(id).main}`}></i>{name}</span>
+{/snippet}
 
 {#if round}
   <div class="race-page">
@@ -65,119 +85,173 @@
     <div class="rp-grid">
       <div class="col">
         {#if result}
+          {#if tabs.length > 0}
+            <div class="rp-tabs"><Tabs group="race-session" items={tabs} bind:value={tab} /></div>
+          {/if}
+          {#if shown === 'qualifying'}
+            <section class="panel tbl">
+              <header>
+                <h2>{tr.t('race.startingGrid')}</h2>
+                {#if facts?.pole && facts.pole.timeMs !== null}<span class="meta">{tr.t('race.poleTime')} · <b class="num">{formatLapTime(facts.pole.timeMs)}</b></span>{/if}
+              </header>
+              <div class="tbl-scroll">
+                <table class="table tight results">
+                  <thead>
+                    <tr>
+                      <th class="c">{tr.t('shell.col.position')}</th>
+                      <th>{tr.t('shell.col.driver')}</th>
+                      <th>{tr.t('shell.col.team')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each grid as row (`${row.gridPosition}-${row.driverId}`)}
+                      <tr class:mine={row.teamId === teamId}>
+                        <td class="c num">{row.gridPosition}</td>
+                        <td>{@render who(row.driverName, row.nationality)}</td>
+                        <td>{@render teamTag(row.teamId, row.teamName)}</td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            {#each report.filter((section) => section.title.key === 'race.section.qualifying') as section (section.title.key)}
+              <section class="panel">
+                <header><h2>{tr.t('race.report')}</h2></header>
+                <div class="body report-lines">
+                  <div class="rl">
+                    {#each section.lines as item, at (`${item.key}-${at}`)}<p>{line(item)}</p>{/each}
+                  </div>
+                </div>
+              </section>
+            {/each}
+          {:else}
+            <section class="panel tbl">
+              <header><h2>{tr.t('race.results')}</h2></header>
+              <div class="tbl-scroll">
+                <table class="table tight results">
+                  <thead>
+                    <tr>
+                      <th class="c">{tr.t('shell.col.position')}</th>
+                      <th>{tr.t('shell.col.driver')}</th>
+                      <th class="c">{tr.t('race.grid')}</th>
+                      <th class="c">{tr.t('race.laps')}</th>
+                      <th class="r">{tr.t('race.time')}</th>
+                      <th class="r wrap">{tr.t('race.bestLap')}</th>
+                      <th class="c">{tr.t('shell.col.points')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each result.rows as row (`${row.position}-${row.driverId}`)}
+                      {@const cell = timeCell(row)}
+                      <tr class:mine={row.teamId === teamId}>
+                        <td class="c num">{#if row.classified}{row.position}{:else}<span class="bad">{tr.t('race.dnf')}</span>{/if}</td>
+                        <td>
+                          {@render who(row.driverName, row.nationality)}
+                          {@render teamTag(row.teamId, row.teamName)}
+                        </td>
+                        <td class="c num">{row.gridPosition ?? ''}</td>
+                        <td class="c num">{row.lapsCompleted ?? ''}</td>
+                        <td class="r num" class:muted={cell.kind === 'none'}>
+                          {#if cell.kind === 'none'}{tr.t(retirementLabel(row.retirementKey))}{:else if cell.kind === 'lapsDown'}{tr.tCount('race.lapsDown', cell.laps)}{:else}{cell.text}{/if}
+                        </td>
+                        <td class="r num" class:best={row.driverId === fastestId}>{formatLapTime(row.fastestLapMs)}</td>
+                        <td class="c num">{row.points === '0' ? '' : points(tr, row.points)}</td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            {#each report.filter((section) => section.title.key === 'race.section.race') as section (section.title.key)}
+              <section class="panel">
+                <header><h2>{tr.t('race.report')}</h2></header>
+                <div class="body report-lines">
+                  <div class="rl">
+                    {#each section.lines as item, at (`${item.key}-${at}`)}<p>{line(item)}</p>{/each}
+                  </div>
+                </div>
+              </section>
+            {/each}
+          {/if}
+        {:else}
+          <section class="panel rp-map wide"><TrackMap points={track?.points} cls="big" label={round.circuitName} pit /></section>
+        {/if}
+        {#if past.length > 0}
           <section class="panel tbl">
-            <header><h2>{tr.t('race.results')}</h2></header>
-            <div class="tbl-scroll">
-              <table class="table tight results">
+            <header><h2>{tr.t('race.past')}</h2></header>
+            <div class="tbl-scroll past-scroll">
+              <table class="table tight past">
                 <thead>
                   <tr>
-                    <th class="c">{tr.t('shell.col.position')}</th>
-                    <th>{tr.t('shell.col.driver')}</th>
-                    <th class="c">{tr.t('race.grid')}</th>
-                    <th class="c">{tr.t('race.laps')}</th>
-                    <th class="r">{tr.t('race.time')}</th>
-                    <th class="r wrap">{tr.t('race.bestLap')}</th>
-                    <th class="c">{tr.t('shell.col.points')}</th>
+                    <th class="c">{tr.t('race.past.season')}</th>
+                    <th>{tr.t('race.past.first')}</th>
+                    <th>{tr.t('race.past.second')}</th>
+                    <th>{tr.t('race.past.third')}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {#each result.rows as row (`${row.position}-${row.driverId}`)}
-                    {@const cell = timeCell(row)}
-                    <tr class:mine={row.teamId === teamId}>
-                      <td class="c num">{#if row.classified}{row.position}{:else}<span class="bad">{tr.t('race.dnf')}</span>{/if}</td>
-                      <td>
-                        <span class="person">{#if hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}<b>{row.driverName}</b></span>
-                        <span class="meta team">{row.teamName}</span>
-                      </td>
-                      <td class="c num">{row.gridPosition ?? ''}</td>
-                      <td class="c num">{row.lapsCompleted ?? ''}</td>
-                      <td class="r num" class:muted={cell.kind === 'none'}>
-                        {#if cell.kind === 'none'}{tr.t(retirementLabel(row.retirementKey))}{:else if cell.kind === 'lapsDown'}{tr.tCount('race.lapsDown', cell.laps)}{:else}{cell.text}{/if}
-                      </td>
-                      <td class="r num" class:best={row.driverId === fastestId}>{formatLapTime(row.fastestLapMs)}</td>
-                      <td class="c num">{row.points === '0' ? '' : points(tr, row.points)}</td>
+                  {#each past as race (`${race.source}-${race.season}`)}
+                    <tr>
+                      <td class="c num">{race.season}</td>
+                      {#each [1, 2, 3] as place (place)}
+                        {@const entry = race.podium.find((item) => item.position === place)}
+                        <td class:win={place === 1}>
+                          {#if entry}
+                            <span class="pod" class:mine={entry.teamId === teamId} style={`--team:${livery(entry.teamId).main}`}>
+                              <span class="person">{#if hasFlag(entry.nationality)}<Flag code={entry.nationality} />{/if}<b>{entry.driverName}</b></span>
+                              <small>{entry.teamName}</small>
+                            </span>
+                          {/if}
+                        </td>
+                      {/each}
                     </tr>
                   {/each}
                 </tbody>
               </table>
             </div>
           </section>
-          {#if report.length > 0}
-            <section class="panel">
-              <header><h2>{tr.t('race.report')}</h2></header>
-              <div class="body report-lines">
-                {#each report as section (section.title.key)}
-                  <div class="rl">
-                    <span class="meta">{tr.t(REPORT[section.title.key] ?? '')}</span>
-                    {#each section.lines as item, at (`${item.key}-${at}`)}<p>{line(item)}</p>{/each}
-                  </div>
-                {/each}
-              </div>
-            </section>
-          {/if}
-        {:else}
-          <section class="panel rp-map wide"><TrackMap points={track?.points} cls="big" label={round.circuitName} /></section>
         {/if}
       </div>
       <div class="col">
         {#if result}
-          <section class="panel rp-map"><TrackMap points={track?.points} cls="big" label={round.circuitName} /></section>
+          <section class="panel rp-map"><TrackMap points={track?.points} cls="big" label={round.circuitName} pit /></section>
         {/if}
         {#if facts}
           <section class="panel">
             <header><h2>{tr.t('race.facts')}</h2></header>
             <div class="body">
-              <div class="fields eq">
-                <div class="fld"><span class="meta">{tr.t('race.laps')}</span><span class="v num">{facts.laps}</span></div>
-                <div class="fld"><span class="meta">{tr.t('race.distance')}</span><span class="v num">{km(tr, facts.distanceMeters / 1000)}</span></div>
+              <div class="fact-grid">
+                <div class="fact"><span class="meta">{tr.t('race.laps')}</span><b class="num">{facts.laps}</b></div>
+                <div class="fact"><span class="meta">{tr.t('race.distance')}</span><b class="num">{km(tr, facts.distanceMeters / 1000)}</b></div>
                 {#if facts.pole}
-                  <div class="fld"><span class="meta">{tr.t('race.pole')}</span><span class="v">{facts.pole.driverName}</span>{#if facts.pole.timeMs !== null}<span class="v num">{formatLapTime(facts.pole.timeMs)}</span>{/if}</div>
+                  {@const pole = result?.rows.find((row) => row.driverId === facts.pole?.driverId)}
+                  <div class="fact wide">
+                    <span class="meta">{tr.t('race.pole')}</span>
+                    <span class="fact-name">{#if pole && hasFlag(pole.nationality)}<Flag code={pole.nationality} />{/if}<b>{facts.pole.driverName}</b></span>
+                    {#if facts.pole.timeMs !== null}<span class="num fact-time">{formatLapTime(facts.pole.timeMs)}</span>{/if}
+                  </div>
                 {/if}
                 {#if facts.fastestLap}
-                  <div class="fld"><span class="meta">{tr.t('race.fastestLap')}</span><span class="v">{facts.fastestLap.driverName}</span>{#if facts.fastestLap.timeMs !== null}<span class="v num">{formatLapTime(facts.fastestLap.timeMs)}</span>{/if}</div>
+                  {@const quick = result?.rows.find((row) => row.driverId === facts.fastestLap?.driverId)}
+                  <div class="fact wide">
+                    <span class="meta">{tr.t('race.fastestLap')}</span>
+                    <span class="fact-name">{#if quick && hasFlag(quick.nationality)}<Flag code={quick.nationality} />{/if}<b>{facts.fastestLap.driverName}</b></span>
+                    {#if facts.fastestLap.timeMs !== null}<span class="num fact-time">{formatLapTime(facts.fastestLap.timeMs)}</span>{/if}
+                  </div>
                 {/if}
               </div>
             </div>
           </section>
-        {/if}
-        {#if round.practice || round.qualifying || round.race}
-        <section class="panel">
-          <header><h2>{tr.t('race.day')}</h2></header>
-          <div class="body">
-            <div class="fields eq">
-              {#if round.practice}<div class="fld"><span class="meta">{tr.t('race.practice')}</span><span class="v">{formatDay(round.practice, tr.lang)}</span></div>{/if}
-              {#if round.qualifying}<div class="fld"><span class="meta">{tr.t('race.qualifying')}</span><span class="v">{formatDay(round.qualifying, tr.lang)}</span></div>{/if}
-              {#if round.race}<div class="fld"><span class="meta">{tr.t('race.day')}</span><span class="v">{formatDay(round.race, tr.lang)}</span></div>{/if}
-            </div>
-          </div>
-        </section>
         {/if}
         {#if track && track.races > 0}
           <section class="panel">
             <header><h2>{tr.t('race.numbers')}</h2></header>
             <div class="body">
-              <div class="fields eq">
-                <div class="fld"><span class="meta">{tr.t('race.races')}</span><span class="v num">{track.races}</span></div>
-                <div class="fld"><span class="meta">{tr.t('race.retirements')}</span><span class="v num">{track.retirements}</span></div>
+              <div class="fact-grid">
+                <div class="fact"><span class="meta">{tr.t('race.races')}</span><b class="num">{track.races}</b></div>
+                <div class="fact"><span class="meta">{tr.t('race.retirements')}</span><b class="num">{track.retirements}</b></div>
               </div>
-            </div>
-          </section>
-        {/if}
-        {#if winners.length > 0}
-          <section class="panel tbl">
-            <header><h2>{tr.t('race.winners')}</h2></header>
-            <div class="tbl-scroll">
-              <table class="table tight">
-                <tbody>
-                  {#each winners as winner (`${winner.season}-${winner.round}`)}
-                    <tr class:mine={winner.teamId === teamId}>
-                      <td class="c num">{winner.season}</td>
-                      <td><b>{winner.driverName}</b></td>
-                      <td class="muted">{winner.teamName}</td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
             </div>
           </section>
         {/if}

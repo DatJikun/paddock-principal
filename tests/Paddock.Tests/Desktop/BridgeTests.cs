@@ -241,6 +241,21 @@ public class BridgeTests
             var data = json.RootElement.GetProperty("data");
             Assert.Equal(1, data.GetProperty("races").GetInt32());
             Assert.Single(data.GetProperty("winners").EnumerateArray());
+            var past = Assert.Single(data.GetProperty("past").EnumerateArray());
+            Assert.Equal("career", past.GetProperty("source").GetString());
+            Assert.Equal(1955, past.GetProperty("season").GetInt32());
+        }
+
+        var overview = career.Host.Handle(Message("overview", "query", "seasonOverview"));
+        using (var json = JsonDocument.Parse(overview.Response))
+        {
+            Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), overview.Response);
+            var data = json.RootElement.GetProperty("data");
+            Assert.True(data.GetProperty("rounds").GetArrayLength() > 1);
+            var rows = data.GetProperty("drivers");
+            Assert.True(rows.GetArrayLength() > 1);
+            Assert.Equal(data.GetProperty("rounds").GetArrayLength(), rows[0].GetProperty("cells").GetArrayLength());
+            Assert.DoesNotContain("spy", overview.Response, StringComparison.OrdinalIgnoreCase);
         }
         var calendar = career.Host.Handle(Message("calendar", "query", "calendar"));
         using (var json = JsonDocument.Parse(calendar.Response))

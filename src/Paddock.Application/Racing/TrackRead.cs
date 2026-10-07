@@ -23,9 +23,33 @@ public sealed record TrackFacts(
 /// <summary>A finished round at this circuit in this career: who won it and for whom.</summary>
 public sealed record TrackWinnerView(int Season, int Round, string DriverId, string DriverName, string TeamId, string TeamName);
 
+/// <summary>One podium place of a past race at a circuit. The team id is a constructor id, the key the livery table knows.</summary>
+public sealed record PastPodiumView(int Position, string DriverName, string Nationality, string TeamId, string TeamName);
+
+/// <summary>The two origins of a <see cref="PastRaceView"/>.</summary>
+public static class PastRaceSource
+{
+    /// <summary>A round this career ran.</summary>
+    public const string Career = "career";
+
+    /// <summary>A real race from before the career began, read from the local record of past seasons.</summary>
+    public const string Archive = "archive";
+}
+
+/// <summary>A past race at a circuit: the top three, and where the record comes from.</summary>
+public sealed record PastRaceView(int Season, string Source, IReadOnlyList<PastPodiumView> Podium);
+
+/// <summary>
+/// A real race from the local record of past seasons, already reduced to its circuit and podium. The host reads the
+/// files (PP-041: local only) and only passes seasons before the career began; this layer receives none without the cache.
+/// </summary>
+public sealed record HistoricalRaceFact(int Season, string CircuitId, IReadOnlyList<PastPodiumView> Podium);
+
 /// <summary>
 /// A circuit page: the layout's public facts and what this career has stored about races there.
 /// <see cref="Retirements"/> counts unclassified cars over <see cref="Races"/>; both are zero before the first race.
+/// <see cref="Past"/> lists earlier races at the circuit, newest first: this career's own rounds, then the real races
+/// from before the career began when the host has them. Results only, no comparison (PP-062).
 /// </summary>
 public sealed record TrackView(
     bool Found,
@@ -38,7 +62,8 @@ public sealed record TrackView(
     IReadOnlyList<TrackPointView> Points,
     int Races,
     int Retirements,
-    IReadOnlyList<TrackWinnerView> Winners);
+    IReadOnlyList<TrackWinnerView> Winners,
+    IReadOnlyList<PastRaceView> Past);
 
 /// <summary>Reads a circuit page. No state change and no RNG (INV-005); results come from the career's own archive.</summary>
 public static class TrackRead
@@ -46,18 +71,20 @@ public static class TrackRead
     public static TrackView Read(
         CareerSession session,
         IReadOnlyDictionary<string, TrackFacts> layouts,
-        string? layoutId)
+        string? layoutId,
+        IReadOnlyList<HistoricalRaceFact>? history = null)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(layouts);
         var wanted = string.IsNullOrWhiteSpace(layoutId) ? NextLayout(session) : layoutId;
         if (wanted is null || !layouts.TryGetValue(wanted, out var facts))
         {
-            return new TrackView(false, wanted, null, null, null, null, [], [], 0, 0, []);
+            return new TrackView(false, wanted, null, null, null, null, [], [], 0, 0, [], []);
         }
 
         var archive = session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName);
         var winners = new List<TrackWinnerView>();
+        var past = new List<PastRaceView>();
         var races = 0;
         var retirements = 0;
         if (archive is not null)
@@ -81,14 +108,30 @@ public static class TrackRead
                 var winner = race.Rows.FirstOrDefault(row => row.Classified && row.Position == 1);
                 if (winner is not null)
                 {
-                    var result = ChampionshipRead.Result(session, race.Season, race.Round).Rows
-                        .First(row => row.Position == winner.Position && row.DriverId == winner.DriverId);
+                    var rows = ChampionshipRead.Result(session, race.Season, race.Round).Rows;
+                    var result = rows.First(row => row.Position == winner.Position && row.DriverId == winner.DriverId);
                     winners.Add(new TrackWinnerView(race.Season, race.Round, result.DriverId, result.DriverName, result.TeamId, result.TeamName));
+                    past.Add(new PastRaceView(
+                        race.Season,
+                        PastRaceSource.Career,
+                        rows.Where(row => row.Classified && row.Position <= 3)
+                            .OrderBy(row => row.Position)
+                            .Select(row => new PastPodiumView(row.Position, row.DriverName, row.Nationality, row.TeamId, row.TeamName))
+                            .ToArray()));
                 }
             }
         }
 
         winners.Reverse();
+        past.Reverse();
+        if (history is not null)
+        {
+            foreach (var fact in history.Where(item => item.CircuitId == facts.CircuitId).OrderByDescending(item => item.Season))
+            {
+                past.Add(new PastRaceView(fact.Season, PastRaceSource.Archive, fact.Podium));
+            }
+        }
+
         return new TrackView(
             true,
             facts.LayoutId,
@@ -100,7 +143,8 @@ public static class TrackRead
             facts.Points,
             races,
             retirements,
-            winners);
+            winners,
+            past);
     }
 
     private static string? NextLayout(CareerSession session)

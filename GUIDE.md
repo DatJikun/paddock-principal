@@ -450,6 +450,8 @@ opis: Gra dostraja ryzyko awarii tak, żeby trafić w te odsetki.
 ```wykres mechanicy
 ```
 
+Do każdej rundy wracasz ze strony rundy. Wyniki są w zakładkach: kwalifikacje pokazują pole startowe i czas pole position, wyścig pełną klasyfikację z czasami, a pod spodem są poprzednie wyścigi na tym torze: podium z kolorami zespołów. Z zakładki Klasyfikacje otworzysz przegląd sezonu: w wierszach kierowcy (osobno konstruktorzy), w kolumnach rundy z flagą kraju, w komórce miejsce na mecie albo Ret, kolorem oznaczone podium, punkty i wycofania.
+
 ```pytania
 Czy czujesz, że decyzje przed startem miały wpływ na wynik?
 Czy wyprzedzania jest za dużo, za mało, czy w sam raz?

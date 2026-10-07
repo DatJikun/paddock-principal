@@ -576,6 +576,36 @@ export interface OpenNegotiationCall {
   subject: string;
 }
 
+export interface OverviewCellView {
+  results: OverviewResultView[];
+  round: number;
+}
+
+export interface OverviewResultView {
+  classified: boolean;
+  points: string;
+  position: number;
+  retirementKey: string;
+}
+
+export interface OverviewRoundView {
+  circuitName: string;
+  country: string;
+  finished: boolean;
+  round: number;
+}
+
+export interface OverviewRowView {
+  cells: OverviewCellView[];
+  id: string;
+  name: string;
+  nationality: string;
+  points: string;
+  position: number;
+  teamId: string | null;
+  teamName: string | null;
+}
+
 export interface OwnBoardView {
   forecast: BoardForecastView;
   organizationId: string;
@@ -704,6 +734,20 @@ export interface OwnTeamView {
   cashCents: number | null;
   name: string | null;
   organizationId: string | null;
+}
+
+export interface PastPodiumView {
+  driverName: string;
+  nationality: string;
+  position: number;
+  teamId: string;
+  teamName: string;
+}
+
+export interface PastRaceView {
+  podium: PastPodiumView[];
+  season: number;
+  source: string;
 }
 
 export interface PointsScaleView {
@@ -905,6 +949,14 @@ export interface ScoutFocusCall {
   personHandle: string | null;
 }
 
+export interface SeasonOverviewView {
+  constructors: OverviewRowView[];
+  drivers: OverviewRowView[];
+  hasConstructorTitle: boolean;
+  rounds: OverviewRoundView[];
+  season: number;
+}
+
 export interface SessionView {
   date: string | null;
   managerId: string;
@@ -1038,6 +1090,7 @@ export interface StandingRowView {
   id: string;
   name: string;
   nationality: string;
+  podiums: number;
   points: string;
   position: number;
   teamId: string | null;
@@ -1157,6 +1210,7 @@ export interface TrackView {
   layoutId: string | null;
   lengthKm: number | null;
   name: string | null;
+  past: PastRaceView[];
   points: TrackPointView[];
   races: number;
   retirements: number;
@@ -1209,6 +1263,7 @@ export interface BridgeQueryMap {
   raceResult: { args: RaceResultCall; result: RaceResultView };
   nextRace: { args: ManagerCall; result: NextRaceView };
   track: { args: TrackCall; result: TrackView };
+  seasonOverview: { args: ManagerCall; result: SeasonOverviewView };
   staff: { args: ManagerCall; result: StaffListView };
   market: { args: ManagerCall; result: MarketView };
   driver: { args: DriverCall; result: DriverProfileView };

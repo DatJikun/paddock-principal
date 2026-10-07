@@ -107,13 +107,15 @@ aside .stripes{flex:none;height:40px;margin-top:10px;background:linear-gradient(
 .hud .me b{display:block;font:600 15px var(--ui);line-height:1.15}
 .hud .me small{display:block;font:500 13px var(--ui);color:var(--ink2)}
 .hud .date b{font:900 27px/1 var(--display);text-transform:uppercase;letter-spacing:.005em;white-space:nowrap}
-.hud .next{min-width:250px}
-.ticks{display:flex;gap:3px;align-items:flex-end;height:20px}
+.hud .next{min-width:250px;flex:none}
+.hud .next .meta{white-space:nowrap}
+/* Every day is the same square; the day itself, the weekend and the race are told apart by colour, never by height. */
+.ticks{display:flex;gap:3px;align-items:center;height:14px}
 .ticks i{width:12px;height:12px;border-radius:3px;background:color-mix(in oklab,var(--ink) 11%,transparent)}
-.ticks i.we{height:9px}
-.ticks i.now{height:20px;background:var(--ink)}
-.ticks i.due{height:16px;background:var(--bad)}
-.ticks i.race{width:18px;height:20px;border-radius:3px;box-shadow:0 0 0 1.5px var(--ink);background:conic-gradient(var(--ink) 25%,var(--card) 0 50%,var(--ink) 0 75%,var(--card) 0) 0 0/6px 6px}
+.ticks i.we{background:color-mix(in oklab,var(--ink) 24%,transparent)}
+.ticks i.now{background:var(--ink)}
+.ticks i.due{background:var(--bad)}
+.ticks i.finish{box-shadow:0 0 0 1.5px var(--ink);background:conic-gradient(var(--ink) 25%,var(--card) 0 50%,var(--ink) 0 75%,var(--card) 0) 0 0/6px 6px}
 .spacer{flex:1}
 
 /* przycisk Dalej: jedyny przycisk postępu czasu, wciskany fizycznie */
@@ -325,7 +327,7 @@ a.person:hover b{text-decoration:underline;text-underline-offset:3px}
   .hud .me{padding-right:12px}
   .hud .date b{font-size:23px}
   .hud .next{min-width:0}
-  .ticks i{width:9px}.ticks i.race{width:14px}
+  .ticks i{width:9px}
   .go{padding:0 12px 0 18px}.go b{font-size:24px}
 }
 button.mail{appearance:none;width:100%;text-align:left;background:transparent;border:0;color:inherit;font:inherit;cursor:pointer}
@@ -460,12 +462,12 @@ button.rnd:focus-visible{outline:2.5px solid var(--hi);outline-offset:3px}
 .fields.hdr .fld{padding:0 14px}
 
 /* ---------- Klasyfikacje ---------- */
-.stand-grid{display:grid;grid-template-columns:minmax(0,640px) minmax(0,480px);gap:22px;align-items:start}
+.stand-grid{display:grid;grid-template-columns:minmax(0,780px) minmax(0,440px);gap:22px;align-items:start}
 .stand-grid.one{grid-template-columns:minmax(0,520px)}
 .scoring{display:grid;gap:14px}
 .scoring .pts{display:flex;border:1.5px solid var(--ink);border-radius:12px;overflow:hidden;width:max-content}
 .scoring .pts div{display:grid;justify-items:center;gap:1px;padding:8px 16px;border-left:1px solid var(--rule)}
-.scoring .pts div:first-child{border-left:0;background:var(--t2)}
+.scoring .pts div:first-child{border-left:0;background:color-mix(in oklab,var(--t1) 16%,var(--card))}
 .scoring .pts b{font:900 26px/1 var(--display)}
 @media (max-width:1560px){
   .dash{grid-template-columns:320px minmax(0,1fr) 290px;gap:18px}

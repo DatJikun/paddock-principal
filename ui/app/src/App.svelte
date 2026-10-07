@@ -544,7 +544,7 @@
     for (let day = 0; day <= raceDays; day++) {
       const date = addDays(shell.date, day) ?? '';
       const weekday = weekdayIndex(date);
-      const cls = day === 0 ? 'now' : day === raceDays ? 'race' : weekday === 5 || weekday === 6 ? 'we' : '';
+      const cls = day === 0 ? 'now' : day === raceDays ? 'finish' : weekday === 5 || weekday === 6 ? 'we' : '';
       list.push({ cls, date });
     }
     return list;

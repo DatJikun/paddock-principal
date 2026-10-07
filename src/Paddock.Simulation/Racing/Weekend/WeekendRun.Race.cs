@@ -133,6 +133,10 @@ internal sealed partial class WeekendRun
             {
                 Consult(start[i], i, start, lap);
             }
+
+            // The team's own orders come after the strategist, so they win (#286).
+            ApplyOrders(start[i], i, start, lap, consult);
+            RecordPitWall(start[i], lap);
         }
 
         // Failures arrive from the Failures stream (sampled once per car); fuel runs out.
@@ -374,6 +378,79 @@ internal sealed partial class WeekendRun
 
         car.Pit = new PendingPit(compound, refuel, swap);
     }
+
+    // ---- Orders from the pit wall (#286) -------------------------------------------------------------------
+
+    private readonly List<PitWallLap> _pitWall = [];
+
+    private void ApplyOrders(Car car, int index, Car[] start, int lap, bool consulted)
+    {
+        foreach (var order in _in.Orders)
+        {
+            if (order.Lap != lap || !string.Equals(order.CarId, car.TapeId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            switch (order.Kind)
+            {
+                case PitWallOrderKind.Pace:
+                    car.ManualPace = order.Pace;
+                    break;
+                case PitWallOrderKind.Auto:
+                    car.ManualPace = null;
+                    if (!consulted)
+                    {
+                        // Handed back between two consultations: the strategist decides the pace now, not a few laps later.
+                        var pit = car.Pit;
+                        Consult(car, index, start, lap);
+                        car.Pit ??= pit;
+                    }
+
+                    break;
+                case PitWallOrderKind.Pit:
+                    car.Pit = OrderedStop(car, order, lap) ?? car.Pit;
+                    break;
+            }
+        }
+
+        if (car.ManualPace is { } pace)
+        {
+            car.Mode = pace;
+        }
+    }
+
+    // A stop the pit wall calls: the tyres it asks for, and where refuelling is allowed the fuel to reach the flag.
+    private PendingPit? OrderedStop(Car car, PitWallOrder order, int lap)
+    {
+        if (lap >= _in.TotalLaps)
+        {
+            return null;
+        }
+
+        var compound = order.CompoundId is { } id && _pitRules.TyreChangeAllowed && car.Compounds.ContainsKey(id) ? id : null;
+        var refuel = 0d;
+        if (_pitRules.RefuellingAllowed)
+        {
+            var target = car.Burn * (_in.TotalLaps - lap) * (1 + PitConstants.RefuelSafetyMargin);
+            refuel = Math.Max(0d, target - Math.Max(0d, car.Fuel - car.Burn));
+        }
+
+        return compound is null && refuel <= 0d ? null : new PendingPit(compound, refuel, false);
+    }
+
+    private void RecordPitWall(Car car, int lap) =>
+        _pitWall.Add(new PitWallLap(
+            car.TapeId,
+            lap,
+            Ms(car.Cum),
+            car.Tyre.Compound.Id,
+            car.Tyre.AgeLaps,
+            car.Fuel,
+            car.Burn,
+            car.Mode,
+            car.ManualPace is not null,
+            TyreFeelBands.Of(car.Tyre)));
 
     // ---- Failures and lap times ---------------------------------------------------------------------------
 

@@ -1,4 +1,5 @@
 using Paddock.Domain.Racing;
+using Paddock.Simulation.Racing.Pace;
 
 namespace Paddock.Simulation.Racing;
 
@@ -26,7 +27,11 @@ public static class LapFrameInterpolator
     /// <summary>ESTIMATE: closest two racing-line samples may be.</summary>
     public const double MinSeparationM = 1;
 
-    public static RaceTape Attach(RaceTape tape, double lapLengthM, double sampleSeconds = DefaultSampleSeconds)
+    /// <summary>
+    /// Frames for <paramref name="tape"/>. With a <paramref name="shape"/> (#286) each car brakes for the corners and runs fast on
+    /// the straights inside every lap; the lap still starts and ends when the tape says. Without one it moves at an even speed.
+    /// </summary>
+    public static RaceTape Attach(RaceTape tape, double lapLengthM, double sampleSeconds = DefaultSampleSeconds, LapSpeedShape? shape = null)
     {
         ArgumentNullException.ThrowIfNull(tape);
         if (lapLengthM <= 0 || double.IsNaN(lapLengthM) || double.IsInfinity(lapLengthM))
@@ -46,7 +51,7 @@ public static class LapFrameInterpolator
 
         var cars = BuildPaths(tape, started, lapLengthM);
         ApplySafetyCars(tape, cars);
-        var frames = Sample(cars, tape.Events[^1].RaceTime, sampleSeconds);
+        var frames = Sample(cars, tape.Events[^1].RaceTime, sampleSeconds, lapLengthM, shape);
         return tape.WithFrames(frames, FrameAccuracy.Approximate);
     }
 
@@ -288,7 +293,7 @@ public static class LapFrameInterpolator
         car.Pieces.AddRange(next);
     }
 
-    private static List<CarFrame> Sample(List<CarPath> cars, long endMs, double sampleSeconds)
+    private static List<CarFrame> Sample(List<CarPath> cars, long endMs, double sampleSeconds, double lapLengthM, LapSpeedShape? shape)
     {
         var step = Math.Max(1L, (long)Math.Round(sampleSeconds * 1000d, MidpointRounding.AwayFromZero));
         var times = new List<long>();
@@ -320,7 +325,7 @@ public static class LapFrameInterpolator
                     continue;
                 }
 
-                var at = At(car, time);
+                var at = Shaped(At(car, time), lapLengthM, shape);
                 if (at.Distance < previous[i])
                 {
                     at = at with { Distance = previous[i], Speed = 0 };
@@ -359,6 +364,24 @@ public static class LapFrameInterpolator
             var index = row.FindIndex(p => p.Index == behind.Index);
             row[index] = line[i];
         }
+    }
+
+    // The even run through a lap, bent by the shape: the share of the lap's time gone becomes a share of its distance.
+    private static AtSample Shaped(AtSample at, double lapLengthM, LapSpeedShape? shape)
+    {
+        if (shape is null || at.Pit || at.Distance <= 0)
+        {
+            return at;
+        }
+
+        var lap = Math.Floor(at.Distance / lapLengthM);
+        var share = (at.Distance - (lap * lapLengthM)) / lapLengthM;
+        var distanceShare = shape.DistanceShareAt(share);
+        return at with
+        {
+            Distance = (lap + distanceShare) * lapLengthM,
+            Speed = at.Speed * shape.SpeedRatioAt(distanceShare),
+        };
     }
 
     private static AtSample At(CarPath car, long time)

@@ -121,7 +121,10 @@ internal sealed partial class WeekendRun
             [.. counted],
             [.. _neutralisations],
             _in.TotalLaps,
-            endLap);
+            endLap)
+        {
+            PitWall = [.. _pitWall],
+        };
     }
 
     private static ImmutableArray<PersonRaceOutcome> BuildPersonOutcomes(List<Outcome> ordered, ImmutableArray<CarRaceResult> results)

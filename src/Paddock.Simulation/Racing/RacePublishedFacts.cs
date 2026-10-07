@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Paddock.Domain.Racing;
 using Paddock.Simulation.Racing.Incidents;
+using Paddock.Simulation.Racing.Pits;
 using Paddock.Simulation.Racing.Points;
 using Paddock.Simulation.Racing.Qualifying;
 using Paddock.Simulation.Racing.Weather;
@@ -25,6 +26,9 @@ public sealed record RacePublishedFacts(
     int ScheduledLaps,
     int LapsRun)
 {
+    /// <summary>What each pit wall knew about its own car at the start of every lap (#286); a read for a team keeps its own cars.</summary>
+    public ImmutableArray<PitWallLap> PitWall { get; init; } = [];
+
     public static RacePublishedFacts From(RaceWeekendResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -38,6 +42,9 @@ public sealed record RacePublishedFacts(
             result.PitStops,
             result.Neutralisations,
             result.ScheduledLaps,
-            result.LapsRun);
+            result.LapsRun)
+        {
+            PitWall = result.PitWall,
+        };
     }
 }

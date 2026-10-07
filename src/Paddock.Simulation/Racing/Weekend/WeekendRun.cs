@@ -323,6 +323,9 @@ internal sealed partial class WeekendRun
 
         public PaceMode Mode { get; set; } = PaceMode.Standard;
 
+        /// <summary>The pace the pit wall ordered (#286); null while the strategist decides.</summary>
+        public PaceMode? ManualPace { get; set; }
+
         public int DriverIndex { get; set; }
 
         public int StintLaps { get; set; }

@@ -112,6 +112,12 @@ public sealed record RaceWeekendInput
 
     /// <summary>How often a team consults its strategist, in laps; see <see cref="WeekendConstants.StrategistCadenceLaps"/>.</summary>
     public int StrategistCadenceLaps { get; init; } = WeekendConstants.StrategistCadenceLaps;
+
+    /// <summary>
+    /// Orders from the pit walls during the race (#286), in the order they were given. Empty for a race nobody steers: the
+    /// strategists alone decide, as before.
+    /// </summary>
+    public ImmutableArray<PitWallOrder> Orders { get; init; } = [];
 }
 
 /// <summary>

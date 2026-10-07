@@ -388,6 +388,13 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 
 **Automatyczny, sterowany przez sztab (zostaje ze starej dokumentacji, PP-029).** Nie ma magazynu pojedynczych części ani mikrozarządzania: zatrudniasz stratega, a on steruje postojami i tempem. Gra jest modularna, więc chętni mogą włączyć moduły ręcznej kontroli (np. ręczne pit-stopy i polecenia tempa w wyścigu). To ustawienie kariery, a nie wymóg. Gracz przygotowuje zespół, a strategię w wyścigu realizują jego ludzie. Jakość ich decyzji zależy od ich umiejętności. Race Spy wyjaśnia każdą decyzję.
 
+**Polecenia z boksu (PP-066, wersja testowa).** Wzorem są Motorsport Manager i F1 Manager: w obu gracz w trakcie wyścigu zmienia tryb jazdy kierowcy, zamawia postój z wyborem opon, słyszy kierowcę w radiu (opony, paliwo) i przyspiesza albo zatrzymuje czas, a pod ręką ma dane własnych aut. U nas na początek:
+- **Tempo:** Oszczędzaj, Normalnie, Atak. To te same tryby, których używa strateg, z tym samym kosztem: atak jest szybszy, ale zjada opony i paliwo, oszczędzanie odwrotnie (PP-058). „Strateg” oddaje mu auto.
+- **Zjazd:** wybór opon, potem osobne „Potwierdź zjazd”. Auto zjeżdża na końcu okrążenia albo okrążenie później, gdy minęło już wjazd do boksu. Zjazd można odwołać.
+- **Dane w boksie:** paliwo w okrążeniach przy obecnym tempie, czucie opon kierowcy (dobre, zużyte, koniec), postoje. Tylko własne auta (INV-003).
+- **Więcej do oglądania:** radio kierowcy i potwierdzenia poleceń, kropka walki o pozycję w klasyfikacji, komunikaty o flagach, deszczu i własnych autach, auto-pauza przy nich, a kropki na mapie zwalniają w zakrętach.
+- **Brakuje jeszcze:** osobnego trybu silnika i paliwa, poleceń między kierowcami zespołu, zjazdu pod samochód bezpieczeństwa jednym kliknięciem i poleceń w karierze (tam wynik jest zapisany przed oglądaniem).
+
 **Czas okrążenia składa się z warstw:** baza toru, dopasowanie samochodu, kierowca, paliwo, opony, ruch i brudne powietrze, pogoda, szum losowy. **Każda warstwa jest parametryzowana epoką:**
 - **lata 50.:** jedna mieszanka opon, rzadkie postoje, awaryjność decyduje o połowie wyników, zmiana kierowcy w trakcie wyścigu;
 - **era tankowania:** strategia paliwowa;

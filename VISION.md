@@ -393,3 +393,10 @@ Szczegóły w DESIGN §5.3.
 - **Zespoły nie walczą o tych samych sponsorów.** Żaden sponsor nie jest wspólny, więc umowa AI nigdy nie odbiera ani nie blokuje oferty gracza, a rywal nie podpisuje sponsora sprzed nosa. Sponsorzy z nazwy (z pliku autorskiego) są dostępni dla zespołu gracza co sezon.
 - **Wspólny rynek sponsorów, z konkurencją, wejdzie później.** Liczby (ile propozycji na miejsce) to szacunek.
 - **Zostaje:** oferta przedłużenia jest decyzją w skrzynce, wiadomość 60 dni przed końcem umowy, AI nie dostaje powiadomień.
+
+**PP-066: Polecenia z boksu w trakcie oglądanego wyścigu, na razie w szybkim wyścigu** (wersja testowa na prośbę właściciela z 2026-10-07, do dalszej analizy; doprecyzowuje PP-029, PP-052 i PP-064).
+- **W trakcie wyścigu gracz może przejąć auto od stratega:** ustawić tempo kierowcy (oszczędzanie, normalne, atak), zamówić zjazd z wyborem opon i go odwołać. Domyślnie nadal wszystko robi strateg (PP-029), a gracz może mu auto oddać.
+- **Na razie tylko w szybkim wyścigu,** bo tam wynik nie jest zapisany przed oglądaniem. W karierze wyścig nadal liczy się w całości w dniu wyścigu (PP-064), a boks pokazuje dane aut bez poleceń. Polecenia w karierze wymagają, żeby dzień wyścigu czekał na oglądanie; to osobna decyzja.
+- **Polecenie nie zmienia tego, co gracz już widział.** Wyścig liczy się od nowa z tymi samymi losami i działa tylko na dalszą część.
+- **Ekran wyścigu ma dawać coś do roboty i do oglądania:** radio kierowcy, dane własnych aut, walki o pozycję, komunikaty i auto-pauza. Kropki zwalniają w zakrętach (tylko wyświetlanie; czas okrążenia jak dotąd).
+- **Koszty tempa i progi radia to szacunek** do kalibracji.

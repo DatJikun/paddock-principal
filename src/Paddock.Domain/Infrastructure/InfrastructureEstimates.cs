@@ -91,14 +91,20 @@ public static class InfrastructureEstimates
     /// <summary>ESTIMATE: private tests allowed when the rules name one nominated test.</summary>
     public const int TestsNominated = 1;
 
-    /// <summary>ESTIMATE: share of typical budget a same-country lorry trip costs, on top of the uniform race-running share.</summary>
-    public const double LogisticsHomeShare = 0.0004;
+    /// <summary>
+    /// ESTIMATE (#268): share of typical budget a same-country lorry trip costs, on top of the uniform race-running share. Was 0.0004, which
+    /// made the first round of 1955 cost the team 210 dollars. A trip should be a line you notice next to the cost of the weekend itself
+    /// (<see cref="Paddock.Domain.Finance.FinanceEstimates.RaceRunningShare"/> spread over the rounds of a season, about 2 percent of the
+    /// budget a round in 1955): a home hop is a small part of it, a lorry across Europe about a third to a half, and a ship to another
+    /// continent more than the whole weekend.
+    /// </summary>
+    public const double LogisticsHomeShare = 0.003;
 
-    /// <summary>ESTIMATE: share of typical budget a same-continent lorry trip costs.</summary>
-    public const double LogisticsLorryShare = 0.0012;
+    /// <summary>ESTIMATE (#268): share of typical budget a same-continent lorry trip costs. Was 0.0012.</summary>
+    public const double LogisticsLorryShare = 0.008;
 
-    /// <summary>ESTIMATE: share of typical budget an overseas ship trip costs (Argentina in the 1950s).</summary>
-    public const double LogisticsShipShare = 0.0035;
+    /// <summary>ESTIMATE (#268): share of typical budget an overseas ship trip costs (Argentina in the 1950s). Was 0.0035.</summary>
+    public const double LogisticsShipShare = 0.025;
 
     /// <summary>ESTIMATE: days a same-country lorry hop takes.</summary>
     public const int LogisticsHomeDays = 1;

@@ -151,5 +151,66 @@ public static class InfrastructureMath
         return DevelopmentEstimates.Quantize(scale);
     }
 
+    /// <summary>
+    /// What a facility gives at a relative quality, in the plain terms the game uses (#268). Every number comes from the same functions the
+    /// development reads (<see cref="ExecutionQualityScale"/>, <see cref="DurationScale"/>, <see cref="UnderstandingScale"/>), so the screen
+    /// can never say something the car does not do. A factory scales how well parts are made, how fast projects finish and how fast the team learns
+    /// the car; the wind tunnel and CFD add to how well parts are made; the simulator adds to how fast the team learns. A facility that is not
+    /// built gives its value at relative zero.
+    /// </summary>
+    public static IReadOnlyList<FacilityEffect> Effects(FacilityKind kind, double relative, double relativeAfterUpgrade)
+    {
+        switch (kind)
+        {
+            case FacilityKind.Factory:
+                return
+                [
+                    Scale(FacilityEffectKeys.Execution, relative, relativeAfterUpgrade, value => ExecutionQualityScale(value, 0d, 0d)),
+                    Scale(FacilityEffectKeys.Duration, relative, relativeAfterUpgrade, DurationScale),
+                    Scale(FacilityEffectKeys.Understanding, relative, relativeAfterUpgrade, value => UnderstandingScale(value, 0d)),
+                ];
+            case FacilityKind.WindTunnel:
+                return [Bonus(FacilityEffectKeys.Execution, relative, relativeAfterUpgrade, InfrastructureEstimates.ExecutionTunnelSpan)];
+            case FacilityKind.Cfd:
+                return [Bonus(FacilityEffectKeys.Execution, relative, relativeAfterUpgrade, InfrastructureEstimates.ExecutionCfdSpan)];
+            case FacilityKind.Simulator:
+                return [Bonus(FacilityEffectKeys.Understanding, relative, relativeAfterUpgrade, InfrastructureEstimates.UnderstandingSimulatorSpan)];
+            default:
+                throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown facility kind.");
+        }
+    }
+
+    private static FacilityEffect Scale(string key, double relative, double after, Func<double, double> at) =>
+        new(key, FacilityEffectMode.Scale, at(Clamp01(relative)), at(Clamp01(after)), at(0d), at(1d));
+
+    private static FacilityEffect Bonus(string key, double relative, double after, double span) =>
+        new(key, FacilityEffectMode.Bonus, DevelopmentEstimates.Quantize(span * Clamp01(relative)), DevelopmentEstimates.Quantize(span * Clamp01(after)), 0d, span);
+
     private static double Clamp01(double value) => Math.Clamp(value, 0d, 1d);
 }
+
+/// <summary>Stable keys of what a facility changes. The screen names them in plain words.</summary>
+public static class FacilityEffectKeys
+{
+    /// <summary>How well the parts the team plans are made (a multiplier on the engineers' quality).</summary>
+    public const string Execution = "execution";
+
+    /// <summary>How long a project takes (a multiplier on its duration; lower is faster).</summary>
+    public const string Duration = "duration";
+
+    /// <summary>How fast the team learns the car (a multiplier on its daily growth).</summary>
+    public const string Understanding = "understanding";
+}
+
+/// <summary>A <see cref="FacilityEffect"/> is a multiplier of a baseline (<see cref="Scale"/>) or a share added to it (<see cref="Bonus"/>).</summary>
+public enum FacilityEffectMode
+{
+    Scale = 0,
+    Bonus = 1,
+}
+
+/// <summary>
+/// One thing a facility changes: its value now, after the next upgrade, with no facility at all and at the state of the art. For a scale 1.0 is the
+/// baseline; for a bonus 0 is nothing and the value is a share (0.08 is 8 percent).
+/// </summary>
+public sealed record FacilityEffect(string Key, FacilityEffectMode Mode, double Now, double AfterUpgrade, double AtZero, double AtFull);

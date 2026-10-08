@@ -498,15 +498,15 @@ Jak się dogadać z rywalami | nie ma lobbingu; skłonności zespołów AI widzi
 ```
 
 ```kroki
-Luty–kwiecień | okno zgłoszeń: zespoły płacą za propozycje; propozycje na ten sam przepis scalają się w jedno głosowanie z wariantami
-Maj | głosowanie nad propozycjami zespołów, otwarte {RegulationEstimates.VotingDays|dni}
-Czerwiec–wrzesień | FIA ogłasza swoje głosowania, od {RegulationEstimates.FiaVotesMin} do {RegulationEstimates.FiaVotesMax} w roku, każde otwarte {RegulationEstimates.VotingDays|dni}
-Termin | kto nie zagłosował, wstrzymał się; wynik z powodem trafia do skrzynki
+Od pierwszego dnia sezonu | okno zgłoszeń: zespoły płacą za propozycje; propozycje na ten sam przepis scalają się w jedno głosowanie z wariantami
+Przerwy między wyścigami | głosowania są rozłożone równo przez cały sezon, każde w przerwie między dwoma weekendami wyścigowymi: od dnia po wyścigu do dnia przed następnym weekendem; w roku jest od {RegulationEstimates.FiaVotesMin} do {RegulationEstimates.FiaVotesMax} głosowań FIA i jedno nad propozycjami zespołów, mniej więcej w środku sezonu
+Dzień przed głosowaniem zespołów | okno zgłoszeń się zamyka; następnego dnia propozycje stają się głosowaniem
+Termin | głosowanie jest liczone przed następnym weekendem wyścigowym, nigdy w jego trakcie; kto nie zagłosował, wstrzymał się; wynik z powodem trafia do skrzynki
 Pierwszy wyścig kolejnego sezonu | przyjęta zmiana zaczyna działać; sezon, w którym głosowano, jedzie po staremu
 ```
 
 ```pola
-Bank głosów | wstrzymanie się odkłada jeden głos; bank mieści do {RegulationEstimates.BankCap} głosów | na jedno głosowanie wydasz do {RegulationEstimates.MaxSpendPerItem}; bank nie spada poniżej zera
+Bank głosów | wstrzymanie się odkłada jeden głos; bank nie ma limitu | na jedno głosowanie wydasz tyle, ile masz wolnych głosów, bez limitu na pozycję; bank nie spada poniżej zera
 Remis | rozstrzyga prezydent FIA | tylko wtedy; przy wyraźnej przewadze jego głos nic nie zmienia
 Opłata za propozycję | {RegulationEstimates.FeeRevenueShare|%} przychodu z ostatniego zakończonego sezonu | nie zależy od gotówki, więc czekanie na gorszy moment nic nie daje; nie wraca, także gdy propozycja przepadnie
 Dolna granica opłaty | {RegulationEstimates.FeeFloorShareOfTypicalBudget|%} typowego budżetu epoki | opłata nigdy nie jest zerem
@@ -519,18 +519,19 @@ Kalendarz | można skreślić wyścig, dodać wyścig albo zmienić układ toru 
 ```porownanie Jeden głos na zespół | Bank głosów
 Wstrzymanie się | głos przepada | głos trafia do Twojego banku
 Ważna sprawa | masz jeden głos jak zawsze | możesz dołożyć zbankowane głosy
-Ryzyko | niczego nie oszczędzasz | pełny bank nie przyjmie kolejnego wstrzymania
+Ryzyko | niczego nie oszczędzasz | odłożone głosy nie wygasają, ale nie pomogą w głosowaniu, które właśnie mija; zespoły AI też wydają swoje banki, więc nie czekaj w nieskończoność
 ```
 
 ```wybory
 Co możesz zmienić głosowaniem | punktację (tabela, punkt za najszybsze okrążenie, podwójne punkty w finale, ile wyników się liczy, punkty konstruktorów), format kwalifikacji, samochód bezpieczeństwa, tankowanie, dystans wyścigu i kalendarz
+Czego nigdy nie da się zmienić | zasad i mechanik z listy zakazanych swojej serii: to stały rdzeń mistrzostw, FIA i zespoły AI ich nie proponują, a Twoja próba kończy się odmową z powodem; na razie na liście każdej serii są ładowanie odzysku energii zależne od pozycji oraz premie pieniężne dla ostatniego i dla awansującego zespołu (zostają w katalogu jako możliwe kiedyś, ale nie działają)
 Czego jeszcze nie da się zmienić | czerwone flagi, odwróconej kolejności startowej, sprintów, długości sesji, opon, pit-stopów, DRS i ERS, części typowych ani podziału nagród; silnik wyścigu jeszcze tego nie symuluje
 ```
 
 ```pola
 Skłonność zespołu | tradycjonalista, postępowiec, egalitarysta albo showman | stała; do własnego interesu dokłada głos AI
 Jak głosuje AI | według własnego interesu i skłonności | zna tylko publiczną tabelę, swoje finanse i własny kraj, nigdy ukrytych wartości ani przyszłości
-Kiedy AI składa propozycję | gdy spodziewa się zysku większego niż opłata, zadłużenie i trzy sezony karencji | zadłużony zespół nie wyda opłaty na przepis
+Kiedy AI składa propozycję | gdy spodziewa się zysku większego niż opłata, zadłużenie i trzy sezony karencji | zadłużony zespół nie wyda opłaty na przepis, a zakazanej zasady nie proponuje nigdy
 Powód wyniku | zawsze zapisany | widzisz, kto jak głosował i dlaczego
 ```
 

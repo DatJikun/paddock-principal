@@ -89,7 +89,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
 - [ ] W toku: T43 dostawy i silniki (#108): umowy dostaw bez własnego programu silnikowego, ten czeka na T42 (`IEngineProgrammes`).
 - [ ] Reszta otwarta: T42, T44, T47, T48 (`scenario phase4-1955`, #113).
-- [ ] Głosowanie nad przepisami v2 (#275, PP-066): trzy tryby, zmiany od następnego sezonu, kalendarz, propozycje zespołów z opłatą i karencją, głosowania FIA, bank głosów. Backend w PR; interfejs czeka na #273, a wymiary przepisów, których silnik jeszcze nie symuluje, mają osobne zadania.
+- [ ] Głosowanie nad przepisami v2 (#275, PP-066): trzy tryby, zmiany od następnego sezonu, kalendarz, propozycje zespołów z opłatą (20% przychodu) i karencją, głosowania FIA rozłożone równo między weekendami wyścigowymi, bank głosów bez limitu, lista zasad zakazanych dla głosowania w każdej serii. Backend w PR; interfejs czeka na #273, a wymiary przepisów, których silnik jeszcze nie symuluje, mają osobne zadania.
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 

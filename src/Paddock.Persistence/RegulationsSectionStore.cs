@@ -24,6 +24,8 @@ public sealed class RegulationsSectionStore : ISectionStore
         "regulation_item_args",
         "regulation_items",
         "regulation_pending",
+        "regulation_schedule_slots",
+        "regulation_schedule",
         "regulation_teams",
         "regulation_series_rejected",
         "regulation_series_values",
@@ -125,6 +127,31 @@ public sealed class RegulationsSectionStore : ISectionStore
                 ("$leaning", team.Leaning.ToString()),
                 ("$from", team.ProposeFromSeason),
                 ("$bank", team.Bank));
+        }
+
+        if (series.Schedule is { } schedule)
+        {
+            Run(
+                connection,
+                transaction,
+                "INSERT INTO regulation_schedule (series_id, season, proposals_open, proposals_close) VALUES ($id, $season, $open, $close)",
+                ("$id", id),
+                ("$season", schedule.Season),
+                ("$open", schedule.ProposalsOpen.ToString()),
+                ("$close", schedule.ProposalsClose.ToString()));
+            for (var index = 0; index < schedule.Slots.Count; index++)
+            {
+                var slot = schedule.Slots[index];
+                Run(
+                    connection,
+                    transaction,
+                    "INSERT INTO regulation_schedule_slots (series_id, slot_index, kind, opens, closes) VALUES ($id, $index, $kind, $opens, $closes)",
+                    ("$id", id),
+                    ("$index", index),
+                    ("$kind", slot.Kind.ToString()),
+                    ("$opens", slot.Opens.ToString()),
+                    ("$closes", slot.Closes.ToString()));
+            }
         }
 
         foreach (var pending in series.Pending)
@@ -329,7 +356,10 @@ public sealed class RegulationsSectionStore : ISectionStore
                 ReadItems(connection, id),
                 header.Agenda,
                 header.Slots,
-                header.TeamBallot));
+                header.TeamBallot)
+            {
+                Schedule = ReadSchedule(connection, id),
+            });
         }
 
         if (series.Count == 0)
@@ -369,6 +399,41 @@ public sealed class RegulationsSectionStore : ISectionStore
         }
 
         return list;
+    }
+
+    private static PoliticalSchedule? ReadSchedule(SqliteConnection connection, string seriesId)
+    {
+        int season;
+        GameDate open;
+        GameDate close;
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT season, proposals_open, proposals_close FROM regulation_schedule WHERE series_id = $id";
+            command.Parameters.AddWithValue("$id", seriesId);
+            using var reader = command.ExecuteReader();
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            season = reader.GetInt32(0);
+            open = ParseDate(reader.GetString(1));
+            close = ParseDate(reader.GetString(2));
+        }
+
+        var slots = new List<BallotSlot>();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT kind, opens, closes FROM regulation_schedule_slots WHERE series_id = $id ORDER BY slot_index";
+            command.Parameters.AddWithValue("$id", seriesId);
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                slots.Add(new BallotSlot(ParseEnum<BallotSlotKind>(reader.GetString(0)), ParseDate(reader.GetString(1)), ParseDate(reader.GetString(2))));
+            }
+        }
+
+        return new PoliticalSchedule(season, open, close, slots);
     }
 
     private static List<TeamPolitics> ReadTeams(SqliteConnection connection, string seriesId)

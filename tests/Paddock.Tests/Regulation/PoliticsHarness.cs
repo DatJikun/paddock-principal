@@ -1,6 +1,7 @@
 using Paddock.Application.Contracts;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
+using Paddock.Application.Racing;
 using Paddock.Application.Regulation;
 using Paddock.Data.Authored;
 using Paddock.Domain.Career;
@@ -54,6 +55,15 @@ internal sealed record HarnessOptions
     public Func<int, long>? Capital { get; init; }
 
     public IReadOnlyDictionary<string, string>? TeamCountries { get; init; }
+
+    /// <summary>The rules that can never be voted on. Null bans nothing.</summary>
+    public BannedRules? BannedRules { get; init; }
+
+    /// <summary>Real race dates, so the weekends of a laid out season are the ones the host would plan. Null means even spacing.</summary>
+    public RaceDateBook? RaceDates { get; init; }
+
+    /// <summary>Lays the seasons out in the <c>race-calendar</c> section the way a career does on 31 December, so the political year reads a stored plan.</summary>
+    public bool StoreCalendar { get; init; }
 }
 
 /// <summary>
@@ -65,6 +75,7 @@ internal sealed class PoliticsHarness
     public const string Series = SeriesIds.WorldChampionship;
 
     private WorldState _world;
+    private bool _storeCalendar;
 
     private PoliticsHarness(WorldState world, RegulationPolitics politics, RegulationEnvironment environment, IReadOnlyList<string> teams, InboxBook? inbox, ManagerRegistry managers)
     {
@@ -155,16 +166,24 @@ internal sealed class PoliticsHarness
             control,
             managers,
             options.Directory ?? new SingleSeriesDirectory(),
-            options.WithCalendar ? data.Layouts : null,
-            options.WithCalendar ? data.RaceAssignments : null,
+            options.WithCalendar || options.StoreCalendar ? data.Layouts : null,
+            options.WithCalendar || options.StoreCalendar ? data.RaceAssignments : null,
             options.TeamCountries,
-            humanOrganizations);
+            humanOrganizations,
+            options.RaceDates,
+            options.BannedRules);
 
         PoliticsHarness? self = null;
         var book = new RegulationBook(() => self!._world, next => self!._world = next);
         var politics = new RegulationPolitics(book, environment, inbox);
         self = new PoliticsHarness(world, politics, environment, teams, inbox, managers) { Today = opening };
         self._world = self._world.WithSection(politics.Open(self._world, opening));
+        self._storeCalendar = options.StoreCalendar;
+        if (options.StoreCalendar)
+        {
+            self.LayOut(options.StartYear);
+        }
+
         return self;
     }
 
@@ -174,9 +193,28 @@ internal sealed class PoliticsHarness
         while (Today < to)
         {
             Today = Today.AddDays(1);
+            if (_storeCalendar && Today.IsSeasonEnd)
+            {
+                LayOut(Today.Year + 1);
+            }
+
             Politics.OnDay(Today);
         }
     }
+
+    /// <summary>Stores the plan of a season the way the career does when it schedules the season (with the calendar policy voted so far).</summary>
+    public void LayOut(int season) =>
+        _world = SeasonPlans.Ensure(_world, season, Data.Layouts, Data.RaceAssignments, Environment.RaceDates).World;
+
+    /// <summary>The stored political year of a series (after the first day of the season has been lived).</summary>
+    public PoliticalSchedule ScheduleOf(string seriesId = Series) =>
+        Of(seriesId).Schedule ?? throw new InvalidOperationException("The first day of the season has not been lived yet.");
+
+    /// <summary>Lives up to the day the teams' ballot opens: the proposals of the season have become ballot items.</summary>
+    public void LiveToTeamBallot(string seriesId = Series) => LiveTo(ScheduleOf(seriesId).TeamsSlot!.Opens);
+
+    /// <summary>Lives up to the day the FIA's <paramref name="index"/>-th vote of the season opens.</summary>
+    public void LiveToFia(int index = 0, string seriesId = Series) => LiveTo(ScheduleOf(seriesId).FiaSlots[index].Opens);
 
     /// <summary>Lives the first day too (the opening morning is a day of its own).</summary>
     public void LiveFrom(GameDate first, GameDate to)

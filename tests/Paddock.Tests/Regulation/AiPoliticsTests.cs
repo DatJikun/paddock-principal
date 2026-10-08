@@ -92,7 +92,7 @@ public class AiPoliticsTests
         return new RuleOption("qualifying_format", "a", "b", new ValueTraits(Show: (wantedUtility - baseline) / RegulationEstimates.GimmickyWeight), 0);
     }
 
-    private static AiProposalDecision Consider(double wantedGain, long cash, long fee = 6_000_000, long revenue = 100_000_000)
+    private static AiProposalDecision Consider(double wantedGain, long cash, long fee = 20_000_000, long revenue = 100_000_000)
     {
         var option = OptionWorth(wantedGain);
         var decision = AiPolitics.Consider(new AiProposalInputs(Middle, PoliticalLeaning.Gimmicky, fee, cash, revenue, [option]));
@@ -170,7 +170,7 @@ public class AiPoliticsTests
     }
 
     [Fact]
-    public void WithAVoteBankAnAiTeamBanksALowStakeVoteAndSpendsOnAHighStakeOneUpToTheBalance()
+    public void WithAVoteBankAnAiTeamBanksALowStakeVoteWhateverItsBankAndSpendsOnAHighStakeOneUpToTheBalance()
     {
         var trivial = OptionWorth(0.05);
         var banked = VoteOf(PoliticalLeaning.Gimmicky, trivial, VoteMode.VoteBank, bank: 0, team: Middle);
@@ -178,19 +178,54 @@ public class AiPoliticsTests
         Assert.True(banked.Banked);
         Assert.Equal(VoteInterest.ReasonBanked, banked.ReasonKey);
 
-        var full = VoteOf(PoliticalLeaning.Gimmicky, trivial, VoteMode.VoteBank, bank: RegulationEstimates.BankCap);
-        Assert.NotEqual(BallotOptions.Abstain, full.Option);
-        Assert.False(full.Banked);
+        // The bank has no limit, so a full-looking bank does not stop an abstention (the old cap of five is gone).
+        var large = VoteOf(PoliticalLeaning.Gimmicky, trivial, VoteMode.VoteBank, bank: 500, team: Middle);
+        Assert.Equal(BallotOptions.Abstain, large.Option);
+        Assert.True(large.Banked);
+        Assert.Equal(0, large.Spent);
 
         var big = OptionWorth(1.2);
         var spends = VoteOf(PoliticalLeaning.Gimmicky, big, VoteMode.VoteBank, bank: 2);
         Assert.Equal("v1", spends.Option);
-        Assert.Equal(2, spends.Spent); // capped by the balance
-        var plenty = VoteOf(PoliticalLeaning.Gimmicky, big, VoteMode.VoteBank, bank: 5);
-        Assert.Equal(RegulationEstimates.MaxSpendPerItem, plenty.Spent); // and by the most one item takes
+        Assert.Equal(AiPolitics.SpendFor(spends.Stake, 2), spends.Spent);
+        Assert.InRange(spends.Spent, 1, 2); // capped by the balance
+        var plenty = VoteOf(PoliticalLeaning.Gimmicky, big, VoteMode.VoteBank, bank: 40);
+        Assert.True(plenty.Spent > RegulationEstimates.AiBankReserve, "no cap per item: a large bank puts a large share on a ballot that matters");
+        Assert.True(plenty.Spent <= 40);
         var none = VoteOf(PoliticalLeaning.Gimmicky, big, VoteMode.VoteBank, bank: 0);
         Assert.Equal(0, none.Spent);
         Assert.False(none.Banked);
+    }
+
+    [Theory]
+    [InlineData(0.9, 0, 0)]
+    [InlineData(0.9, 1, 1)]
+    [InlineData(0.9, 2, 1)]
+    [InlineData(0.9, 10, 7)]
+    [InlineData(0.4, 3, 0)]
+    [InlineData(0.4, 4, 1)]
+    [InlineData(0.4, 100, 97)]
+    public void AnAiTeamSpendsAShareOfItsBankOnABigBallotAndWhateverLiesAboveItsReserveOnAnyBallot(double stake, int bank, int expected)
+    {
+        Assert.Equal(expected, AiPolitics.SpendFor(stake, bank));
+    }
+
+    [Fact]
+    public void AnAiTeamNeverSpendsMoreThanItHasWhateverTheBankAndTheStake()
+    {
+        for (var bank = 0; bank <= 200; bank++)
+        {
+            foreach (var stake in new[] { 0.0, 0.1, 0.5, 0.79, 0.8, 2.0 })
+            {
+                var spend = AiPolitics.SpendFor(stake, bank);
+                Assert.InRange(spend, 0, bank);
+                if (bank > RegulationEstimates.AiBankReserve)
+                {
+                    // It does not hoard: whatever lies above the reserve goes on the ballot it votes on.
+                    Assert.True(bank - spend <= RegulationEstimates.AiBankReserve + 1 || stake >= RegulationEstimates.HighStake);
+                }
+            }
+        }
     }
 
     [Fact]

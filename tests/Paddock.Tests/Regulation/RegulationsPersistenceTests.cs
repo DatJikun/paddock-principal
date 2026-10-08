@@ -59,7 +59,7 @@ public sealed class RegulationsPersistenceTests : IDisposable
         Assert.Equal(pendingHash, withPending.StateHash());
         Assert.Single(withPending.Section<RegulationsSection>(RegulationsSection.SectionName)!.Find(PoliticsHarness.Series)!.Pending);
 
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
         var item = harness.Items().Single(i => i.Origin == BallotOrigin.Teams);
         harness.Politics.Cast(PoliticsHarness.Series, "t02", item.Id, "v1", 0, harness.Today);
         harness.Politics.Cast(PoliticsHarness.Series, "t03", item.Id, BallotOptions.Abstain, 0, harness.Today);
@@ -71,6 +71,52 @@ public sealed class RegulationsPersistenceTests : IDisposable
         Assert.Equal(["t02:v1:0", "t03:abstain:0"], back.Votes.Select(v => $"{v.TeamId}:{v.Option}:{v.Spent}"));
         Assert.Null(back.Result);
         Assert.Equal(["t01"], back.Variants.Single().ProposerTeamIds);
+    }
+
+    [Fact]
+    public void TheScheduleOfTheYearRoundTripsThroughTheFileAndEntersTheStateHash()
+    {
+        var harness = PoliticsHarness.Create(new HarnessOptions { Seed = 12, StoreCalendar = true });
+        harness.LiveTo(new GameDate(1955, 1, 2));
+        var schedule = harness.ScheduleOf();
+        Assert.NotEmpty(schedule.Slots);
+
+        var loaded = RoundTrip(harness.World, "schedule");
+
+        Assert.Equal(harness.World.StateHash(), loaded.StateHash());
+        var back = loaded.Section<RegulationsSection>(RegulationsSection.SectionName)!.Find(PoliticsHarness.Series)!.Schedule!;
+        Assert.Equal(schedule.Season, back.Season);
+        Assert.Equal(schedule.ProposalsOpen, back.ProposalsOpen);
+        Assert.Equal(schedule.ProposalsClose, back.ProposalsClose);
+        Assert.Equal(schedule.Slots.Select(slot => (slot.Kind, slot.Opens, slot.Closes)), back.Slots.Select(slot => (slot.Kind, slot.Opens, slot.Closes)));
+
+        // A different slot, or a different window, is a different state.
+        var series = harness.Of();
+        var moved = new PoliticalSchedule(
+            schedule.Season,
+            schedule.ProposalsOpen,
+            schedule.ProposalsClose,
+            [.. schedule.Slots.Select((slot, index) => index == 0 ? new BallotSlot(slot.Kind, slot.Opens.AddDays(1), slot.Closes) : slot)]);
+        var shorter = new PoliticalSchedule(schedule.Season, schedule.ProposalsOpen, schedule.ProposalsClose.AddDays(-1), schedule.Slots);
+        var hash = harness.World.StateHash();
+        harness.SetSection(harness.Section.WithSeries(series.WithSchedule(moved)));
+        var movedHash = harness.World.StateHash();
+        harness.SetSection(harness.Section.WithSeries(series.WithSchedule(shorter)));
+        Assert.NotEqual(hash, movedHash);
+        Assert.NotEqual(hash, harness.World.StateHash());
+        Assert.NotEqual(movedHash, harness.World.StateHash());
+    }
+
+    [Fact]
+    public void ASaveMadeBeforeTheFirstDayOfTheSeasonHasNoScheduleYetAndRoundTripsToo()
+    {
+        var harness = PoliticsHarness.Create(new HarnessOptions { Seed = 12 });
+        Assert.Null(harness.Of().Schedule);
+
+        var loaded = RoundTrip(harness.World, "no-schedule");
+
+        Assert.Equal(harness.World.StateHash(), loaded.StateHash());
+        Assert.Null(loaded.Section<RegulationsSection>(RegulationsSection.SectionName)!.Find(PoliticsHarness.Series)!.Schedule);
     }
 
     [Fact]
@@ -96,7 +142,7 @@ public sealed class RegulationsPersistenceTests : IDisposable
     [Fact]
     public void TheCooldownAndTheFutureSurviveSaveAndResume()
     {
-        var options = new HarnessOptions { Seed = 9, Capital = _ => 400_000 };
+        var options = new HarnessOptions { Seed = 9, Capital = _ => 400_000, StoreCalendar = true };
         var whole = PoliticsHarness.Create(options);
         whole.LiveTo(new GameDate(1955, 8, 1));
         var proposers = whole.Of().Teams.Where(team => team.ProposeFromSeason > 1958).Select(team => team.TeamId).ToArray();
@@ -111,6 +157,9 @@ public sealed class RegulationsPersistenceTests : IDisposable
         resumed.LiveTo(new GameDate(1958, 12, 31));
 
         Assert.Equal(whole.World.StateHash(), resumed.World.StateHash());
+        Assert.Equal(
+            whole.ScheduleOf().Slots.Select(slot => (slot.Kind, slot.Opens, slot.Closes)),
+            resumed.ScheduleOf().Slots.Select(slot => (slot.Kind, slot.Opens, slot.Closes)));
         Assert.NotNull(proposers);
     }
 

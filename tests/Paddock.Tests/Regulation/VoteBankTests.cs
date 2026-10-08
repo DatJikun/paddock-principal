@@ -15,7 +15,8 @@ public class VoteBankTests
     private static (PoliticsHarness Harness, BallotItem Item) FirstFiaItem(VoteMode mode)
     {
         var harness = PoliticsHarness.Create(new HarnessOptions { AllHuman = true, Mode = mode });
-        harness.LiveTo(RegulationSchedule.FiaFirstAnnounced(1955));
+        harness.LiveTo(new GameDate(1955, 1, 2));
+        harness.LiveToFia();
         return (harness, harness.Items().First(item => item.Origin == BallotOrigin.Fia));
     }
 
@@ -49,7 +50,7 @@ public class VoteBankTests
     }
 
     [Fact]
-    public void SpendingIsRefusedWithoutTheModeAndCappedByTheBalanceAndTheMostOneItemTakes()
+    public void SpendingIsRefusedWithoutTheModeAndCappedOnlyByTheBalanceNotByTheItem()
     {
         var (plain, plainItem) = FirstFiaItem(VoteMode.OneVoteEach);
         Assert.Equal(RegulationKeys.SpendNeedsBank, plain.Politics.CheckCast(Series, "t01", plainItem.Id, "v1", 1, plain.Today)!.Key);
@@ -59,44 +60,30 @@ public class VoteBankTests
         Assert.Equal(RegulationKeys.SpendOnAbstain, harness.Politics.CheckCast(Series, "t01", item.Id, BallotOptions.Abstain, 1, harness.Today)!.Key);
         Assert.Equal(RegulationKeys.SpendNeedsBank, harness.Politics.CheckCast(Series, "t01", item.Id, "v1", -1, harness.Today)!.Key);
 
-        // Save up three votes over three FIA items, then try to spend four and three.
-        var current = item;
-        for (var round = 0; round < 3; round++)
-        {
-            harness.Politics.Cast(Series, "t01", current.Id, BallotOptions.Abstain, 0, harness.Today);
-            harness.LiveTo(current.Deadline);
-            var next = harness.Items().Where(i => i.Origin == BallotOrigin.Fia && !i.IsResolved).OrderBy(i => i.Announced).FirstOrDefault();
-            if (next is null)
-            {
-                harness.LiveTo(harness.Items().Where(i => i.Origin == BallotOrigin.Fia).Max(i => i.Announced).AddDays(40));
-                next = harness.Items().Where(i => i.Origin == BallotOrigin.Fia && !i.IsResolved).OrderBy(i => i.Announced).First();
-            }
+        // A bank of twelve (far above the old cap of five): all twelve can go on one item, a thirteenth cannot.
+        SetBank(harness, "t01", 12);
+        Assert.Null(harness.Politics.CheckCast(Series, "t01", item.Id, "v1", 12, harness.Today));
+        Assert.Equal(RegulationKeys.SpendOverBank, harness.Politics.CheckCast(Series, "t01", item.Id, "v1", 13, harness.Today)!.Key);
 
-            if (harness.Today < next.Announced)
-            {
-                harness.LiveTo(next.Announced);
-            }
-
-            current = harness.Of().ItemOf(next.Id)!;
-        }
-
-        Assert.Equal(3, harness.Of().TeamOf("t01")!.Bank);
-        Assert.Equal(RegulationKeys.SpendTooMany, harness.Politics.CheckCast(Series, "t01", current.Id, "v1", RegulationEstimates.MaxSpendPerItem + 1, harness.Today)!.Key);
-        Assert.Null(harness.Politics.CheckCast(Series, "t01", current.Id, "v1", 3, harness.Today));
-
-        harness.Politics.Cast(Series, "t01", current.Id, "v1", 3, harness.Today);
+        harness.Politics.Cast(Series, "t01", item.Id, "v1", 12, harness.Today);
         foreach (var other in harness.Teams.Skip(1))
         {
-            harness.Politics.Cast(Series, other, current.Id, BallotOptions.StatusQuo, 0, harness.Today);
+            harness.Politics.Cast(Series, other, item.Id, BallotOptions.StatusQuo, 0, harness.Today);
         }
 
-        harness.LiveTo(current.Deadline);
+        harness.LiveTo(item.Deadline);
 
-        var result = harness.Of().ItemOf(current.Id)!.Result!;
+        var result = harness.Of().ItemOf(item.Id)!.Result!;
         Assert.Equal(0, harness.Of().TeamOf("t01")!.Bank);
-        Assert.Equal(4, result.Stances.Single(stance => stance.TeamId == "t01").Weight); // one vote and three spent
-        Assert.Equal(4, result.Tally.Single(entry => entry.Option == "v1").Weight);
+        Assert.Equal(13, result.Stances.Single(stance => stance.TeamId == "t01").Weight); // one vote and twelve spent
+        Assert.Equal(13, result.Tally.Single(entry => entry.Option == "v1").Weight);
         Assert.Equal(9, result.Tally.Single(entry => entry.Option == BallotOptions.StatusQuo).Weight);
+    }
+
+    private static void SetBank(PoliticsHarness harness, string team, int bank)
+    {
+        var series = harness.Of();
+        harness.SetSection(harness.Section.WithSeries(series.WithTeam(series.TeamOf(team)!.WithBank(bank))));
     }
 
     [Fact]
@@ -111,7 +98,7 @@ public class VoteBankTests
             harness.Politics.Propose(Series, team, choice.DimensionId, choice.Value, harness.Today);
         }
 
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
         var items = harness.Items().Where(item => item.Origin == BallotOrigin.Teams).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         Assert.Equal(2, items.Length);
 
@@ -129,44 +116,66 @@ public class VoteBankTests
     }
 
     [Fact]
-    public void AFullBankRefusesAnotherAbstentionInsteadOfLosingAVoteSilently()
+    public void TheBankHasNoLimitAndAnAbstentionIsNeverRefusedOrLost()
     {
         var (harness, item) = FirstFiaItem(VoteMode.VoteBank);
-        var series = harness.Of();
-        harness.SetSection(harness.Section.WithSeries(series.WithTeam(series.TeamOf("t01")!.WithBank(RegulationEstimates.BankCap))));
+        SetBank(harness, "t01", 500);
 
-        var refusal = harness.Politics.CheckCast(Series, "t01", item.Id, BallotOptions.Abstain, 0, harness.Today);
+        Assert.Null(harness.Politics.CheckCast(Series, "t01", item.Id, BallotOptions.Abstain, 0, harness.Today));
+        harness.Politics.Cast(Series, "t01", item.Id, BallotOptions.Abstain, 0, harness.Today);
+        harness.LiveTo(item.Deadline);
 
-        Assert.Equal(RegulationKeys.BankFull, refusal!.Key);
-        Assert.Null(harness.Politics.CheckCast(Series, "t01", item.Id, "v1", 0, harness.Today));
+        Assert.Equal(501, harness.Of().TeamOf("t01")!.Bank);
     }
 
     [Fact]
-    public void ABankIsNeverNegativeNeverAboveTheCapAndTheAiTeamsFollowTheSameRulesOverManySeasons()
+    public void AHumanWhoNeverVotesKeepsEveryVoteOverSeasons()
+    {
+        var harness = PoliticsHarness.Create(new HarnessOptions { Mode = VoteMode.VoteBank, Humans = ["t01"], Seed = 5 });
+        var held = 0;
+        for (var year = 1955; year <= 1957; year++)
+        {
+            harness.LiveTo(new GameDate(year, 12, 31));
+            held += harness.Items().Count(item => item.Season == year && item.IsResolved);
+        }
+
+        Assert.True(held > 10, "three seasons bring more than ten ballots");
+        Assert.Equal(held, harness.Of().TeamOf("t01")!.Bank);
+        Assert.True(harness.Of().TeamOf("t01")!.Bank > 5, "the old cap of five is gone");
+    }
+
+    [Fact]
+    public void ABankIsNeverNegativeAndTheAiTeamsFollowTheSameRulesAndDoNotHoardForEverOverManySeasons()
     {
         foreach (var seed in new ulong[] { 1, 2, 3 })
         {
             var harness = PoliticsHarness.Create(new HarnessOptions { Seed = seed, Mode = VoteMode.VoteBank });
             var banked = false;
             var spent = false;
-            for (var day = new GameDate(1955, 1, 2); day <= new GameDate(1960, 12, 31); day = day.AddDays(1))
+            var largest = 0;
+            for (var day = new GameDate(1955, 1, 2); day <= new GameDate(1964, 12, 31); day = day.AddDays(1))
             {
                 harness.LiveTo(day);
                 foreach (var team in harness.Of().Teams)
                 {
-                    Assert.InRange(team.Bank, 0, RegulationEstimates.BankCap);
+                    Assert.True(team.Bank >= 0);
                     banked |= team.Bank > 0;
+                    if (!harness.Environment.IsHuman(PoliticsHarness.Org(team.TeamId)))
+                    {
+                        largest = Math.Max(largest, team.Bank);
+                    }
                 }
             }
 
             foreach (var item in harness.Items().Where(i => i.IsResolved))
             {
                 spent |= item.Result!.Stances.Any(stance => stance.Spent > 0);
-                Assert.All(item.Result.Stances, stance => Assert.True(stance.Spent <= RegulationEstimates.MaxSpendPerItem));
+                Assert.All(item.Result.Stances, stance => Assert.True(stance.Weight >= 0));
             }
 
             Assert.True(banked, "AI teams bank votes on ballots that matter little");
-            Assert.NotNull(spent.ToString());
+            Assert.True(spent, "AI teams spend banked votes: they do not hoard for ever (seed " + seed + ")");
+            Assert.True(largest <= RegulationEstimates.AiBankReserve + 8, "an AI bank stays modest (largest " + largest + ", seed " + seed + ")");
         }
     }
 }

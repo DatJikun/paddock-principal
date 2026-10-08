@@ -294,3 +294,105 @@ public sealed record PendingProposal(string TeamId, string DimensionId, string V
 
     public long FeeCents { get; } = FeeCents <= 0 ? throw new ArgumentOutOfRangeException(nameof(FeeCents), "A fee is never zero or negative.") : FeeCents;
 }
+
+/// <summary>Whose ballot a slot of the political year is for.</summary>
+public enum BallotSlotKind
+{
+    /// <summary>One of the FIA's own votes (4 to 6 a year).</summary>
+    Fia = 0,
+
+    /// <summary>The ballot of the teams' proposals, one a year.</summary>
+    Teams = 1,
+}
+
+/// <summary>
+/// One place of the political year where a ballot item is open: from <see cref="Opens"/> to <see cref="Closes"/>, the day it is
+/// counted. It lies between two race weekends, so a vote is never open on a weekend day and never decided inside one (#275, owner
+/// decision of round 2).
+/// </summary>
+public sealed record BallotSlot
+{
+    public BallotSlot(BallotSlotKind kind, GameDate opens, GameDate closes)
+    {
+        if (!Enum.IsDefined(kind))
+        {
+            throw new ArgumentOutOfRangeException(nameof(kind));
+        }
+
+        if (closes < opens)
+        {
+            throw new ArgumentException("A slot cannot close before it opens.", nameof(closes));
+        }
+
+        Kind = kind;
+        Opens = opens;
+        Closes = closes;
+    }
+
+    public BallotSlotKind Kind { get; }
+
+    public GameDate Opens { get; }
+
+    public GameDate Closes { get; }
+}
+
+/// <summary>
+/// The political year of one series in one season, worked out once from the season's race calendar and then stored (so it is the same
+/// after a save and a resume, and it enters the state hash): the window in which teams may file a proposal and the slots of the
+/// ballots in the order of the year. <see cref="ProposalsClose"/> is the day before the teams' ballot opens; a season that has no teams'
+/// slot has an empty window (<see cref="ProposalsClose"/> before <see cref="ProposalsOpen"/>).
+/// </summary>
+public sealed record PoliticalSchedule
+{
+    public PoliticalSchedule(int season, GameDate proposalsOpen, GameDate proposalsClose, IReadOnlyList<BallotSlot> slots)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(season, 1950);
+        ArgumentNullException.ThrowIfNull(slots);
+        var ordered = new List<BallotSlot>(slots.Count);
+        var teams = 0;
+        foreach (var slot in slots)
+        {
+            ArgumentNullException.ThrowIfNull(slot);
+            if (slot.Opens.Year != season || slot.Closes.Year != season)
+            {
+                throw new ArgumentException("Every slot lies in season " + season.ToString(System.Globalization.CultureInfo.InvariantCulture) + ".", nameof(slots));
+            }
+
+            if (slot.Kind == BallotSlotKind.Teams)
+            {
+                teams++;
+            }
+
+            ordered.Add(slot);
+        }
+
+        if (teams > 1)
+        {
+            throw new ArgumentException("A season has at most one teams' ballot.", nameof(slots));
+        }
+
+        Season = season;
+        ProposalsOpen = proposalsOpen;
+        ProposalsClose = proposalsClose;
+        Slots = ordered;
+    }
+
+    public int Season { get; }
+
+    /// <summary>The first day a team may file a proposal: the first day of the season.</summary>
+    public GameDate ProposalsOpen { get; }
+
+    /// <summary>The last day a team may file a proposal: the day before the teams' ballot opens.</summary>
+    public GameDate ProposalsClose { get; }
+
+    /// <summary>All the slots in the order of the year, the FIA's and the teams'.</summary>
+    public IReadOnlyList<BallotSlot> Slots { get; }
+
+    /// <summary>The slots of the FIA's votes in the order of the year; the n-th one is the FIA's n-th vote.</summary>
+    public IReadOnlyList<BallotSlot> FiaSlots => [.. Slots.Where(slot => slot.Kind == BallotSlotKind.Fia)];
+
+    public BallotSlot? TeamsSlot => Slots.FirstOrDefault(slot => slot.Kind == BallotSlotKind.Teams);
+
+    /// <summary>True when a team may file a proposal on <paramref name="day"/>.</summary>
+    public bool AcceptsProposalsOn(GameDate day) => day >= ProposalsOpen && day <= ProposalsClose;
+}

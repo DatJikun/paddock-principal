@@ -48,7 +48,9 @@ public sealed class RegulationEnvironment
         IReadOnlyList<TrackLayout>? layouts = null,
         IReadOnlyList<RaceAssignment>? assignments = null,
         IReadOnlyDictionary<string, string>? teamCountries = null,
-        IReadOnlyList<OrganizationId>? humanTeams = null)
+        IReadOnlyList<OrganizationId>? humanTeams = null,
+        RaceDateBook? raceDates = null,
+        BannedRules? bannedRules = null)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(dimensionIds);
@@ -69,6 +71,8 @@ public sealed class RegulationEnvironment
         Assignments = assignments ?? [];
         TeamCountries = teamCountries ?? new Dictionary<string, string>(StringComparer.Ordinal);
         HumanTeams = humanTeams ?? [];
+        RaceDates = raceDates;
+        BannedRules = bannedRules ?? BannedRules.None;
     }
 
     /// <summary>True when the career votes its rules; a historical career has no political life.</summary>
@@ -98,6 +102,12 @@ public sealed class RegulationEnvironment
     public IReadOnlyList<RaceAssignment> Assignments { get; }
 
     public IReadOnlyDictionary<string, string> TeamCountries { get; }
+
+    /// <summary>The real race dates the host has, so a season that is not laid out yet is planned as the host will plan it. Null means even spacing.</summary>
+    public RaceDateBook? RaceDates { get; }
+
+    /// <summary>The rules and mechanics that can never be proposed or voted on, per series (#275). Nothing is banned when the host has no such data.</summary>
+    public BannedRules BannedRules { get; }
 
     /// <summary>The teams a human sits at when the career opens: they start with no cooldown (owner decision 6).</summary>
     public IReadOnlyList<OrganizationId> HumanTeams { get; }

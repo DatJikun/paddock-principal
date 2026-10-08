@@ -5,7 +5,8 @@ namespace Paddock.Persistence;
 /// <summary>
 /// Regulation voting v2 (#275). Adds the tables of the political life of a racing series, keyed by series id: the rules in force and
 /// the rules and calendar voted for the next season, the rejection memory, every team's leaning, cooldown and bank of votes, the
-/// proposals that wait for a ballot, and the ballot items with their variants, votes, tally and stances. The tables of schema 1
+/// proposals that wait for a ballot, the political year of the season (the window for proposals and the slots of the ballots between
+/// race weekends), and the ballot items with their variants, votes, tally and stances. The tables of schema 1
 /// (<c>regulations_meta</c>, <c>regulations_values</c>, <c>regulations_rejected</c>) stay: a section stored under schema 1 is read
 /// from them as the series <c>f1</c> with no teams and no ballot, and the next save moves it into the new tables.
 /// <para>
@@ -51,6 +52,22 @@ public sealed class V028_RegulationVoting : ISaveMigration
             value TEXT NOT NULL CHECK (length(value) > 0),
             season INTEGER NOT NULL CHECK (season >= 1950),
             PRIMARY KEY (series_id, dimension_id, value, season)
+        ) STRICT, WITHOUT ROWID;
+
+        CREATE TABLE regulation_schedule (
+            series_id TEXT NOT NULL PRIMARY KEY CHECK (length(series_id) > 0),
+            season INTEGER NOT NULL CHECK (season >= 1950),
+            proposals_open TEXT NOT NULL CHECK (length(proposals_open) = 10),
+            proposals_close TEXT NOT NULL CHECK (length(proposals_close) = 10)
+        ) STRICT, WITHOUT ROWID;
+
+        CREATE TABLE regulation_schedule_slots (
+            series_id TEXT NOT NULL CHECK (length(series_id) > 0),
+            slot_index INTEGER NOT NULL CHECK (slot_index >= 0),
+            kind TEXT NOT NULL CHECK (kind IN ('Fia', 'Teams')),
+            opens TEXT NOT NULL CHECK (length(opens) = 10),
+            closes TEXT NOT NULL CHECK (length(closes) = 10),
+            PRIMARY KEY (series_id, slot_index)
         ) STRICT, WITHOUT ROWID;
 
         CREATE TABLE regulation_teams (

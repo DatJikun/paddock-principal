@@ -116,6 +116,13 @@ public sealed record SeriesRegulations
     /// <summary>The last season whose team ballot was built from the pending proposals (so it is built once).</summary>
     public int TeamBallotSeason { get; init; }
 
+    /// <summary>
+    /// The political year of <see cref="Season"/>: when proposals may be filed and the slots of the ballots between race weekends. Null
+    /// until the first day of the season has been lived (it is worked out from the season's calendar and then kept, so it does not move
+    /// when the calendar data does).
+    /// </summary>
+    public PoliticalSchedule? Schedule { get; init; }
+
     public TeamPolitics? TeamOf(string teamId)
     {
         foreach (var team in Teams)
@@ -200,6 +207,12 @@ public sealed record SeriesRegulations
 
     public SeriesRegulations WithTeamBallotSeason(int season) => this with { TeamBallotSeason = season };
 
+    public SeriesRegulations WithSchedule(PoliticalSchedule schedule)
+    {
+        ArgumentNullException.ThrowIfNull(schedule);
+        return this with { Schedule = schedule };
+    }
+
     /// <summary>
     /// The first day of the next season: what was voted comes into force. The ballot keeps the items of the season just ended so
     /// the player can still read what was decided; older items go. A series with nothing voted repeats its rules.
@@ -214,6 +227,7 @@ public sealed record SeriesRegulations
             Calendar = NextCalendar ?? Calendar,
             NextValues = null,
             NextCalendar = null,
+            Schedule = null,
             Pending = [],
             Ballot = [.. Ballot.Where(item => item.Season >= season - 1)],
         };
@@ -334,6 +348,7 @@ public sealed record SeriesRegulations
 /// s &lt;len&gt;:&lt;id&gt; &lt;season&gt; &lt;agenda season&gt; &lt;FIA slots done&gt; &lt;team ballot season&gt;
 /// values / calendar / nextvalues / nextcalendar &lt;count&gt;, then value &lt;len&gt;:&lt;dimension&gt; &lt;len&gt;:&lt;value&gt;
 /// rejected &lt;count&gt;, then rejected &lt;len&gt;:&lt;dimension&gt; &lt;len&gt;:&lt;value&gt; &lt;season&gt;
+/// schedule 0 or 1, then schedule &lt;season&gt; &lt;proposals open&gt; &lt;proposals close&gt; &lt;slots&gt; and slot &lt;kind&gt; &lt;opens&gt; &lt;closes&gt; per slot
 /// teams &lt;count&gt;, then team &lt;len&gt;:&lt;id&gt; &lt;leaning&gt; &lt;propose from&gt; &lt;bank&gt;
 /// pending &lt;count&gt;, then pending &lt;len&gt;:&lt;team&gt; &lt;len&gt;:&lt;dimension&gt; &lt;len&gt;:&lt;value&gt; &lt;date&gt; &lt;fee cents&gt;
 /// ballot &lt;count&gt;, then per item: item, args, variants, votes and an optional result with its tally and stances
@@ -445,6 +460,20 @@ public sealed class RegulationsSection : IWorldSection
                 writer.Field(item.Value);
                 writer.Raw(" " + Int(item.Season));
                 writer.End();
+            }
+
+            writer.Flag("hasschedule", series.Schedule is not null);
+            if (series.Schedule is { } schedule)
+            {
+                writer.Begin("schedule");
+                writer.Raw(Int(schedule.Season) + " " + schedule.ProposalsOpen + " " + schedule.ProposalsClose + " " + Int(schedule.Slots.Count));
+                writer.End();
+                foreach (var slot in schedule.Slots)
+                {
+                    writer.Begin("slot");
+                    writer.Raw(Int((int)slot.Kind) + " " + slot.Opens + " " + slot.Closes);
+                    writer.End();
+                }
             }
 
             writer.Count("teams", series.Teams.Count);

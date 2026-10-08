@@ -39,7 +39,7 @@ public class CalendarVoteTests
         harness.SetWorld(laid);
         harness.LiveFrom(new GameDate(1955, 1, 2), new GameDate(1955, 2, 10));
         harness.Politics.Propose(Series, "t01", CalendarPolicy.DimensionOf(circuit), CalendarPolicy.Dropped, harness.Today);
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
         var item = harness.Items().Single(i => i.DimensionId == CalendarPolicy.DimensionOf(circuit));
         foreach (var team in harness.Teams)
         {

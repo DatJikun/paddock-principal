@@ -33,7 +33,7 @@ public class TwoSeriesTests
             .First(c => c.DimensionId == "safety_car");
         harness.Politics.Propose(TwoSeries.Second, "t06", other.DimensionId, other.Value, harness.Today);
 
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
         var firstItem = Assert.Single(harness.Items(TwoSeries.First), item => item.Origin == BallotOrigin.Teams);
         var secondItem = Assert.Single(harness.Items(TwoSeries.Second), item => item.Origin == BallotOrigin.Teams);
         Assert.Equal("points_scale", firstItem.DimensionId);

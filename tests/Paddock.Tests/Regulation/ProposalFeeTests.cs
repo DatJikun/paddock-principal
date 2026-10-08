@@ -43,14 +43,24 @@ public class ProposalFeeTests
     }
 
     [Theory]
-    [InlineData(1_000_000_000L, 60_000_000L)]
-    [InlineData(20_000_000L, 1_200_000L)]
+    [InlineData(1_000_000_000L, 200_000_000L)]
+    [InlineData(20_000_000L, 4_000_000L)]
     public void TheFeeIsTheConfiguredShareOfTheBasis(long basis, long expected)
     {
         var typical = Money.FromDollars(60_000).Cents;
 
         Assert.Equal(expected, ProposalFee.Quote(basis, typical));
         Assert.Equal(expected, (long)Math.Round(basis * RegulationEstimates.FeeRevenueShare));
+    }
+
+    [Fact]
+    public void TheShareIsTheOwnersTwentyPercentOfTheLastCompletedSeasonsRevenue()
+    {
+        Assert.Equal(0.20, RegulationEstimates.FeeRevenueShare);
+        var typical = Money.FromDollars(60_000).Cents;
+
+        Assert.Equal(Money.FromDollars(16_000).Cents, ProposalFee.Quote(Money.FromDollars(80_000).Cents, typical));
+        Assert.Equal(Money.FromDollars(50_000).Cents, ProposalFee.Quote(Money.FromDollars(250_000).Cents, typical));
     }
 
     [Theory]
@@ -76,8 +86,8 @@ public class ProposalFeeTests
         var rich = ProposalFee.Quote(Money.FromDollars(250_000).Cents, typical);
         var poor = ProposalFee.Quote(Money.FromDollars(20_000).Cents, typical);
 
-        Assert.InRange(rich / (double)Money.FromDollars(250_000).Cents, 0.059, 0.061);
-        Assert.InRange(poor / (double)Money.FromDollars(20_000).Cents, 0.059, 0.061);
+        Assert.InRange(rich / (double)Money.FromDollars(250_000).Cents, 0.199, 0.201);
+        Assert.InRange(poor / (double)Money.FromDollars(20_000).Cents, 0.199, 0.201);
     }
 
     [Fact]
@@ -97,7 +107,7 @@ public class ProposalFeeTests
         var feeBroke = harness.Politics.QuoteFor(PoliticsHarness.Series, broke, 1955)!.FeeCents;
 
         Assert.Equal(feeRich, feeBroke);
-        Assert.Equal(Money.FromDollars(80_000).Cents * 6 / 100, feeRich);
+        Assert.Equal(Money.FromDollars(80_000).Cents * 20 / 100, feeRich);
 
         // The cash swings during the season; the fee does not.
         harness.SetFinance(harness.Finance

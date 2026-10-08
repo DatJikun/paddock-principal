@@ -2,6 +2,7 @@ using System.Globalization;
 using Paddock.Application.Cars;
 using Paddock.Application.Commands;
 using Paddock.Application.Inbox;
+using Paddock.Application.Racing;
 using Paddock.Domain.Career;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Inbox;
@@ -9,6 +10,7 @@ using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Regulation;
+using Paddock.Simulation.Time;
 
 namespace Paddock.Application.Regulation;
 
@@ -34,9 +36,6 @@ public sealed class RegulationPolitics
     private readonly RegulationBook _book;
     private readonly RegulationEnvironment _environment;
     private readonly InboxBook? _inbox;
-
-    // The FIA's calendar for a series and a season is a pure function of the seed, so it is worked out once, not on every day.
-    private readonly Dictionary<(string SeriesId, int Season), IReadOnlyList<GameDate>> _fiaDays = [];
 
     public RegulationPolitics(RegulationBook book, RegulationEnvironment environment, InboxBook? inbox = null)
     {
@@ -133,6 +132,59 @@ public sealed class RegulationPolitics
         return new ProposalQuote(fee, basis, politics.ProposeFromSeason, politics.ProposeFromSeason > season);
     }
 
+    /// <summary>
+    /// The political year of the series in the season of <paramref name="today"/>: when teams may file proposals and the slots of the
+    /// ballots between race weekends. The stored one once the season has begun, otherwise the one the first day of the season will
+    /// store (null for a series that is not in the section).
+    /// </summary>
+    public PoliticalSchedule? ScheduleOf(string seriesId, GameDate today) =>
+        _book.Section?.Find(seriesId) is { } series ? ScheduleFor(series, today) : null;
+
+    private PoliticalSchedule ScheduleFor(SeriesRegulations series, GameDate today) =>
+        series.Schedule is { } stored && stored.Season == today.Year
+            ? stored
+            : RegulationSchedule.Plan(
+                today.Year,
+                today,
+                WeekendsOf(today.Year),
+                RegulationSchedule.FiaVotesIn(_environment.MasterSeed, series.SeriesId, today.Year));
+
+    /// <summary>
+    /// The race weekends of <paramref name="season"/>, from the calendar the career has laid out. A season that is not laid out yet is
+    /// planned the way the host will plan it (not stored here); one that cannot be planned, or has no rounds, has none, and the
+    /// schedule then falls back to the placeholder window of the season.
+    /// </summary>
+    private IReadOnlyList<WeekendSpan> WeekendsOf(int season)
+    {
+        IReadOnlyList<SeasonCalendar.PlannedSession>? plan = SeasonPlans.Stored(_book.World, season);
+        if (plan is null && _environment.Layouts.Count > 0 && _environment.Assignments.Count > 0)
+        {
+            try
+            {
+                plan = SeasonPlans.Ensure(_book.World, season, _environment.Layouts, _environment.Assignments, _environment.RaceDates).Plan;
+            }
+            catch (InvalidOperationException)
+            {
+                plan = null;
+            }
+        }
+
+        if (plan is null)
+        {
+            return [];
+        }
+
+        var byRound = new SortedDictionary<int, (GameDate First, GameDate Last)>();
+        foreach (var session in plan)
+        {
+            byRound[session.Round] = byRound.TryGetValue(session.Round, out var span)
+                ? (session.Date < span.First ? session.Date : span.First, session.Date > span.Last ? session.Date : span.Last)
+                : (session.Date, session.Date);
+        }
+
+        return [.. byRound.Values.Select(span => new WeekendSpan(span.First, span.Last))];
+    }
+
     private (long Fee, long Basis) FeeFor(OrganizationId team, int season)
     {
         var finance = _book.Finance;
@@ -143,8 +195,9 @@ public sealed class RegulationPolitics
     /// <summary>
     /// Every change a vote could bring for the season after <paramref name="voteSeason"/>, minus the dimensions in
     /// <paramref name="excluded"/>: the live rules and the calendar, each value that differs from the one decided so far, makes a
-    /// difference, and was not rejected within the memory (unless <paramref name="ignoreMemory"/>, which the FIA uses when the memory has
-    /// left it nothing to bring: a small catalogue must not stop it from bringing its four to six votes a year).
+    /// difference, is not banned in the series (a banned rule is never offered, neither by the FIA nor by an AI team), and was not
+    /// rejected within the memory (unless <paramref name="ignoreMemory"/>, which the FIA uses when the memory has left it nothing to
+    /// bring: a small catalogue must not stop it from bringing its four to six votes a year).
     /// </summary>
     public IReadOnlyList<RuleChoice> ChoicesFor(SeriesRegulations series, int voteSeason, ISet<string> excluded, bool ignoreMemory = false)
     {
@@ -158,6 +211,7 @@ public sealed class RegulationPolitics
         foreach (var rule in LiveRules.All)
         {
             if (excluded.Contains(rule.DimensionId)
+                || _environment.BannedRules.IsBanned(series.SeriesId, rule.DimensionId)
                 || !rules.TryGetValue(rule.DimensionId, out var current)
                 || !_environment.Specs.TryGetValue(rule.DimensionId, out var spec))
             {
@@ -186,7 +240,7 @@ public sealed class RegulationPolitics
 
             foreach (var option in CalendarPolicy.Options(voteSeason + 1, _environment.Layouts, _environment.Assignments, policy))
             {
-                if (excluded.Contains(option.DimensionId))
+                if (excluded.Contains(option.DimensionId) || _environment.BannedRules.IsBanned(series.SeriesId, option.DimensionId))
                 {
                     continue;
                 }
@@ -266,11 +320,15 @@ public sealed class RegulationPolitics
             return TranslationMessage.Of(RegulationKeys.UnknownTeam);
         }
 
-        if (today < RegulationSchedule.ProposalsOpen(today.Year) || today > RegulationSchedule.ProposalsClose(today.Year))
+        if (_environment.BannedRules.IsBanned(seriesId, dimensionId))
         {
-            var reopens = today < RegulationSchedule.ProposalsOpen(today.Year)
-                ? RegulationSchedule.ProposalsOpen(today.Year)
-                : RegulationSchedule.ProposalsOpen(today.Year + 1);
+            return TranslationMessage.Of(RegulationKeys.Banned, ("rule", dimensionId));
+        }
+
+        var schedule = ScheduleFor(series, today);
+        if (!schedule.AcceptsProposalsOn(today))
+        {
+            var reopens = today < schedule.ProposalsOpen ? schedule.ProposalsOpen : RegulationSchedule.ProposalsOpen(today.Year + 1);
             return TranslationMessage.Of(RegulationKeys.WindowClosed, ("opens", reopens.ToString()));
         }
 
@@ -440,11 +498,6 @@ public sealed class RegulationPolitics
             return TranslationMessage.Of(RegulationKeys.SpendOnAbstain);
         }
 
-        if (spent > RegulationEstimates.MaxSpendPerItem)
-        {
-            return TranslationMessage.Of(RegulationKeys.SpendTooMany, ("max", RegulationEstimates.MaxSpendPerItem.ToString(CultureInfo.InvariantCulture)));
-        }
-
         var committed = 0;
         foreach (var other in series.Ballot)
         {
@@ -458,11 +511,6 @@ public sealed class RegulationPolitics
         if (spent > free)
         {
             return TranslationMessage.Of(RegulationKeys.SpendOverBank, ("bank", Math.Max(0, free).ToString(CultureInfo.InvariantCulture)));
-        }
-
-        if (option == BallotOptions.Abstain && _environment.Mode == VoteMode.VoteBank && politics.Bank >= RegulationEstimates.BankCap)
-        {
-            return TranslationMessage.Of(RegulationKeys.BankFull, ("cap", RegulationEstimates.BankCap.ToString(CultureInfo.InvariantCulture)));
         }
 
         return null;
@@ -540,26 +588,27 @@ public sealed class RegulationPolitics
             series = series.WithAgenda(season, 0);
         }
 
-        if (today >= RegulationSchedule.ProposalsOpen(season) && today <= RegulationSchedule.ProposalsClose(season))
+        // The political year is worked out once, on the first day of the season, from the calendar that is laid out then, and kept.
+        if (series.Schedule is null || series.Schedule.Season != season)
+        {
+            series = series.WithSchedule(ScheduleFor(series, today));
+        }
+
+        var schedule = series.Schedule!;
+        if (schedule.AcceptsProposalsOn(today))
         {
             series = AiProposals(series, ref finance, teams, today);
         }
 
-        if (series.TeamBallotSeason < season && today >= RegulationSchedule.TeamBallotAnnounced(season))
+        if (series.TeamBallotSeason < season && schedule.TeamsSlot is { } teamsSlot && today >= teamsSlot.Opens)
         {
-            series = BuildTeamBallot(series, today);
+            series = BuildTeamBallot(series, teamsSlot, today);
         }
 
-        if (!_fiaDays.TryGetValue((series.SeriesId, season), out var days))
+        var fiaSlots = schedule.FiaSlots;
+        while (series.FiaSlotsDone < fiaSlots.Count && today >= fiaSlots[series.FiaSlotsDone].Opens)
         {
-            days = RegulationSchedule.FiaAnnouncementDays(season, RegulationSchedule.FiaVotesIn(_environment.MasterSeed, series.SeriesId, season));
-            _fiaDays[(series.SeriesId, season)] = days;
-        }
-
-        var slots = days.Count;
-        while (series.FiaSlotsDone < slots && today >= days[series.FiaSlotsDone])
-        {
-            series = AnnounceFia(series, series.FiaSlotsDone, finance, teams, today);
+            series = AnnounceFia(series, series.FiaSlotsDone, fiaSlots[series.FiaSlotsDone], finance, teams, today);
         }
 
         foreach (var item in series.Ballot.Where(item => !item.IsResolved && item.Deadline <= today).OrderBy(item => item.Deadline).ThenBy(item => item.Id, StringComparer.Ordinal).ToArray())
@@ -580,7 +629,7 @@ public sealed class RegulationPolitics
         {
             if (IsHumanSeat(team.Id) || series.TeamOf(team.Id.Value) is not { } politics || season < politics.ProposeFromSeason
                 || series.Pending.Any(pending => pending.TeamId == team.Id.Value)
-                || RegulationSchedule.AiConsiderationDay(_environment.MasterSeed, series.SeriesId, season, team.Id.Value) != today
+                || RegulationSchedule.AiConsiderationDay(_environment.MasterSeed, series.SeriesId, season, team.Id.Value, series.Schedule!) != today
                 || !finance.HasBook(team.Id))
             {
                 continue;
@@ -610,11 +659,11 @@ public sealed class RegulationPolitics
         return series;
     }
 
-    private SeriesRegulations BuildTeamBallot(SeriesRegulations series, GameDate today)
+    private SeriesRegulations BuildTeamBallot(SeriesRegulations series, BallotSlot slot, GameDate today)
     {
         var season = today.Year;
-        var announced = RegulationSchedule.TeamBallotAnnounced(season);
-        var deadline = RegulationSchedule.DeadlineOf(announced);
+        var announced = slot.Opens;
+        var deadline = slot.Closes;
         var next = (series.NextValues ?? series.Values).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var nextPolicy = (series.NextCalendar ?? series.Calendar).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var created = new List<BallotItem>();
@@ -656,7 +705,7 @@ public sealed class RegulationPolitics
         return series;
     }
 
-    private SeriesRegulations AnnounceFia(SeriesRegulations series, int slot, FinanceSection finance, IReadOnlyList<Organization> teams, GameDate today)
+    private SeriesRegulations AnnounceFia(SeriesRegulations series, int slot, BallotSlot window, FinanceSection finance, IReadOnlyList<Organization> teams, GameDate today)
     {
         var season = today.Year;
         var onBallot = new HashSet<string>(StringComparer.Ordinal);
@@ -666,6 +715,13 @@ public sealed class RegulationPolitics
             {
                 onBallot.Add(item.DimensionId);
             }
+        }
+
+        // A dimension a team has paid to propose will be on the teams' ballot, and one dimension has one ballot item (decision 9):
+        // the FIA's vote may come before that ballot, so it leaves these dimensions to the teams.
+        foreach (var pending in series.Pending)
+        {
+            onBallot.Add(pending.DimensionId);
         }
 
         var choices = ChoicesFor(series, season, onBallot);
@@ -684,7 +740,7 @@ public sealed class RegulationPolitics
             return series;
         }
 
-        var announced = today;
+        var announced = window.Opens;
         var current = choices.First(choice => choice.DimensionId == proposal.DimensionId).Current;
         var made = new BallotItem(
             BallotId(series.SeriesId, season, proposal.DimensionId),
@@ -692,7 +748,7 @@ public sealed class RegulationPolitics
             proposal.DimensionId,
             BallotOrigin.Fia,
             announced,
-            RegulationSchedule.DeadlineOf(announced),
+            window.Closes,
             current,
             proposal.ReasonKey,
             proposal.ReasonArguments,
@@ -730,11 +786,12 @@ public sealed class RegulationPolitics
             VoterBallot ballot;
             if (cast is not null)
             {
-                ballot = new VoterBallot(teamId, cast.Option, weight, cast.Spent, cast.Option == BallotOptions.Abstain && _environment.Mode == VoteMode.VoteBank && politics.Bank < RegulationEstimates.BankCap, "");
+                // Spending is capped by the balance at the count as well, so a stale vote can never spend votes the team no longer has.
+                ballot = new VoterBallot(teamId, cast.Option, weight, Math.Min(cast.Spent, politics.Bank), cast.Option == BallotOptions.Abstain && _environment.Mode == VoteMode.VoteBank, "");
             }
             else if (IsHumanSeat(team.Id))
             {
-                ballot = new VoterBallot(teamId, BallotOptions.Abstain, weight, 0, _environment.Mode == VoteMode.VoteBank && politics.Bank < RegulationEstimates.BankCap, "");
+                ballot = new VoterBallot(teamId, BallotOptions.Abstain, weight, 0, _environment.Mode == VoteMode.VoteBank, "");
             }
             else
             {
@@ -758,8 +815,7 @@ public sealed class RegulationPolitics
         foreach (var ballot in ballots)
         {
             var politics = series.TeamOf(ballot.TeamId)!;
-            var kept = Math.Max(0, politics.Bank - ballot.Spent) + (ballot.Banked ? 1 : 0);
-            series = series.WithTeam(politics.WithBank(Math.Min(kept, Math.Max(RegulationEstimates.BankCap, politics.Bank))));
+            series = series.WithTeam(politics.WithBank(Math.Max(0, politics.Bank - ballot.Spent) + (ballot.Banked ? 1 : 0)));
         }
 
         var nextSeason = item.Season + 1;
@@ -841,6 +897,11 @@ public sealed class RegulationPolitics
     /// </summary>
     private (SeriesRegulations? Series, string ReasonKey) Apply(SeriesRegulations series, BallotItem item, string value, int nextSeason)
     {
+        if (_environment.BannedRules.IsBanned(series.SeriesId, item.DimensionId))
+        {
+            return (null, RegulationKeys.ResultBanned);
+        }
+
         var values = (series.NextValues ?? series.Values).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var policy = (series.NextCalendar ?? series.Calendar).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         if (CalendarPolicy.IsCalendarDimension(item.DimensionId))

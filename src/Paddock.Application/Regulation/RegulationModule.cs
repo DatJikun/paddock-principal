@@ -47,7 +47,9 @@ public sealed class RegulationsModule : CareerModule
             inputs.Layouts,
             inputs.RaceAssignments,
             inputs.TeamCountries,
-            context.SeatedHumans);
+            context.SeatedHumans,
+            inputs.RaceDates,
+            inputs.BannedRules);
         var politics = new RegulationPolitics(RegulationBook.ForSession(context.Session), environment, context.TryGet<InboxBook>());
         context.Provide(environment);
         context.Provide(politics);

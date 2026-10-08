@@ -64,16 +64,13 @@ public static class RegulationKeys
     public const string SpendNeedsBank = "regulation.error.spendNeedsBank";
 
     [TranslationKey]
-    public const string SpendTooMany = "regulation.error.spendTooMany";
-
-    [TranslationKey]
     public const string SpendOverBank = "regulation.error.spendOverBank";
 
     [TranslationKey]
     public const string SpendOnAbstain = "regulation.error.spendOnAbstain";
 
     [TranslationKey]
-    public const string BankFull = "regulation.error.bankFull";
+    public const string Banned = "regulation.error.banned";
 
     [TranslationKey]
     public const string LedgerProposalFee = "regulation.ledger.proposalFee";
@@ -86,6 +83,9 @@ public static class RegulationKeys
 
     [TranslationKey]
     public const string ResultInvalid = "regulation.result.invalid";
+
+    [TranslationKey]
+    public const string ResultBanned = "regulation.result.banned";
 
     public const string AnnouncedKind = "regulation.announced";
 

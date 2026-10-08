@@ -6,8 +6,8 @@ namespace Paddock.Simulation.Regulation;
 /// </summary>
 public static class RegulationEstimates
 {
-    /// <summary>ESTIMATE: share of the last completed season's revenue a team pays for one proposal. Hurts a rich and a poor team about equally.</summary>
-    public const double FeeRevenueShare = 0.06;
+    /// <summary>Owner decision (round 2, 2026-10-08): the share of the last completed season's revenue a team pays for one proposal. It was an estimate of 6%.</summary>
+    public const double FeeRevenueShare = 0.20;
 
     /// <summary>ESTIMATE: the floor of the fee as a share of the era's typical budget, so a team with no revenue still pays.</summary>
     public const double FeeFloorShareOfTypicalBudget = 0.01;
@@ -24,20 +24,24 @@ public static class RegulationEstimates
     /// <summary>ESTIMATE: the AI teams start with a cooldown of 0 to this many seasons, staggered from the career seed. The player starts with none.</summary>
     public const int StartingCooldownMaxSeasons = 2;
 
-    /// <summary>ESTIMATE: the most votes a team can keep in its bank.</summary>
-    public const int BankCap = 5;
-
-    /// <summary>ESTIMATE: the most banked votes a team can spend on one ballot item.</summary>
-    public const int MaxSpendPerItem = 3;
-
     /// <summary>Owner decision 5: the FIA brings at least this many votes per series per year.</summary>
     public const int FiaVotesMin = 4;
 
     /// <summary>Owner decision 5: the FIA brings at most this many votes per series per year.</summary>
     public const int FiaVotesMax = 6;
 
-    /// <summary>ESTIMATE: days a ballot item stays open for votes.</summary>
-    public const int VotingDays = 30;
+    /// <summary>
+    /// ESTIMATE: the fewest days a gap between two race weekends must have to hold a ballot, so the player has time to answer. A gap
+    /// is counted from the day after one race to the day before the first session of the next weekend.
+    /// </summary>
+    public const int MinimumWindowDays = 3;
+
+    /// <summary>
+    /// ESTIMATE: where in the order of the year's ballots the teams' ballot sits, as a share (0.5 is the middle one). Teams file their
+    /// proposals from the first day of the season until the day before it opens, so a late ballot gives them more time and an early
+    /// one gives the FIA's votes more room before it.
+    /// </summary>
+    public const double TeamBallotShare = 0.5;
 
     /// <summary>ESTIMATE: the smallest number of rounds a voted calendar may keep.</summary>
     public const int MinimumRounds = 5;
@@ -80,6 +84,15 @@ public static class RegulationEstimates
 
     public const double GimmickyWeight = 0.7;
 
+    /// <summary>
+    /// ESTIMATE: how many banked votes an AI team keeps in reserve. The bank has no limit (owner decision, round 2), so an AI team that
+    /// would never find a ballot important enough must not hoard for ever: it spends what is above the reserve on any ballot it votes on.
+    /// </summary>
+    public const int AiBankReserve = 3;
+
+    /// <summary>ESTIMATE: the share of its bank (rounded up) an AI team spends on a ballot that matters a lot to it.</summary>
+    public const double AiSpendShare = 0.5;
+
     /// <summary>ESTIMATE: an AI team in vote-bank mode banks its vote when the stake is below this.</summary>
     public const double LowStake = 0.25;
 
@@ -92,8 +105,11 @@ public static class RegulationEstimates
     /// <summary>ESTIMATE: what an AI team counts as the cost of spending its one proposal on a rule (the three-season wait).</summary>
     public const double CooldownCost = 0.45;
 
-    /// <summary>ESTIMATE: converts the fee as a share of revenue into utility.</summary>
-    public const double FeeBurdenScale = 5.0;
+    /// <summary>
+    /// ESTIMATE: converts the fee as a share of revenue into utility. It was 5.0 when the fee was 6% of revenue; with the owner's 20% it
+    /// is 1.5, which keeps the burden of a normal fee at the same 0.3, so the change of the fee does not by itself end the AI's proposals.
+    /// </summary>
+    public const double FeeBurdenScale = 1.5;
 
     /// <summary>ESTIMATE: converts debt left after the fee, as a share of revenue, into utility.</summary>
     public const double DebtPenaltyScale = 2.0;

@@ -122,16 +122,32 @@ public static class AiPolitics
         var reason = VoteInterest.DominantReason(reasonFactors);
         if (inputs.Mode == VoteMode.VoteBank)
         {
-            if (stake < RegulationEstimates.LowStake && inputs.Bank < RegulationEstimates.BankCap)
+            if (stake < RegulationEstimates.LowStake)
             {
                 return new AiVote(BallotOptions.Abstain, 0, true, VoteInterest.ReasonBanked, stake, reasonFactors);
             }
 
-            var spend = stake >= RegulationEstimates.HighStake ? Math.Min(inputs.Bank, RegulationEstimates.MaxSpendPerItem) : 0;
-            return new AiVote(bestOption, spend, false, reason, stake, reasonFactors);
+            return new AiVote(bestOption, SpendFor(stake, inputs.Bank), false, reason, stake, reasonFactors);
         }
 
         return new AiVote(bestOption, 0, false, reason, stake, reasonFactors);
+    }
+
+    /// <summary>
+    /// How many banked votes an AI team puts on a ballot it votes on. The bank has no limit and so no cap per ballot (owner decision,
+    /// round 2), so the AI's own habit keeps it from hoarding: a ballot that matters a lot gets a share of the bank, and any ballot gets
+    /// whatever lies above the reserve it likes to keep. It never spends more than it has.
+    /// </summary>
+    public static int SpendFor(double stake, int bank)
+    {
+        if (bank <= 0)
+        {
+            return 0;
+        }
+
+        var aboveReserve = Math.Max(0, bank - RegulationEstimates.AiBankReserve);
+        var important = stake >= RegulationEstimates.HighStake ? (int)Math.Ceiling(bank * RegulationEstimates.AiSpendShare) : 0;
+        return Math.Min(bank, Math.Max(aboveReserve, important));
     }
 
     private static bool IsBefore(RuleOption left, RuleOption right)

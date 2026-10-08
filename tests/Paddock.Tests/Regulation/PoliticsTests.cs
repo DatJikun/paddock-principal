@@ -41,7 +41,7 @@ public class PoliticsTests
         harness.LiveFrom(new GameDate(1955, 1, 2), Feb10);
         var choice = FirstChoice(harness, "points_scale");
         Propose(harness, "t01", choice.DimensionId, choice.Value, Feb10);
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
         var item = harness.Items().Single(i => i.DimensionId == "points_scale");
         VoteAll(harness, item, "v1");
         harness.LiveTo(item.Deadline);
@@ -58,7 +58,7 @@ public class PoliticsTests
         Assert.Equal(BallotOutcome.Adopted, item.Result!.Outcome);
         Assert.NotEqual(authored1955, value);
 
-        // Adopted on 31 May, yet 1955 keeps its own rule to the last day.
+        // Adopted in the middle of the year, yet 1955 keeps its own rule to the last day.
         for (var day = harness.Today; day <= new GameDate(1955, 12, 31); day = day.AddDays(40))
         {
             harness.LiveTo(day);
@@ -188,7 +188,7 @@ public class PoliticsTests
 
         // And it can go through: another team's proposal, voted by all, changes it again for 1957.
         Propose(harness, "t02", dimension, again.Value, day);
-        harness.LiveTo(new GameDate(1956, 5, 1));
+        harness.LiveToTeamBallot();
         var item = harness.Items().Single(i => i.Season == 1956 && i.DimensionId == dimension);
         VoteAll(harness, item, "v1");
         harness.LiveTo(item.Deadline);
@@ -233,7 +233,7 @@ public class PoliticsTests
         Propose(harness, "t02", "points_scale", choices[1].Value, Feb10.AddDays(1));
         Propose(harness, "t03", "points_scale", choices[0].Value, Feb10.AddDays(2));
 
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
 
         var item = Assert.Single(harness.Items(), i => i.Origin == BallotOrigin.Teams);
         Assert.Equal(2, item.Variants.Count);
@@ -257,7 +257,7 @@ public class PoliticsTests
         Propose(harness, "t02", points[1].DimensionId, points[1].Value, Feb10);
         Propose(harness, "t03", safety.DimensionId, safety.Value, Feb10);
 
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
 
         var items = harness.Items().Where(i => i.Origin == BallotOrigin.Teams).ToArray();
         Assert.Equal(2, items.Length);
@@ -290,7 +290,7 @@ public class PoliticsTests
         Assert.True(harness.Finance.BalanceOf(team) < 0, "the fee took the cash below zero and was still charged");
 
         // Everybody votes to keep the rule: the proposal fails, and nothing comes back.
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
         var item = harness.Items().Single(i => i.DimensionId == choice.DimensionId);
         VoteAll(harness, item, BallotOptions.StatusQuo);
         harness.LiveTo(item.Deadline.AddDays(1));
@@ -305,13 +305,20 @@ public class PoliticsTests
     public void AProposalOutsideTheWindowIsRefusedWithTheDateItOpens()
     {
         var harness = PoliticsHarness.Create();
-        harness.LiveFrom(new GameDate(1955, 1, 2), new GameDate(1955, 6, 1));
+        harness.LiveFrom(new GameDate(1955, 1, 2), new GameDate(1955, 1, 5));
+        var schedule = harness.ScheduleOf();
 
-        var refusal = harness.Politics.CheckPropose(Series, "t01", "safety_car", "physical", new GameDate(1955, 6, 1));
+        // The window is the first day of the season until the day before the teams' ballot opens.
+        Assert.Equal(new GameDate(1955, 1, 1), schedule.ProposalsOpen);
+        Assert.Equal(schedule.TeamsSlot!.Opens.AddDays(-1), schedule.ProposalsClose);
+        Assert.Null(harness.Politics.CheckPropose(Series, "t01", "safety_car", "physical", new GameDate(1955, 1, 5)));
+        Assert.Null(harness.Politics.CheckPropose(Series, "t01", "safety_car", "physical", schedule.ProposalsClose));
+
+        harness.LiveToTeamBallot();
+        var refusal = harness.Politics.CheckPropose(Series, "t01", "safety_car", "physical", harness.Today);
 
         Assert.Equal(RegulationKeys.WindowClosed, refusal!.Key);
-        Assert.Equal("1956-02-01", refusal.Parameters["opens"]);
-        Assert.Equal(RegulationKeys.WindowClosed, harness.Politics.CheckPropose(Series, "t01", "safety_car", "physical", new GameDate(1955, 1, 5))!.Key);
+        Assert.Equal("1956-01-01", refusal.Parameters["opens"]);
     }
 
     [Fact]
@@ -341,10 +348,10 @@ public class PoliticsTests
                 Assert.InRange(fia.Length, RegulationEstimates.FiaVotesMin, RegulationEstimates.FiaVotesMax);
                 Assert.Equal(fia.Length, fia.Select(item => item.DimensionId).Distinct().Count());
                 Assert.Equal(fia.Length, harness.Of().FiaSlotsDone);
-                Assert.True(fia.First().Announced >= RegulationSchedule.FiaFirstAnnounced(year));
-                Assert.True(fia.Last().Announced <= RegulationSchedule.FiaLastAnnounced(year));
+                Assert.Equal(harness.ScheduleOf().FiaSlots.Select(slot => slot.Opens), fia.Select(item => item.Announced));
+                Assert.Equal(harness.ScheduleOf().FiaSlots.Select(slot => slot.Closes), fia.Select(item => item.Deadline));
                 Assert.True(fia.Select(item => item.Announced).Distinct().Count() == fia.Length, "the votes are spread, not announced on one day");
-                Assert.All(fia, item => Assert.True(item.Deadline < new GameDate(year, 11, 1)));
+                Assert.All(fia, item => Assert.True(item.Deadline <= RegulationSchedule.LastCountingDay(year)));
                 Assert.All(harness.Items().Where(item => item.Season == year), item => Assert.True(item.IsResolved));
             }
         }
@@ -386,7 +393,7 @@ public class PoliticsTests
     }
 
     [Fact]
-    public void AllTheDeadlinesAreInOrderAndTheTeamsBallotComesBeforeTheFiasVotes()
+    public void TheTeamsBallotSitsInTheMiddleOfTheYearAndTheProposalWindowClosesTheDayBeforeIt()
     {
         var harness = PoliticsHarness.Create(new HarnessOptions { AllHuman = true });
         harness.LiveFrom(new GameDate(1955, 1, 2), Feb10);
@@ -394,10 +401,16 @@ public class PoliticsTests
         Propose(harness, "t01", choice.DimensionId, choice.Value, Feb10);
         harness.LiveTo(new GameDate(1955, 12, 31));
 
+        var schedule = harness.ScheduleOf();
         var team = harness.Items().Single(item => item.Origin == BallotOrigin.Teams);
-        Assert.Equal(new GameDate(1955, 5, 1), team.Announced);
-        Assert.Equal(new GameDate(1955, 5, 31), team.Deadline);
-        Assert.All(harness.Items().Where(item => item.Origin == BallotOrigin.Fia), item => Assert.True(item.Announced > team.Deadline));
+        Assert.Equal(schedule.TeamsSlot!.Opens, team.Announced);
+        Assert.Equal(schedule.TeamsSlot.Closes, team.Deadline);
+        Assert.Equal(team.Announced.AddDays(-1), schedule.ProposalsClose);
+
+        // Votes of the FIA come before it and after it: the teams have the winter and the first weekends to file.
+        var fia = harness.Items().Where(item => item.Origin == BallotOrigin.Fia).ToArray();
+        Assert.Contains(fia, item => item.Deadline < team.Announced);
+        Assert.Contains(fia, item => item.Announced > team.Deadline);
     }
 
     [Fact]
@@ -435,7 +448,7 @@ public class PoliticsTests
         Propose(harness, "t01", choice.DimensionId, choice.Value, Feb10);
         var other = FirstChoice(harness, "safety_car");
         Propose(harness, "t02", other.DimensionId, other.Value, Feb10);
-        harness.LiveTo(new GameDate(1955, 5, 1));
+        harness.LiveToTeamBallot();
         var tie = harness.Items().Single(item => item.DimensionId == "points_scale");
         var clear = harness.Items().Single(item => item.DimensionId == "safety_car");
 
@@ -466,7 +479,8 @@ public class PoliticsTests
     public void ATiedVoteOnAnFiaProposalGoesToTheFiasOwnAgenda()
     {
         var harness = PoliticsHarness.Create(new HarnessOptions { AllHuman = true });
-        harness.LiveTo(new GameDate(1955, 6, 1));
+        harness.LiveTo(new GameDate(1955, 1, 2));
+        harness.LiveToFia();
         var item = harness.Items().First(i => i.Origin == BallotOrigin.Fia);
         foreach (var (team, index) in harness.Teams.Select((team, index) => (team, index)))
         {

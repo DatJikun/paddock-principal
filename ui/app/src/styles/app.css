@@ -924,6 +924,25 @@ select.text.sm{min-height:38px;font-size:14.5px}
 .acad-detail>header{padding:16px 22px 8px}
 .acad-detail .body{display:grid;gap:14px;padding:0 22px 20px}
 .acad-actions{flex-wrap:wrap;margin-top:0}
+.academy{max-width:1180px;margin:0 auto;display:grid;gap:20px}
+.academy .screen-head{margin-bottom:0}
+.yours>header{padding:15px 22px 8px}
+.slot-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:0 22px 20px}
+.slot-tile{all:unset;box-sizing:border-box;display:grid;gap:12px;align-content:start;min-height:150px;padding:16px 18px;border:1.5px solid var(--rule);border-radius:14px;background:color-mix(in oklab,var(--card) 80%,transparent);cursor:pointer;transition:border-color .2s,transform .1s}
+.slot-tile .fields{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0}
+.slot-tile:hover{border-color:var(--ink)}
+.slot-tile:active{transform:translateY(1px)}
+.slot-tile:focus-visible{outline:2.5px solid var(--hi);outline-offset:2px}
+.slot-tile.sel{border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.slot-tile.empty{cursor:default;border-style:dashed;align-content:center;justify-items:center;opacity:.7}
+.slot-tile.empty:hover{border-color:var(--rule)}
+.programmes{display:grid;gap:10px}
+.programme{all:unset;box-sizing:border-box;display:grid;gap:8px;padding:12px 14px;border:1.5px solid var(--rule);border-radius:12px;cursor:pointer;transition:border-color .2s}
+.programme:hover:not([disabled]){border-color:var(--ink)}
+.programme[disabled]{cursor:not-allowed;opacity:.55}
+.programme:focus-visible{outline:2.5px solid var(--hi);outline-offset:2px}
+.programme b{font-weight:600}
+@media (max-width:900px){.slot-row{grid-template-columns:minmax(0,1fr)}}
 
 @media (max-width:1320px){
   .fin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}

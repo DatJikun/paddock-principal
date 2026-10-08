@@ -106,6 +106,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - Most JSON, tryb deweloperski w przeglądarce, zrzuty ekranu do przeglądu.
 - Prawdziwe ekrany z design systemu (tor równoległy): gęste tabele, ekran wyścigu, onboarding.
 - **Multiplayer online (PP-045):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo.
+- **Playtest 1, poradnik w grze (#268):** książka z GUIDE.md otwierana z menu głównego, po polsku (PP-071).
 
 **Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.
 

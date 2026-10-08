@@ -14,3 +14,5 @@ build/
 # os
 Thumbs.db
 .DS_Store
+# the in-game guide, built from GUIDE.md by the ui scripts (#268)
+ui/app/src/lib/guide.generated.json

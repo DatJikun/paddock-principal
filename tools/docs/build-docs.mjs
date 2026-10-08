@@ -3,6 +3,8 @@
 //
 //   node tools/docs/build-docs.mjs            write build/docs/ (open build/docs/index.html)
 //   node tools/docs/build-docs.mjs --out DIR  write somewhere else
+//   node tools/docs/build-docs.mjs --guide-book FILE  write GUIDE.md as the JSON book the game's main menu opens (#268);
+//                                              ui/app runs it before dev, check, test and build, so the book is never committed
 //
 // The .md files stay the source (PP-056). The output is generated and not committed.
 // GUIDE.md may hold custom fences that read the game's code, so the numbers never drift
@@ -87,6 +89,37 @@ function tunableTable(path, body, cv, ctx) {
     + `<div class="table tunables"><table><thead><tr><th>Co to jest</th><th class="al-right">Teraz</th><th>W kodzie</th></tr></thead><tbody>\n${rows.join('\n')}\n</tbody></table></div></details>`;
 }
 
+/* The context renderMarkdown needs for one page: the custom fences read the code through `cv`. `charts: false` leaves the
+ * wykres fences out (the in-game book has no room for the docs' SVG charts). */
+function pageContext(p, cv, { pageOf, pageOfFile, charts = true }) {
+  const ctx = {
+    page: p.page,
+    dir: dirname(p.file) === '.' ? '' : dirname(p.file),
+    pageOf,
+    pageOfFile,
+    fence(info, body) {
+      const [kind, ...rest] = info.split(/\s+/);
+      const arg = rest.join(' ');
+      if (kind === 'strojenie') return tunableTable(arg, body, cv, ctx);
+      const blocks = makeBlocks({ cv, ctx, formatValue });
+      if (kind === 'stan') return blocks.stan(arg, body);
+      if (kind === 'porownanie') return blocks.porownanie(arg, body);
+      if (['pola', 'kroki', 'wybory', 'wgrze', 'pytania'].includes(kind)) return blocks[kind](arg || null, body);
+      if (kind === 'wykres') {
+        if (!charts) return '';
+        if (arg === 'słupki') {
+          const caption = body.filter(l => l.startsWith('opis:')).map(l => renderInline(l.slice(5).trim(), ctx)).join(' ');
+          return dataChart('bar', body.filter(l => !l.startsWith('opis:')), caption);
+        }
+        const caption = body.filter(l => l.trim()).map(l => l.trim()).join(' ');
+        return namedChart(arg, cv, caption ? renderInline(caption, ctx) : '');
+      }
+      return null;
+    },
+  };
+  return ctx;
+}
+
 export function buildSite(root = REPO_ROOT) {
   const cv = new CodeValues(root);
   const pageOf = name => PAGES.find(p => p.doc === (DOC_ALIASES[name] ?? name))?.page;
@@ -96,30 +129,7 @@ export function buildSite(root = REPO_ROOT) {
 
   for (const p of PAGES) {
     const source = readFileSync(join(root, p.file), 'utf8');
-    const ctx = {
-      page: p.page,
-      dir: dirname(p.file) === '.' ? '' : dirname(p.file),
-      pageOf,
-      pageOfFile,
-      fence(info, body) {
-        const [kind, ...rest] = info.split(/\s+/);
-        const arg = rest.join(' ');
-        if (kind === 'strojenie') return tunableTable(arg, body, cv, ctx);
-        const blocks = makeBlocks({ cv, ctx, formatValue });
-        if (kind === 'stan') return blocks.stan(arg, body);
-        if (kind === 'porownanie') return blocks.porownanie(arg, body);
-        if (['pola', 'kroki', 'wybory', 'wgrze', 'pytania'].includes(kind)) return blocks[kind](arg || null, body);
-        if (kind === 'wykres') {
-          if (arg === 'słupki') {
-            const caption = body.filter(l => l.startsWith('opis:')).map(l => renderInline(l.slice(5).trim(), ctx)).join(' ');
-            return dataChart('bar', body.filter(l => !l.startsWith('opis:')), caption);
-          }
-          const caption = body.filter(l => l.trim()).map(l => l.trim()).join(' ');
-          return namedChart(arg, cv, caption ? renderInline(caption, ctx) : '');
-        }
-        return null;
-      },
-    };
+    const ctx = pageContext(p, cv, { pageOf, pageOfFile });
     let html = renderMarkdown(source, ctx);
     if (p.doc === 'GUIDE') html = chapterize(html);
     ids.set(p.page, ctx.ids);
@@ -132,6 +142,43 @@ export function buildSite(root = REPO_ROOT) {
     files.set(r.page, resolveRefs(layout(r, body), ids));
   }
   return files;
+}
+
+/* The guide as a book for the game's main menu: the same GUIDE.md, rendered by the same blocks and constants, cut into
+ * chapters. Links to the other documents become plain text (the game has no such pages), the charts are left out and the
+ * placeholders that read the code are already filled, so the numbers in the book are the numbers of the build it ships with.
+ * Returns plain data; the UI renders `html` as is (it is produced here from our own repository file, not from user input). */
+export function buildGuideBook(root = REPO_ROOT) {
+  const cv = new CodeValues(root);
+  const page = PAGES.find(p => p.doc === 'GUIDE');
+  const pageOf = name => PAGES.find(p => p.doc === (DOC_ALIASES[name] ?? name))?.page;
+  const pageOfFile = file => PAGES.find(p => p.file === file || basename(p.file) === file)?.page;
+  const ctx = pageContext(page, cv, { pageOf, pageOfFile, charts: false });
+  const html = renderMarkdown(readFileSync(join(root, page.file), 'utf8'), ctx);
+  const plain = fragment => fragment
+    .replace(/<a class="anchor"[^>]*>[\s\S]*?<\/a>/g, '')
+    .replace(/<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g, (whole, href, label) => (href.startsWith('#') ? whole : label))
+    .replace(/\s*<hr>\s*$/, '')
+    // the app's stylesheet already owns names like "fields" and "choices": the book's blocks get a "g-" prefix
+    .replace(/class="([^"]*)"/g, (_, names) => `class="${names.split(/\s+/).map(n => (n === 'num' ? n : `g-${n}`)).join(' ')}"`)
+    .trim();
+  const parts = html.split(/(?=<h2 id=")/);
+  const head = parts.shift();
+  const title = (head.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) ?? [])[1] ?? page.title;
+  const intro = plain(head.replace(/<h1[\s\S]*?<\/h1>/, ''));
+  const chapters = parts.map(part => {
+    const h = part.match(/^<h2 id="([^"]+)">([\s\S]*?)<\/h2>/);
+    const inner = h[2].replace(/<a class="anchor"[\s\S]*?<\/a>/, '').replace(/<[^>]+>/g, '');
+    const numbered = inner.match(/^(\d+)\.\s*([\s\S]*)$/);
+    return {
+      id: h[1],
+      number: numbered ? Number(numbered[1]) : null,
+      title: numbered ? numbered[2] : inner,
+      html: plain(part.slice(h[0].length)),
+    };
+  });
+  if (chapters.length < 5) throw new Error('docs: the guide book found fewer than five chapters in GUIDE.md');
+  return { lang: 'pl', title, intro, chapters };
 }
 
 function toc(headings, page) {
@@ -235,12 +282,22 @@ export function writeSite(outDir, root = REPO_ROOT) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const bookFlag = process.argv.indexOf('--guide-book');
   const outFlag = process.argv.indexOf('--out');
-  const outDir = outFlag > 0 ? process.argv[outFlag + 1] : join(REPO_ROOT, 'build', 'docs');
   try {
-    const pages = writeSite(outDir);
-    console.log(`docs: ${pages.length} pages written to ${outDir}`);
-    console.log(`docs: open ${join(outDir, 'index.html')}`);
+    if (bookFlag > 0) {
+      const target = process.argv[bookFlag + 1];
+      if (!target) throw new Error('docs: --guide-book needs a file name');
+      const book = buildGuideBook();
+      mkdirSync(dirname(target), { recursive: true });
+      writeFileSync(target, JSON.stringify(book) + '\n');
+      console.log(`docs: guide book of ${book.chapters.length} chapters written to ${target}`);
+    } else {
+      const outDir = outFlag > 0 ? process.argv[outFlag + 1] : join(REPO_ROOT, 'build', 'docs');
+      const pages = writeSite(outDir);
+      console.log(`docs: ${pages.length} pages written to ${outDir}`);
+      console.log(`docs: open ${join(outDir, 'index.html')}`);
+    }
   } catch (e) {
     console.error(e.message);
     process.exit(1);

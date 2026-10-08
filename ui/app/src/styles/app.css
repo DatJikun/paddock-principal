@@ -1060,3 +1060,68 @@ input[type=range]:focus-visible{outline-offset:4px}
 .wiz-grid,.wiz-summary{justify-content:center}
 .wiz-world{width:min(920px,100%)}
 .tilt{padding:8px 14px}
+
+/* ---------- playtest 1: the guide (Poradnik) in the main menu. The book's own blocks carry a g- prefix. ---------- */
+.guide{display:grid;gap:14px;align-content:start}
+.guide-lang{display:flex}
+.guide-grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start}
+.guide-toc{position:sticky;top:0;max-height:calc(100vh - 150px);display:flex;flex-direction:column}
+.guide-toc>header{padding:15px 20px 8px}
+.guide-toc ol{list-style:none;padding:0 12px 14px;display:grid;gap:3px;overflow:auto;min-height:0}
+.guide-toc button{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:grid;grid-template-columns:30px minmax(0,1fr);align-items:baseline;gap:8px;padding:8px 10px;border-radius:10px;font:500 15px/1.25 var(--ui);
+  transition:background .15s,transform .12s var(--ease)}
+.guide-toc button:hover{background:var(--tint)}
+.guide-toc button:active{transform:scale(.98)}
+.guide-toc button.on{background:var(--ink);color:var(--card)}
+.guide-toc .num{font-size:13px;opacity:.7}
+.guide-page{display:flex;flex-direction:column;min-height:min(640px,calc(100vh - 170px))}
+.guide-page>header{justify-content:flex-start;gap:16px;padding:20px 28px 6px}
+.guide-page>header h2{font-size:34px}
+.guide-no{display:grid;place-items:center;min-width:48px;height:48px;padding:0 8px;border-radius:12px;background:var(--ink);color:var(--card);font:900 24px/1 var(--display);flex:none}
+.guide-text{padding:8px 28px 22px;flex:1;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-content:start;max-width:860px}
+.guide-text p{max-width:68ch;font-size:16px;line-height:1.55}
+.guide-text h3{font:700 18px/1.3 var(--ui);text-transform:none;margin-top:8px}
+.guide-text ul,.guide-text ol{padding-left:22px;max-width:68ch}
+.guide-text li{margin:3px 0}
+.guide-text code{font:500 .9em ui-monospace,Consolas,monospace;background:var(--tint);padding:1px 5px;border-radius:5px}
+.guide-pager{display:flex;gap:12px;justify-content:space-between;align-items:center;padding:14px 28px 18px}
+.guide-pager .btn{max-width:48%;min-width:0}
+.guide-pager .btn small{overflow:hidden;text-overflow:ellipsis;font:500 13.5px var(--ui)}
+.guide-pager .next{margin-left:auto}
+.guide-pager .next small{opacity:.78}
+.guide-pager .btn.next:only-child{margin-left:auto}
+
+/* fields: label over value, a note under it */
+.guide-text .g-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.guide-text .g-field{display:grid;align-content:start;gap:3px;padding:12px 14px;border:1.5px solid var(--rule);border-radius:var(--r-ctl);background:color-mix(in oklab,var(--card) 92%,transparent)}
+.guide-text .g-f-label{font:600 12.5px var(--ui);letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)}
+.guide-text .g-f-value{font:600 16px/1.3 var(--ui)}
+.guide-text .g-f-note{font-size:14px;color:var(--ink2)}
+/* decisions: the choice on the left, what it changes on the right */
+.guide-text .g-choices{list-style:none;padding:0;max-width:none;border:1.5px solid var(--rule);border-radius:var(--r-ctl);overflow:hidden;background:color-mix(in oklab,var(--card) 92%,transparent)}
+.guide-text .g-choices li{display:grid;grid-template-columns:minmax(150px,230px) minmax(0,1fr);gap:6px 20px;margin:0;padding:11px 16px}
+.guide-text .g-choices li+li{border-top:1px solid var(--rule)}
+.guide-text .g-d-title{font:650 15.5px/1.3 var(--ui)}
+.guide-text .g-d-text{color:var(--ink2);font-size:15px}
+/* steps: a numbered flow */
+.guide-text .g-steps{list-style:none;padding:0;max-width:none;display:grid;gap:8px;counter-reset:g-step}
+.guide-text .g-steps li{counter-increment:g-step;display:grid;grid-template-columns:34px minmax(110px,190px) minmax(0,1fr);gap:4px 14px;align-items:baseline;margin:0;padding:10px 14px;border:1.5px solid var(--rule);border-radius:var(--r-ctl);background:color-mix(in oklab,var(--card) 92%,transparent)}
+.guide-text .g-steps li::before{content:counter(g-step);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--card);font:600 14px var(--ui);align-self:center}
+.guide-text .g-s-title{font:650 15.5px/1.3 var(--ui)}
+.guide-text .g-s-text{color:var(--ink2);font-size:15px}
+/* two columns side by side */
+.guide-text .g-compare{display:grid;width:max-content;max-width:100%;border:1.5px solid var(--rule);border-radius:var(--r-ctl);overflow:hidden;background:color-mix(in oklab,var(--card) 92%,transparent)}
+.guide-text .g-cmp-row{display:grid;grid-template-columns:minmax(120px,190px) minmax(160px,300px) minmax(160px,300px);gap:16px;padding:9px 14px;font-size:15px}
+.guide-text .g-cmp-row+.g-cmp-row{border-top:1px solid var(--rule)}
+.guide-text .g-cmp-head{font:600 12.5px var(--ui);letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);background:var(--tint)}
+.guide-text .g-cmp-label{font-weight:650}
+/* questions to the people who test the game */
+.guide-text .g-ask{border:1.5px solid var(--ink);border-radius:var(--r-ctl);padding:12px 16px 8px;background:color-mix(in oklab,var(--t2) 14%,var(--card));box-shadow:0 3px 0 var(--ink)}
+.guide-text .g-ask-head{font:600 12.5px var(--ui);letter-spacing:.05em;text-transform:uppercase;color:var(--ink2)}
+.guide-text .g-ask ul{padding-left:20px;margin-top:6px;max-width:none}
+@media (max-width:1100px){
+  .guide-grid{grid-template-columns:minmax(0,1fr)}
+  .guide-toc{position:static;max-height:none}
+  .guide-text .g-choices li,.guide-text .g-steps li{grid-template-columns:minmax(0,1fr)}
+  .guide-text .g-cmp-row{grid-template-columns:minmax(0,1fr)}
+}

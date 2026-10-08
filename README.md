@@ -36,7 +36,7 @@ Potrzebny jest Windows 10 lub 11 (64-bit) z WebView2, który system ma domyślni
 
 Dokumentacji ma być mało (PP-017). Szczegóły żyją w kodzie i historii gita.
 
-**Wersja HTML (PP-056):** `node tools/docs/build-docs.mjs`, potem otwórz `build/docs/index.html`. Strony powstają z plików .md, a liczby i wykresy w przewodniku są czytane z kodu gry.
+**Wersja HTML (PP-056):** `node tools/docs/build-docs.mjs`, potem otwórz `build/docs/index.html`. Strony powstają z plików .md, a liczby i wykresy w przewodniku są czytane z kodu gry. Ten sam przewodnik jest w grze jako Poradnik w menu głównym (PP-071).
 
 ## Stack
 

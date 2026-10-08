@@ -37,6 +37,7 @@ public class ValidateAuthoredCommandTests
                 "era timeline periods: 125",
                 "cpi years: 77",
                 "track geometries: 26",
+                "banned rules in the default list: 3",
             ],
             Lines(stdout));
     }

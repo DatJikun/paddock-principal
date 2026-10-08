@@ -8,18 +8,18 @@ using Paddock.Tests.Sponsors;
 
 namespace Paddock.Tests.Persistence;
 
-/// <summary>V029 adds the terms of sponsor deals (#268) without losing a row, and a world with terms survives a save.</summary>
+/// <summary>V030 adds the terms of sponsor deals (#268) without losing a row, and a world with terms survives a save.</summary>
 public sealed class SponsorTermsMigrationTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("paddock-v29-").FullName;
+    private readonly string _directory = Directory.CreateTempSubdirectory("paddock-v30-").FullName;
 
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 
     [Fact]
-    public void AV28SaveKeepsItsSponsorRowsAsOneYearStandardDealsAndAcceptsLongerOnes()
+    public void AV29SaveKeepsItsSponsorRowsAsOneYearStandardDealsAndAcceptsLongerOnes()
     {
-        var path = Path.Combine(_directory, "v28.paddock");
-        using (var created = SaveFile.Create(path, WorldFixtures.Meta(), [.. SaveMigrations.Production.Take(28)]))
+        var path = Path.Combine(_directory, "v29.paddock");
+        using (var created = SaveFile.Create(path, WorldFixtures.Meta(), [.. SaveMigrations.Production.Take(29)]))
         {
             Exec(created, """
                 INSERT INTO sponsor_state (id, next_number) VALUES (1, 4);

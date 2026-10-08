@@ -20,7 +20,7 @@ public sealed class RacingModule : CareerModule
     public override string Name => ModuleName;
 
     public override IReadOnlyList<string> Sections =>
-        [ChampionshipSection.SectionName, RegulationsSection.SectionName, RaceResultsSection.SectionName, RaceCalendarSection.SectionName];
+        [ChampionshipSection.SectionName, RaceResultsSection.SectionName, RaceCalendarSection.SectionName];
 
     public override void Configure(CareerModuleContext context)
     {

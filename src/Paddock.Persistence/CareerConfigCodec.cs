@@ -23,6 +23,9 @@ internal static class CareerConfigCodec
         "presetName",
     ];
 
+    /// <summary>Written only when it is not the default (see <see cref="CareerConfig.ToCanonicalJson"/>).</summary>
+    private const string OptionalVoteMode = "voteMode";
+
     public static CareerConfig Read(string payload)
     {
         ArgumentNullException.ThrowIfNull(payload);
@@ -57,13 +60,14 @@ internal static class CareerConfigCodec
         foreach (var property in document.RootElement.EnumerateObject())
         {
             count++;
-            if (Array.IndexOf(Properties, property.Name) < 0)
+            if (Array.IndexOf(Properties, property.Name) < 0 && property.Name != OptionalVoteMode)
             {
                 throw new InvalidDataException($"Career config JSON has unknown property '{property.Name}'.");
             }
         }
 
-        if (count != Properties.Length)
+        var hasVoteMode = document.RootElement.TryGetProperty(OptionalVoteMode, out _);
+        if (count != Properties.Length + (hasVoteMode ? 1 : 0))
         {
             throw new InvalidDataException("Career config JSON is missing a property.");
         }
@@ -82,7 +86,8 @@ internal static class CareerConfigCodec
             RequireEnum<FatalityLevel>(document.RootElement, "fatalityLevel"),
             RequireInt(document.RootElement, "startYear"),
             RequireString(document.RootElement, "playerTeam"),
-            RequireBool(document.RootElement, "noNumbers"));
+            RequireBool(document.RootElement, "noNumbers"),
+            hasVoteMode ? RequireEnum<VoteMode>(document.RootElement, OptionalVoteMode) : VoteMode.OneVoteEach);
     }
 
     private static string RequireString(JsonElement root, string name)

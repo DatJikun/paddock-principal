@@ -4,6 +4,7 @@
   import { livery } from '../livery.mjs';
   import { formatMoney } from '../money.mjs';
   import { countryName, type Tr } from '../ui';
+  import { seatRows } from '../team-seats.mjs';
   import Emblem from './Emblem.svelte';
   import Flag from './Flag.svelte';
 
@@ -26,6 +27,7 @@
   let colours = $derived(livery(team.id));
   /* Race seats are listed; reserves are only counted, so a long roster does not read as a line-up. */
   let race = $derived(team.drivers.filter((driver) => driver.seat !== 'Reserve'));
+  let raceRows = $derived(seatRows(race));
   let reserves = $derived(team.drivers.filter((driver) => driver.seat === 'Reserve'));
   /* A works engine is "factory"; every other engine is named by who builds it. */
   let works = $derived(team.engine?.supplyType === 'works');
@@ -79,7 +81,7 @@
       <span class="meta">{tr.t('team.card.drivers')}</span>
       {#if race.length > 0}
         <span class="tc-drivers">
-          {#each race as driver (driver.name)}
+          {#each raceRows as { key, driver } (key)}
             <span class="tc-driver">
               {#if hasFlag(driver.nationality)}<Flag code={driver.nationality} />{/if}
               <b>{driver.name}</b>

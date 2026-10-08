@@ -24,11 +24,17 @@ public class WorldSizeTests : IDisposable
     /// <summary>ESTIMATE: file size ceiling for the world above, in bytes (5 MiB). One local run measured 2.46 MiB.</summary>
     public const long MaxFileBytes = 5L * 1024 * 1024;
 
-    /// <summary>ESTIMATE: ceiling for one full SaveWorld on a shared CI runner, in milliseconds. One local run took about 350 ms.</summary>
+    /// <summary>ESTIMATE: ceiling for one full SaveWorld on a shared CI runner, in milliseconds. Local runs took about 300 to 400 ms.</summary>
     public const long MaxSaveMilliseconds = 5_000;
 
-    /// <summary>ESTIMATE: ceiling for one full LoadWorld on a shared CI runner, in milliseconds. One local run took about 250 ms.</summary>
+    /// <summary>ESTIMATE: ceiling for one full LoadWorld on a shared CI runner, in milliseconds. Local runs took about 200 to 300 ms.</summary>
     public const long MaxLoadMilliseconds = 5_000;
+
+    /// <summary>
+    /// How many times save and load are measured, each into a fresh file. The check asserts on the smallest of them: a transient
+    /// CPU or disk spike hits one round, while a real regression (a blob per row, a missing transaction, a quadratic load) slows every round.
+    /// </summary>
+    public const int Attempts = 3;
 
     private readonly ITestOutputHelper _output;
     private readonly string _directory = Directory.CreateTempSubdirectory("paddock-size-").FullName;
@@ -51,32 +57,41 @@ public class WorldSizeTests : IDisposable
         Assert.Equal(Organizations, world.Organizations.Count);
         Assert.Equal(Contracts, world.Contracts.Count);
 
-        var path = Path.Combine(_directory, "big.paddock");
-        WorldState loaded;
-        long saveMilliseconds;
-        long loadMilliseconds;
-        using (var save = SaveFile.Create(path, WorldFixtures.Meta()))
+        // Each attempt saves into a fresh file and then loads it back, so a slow first attempt cannot leave a warm file behind for the next.
+        var saveMilliseconds = new List<long>(Attempts);
+        var loadMilliseconds = new List<long>(Attempts);
+        var paths = new List<string>(Attempts);
+        WorldState? loaded = null;
+        for (var attempt = 1; attempt <= Attempts; attempt++)
         {
+            var path = Path.Combine(_directory, "big-" + attempt.ToString(CultureInfo.InvariantCulture) + ".paddock");
+            paths.Add(path);
+            using var save = SaveFile.Create(path, WorldFixtures.Meta());
             var repository = new WorldRepository(save);
             var clock = Stopwatch.StartNew();
             repository.SaveWorld(world, world.CurrentDate);
-            saveMilliseconds = clock.ElapsedMilliseconds;
+            saveMilliseconds.Add(clock.ElapsedMilliseconds);
 
             clock.Restart();
             loaded = repository.LoadWorld();
-            loadMilliseconds = clock.ElapsedMilliseconds;
+            loadMilliseconds.Add(clock.ElapsedMilliseconds);
         }
 
-        var bytes = new FileInfo(path).Length;
+        var bytes = new FileInfo(paths[^1]).Length;
+        var saveSmallest = saveMilliseconds.Min();
+        var loadSmallest = loadMilliseconds.Min();
         _output.WriteLine(string.Create(
             CultureInfo.InvariantCulture,
-            $"{Persons} persons, {Organizations} organizations, {Contracts} contracts, {Beliefs} beliefs: {bytes / 1024.0 / 1024.0:F2} MiB, save {saveMilliseconds} ms, load {loadMilliseconds} ms"));
+            $"{Persons} persons, {Organizations} organizations, {Contracts} contracts, {Beliefs} beliefs: {bytes / 1024.0 / 1024.0:F2} MiB, save ms {Join(saveMilliseconds)} (smallest {saveSmallest}), load ms {Join(loadMilliseconds)} (smallest {loadSmallest})"));
 
-        Assert.Equal(world.StateHash(), loaded.StateHash());
+        Assert.Equal(world.StateHash(), loaded!.StateHash());
         Assert.True(bytes < MaxFileBytes, $"The save is {bytes} bytes, above the {MaxFileBytes} byte estimate.");
-        Assert.True(saveMilliseconds < MaxSaveMilliseconds, $"Saving took {saveMilliseconds} ms, above the {MaxSaveMilliseconds} ms estimate.");
-        Assert.True(loadMilliseconds < MaxLoadMilliseconds, $"Loading took {loadMilliseconds} ms, above the {MaxLoadMilliseconds} ms estimate.");
+        Assert.True(saveSmallest < MaxSaveMilliseconds, $"Saving took {Join(saveMilliseconds)} ms in {Attempts} attempts (smallest {saveSmallest} ms), above the {MaxSaveMilliseconds} ms estimate.");
+        Assert.True(loadSmallest < MaxLoadMilliseconds, $"Loading took {Join(loadMilliseconds)} ms in {Attempts} attempts (smallest {loadSmallest} ms), above the {MaxLoadMilliseconds} ms estimate.");
     }
+
+    private static string Join(IEnumerable<long> values) =>
+        string.Join(" / ", values.Select(value => value.ToString(CultureInfo.InvariantCulture)));
 
     /// <summary>
     /// SYNTHETIC: ids, names, dates, salaries and attribute values are made up to fill the tables. Built through

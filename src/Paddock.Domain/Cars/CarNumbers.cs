@@ -35,6 +35,12 @@ public static class CarEstimates
     /// <summary>ESTIMATE: understanding on the day a new concept is approved. In-season gains are T42.</summary>
     public const double NewConceptUnderstanding = 25;
 
+    /// <summary>
+    /// ESTIMATE: rating points a car with no understanding at all loses on downforce, grip, braking and reliability, when the race engine
+    /// reads it (PP-066). It falls in proportion as understanding rises, so a new concept costs something until it is understood.
+    /// </summary>
+    public const double UnderstandingMaxLoss = 6;
+
     /// <summary>ESTIMATE: car strength when no historical effect and no tier draw applies.</summary>
     public const double TierFallback = 50;
 

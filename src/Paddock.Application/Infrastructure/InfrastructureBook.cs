@@ -37,10 +37,19 @@ public sealed class InfrastructureBook
         return new InfrastructureBook(() => session.World, session.StoreWorld);
     }
 
-    public void Write(InfrastructureSection infrastructure, FinanceSection? finance = null, CarsSection? cars = null)
+    public void Write(
+        InfrastructureSection infrastructure,
+        FinanceSection? finance = null,
+        CarsSection? cars = null,
+        Paddock.Domain.Development.DevelopmentSection? development = null)
     {
         ArgumentNullException.ThrowIfNull(infrastructure);
         var world = World.WithSection(infrastructure);
+        if (development is not null)
+        {
+            world = world.WithSection(development);
+        }
+
         if (finance is not null)
         {
             world = world.WithSection(finance);

@@ -33,6 +33,7 @@ public sealed class DevelopmentSection : IWorldSection
     private readonly SortedDictionary<string, DevelopmentPlan> _plans;
     private readonly SortedDictionary<string, DevelopmentAccount> _accounts;
     private readonly ImmutableSortedDictionary<long, DevProject> _projects;
+    private readonly ImmutableList<UnderstandingNote> _notes;
 
     /// <summary>
     /// Projects the day still walks (active, in production, ready), per organization, in project-number order. Closed history
@@ -45,13 +46,15 @@ public sealed class DevelopmentSection : IWorldSection
         SortedDictionary<string, DevelopmentPlan> plans,
         SortedDictionary<string, DevelopmentAccount> accounts,
         ImmutableSortedDictionary<long, DevProject> projects,
-        ImmutableDictionary<string, ImmutableArray<DevProject>> open)
+        ImmutableDictionary<string, ImmutableArray<DevProject>> open,
+        ImmutableList<UnderstandingNote> notes)
     {
         NextProject = nextProject;
         _plans = plans;
         _accounts = accounts;
         _projects = projects;
         _open = open;
+        _notes = notes;
     }
 
     public static DevelopmentSection Empty { get; } = new(
@@ -59,7 +62,8 @@ public sealed class DevelopmentSection : IWorldSection
         new SortedDictionary<string, DevelopmentPlan>(StringComparer.Ordinal),
         new SortedDictionary<string, DevelopmentAccount>(StringComparer.Ordinal),
         ImmutableSortedDictionary<long, DevProject>.Empty,
-        ImmutableDictionary<string, ImmutableArray<DevProject>>.Empty);
+        ImmutableDictionary<string, ImmutableArray<DevProject>>.Empty,
+        ImmutableList<UnderstandingNote>.Empty);
 
     public string Name => SectionName;
 
@@ -67,7 +71,13 @@ public sealed class DevelopmentSection : IWorldSection
 
     public long NextProject { get; }
 
-    public bool IsEmpty => NextProject == 1 && _plans.Count == 0 && _accounts.Count == 0 && _projects.Count == 0;
+    public bool IsEmpty => NextProject == 1 && _plans.Count == 0 && _accounts.Count == 0 && _projects.Count == 0 && _notes.Count == 0;
+
+    /// <summary>What the teams learned about their cars, oldest first (at most <see cref="DevelopmentEstimates.MaxNotes"/> per team).</summary>
+    public IReadOnlyList<UnderstandingNote> Notes => _notes;
+
+    public IReadOnlyList<UnderstandingNote> NotesOf(OrganizationId organization) =>
+        _notes.Where(note => note.Organization == organization).ToArray();
 
     public IReadOnlyList<DevelopmentPlan> Plans => _plans.Values.ToArray();
 
@@ -99,7 +109,8 @@ public sealed class DevelopmentSection : IWorldSection
         long nextProject,
         IEnumerable<DevelopmentPlan> plans,
         IEnumerable<DevelopmentAccount> accounts,
-        IEnumerable<DevProject> projects)
+        IEnumerable<DevProject> projects,
+        IEnumerable<UnderstandingNote>? notes = null)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(nextProject, 1);
         ArgumentNullException.ThrowIfNull(plans);
@@ -154,7 +165,16 @@ public sealed class DevelopmentSection : IWorldSection
         }
 
         var stored = projectMap.ToImmutable();
-        return new DevelopmentSection(nextProject, planMap, accountMap, stored, IndexOpen(stored));
+        var noteList = ImmutableList.CreateRange(notes ?? []);
+        foreach (var note in noteList)
+        {
+            if (!note.Organization.IsAssigned || string.IsNullOrWhiteSpace(note.Source))
+            {
+                throw new InvalidOperationException("An understanding note is out of range.");
+            }
+        }
+
+        return new DevelopmentSection(nextProject, planMap, accountMap, stored, IndexOpen(stored), noteList);
     }
 
     public DevelopmentSection SetPlan(DevelopmentPlan plan)
@@ -162,7 +182,7 @@ public sealed class DevelopmentSection : IWorldSection
         ArgumentNullException.ThrowIfNull(plan);
         Validate(plan);
         var plans = new SortedDictionary<string, DevelopmentPlan>(_plans, StringComparer.Ordinal) { [plan.Organization.Value] = plan };
-        return new DevelopmentSection(NextProject, plans, _accounts, _projects, _open);
+        return new DevelopmentSection(NextProject, plans, _accounts, _projects, _open, _notes);
     }
 
     public DevelopmentSection SetAccount(DevelopmentAccount account)
@@ -172,7 +192,7 @@ public sealed class DevelopmentSection : IWorldSection
         {
             [account.Organization.Value] = account,
         };
-        return new DevelopmentSection(NextProject, _plans, accounts, _projects, _open);
+        return new DevelopmentSection(NextProject, _plans, accounts, _projects, _open, _notes);
     }
 
     /// <summary>Adds a project. <paramref name="project"/> must carry the number <see cref="NextProject"/>.</summary>
@@ -185,7 +205,7 @@ public sealed class DevelopmentSection : IWorldSection
         }
 
         var projects = _projects.SetItem(project.Number, project);
-        return new DevelopmentSection(NextProject + 1, _plans, _accounts, projects, TouchOpen(project));
+        return new DevelopmentSection(NextProject + 1, _plans, _accounts, projects, TouchOpen(project), _notes);
     }
 
     public DevelopmentSection ReplaceProject(DevProject project)
@@ -197,7 +217,31 @@ public sealed class DevelopmentSection : IWorldSection
         }
 
         var projects = _projects.SetItem(project.Number, project);
-        return new DevelopmentSection(NextProject, _plans, _accounts, projects, TouchOpen(project));
+        return new DevelopmentSection(NextProject, _plans, _accounts, projects, TouchOpen(project), _notes);
+    }
+
+    /// <summary>
+    /// Adds a line to the team's learning log and drops the oldest of that team beyond <see cref="DevelopmentEstimates.MaxNotes"/>.
+    /// A zero change is not worth a line.
+    /// </summary>
+    public DevelopmentSection AddNote(UnderstandingNote note)
+    {
+        ArgumentNullException.ThrowIfNull(note);
+        if (note.DeltaMilli == 0)
+        {
+            return this;
+        }
+
+        var notes = _notes.Add(note);
+        var own = notes.Count(item => item.Organization == note.Organization);
+        while (own > DevelopmentEstimates.MaxNotes)
+        {
+            var index = notes.FindIndex(item => item.Organization == note.Organization);
+            notes = notes.RemoveAt(index);
+            own--;
+        }
+
+        return new DevelopmentSection(NextProject, _plans, _accounts, _projects, _open, notes);
     }
 
     private ImmutableDictionary<string, ImmutableArray<DevProject>> TouchOpen(DevProject project)
@@ -279,7 +323,8 @@ public sealed class DevelopmentSection : IWorldSection
                 " " + N(plan.CurrentPercent) + " " + N(plan.AccountPercent) + " " + N(plan.NextYearPercent)
                 + " " + N(plan.AeroPriority) + " " + N(plan.ChassisPriority) + " " + N(plan.ReliabilityPriority) + " " + N(plan.TyresPriority)
                 + " " + N(plan.SpentCurrentCents) + " " + N(plan.SpentAccountCents) + " " + N(plan.SpentNextYearCents)
-                + " " + D(plan.ChangedOn));
+                + " " + D(plan.ChangedOn)
+                + (plan.HasDefaultCharacter ? string.Empty : " char " + N(plan.NextPhilosophyMilli) + " " + N(plan.NextAeroMilli)));
             writer.End();
         }
 
@@ -288,7 +333,9 @@ public sealed class DevelopmentSection : IWorldSection
         {
             writer.Begin("account");
             writer.Field(account.Organization.Value);
-            writer.Raw(" " + N(account.StockMilli) + " " + N(account.NextYearShareMilli) + " " + N(account.RulesYear));
+            writer.Raw(
+                " " + N(account.StockMilli) + " " + N(account.NextYearShareMilli) + " " + N(account.RulesYear)
+                + (account.ConceptYear == 0 ? string.Empty : " concept " + N(account.ConceptYear)));
             writer.End();
         }
 
@@ -307,8 +354,23 @@ public sealed class DevelopmentSection : IWorldSection
                 + " " + (project.OutcomeMilli is { } outcome ? N(outcome) : "-")
                 + " " + project.Status + " " + project.Timing + " " + N(project.TimingRaces) + " " + N(project.RacesWaited)
                 + " " + D(project.ClosedOn)
-                + (project.ProductionEnds is { } ends ? " prod " + D(ends) + " " + N(project.ProductionCostCents) : string.Empty));
+                + (project.ProductionEnds is { } ends ? " prod " + D(ends) + " " + N(project.ProductionCostCents) : string.Empty)
+                + (project.Flags == 0 && project.CeilingMilli == 0 && project.PhilosophyMilli == 0 && project.AeroMilli == 0
+                    ? string.Empty
+                    : " v2 " + N(project.PhilosophyMilli) + " " + N(project.AeroMilli) + " " + N(project.CeilingMilli) + " " + N(project.Flags)));
             writer.End();
+        }
+
+        if (_notes.Count > 0)
+        {
+            writer.Count("notes", _notes.Count);
+            foreach (var note in _notes)
+            {
+                writer.Begin("note");
+                writer.Field(note.Organization.Value);
+                writer.Raw(" " + D(note.On) + " " + note.Source + " " + N(note.DeltaMilli));
+                writer.End();
+            }
         }
     }
 
@@ -320,6 +382,8 @@ public sealed class DevelopmentSection : IWorldSection
             || !DevelopmentPlan.IsValidPriority(plan.ChassisPriority)
             || !DevelopmentPlan.IsValidPriority(plan.ReliabilityPriority)
             || !DevelopmentPlan.IsValidPriority(plan.TyresPriority)
+            || !DevelopmentPlan.IsValidAxis(plan.NextPhilosophyMilli)
+            || !DevelopmentPlan.IsValidAxis(plan.NextAeroMilli)
             || plan.SpentCurrentCents < 0
             || plan.SpentAccountCents < 0
             || plan.SpentNextYearCents < 0)

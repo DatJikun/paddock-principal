@@ -99,10 +99,10 @@ public static class ChampionshipFacts
 
     private static RuleSet? Rules(CareerInputs inputs, WorldState world, int season)
     {
-        var stored = world.Section<RegulationsSection>(RegulationsSection.SectionName);
-        if (stored is not null && stored.Season == season)
+        var stored = world.Section<RegulationsSection>(RegulationsSection.SectionName)?.RuleSetFor(SeriesIds.WorldChampionship, season);
+        if (stored is not null)
         {
-            return stored.ToRuleSet();
+            return stored;
         }
 
         if (inputs.RegulationDimensionIds is not { } dimensions || inputs.RulePeriods is not { } periods)

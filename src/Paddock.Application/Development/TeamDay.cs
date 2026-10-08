@@ -7,6 +7,12 @@ using Paddock.Domain.World;
 
 namespace Paddock.Application.Development;
 
+/// <summary>
+/// What one finished project drew from its <c>Development</c> child: the execution noise, whether it failed, and whether the
+/// engineer had a breakthrough. Drawn in this order, so adding a draw later never shifts an earlier one (INV-004).
+/// </summary>
+internal readonly record struct ProjectDraw(Xoshiro256StarStar Rng, double Noise, bool Failed, bool Breakthrough, int Innovation);
+
 /// <summary>One team's day of development. A small mutable bag over the immutable sections, thrown away after the step.</summary>
 internal sealed class TeamDay
 {
@@ -50,6 +56,7 @@ internal sealed class TeamDay
 
     public void Run()
     {
+        EnsureConceptYear();
         AdvanceProjects();
         AdvanceProduction();
         DeployReady();
@@ -86,10 +93,19 @@ internal sealed class TeamDay
         var target = (long)Math.Round(project.CostCents * fraction, MidpointRounding.AwayFromZero);
         PostSpend(project, target - project.PostedCents);
         _plan = _plan.WithSpent(project.Kind, target - project.CostCents);
-        var noise = DevelopmentMath.Noise(OutcomeRng(project).NextDouble());
-        var share = Math.Min(1d, project.ShareMilli / 1000d * noise * fraction);
         var closed = project with { CostCents = target, PostedCents = target };
-        Finish(closed, share, failed: false, cut: true);
+        var draw = Draw(closed);
+        if (closed.IsRedesign)
+        {
+            FinishRedesign(closed, draw, fraction, cut: true);
+        }
+        else
+        {
+            var noise = DevelopmentMath.Noise(OutcomeRng(project).NextDouble());
+            var share = Math.Min(1d, project.ShareMilli / 1000d * noise * fraction);
+            Finish(closed, share, failed: false, cut: true, breakthrough: false);
+        }
+
         Commit();
     }
 
@@ -105,6 +121,21 @@ internal sealed class TeamDay
     {
         StartProduction(project);
         Commit();
+    }
+
+    /// <summary>The year the concept in the car was introduced, set the first day the team is seen with a car (PP-066: it names the concept).</summary>
+    private void EnsureConceptYear()
+    {
+        if (_account.ConceptYear != 0)
+        {
+            return;
+        }
+
+        var cars = Cars.Of(_organization);
+        if (cars.Count > 0)
+        {
+            _account = _account with { ConceptYear = cars[0].Season };
+        }
     }
 
     private void DevalueOnRuleChange()
@@ -126,15 +157,23 @@ internal sealed class TeamDay
 
     private void Rollover()
     {
-        // Only concepts timed for the next season are consumed here; a held (or still waiting) concept stays Ready.
+        // A concept timed for the next season goes into production on the first morning of the year (v2) or is consumed into the
+        // carried share of next year's car (a concept of the first model). A held one, or one still waiting, stays ready.
         foreach (var project in Projects().Where(project => project.Status == ProjectStatus.Ready && project.Timing == ConceptTiming.NextSeason))
         {
+            if (project.IsRedesign)
+            {
+                StartProduction(project);
+                continue;
+            }
+
             var share = (project.OutcomeMilli ?? 0) / 1000d;
             _account = _account with { NextYearShareMilli = DevelopmentMath.NextYearShareAfter(_account.NextYearShareMilli, share) };
             Replace(project with { Status = ProjectStatus.Deployed, ClosedOn = Today });
         }
 
         var carried = _account.NextYearShareMilli / 1000d;
+        var aging = DevelopmentEstimates.ConceptAgingPerSeason * DevelopmentMath.GainScale(Today.Year);
         foreach (var car in Cars.Of(_organization))
         {
             if (car.Season >= Today.Year)
@@ -155,7 +194,7 @@ internal sealed class TeamDay
                 Today.Year,
                 car.Concept,
                 levels,
-                car.ConceptCeiling,
+                Math.Max(0d, car.ConceptCeiling - aging),
                 Math.Clamp(understanding, 0d, 100d),
                 car.TyreWearMultiplier,
                 car.SupplierChangeCost));
@@ -185,11 +224,15 @@ internal sealed class TeamDay
                 continue;
             }
 
-            var rng = OutcomeRng(next);
-            var noise = DevelopmentMath.Noise(rng.NextDouble());
-            var failed = rng.NextDouble() < next.RiskMilli / 1000d;
-            var share = failed ? 0d : Math.Min(1d, next.ShareMilli / 1000d * noise);
-            Finish(next, share, failed, cut: false);
+            var draw = Draw(next);
+            if (next.IsRedesign)
+            {
+                FinishRedesign(next, draw, 1d, cut: false);
+                continue;
+            }
+
+            var share = draw.Failed ? 0d : Math.Min(1d, next.ShareMilli / 1000d * draw.Noise);
+            Finish(next, share, draw.Failed, cut: false, draw.Breakthrough);
         }
     }
 
@@ -241,6 +284,12 @@ internal sealed class TeamDay
 
     private void Deploy(DevProject project)
     {
+        if (project.IsRedesign)
+        {
+            DeployRedesign(project);
+            return;
+        }
+
         var share = (project.OutcomeMilli ?? 0) / 1000d;
         foreach (var car in Cars.Of(_organization))
         {
@@ -257,8 +306,91 @@ internal sealed class TeamDay
         Replace(project with { Status = ProjectStatus.Deployed, ClosedOn = Today });
     }
 
+    /// <summary>
+    /// A new concept replaces the one in the car (PP-066): the drawn ceiling, the chosen aero and philosophy, a start at the share of
+    /// that ceiling the philosophy gives, and understanding back to the level of a new car. The old concept's work is gone.
+    /// </summary>
+    private void DeployRedesign(DevProject project)
+    {
+        var ceiling = project.CeilingMilli / 1000d;
+        double? before = null;
+        double after = 0d;
+        foreach (var car in Cars.Of(_organization))
+        {
+            var concept = DevelopmentMath.Redesigned(car.Concept, project.PhilosophyMilli, project.AeroMilli);
+            var effects = ConceptMapping.Effects(concept, ceiling);
+            var levels = DevelopmentMath.StartLevels(concept, ceiling, project.PhilosophyMilli);
+            var understanding = Math.Min(car.Understanding, CarEstimates.NewConceptUnderstanding);
+            before ??= car.Understanding;
+            after = understanding;
+            Cars = Cars.Replace(car.WithDesign(
+                car.Season,
+                concept,
+                levels,
+                ceiling,
+                understanding,
+                effects.TyreWearMultiplier,
+                effects.SupplierChangeCost));
+        }
+
+        Note(UnderstandingSources.Concept, (before ?? after) - after);
+        _account = _account with { ConceptYear = Today.Year };
+        Replace(project with { Status = ProjectStatus.Deployed, ClosedOn = Today });
+    }
+
+    /// <summary>The three draws every finished project takes, in a fixed order. The ceiling of a concept follows from the same child.</summary>
+    private ProjectDraw Draw(DevProject project)
+    {
+        var rng = OutcomeRng(project);
+        var innovation = InnovationOf(project);
+        var noise = DevelopmentMath.Noise(rng.NextDouble(), innovation);
+        var failed = rng.NextDouble() < project.RiskMilli / 1000d;
+        var breakthrough = rng.NextDouble() < DevelopmentMath.BreakthroughChance(innovation);
+        return new ProjectDraw(rng, noise, failed, breakthrough, innovation);
+    }
+
+    private int InnovationOf(DevProject project)
+    {
+        foreach (var engineer in EngineerRoster.Of(_inputs.World, _organization, Today))
+        {
+            if (engineer.Id == project.Engineer)
+            {
+                return engineer.Innovation;
+            }
+        }
+
+        return CarEstimates.DefaultStaffAttribute;
+    }
+
+    /// <summary>
+    /// A finished (or cut) new concept: its ceiling is drawn against the ceiling of the concept in the car, from the character the
+    /// principal chose, the design staff and the lead's innovation. It is then ready, and the principal decides when it goes in.
+    /// </summary>
+    private void FinishRedesign(DevProject project, ProjectDraw draw, double fraction, bool cut)
+    {
+        if (draw.Failed && !cut)
+        {
+            Replace(project with { OutcomeMilli = 0, Status = ProjectStatus.Failed, ClosedOn = Today });
+            return;
+        }
+
+        var reference = Cars.Of(_organization).FirstOrDefault();
+        var anchor = reference?.ConceptCeiling ?? 0d;
+        var quality = TeamEngineers.ExecutionQuality(_inputs.World, _organization, Today);
+        var breakthrough = draw.Breakthrough && !cut;
+        var ceiling = DevelopmentMath.DrawCeiling(draw.Rng, anchor, project.PhilosophyMilli, quality, draw.Innovation, breakthrough, fraction);
+        Replace(project with
+        {
+            OutcomeMilli = DevelopmentEstimates.Milli(fraction),
+            CeilingMilli = DevelopmentEstimates.Milli(ceiling),
+            Flags = project.Flags | (breakthrough ? ProjectFlags.Breakthrough : 0),
+            Status = ProjectStatus.Ready,
+            ClosedOn = null,
+        });
+    }
+
     /// <summary>Applies a finished (or cut) project with its realised share.</summary>
-    private void Finish(DevProject project, double share, bool failed, bool cut)
+    private void Finish(DevProject project, double share, bool failed, bool cut, bool breakthrough)
     {
         var outcome = DevelopmentEstimates.Milli(share);
         switch (project.Kind)
@@ -272,20 +404,43 @@ internal sealed class TeamDay
                     outcome = DevelopmentEstimates.Milli(share);
                 }
 
-                var area = project.Area ?? throw new InvalidOperationException("An upgrade has an area.");
-                foreach (var car in Cars.Of(_organization))
+                var lucky = breakthrough && !failed && !cut && share > 0d;
+                if (lucky)
                 {
-                    var gain = DevelopmentMath.Gain(DevelopmentMath.Headroom(car, area), share);
-                    var levels = DevelopmentMath.WithLevel(car.Levels, area, DevelopmentMath.LevelOf(car.Levels, area) + gain);
-                    var understanding = Math.Max(0d, car.Understanding - (DevelopmentEstimates.UpgradeUnderstandingHit * share));
-                    Cars = Cars.Replace(DevelopmentEngine.Restamp(car, levels, CarEstimates.Quantize(understanding)));
+                    share = Math.Min(1d, share * DevelopmentEstimates.BreakthroughShareMultiple);
+                    outcome = DevelopmentEstimates.Milli(share);
                 }
 
+                var area = project.Area ?? throw new InvalidOperationException("An upgrade has an area.");
+                double? understandingBefore = null;
+                var understandingAfter = 0d;
+                foreach (var car in Cars.Of(_organization))
+                {
+                    var lifted = lucky
+                        ? car.WithDesign(
+                            car.Season,
+                            car.Concept,
+                            car.Levels,
+                            Math.Min(100d, car.ConceptCeiling + DevelopmentEstimates.BreakthroughUpgradeLift),
+                            car.Understanding,
+                            car.TyreWearMultiplier,
+                            car.SupplierChangeCost)
+                        : car;
+                    var gain = DevelopmentMath.Gain(DevelopmentMath.Headroom(lifted, area), share);
+                    var levels = DevelopmentMath.WithLevel(lifted.Levels, area, DevelopmentMath.LevelOf(lifted.Levels, area) + gain);
+                    var understanding = CarEstimates.Quantize(Math.Max(0d, car.Understanding - (DevelopmentEstimates.UpgradeUnderstandingHit * share)));
+                    understandingBefore ??= car.Understanding;
+                    understandingAfter = understanding;
+                    Cars = Cars.Replace(DevelopmentEngine.Restamp(lifted, levels, understanding));
+                }
+
+                Note(UnderstandingSources.Part, (understandingBefore ?? understandingAfter) - understandingAfter);
                 Replace(project with
                 {
                     OutcomeMilli = outcome,
                     Status = failed ? ProjectStatus.Failed : cut ? ProjectStatus.Cut : ProjectStatus.Completed,
                     ClosedOn = Today,
+                    Flags = project.Flags | (lucky ? ProjectFlags.Breakthrough : 0),
                 });
                 break;
             case DevKind.Research:
@@ -311,6 +466,11 @@ internal sealed class TeamDay
         Changed = true;
     }
 
+    /// <summary>
+    /// Two streams of work (PP-066). The parts stream is the engineers' own: they pick the next upgrade, up to the slots the headcount
+    /// gives. The concept stream is the next car: one concept at a time, built by the share of people the principal set, and only when
+    /// no concept is already waiting or being built.
+    /// </summary>
     private void StartProjects()
     {
         var annual = DevelopmentMath.AnnualBudgetCents(Finance.TypicalCents);
@@ -320,8 +480,11 @@ internal sealed class TeamDay
             return;
         }
 
-        var running = Projects().Where(project => project.IsActive).ToList();
-        if (running.Count >= DevelopmentEstimates.MaxSlots)
+        var open = Projects();
+        var conceptBusy = open.Any(project => project.Kind == DevKind.Concept && project.Status is ProjectStatus.Active or ProjectStatus.Ready or ProjectStatus.InProduction);
+        var wantConcept = !conceptBusy && _plan.PercentOf(DevKind.Concept) > 0;
+        var running = open.Where(project => project.IsActive && project.Kind != DevKind.Concept).ToList();
+        if (running.Count >= DevelopmentEstimates.MaxSlots && !wantConcept)
         {
             return;
         }
@@ -333,6 +496,11 @@ internal sealed class TeamDay
             _inputs.World,
             _organization,
             Today.Year);
+        if (wantConcept)
+        {
+            StartConcept(annual, cars, engineers, capacity, running);
+        }
+
         for (var slot = running.Count; slot < capacity.Slots; slot++)
         {
             var decision = EngineerChoice.Choose(
@@ -344,7 +512,8 @@ internal sealed class TeamDay
                 running.Select(project => (project.Kind, project.Area)).ToArray(),
                 Today,
                 _inputs.MasterSeed,
-                slot);
+                slot,
+                ProjectStream.Parts);
             if (decision is null)
             {
                 return;
@@ -389,6 +558,75 @@ internal sealed class TeamDay
         }
     }
 
+    /// <summary>
+    /// The next concept: the engineers pick who leads it, the principal's character (philosophy and aero) is written into the
+    /// project, and the crew the slider gives decides how long it takes (twice the share, a shorter design; ESTIMATE).
+    /// </summary>
+    private void StartConcept(
+        double annual,
+        IReadOnlyList<TeamCar> cars,
+        IReadOnlyList<Engineer> engineers,
+        EngineeringCapacity capacity,
+        List<DevProject> running)
+    {
+        var decision = EngineerChoice.Choose(
+            _organization,
+            engineers,
+            _plan,
+            cars,
+            _account,
+            running.Select(project => (project.Kind, project.Area)).ToArray(),
+            Today,
+            _inputs.MasterSeed,
+            DevelopmentEstimates.MaxSlots,
+            ProjectStream.Concept);
+        if (decision is null)
+        {
+            return;
+        }
+
+        var chosen = decision.Chosen;
+        var percent = _plan.PercentOf(DevKind.Concept);
+        var cost = DevelopmentMath.CostCents(annual, percent, DevKind.Concept, Today.Year);
+        if (cost <= 0)
+        {
+            return;
+        }
+
+        var crew = Math.Clamp(Math.Sqrt((double)DevelopmentEstimates.DefaultNextYearPercent / percent), DevelopmentEstimates.DurationFloor, DevelopmentEstimates.DurationCeiling);
+        var days = Math.Max(1, (int)Math.Round(capacity.DurationDays(DevelopmentMath.BaseDays(DevKind.Concept, Today.Year)) * crew, MidpointRounding.AwayFromZero));
+        var risk = DevelopmentMath.ConceptRisk(chosen.Skill, Today.Year, _plan.NextPhilosophyMilli);
+        var project = new DevProject(
+            Development.NextProject,
+            _organization,
+            DevKind.Concept,
+            null,
+            chosen.Engineer.Id,
+            Today,
+            days,
+            0,
+            cost,
+            0,
+            0,
+            DevelopmentEstimates.Milli(risk),
+            null,
+            ProjectStatus.Active,
+            ConceptTiming.Hold,
+            0,
+            0,
+            null,
+            PhilosophyMilli: _plan.NextPhilosophyMilli,
+            AeroMilli: _plan.NextAeroMilli,
+            Flags: ProjectFlags.Redesign);
+        Development = Development.AddProject(project);
+        _plan = _plan.WithSpent(DevKind.Concept, cost);
+        Changed = true;
+        if (_inputs.Trace.IsEnabled)
+        {
+            _inputs.Trace.Record(EngineerChoice.Trace(_organization, decision, Today, "development.choose"));
+        }
+    }
+
     private void GrowUnderstanding()
     {
         var active = Projects().Count(project => project.IsActive);
@@ -426,6 +664,19 @@ internal sealed class TeamDay
         RngStream
             .Derive(_inputs.MasterSeed, RngStreamName.Development, Today.Year)
             .DeriveChild(DevelopmentEngine.OutcomeKey(project));
+
+    /// <summary>Records where the car's understanding moved, for the Auto screen. <paramref name="points"/> is the drop (positive) in understanding points.</summary>
+    private void Note(string source, double points)
+    {
+        var milli = -DevelopmentEstimates.Milli(points);
+        if (milli == 0)
+        {
+            return;
+        }
+
+        Development = Development.AddNote(new UnderstandingNote(_organization, Today, source, milli));
+        Changed = true;
+    }
 
     private IReadOnlyList<DevProject> Projects() => Development.OpenOf(_organization);
 

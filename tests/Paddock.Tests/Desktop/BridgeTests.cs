@@ -195,7 +195,7 @@ public class BridgeTests
             "split",
             "command",
             "setDevelopmentSplit",
-            """{"managerId":"human:player","organizationId":"mercedes","currentPercent":40,"accountPercent":30,"nextYearPercent":30}"""));
+            """{"managerId":"human:player","organizationId":"mercedes","nextPercent":30}"""));
         using (var json = JsonDocument.Parse(refused.Response))
         {
             Assert.False(json.RootElement.GetProperty("ok").GetBoolean(), refused.Response);

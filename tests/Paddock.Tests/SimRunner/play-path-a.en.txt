@@ -32,7 +32,7 @@ gen:29 — Peter Walker (GBR)
 gen:30 — Robert Smith (USA)
 Talks opened: neg:27 with gen:21.
 neg:27 — Jean Bernard, Open.
-Development split: current 50, account 25, next car 25.
+Development split: current car 75, next concept 25.
 Own car car:7, season 1955.
 Own car car:8, season 1955.
 Rival car car:1, team arzani-volpini.
@@ -80,6 +80,6 @@ No decision you may read is on record.
 Ready.
 An unresolved matter is holding the clock.
 Waiting for Ada Lovelace.
-World hash 811694f8a2bce3713c3d370a0d06da876897851047e625bb2c6e78d6aba18817.
-Saved SAVE. World hash 811694f8a2bce3713c3d370a0d06da876897851047e625bb2c6e78d6aba18817.
+World hash fb114a548f17186ce4503c8d85239a61e226518ae37af09db376756710870c21.
+Saved SAVE. World hash fb114a548f17186ce4503c8d85239a61e226518ae37af09db376756710870c21.
 Session closed.

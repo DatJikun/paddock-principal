@@ -166,17 +166,11 @@ public sealed record SponsorTalkCall(string ManagerId, string OrganizationId, st
 /// <summary>Answers a sponsor's offer.</summary>
 public sealed record SponsorOfferCall(string ManagerId, string OrganizationId, string OfferId, bool Accept);
 
-/// <summary>The development split and the four area priorities.</summary>
-public sealed record DevelopmentSplitCall(
-    string ManagerId,
-    string OrganizationId,
-    int CurrentPercent,
-    int AccountPercent,
-    int NextYearPercent,
-    int AeroPriority,
-    int ChassisPriority,
-    int ReliabilityPriority,
-    int TyresPriority);
+/// <summary>The slider of car development (PP-066): the share of the people on the next concept, the rest on the car that races.</summary>
+public sealed record DevelopmentSplitCall(string ManagerId, string OrganizationId, int NextPercent);
+
+/// <summary>The character of the next concept: philosophy (-1000 evolution to 1000 revolution) and aero (-1000 straights to 1000 corners).</summary>
+public sealed record NextConceptCall(string ManagerId, string OrganizationId, int PhilosophyMilli, int AeroMilli);
 
 /// <summary>Commits one concept to production.</summary>
 public sealed record CommitConceptCall(string ManagerId, string OrganizationId, string ProjectId);

@@ -1182,9 +1182,8 @@ public static class PlayCommand
             {
                 Say(
                     PlayKeys.DevLine,
-                    ("current", own.CurrentPercent.ToString(CultureInfo.InvariantCulture)),
-                    ("account", own.AccountPercent.ToString(CultureInfo.InvariantCulture)),
-                    ("next", own.NextYearPercent.ToString(CultureInfo.InvariantCulture)));
+                    ("current", (100 - own.Next.SharePercent).ToString(CultureInfo.InvariantCulture)),
+                    ("next", own.Next.SharePercent.ToString(CultureInfo.InvariantCulture)));
             }
         }
 
@@ -1397,6 +1396,15 @@ public static class PlayCommand
                     }
 
                     updated = config.WithRulesSource(rules);
+                    return true;
+                case "vote":
+                    if (!TryNamed(value, out VoteMode vote))
+                    {
+                        Say(PlayKeys.BadAxisValue, ("axis", name), ("value", value));
+                        return false;
+                    }
+
+                    updated = config.WithVoteMode(vote);
                     return true;
                 case "ai":
                     if (!TryNamed(value, out AiBehavior ai))

@@ -8,7 +8,16 @@ namespace Paddock.Simulation.Ai;
 /// <param name="CurrentTiming">The timing now set: <c>WhenReady</c>, <c>AfterRaces</c> or <c>NextSeason</c>.</param>
 /// <param name="ExpectedGainMid">The middle of the band of rating points the concept is expected to bring.</param>
 /// <param name="ProductionDays">Days committing a ready concept to production would take, as the engineers show them (0 when not shown).</param>
-public sealed record ConceptCase(string ProjectId, bool Ready, string CurrentTiming, double ExpectedGainMid, int ProductionDays = 0);
+public sealed record ConceptCase(string ProjectId, bool Ready, string CurrentTiming, double ExpectedGainMid, int ProductionDays = 0, double? StartDelta = null);
+
+/// <summary>One character the next concept could have, as the engineers' ranges give it: the middle and half-width of its ceiling and the share of it the car starts at.</summary>
+public sealed record CharacterCase(int PhilosophyMilli, double CeilingMid, double CeilingHalf, double StartShare);
+
+/// <summary>The choice of the next concept's character (PP-066): what is chosen now, the ceiling now (middle of the band) and the options.</summary>
+public sealed record NextCharacterView(int PhilosophyMilli, int AeroMilli, double CeilingNowMid, IReadOnlyList<CharacterCase> Options);
+
+/// <summary>The character of the next concept the principal picks; null keeps the one in force.</summary>
+public sealed record CharacterDecision(int PhilosophyMilli, int AeroMilli);
 
 /// <summary>What the development decider reads: the team's own plan and car as its engineers show them, its results, and the rules it has heard are coming.</summary>
 /// <param name="Today">The day.</param>
@@ -39,7 +48,8 @@ public sealed record DevelopmentInput(
     double NextRuleChange,
     int SacrificedSeason,
     bool CashTight,
-    IReadOnlyList<ConceptCase> Concepts);
+    IReadOnlyList<ConceptCase> Concepts,
+    NextCharacterView? Next = null);
 
 /// <summary>The split of resources and the priority of each area (T42): the only things the principal sets.</summary>
 public sealed record DevelopmentPlanView(int Current, int Account, int NextYear, int Aero, int Chassis, int Reliability, int Tyres);
@@ -48,7 +58,7 @@ public sealed record DevelopmentPlanView(int Current, int Account, int NextYear,
 public sealed record TimingDecision(string ProjectId, string Timing, int Races, bool Commit = false);
 
 /// <summary>The outcome of a development review. <see cref="Plan"/> is null when the plan in force stays.</summary>
-public sealed record DevelopmentDecision(DevelopmentPlanView? Plan, bool Sacrifice, IReadOnlyList<TimingDecision> Timings);
+public sealed record DevelopmentDecision(DevelopmentPlanView? Plan, bool Sacrifice, IReadOnlyList<TimingDecision> Timings, CharacterDecision? Character = null);
 
 /// <summary>
 /// The development split and the deployment of concepts (DESIGN section 5.3 and 8, T42). The principal chooses among a fixed menu of
@@ -66,12 +76,12 @@ public static class DevelopmentDecider
     /// <summary>ESTIMATE: the menu of splits (current car, account, next year's car); each sums to 100.</summary>
     public static readonly IReadOnlyList<(string Name, int Current, int Account, int NextYear)> Menu =
     [
-        ("balanced", 60, 20, 20),
-        ("push_now", 80, 10, 10),
-        ("invest", 40, 40, 20),
-        ("build_next", 30, 20, 50),
-        ("sacrifice", 10, 20, 70),
-        ("sacrifice_hard", 0, 10, 90),
+        ("balanced", 80, 0, 20),
+        ("push_now", 95, 0, 5),
+        ("invest", 60, 0, 40),
+        ("build_next", 50, 0, 50),
+        ("sacrifice", 10, 0, 90),
+        ("sacrifice_hard", 0, 0, 100),
     ];
 
     public static DevelopmentDecision Review(DecisionContext context, DevelopmentInput input)
@@ -79,7 +89,7 @@ public static class DevelopmentDecider
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(input);
         var (plan, sacrifice) = Split(context, input);
-        return new DevelopmentDecision(plan, sacrifice, Timings(context, input, sacrifice));
+        return new DevelopmentDecision(plan, sacrifice, Timings(context, input, sacrifice), Character(context, input));
     }
 
     private static (DevelopmentPlanView? Plan, bool Sacrifice) Split(DecisionContext context, DevelopmentInput input)
@@ -142,6 +152,51 @@ public static class DevelopmentDecider
         return (plan == input.Plan ? null : plan, sacrifice);
     }
 
+    public const string CharacterKind = "development.character";
+
+    /// <summary>
+    /// Evolution or revolution for the next concept, from the same ranges the player reads: the gain of the ceiling over today's, the
+    /// width of that range as risk, and how far below today's car the start would be. Null keeps the character in force.
+    /// </summary>
+    private static string CharacterName(int philosophyMilli) => philosophyMilli < 0 ? "evolution" : "revolution";
+
+    private static CharacterDecision? Character(DecisionContext context, DevelopmentInput input)
+    {
+        if (input.Next is not { } next || next.Options.Count == 0)
+        {
+            return null;
+        }
+
+        var profile = context.Profile;
+        var options = new List<OptionDraft>();
+        foreach (var option in next.Options)
+        {
+            var gain = (option.CeilingMid - next.CeilingNowMid) / 100.0;
+            var factors = new List<FactorDraft>
+            {
+                new(AiTextKeys.FactorNextYear, profile.Future * gain * 4.0),
+                new(AiTextKeys.FactorDisruption, (-profile.RiskAversion * (option.CeilingHalf / 100.0) * 3.0) - (profile.Now * (1.0 - option.StartShare) * 0.5)),
+            };
+            if (option.PhilosophyMilli == next.PhilosophyMilli)
+            {
+                factors.Add(new FactorDraft(AiTextKeys.FactorInertia, AiEstimates.PlanInertia * profile.Stability));
+            }
+
+            options.Add(new OptionDraft("character/" + CharacterName(option.PhilosophyMilli), factors));
+        }
+
+        var note = new TraceNote(
+            CharacterKind,
+            context.Season.ToString(CultureInfo.InvariantCulture),
+            "character-" + context.Season.ToString(CultureInfo.InvariantCulture),
+            "Chooses evolution or revolution for the next concept.",
+            null,
+            IsKeyDecision: false);
+        var chosen = UtilityChooser.Choose(context, DecisionFacet.Development, note, options, _ => AiTextKeys.ReasonSplit);
+        var picked = next.Options.First(item => "character/" + CharacterName(item.PhilosophyMilli) == chosen.Id);
+        return picked.PhilosophyMilli == next.PhilosophyMilli ? null : new CharacterDecision(picked.PhilosophyMilli, next.AeroMilli);
+    }
+
     /// <summary>Priorities by the weakest areas first. A level-1 principal does not read the car and keeps the middle.</summary>
     private static (int Aero, int Chassis, int Reliability, int Tyres) Priorities(DecisionContext context, DevelopmentInput input)
     {
@@ -201,21 +256,22 @@ public static class DevelopmentDecider
         foreach (var concept in input.Concepts.OrderBy(item => item.ProjectId, StringComparer.Ordinal))
         {
             var gain = Math.Max(0.0, concept.ExpectedGainMid) / 100.0;
+            var nowGain = concept.StartDelta is { } delta ? delta / 100.0 : gain;
             var writtenOff = sacrifice || input.SacrificedSeason == context.Season;
             var options = new List<OptionDraft>();
             if (concept.Ready)
             {
                 // Committing builds the car now (T42c): it goes live only after the production days, so less of the season is left to gain.
                 var left = Math.Max(0.0, seasonLeft - (concept.ProductionDays / 365.0));
-                options.Add(new OptionDraft("timing/commit_now", Timing(profile, gain, left, nowShare: 1.0, carryShare: 0.5, disruption: 1.0, writtenOff)));
+                options.Add(new OptionDraft("timing/commit_now", Timing(profile, nowGain, gain, left, nowShare: 1.0, carryShare: 0.5, disruption: 1.0, writtenOff)));
             }
             else
             {
-                options.Add(new OptionDraft("timing/when_ready", Timing(profile, gain, seasonLeft, nowShare: 1.0, carryShare: 0.5, disruption: 1.0, writtenOff)));
+                options.Add(new OptionDraft("timing/when_ready", Timing(profile, nowGain, gain, seasonLeft, nowShare: 1.0, carryShare: 0.5, disruption: 1.0, writtenOff)));
             }
 
-            options.Add(new OptionDraft("timing/after_races", Timing(profile, gain, seasonLeft, nowShare: 0.7, carryShare: 0.6, disruption: 0.5, writtenOff)));
-            options.Add(new OptionDraft("timing/next_season", Timing(profile, gain, seasonLeft, nowShare: 0.0, carryShare: 1.0, disruption: 0.0, writtenOff)));
+            options.Add(new OptionDraft("timing/after_races", Timing(profile, nowGain, gain, seasonLeft, nowShare: 0.7, carryShare: 0.6, disruption: 0.5, writtenOff)));
+            options.Add(new OptionDraft("timing/next_season", Timing(profile, nowGain, gain, seasonLeft, nowShare: 0.0, carryShare: 1.0, disruption: 0.0, writtenOff)));
             var note = new TraceNote(
                 TimingKind,
                 concept.ProjectId,
@@ -245,9 +301,9 @@ public static class DevelopmentDecider
         return result;
     }
 
-    private static List<FactorDraft> Timing(ArchetypeProfile profile, double gain, double seasonLeft, double nowShare, double carryShare, double disruption, bool writtenOff) =>
+    private static List<FactorDraft> Timing(ArchetypeProfile profile, double nowGain, double gain, double seasonLeft, double nowShare, double carryShare, double disruption, bool writtenOff) =>
     [
-        new(AiTextKeys.FactorResultsNow, writtenOff ? 0.0 : profile.Now * gain * seasonLeft * nowShare),
+        new(AiTextKeys.FactorResultsNow, writtenOff ? 0.0 : profile.Now * nowGain * seasonLeft * nowShare),
         new(AiTextKeys.FactorNextYear, profile.Future * gain * carryShare),
         new(AiTextKeys.FactorDisruption, -profile.RiskAversion * 0.3 * seasonLeft * disruption),
     ];

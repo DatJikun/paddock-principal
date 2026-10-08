@@ -44,6 +44,17 @@ public class ConceptProductionTests : IDisposable
         return kit;
     }
 
+    /// <summary>A kit whose only concept is a v2 redesign that finished on day five and waits for the principal's decision.</summary>
+    private static DevelopmentKit WithReadyRedesign(INextRaceSource? races = null)
+    {
+        var kit = new DevelopmentKit(seed: 3, races: races);
+        kit.PutProject(Redesign(Alfa, 1_000_000, days: 5));
+        kit.Live(5);
+        Assert.Equal(ProjectStatus.Ready, kit.Project(project => project.Number == 1).Status);
+        Assert.True(kit.Project(project => project.Number == 1).CeilingMilli > 0);
+        return kit;
+    }
+
     private static double Strength(DevelopmentKit kit) => kit.AlfaCars[0].Levels.Downforce + kit.AlfaCars[0].Levels.Braking;
 
     [Fact]
@@ -234,43 +245,42 @@ public class ConceptProductionTests : IDisposable
     public void TheViewShowsProductionTimeCostAndTheNextRaceForOwnTeamOnly()
     {
         var calendar = new FakeCalendar(new GameDate(1955, 1, 20), new GameDate(1955, 2, 20), new GameDate(1955, 4, 20));
-        var kit = WithReadyConcept(races: calendar);
+        var kit = WithReadyRedesign(races: calendar);
         var query = new DevelopmentQuery(kit.Book, kit.Environment);
         var before = kit.World.StateHash();
         var view = query.View(AccessContext.ForManager(new AccessManagerId(Anna.Value))).Own[0];
         Assert.Equal(before, kit.World.StateHash());
 
-        var concept = view.Projects.Single(p => p.ProjectId == "dev:1");
-        Assert.Equal(nameof(ProjectStatus.Ready), concept.Status);
+        Assert.Equal(nameof(ProjectStatus.Ready), view.Next.Status);
+        var decision = Assert.IsType<ConceptDecisionView>(view.Next.Decision);
         var plan = ConceptProduction.Plan(kit.World, kit.Finance, Alfa, kit.Project(p => p.Number == 1), kit.Today);
-        Assert.Equal(plan.Days, concept.ProductionDays);
-        Assert.Equal(plan.CostCents, concept.ProductionCostCents);
-        Assert.Null(concept.ProductionEnds);
+        Assert.Equal(plan.Days, decision.BuildDays);
+        Assert.Equal(plan.CostCents, decision.CostCents);
         Assert.Equal(kit.Today.DaysUntil(new GameDate(1955, 1, 20)), view.DaysToNextRace);
         var firstAfter = calendar.NextRaceOnOrAfter(Alfa, kit.Today.AddDays(plan.Days + 1))!.Value;
-        Assert.Equal(new DateOnly(firstAfter.Year, firstAfter.Month, firstAfter.Day), concept.GoesLiveOn);
-        Assert.True(view.OngoingGain.High >= view.OngoingGain.Low);
+        Assert.Equal(new DateOnly(firstAfter.Year, firstAfter.Month, firstAfter.Day), decision.FirstRace);
+        Assert.True(decision.Ceiling.High > decision.Ceiling.Low && decision.StartLevel.High > decision.StartLevel.Low);
 
         Assert.IsType<CommandResult.Accepted>(kit.Submit(Commit()));
-        var committed = query.View(AccessContext.ForManager(new AccessManagerId(Anna.Value))).Own[0].Projects.Single(p => p.ProjectId == "dev:1");
+        var committed = query.View(AccessContext.ForManager(new AccessManagerId(Anna.Value))).Own[0].Next;
         Assert.Equal(nameof(ProjectStatus.InProduction), committed.Status);
         var ends = kit.Project(p => p.Number == 1).ProductionEnds!.Value;
-        Assert.Equal(new DateOnly(ends.Year, ends.Month, ends.Day), committed.ProductionEnds);
-        Assert.Equal(kit.Today.DaysUntil(ends), committed.ProductionDays);
+        Assert.Equal(new DateOnly(ends.Year, ends.Month, ends.Day), committed.ReadyOn);
+        Assert.Null(committed.Decision);
 
         var rival = query.View(AccessContext.ForAi(new AccessManagerId(Bram.Value)));
         Assert.Equal([Beta.Value], rival.Own.Select(own => own.OrganizationId));
-        Assert.DoesNotContain(rival.Own[0].Projects, p => p.ProjectId == "dev:1");
+        Assert.NotEqual("dev:1", rival.Own[0].Next.ProjectId);
     }
 
     [Fact]
     public void AViewWithoutACalendarSaysNothingAboutRaces()
     {
-        var kit = WithReadyConcept();
+        var kit = WithReadyRedesign();
         var view = new DevelopmentQuery(kit.Book, kit.Environment).View(AccessContext.ForManager(new AccessManagerId(Anna.Value))).Own[0];
         Assert.Null(view.DaysToNextRace);
-        Assert.Null(view.Projects.Single(p => p.ProjectId == "dev:1").GoesLiveOn);
-        Assert.NotNull(view.Projects.Single(p => p.ProjectId == "dev:1").ProductionDays);
+        Assert.Null(view.Next.Decision!.FirstRace);
+        Assert.True(view.Next.Decision.BuildDays > 0);
     }
 
     [Fact]
@@ -417,7 +427,7 @@ public class ConceptProductionTests : IDisposable
         kit.PutProject(Upgrade(Alfa, DevArea.Aero, 1_000_000, 0.2, days: 10));
         kit.Live(20);
         Assert.DoesNotContain(kit.Section.Projects, p => p.ProductionEnds is not null);
-        Assert.Equal(kit.World.StateHash(), kit.World.WithSection(DevelopmentSection.Restore(kit.Section.NextProject, kit.Section.Plans, kit.Section.Accounts, kit.Section.Projects)).StateHash());
+        Assert.Equal(kit.World.StateHash(), kit.World.WithSection(DevelopmentSection.Restore(kit.Section.NextProject, kit.Section.Plans, kit.Section.Accounts, kit.Section.Projects, kit.Section.Notes)).StateHash());
     }
 
     private static void Exec(SaveFile file, string sql)

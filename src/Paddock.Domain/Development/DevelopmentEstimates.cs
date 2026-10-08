@@ -7,10 +7,10 @@ namespace Paddock.Domain.Development;
 /// </summary>
 public static class DevelopmentEstimates
 {
-    /// <summary>ESTIMATE: split of a plan nobody has set (current car, account, next year's car). Sums to 100.</summary>
-    public const int DefaultCurrentPercent = 60;
+    /// <summary>ESTIMATE: split of a plan nobody has set (current car, account, next concept). Sums to 100. The account is retired from play (PP-066): nobody sets it any more.</summary>
+    public const int DefaultCurrentPercent = 80;
 
-    public const int DefaultAccountPercent = 20;
+    public const int DefaultAccountPercent = 0;
 
     public const int DefaultNextYearPercent = 20;
 
@@ -41,11 +41,11 @@ public static class DevelopmentEstimates
 
     public const double DurationCeiling = 2.5;
 
-    /// <summary>ESTIMATE: share of a typical team's annual budget that full-effort development uses.</summary>
-    public const double AnnualBudgetShare = 0.15;
+    /// <summary>ESTIMATE: share of a typical team's annual budget that full-effort development uses. Lowered with v2 (PP-066), where parts and the next concept run side by side, with <see cref="GainPerFunding"/> raised to match so a part gains what it did.</summary>
+    public const double AnnualBudgetShare = 0.06;
 
     /// <summary>ESTIMATE: share of the remaining headroom an Upgrade closes per unit of funding at quality 1.</summary>
-    public const double GainPerFunding = 2.0;
+    public const double GainPerFunding = 5.0;
 
     /// <summary>ESTIMATE: a Concept project closes this multiple of an Upgrade's share for the same funding, over all areas.</summary>
     public const double ConceptGainMultiple = 2.5;
@@ -208,6 +208,68 @@ public static class DevelopmentEstimates
         (EraScaleSettledYear, SettledConceptRiskScale),
         (2025, SettledConceptRiskScale),
     ];
+
+    // ---- Car development v2 (PP-066). All ESTIMATES until the race engine is calibrated. ----
+
+    /// <summary>ESTIMATE: share of its own ceiling a pure evolution concept starts at, and the same for a pure revolution (PP-066: about 85% for evolution).</summary>
+    public const double EvolutionStartFraction = 0.85;
+
+    public const double RevolutionStartFraction = 0.66;
+
+    /// <summary>ESTIMATE: mean shift, in rating points, of a new concept's ceiling against the ceiling of the concept it replaces. Evolution is narrow, revolution is high.</summary>
+    public const double EvolutionCeilingShift = 1.5;
+
+    public const double RevolutionCeilingShift = 8;
+
+    /// <summary>ESTIMATE: spread (a sum of twelve uniforms is used, so this is a standard deviation) of the new ceiling.</summary>
+    public const double EvolutionCeilingSd = 2;
+
+    public const double RevolutionCeilingSd = 6;
+
+    /// <summary>ESTIMATE: points a team with the best design staff adds to, or the worst takes from, the mean shift: staff quality 0..1 moves it by this span around 0.5.</summary>
+    public const double QualityShiftSpan = 5;
+
+    /// <summary>ESTIMATE: a revolution fails this much more often than an evolution (1 + this at full revolution).</summary>
+    public const double RevolutionRiskExtra = 0.5;
+
+    /// <summary>ESTIMATE: how much the lead engineer's innovation widens a new concept's ceiling spread: factor 1 + this at innovation 20.</summary>
+    public const double InnovationSpread = 0.6;
+
+    /// <summary>ESTIMATE: chance a finished project is a breakthrough: the base at innovation 1, plus the span times the squared innovation unit.</summary>
+    public const double BreakthroughBase = 0.02;
+
+    public const double BreakthroughSpan = 0.10;
+
+    /// <summary>ESTIMATE: a breakthrough upgrade closes this multiple of the share it would have closed (still capped by the headroom).</summary>
+    public const double BreakthroughShareMultiple = 2.2;
+
+    /// <summary>ESTIMATE: a breakthrough in an upgrade lifts the concept's ceiling by this much (the idea had more in it), and in a new concept by the second value.</summary>
+    public const double BreakthroughUpgradeLift = 2;
+
+    public const double BreakthroughConceptLift = 6;
+
+    /// <summary>ESTIMATE: innovation widens the execution noise of a project: the span grows by this share at innovation 20 (the mean stays 1).</summary>
+    public const double InnovationNoise = 1;
+
+    /// <summary>ESTIMATE: rating points of the ceiling a concept loses each new season it stays in the car (rivals' knowledge and the rules move on).</summary>
+    public const double ConceptAgingPerSeason = 1.2;
+
+    /// <summary>ESTIMATE: facts about the concept's character the player sees as numbers. Aero direction presets run from -1 (straights) to 1 (corners).</summary>
+    public const int AeroPresetMilli = 500;
+
+    /// <summary>ESTIMATE: default character of the next concept (evolution, balanced aero).</summary>
+    public const int DefaultNextPhilosophyMilli = -1000;
+
+    public const int DefaultNextAeroMilli = 0;
+
+    /// <summary>ESTIMATE: the most understanding notes kept per team for the Auto screen.</summary>
+    public const int MaxNotes = 8;
+
+    /// <summary>ESTIMATE: widest and narrowest extra half-width of a public (rival) band compared with the team's own.</summary>
+    public const double RivalBandExtra = 4;
+
+    /// <summary>ESTIMATE: how many rivals the grid comparison shows.</summary>
+    public const int TopRivals = 3;
 
     public static double Quantize(double value) => Math.Round(value, 3, MidpointRounding.AwayFromZero);
 

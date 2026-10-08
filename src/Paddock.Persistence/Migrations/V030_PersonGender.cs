@@ -7,9 +7,9 @@ namespace Paddock.Persistence;
 /// pick a pronoun. Every person of an older world starts at 0: the real drivers of the 1950s data are men, and a generated
 /// person of an older save keeps the pronoun the game used before.
 /// </summary>
-public sealed class V028_PersonGender : ISaveMigration
+public sealed class V030_PersonGender : ISaveMigration
 {
-    public int Version => 28;
+    public int Version => 30;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

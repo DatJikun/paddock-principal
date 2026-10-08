@@ -22,7 +22,7 @@ Rok i zespół | pierwszy sezon do testów to 1955, zespół wybierasz z kart
 Karta zespołu | skład kierowców, silnik (fabryczny albo nazwa dostawcy), budżet w dolarach, miejsce w poprzednim sezonie (gdy jest znane), cztery poziomy od 1 do 5 (auto, infrastruktura, kierowcy, personel) i znak zespołu; karty idą w kolejności poprzedniego sezonu
 Preset | najbardziej historyczny, zbalansowany albo chaos
 Ludzie | prawdziwa kariera rok po roku, prawdziwy sufit talentu, prawdziwe nazwiska z losowymi umiejętnościami albo wszyscy generowani
-Przepisy | historyczne albo głosowane co sezon
+Przepisy | historyczne albo głosowane co sezon; przy głosowanych wybierasz jeden głos na zespół albo bank głosów (rozdział 14)
 Zachowanie AI | odtwarza historię, reaguje na sytuację albo gra losowo
 Siła historii | skala 0–10: jak chętnie AI powtarza prawdziwe zdarzenia
 Losowość | suwak 0–100: rozwój, forma, awarie
@@ -190,24 +190,26 @@ Czy pensja jest zbyt silnym albo zbyt słabym argumentem?
 
 ## 6. Auto: koncepcja
 
-Auto to zestaw osiągów, a jego koncepcja to sześć osi i każda ma swoją cenę.
+Auto to zestaw osiągów, a jego koncepcja to sześć osi i każda ma swoją cenę. Koncepcja ma nazwę zespołu i rok, w którym weszła do auta (na przykład „Maserati 56”), i może jeździć kilka sezonów.
 
 ```wybory
 Ewolucja czy rewolucja | bezpieczniejszy start albo wyższy sufit z większym rozrzutem
+Kierunek aerodynamiki | na proste, wyważona albo na zakręty, z liczbami dla prostych i zakrętów
 Kierowca do auta | rozjazd w balansie, trakcji i stylu hamowania kosztuje {CarEstimates.PaceSecondsPerMismatch|s} na okrążeniu za jednostkę
-Nowa koncepcja | startuje ze zrozumieniem {CarEstimates.NewConceptUnderstanding} na 100 i rośnie z kilometrami i pracą
+Nowa koncepcja | startuje ze zrozumieniem {CarEstimates.NewConceptUnderstanding} na 100 i rośnie z testami i kilometrami
 ```
 
 ```porownanie Ewolucja | Rewolucja
-Średni sufit | {CarEstimates.EvolutionCeilingMean} | {CarEstimates.RevolutionCeilingMean}
-Rozrzut sufitu | ±{CarEstimates.EvolutionCeilingSd} | ±{CarEstimates.RevolutionCeilingSd}
-Auto na start | {CarEstimates.EvolutionStartFraction|%} sufitu | {CarEstimates.RevolutionStartFraction|%} sufitu
+Sufit nowej koncepcji względem obecnej | +{DevelopmentEstimates.EvolutionCeilingShift} | +{DevelopmentEstimates.RevolutionCeilingShift}
+Rozrzut sufitu | ±{DevelopmentEstimates.EvolutionCeilingSd} | ±{DevelopmentEstimates.RevolutionCeilingSd}
+Auto na start | {DevelopmentEstimates.EvolutionStartFraction|%} sufitu | {DevelopmentEstimates.RevolutionStartFraction|%} sufitu
 ```
 
 ```pola
 Auto na starcie kariery | startuje ze swoją siłą, a rozwój może ją podnieść o {CarEstimates.InitialHeadroom} punktów
 Osiągi | moc · docisk · przyczepność mechaniczna · hamowanie · niezawodność | docisk ograniczony epoką
 Osie koncepcji | aero · filozofia · okno pracy · chłodzenie · opony · silnik
+Zrozumienie auta | brak zrozumienia kosztuje do {CarEstimates.UnderstandingMaxLoss} punktów w każdym obszarze poza mocą
 ```
 
 ```wykres koncepcja
@@ -224,42 +226,39 @@ Czy niepewność co do sufitu koncepcji jest ciekawa, czy frustrująca?
 
 ## 7. Rozwój auta
 
-Zasoby dzielisz Ty, a konkretne projekty wybierają inżynierowie.
+Części do auta, które jedzie, wybierają i dowożą inżynierowie, a Ty decydujesz o trzech rzeczach: jak podzielić ludzi, jaki charakter ma mieć następna koncepcja i kiedy ją wprowadzić. Wynik zależy od ludzi: od umiejętności i od innowacyjności, więc najdroższy sztab nie zawsze zbuduje najlepsze auto.
 
 ```wybory
-Podział zasobów | bieżące auto (domyślnie {DevelopmentEstimates.DefaultCurrentPercent|%%}), konto rozwoju ({DevelopmentEstimates.DefaultAccountPercent|%%}) albo przyszły rok ({DevelopmentEstimates.DefaultNextYearPercent|%%})
-Priorytety obszarów | aerodynamika, podwozie, niezawodność, opony, każdy w skali 0–10
-Zatwierdzić koncepcję czy czekać | punkty teraz albo lepsze auto później
-Inżynier prosi o czas | trzymać plan albo ciąć projekt (zostaje to, co zrobiono)
+Podział ludzi | suwak między autem, które jedzie, a następną koncepcją (domyślnie {DevelopmentEstimates.DefaultNextYearPercent|%%} na koncepcję)
+Charakter następnej koncepcji | ewolucja albo rewolucja i kierunek aerodynamiki, z liczbami przy każdej opcji
+Kiedy wprowadzić gotową koncepcję | od razu albo poczekać; budowa trwa kilka tygodni
 ```
 
 ```kroki
-Gotowa | decyzja w skrzynce; po {DevelopmentEstimates.ConceptDecisionDays|dni} bez odpowiedzi rozwijamy dalej
-Produkcja | koszt {DevelopmentEstimates.ConceptProductionCostShare|%} kosztu rozwoju, płatny od razu, bez anulowania
-Stare auto jedzie | wyścigi do końca produkcji
-Nowe auto | pierwszego dnia po produkcji, nigdy w środku weekendu
+Projekt | powstaje przez {DevelopmentEstimates.ConceptDesignDays1955|dni} w 1955 przy domyślnym podziale; większy udział ludzi skraca czas
+Gotowa | decyzja w skrzynce z zakresem sufitu, zyskiem, poziomem na starcie, czasem budowy, kosztem i pierwszym wyścigiem; po {DevelopmentEstimates.ConceptDecisionDays|dni} bez odpowiedzi czekamy
+Budowa | koszt {DevelopmentEstimates.ConceptProductionCostShare|%} kosztu rozwoju, płatny od razu, bez anulowania
+Stare auto jedzie | wyścigi do końca budowy
+Nowa koncepcja | pierwszego dnia po budowie, nigdy w środku weekendu; zrozumienie auta spada
 ```
 
 ```pola
-Konto rozwoju | wiedza na później | traci wartość, gdy rywale idą do przodu
-Zysk | część dystansu do sufitu koncepcji | blisko sufitu każda dziesiątka kosztuje więcej
+Zasięg koncepcji | może jeździć kilka sezonów, a co sezon traci {DevelopmentEstimates.ConceptAgingPerSeason} pkt sufitu
+Zysk części | część dystansu do sufitu koncepcji | blisko sufitu każda dziesiątka kosztuje więcej
+Przełom | szansa {DevelopmentEstimates.BreakthroughBase|%} u każdego inżyniera, u najbardziej innowacyjnych wyraźnie większa | część daje wtedy dużo więcej niż zakładano
 Ludzie | skracają czas | nie podnoszą jakości
-Porażka | {DevelopmentEstimates.BaseRisk|%} szansy przed umiejętnościami | koncepcja {DevelopmentEstimates.ConceptRiskMultiple}× ryzykowniejsza, a w 1950 jeszcze {DevelopmentEstimates.EarlyConceptRiskScale}×
-Czas koncepcji | {DevelopmentEstimates.ConceptDesignDays1955|dni} w 1955, {DevelopmentEstimates.ConceptDesignDays2025|dni} w 2025 | przy typowej załodze epoki; zysk w 1950 to {DevelopmentEstimates.EarlyGainScale} późniejszego
-Projekty naraz | 1 na {DevelopmentEstimates.HeadcountPerSlot|osób} inżynierów | najwyżej {DevelopmentEstimates.MaxSlots}
-```
-
-```wykres konto-rozwoju
-Zmiana przepisów zabiera dodatkową część konta.
+Porażka | {DevelopmentEstimates.BaseRisk|%} szansy przed umiejętnościami | koncepcja {DevelopmentEstimates.ConceptRiskMultiple}× ryzykowniejsza, a rewolucja jeszcze bardziej
+Zakresy | auto widzisz w zakresach z oceny sztabu technicznego | lepszy sztab, węższy zakres
+Rywale | czołowa trójka tylko jako szersze zakresy
 ```
 
 ```wykres czas-produkcji
 ```
 
 ```pytania
-Czy podział na bieżące auto, konto i przyszły rok jest zrozumiały bez tłumaczenia?
-Czy wolisz wybierać konkretne projekty zamiast ustawiać priorytety?
-Czy czekanie z zatwierdzeniem koncepcji bywa dla Ciebie prawdziwym dylematem?
+Czy suwak i charakter następnej koncepcji są zrozumiałe bez tłumaczenia?
+Czy trzymanie jednej koncepcji kilka sezonów jest czasem lepsze od zmiany?
+Czy czekanie z wprowadzeniem koncepcji bywa dla Ciebie prawdziwym dylematem?
 ```
 
 ---
@@ -399,7 +398,7 @@ Przed wyścigiem przygotowujesz zespół, w wyścigu pracują Twoi ludzie, a wyn
 Strateg | steruje postojami i tempem; słabszy gorzej ocenia zużycie opon i plany. Jego umiejętność to w {RaceStaffEstimates.StrategyWeight|%} strategia, reszta to „Reakcja”; atrybut „Pogoda” decyduje o trafności prognozy. Rywale mają swoich strategów na tych samych zasadach
 Ekipa w boksie | jej jakość to atrybut „Pit stopy” szefa mechaników; od niej zależy ryzyko błędu: +{PitConstants.ErrorMinSeconds|s}–{PitConstants.ErrorMaxSeconds|s} straty
 Kierowca i auto pod tor | tor nagradza różne parametry auta
-Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, które zwalniają w zakrętach, klasyfikacja, przebieg, a w radiu strateg i Twoi kierowcy; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości. Auto-pauza sama zatrzymuje wyścig przy fladze, deszczu i ważnej wieści o Twoim aucie, a komunikat pokazuje, co się stało. Kropka przy różnicy w klasyfikacji to walka o pozycję
+Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, które zwalniają w zakrętach, klasyfikacja, przebieg, a w radiu strateg i Twoi kierowcy; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości. Auto-pauza sama zatrzymuje wyścig przy fladze, deszczu i ważnej wieści o Twoim aucie, a komunikat pokazuje, co się stało. Kropka przy różnicy w klasyfikacji to walka o pozycję. Klasyfikację i panel boksu poszerzysz albo zwęzisz, przeciągając ich wewnętrzną krawędź; dwuklik przywraca szerokość domyślną
 Szybki wyścig | z menu głównego, bez kariery: wybierasz sezon, zespół i rundę z kalendarza tego sezonu, a wyścig od razu rusza w trybie wyścigu. Świat jest taki, w jakim zaczęłaby się kariera w tym roku, wyścig liczy się według tych samych zasad, a po mecie wracasz do menu. Z szybkiego wyścigu możesz też wyjść w każdej chwili przyciskiem „Wyjdź” obok tempa; gra pyta wtedy, czy na pewno. Kariera w pamięci zostaje nietknięta i nic się nie zapisuje
 Polecenia z boksu | w szybkim wyścigu możesz przejąć auto od stratega. Tempo kierowcy ma pięć stopni, od pełnego oszczędzania do tempa kwalifikacyjnego, a „Strateg” oddaje mu tempo z powrotem. Silnik ma trzy tryby: oszczędny, normalny i pełną moc. Polecenie zespołowe „Przepuść kolegę” każe kierowcy oddać miejsce koledze z zespołu, gdy ten jedzie tuż za nim. Tempo, silnik i polecenie zespołowe działają od następnego okrążenia. Zjazd: wybierasz opony i klikasz „Potwierdź zjazd”; auto zjeżdża na końcu okrążenia, a jeśli już minęło wjazd do boksu (po {LiveRaceOrders.PitCallShare|%} okrążenia jest na to za późno), okrążenie później. Zjazd można odwołać, dopóki auto nie minie wjazdu do boksu. Co już widziałeś, nie zmienia się: polecenie działa tylko na dalszą część wyścigu
 Polecenia w karierze | na razie zablokowane: wynik wyścigu kariery jest zapisany w dniu wyścigu, zanim go obejrzysz, więc boks pokazuje dane aut, ale nie przyjmuje poleceń
@@ -496,4 +495,63 @@ Pogoda | prognozę z błędem | przyszłej pogody
 Czy rywale zachowują się bezmyślnie, wszechwiedząco, czy wiarygodnie? Opisz konkretną sytuację.
 Czy gdzieś w grze widać dokładną wartość, której nie powinieneś znać?
 Czy chciałbyś grać w trybie bez liczb, w którym ludzie mówią słowami, np. „młody jest szybki, ale zjada opony”?
+```
+
+---
+
+## 14. Przepisy i głosowania
+
+Przy starcie kariery wybierasz, czy przepisy idą swoim historycznym torem, czy co sezon głosują nad nimi zespoły. Gdy głosują, Ty też masz głos, a Twój zespół może zapłacić za własną propozycję. Każda zmiana, także w kalendarzu, wchodzi dopiero od pierwszego wyścigu sezonu po głosowaniu.
+
+```wybory
+Tryb przepisów | historyczny (bez głosowania, wszystko jak w prawdziwej historii), głosowany z jednym głosem na zespół albo głosowany z bankiem głosów
+Jak zagłosować | za wariantem, za obecnym przepisem albo wstrzymać się; do terminu możesz zmienić zdanie
+Czy zapłacić za propozycję | zgłaszasz zmianę wybranego przepisu albo toru w kalendarzu, ale płacisz opłatę i przez {RegulationEstimates.CooldownSeasons|sezonów} nie zgłosisz kolejnej
+Co zrobić z głosem w trybie z bankiem | zagłosować od razu albo wstrzymać się i odłożyć głos do banku na ważniejszą sprawę
+Jak się dogadać z rywalami | nie ma lobbingu; skłonności zespołów AI widzisz po ich głosach i powodach
+```
+
+```kroki
+Od pierwszego dnia sezonu | okno zgłoszeń: zespoły płacą za propozycje; propozycje na ten sam przepis scalają się w jedno głosowanie z wariantami
+Przerwy między wyścigami | głosowania są rozłożone równo przez cały sezon, każde w przerwie między dwoma weekendami wyścigowymi: od dnia po wyścigu do dnia przed następnym weekendem; w roku jest od {RegulationEstimates.FiaVotesMin} do {RegulationEstimates.FiaVotesMax} głosowań FIA i jedno nad propozycjami zespołów, mniej więcej w środku sezonu
+Dzień przed głosowaniem zespołów | okno zgłoszeń się zamyka; następnego dnia propozycje stają się głosowaniem
+Termin | głosowanie jest liczone przed następnym weekendem wyścigowym, nigdy w jego trakcie; kto nie zagłosował, wstrzymał się; wynik z powodem trafia do skrzynki
+Pierwszy wyścig kolejnego sezonu | przyjęta zmiana zaczyna działać; sezon, w którym głosowano, jedzie po staremu
+```
+
+```pola
+Bank głosów | wstrzymanie się odkłada jeden głos; bank nie ma limitu | na jedno głosowanie wydasz tyle, ile masz wolnych głosów, bez limitu na pozycję; bank nie spada poniżej zera
+Remis | rozstrzyga prezydent FIA | tylko wtedy; przy wyraźnej przewadze jego głos nic nie zmienia
+Opłata za propozycję | {RegulationEstimates.FeeRevenueShare|%} przychodu z ostatniego zakończonego sezonu | nie zależy od gotówki, więc czekanie na gorszy moment nic nie daje; nie wraca, także gdy propozycja przepadnie
+Dolna granica opłaty | {RegulationEstimates.FeeFloorShareOfTypicalBudget|%} typowego budżetu epoki | opłata nigdy nie jest zerem
+Zejście pod kreskę | opłatę możesz zapłacić nawet wtedy, gdy saldo spadnie poniżej zera | zadłużenie ma swoje skutki w finansach
+Karencja | po propozycji w sezonie N nie zgłosisz nowej w N+1 i N+2, a w N+3 znów możesz | dotyczy tylko zespołu; przepis, który właśnie się zmienił, może zmienić ponownie FIA albo inny zespół
+Start kariery | zespoły AI mają różne karencje startowe, od 0 do {RegulationEstimates.StartingCooldownMaxSeasons|sezonów} | Ty zaczynasz bez karencji
+Kalendarz | można skreślić wyścig, dodać wyścig albo zmienić układ toru | kalendarz zachowuje co najmniej {RegulationEstimates.MinimumRounds} rund
+```
+
+```porownanie Jeden głos na zespół | Bank głosów
+Wstrzymanie się | głos przepada | głos trafia do Twojego banku
+Ważna sprawa | masz jeden głos jak zawsze | możesz dołożyć zbankowane głosy
+Ryzyko | niczego nie oszczędzasz | odłożone głosy nie wygasają, ale nie pomogą w głosowaniu, które właśnie mija; zespoły AI też wydają swoje banki, więc nie czekaj w nieskończoność
+```
+
+```wybory
+Co możesz zmienić głosowaniem | punktację (tabela, punkt za najszybsze okrążenie, podwójne punkty w finale, ile wyników się liczy, punkty konstruktorów), format kwalifikacji, samochód bezpieczeństwa, tankowanie, dystans wyścigu i kalendarz
+Czego nigdy nie da się zmienić | zasad i mechanik z listy zakazanych swojej serii: to stały rdzeń mistrzostw, FIA i zespoły AI ich nie proponują, a Twoja próba kończy się odmową z powodem; na razie na liście każdej serii są ładowanie odzysku energii zależne od pozycji oraz premie pieniężne dla ostatniego i dla awansującego zespołu (zostają w katalogu jako możliwe kiedyś, ale nie działają)
+Czego jeszcze nie da się zmienić | czerwone flagi, odwróconej kolejności startowej, sprintów, długości sesji, opon, pit-stopów, DRS i ERS, części typowych ani podziału nagród; silnik wyścigu jeszcze tego nie symuluje
+```
+
+```pola
+Skłonność zespołu | tradycjonalista, postępowiec, egalitarysta albo showman | stała; do własnego interesu dokłada głos AI
+Jak głosuje AI | według własnego interesu i skłonności | zna tylko publiczną tabelę, swoje finanse i własny kraj, nigdy ukrytych wartości ani przyszłości
+Kiedy AI składa propozycję | gdy spodziewa się zysku większego niż opłata, zadłużenie i trzy sezony karencji | zadłużony zespół nie wyda opłaty na przepis, a zakazanej zasady nie proponuje nigdy
+Powód wyniku | zawsze zapisany | widzisz, kto jak głosował i dlaczego
+```
+
+```pytania
+Czy wiesz, co zagłosowano, kiedy zmiana zacznie działać i dlaczego tak wyszło?
+Czy bank głosów daje sensowny wybór, czy jest dodatkową księgowością?
+Czy opłata i karencja sprawiają, że propozycja jest decyzją, a nie klikaniem?
+Czy zmiany przepisów i kalendarza zmieniają wyścigi tak, jak się spodziewałeś?
 ```

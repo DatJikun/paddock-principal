@@ -92,6 +92,8 @@ public static class DevelopmentEventTypes
 {
     public const string SplitSet = "development.split_set";
 
+    public const string NextConceptSet = "development.next_concept_set";
+
     public const string TimingSet = "development.timing_set";
 
     public const string ProjectCut = "development.project_cut";

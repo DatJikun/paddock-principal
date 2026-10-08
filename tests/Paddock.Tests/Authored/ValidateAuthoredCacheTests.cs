@@ -59,6 +59,7 @@ public class ValidateAuthoredCacheTests
                 "era timeline periods: 1",
                 "cpi years: 77",
                 "track geometries: 0",
+                "banned rules in the default list: 0",
                 "cache cross-check: ok",
                 "engine seasons: 2 checked, 0 gaps",
                 "constructors: 3 checked, 0 unknown",

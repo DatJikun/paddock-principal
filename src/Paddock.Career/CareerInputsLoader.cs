@@ -42,6 +42,8 @@ public static class CareerInputsLoader
             EraDimensionIds = data.EraDimensionIds,
             RegulationCatalog = RuleCatalog.ToSpecs(data.Catalog),
             Rules = career?.RulesSource ?? RulesSource.Historical,
+            VoteMode = career?.VoteMode ?? VoteMode.OneVoteEach,
+            BannedRules = data.BannedRules,
             Fatality = career?.FatalityLevel ?? FatalityLevel.Off,
             Facilities = data.Facilities,
             TeamCountries = TeamCountriesOf(data.Founders),

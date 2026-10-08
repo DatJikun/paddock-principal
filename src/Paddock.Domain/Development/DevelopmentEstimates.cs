@@ -41,11 +41,11 @@ public static class DevelopmentEstimates
 
     public const double DurationCeiling = 2.5;
 
-    /// <summary>ESTIMATE: share of a typical team's annual budget that full-effort development uses.</summary>
-    public const double AnnualBudgetShare = 0.15;
+    /// <summary>ESTIMATE: share of a typical team's annual budget that full-effort development uses. Lowered with v2 (PP-066), where parts and the next concept run side by side, with <see cref="GainPerFunding"/> raised to match so a part gains what it did.</summary>
+    public const double AnnualBudgetShare = 0.06;
 
     /// <summary>ESTIMATE: share of the remaining headroom an Upgrade closes per unit of funding at quality 1.</summary>
-    public const double GainPerFunding = 2.0;
+    public const double GainPerFunding = 5.0;
 
     /// <summary>ESTIMATE: a Concept project closes this multiple of an Upgrade's share for the same funding, over all areas.</summary>
     public const double ConceptGainMultiple = 2.5;

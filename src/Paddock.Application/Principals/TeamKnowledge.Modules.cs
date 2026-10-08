@@ -59,7 +59,7 @@ internal sealed partial class TeamKnowledge
                 new ConceptCase(
                     decision.ProjectId,
                     true,
-                    "Hold",
+                    decision.Timing,
                     Mid(decision.Gain),
                     decision.BuildDays,
                     Mid(decision.StartLevel) - Mid(decision.LevelNow)),

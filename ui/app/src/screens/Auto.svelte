@@ -55,7 +55,7 @@
   let characterChanged = $derived(draft.philosophy !== applied.philosophy || draft.aero !== applied.aero);
   let dirty = $derived(shareChanged || characterChanged);
 
-  const characterName = (milli: number) => (milli < 0 ? 'Evolution' : 'Revolution');
+  const characterName = (milli: number) => (milli < 0 ? 'Evolution' : milli > 0 ? 'Revolution' : 'Neutral');
   const aeroName = (milli: number) => (milli < 0 ? 'Straights' : milli > 0 ? 'Corners' : 'Balanced');
 
   let ask = $derived.by(() => {
@@ -117,7 +117,7 @@
       <div class="body">
         <div class="fields boxed eq">
           <div class="fld"><span class="meta">{tr.t('dev.ceiling')}</span><span class="v num">{band(view.concept.ceiling)}</span></div>
-          <div class="fld"><span class="meta">{tr.t('dev.char.' + characterName(view.concept.philosophyMilli))}</span><span class="v">{tr.t('dev.aero.' + aeroName(view.concept.aeroMilli))}</span></div>
+          <div class="fld"><span class="meta">{tr.t(`dev.char.${characterName(view.concept.philosophyMilli)}`)}</span><span class="v">{tr.t(`dev.aero.${aeroName(view.concept.aeroMilli)}`)}</span></div>
         </div>
       </div>
     </section>

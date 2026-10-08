@@ -159,7 +159,7 @@ public class DevelopmentCommandTests : IDisposable
         var aero = view.Areas.Single(area => area.Area == DevelopmentQuery.AreaAero);
         Assert.True(aero.Own.Low <= truth.Downforce + 1 && aero.Own.High >= truth.Downforce - 1);
         Assert.True(aero.Own.High > aero.Own.Low);
-        Assert.Equal(DevelopmentEstimates.TopRivals, aero.Rivals.Count);
+        Assert.Single(aero.Rivals);
         Assert.All(aero.Rivals, rival => Assert.True(rival.Band.High > rival.Band.Low));
         Assert.True(view.Headcount > 0);
     }

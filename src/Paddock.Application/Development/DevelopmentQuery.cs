@@ -71,7 +71,8 @@ public sealed record ConceptDecisionView(
     int BuildDays,
     long CostCents,
     DateOnly? FirstRace,
-    bool Breakthrough);
+    bool Breakthrough,
+    string Timing = "Hold");
 
 /// <summary>
 /// The next concept. <see cref="SharePercent"/> is the slider (how the people are split between the car that races and the next one),
@@ -402,7 +403,8 @@ internal static class DevelopmentReadout
             production.Days,
             production.CostCents,
             firstRace,
-            project.IsBreakthrough);
+            project.IsBreakthrough,
+            project.Timing.ToString());
     }
 
     /// <summary>The concept's name once it goes in: the team's name and the year it will come in. The current name's team part is reused.</summary>

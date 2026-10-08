@@ -343,10 +343,17 @@ internal sealed class CommandFiler
 
     private string Organization => _knowledge.Organization.Value;
 
-    private void File(ICommand command)
+    /// <summary>
+    /// Queues a command. A development command is not an action the principal waits to read back (nothing in the market or the contracts
+    /// depends on its result), so it does not pull the next review forward and does not count as a follow-up (PP-066).
+    /// </summary>
+    private void File(ICommand command, bool awaitsResult = true)
     {
         _queue.Enqueue(command);
-        Filed++;
+        if (awaitsResult)
+        {
+            Filed++;
+        }
     }
 
     public void RecordReview(
@@ -473,7 +480,7 @@ internal sealed class CommandFiler
                 ChassisPriority = plan.Chassis,
                 ReliabilityPriority = plan.Reliability,
                 TyresPriority = plan.Tyres,
-            });
+            }, awaitsResult: false);
         }
 
         if (outcome.Character is { } character)
@@ -485,14 +492,14 @@ internal sealed class CommandFiler
                 OrganizationId = Organization,
                 PhilosophyMilli = character.PhilosophyMilli,
                 AeroMilli = character.AeroMilli,
-            });
+            }, awaitsResult: false);
         }
 
         foreach (var timing in outcome.Timings)
         {
             if (timing.Commit)
             {
-                File(new CommitConceptCommand { ManagerId = Manager, IssuedOn = Day, OrganizationId = Organization, ProjectId = timing.ProjectId });
+                File(new CommitConceptCommand { ManagerId = Manager, IssuedOn = Day, OrganizationId = Organization, ProjectId = timing.ProjectId }, awaitsResult: false);
                 continue;
             }
 
@@ -504,7 +511,7 @@ internal sealed class CommandFiler
                 ProjectId = timing.ProjectId,
                 Timing = timing.Timing,
                 Races = timing.Races,
-            });
+            }, awaitsResult: false);
         }
     }
 

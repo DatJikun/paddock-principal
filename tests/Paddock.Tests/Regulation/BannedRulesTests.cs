@@ -153,6 +153,38 @@ public class BannedRulesTests
     }
 
     [Fact]
+    public void TheCommandOfAPlayerOnABannedRuleIsRejectedWithTheReasonKeyAndNothingIsCharged()
+    {
+        var harness = PoliticsHarness.Create(Options(Banning("safety_car")));
+        harness.LiveFrom(new GameDate(1955, 1, 2), new GameDate(1955, 2, 10));
+        var handler = new ProposeRuleChangeHandler(harness.Politics);
+        var context = new Paddock.Application.Commands.CommandContext(new Paddock.Application.World.StubWorldState(new DateOnly(1955, 2, 10)), harness.Managers);
+        var before = harness.Finance.BalanceOf(PoliticsHarness.Org("t01"));
+
+        foreach (var rule in new[] { "safety_car", DormantRules.ErsChargeByPosition, DormantRules.CashBonusLastPlace })
+        {
+            var rejection = handler.Validate(
+                new ProposeRuleChangeCommand
+                {
+                    ManagerId = harness.HumanOf("t01"),
+                    IssuedOn = new DateOnly(1955, 2, 10),
+                    SeriesId = Series,
+                    TeamId = "t01",
+                    DimensionId = rule,
+                    Value = "physical",
+                },
+                context);
+
+            Assert.NotNull(rejection);
+            Assert.Equal(RegulationKeys.Banned, rejection.Key);
+            Assert.Equal(rule, rejection.Parameters["rule"]);
+        }
+
+        Assert.Equal(before, harness.Finance.BalanceOf(PoliticsHarness.Org("t01")));
+        Assert.Empty(harness.Of().Pending);
+    }
+
+    [Fact]
     public void ASeriesWithoutAListOfItsOwnUsesTheDefaultAndAnotherSeriesWithADifferentListIsNotAffected()
     {
         // f1 has its own list (the core and points_scale); f2 has none and uses the default (the core only).

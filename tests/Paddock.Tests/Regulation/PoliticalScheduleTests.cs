@@ -290,6 +290,30 @@ public class PoliticalScheduleTests
     }
 
     [Fact]
+    public void AProposalFiledOnTheLastDayOfTheWindowIsOnTheTeamsBallotThatOpensTheNextDay()
+    {
+        var harness = PoliticsHarness.Create(new HarnessOptions { Seed = 6, StoreCalendar = true, AllHuman = true });
+        harness.LiveTo(new GameDate(1955, 1, 2));
+        var schedule = harness.ScheduleOf();
+        harness.LiveTo(schedule.ProposalsClose);
+
+        // A dimension the FIA has not brought yet (one on the ballot already is not open to a proposal).
+        var onBallot = new HashSet<string>(harness.Items().Select(item => item.DimensionId), StringComparer.Ordinal);
+        var choice = harness.Politics.ChoicesFor(harness.Of(), 1955, onBallot).First();
+
+        Assert.Null(harness.Politics.CheckPropose(Series, "t01", choice.DimensionId, choice.Value, harness.Today));
+        harness.Politics.Propose(Series, "t01", choice.DimensionId, choice.Value, harness.Today);
+        harness.LiveTo(schedule.TeamsSlot!.Opens);
+
+        var item = harness.Items().Single(i => i.Origin == BallotOrigin.Teams);
+        Assert.Equal(schedule.TeamsSlot.Opens, item.Announced);
+        Assert.Equal(schedule.TeamsSlot.Closes, item.Deadline);
+        Assert.Equal(["t01"], item.Variants.Single().ProposerTeamIds);
+        Assert.Equal(1958, harness.Of().TeamOf("t01")!.ProposeFromSeason);
+        Assert.Equal(RegulationKeys.WindowClosed, harness.Politics.CheckPropose(Series, "t02", "safety_car", "physical", harness.Today)!.Key);
+    }
+
+    [Fact]
     public void TheScheduleOfASeasonIsFixedBeforeItsFirstWeekendAndCountsEachVoteAtItsSlot()
     {
         var harness = PoliticsHarness.Create(new HarnessOptions { Seed = 6, StoreCalendar = true, AllHuman = true });

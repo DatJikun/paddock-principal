@@ -41,6 +41,9 @@ public static class SponsorEstimates
     /// <summary>ESTIMATE: the negotiator skill scale tops out here, like the staff attributes it is read from.</summary>
     public const int MaxSkill = 20;
 
+    /// <summary>ESTIMATE: the negotiating skill every team counts with while the commercial director is hidden (#265): an average director.</summary>
+    public const int NeutralSkill = 10;
+
     /// <summary>ESTIMATE: one more parallel talk for every this many points of negotiator skill, on top of the first.</summary>
     public const int SkillPerParallelTalk = 7;
 

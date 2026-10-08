@@ -1,0 +1,39 @@
+{
+  "notes": "Authored corrections on top of the local Jolpica driver table (#265). Jolpica carries one given name per driver, so 'Juan Fangio' shows where the person is known as Juan Manuel Fangio. A name field left out keeps the Jolpica value. 'female' marks the few women of the data; every other real driver is male. The list is small on purpose: only a driver whose common name differs from Jolpica, or a woman. An id that is not in the local table is ignored. Entries are matched by the Jolpica driverId.",
+  "overrides": [
+    {
+      "driver_id": "fangio",
+      "given_name": "Juan Manuel",
+      "family_name": "Fangio",
+      "female": false
+    },
+    {
+      "driver_id": "foyt",
+      "given_name": "A. J.",
+      "family_name": "Foyt",
+      "female": false
+    },
+    {
+      "driver_id": "filippis",
+      "given_name": "Maria Teresa",
+      "family_name": "de Filippis",
+      "female": true
+    },
+    {
+      "driver_id": "lombardi",
+      "female": true
+    },
+    {
+      "driver_id": "galica",
+      "female": true
+    },
+    {
+      "driver_id": "desire_wilson",
+      "female": true
+    },
+    {
+      "driver_id": "amati",
+      "female": true
+    }
+  ]
+}

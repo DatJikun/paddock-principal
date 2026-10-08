@@ -35,7 +35,8 @@ public static class SaveMigrations
         new V027_InfrastructureSection(),
         new V028_CarDevelopmentV2(),
         new V029_RegulationVoting(),
-        new V030_SponsorTerms(),
+        new V030_PersonGender(),
+        new V031_SponsorTerms(),
     ];
 
     static SaveMigrations()

@@ -1,4 +1,5 @@
 using System.Globalization;
+using Paddock.Domain.Contracts;
 using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -33,7 +34,13 @@ public sealed record DriverProfileView(
     DriverContractView? Contract,
     IReadOnlyList<KnownAttributeView> Attributes,
     KnownAttributeView? Potential,
-    IReadOnlyList<DriverSeasonView> Seasons);
+    IReadOnlyList<DriverSeasonView> Seasons,
+    bool Female = false,
+    int? Overall = null,
+    DriverContractView? Upcoming = null,
+    string? UpcomingOrganizationName = null,
+    string? UpcomingStart = null,
+    SalaryGuideView? SalaryGuide = null);
 
 /// <summary>Reads one driver for the profile and the comparison. A pure query: no state change and no random number (INV-005).</summary>
 public static class DriverProfileRead
@@ -42,7 +49,16 @@ public static class DriverProfileRead
     public static DriverProfileView None(string personId) =>
         new(false, personId, "", "", 0, null, null, false, false, null, null, null, [], null, []);
 
-    public static DriverProfileView Of(WorldState world, OrganizationId observer, GameDate today, string personId)
+    /// <param name="earlier">
+    /// Seasons the driver raced before this career began, read by the host from local data (plain counts, #265). They come first
+    /// in <see cref="DriverProfileView.Seasons"/>; a season this career has already archived wins over them.
+    /// </param>
+    public static DriverProfileView Of(
+        WorldState world,
+        OrganizationId observer,
+        GameDate today,
+        string personId,
+        IReadOnlyList<DriverSeasonView>? earlier = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         if (!observer.IsAssigned)
@@ -66,6 +82,28 @@ public static class DriverProfileRead
             }
         }
 
+        // A contract signed for later (a pre-contract or a renewal) starts after today. The profile must show it, or a signed
+        // renewal looks as if nothing happened (#265).
+        Contract? upcoming = null;
+        Contract? last = contract;
+        foreach (var candidate in world.Contracts)
+        {
+            if (candidate.PersonId != person.Id || !candidate.Role.IsDriver || !candidate.Exclusive || candidate.End < today)
+            {
+                continue;
+            }
+
+            if (candidate.Start > today && (upcoming is null || candidate.Start < upcoming.Start))
+            {
+                upcoming = candidate;
+            }
+
+            if (last is null || candidate.End > last.End)
+            {
+                last = candidate;
+            }
+        }
+
         var own = contract is not null && contract.OrganizationId == observer;
         IReadOnlyList<KnownAttributeView> attributes = [];
         KnownAttributeView? potential = null;
@@ -77,19 +115,8 @@ public static class DriverProfileRead
             potential = belief.Potential is { } band ? new KnownAttributeView("potential", band.Low, band.High) : null;
         }
 
-        DriverContractView? terms = null;
-        if (own && contract is not null)
-        {
-            terms = new DriverContractView(
-                contract.Id.Value,
-                contract.Role.Seat.ToString(),
-                contract.Start.ToString(),
-                contract.End.ToString(),
-                contract.Salary,
-                contract.Option is { } option ? option.ExtraYears : null,
-                contract.Option is { } held ? held.Deadline.ToString() : null,
-                contract.ReleaseClause is { } release ? release.Amount : null);
-        }
+        DriverContractView? terms = own && contract is not null ? ViewOf(contract) : null;
+        DriverContractView? next = upcoming is not null && upcoming.OrganizationId == observer ? ViewOf(upcoming) : null;
 
         return new DriverProfileView(
             true,
@@ -102,11 +129,48 @@ public static class DriverProfileRead
             own,
             contract is null,
             contract?.Role.Seat.ToString(),
-            contract?.End.ToString(),
+            last?.End.ToString(),
             terms,
             attributes,
             potential,
-            Seasons(world, person.Id.Value));
+            Merge(earlier, Seasons(world, person.Id.Value)),
+            person.IsFemale,
+            PeopleViews.Overall(NegotiationSubject.DriverSeat, world.KnowledgeOf(observer, person.Id)),
+            next,
+            upcoming is null ? null : world.GetOrganization(upcoming.OrganizationId).NameOn(upcoming.Start),
+            upcoming?.Start.ToString());
+    }
+
+    private static DriverContractView ViewOf(Contract contract) =>
+        new(
+            contract.Id.Value,
+            contract.Role.Seat.ToString(),
+            contract.Start.ToString(),
+            contract.End.ToString(),
+            contract.Salary,
+            contract.Option is { } option ? option.ExtraYears : null,
+            contract.Option is { } held ? held.Deadline.ToString() : null,
+            contract.ReleaseClause is { } release ? release.Amount : null);
+
+    private static IReadOnlyList<DriverSeasonView> Merge(IReadOnlyList<DriverSeasonView>? earlier, IReadOnlyList<DriverSeasonView> archived)
+    {
+        if (earlier is null || earlier.Count == 0)
+        {
+            return archived;
+        }
+
+        var seasons = new SortedDictionary<int, DriverSeasonView>();
+        foreach (var row in earlier)
+        {
+            seasons[row.Season] = row;
+        }
+
+        foreach (var row in archived)
+        {
+            seasons[row.Season] = row;
+        }
+
+        return seasons.Values.ToArray();
     }
 
     private static IReadOnlyList<DriverSeasonView> Seasons(WorldState world, string personId)

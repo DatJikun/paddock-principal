@@ -173,8 +173,20 @@ public static class ContractKeys
     [TranslationKey]
     public const string InboxLapsedSubject = "negotiation.inbox.lapsed.subject";
 
+    /// <summary>The accept label for a man. A person's gender picks the variant (<see cref="ByGender"/>, #265).</summary>
     [TranslationKey]
-    public const string InboxAcceptLabel = "negotiation.inbox.accept.label";
+    public const string InboxAcceptLabelMale = "negotiation.inbox.accept.label.m";
+
+    [TranslationKey]
+    public const string InboxAcceptLabelFemale = "negotiation.inbox.accept.label.f";
+
+    public static string InboxAcceptLabel(bool female) => female ? InboxAcceptLabelFemale : InboxAcceptLabelMale;
+
+    public static string RenewalReleaseLabel(bool female) => female ? RenewalReleaseLabelFemale : RenewalReleaseLabelMale;
+
+    /// <summary>The negotiation is waiting for the person's answer, and the day it comes (#265).</summary>
+    [TranslationKey]
+    public const string InboxWaitingSubject = "negotiation.inbox.waiting.subject";
 
     [TranslationKey]
     public const string InboxAcceptConsequence = "negotiation.inbox.accept.consequence";
@@ -207,7 +219,10 @@ public static class ContractKeys
     public const string RenewalRenewConsequence = "contract.inbox.renewal.renew.consequence";
 
     [TranslationKey]
-    public const string RenewalReleaseLabel = "contract.inbox.renewal.release.label";
+    public const string RenewalReleaseLabelMale = "contract.inbox.renewal.release.label.m";
+
+    [TranslationKey]
+    public const string RenewalReleaseLabelFemale = "contract.inbox.renewal.release.label.f";
 
     [TranslationKey]
     public const string RenewalReleaseConsequence = "contract.inbox.renewal.release.consequence";

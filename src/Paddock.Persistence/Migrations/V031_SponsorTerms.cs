@@ -6,12 +6,12 @@ namespace Paddock.Persistence;
 /// Sponsor deals with terms (#268): a deal runs one to three years, has a condition of a chosen difficulty and can carry a nationality wish;
 /// talks and renewal offers remember the terms on the table and an offer counts the rounds the player has used. Existing rows read as the
 /// one-year, standard-condition deal they always were. <c>sponsor_deals</c> is rebuilt because its instalment CHECK (0 to 12) must allow 36.
-/// Number is V030 because V029 (regulation voting v2, #291) is the newest on main and versions must be contiguous; the open PRs that
+/// Number is V031 because V030 (person gender, #265) is the newest on main and versions must be contiguous; the open PRs that
 /// also add a migration (#300, #308) are renumbered by whoever merges second, and so is this one if it merges after them.
 /// </summary>
-public sealed class V030_SponsorTerms : ISaveMigration
+public sealed class V031_SponsorTerms : ISaveMigration
 {
-    public int Version => 30;
+    public int Version => 31;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

@@ -59,7 +59,7 @@ internal static class StoreSql
         SlotKinds.TryParse(text, out var kind) ? kind : throw new InvalidDataException($"Slot kind '{text}' is unknown.");
 }
 
-/// <summary>Saves the <c>sponsors</c> section into the tables made by <see cref="V012_SponsorsAndObjectives"/> and widened by <see cref="V030_SponsorTerms"/>.</summary>
+/// <summary>Saves the <c>sponsors</c> section into the tables made by <see cref="V012_SponsorsAndObjectives"/> and widened by <see cref="V031_SponsorTerms"/>.</summary>
 public sealed class SponsorsSectionStore : ISectionStore
 {
     public string SectionName => SponsorsSection.SectionName;

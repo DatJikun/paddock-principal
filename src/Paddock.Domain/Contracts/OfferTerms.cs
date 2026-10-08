@@ -91,7 +91,7 @@ public sealed record OfferTerms
     /// <summary>Salary per season.</summary>
     public long Salary { get; }
 
-    /// <summary>Bonus for every championship point.</summary>
+    /// <summary>Bonus for every championship point. Retired (#265): the bridge always offers 0 and no form shows it; the field stays so saves keep their shape.</summary>
     public long PointsBonus { get; }
 
     /// <summary>Bonus for every win.</summary>

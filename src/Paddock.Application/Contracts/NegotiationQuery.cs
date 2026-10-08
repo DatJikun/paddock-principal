@@ -46,7 +46,11 @@ public sealed record NegotiationView(
     IReadOnlyList<TranslationMessage> Reasons,
     IReadOnlyList<NegotiationRoundView> History,
     IReadOnlyList<KnownAttributeView> KnownAttributes,
-    ContractId? SignedContract);
+    ContractId? SignedContract,
+    SalaryGuideView? SalaryGuide = null,
+    DateOnly? StartsOn = null,
+    bool Female = false,
+    int? Overall = null);
 
 /// <summary>The negotiations one viewer may see.</summary>
 public sealed record NegotiationsView(AccessContext Viewer, IReadOnlyList<NegotiationView> Items);
@@ -77,6 +81,7 @@ public sealed class NegotiationQuery
     private NegotiationView Describe(Negotiation negotiation)
     {
         var person = _book.World.GetPerson(negotiation.Counterparty);
+        var today = _book.World.CurrentDate;
         var attributes = _book.World.KnowledgeOf(negotiation.Proposer, negotiation.Counterparty) is PersonKnowledgeView belief
             ? belief.Attributes.Select(attribute => new KnownAttributeView(attribute.Key, attribute.Band.Low, attribute.Band.High)).ToArray()
             : [];
@@ -106,7 +111,11 @@ public sealed class NegotiationQuery
                 .Select(round => new NegotiationRoundView(round.Number, round.Kind, InboxBook.ToDateOnly(round.On), round.Terms, Messages(round.Reasons)))
                 .ToArray(),
             attributes,
-            negotiation.SignedContract);
+            negotiation.SignedContract,
+            PeopleViews.SalaryGuide(_book.ReferenceSalary(negotiation.Proposer, negotiation.Counterparty, negotiation.Subject, today)),
+            negotiation.IsActive ? InboxBook.ToDateOnly(PeopleViews.StartIfSignedToday(_book, negotiation.Counterparty, today)) : null,
+            person.IsFemale,
+            PeopleViews.Overall(negotiation.Subject, _book.World.KnowledgeOf(negotiation.Proposer, negotiation.Counterparty)));
     }
 
     private static TranslationMessage[] Messages(IReadOnlyList<string> keys) =>

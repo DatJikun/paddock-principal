@@ -127,12 +127,11 @@ public sealed record StaffListView(IReadOnlyList<Paddock.Application.Staff.Staff
 /// <summary>Opens a negotiation. Subject is <c>driver</c> or <c>staff:Role</c>.</summary>
 public sealed record OpenNegotiationCall(string ManagerId, string OrganizationId, string PersonId, string Subject, string? Deadline);
 
-/// <summary>An offer. Money is whole currency units. Seat, option and exit are optional.</summary>
+/// <summary>An offer. Money is whole currency units. Seat, option and exit are optional. There is no bonus per point (#265).</summary>
 public sealed record SubmitOfferCall(
     string ManagerId,
     string NegotiationId,
     long Salary,
-    long PointsBonus,
     long WinBonus,
     long TitleBonus,
     int Years,
@@ -150,11 +149,13 @@ public sealed record RenewContractCall(
     string ContractId,
     bool ExerciseOption,
     long? Salary,
-    long? PointsBonus,
     long? WinBonus,
     long? TitleBonus,
     int? Years,
-    string? Seat);
+    string? Seat,
+    string? OptionHolder,
+    int? OptionYears,
+    int? ExitWorseThan);
 
 /// <summary>Sponsor talks. Slot is 1 to 3. <paramref name="Years"/> (1 to 3) and <paramref name="Ambition"/> (<c>lighter</c>, <c>standard</c>, <c>harder</c>) are the terms; left out they are one year and standard.</summary>
 public sealed record BeginSponsorCall(string ManagerId, string OrganizationId, string SponsorId, int Slot, int? Years = null, string? Ambition = null);

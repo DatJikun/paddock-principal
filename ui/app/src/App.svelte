@@ -808,7 +808,7 @@
         {:else if screenData.kind === 'personel' && route.name === 'personel'}
           <Personel data={screenData} {tr} {teamId} />
         {:else if screenData.kind === 'osoba' && route.name === 'osoba'}
-          <Osoba data={screenData} {tr} id={route.args[0] ?? ''} />
+          <Osoba data={screenData} {tr} id={route.args[0] ?? ''} {teamId} {busy} {act} />
         {:else if screenData.kind === 'auto' && route.name === 'auto'}
           <Auto data={screenData} {tr} {teamId} {busy} {act} />
         {:else if screenData.kind === 'rynek' && route.name === 'rynek'}

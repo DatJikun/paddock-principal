@@ -34,11 +34,20 @@ public static class StaffCatalogue
         return GenerationEstimates.MinSeason;
     }
 
+    /// <summary>
+    /// Roles hidden from the team and the market for now (#265): nothing the player can understand reads them, or what reads them
+    /// uses a neutral value instead. The single switch: remove a role from this list and it is back on every roster, hired again
+    /// and shown again. The enum values and every old contract stay, so no save breaks.
+    /// </summary>
+    public static IReadOnlyList<StaffRole> HiddenRoles { get; } = [StaffRole.Strategist, StaffRole.ChiefMechanic, StaffRole.CommercialDirector];
+
     /// <summary>A chair on the team roster. The engine designer sits at the engine maker and the principal is not staff.</summary>
     public static bool IsTeamRoster(StaffRole role)
     {
         EnsureRole(role);
-        return role is not (StaffRole.EngineDesigner or StaffRole.TeamPrincipal);
+        // Strategist and ChiefMechanic are hidden (#265): nothing in the simulation reads them yet. The enum values stay so old
+        // saves load; their holders just are not shown, hired or replaced. They come back when a system reads them.
+        return role is not (StaffRole.EngineDesigner or StaffRole.TeamPrincipal) && !HiddenRoles.Contains(role);
     }
 
     /// <summary>Team chairs, in enum order, without the engine designer and the team principal.</summary>

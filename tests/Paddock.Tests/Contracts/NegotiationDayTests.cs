@@ -34,21 +34,15 @@ public class NegotiationDayTests
         var lab = new Lab();
         var id = lab.OpenOk(Anna, TeamA, DriverX);
         lab.Offer(Anna, id, Terms(60_000));
-        Assert.Null(lab.Find(id).RespondOn);
-
-        lab.Advance(1);
-
+        // The answer day is fixed when the offer is made (#265), so the manager can be told at once.
         var respondOn = lab.Find(id).RespondOn!.Value;
         var delay = Start.DaysUntil(respondOn);
         Assert.InRange(
             delay,
             NegotiationEstimates.ResponseDelayMinDays,
-            NegotiationEstimates.ResponseDelayMinDays + NegotiationEstimates.ResponseDelayJitterDays);
-        var scheduled = Assert.Single(lab.Clock.Queue.Events, e => e.TypeId == ContractEventTypes.Respond);
-        Assert.Equal(respondOn, scheduled.Date);
-        Assert.Equal("neg:1#1", Assert.IsType<MarkerPayload>(scheduled.Payload).Marker);
+            NegotiationEstimates.ResponseDelayMinDays + NegotiationEstimates.ResponseDelayCarelessDays + NegotiationEstimates.ResponseDelayJitterDays);
 
-        lab.Advance(delay - 1);
+        lab.Advance(delay);
         Assert.Equal(NegotiationStatus.AwaitingResponse, lab.Find(id).Status);
         lab.Advance(1);
         Assert.Equal(NegotiationStatus.Countered, lab.Find(id).Status);
@@ -161,7 +155,7 @@ public class NegotiationDayTests
         var answered = lab.AdvanceUntilAnswered(id);
 
         Assert.Equal(NegotiationStatus.Refused, answered.Status);
-        var notice = Assert.Single(lab.Inbox.Section.ItemsOf(Anna.Value));
+        var notice = Assert.Single(lab.Inbox.Section.ItemsOf(Anna.Value), item => item.SubjectKey == ContractKeys.InboxRefusedSubject);
         Assert.False(notice.NeedsDecision);
         Assert.Equal(ContractKeys.InboxRefusedSubject, notice.SubjectKey);
         Assert.Null(lab.Managers.Get(Anna).BlockingItem);

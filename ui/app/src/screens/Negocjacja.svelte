@@ -43,7 +43,6 @@
       { label: tr.t('offer.salary'), value: money(value.salary) },
       { label: tr.t('offer.years'), value: String(value.years) },
       { label: tr.t('offer.seat'), value: value.seat ? tr.t(`seat.${value.seat}`) : '—' },
-      { label: tr.t('offer.pointsBonus'), value: money(value.pointsBonus) },
       { label: tr.t('offer.winBonus'), value: money(value.winBonus) },
       { label: tr.t('offer.titleBonus'), value: money(value.titleBonus) },
       { label: tr.t('offer.option'), value: value.option ? `${tr.t(`offer.option.${value.option.holder}`)} +${value.option.extraYears}` : tr.t('offer.option.none') },
@@ -79,12 +78,15 @@
 {:else}
   <div class="neg">
     <section class="panel neg-head">
-      <PersonCell name={item.personName} href={`#/kierowca/${encodeURIComponent(item.person)}`} nationality={item.nationality} />
+      <PersonCell name={item.personName} href={`#/${item.subject.kind === 'DriverSeat' ? 'kierowca' : 'osoba'}/${encodeURIComponent(item.person)}`} nationality={item.nationality} />
       <div class="fields">
         <div class="fld"><span class="meta">{tr.t('negotiation.state')}</span><span class="v"><Status text={tr.tMsg(item.statusText)} {tone} /></span></div>
         <div class="fld"><span class="meta">{tr.t('negotiation.interest')}</span><span class="v">{tr.tMsg(item.interest)}</span></div>
         <div class="fld"><span class="meta">{tr.t('negotiation.rounds')}</span><span class="v num">{tr.t('negotiation.roundOf', { used: String(item.roundsUsed), max: String(item.maxRounds) })}</span></div>
         <div class="fld"><span class="meta">{tr.t('negotiation.deadline')}</span><span class="v num" class:bad={!closed}>{formatDay(item.deadline, tr.lang)}</span></div>
+        {#if item.startsOn && !closed}
+          <div class="fld"><span class="meta">{tr.t('negotiation.startsOn')}</span><span class="v num">{formatDay(item.startsOn, tr.lang)}</span></div>
+        {/if}
         {#if item.respondOn}
           <div class="fld"><span class="meta">{tr.t('negotiation.respondOn')}</span><span class="v num">{formatDay(item.respondOn, tr.lang)}</span></div>
         {/if}
@@ -98,7 +100,7 @@
             <header><h2>{canOffer ? tr.t('negotiation.yourOffer') : tr.t('negotiation.waiting')}</h2></header>
             <div class="body">
               {#if canOffer}
-                <OfferForm {tr} initial={item.counter ?? item.offer} {busy} label={tr.t('negotiation.send')} onSubmit={send} />
+                <OfferForm {tr} initial={item.counter ?? item.offer} guide={item.salaryGuide} {busy} label={tr.t('negotiation.send')} onSubmit={send} />
               {/if}
               {#if asking === 'accept'}
                 <Confirmation {tr} {busy} ask={tr.t('negotiation.accept.ask', { name: item.personName })} onCancel={() => (asking = null)} onConfirm={accept} />

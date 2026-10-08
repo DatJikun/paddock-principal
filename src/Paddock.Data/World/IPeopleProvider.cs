@@ -29,7 +29,8 @@ public sealed record RealDriverRecord(
     string? Nationality,
     int? FirstSeason,
     int? PoolEntryYear,
-    IReadOnlyList<DriverSeat> Seats);
+    IReadOnlyList<DriverSeat> Seats,
+    bool IsFemale = false);
 
 /// <summary>
 /// Source of real drivers for <see cref="WorldInitializer"/>. Implemented from the T12 people schedule by
@@ -75,7 +76,8 @@ public sealed class ScheduleBackedPeopleProvider : IPeopleProvider
         PeopleScheduleReport schedule,
         IReadOnlyList<HistoricalDriver> drivers,
         Func<string, int, DriverRating?>? ratings = null,
-        IEnumerable<string>? organizationIds = null)
+        IEnumerable<string>? organizationIds = null,
+        IReadOnlyDictionary<string, Paddock.Data.Authored.RealPersonOverride>? overrides = null)
     {
         ArgumentNullException.ThrowIfNull(schedule);
         ArgumentNullException.ThrowIfNull(drivers);
@@ -101,6 +103,9 @@ public sealed class ScheduleBackedPeopleProvider : IPeopleProvider
             var seats = scheduled.Stints
                 .Select(stint => new DriverSeat(stint.Season, stint.ConstructorId, stint.FirstRound, stint.Role, stint.Starts))
                 .ToArray();
+            // The authored override only changes how the person is called and the gender; the rest stays Jolpica's.
+            Paddock.Data.Authored.RealPersonOverride? authored = null;
+            overrides?.TryGetValue(scheduled.DriverId, out authored);
             var id = scheduled.DriverId;
             if (constructors.Contains(id))
             {
@@ -110,14 +115,15 @@ public sealed class ScheduleBackedPeopleProvider : IPeopleProvider
 
             records.Add(new RealDriverRecord(
                 id,
-                row.GivenName,
-                row.FamilyName,
+                string.IsNullOrWhiteSpace(authored?.GivenName) ? row.GivenName : authored!.GivenName!.Trim(),
+                string.IsNullOrWhiteSpace(authored?.FamilyName) ? row.FamilyName : authored!.FamilyName!.Trim(),
                 ParseDate(row.DateOfBirth),
                 scheduled.Born ?? PeopleScheduleRules.BornYear(row.DateOfBirth),
                 row.Nationality ?? scheduled.Nationality,
                 scheduled.FirstSeason,
                 scheduled.PoolEntryYear,
-                seats));
+                seats,
+                authored?.Female ?? false));
         }
 
         Drivers = records;

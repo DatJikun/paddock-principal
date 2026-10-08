@@ -40,8 +40,8 @@ public sealed class SeasonOverviewTests
         var stored = session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName)!.Latest()!;
 
         Assert.Equal(1955, overview.Season);
-        Assert.False(overview.HasConstructorTitle);
-        Assert.Empty(overview.Constructors);
+        // #264: a constructors' table always exists, also in seasons with no official title.
+        Assert.NotEmpty(overview.Constructors);
         Assert.True(overview.Rounds.Count > 1);
         Assert.Equal(1, overview.Rounds.Count(round => round.Finished));
         Assert.All(overview.Rounds, round => Assert.False(string.IsNullOrEmpty(round.Country)));

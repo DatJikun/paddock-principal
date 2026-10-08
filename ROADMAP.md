@@ -124,6 +124,7 @@ Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyśc
 2. **System awatarów: odłożony.** Dotychczasowe próby (Peloton, Ping-Pong, brief w HANDOFF_UI §7) nie dały zadowalającego wyniku. Wracamy później.
 3. **Dane do wydania komercyjnego (PP-041):** Jolpica to CC BY-NC-SA 4.0. Na Steam trzeba własnej bazy albo zgody. Decyzja do podjęcia przed fazą wydania.
 4. **Kalibracja ocen:** ile lat przed debiutem kierowca trafia do puli talentów (fazy 1 i 4).
+5. **Kalibracja kosztu transportu (PP-070):** `InfrastructureEstimates.LogisticsHomeShare`, `LogisticsLorryShare` i `LogisticsShipShare` to szacunki dobrane do sezonu 1955 (7 rund, jedna lub dwie za oceanem), gdzie transport wychodzi na około 6 do 8% rocznego budżetu. Udział jest liczony od rundy, więc przy kalendarzu z ponad 20 rundami i większością wyścigów poza Europą sumuje się do kilkudziesięciu procent budżetu, czego prawdziwe zespoły nie płacą. Do ustalenia przed szerszym testem późniejszych epok: skalowanie liczbą rund albo własna stawka na epokę.
 
 Rozstrzygnięte 2026-09-26: technologie jako przełomy od ludzi, bez drzewka (PP-042); rozwój auta z dwiema ścieżkami, MVP z autonomicznymi inżynierami (PP-043); szef zespołu ma atrybuty (PP-044).
 

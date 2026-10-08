@@ -53,9 +53,9 @@ Rival car car:4, team connaught.
 Rival car car:5, team cooper.
 Rival car car:6, team cooper.
 Rival car car:9, team gordini.
-Sponsor slot 1: Technical or patron slot.
-Sponsor slot 2: Technical or patron slot.
-Sponsor slot 3: Technical or patron slot.
+Sponsor slot 1: Technical or patron.
+Sponsor slot 2: Technical or patron.
+Sponsor slot 3: Technical or patron.
 Cash: 60000.00.
 Forecast to the end of the season: 60000.00.
 Board of ferrari: confidence 60.

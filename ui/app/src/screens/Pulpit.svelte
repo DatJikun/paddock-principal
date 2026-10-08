@@ -28,7 +28,7 @@
   );
   let latestRound = $derived(data.latest.found ? data.calendar.rounds.find((round) => round.round === data.latest.round && round.season === data.latest.season) ?? null : null);
   let latestRows = $derived(
-    data.latest.rows.filter((row, index) => index < 6 || row.teamId === teamId) as RaceRowView[],
+    data.latest.rows.filter((row, index) => index < 10 || row.teamId === teamId) as RaceRowView[],
   );
   let own = $derived(data.board.own);
 </script>

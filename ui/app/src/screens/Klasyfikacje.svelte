@@ -1,8 +1,9 @@
 <script lang="ts">
   import Flag from '../lib/components/Flag.svelte';
+  import SeasonGrid from '../lib/components/SeasonGrid.svelte';
   import { hasFlag } from '../lib/flags.mjs';
   import type { StandingsData } from '../lib/screens';
-  import { points, type Tr } from '../lib/ui';
+  import { icon, ICON, points, type Tr } from '../lib/ui';
 
   let { data, tr, teamId, rounds }: { data: StandingsData; tr: Tr; teamId: string; rounds: number } = $props();
 
@@ -10,6 +11,7 @@
   let rules = $derived(table.rules);
   let titles = $derived(rules !== null && rules.constructors !== 'NoChampionship');
   let split = $derived(rules !== null && rules.firstQuota > 0 && rules.secondQuota > 0);
+  let grid = $state(false);
 </script>
 
 <div class="screen-head">
@@ -20,7 +22,14 @@
       <span class="v num">{tr.t('race.roundOf', { round: String(table.roundsCompleted), total: String(table.totalRounds || rounds) })}</span>
     </div>
   </div>
+  {#if data.overview.rounds.some((round) => round.finished)}
+    <button type="button" class="btn ov-open" onclick={() => (grid = true)}>{@html icon(ICON.board, 18)}<span>{tr.t('overview.open')}</span></button>
+  {/if}
 </div>
+
+{#if grid}
+  <SeasonGrid overview={data.overview} {tr} {teamId} onClose={() => (grid = false)} />
+{/if}
 
 <div class="stand-grid">
   <section class="panel tbl">
@@ -33,6 +42,7 @@
             <th>{tr.t('shell.col.driver')}</th>
             <th>{tr.t('shell.col.team')}</th>
             <th class="c">{tr.t('shell.col.wins')}</th>
+            <th class="c">{tr.t('shell.col.podiums')}</th>
             <th class="c">{tr.t('shell.col.points')}</th>
           </tr>
         </thead>
@@ -42,7 +52,8 @@
               <td class="c num">{row.position}</td>
               <td><span class="person">{#if hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}{row.name}</span></td>
               <td class="muted">{row.teamName ?? ''}</td>
-              <td class="c num">{row.wins || ''}</td>
+              <td class="c num" class:zero={row.wins === 0}>{row.wins}</td>
+              <td class="c num" class:zero={row.podiums === 0}>{row.podiums}</td>
               <td class="c num"><b>{points(tr, row.points)}</b></td>
             </tr>
           {/each}
@@ -60,6 +71,7 @@
               <th class="c">{tr.t('shell.col.position')}</th>
               <th>{tr.t('shell.col.team')}</th>
               <th class="c">{tr.t('shell.col.wins')}</th>
+              <th class="c">{tr.t('shell.col.podiums')}</th>
               <th class="c">{tr.t('shell.col.points')}</th>
             </tr>
           </thead>
@@ -68,7 +80,8 @@
               <tr class:mine={row.id === teamId}>
                 <td class="c num">{row.position}</td>
                 <td>{row.name}</td>
-                <td class="c num">{row.wins || ''}</td>
+                <td class="c num" class:zero={row.wins === 0}>{row.wins}</td>
+                <td class="c num" class:zero={row.podiums === 0}>{row.podiums}</td>
                 <td class="c num"><b>{points(tr, row.points)}</b></td>
               </tr>
             {/each}

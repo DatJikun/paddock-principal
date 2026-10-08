@@ -14,6 +14,7 @@ using Paddock.Application.Sponsors;
 using Paddock.Application.Staff;
 using Paddock.Application.Supply;
 using Paddock.Data.Authored;
+using Paddock.Data.Historical;
 using Paddock.Data.World;
 using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
@@ -50,6 +51,35 @@ public sealed partial class CareerBridge
     private IReadOnlyDictionary<string, CircuitLabel> Circuits => _circuits;
 
     private IReadOnlyDictionary<string, TrackFacts> Tracks => _tracks;
+
+    private (string Root, int Before)? _pastKey;
+    private IReadOnlyList<HistoricalRaceFact>? _past;
+
+    /// <summary>
+    /// Real races from before this career began, read once from the local cache (PP-041) and reduced to circuit and podium.
+    /// Null without a cache, a data root or a career config: the circuit page then has no real history and hides that part.
+    /// </summary>
+    private IReadOnlyList<HistoricalRaceFact>? PastRaces()
+    {
+        if (_dataRoot is null || _config is null)
+        {
+            return null;
+        }
+
+        var key = (_dataRoot, _config.StartYear);
+        if (_pastKey != key)
+        {
+            _past = PastPodiumLoader.Load(_dataRoot, _config.StartYear)
+                .Select(race => new HistoricalRaceFact(
+                    race.Season,
+                    race.CircuitId,
+                    race.Places.Select(place => new PastPodiumView(place.Position, place.DriverName, place.Nationality, place.ConstructorId, place.ConstructorName)).ToArray()))
+                .ToArray();
+            _pastKey = key;
+        }
+
+        return _past is { Count: > 0 } ? _past : null;
+    }
 
     /// <summary>
     /// A player command, or a career command (new, load, save). Null when this host does not own the name.

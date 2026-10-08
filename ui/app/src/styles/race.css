@@ -1,0 +1,85 @@
+/* The race weekend, the circuit's past results and the season grid. Loaded after app.css. */
+
+.trk .pit{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.55}
+.rp-map .trk .pit{stroke-width:3}
+
+.tdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:0;box-shadow:0 0 0 1px color-mix(in oklab,var(--ink) 38%,transparent)}
+.rp-tabs{display:flex}
+.panel>header .meta b{color:var(--ink)}
+
+/* segmented numbers: a tile per fact, names never run out of their tile */
+.fact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fact{display:grid;gap:4px;align-content:start;padding:11px 14px;border:1px solid var(--rule);border-radius:12px;min-width:0}
+.fact>b{font:700 21px/1.15 var(--ui);font-feature-settings:"tnum" 1,"lnum" 1}
+.fact.wide{grid-column:1/-1;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;align-items:center}
+.fact.wide .meta{grid-column:1/-1}
+.fact-name{display:flex;align-items:center;gap:9px;min-width:0}
+.fact-name b{font:600 17px/1.2 var(--ui);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fact-time{font:600 17px var(--ui)}
+
+.table td.zero{color:var(--ink3)}
+
+/* previous races at a circuit: the podium, each place marked with the team's colour */
+.past-scroll{max-height:360px}
+.past td{vertical-align:middle}
+.past td.win .person b{font-weight:800}
+.pod{display:grid;gap:1px;border-left:4px solid var(--team);padding-left:9px}
+.pod small{font-size:12.5px;color:var(--ink2)}
+.pod .person b{font-weight:600}
+.pod.mine small{color:var(--ink);font-weight:600}
+
+/* ---------- season grid ---------- */
+.ov-back{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:28px;background:color-mix(in oklab,#000 55%,transparent);backdrop-filter:blur(3px);animation:ov-fade .26s var(--ease)}
+.ov-card{display:flex;flex-direction:column;width:fit-content;max-width:min(1560px,100%);max-height:100%;background:var(--card);border:1.5px solid var(--ink);border-radius:22px;
+  box-shadow:0 8px 0 var(--ink),0 40px 80px -30px #000;overflow:hidden;animation:ov-rise .34s var(--ease)}
+.ov-head{display:flex;align-items:center;gap:22px;padding:16px 18px 14px 26px;border-bottom:1.5px solid var(--ink)}
+.ov-head h2{font:900 32px/1 var(--display);text-transform:uppercase;margin-right:auto}
+.ov-x{all:unset;cursor:pointer;flex:none;width:42px;height:42px;display:grid;place-items:center;border-radius:12px;border:1.5px solid var(--ink);background:var(--card);box-shadow:0 3px 0 var(--ink);
+  transition:transform .14s var(--ease),box-shadow .14s var(--ease)}
+.ov-x:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--ink)}
+.ov-x:active{transform:translateY(3px);box-shadow:none;transition-duration:.06s}
+.ov-x:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.ov-scroll{overflow:auto;min-height:0}
+.ov{border-collapse:separate;border-spacing:0;width:max-content;min-width:640px}
+.ov th,.ov td{padding:0;white-space:nowrap;border-bottom:1px solid var(--rule);background:var(--card)}
+.ov thead th{position:sticky;top:0;z-index:3;border-bottom:1.5px solid var(--ink);padding:10px 4px 8px;font:600 12px var(--ui);letter-spacing:.05em;text-transform:uppercase;color:var(--ink3)}
+.ov .ov-pos{position:sticky;left:0;z-index:2;width:86px;min-width:86px;text-align:center;font:600 16px var(--ui)}
+.ov .ov-name{position:sticky;left:86px;z-index:2;min-width:230px;padding:7px 18px 7px 18px;text-align:left;box-shadow:inset 6px 0 0 var(--stripe,transparent)}
+.ov .ov-pts{position:sticky;right:0;z-index:2;min-width:92px;padding:0 20px;text-align:center;border-left:1.5px solid var(--ink);font:600 17px var(--ui)}
+.ov thead .ov-pos,.ov thead .ov-name,.ov thead .ov-pts{z-index:5}
+.ov thead .ov-name{text-transform:uppercase}
+.ov-who{display:flex;align-items:center;gap:9px}
+.ov-who b{font:600 16px var(--ui);text-transform:none;letter-spacing:0;color:var(--ink)}
+.ov-name small{display:block;margin:2px 0 0 32px;font:500 12.5px var(--ui);color:var(--ink2)}
+.ov-round{min-width:52px;width:52px}
+.ov-round a{display:grid;justify-items:center;gap:5px;text-decoration:none;color:var(--ink2)}
+.ov-round a:hover{color:var(--ink)}
+.ov-round .num{font:700 12.5px var(--ui);letter-spacing:0}
+.ov-round.todo{opacity:.55}
+.ov-code{font:700 11px var(--ui);color:var(--ink2)}
+.ov-cell{padding:3px 3px;text-align:center;min-width:52px}
+.ov-cars{display:grid;gap:3px}
+.ov-res{display:grid;place-items:center;height:34px;min-width:46px;padding:0 4px;border-radius:7px;font:700 15px var(--ui);color:#1c1814;font-feature-settings:"tnum" 1,"lnum" 1}
+.ov-cars:has(.ov-res + .ov-res) .ov-res{height:25px;font-size:14px}
+.tone-gold{background:#e9c75f}
+.tone-silver{background:#cfd4d8}
+.tone-bronze{background:#dba56e}
+.tone-points{background:#a6d9ae}
+.tone-nopoints{background:#b3c6ea}
+.tone-ret{background:#cdb7e4}
+.ov tbody tr.mine .ov-pos,.ov tbody tr.mine .ov-name,.ov tbody tr.mine .ov-pts{background:color-mix(in oklab,var(--t1) 14%,var(--card))}
+.ov tbody tr.mine .ov-who b{font-weight:800}
+.ov tbody tr:hover .ov-pos,.ov tbody tr:hover .ov-name,.ov tbody tr:hover .ov-pts{background:color-mix(in oklab,var(--ink) 6%,var(--card))}
+@keyframes ov-fade{from{opacity:0}}
+@keyframes ov-rise{from{opacity:0;transform:translateY(22px) scale(.985)}}
+@media (prefers-reduced-motion:reduce){.ov-back,.ov-card{animation:none}}
+@media (max-width:900px){.ov-back{padding:10px}.ov-head{gap:12px;padding-left:16px}.ov-head h2{font-size:24px}}
+
+/* the last race on the Pulpit lists the top ten: rows sit a little closer so they fit the panel */
+.last .table.tight td{padding-block:4px}
+.dash .race{padding-block:16px}
+.screen-head > .btn.ov-open{margin-left:auto}
+.last .last-facts{padding:9px 22px 11px}
+.rinfo b{flex-wrap:nowrap;align-items:center}
+.rinfo b span:not(.flag){min-width:0}
+.rp-map.wide .trk{height:min(38vh,320px)}

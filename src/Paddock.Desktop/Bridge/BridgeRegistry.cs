@@ -44,6 +44,7 @@ public static class BridgeRegistry
         Endpoint(Query, "raceResult", typeof(RaceResultCall), typeof(RaceResultView)),
         Endpoint(Query, "nextRace", typeof(ManagerCall), typeof(NextRaceView)),
         Endpoint(Query, "track", typeof(TrackCall), typeof(TrackView)),
+        Endpoint(Query, "seasonOverview", typeof(ManagerCall), typeof(SeasonOverviewView)),
         Endpoint(Query, "staff", typeof(ManagerCall), typeof(StaffListView)),
         Endpoint(Query, "market", typeof(ManagerCall), typeof(MarketView)),
         Endpoint(Query, "driver", typeof(DriverCall), typeof(DriverProfileView)),

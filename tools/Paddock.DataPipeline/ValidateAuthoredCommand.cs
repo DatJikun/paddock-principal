@@ -163,6 +163,7 @@ public static class ValidateAuthoredCommand
         stdout.WriteLine("era timeline periods: " + data.EraTimeline.Count.ToString(CultureInfo.InvariantCulture));
         stdout.WriteLine("cpi years: " + data.CpiYears.Count.ToString(CultureInfo.InvariantCulture));
         stdout.WriteLine("track geometries: " + data.TrackGeometries.Count.ToString(CultureInfo.InvariantCulture));
+        stdout.WriteLine("banned rules in the default list: " + data.BannedRules.Default.Count.ToString(CultureInfo.InvariantCulture));
         foreach (var error in errors)
         {
             stdout.WriteLine("error: " + error.Message);

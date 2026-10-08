@@ -1,5 +1,6 @@
 using System.Globalization;
 using Paddock.Domain.Infrastructure;
+using Paddock.Domain.Racing;
 using Paddock.Domain.World;
 using Paddock.Domain.World.Tracks;
 
@@ -134,7 +135,82 @@ public static partial class AuthoredDataValidator
         AppendEraErrors(errors, data);
         AppendTrackGeometryErrors(errors, data);
         AppendFacilities(errors, data);
+        AppendBannedRules(errors, data);
         return errors;
+    }
+
+    public const string BannedUnknownRule = "banned-unknown-rule";
+
+    public const string BannedDuplicate = "banned-duplicate";
+
+    public const string BannedUnknownSeries = "banned-unknown-series";
+
+    public const string BannedMissingDormant = "banned-missing-dormant";
+
+    /// <summary>
+    /// The banned list of #275: every id must name a rule the game knows (a catalog dimension, a calendar entry of a known circuit or a
+    /// dormant mechanic), nothing appears twice in one list, a series entry names a known series, and every dormant mechanic is banned in
+    /// every series (owner decision of round 2: they stay out until the owner says otherwise). A data directory with no file has nothing to check.
+    /// </summary>
+    private static void AppendBannedRules(List<AuthoredDataError> errors, AuthoredData data)
+    {
+        if (data.BannedRulesFile is not { } file)
+        {
+            return;
+        }
+
+        var known = new HashSet<string>(data.Catalog.Select(dimension => dimension.Id), StringComparer.Ordinal);
+        foreach (var dormant in DormantRules.All)
+        {
+            known.Add(dormant);
+        }
+
+        foreach (var circuit in data.Circuits.Circuits)
+        {
+            known.Add(CalendarDimensionPrefix + circuit.CircuitId);
+        }
+
+        CheckBannedList(errors, "default", file.Default, known);
+        foreach (var (series, list) in file.Series.OrderBy(pair => pair.Key, StringComparer.Ordinal))
+        {
+            if (!SeriesIds.All.Contains(series, StringComparer.Ordinal))
+            {
+                errors.Add(new AuthoredDataError(BannedUnknownSeries, $"banned rules name the series '{series}', which the game does not know"));
+            }
+
+            CheckBannedList(errors, "series '" + series + "'", list, known);
+        }
+
+        foreach (var series in SeriesIds.All)
+        {
+            var effective = file.Series.TryGetValue(series, out var own) ? own : file.Default;
+            foreach (var dormant in DormantRules.All)
+            {
+                if (!effective.Contains(dormant, StringComparer.Ordinal))
+                {
+                    errors.Add(new AuthoredDataError(BannedMissingDormant, $"the banned list of series '{series}' does not ban the dormant mechanic '{dormant}'"));
+                }
+            }
+        }
+    }
+
+    /// <summary>The dimension id of a calendar entry is this prefix plus the circuit id (see the regulations module).</summary>
+    private const string CalendarDimensionPrefix = "calendar.circuit.";
+
+    private static void CheckBannedList(List<AuthoredDataError> errors, string where, IReadOnlyList<string> list, HashSet<string> known)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var id in list)
+        {
+            if (!seen.Add(id))
+            {
+                errors.Add(new AuthoredDataError(BannedDuplicate, $"banned rules ({where}) list '{id}' twice"));
+            }
+            else if (!known.Contains(id))
+            {
+                errors.Add(new AuthoredDataError(BannedUnknownRule, $"banned rules ({where}) name '{id}', which is not a catalog dimension, a calendar entry of a known circuit or a dormant mechanic"));
+            }
+        }
     }
 
     public const string FacilityKind = "facility-kind";

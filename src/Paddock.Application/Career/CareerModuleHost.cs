@@ -69,6 +69,7 @@ public sealed class CareerModuleHost
         var context = new CareerModuleContext(session, managers, dispatcher, ai, inputs ?? new CareerInputs());
         var control = new ControlTable();
         var seats = HumanSeats(humans);
+        context.SeatedHumans = [.. seats.Select(seat => seat.Organization)];
         var resolvers = new InboxResolvers();
         context.Provide<IOrganizationControl>(control);
         context.Provide(control);

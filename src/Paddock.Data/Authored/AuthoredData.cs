@@ -27,7 +27,8 @@ public sealed class AuthoredData
         IReadOnlyList<TrackGeometryFile>? trackGeometries = null,
         ICarStrengthSource? carStrength = null,
         ITeamTierSource? teamTiers = null,
-        FacilityCatalog? facilities = null)
+        FacilityCatalog? facilities = null,
+        BannedRulesFile? bannedRules = null)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(timeline);
@@ -105,7 +106,18 @@ public sealed class AuthoredData
                 stint.To)))
             .ToArray();
         Facilities = facilities ?? FacilityCatalog.Empty;
+        BannedRulesFile = bannedRules;
+        BannedRules = bannedRules is null ? Paddock.Domain.Racing.BannedRules.None : BannedRulesLoader.ToBannedRules(bannedRules);
     }
+
+    /// <summary>
+    /// The authored banned list as it was read, or null when a fixture has none (nothing is banned then). Kept so the validator can
+    /// check what was written, not only what the domain type holds.
+    /// </summary>
+    public BannedRulesFile? BannedRulesFile { get; }
+
+    /// <summary>The rules and mechanics that can never be proposed or voted on, per series (#275).</summary>
+    public Paddock.Domain.Racing.BannedRules BannedRules { get; }
 
     /// <summary>The authored ESTIMATE of constructor car strength, or null when a fixture has none (the tier fallback applies).</summary>
     public ICarStrengthSource? CarStrength { get; }

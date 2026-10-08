@@ -102,7 +102,8 @@ public static class SeasonVote
         _ => throw new ArgumentOutOfRangeException(nameof(weighting)),
     };
 
-    private static bool Passes(VoteThreshold threshold, double weightFor, double weightAgainst, double total)
+    /// <summary>Whether <paramref name="weightFor"/> reaches the <paramref name="threshold"/> of the body (also used by the ballot tally of voting v2).</summary>
+    public static bool Passes(VoteThreshold threshold, double weightFor, double weightAgainst, double total)
     {
         if (total <= 0)
         {

@@ -14,16 +14,18 @@ namespace Paddock.Tests.Regulation;
 /// Re-pinned in #265 (people, contracts, staff, market): the staff roster changes (two race engineers per team, no strategist, chief mechanic or
 /// commercial director on it), and a 1955 career's world contains its people, so its hash moves. The regulations are untouched.
 /// Re-pinned again in #268 (sponsors): the sponsors section is schema 2 and sponsor amounts are scaled, so a 1955 career's hash moves.
+/// Re-pinned again in #268 (academy, PP-069): the talent pool section moved to schema 2, juniors are recruited into an academy per team and the
+/// programmes changed their speed-up; none of it touches the regulations.
 /// </summary>
 public class HistoricalRulesRegressionTests
 {
     private const ulong Seed = 7;
 
-    private const string HashOnTheLastDayOf1955 = "6ce96026d09eb90ff1ae616775e97b07b96b6455a9680409c15ee7a87a7cd753";
+    private const string HashOnTheLastDayOf1955 = "3fd4e4d40013a55250791189dc31a93a205fef6bd76feaff1ab425bbefa044a0";
 
-    private const string HashAfterTheSeasonTurned = "7b6aab300b241ae3461b98dac53e508bfbe04cafca9e50acc69a2a562fedec51";
+    private const string HashAfterTheSeasonTurned = "55396a1f604612af467e5a47b58c150974897e4f9ceaf2e74d3ef33663bf0779";
 
-    private const string HashAfterTwoSeasons = "696b05d26454c347c37a2d77f188083f7b4e164862ac704777306b5f4cf8ac1d";
+    private const string HashAfterTwoSeasons = "3e6feb85a858c6adad96ad0d96beb03d20347f4ab350dcab8d0dbef8e090b0c2";
 
     private static (string Hash, bool HasRegulations, int Season, int Rounds, int NextSessions) Probe(GameDate stopOn)
     {

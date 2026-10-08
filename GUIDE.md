@@ -112,20 +112,21 @@ Czy różnica między oceną a potencjałem młodych kierowców wydaje Ci się s
 
 ## 4. Juniorzy i skauci
 
-Nowi ludzie wchodzą do gry przez pulę talentów, czyli świat poza F1. Skauci pomagają odgadnąć, kto z niej wyrośnie.
+Nowi ludzie wchodzą do gry przez pulę talentów, czyli świat poza F1: juniorzy, kierowcy z innych serii i testerzy. Juniorzy są na rynku, widocznym dla wszystkich zespołów. Skauci pomagają odgadnąć, kto z nich wyrośnie, a Ty możesz przyjąć najciekawszych do własnej akademii, osobnej i z ograniczoną liczbą miejsc.
 
 ```wybory
+Kogo przyjąć do akademii | akademia ma {PoolEstimates.AcademySlots|osób} miejsca; przyjęty junior jest tylko Twój: znika z rynku dla innych zespołów i nikt inny go nie podpisze; miejsce możesz zwolnić, a junior wraca na rynek
+Który program mu opłacić | podstawowy przyspiesza jego rozwój do {PoolEstimates.CheapSlowSpeedPercent|%%} zwykłego tempa i kosztuje {PoolEstimates.CheapSlowCostShare|%} typowego budżetu na sezon, intensywny do {PoolEstimates.ExpensiveFastSpeedPercent|%%} za {PoolEstimates.ExpensiveFastCostShare|%}; program zmienia tylko tempo, nigdy sufit talentu
 Obserwuj całą pulę | wolno, wszyscy naraz
 Obserwuj jedną osobę | szybko, jej widełki się zawężają
-Opłać sezon juniorski | tani i wolny albo drogi i szybki
-Podpisz | kierowca wyścigowy, testowy albo junior z opcją
-Akademia | ograniczone miejsca; poziom akademii daje lepszych juniorów, ale kosztuje co sezon; około 1 na 10 juniorów nie dochodzi do potencjału
+Podpisz | kierowca wyścigowy, testowy albo junior z opcją; juniora innej akademii podpisać nie można
 ```
 
 ```pola
+Rynek juniorów | widzisz wszystkich, których nikt nie przyjął do akademii, z widełkami z własnego skautingu | prawdziwych i fikcyjnych nie da się odróżnić
 Prawdziwi kierowcy | trafiają do puli {PeopleScheduleRules.DefaultPoolLeadYears|lat} przed debiutem | najwcześniej w wieku {PeopleScheduleRules.PoolMinimumAgeYears|lat}
 Fikcyjni juniorzy | pula uzupełniana do {PoolEstimates.TargetSize|osób} co sezon | AI nie wie, kto jest prawdziwy
-Odpada | po {PoolEstimates.MaxSeasonsInPool|sezonów} bez kontraktu albo po {PoolEstimates.MaxAge|lat}
+Odpada | po {PoolEstimates.MaxSeasonsInPool|sezonów} bez kontraktu albo po {PoolEstimates.MaxAge|lat}; junior z Twojej akademii, który odpada, zostawia wiadomość w skrzynce
 Rozwój | {PoolEstimates.DevelopmentRatePercent|%%} dystansu do potencjału na sezon | najwyżej {PoolEstimates.MaxAnnualStep|pkt} na atrybut
 ```
 
@@ -139,7 +140,8 @@ Widełki potencjału są szersze niż widełki atrybutu. Słaby skaut może się
 
 ```pytania
 Czy wybór między obserwacją całej puli a jednej osoby to dla Ciebie prawdziwa decyzja?
-Czy junior z programem jest gotowy w sensownym czasie?
+Czy ograniczone miejsca w akademii i to, że przyjęty junior znika innym z rynku, zmieniają to, kogo wybierasz?
+Czy junior z programem jest gotowy w sensownym czasie, a przyspieszenie jest odczuwalne, choć skromne?
 Czy niepewność skauta pomaga w decyzji, czy tylko irytuje?
 ```
 

@@ -37,6 +37,7 @@ public static class SaveMigrations
         new V029_RegulationVoting(),
         new V030_PersonGender(),
         new V031_SponsorTerms(),
+        new V032_AcademyPerTeam(),
     ];
 
     static SaveMigrations()

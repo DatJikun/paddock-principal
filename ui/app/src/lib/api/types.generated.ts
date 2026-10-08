@@ -317,6 +317,11 @@ export interface InfrastructureOverview {
   own: OwnInfrastructureView[];
 }
 
+export interface JuniorCall {
+  managerId: string;
+  personHandle: string;
+}
+
 export interface KnownAttributeView {
   high: number;
   key: string;
@@ -892,17 +897,21 @@ export interface PoolItemView {
   familyName: string;
   givenName: string;
   handle: string;
+  inYourAcademy: boolean;
   nationality: string;
   potential: PoolBandView | null;
+  seasonsLeft: number | null;
   yourFunding: JuniorProgramme | null;
 }
 
 export interface PoolView {
-  cheapProgrammeCostCents: number;
-  fastProgrammeCostCents: number;
+  academySlots: number;
+  academyUsed: number;
+  baseSpeedPercent: number;
   focus: ScoutFocusKind | null;
   focusHandle: string | null;
   items: PoolItemView[];
+  programmes: ProgrammeView[];
 }
 
 export interface PresetView {
@@ -914,6 +923,12 @@ export interface PresetView {
   people: string;
   randomness: number;
   rules: string;
+}
+
+export interface ProgrammeView {
+  costCents: number;
+  programme: JuniorProgramme;
+  speedPercent: number;
 }
 
 export interface QuickRaceCall {
@@ -1557,6 +1572,8 @@ export interface BridgeCommandMap {
   bookTest: { args: BookTestCall; result: CommandAck };
   cancelTest: { args: CancelTestCall; result: CommandAck };
   assignScoutFocus: { args: ScoutFocusCall; result: CommandAck };
+  recruitJunior: { args: JuniorCall; result: CommandAck };
+  releaseJunior: { args: JuniorCall; result: CommandAck };
   fundJunior: { args: FundJuniorCall; result: CommandAck };
   signPoolDriver: { args: SignPoolCall; result: CommandAck };
   proposeSupply: { args: SupplyProposalCall; result: CommandAck };

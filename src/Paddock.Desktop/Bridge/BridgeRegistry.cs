@@ -77,6 +77,8 @@ public static class BridgeRegistry
         Endpoint(Command, "bookTest", typeof(BookTestCall), typeof(CommandAck)),
         Endpoint(Command, "cancelTest", typeof(CancelTestCall), typeof(CommandAck)),
         Endpoint(Command, "assignScoutFocus", typeof(ScoutFocusCall), typeof(CommandAck)),
+        Endpoint(Command, "recruitJunior", typeof(JuniorCall), typeof(CommandAck)),
+        Endpoint(Command, "releaseJunior", typeof(JuniorCall), typeof(CommandAck)),
         Endpoint(Command, "fundJunior", typeof(FundJuniorCall), typeof(CommandAck)),
         Endpoint(Command, "signPoolDriver", typeof(SignPoolCall), typeof(CommandAck)),
         Endpoint(Command, "proposeSupply", typeof(SupplyProposalCall), typeof(CommandAck)),

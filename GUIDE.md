@@ -281,9 +281,17 @@ Jakość | względem granicy roku | granica rośnie o {InfrastructureEstimates.F
 W budowie | {InfrastructureEstimates.BuildingWorkShare|%} sprawności | aż do dnia końca
 Pierwszy krok | około {InfrastructureEstimates.BaseUpgradeCostShare|%} typowego budżetu i {InfrastructureEstimates.BaseUpgradeDays|dni} | potem drożej i dłużej
 Wynajem toru | około {InfrastructureEstimates.TestRentalShare|%} typowego budżetu za test
-Ciężarówki | {InfrastructureEstimates.LogisticsLorryDays|dni} w Europie, około {InfrastructureEstimates.LogisticsLorryShare|%} typowego budżetu
-Statek | {InfrastructureEstimates.LogisticsShipDays|dni} do rundy za oceanem (Argentyna), około {InfrastructureEstimates.LogisticsShipShare|%} typowego budżetu
+Ciężarówki | {InfrastructureEstimates.LogisticsLorryDays|dni} w Europie, trzy razy więcej niż skok po własnym kraju
+Statek | {InfrastructureEstimates.LogisticsShipDays|dni} do rundy za oceanem (Argentyna), osiem razy więcej niż skok po własnym kraju
 Efekt | przez rozwój auta | nie przez sam poziom fabryki
+```
+
+```pola
+Co daje fabryka | wykonanie części od {InfrastructureEstimates.ExecutionFloor|%} do 100%, czas projektu od {InfrastructureEstimates.DurationSlow|%} do {InfrastructureEstimates.DurationFast|%} bazowego, tempo poznawania auta od {InfrastructureEstimates.UnderstandingFactoryFloor|%} do 100% | zależnie od jakości względem roku
+Co daje tunel | do +{InfrastructureEstimates.ExecutionTunnelSpan|%} do wykonania części | od 1968
+Co daje CFD | do +{InfrastructureEstimates.ExecutionCfdSpan|%} do wykonania części | od 1990
+Co daje symulator | do +{InfrastructureEstimates.UnderstandingSimulatorSpan|%} do tempa poznawania auta | od 2012
+Ile kosztuje transport | cały sezon kosztuje {InfrastructureEstimates.LogisticsSeasonShare|%} typowego rocznego budżetu epoki, niezależnie od liczby rund; ta kwota dzieli się na rundy według odległości (statek ciężej niż ciężarówka, własny kraj najlżej), więc dłuższy kalendarz robi każdą rundę tańszą, a nie rok droższy | płacisz automatycznie, jedną pozycją w księdze z powodem, z budżetu epoki, a nie z Twojej gotówki; wartość jest szacunkiem
 ```
 
 ```pytania
@@ -297,7 +305,7 @@ Czy kolejny poziom fabryki jest wystarczająco drogi, żebyś się wahał?
 
 ## 9. Dostawcy
 
-Rodzaj umowy z dostawcą decyduje, kiedy dostajesz nowości i ile płacisz.
+Rodzaj umowy z dostawcą decyduje, kiedy dostajesz nowości i ile płacisz. Na razie kupujesz tylko silnik: ekran pokazuje, jaki to silnik i kto go dostarcza, osobno parametry silnika i osobno umowę. Opony i paliwo wrócą później.
 
 ```wybory
 Fabryczna | nowości od razu, wspólny rozwój, ale zależność od dostawcy
@@ -316,7 +324,7 @@ Klienci jednego dostawcy | najwyżej {SupplyEstimates.MaxCustomersPerSupplier}
 
 ```pytania
 Czy klient jest dla Ciebie wyraźnie wolniejszy niż zespół fabryczny?
-Czy wybór dostawcy opon cokolwiek zmienia w wynikach?
+Czy widzisz wprost, jaki silnik masz i od kogo?
 Czy kusi Cię umowa na wiele sezonów z rabatem?
 ```
 

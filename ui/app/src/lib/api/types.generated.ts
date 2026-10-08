@@ -264,6 +264,15 @@ export interface ExitClause {
   positionWorseThan: number;
 }
 
+export interface FacilityEffectView {
+  afterUpgrade: number;
+  atFull: number;
+  atZero: number;
+  key: string;
+  mode: string;
+  now: number;
+}
+
 export interface FinanceViewOwn {
   cashCents: number;
   certainIncomeCents: number;
@@ -792,11 +801,14 @@ export interface OwnEngineView {
 export interface OwnFacilityView {
   buildEnds: IsoDate | null;
   building: boolean;
+  effects: FacilityEffectView[];
   eligible: boolean;
   frontierMilli: number;
   kind: string;
   qualityMilli: number;
+  relativeAfterUpgrade: number;
   relativeQuality: number;
+  unlockYear: number;
   unlocked: boolean;
   upgradeCostCents: number;
   upgradeDays: number;
@@ -832,6 +844,7 @@ export interface OwnSupplyDealView {
   annualPriceCents: number;
   dealId: string;
   engine: OwnEngineView | null;
+  engineName: string | null;
   exclusive: boolean;
   firstSeason: number;
   item: SupplyItem;
@@ -839,6 +852,7 @@ export interface OwnSupplyDealView {
   lastSeason: number;
   status: SupplyDealStatus;
   supplierId: string;
+  supplierName: string;
 }
 
 export interface OwnSupplyTalkView {
@@ -852,6 +866,7 @@ export interface OwnSupplyTalkView {
   roundsLeft: number;
   status: NegotiationStatus;
   supplierId: string;
+  supplierName: string;
 }
 
 export interface OwnTeamView {

@@ -19,7 +19,13 @@ public sealed record OwnFacilityView(
     long UpgradeCostCents,
     int UpgradeDays,
     bool Unlocked,
-    bool Eligible);
+    bool Eligible,
+    int UnlockYear,
+    double RelativeAfterUpgrade,
+    IReadOnlyList<FacilityEffectView> Effects);
+
+/// <summary>What a facility changes, in numbers (#268): now, after one more upgrade, and the range from none to the state of the art. See <see cref="FacilityEffect"/>.</summary>
+public sealed record FacilityEffectView(string Key, string Mode, double Now, double AfterUpgrade, double AtZero, double AtFull);
 
 /// <summary>
 /// Posted cost and remaining private tests this year. Availability is the era cap. <paramref name="NextDate"/> is the day a test
@@ -56,7 +62,7 @@ public sealed class InfrastructureQuery
         _environment = environment;
     }
 
-    public InfrastructureOverview View(AccessContext access, string? nextCircuitCountry = null)
+    public InfrastructureOverview View(AccessContext access, string? nextCircuitCountry = null, IReadOnlyList<string?>? seasonCircuits = null)
     {
         ArgumentNullException.ThrowIfNull(access);
         if (access.Kind == AccessKind.Developer)
@@ -83,13 +89,13 @@ public sealed class InfrastructureQuery
                 continue;
             }
 
-            own.Add(Own(organization.Id, today, typical, nextCircuitCountry));
+            own.Add(Own(organization.Id, today, typical, nextCircuitCountry, seasonCircuits));
         }
 
         return new InfrastructureOverview(own);
     }
 
-    internal OwnInfrastructureView Own(OrganizationId organization, GameDate today, long typicalCents, string? nextCircuitCountry = null)
+    internal OwnInfrastructureView Own(OrganizationId organization, GameDate today, long typicalCents, string? nextCircuitCountry = null, IReadOnlyList<string?>? seasonCircuits = null)
     {
         var year = today.Year;
         var section = _book.Section;
@@ -103,6 +109,9 @@ public sealed class InfrastructureQuery
             var relative = unlocked
                 ? InfrastructureMath.Relative(quality, year, building)
                 : 0d;
+            var after = unlocked
+                ? InfrastructureMath.Relative(InfrastructureMath.AfterUpgradeMilli(quality, year), year, building: false)
+                : 0d;
             rows.Add(new OwnFacilityView(
                 FacilityKindIds.Of(spec.Kind),
                 quality,
@@ -113,7 +122,12 @@ public sealed class InfrastructureQuery
                 unlocked ? InfrastructureMath.UpgradeCostCents(quality, year, typicalCents) : 0L,
                 unlocked ? InfrastructureMath.UpgradeDays(quality, year) : 0,
                 unlocked,
-                unlocked));
+                unlocked,
+                spec.UnlockYear,
+                after,
+                InfrastructureMath.Effects(spec.Kind, relative, after)
+                    .Select(effect => new FacilityEffectView(effect.Key, effect.Mode == FacilityEffectMode.Scale ? "scale" : "bonus", effect.Now, effect.AfterUpgrade, effect.AtZero, effect.AtFull))
+                    .ToArray()));
         }
 
         var cap = InfrastructureMath.TestsAllowed(_environment.TestingRule(year));
@@ -134,7 +148,7 @@ public sealed class InfrastructureQuery
         LogisticsView? transport = null;
         if (!string.IsNullOrWhiteSpace(nextCircuitCountry))
         {
-            var quote = LogisticsMath.Quote(home, nextCircuitCountry, typicalCents);
+            var quote = LogisticsMath.Quote(home, nextCircuitCountry, typicalCents, seasonCircuits);
             transport = new LogisticsView(LogisticsMath.Of(quote.Mode), quote.Days, quote.CostCents, nextCircuitCountry);
         }
 

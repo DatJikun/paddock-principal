@@ -258,6 +258,7 @@ public sealed class RaceWeekendDay : IDayHandler
         var race = FinanceStandings.Race(payload.Season, payload.Round, total, facts.RevenueModel, rows);
         var (section, _) = book.Section.ApplyRace(race, Money.FromDollars(facts.TypicalDollars).Cents, today);
         var typical = section.TypicalCents;
+        var seasonCircuits = SeasonCircuitCountries(payload.Season);
         var started = new SortedSet<string>(StringComparer.Ordinal);
         foreach (var entry in field.Entries)
         {
@@ -271,7 +272,7 @@ public sealed class RaceWeekendDay : IDayHandler
             {
                 continue;
             }
-            var due = RaceFieldBuilder.TransportCost(organization, typical, circuitCountry, _context.Inputs.TeamCountries);
+            var due = RaceFieldBuilder.TransportCost(organization, typical, circuitCountry, _context.Inputs.TeamCountries, seasonCircuits);
             if (due > 0 && section.HasBook(organization))
             {
                 section = section.Post(
@@ -285,6 +286,31 @@ public sealed class RaceWeekendDay : IDayHandler
         }
 
         book.Replace(section);
+    }
+
+    /// <summary>
+    /// The country of every race of the season being raced, from the season's stored calendar: what the transport of a round is split over (#268).
+    /// Empty when the calendar or a track is not known, and then a round is priced as one of a usual season. It reads only what exists when the race is posted.
+    /// </summary>
+    private IReadOnlyList<string?> SeasonCircuitCountries(int season)
+    {
+        var calendar = _context.Session.World.Section<RaceCalendarSection>(RaceCalendarSection.SectionName);
+        if (calendar is null || _context.Inputs.Layouts is not { } layouts)
+        {
+            return [];
+        }
+
+        var countries = new List<string?>();
+        foreach (var session in calendar.SeasonSessions(season).Where(session => session.TypeId == ScheduledEventType.Race))
+        {
+            var layout = layouts.FirstOrDefault(item => string.Equals(item.Id, session.LayoutId, StringComparison.Ordinal));
+            if (layout is not null)
+            {
+                countries.Add(layout.Country);
+            }
+        }
+
+        return countries;
     }
 
     private void ApplyPeople(DayContext context, GameDate today, IReadOnlyList<PersonRaceOutcome> outcomes, RaceSessionPayload payload)

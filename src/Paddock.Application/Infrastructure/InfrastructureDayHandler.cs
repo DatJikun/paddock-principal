@@ -56,6 +56,9 @@ public sealed class InfrastructureDayHandler : IDayHandler
         var cars = _book.Cars;
         var changed = false;
         var carsChanged = false;
+        var development = _book.World.Section<Paddock.Domain.Development.DevelopmentSection>(Paddock.Domain.Development.DevelopmentSection.SectionName)
+            ?? Paddock.Domain.Development.DevelopmentSection.Empty;
+        var noted = false;
         foreach (var facility in section.Facilities)
         {
             if (facility.BuildEnds is { } ends && today >= ends)
@@ -109,6 +112,17 @@ public sealed class InfrastructureDayHandler : IDayHandler
                     InfrastructureKeys.LedgerTest);
             }
 
+            if (gained > 0d)
+            {
+                // The Auto screen tells the principal what the test taught (PP-066).
+                development = development.AddNote(new Paddock.Domain.Development.UnderstandingNote(
+                    booking.Organization,
+                    today,
+                    Paddock.Domain.Development.UnderstandingSources.Test,
+                    Paddock.Domain.Development.DevelopmentEstimates.Milli(gained / held.Length)));
+                noted = true;
+            }
+
             var average = (int)Math.Round(gained / held.Length, MidpointRounding.AwayFromZero);
             NoticeTest(
                 booking.Organization,
@@ -146,7 +160,7 @@ public sealed class InfrastructureDayHandler : IDayHandler
 
         if (changed)
         {
-            _book.Write(section, finance.HasBooks ? finance : null, carsChanged ? cars : null);
+            _book.Write(section, finance.HasBooks ? finance : null, carsChanged ? cars : null, noted ? development : null);
         }
     }
 

@@ -190,52 +190,81 @@ public sealed class SetDevelopmentSplitHandler : CommandHandler<SetDevelopmentSp
             ChangedOn = today,
         };
         _book.Write(new DevelopmentOutcome(_book.Cars, section.SetPlan(after), _book.Finance, true));
-        var events = new List<IDomainEvent> { new DevelopmentSplitSet(command.ManagerId, command.IssuedOn, organization.Value) };
-        var splitMoved = before.CurrentPercent != after.CurrentPercent
-            || before.AccountPercent != after.AccountPercent
-            || before.NextYearPercent != after.NextYearPercent;
-        // The engineers answer a human principal. An AI one would never answer back, and the open question would hold the shared clock.
-        var human = context.Managers.KindOf(command.ManagerId) == ManagerKind.Human;
-        if (splitMoved && human && Reply(section, organization, today) is { } close)
-        {
-            var draft = new InboxItemDraft(
-                DevelopmentKeys.InboxKind,
-                DevelopmentKeys.ReplySubject,
-                [
-                    new KeyValuePair<string, string>(DevelopmentKeys.ProjectArgument, close.Project.Id),
-                    new KeyValuePair<string, string>("weeks", close.Weeks.ToString(CultureInfo.InvariantCulture)),
-                ],
-                [
-                    new InboxOption(DevelopmentKeys.OptionKeep, DevelopmentKeys.ReplyKeepLabel, DevelopmentKeys.ReplyKeepConsequence),
-                    new InboxOption(DevelopmentKeys.OptionCut, DevelopmentKeys.ReplyCutLabel, DevelopmentKeys.ReplyCutConsequence),
-                ],
-                today.AddDays(DevelopmentEstimates.ReplyDays),
-                DevelopmentKeys.OptionKeep);
-            events.Add(context.Inbox.Post(context.Managers, command.ManagerId, draft, today));
-        }
+        return [new DevelopmentSplitSet(command.ManagerId, command.IssuedOn, organization.Value)];
+    }
+}
 
-        return events;
+/// <summary>
+/// The principal's choice for the next concept (PP-066): its philosophy (evolution at -1000, revolution at 1000) and its aero direction
+/// (straights at a negative value, corners at a positive one), in milli-units. It applies to the next concept the engineers start; a
+/// concept already being designed keeps the character it started with.
+/// </summary>
+public sealed record SetNextConceptCommand : ICommand
+{
+    public required ManagerId ManagerId { get; init; }
+
+    public long SubmissionNumber { get; init; }
+
+    public required DateOnly IssuedOn { get; init; }
+
+    public required string OrganizationId { get; init; }
+
+    public int PhilosophyMilli { get; init; } = DevelopmentEstimates.DefaultNextPhilosophyMilli;
+
+    public int AeroMilli { get; init; } = DevelopmentEstimates.DefaultNextAeroMilli;
+
+    public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
+}
+
+public sealed record NextConceptSet(ManagerId ManagerId, DateOnly OccurredOn, string OrganizationId) : IDomainEvent
+{
+    public string TypeId => DevelopmentEventTypes.NextConceptSet;
+}
+
+public sealed class SetNextConceptHandler : CommandHandler<SetNextConceptCommand>
+{
+    private readonly DevelopmentBook _book;
+    private readonly DevelopmentEnvironment _environment;
+
+    public SetNextConceptHandler(DevelopmentBook book, DevelopmentEnvironment environment)
+    {
+        ArgumentNullException.ThrowIfNull(book);
+        ArgumentNullException.ThrowIfNull(environment);
+        _book = book;
+        _environment = environment;
     }
 
-    /// <summary>
-    /// The engineers answer a changed split about the active project that is furthest along, once it is past
-    /// <see cref="DevelopmentEstimates.CloseProgress"/>: "a few more weeks, we are close". The player keeps the plan or cuts.
-    /// </summary>
-    private static (DevProject Project, int Weeks)? Reply(DevelopmentSection section, OrganizationId organization, GameDate today)
+    protected override TranslationMessage? ValidateTyped(SetNextConceptCommand command, CommandContext context)
     {
-        _ = today;
-        var close = section.ProjectsOf(organization)
-            .Where(project => project.IsActive && project.Progress >= DevelopmentEstimates.CloseProgress && project.ProgressDays < project.DurationDays)
-            .OrderByDescending(project => project.Progress)
-            .ThenBy(project => project.Number)
-            .FirstOrDefault();
-        if (close is null)
+        var rejection = DevelopmentCommandSupport.Team(_environment, _book.World, command.ManagerId, command.OrganizationId, out _);
+        if (rejection is not null)
         {
-            return null;
+            return rejection;
         }
 
-        var weeks = Math.Max(1, (int)Math.Ceiling((close.DurationDays - close.ProgressDays) / 7d));
-        return (close, weeks);
+        return DevelopmentPlan.IsValidAxis(command.PhilosophyMilli) && DevelopmentPlan.IsValidAxis(command.AeroMilli)
+            ? null
+            : TranslationMessage.Of(DevelopmentKeys.BadCharacter);
+    }
+
+    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(SetNextConceptCommand command, CommandContext context)
+    {
+        if (ValidateTyped(command, context) is not null
+            || !CarCommandSupport.TryOrganization(command.OrganizationId, out var organization))
+        {
+            throw new InvalidOperationException("Execute ran for a command that should have been rejected.");
+        }
+
+        var section = _book.Section;
+        var before = section.PlanOf(organization) ?? DevelopmentPlan.Default(organization);
+        var after = before with
+        {
+            NextPhilosophyMilli = command.PhilosophyMilli,
+            NextAeroMilli = command.AeroMilli,
+            ChangedOn = DevelopmentCommandSupport.Day(command.IssuedOn),
+        };
+        _book.Write(new DevelopmentOutcome(_book.Cars, section.SetPlan(after), _book.Finance, true));
+        return [new NextConceptSet(command.ManagerId, command.IssuedOn, organization.Value)];
     }
 }
 
@@ -521,6 +550,7 @@ public static class DevelopmentRegistration
         ArgumentNullException.ThrowIfNull(dispatcher);
         ArgumentNullException.ThrowIfNull(resolvers);
         dispatcher.Register(new SetDevelopmentSplitHandler(book, environment));
+        dispatcher.Register(new SetNextConceptHandler(book, environment));
         dispatcher.Register(new DeployConceptHandler(book, environment));
         dispatcher.Register(new CommitConceptHandler(book, environment));
         dispatcher.Register(new CutProjectHandler(book, environment));

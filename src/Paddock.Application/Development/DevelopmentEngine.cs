@@ -162,6 +162,14 @@ public static class DevelopmentEngine
             {
                 cars = cars.Replace(Restamp(car, car.Levels, grown));
                 changed = true;
+                if (!organizations.Contains(car.Organization.Value))
+                {
+                    development = development.AddNote(new UnderstandingNote(
+                        car.Organization,
+                        inputs.Today,
+                        UnderstandingSources.Race,
+                        DevelopmentEstimates.Milli(grown - car.Understanding)));
+                }
             }
 
             organizations.Add(car.Organization.Value);

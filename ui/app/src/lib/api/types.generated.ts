@@ -39,6 +39,19 @@ export interface AdvanceDayView {
   date: string;
 }
 
+export interface AeroOptionView {
+  aeroMilli: number;
+  cornersPercent: number;
+  id: string;
+  straightsPercent: number;
+}
+
+export interface AreaView {
+  area: string;
+  own: CarBandView;
+  rivals: RivalBandView[];
+}
+
 export interface BeginSponsorCall {
   managerId: string;
   organizationId: string;
@@ -123,6 +136,14 @@ export interface CareerStartedView {
   peopleNoticeKey: string | null;
 }
 
+export interface CharacterOptionView {
+  ceiling: CarBandView;
+  id: string;
+  philosophyMilli: number;
+  startLevel: CarBandView;
+  startSharePercent: number;
+}
+
 export interface CommandAck {
   accepted: boolean;
 }
@@ -131,6 +152,29 @@ export interface CommitConceptCall {
   managerId: string;
   organizationId: string;
   projectId: string;
+}
+
+export interface ConceptDecisionView {
+  breakthrough: boolean;
+  buildDays: number;
+  ceiling: CarBandView;
+  ceilingNow: CarBandView;
+  costCents: number;
+  firstRace: IsoDate | null;
+  gain: CarBandView;
+  levelNow: CarBandView;
+  name: string;
+  projectId: string;
+  startLevel: CarBandView;
+  timing: string;
+}
+
+export interface CurrentConceptView {
+  aeroMilli: number;
+  ceiling: CarBandView;
+  name: string;
+  philosophyMilli: number;
+  year: number;
 }
 
 export interface DeveloperBoardLine {
@@ -143,28 +187,14 @@ export interface DeveloperBoardLine {
   principal: string | null;
 }
 
-export interface DevelopmentForecast {
-  braking: CarBandView;
-  downforce: CarBandView;
-  mechanicalGrip: CarBandView;
-  reliability: CarBandView;
-  until: IsoDate;
-}
-
 export interface DevelopmentOverview {
   own: OwnDevelopmentView[];
 }
 
 export interface DevelopmentSplitCall {
-  accountPercent: number;
-  aeroPriority: number;
-  chassisPriority: number;
-  currentPercent: number;
   managerId: string;
-  nextYearPercent: number;
+  nextPercent: number;
   organizationId: string;
-  reliabilityPriority: number;
-  tyresPriority: number;
 }
 
 export interface DismissInboxCall {
@@ -562,6 +592,27 @@ export interface NewCareerCall {
   year: number | null;
 }
 
+export interface NextConceptCall {
+  aeroMilli: number;
+  managerId: string;
+  organizationId: string;
+  philosophyMilli: number;
+}
+
+export interface NextConceptView {
+  aeroMilli: number;
+  aeros: AeroOptionView[];
+  characters: CharacterOptionView[];
+  decision: ConceptDecisionView | null;
+  goesLiveOn: IsoDate | null;
+  philosophyMilli: number;
+  progressPercent: number;
+  projectId: string | null;
+  readyOn: IsoDate | null;
+  sharePercent: number;
+  status: string;
+}
+
 export interface NextRaceView {
   circuitId: string | null;
   circuitName: string | null;
@@ -690,20 +741,14 @@ export interface OwnCarView {
 }
 
 export interface OwnDevelopmentView {
-  account: CarBandView;
-  accountPercent: number;
-  aeroPriority: number;
-  chassisPriority: number;
-  currentPercent: number;
+  areas: AreaView[];
+  concept: CurrentConceptView;
   daysToNextRace: number | null;
-  forecast: DevelopmentForecast;
   headcount: number;
-  nextYearPercent: number;
-  ongoingGain: CarBandView;
+  next: NextConceptView;
   organizationId: string;
   projects: OwnProjectView[];
-  reliabilityPriority: number;
-  tyresPriority: number;
+  understanding: UnderstandingView;
 }
 
 export interface OwnDriverView {
@@ -980,6 +1025,12 @@ export interface ResolveInboxCall {
   itemId: string;
   managerId: string;
   optionId: string;
+}
+
+export interface RivalBandView {
+  band: CarBandView;
+  name: string;
+  organizationId: string;
 }
 
 export interface RivalCarView {
@@ -1305,6 +1356,17 @@ export interface TranslationMessage {
   parameters: Record<string, string>;
 }
 
+export interface UnderstandingNoteView {
+  on: IsoDate;
+  points: number;
+  source: string;
+}
+
+export interface UnderstandingView {
+  level: CarBandView;
+  notes: UnderstandingNoteView[];
+}
+
 export interface UpgradeFacilityCall {
   kind: string;
   managerId: string;
@@ -1365,6 +1427,7 @@ export interface BridgeCommandMap {
   walkAwayFromTalks: { args: SponsorTalkCall; result: CommandAck };
   respondToSponsorOffer: { args: SponsorOfferCall; result: CommandAck };
   setDevelopmentSplit: { args: DevelopmentSplitCall; result: CommandAck };
+  setNextConcept: { args: NextConceptCall; result: CommandAck };
   commitConcept: { args: CommitConceptCall; result: CommandAck };
   upgradeFacility: { args: UpgradeFacilityCall; result: CommandAck };
   bookTest: { args: BookTestCall; result: CommandAck };

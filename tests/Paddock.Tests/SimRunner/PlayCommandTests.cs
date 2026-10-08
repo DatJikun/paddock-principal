@@ -58,7 +58,7 @@ public class PlayCommandTests
         Assert.Contains(hash, loaded.Output, StringComparison.Ordinal);
         Assert.Contains("Career started on 1955-01-01", first.Output, StringComparison.Ordinal);
         Assert.Contains("Talks opened:", first.Output, StringComparison.Ordinal);
-        Assert.Contains("Development split: current 50, account 25, next car 25.", first.Output, StringComparison.Ordinal);
+        Assert.Contains("Development split: current car 75, next concept 25.", first.Output, StringComparison.Ordinal);
         Assert.Contains("Founding or buying your own team comes after the MVP.", first.Output, StringComparison.Ordinal);
         Assert.Contains("Principal attributes are an uncalibrated estimate", first.Output, StringComparison.Ordinal);
 
@@ -156,9 +156,7 @@ public class PlayCommandTests
         });
         Assert.IsType<CommandResult.Accepted>(split);
         var plan = shell.Development.View(Paddock.Application.Access.AccessContext.ForManager(new Paddock.Application.Access.ManagerId(shell.Player.Value))).Own.Single();
-        Assert.Equal(50, plan.CurrentPercent);
-        Assert.Equal(25, plan.AccountPercent);
-        Assert.Equal(25, plan.NextYearPercent);
+        Assert.Equal(25, plan.Next.SharePercent);
     }
 
     [Fact]

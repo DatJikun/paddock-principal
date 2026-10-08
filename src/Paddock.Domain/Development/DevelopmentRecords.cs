@@ -104,7 +104,9 @@ public sealed record DevelopmentPlan(
     long SpentCurrentCents,
     long SpentAccountCents,
     long SpentNextYearCents,
-    GameDate? ChangedOn)
+    GameDate? ChangedOn,
+    int NextPhilosophyMilli = DevelopmentEstimates.DefaultNextPhilosophyMilli,
+    int NextAeroMilli = DevelopmentEstimates.DefaultNextAeroMilli)
 {
     public static DevelopmentPlan Default(OrganizationId organization) =>
         new(
@@ -125,6 +127,13 @@ public sealed record DevelopmentPlan(
         current >= 0 && account >= 0 && nextYear >= 0 && current + account + nextYear == 100;
 
     public static bool IsValidPriority(int value) => value is >= 0 and <= DevelopmentEstimates.MaxPriority;
+
+    /// <summary>A concept axis is milli-units of -1 to 1.</summary>
+    public static bool IsValidAxis(int milli) => milli is >= -1000 and <= 1000;
+
+    /// <summary>True when the next concept has the default character, which the canonical text leaves out.</summary>
+    public bool HasDefaultCharacter =>
+        NextPhilosophyMilli == DevelopmentEstimates.DefaultNextPhilosophyMilli && NextAeroMilli == DevelopmentEstimates.DefaultNextAeroMilli;
 
     public int PercentOf(DevKind kind) => kind switch
     {
@@ -163,11 +172,39 @@ public sealed record DevelopmentPlan(
 /// <summary>
 /// The development account of one organization: knowledge put aside (<see cref="StockMilli"/>, 0 to 100 points in milli), the
 /// share of next year's car already worked out (<see cref="NextYearShareMilli"/>, 0 to 1000), and the regulation year the stock
-/// was last valued against. A rule change devalues the stock (DESIGN §5.3).
+/// was last valued against. A rule change devalues the stock (DESIGN §5.3). <see cref="ConceptYear"/> is the year the concept now in
+/// the car was introduced (0 until the first day of development sees the car), which names it: "Maserati 56" (PP-066).
 /// </summary>
-public sealed record DevelopmentAccount(OrganizationId Organization, int StockMilli, int NextYearShareMilli, int RulesYear)
+public sealed record DevelopmentAccount(OrganizationId Organization, int StockMilli, int NextYearShareMilli, int RulesYear, int ConceptYear = 0)
 {
     public static DevelopmentAccount Empty(OrganizationId organization) => new(organization, 0, 0, 0);
+}
+
+/// <summary>Bits of <see cref="DevProject.Flags"/>.</summary>
+public static class ProjectFlags
+{
+    /// <summary>The project delivered far more than its funding promised (PP-066: an innovative engineer's occasional breakthrough).</summary>
+    public const int Breakthrough = 1;
+
+    /// <summary>A concept project of the v2 model: it replaces the concept in the car, with its own character and drawn ceiling.</summary>
+    public const int Redesign = 2;
+}
+
+/// <summary>
+/// One line of what the team learned about its car, for the Auto screen: where the understanding moved and by how much.
+/// <see cref="Source"/> is a stable code (<c>race</c>, <c>test</c>, <c>part</c>, <c>concept</c>), never text.
+/// </summary>
+public sealed record UnderstandingNote(OrganizationId Organization, GameDate On, string Source, int DeltaMilli);
+
+public static class UnderstandingSources
+{
+    public const string Race = "race";
+
+    public const string Test = "test";
+
+    public const string Part = "part";
+
+    public const string Concept = "concept";
 }
 
 /// <summary>
@@ -197,8 +234,17 @@ public sealed record DevProject(
     int RacesWaited,
     GameDate? ClosedOn,
     GameDate? ProductionEnds = null,
-    long ProductionCostCents = 0)
+    long ProductionCostCents = 0,
+    int PhilosophyMilli = 0,
+    int AeroMilli = 0,
+    int CeilingMilli = 0,
+    int Flags = 0)
 {
+    /// <summary>A concept project of the v2 model (<see cref="ProjectFlags.Redesign"/>).</summary>
+    public bool IsRedesign => (Flags & ProjectFlags.Redesign) != 0;
+
+    public bool IsBreakthrough => (Flags & ProjectFlags.Breakthrough) != 0;
+
     public string Id => DevProjectIds.Format(Number);
 
     public bool IsActive => Status == ProjectStatus.Active;

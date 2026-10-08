@@ -219,6 +219,8 @@ internal sealed class DevelopmentKit
         _world = _world.WithSection(Section.SetPlan(plan));
     }
 
+    public void PutPlan(DevelopmentPlan plan) => _world = _world.WithSection(Section.SetPlan(plan));
+
     public void PutProject(DevProject project)
     {
         var section = Section;
@@ -263,6 +265,19 @@ internal sealed class DevelopmentKit
 
     public static DevProject Concept(OrganizationId organization, long cost, double share, int days, int risk = 0) =>
         Upgrade(organization, DevArea.Aero, cost, share, days) with { Kind = DevKind.Concept, Area = null, RiskMilli = risk };
+
+    /// <summary>A concept project of the v2 model, already running: the character is set, the ceiling is drawn when it finishes.</summary>
+    public static DevProject Redesign(OrganizationId organization, long cost, int days, int philosophyMilli = -1000, int aeroMilli = 0, int risk = 0) =>
+        Upgrade(organization, DevArea.Aero, cost, 0, days) with
+        {
+            Kind = DevKind.Concept,
+            Area = null,
+            RiskMilli = risk,
+            Timing = ConceptTiming.Hold,
+            PhilosophyMilli = philosophyMilli,
+            AeroMilli = aeroMilli,
+            Flags = ProjectFlags.Redesign,
+        };
 
     private static WorldState Staff(WorldState world, OrganizationId team, string tag, int skill)
     {

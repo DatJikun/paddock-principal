@@ -1,3 +1,4 @@
+using System.Globalization;
 using Paddock.Application.Access;
 using Paddock.Application.Commands;
 using Paddock.Application.Localization;
@@ -38,6 +39,9 @@ public static class ObjectiveKeys
     public const string PredicateChampionshipPositionAtMost = "objective.predicate.championshipPositionAtMost";
 
     [TranslationKey]
+    public const string PredicatePositionWithWins = "objective.predicate.positionWithWins";
+
+    [TranslationKey]
     public const string PredicatePodiumsAtLeast = "objective.predicate.podiumsAtLeast";
 
     [TranslationKey]
@@ -74,6 +78,7 @@ public static class ObjectiveKeys
     public static (string Key, string Parameter) PredicateText(ObjectivePredicate predicate) => predicate switch
     {
         ChampionshipPositionAtMost => (PredicateChampionshipPositionAtMost, "target"),
+        ChampionshipPositionWithWins => (PredicatePositionWithWins, "target"),
         PodiumsAtLeast => (PredicatePodiumsAtLeast, "target"),
         PointsAtLeast => (PredicatePointsAtLeast, "target"),
         CashAtLeast => (PredicateCashAtLeast, "target"),
@@ -183,7 +188,12 @@ public sealed class ObjectiveQuery
             objective.Id,
             objective.Owner.Value,
             TranslationMessage.Of(objective.KindKey),
-            TranslationMessage.Of(key, (parameter, objective.Predicate.Parameter)),
+            objective.Predicate is ChampionshipPositionWithWins withWins
+                ? TranslationMessage.Of(
+                    key,
+                    (parameter, withWins.Position.ToString(CultureInfo.InvariantCulture)),
+                    ("wins", withWins.Wins.ToString(CultureInfo.InvariantCulture)))
+                : TranslationMessage.Of(key, (parameter, objective.Predicate.Parameter)),
             new DateOnly(objective.Deadline.Year, objective.Deadline.Month, objective.Deadline.Day),
             state,
             new ObjectiveWhyView(objective.Grantor.Value, TranslationMessage.Of(objective.ReasonKey)),

@@ -11,7 +11,7 @@ public sealed record InboxOptionView(string Id, TranslationMessage Label, Transl
 /// <summary>
 /// One item as a manager reads it. Texts are translation keys with the item's argument values (PP-021).
 /// <see cref="ValidUntil"/> and <see cref="DefaultOptionId"/> are set together for an offer that lapses:
-/// the player can see what happens if nobody answers.
+/// the player can see what happens if nobody answers. <see cref="Important"/> says whether the item should stop automatic play (see <see cref="InboxImportance"/>).
 /// </summary>
 public sealed record InboxItemView(
     string Id,
@@ -25,7 +25,8 @@ public sealed record InboxItemView(
     string? DefaultOptionId,
     InboxStatus Status,
     DateOnly? ClosedOn,
-    string? ChosenOptionId);
+    string? ChosenOptionId,
+    bool Important);
 
 /// <summary>The items one viewer may see, in order of item number.</summary>
 public sealed record InboxView(AccessContext Viewer, IReadOnlyList<InboxItemView> Items)
@@ -100,6 +101,7 @@ public sealed class InboxQuery
             item.DefaultOptionId,
             item.Status,
             item.ClosedOn is GameDate closed ? InboxBook.ToDateOnly(closed) : null,
-            item.ChosenOptionId);
+            item.ChosenOptionId,
+            InboxImportance.IsImportant(item.Kind, item.NeedsDecision));
     }
 }

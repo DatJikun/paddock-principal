@@ -208,7 +208,6 @@ public sealed class RaceWeekendDay : IDayHandler
             payload.LayoutId,
             published.Tape,
             Lines(published),
-            run.Field.SkippedTeamIds,
             ByDriver(run.Calls.Calls, run.Field.Entries));
         _watch.PublishPitWall(published.PitWall, run.Tyres, steering);
         var world = _context.Session.World;

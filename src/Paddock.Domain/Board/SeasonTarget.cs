@@ -62,11 +62,27 @@ public static class SeasonTarget
         var finish = Math.Clamp(expected, 1, size);
         var shift = ambition switch
         {
-            SeasonAmbition.Safe => BoardEstimates.SafePlacesEasier,
+            SeasonAmbition.Safe => finish == 1 ? BoardEstimates.SafePlacesEasierForLeader : BoardEstimates.SafePlacesEasier,
             SeasonAmbition.Ambitious => -BoardEstimates.AmbitiousPlacesHarder,
             _ => 0,
         };
         return Math.Clamp(finish + shift, 1, size);
+    }
+
+    /// <summary>
+    /// Races the team must also win for the target, or 0 for none. Only the ambitious target of a team expected to lead needs it:
+    /// there the position alone (P1) would be the same ask as the expected target, so the options would not differ (#264).
+    /// ESTIMATE: a share of the season's races, from public facts (season length) only.
+    /// </summary>
+    public static int WinsRequired(int expected, int fieldSize, int rounds, SeasonAmbition ambition)
+    {
+        if (ambition != SeasonAmbition.Ambitious || Position(expected, fieldSize, ambition) != Position(expected, fieldSize, SeasonAmbition.Expected))
+        {
+            return 0;
+        }
+
+        var season = rounds > 0 ? rounds : BoardEstimates.FallbackSeasonRounds;
+        return Math.Clamp((int)Math.Ceiling(season * BoardEstimates.AmbitiousWinShare), 1, season);
     }
 
     /// <summary>Confidence tenths gained when the target is met. Strictly safe &lt; expected &lt; ambitious.</summary>

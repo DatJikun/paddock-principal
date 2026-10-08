@@ -42,7 +42,9 @@ public sealed record TeamOptionView(
     string? Budget,
     int? LastSeason,
     int? Expected,
-    int? FieldSize);
+    int? FieldSize,
+    long? BudgetCents,
+    TeamCardLevels? Levels);
 
 /// <summary>Public teams of one season. <paramref name="Problem"/> is why the chosen setup cannot start (the refusal <c>newCareer</c> would give), or null.</summary>
 public sealed record TeamListView(int Year, IReadOnlyList<TeamOptionView> Teams, TranslationMessage? Problem);
@@ -183,6 +185,9 @@ public sealed record UpgradeFacilityCall(string ManagerId, string OrganizationId
 
 /// <summary>Rents the test track for one private test of the own team.</summary>
 public sealed record BookTestCall(string ManagerId, string OrganizationId);
+
+/// <summary>Cancels a booked private test that has not happened yet. <c>TestOn</c> is its day, <c>yyyy-MM-dd</c>.</summary>
+public sealed record CancelTestCall(string ManagerId, string OrganizationId, string TestOn);
 
 /// <summary>Scout focus. A null handle is the whole pool.</summary>
 public sealed record ScoutFocusCall(string ManagerId, string? PersonHandle);

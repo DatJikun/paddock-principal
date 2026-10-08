@@ -38,6 +38,10 @@
       [[22.5, 16.6, 1.25], [18.3, 9.6, 1.15], [22.5, 3.8, 1.15], [26.4, 8.3, 1.15], [24.4, 11.4, .6]].map(([x, y, r]) => `<polygon points="${star(x, y, r, x === 24.4 ? 5 : 7, .45)}" fill="#fff"/>`).join(''),
     NZL: '<rect width="30" height="20" fill="#012169"/>' + canton +
       [[22.5, 16.4, 1.4], [18.6, 9.6, 1.25], [22.5, 4, 1.25], [26.2, 8.6, 1.1]].map(([x, y, r]) => `<polygon points="${star(x, y, r + .35)}" fill="#fff"/><polygon points="${star(x, y, r)}" fill="#c8102e"/>`).join(''),
+    /* Meksyk, Portugalia i Maroko: tory kalendarza od 1958 i 1962. Godła uproszczone do jednego znaku. */
+    MEX: v3('#006847', '#fff', '#ce1126') + '<circle cx="15" cy="10" r="2.4" fill="#8c6b2f"/><circle cx="15" cy="10" r="1.3" fill="#006847"/>',
+    POR: '<rect width="30" height="20" fill="#da291c"/><rect width="12" height="20" fill="#046a38"/><circle cx="12" cy="10" r="3.6" fill="#ffe000"/><circle cx="12" cy="10" r="2.1" fill="#da291c"/><rect x="10.9" y="8.9" width="2.2" height="2.2" fill="#fff"/>',
+    MAR: '<rect width="30" height="20" fill="#c1272d"/><polygon points="' + star(15, 10.4, 5.2, 5, .382) + '" fill="none" stroke="#006233" stroke-width=".9"/>',
     /* RPA 1928–1994: pomarańcz–biel–błękit, w środku flagi Wielkiej Brytanii, Wolnego Państwa Orania i Transwalu */
     RSA: '<rect width="30" height="6.67" fill="#f17f29"/><rect y="6.67" width="30" height="6.67" fill="#fff"/><rect y="13.33" width="30" height="6.67" fill="#1c3f94"/>' +
       '<svg x="10.4" y="8.4" width="3.2" height="2" viewBox="0 0 60 30" preserveAspectRatio="none"><use href="#ukj"/></svg>' +
@@ -52,7 +56,7 @@
   const ALIAS = { ZAF: 'RSA', DEU: 'GER', MCO: 'MON', NLD: 'NED', CHE: 'SUI', PRT: 'POR', ...DEMONYM };
   const NAMES = { GBR: 'Wielka Brytania', FRA: 'Francja', ITA: 'Włochy', IRL: 'Irlandia', BEL: 'Belgia', GER: 'RFN', AUT: 'Austria', NED: 'Holandia',
     ARG: 'Argentyna', MON: 'Monako', POL: 'Polska', ESP: 'Hiszpania', JPN: 'Japonia', SUI: 'Szwajcaria', SWE: 'Szwecja', BRA: 'Brazylia', USA: 'USA',
-    CAN: 'Kanada', AUS: 'Australia', NZL: 'Nowa Zelandia', RSA: 'RPA' };
+    CAN: 'Kanada', AUS: 'Australia', NZL: 'Nowa Zelandia', RSA: 'RPA', MEX: 'Meksyk', POR: 'Portugalia', MAR: 'Maroko' };
 
   const ukj = `<symbol id="ukj" viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice">
     <clipPath id="ukj-c"><path d="M0,0v30h60v-30z"/></clipPath><clipPath id="ukj-t"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z"/></clipPath>

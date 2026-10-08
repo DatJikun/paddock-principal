@@ -35,5 +35,19 @@ public static class InfrastructureCommandCodecs
                     OrganizationId = fields.String("organization"),
                 };
             }),
+        CommandCodecEntry.For<CancelTestCommand>(
+            "infrastructure.cancelTest/1",
+            command => FlatJson.Write(("organization", command.OrganizationId), ("testOn", command.TestOn.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture))),
+            (body, manager, issued) =>
+            {
+                var fields = FlatJson.Read(body, "organization", "testOn");
+                return new CancelTestCommand
+                {
+                    ManagerId = manager,
+                    IssuedOn = issued,
+                    OrganizationId = fields.String("organization"),
+                    TestOn = DateOnly.ParseExact(fields.String("testOn"), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                };
+            }),
     ];
 }

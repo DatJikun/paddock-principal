@@ -30,7 +30,10 @@ public sealed record UpgradeFacilityCommand : ICommand
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
 
-/// <summary>The principal rents a test track for one private test (PP-064). Cost is per test; the era cap is availability.</summary>
+/// <summary>
+/// The principal books one private test (PP-064). It runs <see cref="InfrastructureEstimates.TestLeadDays"/> later; the rental is
+/// charged and the car learns on that day, so a booking cancelled before it costs nothing and gives nothing (#264).
+/// </summary>
 public sealed record BookTestCommand : ICommand
 {
     public required ManagerId ManagerId { get; init; }
@@ -42,6 +45,31 @@ public sealed record BookTestCommand : ICommand
     public required string OrganizationId { get; init; }
 
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
+}
+
+/// <summary>Cancels a booked private test that has not happened yet. The booking is named by its day.</summary>
+public sealed record CancelTestCommand : ICommand
+{
+    public required ManagerId ManagerId { get; init; }
+
+    public long SubmissionNumber { get; init; }
+
+    public required DateOnly IssuedOn { get; init; }
+
+    public required string OrganizationId { get; init; }
+
+    public required DateOnly TestOn { get; init; }
+
+    public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
+}
+
+public sealed record TestCancelled(
+    ManagerId ManagerId,
+    DateOnly OccurredOn,
+    string OrganizationId,
+    DateOnly TestOn) : IDomainEvent
+{
+    public string TypeId => InfrastructureEventTypes.TestCancelled;
 }
 
 public sealed record FacilityUpgradeStarted(
@@ -237,7 +265,7 @@ public sealed class BookTestHandler : CommandHandler<BookTestCommand>
         var cost = InfrastructureMath.TestRentalCents(_book.Finance.TypicalCents);
         if (!_book.Finance.HasBook(organization) || _book.Finance.BalanceOf(organization) < cost)
         {
-            return TranslationMessage.Of(InfrastructureKeys.NoMoney);
+            return TranslationMessage.Of(InfrastructureKeys.NoMoneyTest);
         }
 
         return null;
@@ -253,36 +281,68 @@ public sealed class BookTestHandler : CommandHandler<BookTestCommand>
 
         var today = InfrastructureCommandSupport.Day(command.IssuedOn);
         var cost = InfrastructureMath.TestRentalCents(_book.Finance.TypicalCents);
-        var cap = DevelopmentMath.UnderstandingCap(_environment.TestingRule(today.Year), aeroTesting: null);
-        var cars = _book.Cars;
-        foreach (var car in cars.Of(organization).OrderBy(item => item.Id, StringComparer.Ordinal))
-        {
-            var grown = DevelopmentMath.GrowUnderstanding(car.Understanding, InfrastructureEstimates.UnderstandingPerTest, cap);
-            if (grown != car.Understanding)
-            {
-                cars = cars.Replace(car.WithDesign(
-                    car.Season,
-                    car.Concept,
-                    car.Levels,
-                    car.ConceptCeiling,
-                    grown,
-                    car.TyreWearMultiplier,
-                    car.SupplierChangeCost));
-            }
-        }
-
-        var finance = _book.Finance.Post(
-            organization,
-            today,
-            LedgerCategories.Infrastructure,
-            "test",
-            -cost,
-            InfrastructureKeys.LedgerTest);
-        _book.Write(_book.Section.AddTest(new TestBooking(organization, today, cost)), finance, cars);
+        var booking = new TestBooking(organization, InfrastructureMath.TestDate(today), cost);
+        _book.Write(_book.Section.AddTest(booking));
         return
         [
             new TestBooked(command.ManagerId, command.IssuedOn, organization.Value, cost),
         ];
+    }
+}
+
+public sealed class CancelTestHandler : CommandHandler<CancelTestCommand>
+{
+    private readonly InfrastructureBook _book;
+    private readonly InfrastructureEnvironment _environment;
+
+    public CancelTestHandler(InfrastructureBook book, InfrastructureEnvironment environment)
+    {
+        ArgumentNullException.ThrowIfNull(book);
+        ArgumentNullException.ThrowIfNull(environment);
+        _book = book;
+        _environment = environment;
+    }
+
+    protected override TranslationMessage? ValidateTyped(CancelTestCommand command, CommandContext context)
+    {
+        var gate = InfrastructureCommandSupport.Team(
+            _environment,
+            _book.World,
+            command.ManagerId,
+            command.OrganizationId,
+            out var organization);
+        if (gate is not null)
+        {
+            return gate;
+        }
+
+        return Find(organization, command) is null ? TranslationMessage.Of(InfrastructureKeys.NoSuchTest) : null;
+    }
+
+    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(CancelTestCommand command, CommandContext context)
+    {
+        if (ValidateTyped(command, context) is not null
+            || !CarCommandSupport.TryOrganization(command.OrganizationId, out var organization)
+            || Find(organization, command) is not { } booking)
+        {
+            throw new InvalidOperationException("Execute ran for a command that should have been rejected.");
+        }
+
+        _book.Write(_book.Section.RemoveTest(booking));
+        return [new TestCancelled(command.ManagerId, command.IssuedOn, organization.Value, command.TestOn)];
+    }
+
+    /// <summary>The booking on that day that has not happened yet. A test on the day itself, or earlier, is no longer cancellable.</summary>
+    private TestBooking? Find(OrganizationId organization, CancelTestCommand command)
+    {
+        var today = InfrastructureCommandSupport.Day(command.IssuedOn);
+        var on = InfrastructureCommandSupport.Day(command.TestOn);
+        if (on <= today)
+        {
+            return null;
+        }
+
+        return _book.Section.Tests.FirstOrDefault(test => test.Organization == organization && test.Date == on);
     }
 }
 
@@ -293,5 +353,6 @@ public static class InfrastructureRegistration
         ArgumentNullException.ThrowIfNull(dispatcher);
         dispatcher.Register(new UpgradeFacilityHandler(book, environment));
         dispatcher.Register(new BookTestHandler(book, environment));
+        dispatcher.Register(new CancelTestHandler(book, environment));
     }
 }

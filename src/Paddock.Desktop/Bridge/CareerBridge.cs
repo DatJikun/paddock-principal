@@ -169,8 +169,9 @@ public sealed partial class CareerBridge
             "standings" => BridgeValues.ToNode(ChampionshipRead.Standings(Session, Box.Inputs)),
             "raceResult" => BridgeValues.ToNode(ReadRace(args)),
             "nextRace" => BridgeValues.ToNode(ChampionshipRead.Next(Session, Circuits)),
-            "track" => BridgeValues.ToNode(TrackRead.Read(Watched()?.Session ?? Session, Tracks, TextOf(args, "layoutId"))),
+            "track" => BridgeValues.ToNode(TrackRead.Read(Watched()?.Session ?? Session, Tracks, TextOf(args, "layoutId"), PastRaces())),
             "quickRounds" => BridgeValues.ToNode(ReadQuickRounds(args)),
+            "seasonOverview" => BridgeValues.ToNode(SeasonOverviewRead.Read(Session, Box.Inputs, Circuits)),
             "staff" => BridgeValues.ToNode(ReadStaff()),
             "market" => BridgeValues.ToNode(ReadMarket(access)),
             "driver" => BridgeValues.ToNode(ReadDriver(args)),
@@ -243,12 +244,22 @@ public sealed partial class CareerBridge
         var inbox = new InboxQuery(Inbox()).View(Access());
         var blocking = Box.Managers.Get(_human).BlockingItem;
         InboxItemView? decision = null;
+        InboxItemView? important = null;
         foreach (var item in inbox.Items)
         {
-            if (item.NeedsDecision && item.Status == Paddock.Domain.Inbox.InboxStatus.Open)
+            if (item.Status != Paddock.Domain.Inbox.InboxStatus.Open)
+            {
+                continue;
+            }
+
+            if (decision is null && item.NeedsDecision)
             {
                 decision = item;
-                break;
+            }
+
+            if (item.Important)
+            {
+                important = item;
             }
         }
 
@@ -263,7 +274,10 @@ public sealed partial class CareerBridge
             decision?.Kind,
             decision?.Subject,
             team.OrganizationId,
-            team.Name);
+            team.Name,
+            important?.Id,
+            important?.Kind,
+            important?.Subject);
     }
 
     private OwnTeamView ReadTeam()

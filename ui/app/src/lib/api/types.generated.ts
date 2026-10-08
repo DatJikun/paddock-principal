@@ -99,6 +99,12 @@ export interface CalendarView {
   season: number;
 }
 
+export interface CancelTestCall {
+  managerId: string;
+  organizationId: string;
+  testOn: string;
+}
+
 export interface CarBandView {
   high: number;
   low: number;
@@ -246,6 +252,7 @@ export interface InboxItemView {
   created: IsoDate;
   defaultOptionId: string | null;
   id: string;
+  important: boolean;
   kind: string;
   managerId: string;
   needsDecision: boolean;
@@ -627,6 +634,36 @@ export interface OpenNegotiationCall {
   subject: string;
 }
 
+export interface OverviewCellView {
+  results: OverviewResultView[];
+  round: number;
+}
+
+export interface OverviewResultView {
+  classified: boolean;
+  points: string;
+  position: number;
+  retirementKey: string;
+}
+
+export interface OverviewRoundView {
+  circuitName: string;
+  country: string;
+  finished: boolean;
+  round: number;
+}
+
+export interface OverviewRowView {
+  cells: OverviewCellView[];
+  id: string;
+  name: string;
+  nationality: string;
+  points: string;
+  position: number;
+  teamId: string | null;
+  teamName: string | null;
+}
+
 export interface OwnBoardView {
   forecast: BoardForecastView;
   organizationId: string;
@@ -757,6 +794,20 @@ export interface OwnTeamView {
   organizationId: string | null;
 }
 
+export interface PastPodiumView {
+  driverName: string;
+  nationality: string;
+  position: number;
+  teamId: string;
+  teamName: string;
+}
+
+export interface PastRaceView {
+  podium: PastPodiumView[];
+  season: number;
+  source: string;
+}
+
 export interface PointsScaleView {
   constructors: string;
   countedResults: number;
@@ -786,6 +837,8 @@ export interface PoolItemView {
 }
 
 export interface PoolView {
+  cheapProgrammeCostCents: number;
+  fastProgrammeCostCents: number;
   focus: ScoutFocusKind | null;
   focusHandle: string | null;
   items: PoolItemView[];
@@ -956,6 +1009,14 @@ export interface ScoutFocusCall {
   personHandle: string | null;
 }
 
+export interface SeasonOverviewView {
+  constructors: OverviewRowView[];
+  drivers: OverviewRowView[];
+  hasConstructorTitle: boolean;
+  rounds: OverviewRoundView[];
+  season: number;
+}
+
 export interface SessionView {
   date: string | null;
   managerId: string;
@@ -975,6 +1036,9 @@ export interface ShellView {
   decisionItemId: string | null;
   decisionKind: string | null;
   decisionSubject: TranslationMessage | null;
+  importantItemId: string | null;
+  importantKind: string | null;
+  importantSubject: TranslationMessage | null;
   inboxDecisions: number;
   inboxOpen: number;
   managerId: string;
@@ -1089,6 +1153,7 @@ export interface StandingRowView {
   id: string;
   name: string;
   nationality: string;
+  podiums: number;
   points: string;
   position: number;
   teamId: string | null;
@@ -1152,6 +1217,13 @@ export interface TeamCardEngine {
   supplyType: string;
 }
 
+export interface TeamCardLevels {
+  car: number | null;
+  drivers: number | null;
+  infrastructure: number | null;
+  staff: number | null;
+}
+
 export interface TeamListView {
   problem: TranslationMessage | null;
   teams: TeamOptionView[];
@@ -1160,12 +1232,14 @@ export interface TeamListView {
 
 export interface TeamOptionView {
   budget: string | null;
+  budgetCents: number | null;
   drivers: TeamCardDriver[];
   engine: TeamCardEngine | null;
   expected: number | null;
   fieldSize: number | null;
   id: string;
   lastSeason: number | null;
+  levels: TeamCardLevels | null;
   name: string;
 }
 
@@ -1185,8 +1259,10 @@ export interface TeamsCall {
 
 export interface TestRentalView {
   allowed: boolean;
+  booked: IsoDate[];
   cap: number;
   costCents: number;
+  nextDate: IsoDate;
   used: number;
 }
 
@@ -1208,6 +1284,7 @@ export interface TrackView {
   layoutId: string | null;
   lengthKm: number | null;
   name: string | null;
+  past: PastRaceView[];
   points: TrackPointView[];
   races: number;
   retirements: number;
@@ -1260,6 +1337,7 @@ export interface BridgeQueryMap {
   raceResult: { args: RaceResultCall; result: RaceResultView };
   nextRace: { args: ManagerCall; result: NextRaceView };
   track: { args: TrackCall; result: TrackView };
+  seasonOverview: { args: ManagerCall; result: SeasonOverviewView };
   staff: { args: ManagerCall; result: StaffListView };
   market: { args: ManagerCall; result: MarketView };
   driver: { args: DriverCall; result: DriverProfileView };
@@ -1290,6 +1368,7 @@ export interface BridgeCommandMap {
   commitConcept: { args: CommitConceptCall; result: CommandAck };
   upgradeFacility: { args: UpgradeFacilityCall; result: CommandAck };
   bookTest: { args: BookTestCall; result: CommandAck };
+  cancelTest: { args: CancelTestCall; result: CommandAck };
   assignScoutFocus: { args: ScoutFocusCall; result: CommandAck };
   fundJunior: { args: FundJuniorCall; result: CommandAck };
   signPoolDriver: { args: SignPoolCall; result: CommandAck };

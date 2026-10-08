@@ -372,6 +372,71 @@ public class BoardRulesTests
     }
 
     [Fact]
+    public void ATeamExpectedToLeadGetsThreeDifferentTargets_AndNeverTwoIdenticalOnes()
+    {
+        // #264: expected P1 used to give safe P3, expected P1 and ambitious P1 (clamped), two of them identical.
+        Assert.Equal(2, SeasonTarget.Position(1, 10, SeasonAmbition.Safe));
+        Assert.Equal(1, SeasonTarget.Position(1, 10, SeasonAmbition.Expected));
+        Assert.Equal(1, SeasonTarget.Position(1, 10, SeasonAmbition.Ambitious));
+        Assert.Equal(0, SeasonTarget.WinsRequired(1, 10, 7, SeasonAmbition.Safe));
+        Assert.Equal(0, SeasonTarget.WinsRequired(1, 10, 7, SeasonAmbition.Expected));
+        var wins = SeasonTarget.WinsRequired(1, 10, 7, SeasonAmbition.Ambitious);
+        Assert.InRange(wins, 1, 7);
+        Assert.Equal(3, wins);
+
+        // A team that can still aim higher than expected needs no wins condition.
+        Assert.Equal(0, SeasonTarget.WinsRequired(3, 10, 7, SeasonAmbition.Ambitious));
+        // The wins count follows the public season length, with a stated fallback when the calendar is not stored yet.
+        Assert.Equal(4, SeasonTarget.WinsRequired(1, 10, 0, SeasonAmbition.Ambitious));
+    }
+
+    [Fact]
+    public void APositionWithWinsObjectiveNeedsBothAndSurvivesTheSaveRoundTrip()
+    {
+        var facts = new ObjectiveFactRegistry();
+        decimal position = 1m;
+        decimal wins = 2m;
+        facts.RegisterNumber(ObjectiveFactKeys.ChampionshipPosition, _ => position);
+        facts.RegisterNumber(ObjectiveFactKeys.SeasonWins, _ => wins);
+        var predicate = new ChampionshipPositionWithWins(1, 3);
+        Assert.False(predicate.Evaluate(T1, facts));
+        wins = 3m;
+        Assert.True(predicate.Evaluate(T1, facts));
+        position = 2m;
+        Assert.False(predicate.Evaluate(T1, facts));
+
+        var again = ObjectivePredicate.FromParts(predicate.Name, predicate.Parameter);
+        Assert.Equal(predicate, again);
+    }
+
+    [Fact]
+    public void AHumanOfAFavouriteGetsADistinctAmbitiousOptionThatAsksForWins()
+    {
+        var lab = new Lab(noRaces: true);
+        lab.Appoint(Pam, T1);
+        lab.Advance(1);
+
+        var decision = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.SeasonTargetKind && item.IsOpen);
+        Assert.Equal("1", decision.Arguments["expectedTarget"]);
+        Assert.Equal("2", decision.Arguments["safeTarget"]);
+        Assert.Equal("1", decision.Arguments["ambitiousTarget"]);
+        Assert.True(int.Parse(decision.Arguments["ambitiousWins"], System.Globalization.CultureInfo.InvariantCulture) > 0);
+        Assert.Equal(BoardKeys.SeasonTargetWinsSubject, decision.SubjectKey);
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(new ResolveInboxItemCommand
+        {
+            ManagerId = Pam,
+            IssuedOn = Date(lab.Today),
+            ItemId = decision.Id,
+            OptionId = SeasonTarget.Ambitious,
+        }));
+        var season = lab.Board.Objectives.OwnedBy(T1).Single(objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
+        var asked = Assert.IsType<ChampionshipPositionWithWins>(season.Predicate);
+        Assert.Equal(1, asked.Position);
+        Assert.Equal(int.Parse(decision.Arguments["ambitiousWins"], System.Globalization.CultureInfo.InvariantCulture), asked.Wins);
+        Assert.Equal("1", season.EffectOnFailed.Arguments["dismiss"]);
+    }
+
+    [Fact]
     public void AHumanIsAskedBeforeTheSeasonAndAnAmbitiousFailureDismissesOnlyWithoutProtection()
     {
         var lab = new Lab(noRaces: true);

@@ -30,10 +30,11 @@ export const AXES = {
 export const MIN_YEAR = 1950;
 export const MAX_YEAR = 2026;
 
-/** Countries the principal can come from: the ones the catalog names. */
+/** Countries the principal can come from: every nationality in the people data, each with a name in the catalog. */
 export const COUNTRIES = [
   'GBR', 'FRA', 'ITA', 'IRL', 'BEL', 'GER', 'AUT', 'NED', 'ARG', 'MON', 'POL', 'ESP',
   'POR', 'JPN', 'SUI', 'SWE', 'BRA', 'USA', 'CAN', 'MEX', 'MAR', 'AUS', 'NZL', 'RSA',
+  'FIN', 'DEN', 'URU', 'RHO', 'RUS', 'VEN', 'GDR', 'COL', 'THA', 'IND', 'HUN', 'CZE', 'IDN', 'LIE', 'CHI', 'MYS', 'CHN',
 ];
 
 /** The form's starting point. Axes stay empty until a preset fills them. */

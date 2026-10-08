@@ -14,6 +14,7 @@ using Paddock.Application.Sponsors;
 using Paddock.Application.Staff;
 using Paddock.Application.Supply;
 using Paddock.Data.Authored;
+using Paddock.Data.Historical;
 using Paddock.Data.World;
 using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
@@ -50,6 +51,35 @@ public sealed partial class CareerBridge
     private IReadOnlyDictionary<string, CircuitLabel> Circuits => _circuits;
 
     private IReadOnlyDictionary<string, TrackFacts> Tracks => _tracks;
+
+    private (string Root, int Before)? _pastKey;
+    private IReadOnlyList<HistoricalRaceFact>? _past;
+
+    /// <summary>
+    /// Real races from before this career began, read once from the local cache (PP-041) and reduced to circuit and podium.
+    /// Null without a cache, a data root or a career config: the circuit page then has no real history and hides that part.
+    /// </summary>
+    private IReadOnlyList<HistoricalRaceFact>? PastRaces()
+    {
+        if (_dataRoot is null || _config is null)
+        {
+            return null;
+        }
+
+        var key = (_dataRoot, _config.StartYear);
+        if (_pastKey != key)
+        {
+            _past = PastPodiumLoader.Load(_dataRoot, _config.StartYear)
+                .Select(race => new HistoricalRaceFact(
+                    race.Season,
+                    race.CircuitId,
+                    race.Places.Select(place => new PastPodiumView(place.Position, place.DriverName, place.Nationality, place.ConstructorId, place.ConstructorName)).ToArray()))
+                .ToArray();
+            _pastKey = key;
+        }
+
+        return _past is { Count: > 0 } ? _past : null;
+    }
 
     /// <summary>
     /// A player command, or a career command (new, load, save). Null when this host does not own the name.
@@ -170,10 +200,14 @@ public sealed partial class CareerBridge
             }
         }
 
+        // Last season's finish first, the way the paddock lists teams; teams with no known place follow, richest first, then by name.
         var teams = roster
             .Select(team => cards.TryGetValue(team.Id, out var card)
-                ? new TeamOptionView(team.Id, team.Name, card.Drivers, card.Engine, card.Budget, card.LastSeason, card.Expected, card.FieldSize)
-                : new TeamOptionView(team.Id, team.Name, [], null, null, null, null, null))
+                ? new TeamOptionView(team.Id, team.Name, card.Drivers, card.Engine, card.Budget, card.LastSeason, card.Expected, card.FieldSize, card.BudgetCents, card.Levels)
+                : new TeamOptionView(team.Id, team.Name, [], null, null, null, null, null, null, null))
+            .OrderBy(team => team.LastSeason ?? int.MaxValue)
+            .ThenByDescending(team => team.BudgetCents ?? 0L)
+            .ThenBy(team => team.Name, StringComparer.Ordinal)
             .ToArray();
         return new TeamListView(year, teams, problem);
     }
@@ -213,7 +247,7 @@ public sealed partial class CareerBridge
             var supplies = created.EngineSupplies
                 .Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType))
                 .ToArray();
-            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength);
+            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength, data.Facilities);
             _cardsKey = key;
             _cards = cards;
             return cards;
@@ -717,6 +751,8 @@ public sealed partial class CareerBridge
                 return Concept(args, issued, out error);
             case "upgradeFacility":
                 return Facility(args, issued, out error);
+            case "cancelTest":
+                return CancelTest(args, issued, out error);
             case "bookTest":
                 return RentTest(args, issued, out error);
             case "assignScoutFocus":
@@ -919,6 +955,21 @@ public sealed partial class CareerBridge
         }
 
         return new BookTestCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization };
+    }
+
+    private ICommand? CancelTest(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        if (organization is null
+            || TextOf(args, "testOn") is not { } text
+            || !DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var on))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new CancelTestCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization, TestOn = on };
     }
 
     private ICommand? Concept(JsonElement args, DateOnly issued, out TranslationMessage? error)

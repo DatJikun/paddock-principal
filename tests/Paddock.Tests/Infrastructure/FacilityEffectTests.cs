@@ -81,28 +81,4 @@ public sealed class FacilityEffectTests
         Assert.False(tunnel.Unlocked);
         Assert.Equal(1968, tunnel.UnlockYear);
     }
-
-    [Fact]
-    public void ATripCostsMoreTheFartherItGoesAndAShipIsMoreThanTheWholeWeekend()
-    {
-        const int rounds = 8;
-        var weekend = FinanceEstimates.RaceRunningShare / rounds;
-
-        Assert.True(InfrastructureEstimates.LogisticsHomeShare < InfrastructureEstimates.LogisticsLorryShare);
-        Assert.True(InfrastructureEstimates.LogisticsLorryShare < InfrastructureEstimates.LogisticsShipShare);
-        Assert.True(InfrastructureEstimates.LogisticsShipShare > weekend, "A ship to another continent costs more than the weekend itself.");
-        Assert.InRange(InfrastructureEstimates.LogisticsLorryShare / weekend, 0.3, 0.6);
-        Assert.True(InfrastructureEstimates.LogisticsHomeShare / weekend < 0.25);
-    }
-
-    [Fact]
-    public void TheFirstRoundOf1955IsNoLongerTwoHundredDollars()
-    {
-        var typical = Money.FromDollars(60_000).Cents;
-
-        var ship = LogisticsMath.Quote("ITA", LogisticsMath.Argentina, typical);
-
-        Assert.True(new Money(ship.CostCents).WholeDollars >= 1_000, "The owner found 210 dollars far too cheap.");
-        Assert.Equal((long)Math.Round(typical * InfrastructureEstimates.LogisticsShipShare), ship.CostCents);
-    }
 }

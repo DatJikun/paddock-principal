@@ -278,8 +278,8 @@ Jakość | względem granicy roku | granica rośnie o {InfrastructureEstimates.F
 W budowie | {InfrastructureEstimates.BuildingWorkShare|%} sprawności | aż do dnia końca
 Pierwszy krok | około {InfrastructureEstimates.BaseUpgradeCostShare|%} typowego budżetu i {InfrastructureEstimates.BaseUpgradeDays|dni} | potem drożej i dłużej
 Wynajem toru | około {InfrastructureEstimates.TestRentalShare|%} typowego budżetu za test
-Ciężarówki | {InfrastructureEstimates.LogisticsLorryDays|dni} w Europie, około {InfrastructureEstimates.LogisticsLorryShare|%} typowego budżetu
-Statek | {InfrastructureEstimates.LogisticsShipDays|dni} do rundy za oceanem (Argentyna), około {InfrastructureEstimates.LogisticsShipShare|%} typowego budżetu
+Ciężarówki | {InfrastructureEstimates.LogisticsLorryDays|dni} w Europie, trzy razy więcej niż skok po własnym kraju
+Statek | {InfrastructureEstimates.LogisticsShipDays|dni} do rundy za oceanem (Argentyna), osiem razy więcej niż skok po własnym kraju
 Efekt | przez rozwój auta | nie przez sam poziom fabryki
 ```
 
@@ -288,7 +288,7 @@ Co daje fabryka | wykonanie części od {InfrastructureEstimates.ExecutionFloor|
 Co daje tunel | do +{InfrastructureEstimates.ExecutionTunnelSpan|%} do wykonania części | od 1968
 Co daje CFD | do +{InfrastructureEstimates.ExecutionCfdSpan|%} do wykonania części | od 1990
 Co daje symulator | do +{InfrastructureEstimates.UnderstandingSimulatorSpan|%} do tempa poznawania auta | od 2012
-Dlaczego transport tyle kosztuje | podróż ma być widoczną pozycją obok kosztu samego weekendu: skok po własnym kraju to {InfrastructureEstimates.LogisticsHomeShare|%} typowego budżetu, ciężarówka po Europie około jedna trzecia do połowy kosztu uruchomienia wyścigu, a statek na inny kontynent więcej niż cały weekend | wartość jest szacunkiem
+Ile kosztuje transport | cały sezon kosztuje {InfrastructureEstimates.LogisticsSeasonShare|%} typowego rocznego budżetu epoki, niezależnie od liczby rund; ta kwota dzieli się na rundy według odległości (statek ciężej niż ciężarówka, własny kraj najlżej), więc dłuższy kalendarz robi każdą rundę tańszą, a nie rok droższy | płacisz automatycznie, jedną pozycją w księdze z powodem, z budżetu epoki, a nie z Twojej gotówki; wartość jest szacunkiem
 ```
 
 ```pytania

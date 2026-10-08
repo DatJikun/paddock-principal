@@ -92,19 +92,27 @@ public static class InfrastructureEstimates
     public const int TestsNominated = 1;
 
     /// <summary>
-    /// ESTIMATE (#268): share of typical budget a same-country lorry trip costs, on top of the uniform race-running share. Was 0.0004, which
-    /// made the first round of 1955 cost the team 210 dollars. A trip should be a line you notice next to the cost of the weekend itself
-    /// (<see cref="Paddock.Domain.Finance.FinanceEstimates.RaceRunningShare"/> spread over the rounds of a season, about 2 percent of the
-    /// budget a round in 1955): a home hop is a small part of it, a lorry across Europe about a third to a half, and a ship to another
-    /// continent more than the whole weekend.
+    /// ESTIMATE (#268): the share of the era's typical yearly budget that the transport of a whole season costs a team, whatever the number of
+    /// rounds. The first version priced every round as a share of the budget, which suited 1955 (7 rounds, one or two overseas, about 6 to 8
+    /// percent of the year) but added up to about a third of the budget on a modern calendar of 19 rounds. Now the season has this one total and
+    /// each round gets its part by its weight (<see cref="LogisticsHomeWeight"/>, <see cref="LogisticsLorryWeight"/>,
+    /// <see cref="LogisticsShipWeight"/>) among the rounds of that season, so a far race still costs more than a lorry trip and a home race
+    /// the least, and a longer calendar makes each round cheaper, not the year dearer. Paid from the era's budget, never from the team's cash.
+    /// The first round of 1955 stays above the 210 dollars the owner found too cheap.
     /// </summary>
-    public const double LogisticsHomeShare = 0.003;
+    public const double LogisticsSeasonShare = 0.07;
 
-    /// <summary>ESTIMATE (#268): share of typical budget a same-continent lorry trip costs. Was 0.0012.</summary>
-    public const double LogisticsLorryShare = 0.008;
+    /// <summary>ESTIMATE (#268): weight of a same-country round in the split of the season's transport. The weights keep the old relation of the three prices (about 1 : 2.7 : 8.3).</summary>
+    public const int LogisticsHomeWeight = 1;
 
-    /// <summary>ESTIMATE (#268): share of typical budget an overseas ship trip costs (Argentina in the 1950s). Was 0.0035.</summary>
-    public const double LogisticsShipShare = 0.025;
+    /// <summary>ESTIMATE (#268): weight of a same-continent lorry round in the split of the season's transport.</summary>
+    public const int LogisticsLorryWeight = 3;
+
+    /// <summary>ESTIMATE (#268): weight of an overseas ship round in the split of the season's transport.</summary>
+    public const int LogisticsShipWeight = 8;
+
+    /// <summary>ESTIMATE (#268): when the season's calendar is not known, a round is priced as one round of a season of this many rounds (the 1955 season), the other rounds being lorry trips.</summary>
+    public const int LogisticsFallbackRounds = 7;
 
     /// <summary>ESTIMATE: days a same-country lorry hop takes.</summary>
     public const int LogisticsHomeDays = 1;

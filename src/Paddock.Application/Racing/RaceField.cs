@@ -217,13 +217,15 @@ public static class RaceFieldBuilder
 
     /// <summary>
     /// ESTIMATE extra logistics on top of the uniform race-running share: lorries on the same continent, a ship overseas
-    /// (Argentina in the 1950s). Missing countries are treated as a European lorry hop.
+    /// (Argentina in the 1950s). Missing countries are treated as a European lorry hop. The season's transport is one share of the era's typical
+    /// budget split over the rounds of the season being raced (<paramref name="seasonCircuits"/>), so a longer calendar makes a round cheaper.
     /// </summary>
     public static long TransportCost(
         OrganizationId organization,
         long typicalCents,
         string? circuitCountry,
-        IReadOnlyDictionary<string, string>? teamCountries)
+        IReadOnlyDictionary<string, string>? teamCountries,
+        IReadOnlyList<string?>? seasonCircuits = null)
     {
         if (typicalCents <= 0)
         {
@@ -236,7 +238,7 @@ public static class RaceFieldBuilder
             teamCountries.TryGetValue(organization.Value, out home);
         }
 
-        return Paddock.Domain.Infrastructure.LogisticsMath.CostCents(home, circuitCountry, typicalCents);
+        return Paddock.Domain.Infrastructure.LogisticsMath.CostCents(home, circuitCountry, typicalCents, seasonCircuits);
     }
 
     /// <summary>

@@ -2,9 +2,11 @@ using Paddock.Application.Career;
 using Paddock.Domain.Career;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Infrastructure;
+using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Career;
+using Paddock.Simulation.Time;
 using Paddock.Tests.Career;
 
 namespace Paddock.Tests.Infrastructure;
@@ -96,7 +98,7 @@ public sealed class InfrastructureCareerTests
             Assert.Single(line);
             paid[team.Id.Value] = -line[0].AmountCents;
             var home = countries.TryGetValue(team.Id.Value, out var country) ? country : null;
-            Assert.Equal(LogisticsMath.CostCents(home, LogisticsMath.Argentina, after.TypicalCents), -line[0].AmountCents);
+            Assert.Equal(LogisticsMath.CostCents(home, LogisticsMath.Argentina, after.TypicalCents, SeasonCountries(later, 1955)), -line[0].AmountCents);
         }
 
         var poorest = cash.OrderBy(pair => pair.Value).First().Key;
@@ -105,6 +107,44 @@ public sealed class InfrastructureCareerTests
         {
             Assert.Single(group.Select(pair => pair.Value).Distinct());
         }
+    }
+
+    /// <summary>The countries of the races of a season, from the career's own calendar and track catalog: what the transport of a round is split over.</summary>
+    private static IReadOnlyList<string?> SeasonCountries(CareerSession session, int season)
+    {
+        var layouts = CareerKit.Options.Inputs.Layouts!;
+        return session.World.Section<RaceCalendarSection>(RaceCalendarSection.SectionName)!
+            .SeasonSessions(season)
+            .Where(item => item.TypeId == ScheduledEventType.Race)
+            .Select(item => (string?)layouts.First(layout => layout.Id == item.LayoutId).Country)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// A whole season of the real game: a team that started every round has paid the season share of the era's typical budget for its transport,
+    /// in one ledger line a round, and no team has paid more, whatever its cash.
+    /// </summary>
+    [Fact]
+    public void ASeasonOfTransportAddsUpToTheSeasonShareOfTheEraBudget()
+    {
+        var session = CareerKit.Open(CareerPreset.Chaos, 1955, Seed);
+        CareerHost.RunUntil(session, new GameDate(1956, 1, 3), null, CareerKit.Options);
+        var finance = session.World.Section<FinanceSection>(FinanceSection.SectionName)!;
+        var rounds = SeasonCountries(session, 1955).Count;
+        Assert.True(rounds >= 5, "the 1955 calendar has races");
+        var share = InfrastructureEstimates.LogisticsSeasonShare * finance.TypicalCents;
+
+        var totals = new List<long>();
+        foreach (var team in CareerTeams.Active(session.World, session.Date).Where(team => finance.HasBook(team.Id)))
+        {
+            var lines = finance.EntriesOf(team.Id).Where(entry => entry.Category == LedgerCategories.Logistics && entry.Date.Year == 1955).ToArray();
+            Assert.All(lines, line => Assert.True(line.AmountCents < 0));
+            Assert.True(lines.Length <= rounds);
+            totals.Add(-lines.Sum(line => line.AmountCents));
+        }
+
+        Assert.All(totals, total => Assert.True(total <= share + rounds, "no team pays more than the season share"));
+        Assert.Contains(totals, total => total >= share - rounds && total <= share + rounds);
     }
 
     [Fact]

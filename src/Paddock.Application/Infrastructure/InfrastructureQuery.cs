@@ -62,7 +62,7 @@ public sealed class InfrastructureQuery
         _environment = environment;
     }
 
-    public InfrastructureOverview View(AccessContext access, string? nextCircuitCountry = null)
+    public InfrastructureOverview View(AccessContext access, string? nextCircuitCountry = null, IReadOnlyList<string?>? seasonCircuits = null)
     {
         ArgumentNullException.ThrowIfNull(access);
         if (access.Kind == AccessKind.Developer)
@@ -89,13 +89,13 @@ public sealed class InfrastructureQuery
                 continue;
             }
 
-            own.Add(Own(organization.Id, today, typical, nextCircuitCountry));
+            own.Add(Own(organization.Id, today, typical, nextCircuitCountry, seasonCircuits));
         }
 
         return new InfrastructureOverview(own);
     }
 
-    internal OwnInfrastructureView Own(OrganizationId organization, GameDate today, long typicalCents, string? nextCircuitCountry = null)
+    internal OwnInfrastructureView Own(OrganizationId organization, GameDate today, long typicalCents, string? nextCircuitCountry = null, IReadOnlyList<string?>? seasonCircuits = null)
     {
         var year = today.Year;
         var section = _book.Section;
@@ -148,7 +148,7 @@ public sealed class InfrastructureQuery
         LogisticsView? transport = null;
         if (!string.IsNullOrWhiteSpace(nextCircuitCountry))
         {
-            var quote = LogisticsMath.Quote(home, nextCircuitCountry, typicalCents);
+            var quote = LogisticsMath.Quote(home, nextCircuitCountry, typicalCents, seasonCircuits);
             transport = new LogisticsView(LogisticsMath.Of(quote.Mode), quote.Days, quote.CostCents, nextCircuitCountry);
         }
 

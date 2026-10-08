@@ -122,7 +122,7 @@ public sealed class RegulationsPersistenceTests : IDisposable
         {
         }
 
-        using var connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path, Mode = SqliteOpenMode.ReadWrite }.ToString());
+        using var connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path, Mode = SqliteOpenMode.ReadWrite, Pooling = false }.ToString());
         connection.Open();
         using var transaction = connection.BeginTransaction();
         foreach (var sql in new[]

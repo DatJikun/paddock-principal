@@ -810,18 +810,6 @@ select.text.sm{min-height:38px;font-size:14.5px}
 .ask-btns{display:flex;gap:10px}
 
 /* car and development */
-.steps{list-style:none;display:flex;gap:0;width:max-content;max-width:100%;border:1.5px solid var(--ink);border-radius:var(--r-ctl);background:color-mix(in oklab,var(--card) 92%,transparent);box-shadow:0 3px 0 var(--ink);overflow:hidden}
-.steps li{display:flex}
-.steps li+li{border-left:1px solid var(--rule)}
-.steps button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;padding:0 20px 0 14px;height:46px;font:600 15px var(--ui);color:var(--ink3);transition:background .2s,color .3s var(--ease)}
-.steps .no{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1.5px solid currentColor;font:900 14px var(--display)}
-.steps li.done button{color:var(--ink)}
-.steps li.done .no{background:var(--ink);color:var(--card);border-color:var(--ink)}
-.steps li.on button{background:var(--ink);color:var(--card);cursor:default}
-.steps li.on .no{background:var(--t2);color:var(--ink);border-color:var(--t2)}
-.steps button:not([disabled]):hover{background:var(--tint)}
-.steps button[disabled]:not([aria-current]){cursor:not-allowed;opacity:.55}
-.steps button:focus-visible{outline-offset:-3px}
 .pips{display:inline-flex;gap:3px}
 .pips i{width:7px;height:14px;border-radius:2px;background:color-mix(in oklab,var(--ink) 16%,transparent);transform:skewX(-14deg)}
 .pips i.on{background:var(--c1)}

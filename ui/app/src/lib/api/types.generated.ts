@@ -166,6 +166,7 @@ export interface ConceptDecisionView {
   name: string;
   projectId: string;
   startLevel: CarBandView;
+  timing: string;
 }
 
 export interface CurrentConceptView {

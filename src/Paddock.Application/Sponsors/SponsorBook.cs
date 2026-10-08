@@ -72,6 +72,10 @@ public static class SponsorEventTypes
     public const string TalksEnded = "sponsor.talks_ended";
 
     public const string OfferAnswered = "sponsor.offer_answered";
+
+    public const string TermsProposed = "sponsor.terms_proposed";
+
+    public const string OfferCountered = "sponsor.offer_countered";
 }
 
 public sealed record SponsorTalksOpened(ManagerId ManagerId, DateOnly OccurredOn, string TalkId, string SponsorId, int Slot) : IDomainEvent
@@ -87,6 +91,16 @@ public sealed record SponsorDealSigned(ManagerId ManagerId, DateOnly OccurredOn,
 public sealed record SponsorTalksEnded(ManagerId ManagerId, DateOnly OccurredOn, string TalkId) : IDomainEvent
 {
     public string TypeId => SponsorEventTypes.TalksEnded;
+}
+
+public sealed record SponsorTermsProposed(ManagerId ManagerId, DateOnly OccurredOn, string TalkId, int Years, SponsorAmbition Ambition) : IDomainEvent
+{
+    public string TypeId => SponsorEventTypes.TermsProposed;
+}
+
+public sealed record SponsorOfferCountered(ManagerId ManagerId, DateOnly OccurredOn, string OfferId, int Years, SponsorAmbition Ambition, long AnnualCents) : IDomainEvent
+{
+    public string TypeId => SponsorEventTypes.OfferCountered;
 }
 
 public sealed record SponsorOfferAnswered(ManagerId ManagerId, DateOnly OccurredOn, string OfferId, bool Accepted, string? DealId) : IDomainEvent

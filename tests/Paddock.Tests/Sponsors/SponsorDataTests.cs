@@ -107,9 +107,9 @@ public class SponsorDataTests
         var catalog = SponsorsLoader.ToCatalog(Kit.SponsorsFile);
         var vestoil = catalog.Find("vestoil_works")!;
 
-        Assert.Equal(480_000, SponsorPricing.FullAnnualCents(vestoil, SlotKind.Technical, 60_000, 1000));
-        Assert.Equal(528_000, SponsorPricing.FullAnnualCents(vestoil, SlotKind.Technical, 60_000, 1100));
-        Assert.Equal(960_000, SponsorPricing.FullAnnualCents(vestoil, SlotKind.Technical, 120_000, 1000));
+        Assert.Equal(816_000, SponsorPricing.FullAnnualCents(vestoil, SlotKind.Technical, 60_000, 1000));
+        Assert.Equal(897_600, SponsorPricing.FullAnnualCents(vestoil, SlotKind.Technical, 60_000, 1100));
+        Assert.Equal(1_632_000, SponsorPricing.FullAnnualCents(vestoil, SlotKind.Technical, 120_000, 1000));
         var instalments = Enumerable.Range(1, SponsorEstimates.InstalmentsPerYear).Sum(number => SponsorPricing.InstalmentCents(1_000_003, number));
         Assert.Equal(1_000_003, instalments);
     }

@@ -11,6 +11,7 @@ using Paddock.Application.Infrastructure;
 using Paddock.Application.Pool;
 using Paddock.Application.Racing;
 using Paddock.Application.Sponsors;
+using Paddock.Domain.Sponsors;
 using Paddock.Application.Staff;
 using Paddock.Application.Supply;
 using Paddock.Data.Authored;
@@ -767,11 +768,15 @@ public sealed partial class CareerBridge
             case "beginSponsorTalks":
                 return SponsorBegin(args, issued, out error);
             case "signSponsor":
-                return SponsorTalk(args, issued, static (manager, day, org, talk) => new SignAtCurrentTermsCommand { ManagerId = manager, IssuedOn = day, OrganizationId = org, TalkId = talk }, out error);
+                return SponsorSign(args, issued, out error);
             case "walkAwayFromTalks":
                 return SponsorTalk(args, issued, static (manager, day, org, talk) => new WalkAwayFromTalksCommand { ManagerId = manager, IssuedOn = day, OrganizationId = org, TalkId = talk }, out error);
             case "respondToSponsorOffer":
                 return SponsorResponse(args, issued, out error);
+            case "proposeSponsorTerms":
+                return SponsorTerms(args, issued, out error);
+            case "counterSponsorOffer":
+                return SponsorCounter(args, issued, out error);
             case "setDevelopmentSplit":
                 return Split(args, issued, out error);
             case "setNextConcept":
@@ -886,6 +891,15 @@ public sealed partial class CareerBridge
             return null;
         }
 
+        // Terms are optional: a call without them is the one-year, standard-condition deal it always was.
+        var years = IntOf(args, "years") ?? SponsorEstimates.MinYears;
+        var ambition = SponsorAmbition.Standard;
+        if (TextOf(args, "ambition") is { } text && !SponsorAmbitions.TryParse(text, out ambition))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
         return new BeginSponsorTalksCommand
         {
             ManagerId = Human,
@@ -893,6 +907,76 @@ public sealed partial class CareerBridge
             OrganizationId = organization,
             SponsorId = sponsor,
             Slot = slot.Value,
+            Years = years,
+            Ambition = ambition,
+        };
+    }
+
+    private ICommand? SponsorTerms(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        var talk = TextOf(args, "talkId");
+        var years = IntOf(args, "years");
+        if (organization is null || talk is null || years is null || !SponsorAmbitions.TryParse(TextOf(args, "ambition"), out var ambition))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new ProposeSponsorTermsCommand
+        {
+            ManagerId = Human,
+            IssuedOn = issued,
+            OrganizationId = organization,
+            TalkId = talk,
+            Years = years.Value,
+            Ambition = ambition,
+        };
+    }
+
+    private ICommand? SponsorCounter(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        var offer = TextOf(args, "offerId");
+        var years = IntOf(args, "years");
+        if (organization is null || offer is null || years is null || !SponsorAmbitions.TryParse(TextOf(args, "ambition"), out var ambition))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new CounterSponsorOfferCommand
+        {
+            ManagerId = Human,
+            IssuedOn = issued,
+            OrganizationId = organization,
+            OfferId = offer,
+            Years = years.Value,
+            Ambition = ambition,
+            AskMilli = IntOf(args, "askMilli") ?? 0,
+        };
+    }
+
+    private ICommand? SponsorSign(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        var talk = TextOf(args, "talkId");
+        if (organization is null || talk is null)
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new SignAtCurrentTermsCommand
+        {
+            ManagerId = Human,
+            IssuedOn = issued,
+            OrganizationId = organization,
+            TalkId = talk,
+            AskMilli = IntOf(args, "askMilli") ?? 0,
         };
     }
 

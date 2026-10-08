@@ -53,10 +53,12 @@ export interface AreaView {
 }
 
 export interface BeginSponsorCall {
+  ambition: string | null;
   managerId: string;
   organizationId: string;
   slot: number;
   sponsorId: string;
+  years: number | null;
 }
 
 export interface BoardForecastView {
@@ -1127,6 +1129,13 @@ export interface SignPoolCall {
   role: string;
 }
 
+export interface SponsorAskView {
+  annualCents: number;
+  appliedMilli: number;
+  milli: number;
+  outcome: string;
+}
+
 export interface SponsorCandidateView {
   blocked: TranslationMessage | null;
   indicativeAnnualCents: number;
@@ -1135,17 +1144,50 @@ export interface SponsorCandidateView {
   sponsorName: string;
 }
 
+export interface SponsorCounterCall {
+  ambition: string;
+  askMilli: number | null;
+  managerId: string;
+  offerId: string;
+  organizationId: string;
+  years: number;
+}
+
 export interface SponsorDealView {
+  ambition: string;
   annualCents: number;
   end: IsoDate;
   id: string;
   industry: TranslationMessage;
+  industryBonus: SponsorIndustryBonusView | null;
   objectiveId: string | null;
   slot: TranslationMessage;
   sponsorId: string;
   sponsorName: string;
   start: IsoDate;
   trust: number;
+  wish: SponsorWishView | null;
+  years: number;
+}
+
+export interface SponsorIndustryBonusView {
+  kind: string;
+  milli: number;
+}
+
+export interface SponsorMarketRow {
+  ambitionOpen: boolean;
+  blocked: TranslationMessage | null;
+  indicativeAnnualCents: number;
+  industry: TranslationMessage;
+  industryBonus: SponsorIndustryBonusView | null;
+  kind: TranslationMessage;
+  partnership: SponsorPartnershipView | null;
+  quotes: SponsorQuoteView[];
+  slot: number;
+  sponsorId: string;
+  sponsorName: string;
+  wish: SponsorWishView | null;
 }
 
 export interface SponsorOfferCall {
@@ -1156,10 +1198,41 @@ export interface SponsorOfferCall {
 }
 
 export interface SponsorOfferView {
+  ambition: string;
+  ambitionOpen: boolean;
   annualCents: number;
   id: string;
+  industryBonus: SponsorIndustryBonusView | null;
+  partnership: SponsorPartnershipView | null;
+  previousAnnualCents: number;
+  quotes: SponsorQuoteView[];
+  roundsLeft: number;
   sponsorName: string;
   validUntil: IsoDate;
+  wish: SponsorWishView | null;
+  years: number;
+}
+
+export interface SponsorPartnershipView {
+  band: string;
+  raiseMilli: number;
+}
+
+export interface SponsorQuoteView {
+  ambition: string;
+  annualCents: number;
+  asks: SponsorAskView[];
+  bonusCents: number;
+  capCents: number;
+  condition: TranslationMessage | null;
+  years: number;
+}
+
+export interface SponsorSignCall {
+  askMilli: number | null;
+  managerId: string;
+  organizationId: string;
+  talkId: string;
 }
 
 export interface SponsorSlotView {
@@ -1177,19 +1250,35 @@ export interface SponsorTalkCall {
 }
 
 export interface SponsorTalkView {
+  ambition: string;
+  ambitionOpen: boolean;
   cappedAnnualCents: number;
   currentAnnualCents: number;
   id: string;
+  industryBonus: SponsorIndustryBonusView | null;
   note: TranslationMessage;
   objective: TranslationMessage | null;
+  partnership: SponsorPartnershipView | null;
+  quotes: SponsorQuoteView[];
   rivalKnown: boolean | null;
   slot: TranslationMessage;
   sponsorId: string;
   sponsorName: string;
+  wish: SponsorWishView | null;
+  years: number;
+}
+
+export interface SponsorTermsCall {
+  ambition: string;
+  managerId: string;
+  organizationId: string;
+  talkId: string;
+  years: number;
 }
 
 export interface SponsorViewOwn {
   deals: SponsorDealView[];
+  market: SponsorMarketRow[];
   objectives: ObjectiveItemView[];
   offers: SponsorOfferView[];
   slots: SponsorSlotView[];
@@ -1198,6 +1287,13 @@ export interface SponsorViewOwn {
 
 export interface SponsorViewUnknown {
   reason: TranslationMessage;
+}
+
+export interface SponsorWishView {
+  bonusMilli: number;
+  met: boolean | null;
+  nationality: string;
+  raceSeat: boolean;
 }
 
 export interface StaffAttributeView {
@@ -1449,9 +1545,11 @@ export interface BridgeCommandMap {
   walkAway: { args: NegotiationIdCall; result: CommandAck };
   renewContract: { args: RenewContractCall; result: CommandAck };
   beginSponsorTalks: { args: BeginSponsorCall; result: CommandAck };
-  signSponsor: { args: SponsorTalkCall; result: CommandAck };
+  signSponsor: { args: SponsorSignCall; result: CommandAck };
   walkAwayFromTalks: { args: SponsorTalkCall; result: CommandAck };
   respondToSponsorOffer: { args: SponsorOfferCall; result: CommandAck };
+  proposeSponsorTerms: { args: SponsorTermsCall; result: CommandAck };
+  counterSponsorOffer: { args: SponsorCounterCall; result: CommandAck };
   setDevelopmentSplit: { args: DevelopmentSplitCall; result: CommandAck };
   setNextConcept: { args: NextConceptCall; result: CommandAck };
   commitConcept: { args: CommitConceptCall; result: CommandAck };

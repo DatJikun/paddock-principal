@@ -59,7 +59,7 @@ internal static class StoreSql
         SlotKinds.TryParse(text, out var kind) ? kind : throw new InvalidDataException($"Slot kind '{text}' is unknown.");
 }
 
-/// <summary>Saves the <c>sponsors</c> section into the tables made by <see cref="V012_SponsorsAndObjectives"/>.</summary>
+/// <summary>Saves the <c>sponsors</c> section into the tables made by <see cref="V012_SponsorsAndObjectives"/> and widened by <see cref="V031_SponsorTerms"/>.</summary>
 public sealed class SponsorsSectionStore : ISectionStore
 {
     public string SectionName => SponsorsSection.SectionName;
@@ -98,8 +98,8 @@ public sealed class SponsorsSectionStore : ISectionStore
             StoreSql.Run(
                 connection,
                 transaction,
-                "INSERT INTO sponsor_talks (number, organization_id, sponsor_id, slot, kind, manager_id, opened, status, closed_on, rival, cap_milli, full_annual_cents) "
-                + "VALUES ($n, $org, $sponsor, $slot, $kind, $manager, $opened, $status, $closed, $rival, $cap, $full)",
+                "INSERT INTO sponsor_talks (number, organization_id, sponsor_id, slot, kind, manager_id, opened, status, closed_on, rival, cap_milli, full_annual_cents, years, ambition) "
+                + "VALUES ($n, $org, $sponsor, $slot, $kind, $manager, $opened, $status, $closed, $rival, $cap, $full, $years, $ambition)",
                 ("$n", talk.Number),
                 ("$org", talk.Organization.Value),
                 ("$sponsor", talk.SponsorId),
@@ -111,7 +111,9 @@ public sealed class SponsorsSectionStore : ISectionStore
                 ("$closed", talk.ClosedOn?.ToString()),
                 ("$rival", talk.Rival.ToString()),
                 ("$cap", (long)talk.CapMilli),
-                ("$full", talk.FullAnnualCents));
+                ("$full", talk.FullAnnualCents),
+                ("$years", (long)talk.Years),
+                ("$ambition", talk.Ambition.ToString()));
         }
 
         foreach (var deal in sponsors.Deals)
@@ -119,8 +121,8 @@ public sealed class SponsorsSectionStore : ISectionStore
             StoreSql.Run(
                 connection,
                 transaction,
-                "INSERT INTO sponsor_deals (number, organization_id, sponsor_id, slot, kind, start_on, end_on, annual_cents, instalments_paid, objective_id, outcome, bonus_cents, status, ended_on) "
-                + "VALUES ($n, $org, $sponsor, $slot, $kind, $start, $end, $annual, $paid, $objective, $outcome, $bonus, $status, $ended)",
+                "INSERT INTO sponsor_deals (number, organization_id, sponsor_id, slot, kind, start_on, end_on, annual_cents, instalments_paid, objective_id, outcome, bonus_cents, status, ended_on, years, ambition, wish_nationality, wish_race_seat) "
+                + "VALUES ($n, $org, $sponsor, $slot, $kind, $start, $end, $annual, $paid, $objective, $outcome, $bonus, $status, $ended, $years, $ambition, $wish, $seat)",
                 ("$n", deal.Number),
                 ("$org", deal.Organization.Value),
                 ("$sponsor", deal.SponsorId),
@@ -134,7 +136,11 @@ public sealed class SponsorsSectionStore : ISectionStore
                 ("$outcome", deal.Outcome.ToString()),
                 ("$bonus", deal.BonusCents),
                 ("$status", deal.Status.ToString()),
-                ("$ended", deal.EndedOn?.ToString()));
+                ("$ended", deal.EndedOn?.ToString()),
+                ("$years", (long)deal.Years),
+                ("$ambition", deal.Ambition.ToString()),
+                ("$wish", deal.WishNationality),
+                ("$seat", deal.WishRaceSeat ? 1L : 0L));
         }
 
         foreach (var offer in sponsors.Offers)
@@ -142,8 +148,8 @@ public sealed class SponsorsSectionStore : ISectionStore
             StoreSql.Run(
                 connection,
                 transaction,
-                "INSERT INTO sponsor_offers (number, deal_number, organization_id, sponsor_id, slot, kind, annual_cents, opened, valid_until, status, closed_on) "
-                + "VALUES ($n, $deal, $org, $sponsor, $slot, $kind, $annual, $opened, $until, $status, $closed)",
+                "INSERT INTO sponsor_offers (number, deal_number, organization_id, sponsor_id, slot, kind, annual_cents, opened, valid_until, status, closed_on, years, ambition, rounds) "
+                + "VALUES ($n, $deal, $org, $sponsor, $slot, $kind, $annual, $opened, $until, $status, $closed, $years, $ambition, $rounds)",
                 ("$n", offer.Number),
                 ("$deal", offer.DealNumber),
                 ("$org", offer.Organization.Value),
@@ -154,7 +160,10 @@ public sealed class SponsorsSectionStore : ISectionStore
                 ("$opened", offer.Opened.ToString()),
                 ("$until", offer.ValidUntil.ToString()),
                 ("$status", offer.Status.ToString()),
-                ("$closed", offer.ClosedOn?.ToString()));
+                ("$closed", offer.ClosedOn?.ToString()),
+                ("$years", (long)offer.Years),
+                ("$ambition", offer.Ambition.ToString()),
+                ("$rounds", (long)offer.Rounds));
         }
 
         foreach (var (sponsor, organization, trust) in sponsors.TrustRows())
@@ -182,7 +191,7 @@ public sealed class SponsorsSectionStore : ISectionStore
     public IWorldSection Load(SqliteConnection connection, int storedSchemaVersion)
     {
         ArgumentNullException.ThrowIfNull(connection);
-        if (storedSchemaVersion != 1)
+        if (storedSchemaVersion is not (1 or 2))
         {
             throw new InvalidDataException($"The stored sponsors section has schema version {storedSchemaVersion}, which this build cannot read.");
         }
@@ -197,7 +206,7 @@ public sealed class SponsorsSectionStore : ISectionStore
         var talks = new List<SponsorTalk>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT number, organization_id, sponsor_id, slot, kind, manager_id, opened, status, closed_on, rival, cap_milli, full_annual_cents FROM sponsor_talks ORDER BY number";
+            command.CommandText = "SELECT number, organization_id, sponsor_id, slot, kind, manager_id, opened, status, closed_on, rival, cap_milli, full_annual_cents, years, ambition FROM sponsor_talks ORDER BY number";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -213,14 +222,16 @@ public sealed class SponsorsSectionStore : ISectionStore
                     StoreSql.OptionalDate(reader, 8),
                     StoreSql.Enum<RivalState>(reader.GetString(9)),
                     checked((int)reader.GetInt64(10)),
-                    reader.GetInt64(11)));
+                    reader.GetInt64(11),
+                    checked((int)reader.GetInt64(12)),
+                    StoreSql.Enum<SponsorAmbition>(reader.GetString(13))));
             }
         }
 
         var deals = new List<SponsorDeal>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT number, organization_id, sponsor_id, slot, kind, start_on, end_on, annual_cents, instalments_paid, objective_id, outcome, bonus_cents, status, ended_on FROM sponsor_deals ORDER BY number";
+            command.CommandText = "SELECT number, organization_id, sponsor_id, slot, kind, start_on, end_on, annual_cents, instalments_paid, objective_id, outcome, bonus_cents, status, ended_on, years, ambition, wish_nationality, wish_race_seat FROM sponsor_deals ORDER BY number";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -238,14 +249,18 @@ public sealed class SponsorsSectionStore : ISectionStore
                     StoreSql.Enum<DealObjectiveOutcome>(reader.GetString(10)),
                     reader.GetInt64(11),
                     StoreSql.Enum<DealStatus>(reader.GetString(12)),
-                    StoreSql.OptionalDate(reader, 13)));
+                    StoreSql.OptionalDate(reader, 13),
+                    checked((int)reader.GetInt64(14)),
+                    StoreSql.Enum<SponsorAmbition>(reader.GetString(15)),
+                    reader.IsDBNull(16) ? null : reader.GetString(16),
+                    reader.GetInt64(17) == 1));
             }
         }
 
         var offers = new List<SponsorOffer>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT number, deal_number, organization_id, sponsor_id, slot, kind, annual_cents, opened, valid_until, status, closed_on FROM sponsor_offers ORDER BY number";
+            command.CommandText = "SELECT number, deal_number, organization_id, sponsor_id, slot, kind, annual_cents, opened, valid_until, status, closed_on, years, ambition, rounds FROM sponsor_offers ORDER BY number";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -260,7 +275,10 @@ public sealed class SponsorsSectionStore : ISectionStore
                     StoreSql.Date(reader.GetString(7)),
                     StoreSql.Date(reader.GetString(8)),
                     StoreSql.Enum<OfferStatus>(reader.GetString(9)),
-                    StoreSql.OptionalDate(reader, 10)));
+                    StoreSql.OptionalDate(reader, 10),
+                    checked((int)reader.GetInt64(11)),
+                    StoreSql.Enum<SponsorAmbition>(reader.GetString(12)),
+                    checked((int)reader.GetInt64(13))));
             }
         }
 

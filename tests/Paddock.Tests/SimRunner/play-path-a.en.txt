@@ -53,9 +53,9 @@ Rival car car:4, team connaught.
 Rival car car:5, team cooper.
 Rival car car:6, team cooper.
 Rival car car:9, team gordini.
-Sponsor slot 1: Technical or patron slot.
-Sponsor slot 2: Technical or patron slot.
-Sponsor slot 3: Technical or patron slot.
+Sponsor slot 1: Technical or patron.
+Sponsor slot 2: Technical or patron.
+Sponsor slot 3: Technical or patron.
 Cash: 60000.00.
 Forecast to the end of the season: 60000.00.
 Board of ferrari: confidence 60.
@@ -80,6 +80,6 @@ No decision you may read is on record.
 Ready.
 An unresolved matter is holding the clock.
 Waiting for Ada Lovelace.
-World hash fb114a548f17186ce4503c8d85239a61e226518ae37af09db376756710870c21.
-Saved SAVE. World hash fb114a548f17186ce4503c8d85239a61e226518ae37af09db376756710870c21.
+World hash e6e898ac71cda67b20a3e1e128b8f5cd1a67c582d0af1b334f29a630fe7f7ce7.
+Saved SAVE. World hash e6e898ac71cda67b20a3e1e128b8f5cd1a67c582d0af1b334f29a630fe7f7ce7.
 Session closed.

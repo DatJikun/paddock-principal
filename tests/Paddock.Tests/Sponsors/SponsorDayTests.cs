@@ -23,15 +23,19 @@ public class SponsorDayTests
 
         kit.Live(Opening, 365);
 
-        var entries = kit.SponsorEntries(SponsorKit.Alfa);
+        var entries = kit.SponsorEntries(SponsorKit.Alfa).Where(entry => entry.ReasonKey == SponsorReason.Instalment).ToList();
         Assert.Equal(12, entries.Count);
         Assert.All(entries, entry => Assert.Equal("vestoil_works", entry.Counterparty));
         Assert.All(entries, entry => Assert.Equal(SponsorReason.Instalment, entry.ReasonKey));
         Assert.Equal(new GameDate(1955, 1, 15), entries[0].Date);
         Assert.Equal(new GameDate(1955, 12, 15), entries[^1].Date);
         Assert.Equal(deal.AnnualCents, entries.Sum(entry => entry.AmountCents));
-        Assert.Equal(cashBefore + deal.AnnualCents, kit.Cash(SponsorKit.Alfa));
         Assert.Equal(12, kit.Book.Section.FindDeal(deal.Id)!.InstalmentsPaid);
+
+        // The goods an oil sponsor supplies are a separate, valued line on top of the annual amount (#268).
+        var goods = kit.SponsorEntries(SponsorKit.Alfa).Where(entry => entry.ReasonKey == SponsorReason.InKind).Sum(entry => entry.AmountCents);
+        Assert.Equal(deal.AnnualCents * SponsorEstimates.InKindMilli / 1000, goods);
+        Assert.Equal(cashBefore + deal.AnnualCents + goods, kit.Cash(SponsorKit.Alfa));
     }
 
     [Fact]
@@ -158,7 +162,7 @@ public class SponsorDayTests
         Assert.Equal(SponsorKeys.OfferClosed, kit.Run(new RespondToSponsorOfferCommand { ManagerId = SponsorKit.Anna, IssuedOn = SponsorKit.Day(new GameDate(1955, 11, 11)), OrganizationId = SponsorKit.Alfa.Value, OfferId = offer.Id, Accept = false }));
 
         kit.Live(new GameDate(1955, 11, 6), 120);
-        Assert.Equal(2, kit.SponsorEntries(SponsorKit.Alfa).Count(entry => entry.Date >= new GameDate(1956, 1, 1)));
+        Assert.Equal(2, kit.SponsorEntries(SponsorKit.Alfa).Count(entry => entry.Date >= new GameDate(1956, 1, 1) && entry.ReasonKey == SponsorReason.Instalment));
     }
 
     [Fact]

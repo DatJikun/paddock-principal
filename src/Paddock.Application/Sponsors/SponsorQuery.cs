@@ -9,6 +9,42 @@ using Paddock.Domain.World;
 
 namespace Paddock.Application.Sponsors;
 
+/// <summary>
+/// One cell of the table of terms: what a sponsor would pay a year for this many years and this condition, the condition itself and the bonus for
+/// meeting it (#268). <paramref name="Condition"/> is null for a sponsor that asks nothing of the team's results. <paramref name="CapCents"/> is the
+/// most waiting can reach in open talks and zero everywhere else. The numbers come from the same functions the commands sign with.
+/// </summary>
+public sealed record SponsorQuoteView(
+    int Years,
+    string Ambition,
+    long AnnualCents,
+    long CapCents,
+    TranslationMessage? Condition,
+    long BonusCents,
+    IReadOnlyList<SponsorAskView> Asks);
+
+/// <summary>
+/// A sponsor's wish for a driver of one nationality (#268). A bonus only. <paramref name="Met"/> is null before a deal exists, otherwise whether
+/// the team has such a driver in the right place today.
+/// </summary>
+public sealed record SponsorWishView(string Nationality, bool RaceSeat, int BonusMilli, bool? Met);
+
+/// <summary>What the sponsor's industry adds: goods with every instalment (<c>inKind</c>) or a sum with the first one (<c>signing</c>), in thousandths of the annual amount.</summary>
+public sealed record SponsorIndustryBonusView(string Kind, int Milli);
+
+/// <summary>
+/// What the sponsor would answer to an ask of <paramref name="Milli"/> thousandths above the quote: <c>accepted</c>, or <c>countered</c> at
+/// <paramref name="AppliedMilli"/>. <paramref name="AnnualCents"/> is what a year then pays on those terms, so the screen shows it and does no sums.
+/// </summary>
+public sealed record SponsorAskView(int Milli, string Outcome, int AppliedMilli, long AnnualCents);
+
+/// <summary>
+/// How open the sponsor is to a long partnership (#268), as a plain band (<c>reserved</c>, <c>open</c>, <c>eager</c>), what a good year would add at an
+/// anniversary (<paramref name="RaiseMilli"/>, zero for a reserved sponsor). It is read from what the team knows (trust, deals completed together,
+/// the sponsor's size), never from hidden truth (INV-003). The screen says it in words.
+/// </summary>
+public sealed record SponsorPartnershipView(string Band, int RaiseMilli);
+
 public sealed record SponsorDealView(
     string Id,
     string SponsorId,
@@ -19,7 +55,11 @@ public sealed record SponsorDealView(
     DateOnly Start,
     DateOnly End,
     int Trust,
-    string? ObjectiveId);
+    string? ObjectiveId,
+    int Years,
+    string Ambition,
+    SponsorWishView? Wish,
+    SponsorIndustryBonusView? IndustryBonus);
 
 /// <summary>
 /// One open negotiation. <paramref name="RivalKnown"/> is null unless the negotiator can read the market (INV-003): then it says
@@ -34,12 +74,51 @@ public sealed record SponsorTalkView(
     long CappedAnnualCents,
     bool? RivalKnown,
     TranslationMessage Note,
-    TranslationMessage? Objective = null);
+    TranslationMessage? Objective,
+    int Years,
+    string Ambition,
+    bool AmbitionOpen,
+    IReadOnlyList<SponsorQuoteView> Quotes,
+    SponsorWishView? Wish,
+    SponsorIndustryBonusView? IndustryBonus,
+    SponsorPartnershipView? Partnership);
 
-public sealed record SponsorOfferView(string Id, string SponsorName, long AnnualCents, DateOnly ValidUntil);
+/// <summary>A renewal the sponsor offers. The player can answer it, or ask other terms while <paramref name="RoundsLeft"/> is above zero.</summary>
+public sealed record SponsorOfferView(
+    string Id,
+    string SponsorName,
+    long AnnualCents,
+    DateOnly ValidUntil,
+    int Years,
+    string Ambition,
+    bool AmbitionOpen,
+    int RoundsLeft,
+    long PreviousAnnualCents,
+    IReadOnlyList<SponsorQuoteView> Quotes,
+    SponsorWishView? Wish,
+    SponsorIndustryBonusView? IndustryBonus,
+    SponsorPartnershipView? Partnership);
 
 /// <summary>A sponsor that could fill a slot, and the reason it cannot yet, if there is one.</summary>
 public sealed record SponsorCandidateView(string SponsorId, string SponsorName, TranslationMessage Industry, long IndicativeAnnualCents, TranslationMessage? Blocked);
+
+/// <summary>
+/// One row of the sponsor market (#268): a sponsor the team can approach, in the first free slot it fits, with the table of terms. The market lists
+/// each sponsor once, so the player picks a sponsor and the slot follows from it.
+/// </summary>
+public sealed record SponsorMarketRow(
+    string SponsorId,
+    string SponsorName,
+    TranslationMessage Industry,
+    int Slot,
+    TranslationMessage Kind,
+    long IndicativeAnnualCents,
+    TranslationMessage? Blocked,
+    bool AmbitionOpen,
+    IReadOnlyList<SponsorQuoteView> Quotes,
+    SponsorWishView? Wish,
+    SponsorIndustryBonusView? IndustryBonus,
+    SponsorPartnershipView? Partnership);
 
 public sealed record SponsorSlotView(int Slot, TranslationMessage Kind, string? DealId, string? TalkId, IReadOnlyList<SponsorCandidateView> Candidates);
 
@@ -54,7 +133,8 @@ public abstract record SponsorView
         IReadOnlyList<SponsorDealView> Deals,
         IReadOnlyList<SponsorTalkView> Talks,
         IReadOnlyList<SponsorOfferView> Offers,
-        IReadOnlyList<ObjectiveItemView> Objectives) : SponsorView;
+        IReadOnlyList<ObjectiveItemView> Objectives,
+        IReadOnlyList<SponsorMarketRow> Market) : SponsorView;
 
     public sealed record Unknown(TranslationMessage Reason) : SponsorView;
 }
@@ -95,7 +175,12 @@ public static class SponsorQuery
         var typical = environment.Finance.Facts(today.Year).TypicalDollars;
         var shared = CandidateFacts.Collect(section, catalog, environment, subject, today, skill, deals, talks, typical);
 
+        var playerTeam = environment.IsPlayerTeam(subject);
         var slots = new List<SponsorSlotView>();
+        var market = new List<SponsorMarketRow>();
+
+        // A sponsor the team is already talking to or under contract with is not on the market again.
+        var listed = new HashSet<string>(deals.Select(deal => deal.SponsorId).Concat(talks.Select(talk => talk.SponsorId)), StringComparer.Ordinal);
         for (var slot = 1; slot <= SponsorEstimates.SlotsPerTeam; slot++)
         {
             var kind = era.Slots[slot - 1];
@@ -103,58 +188,216 @@ public static class SponsorQuery
             var talk = talks.FirstOrDefault(candidate => candidate.Slot == slot);
             var candidates = deal is not null || talk is not null
                 ? []
-                : shared.List(book, catalog, era, kind, slot, today, subject, environment.IsPlayerTeam(subject));
+                : shared.List(book, catalog, era, kind, slot, today, subject, playerTeam);
             slots.Add(new SponsorSlotView(slot, TranslationMessage.Of(SponsorKeys.SlotName(kind)), deal?.Id, talk?.Id, candidates));
+            if (deal is not null || talk is not null)
+            {
+                continue;
+            }
+
+            foreach (var candidate in candidates)
+            {
+                if (listed.Add(candidate.SponsorId) && catalog.Find(candidate.SponsorId) is { } sponsor)
+                {
+                    market.Add(MarketRow(book, environment, subject, sponsor, candidate, slot, kind, today));
+                }
+            }
         }
 
-        var dealViews = deals.Select(deal => new SponsorDealView(
-            deal.Id,
-            deal.SponsorId,
-            catalog.Find(deal.SponsorId)?.Name ?? deal.SponsorId,
-            TranslationMessage.Of(SponsorKeys.SlotName(deal.Kind)),
-            TranslationMessage.Of(SponsorKeys.IndustryName(catalog.Find(deal.SponsorId)?.Industry ?? SponsorIndustries.Patron)),
-            deal.AnnualCents,
-            Day(deal.Start),
-            Day(deal.End),
-            section.TrustOf(deal.SponsorId, subject),
-            deal.ObjectiveId)).ToArray();
+        var dealViews = deals.Select(deal =>
+        {
+            var sponsor = catalog.Find(deal.SponsorId);
+            return new SponsorDealView(
+                deal.Id,
+                deal.SponsorId,
+                sponsor?.Name ?? deal.SponsorId,
+                TranslationMessage.Of(SponsorKeys.SlotName(deal.Kind)),
+                TranslationMessage.Of(SponsorKeys.IndustryName(sponsor?.Industry ?? SponsorIndustries.Patron)),
+                deal.AnnualCents,
+                Day(deal.Start),
+                Day(deal.End),
+                section.TrustOf(deal.SponsorId, subject),
+                deal.ObjectiveId,
+                deal.Years,
+                SponsorAmbitions.KeyOf(deal.Ambition),
+                deal.WishNationality is { } nationality
+                    ? new SponsorWishView(
+                        nationality,
+                        deal.WishRaceSeat,
+                        SponsorEstimates.WishBonusMilli,
+                        SponsorWishes.Satisfied(book.World, subject, new SponsorWish(nationality, deal.WishRaceSeat), today))
+                    : null,
+                IndustryBonusOf(sponsor));
+        }).ToArray();
 
         var insight = skill >= SponsorEstimates.RivalInsightSkill;
-        var talkViews = talks.Select(talk => new SponsorTalkView(
-            talk.Id,
-            talk.SponsorId,
-            catalog.Find(talk.SponsorId)?.Name ?? talk.SponsorId,
-            TranslationMessage.Of(SponsorKeys.SlotName(talk.Kind)),
-            talk.AnnualCentsOn(today),
-            talk.CappedAnnualCents,
-            insight && talk.Rival != RivalState.Undecided ? talk.Rival == RivalState.Present : null,
-            TranslationMessage.Of(insight && talk.Rival == RivalState.Present ? SponsorKeys.ViewRivalKnown : SponsorKeys.ViewTermsEstimate),
-            ObjectiveOf(catalog.Find(talk.SponsorId), talk.Organization, environment, today))).ToArray();
+        var talkViews = talks.Select(talk =>
+        {
+            var sponsor = catalog.Find(talk.SponsorId);
+            return new SponsorTalkView(
+                talk.Id,
+                talk.SponsorId,
+                sponsor?.Name ?? talk.SponsorId,
+                TranslationMessage.Of(SponsorKeys.SlotName(talk.Kind)),
+                talk.AnnualCentsOn(today),
+                talk.CappedAnnualCents,
+                insight && talk.Rival != RivalState.Undecided ? talk.Rival == RivalState.Present : null,
+                TranslationMessage.Of(insight && talk.Rival == RivalState.Present ? SponsorKeys.ViewRivalKnown : SponsorKeys.ViewTermsEstimate),
+                ObjectiveOf(sponsor, talk.Organization, environment, today, talk.Ambition),
+                talk.Years,
+                SponsorAmbitions.KeyOf(talk.Ambition),
+                sponsor is not null && SponsorRules.AmbitionOpen(sponsor),
+                sponsor is null ? [] : Quotes(sponsor, subject, environment, today, SponsorRules.PartnershipOf(section, sponsor, subject), terms => talk.AnnualCentsOn(today, terms), terms => talk.CappedAnnualCentsFor(terms)),
+                sponsor is null ? null : WishView(book, sponsor, today),
+                IndustryBonusOf(sponsor),
+                sponsor is null ? null : PartnershipView(section, sponsor, subject));
+        }).ToArray();
 
-        var offerViews = section.OpenOffersOf(subject).Select(offer => new SponsorOfferView(
-            offer.Id,
-            catalog.Find(offer.SponsorId)?.Name ?? offer.SponsorId,
-            offer.AnnualCents,
-            Day(offer.ValidUntil))).ToArray();
+        var offerViews = section.OpenOffersOf(subject).Select(offer =>
+        {
+            var sponsor = catalog.Find(offer.SponsorId);
+            var deal = section.FindDeal(SponsorsSection.DealIdOf(offer.DealNumber));
+            return new SponsorOfferView(
+                offer.Id,
+                sponsor?.Name ?? offer.SponsorId,
+                offer.AnnualCents,
+                Day(offer.ValidUntil),
+                offer.Years,
+                SponsorAmbitions.KeyOf(offer.Ambition),
+                sponsor is not null && SponsorRules.AmbitionOpen(sponsor),
+                Math.Max(0, SponsorEstimates.MaxCounterRounds - offer.Rounds),
+                deal?.AnnualCents ?? 0,
+                sponsor is null || deal is null
+                    ? []
+                    : Quotes(sponsor, subject, environment, today, SponsorRules.PartnershipOf(section, sponsor, subject), terms => SponsorRules.RenewalCents(book, environment, deal, sponsor, terms), null),
+                sponsor is null ? null : WishView(book, sponsor, today),
+                IndustryBonusOf(sponsor),
+                sponsor is null ? null : PartnershipView(section, sponsor, subject));
+        }).ToArray();
 
         var objectiveIds = deals.Where(deal => deal.ObjectiveId is not null).Select(deal => deal.ObjectiveId!).ToHashSet(StringComparer.Ordinal);
         var items = objectiveIds.Count == 0
             ? []
             : objectives.View(access, book.Objectives, today).Items.Where(item => objectiveIds.Contains(item.Id)).ToArray();
-        return new SponsorView.Own(slots, dealViews, talkViews, offerViews, items);
+        return new SponsorView.Own(slots, dealViews, talkViews, offerViews, items, market);
+    }
+
+    private static SponsorMarketRow MarketRow(
+        SponsorBook book,
+        SponsorEnvironment environment,
+        OrganizationId subject,
+        SponsorDefinition sponsor,
+        SponsorCandidateView candidate,
+        int slot,
+        SlotKind kind,
+        GameDate today) =>
+        new(
+            sponsor.Id,
+            sponsor.Name,
+            candidate.Industry,
+            slot,
+            TranslationMessage.Of(SponsorKeys.SlotName(kind)),
+            candidate.IndicativeAnnualCents,
+            candidate.Blocked,
+            SponsorRules.AmbitionOpen(sponsor),
+            Quotes(sponsor, subject, environment, today, SponsorRules.PartnershipOf(book.Section, sponsor, subject), terms => terms.AnnualCents(candidate.IndicativeAnnualCents), null),
+            WishView(book, sponsor, today),
+            IndustryBonusOf(sponsor),
+            PartnershipView(book.Section, sponsor, subject));
+
+    private static SponsorPartnershipView PartnershipView(SponsorsSection section, SponsorDefinition sponsor, OrganizationId subject)
+    {
+        var band = SponsorRules.PartnershipOf(section, sponsor, subject);
+        return new SponsorPartnershipView(SponsorPartnership.KeyOf(band), SponsorPartnership.AnniversaryRaiseMilli(band));
+    }
+
+    /// <summary>What a sponsor of this band answers to each amount the player can ask for on a quote of <paramref name="quoteCents"/>, with the same functions the commands sign with.</summary>
+    private static IReadOnlyList<SponsorAskView> Asks(PartnershipBand band, long quoteCents) =>
+        SponsorEstimates.AskSteps
+            .Select(step =>
+            {
+                var answer = SponsorPartnership.Answer(step, band);
+                return new SponsorAskView(
+                    step,
+                    answer.Outcome == SponsorAskOutcome.Accepted ? "accepted" : "countered",
+                    answer.AppliedMilli,
+                    SponsorPartnership.Raised(quoteCents, answer.AppliedMilli));
+            })
+            .ToArray();
+
+    /// <summary>
+    /// The table of terms of one sponsor: every length from one to three years, and every ambition when the sponsor has a condition to change.
+    /// <paramref name="annual"/> says what a year pays on given terms; the condition and its bonus come from the rules the deal is signed with.
+    /// </summary>
+    private static List<SponsorQuoteView> Quotes(
+        SponsorDefinition sponsor,
+        OrganizationId subject,
+        SponsorEnvironment environment,
+        GameDate today,
+        PartnershipBand band,
+        Func<SponsorTerms, long> annual,
+        Func<SponsorTerms, long>? cap)
+    {
+        var ambitions = SponsorRules.AmbitionOpen(sponsor) ? SponsorAmbitions.All : [SponsorAmbition.Standard];
+        var quotes = new List<SponsorQuoteView>();
+        for (var years = SponsorEstimates.MinYears; years <= SponsorEstimates.MaxYears; years++)
+        {
+            foreach (var ambition in ambitions)
+            {
+                var terms = new SponsorTerms(years, ambition);
+                var cents = annual(terms);
+                quotes.Add(new SponsorQuoteView(
+                    years,
+                    SponsorAmbitions.KeyOf(ambition),
+                    cents,
+                    cap?.Invoke(terms) ?? 0L,
+                    ObjectiveOf(sponsor, subject, environment, today, ambition),
+                    BonusCents(sponsor, subject, environment, today, ambition, cents),
+                    Asks(band, cents)));
+            }
+        }
+
+        return quotes;
+    }
+
+    private static SponsorWishView? WishView(SponsorBook book, SponsorDefinition sponsor, GameDate today) =>
+        SponsorWishes.Offered(book.World, sponsor, today) is { } wish
+            ? new SponsorWishView(wish.Nationality, wish.RaceSeat, SponsorEstimates.WishBonusMilli, null)
+            : null;
+
+    private static SponsorIndustryBonusView? IndustryBonusOf(SponsorDefinition? sponsor) =>
+        sponsor is not null && SponsorIndustryBonus.KindOf(sponsor.Industry) is var kind && kind != IndustryBonusKind.None
+            ? new SponsorIndustryBonusView(SponsorIndustryBonus.KeyOf(kind), SponsorIndustryBonus.Milli(sponsor.Industry))
+            : null;
+
+    /// <summary>The bonus in cents for meeting the condition of this ambition when a year pays <paramref name="annualCents"/>.</summary>
+    private static long BonusCents(SponsorDefinition sponsor, OrganizationId organization, SponsorEnvironment environment, GameDate today, SponsorAmbition ambition, long annualCents)
+    {
+        if (!SponsorRules.AmbitionOpen(sponsor) || sponsor.Objective is not { } spec)
+        {
+            return 0;
+        }
+
+        var scaled = SponsorRules.ForTeam(spec, organization, environment, today, ambition);
+        return annualCents * SponsorObjectiveScale.Reward(spec, scaled).BonusMilli / 1000;
     }
 
     private static DateOnly Day(GameDate date) => new(date.Year, date.Month, date.Day);
 
     /// <summary>The scaled target the player sees before signing. The same function <see cref="SponsorRules.Sign"/> uses.</summary>
-    private static TranslationMessage? ObjectiveOf(SponsorDefinition? sponsor, OrganizationId organization, SponsorEnvironment environment, GameDate today)
+    private static TranslationMessage? ObjectiveOf(
+        SponsorDefinition? sponsor,
+        OrganizationId organization,
+        SponsorEnvironment environment,
+        GameDate today,
+        SponsorAmbition ambition = SponsorAmbition.Standard)
     {
-        if (sponsor?.Objective is not { } spec)
+        if (sponsor is null || !SponsorRules.AmbitionOpen(sponsor) || sponsor.Objective is not { } spec)
         {
             return null;
         }
 
-        var scaled = SponsorRules.ForTeam(spec, organization, environment, today);
+        var scaled = SponsorRules.ForTeam(spec, organization, environment, today, ambition);
         var predicate = SponsorRules.PredicateOf(scaled);
         var (key, parameter) = ObjectiveKeys.PredicateText(predicate);
         var value = predicate is NumericPredicate numeric

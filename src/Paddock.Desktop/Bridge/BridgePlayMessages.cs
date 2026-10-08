@@ -157,8 +157,17 @@ public sealed record RenewContractCall(
     int? OptionYears,
     int? ExitWorseThan);
 
-/// <summary>Sponsor talks. Slot is 1 to 3.</summary>
-public sealed record BeginSponsorCall(string ManagerId, string OrganizationId, string SponsorId, int Slot);
+/// <summary>Sponsor talks. Slot is 1 to 3. <paramref name="Years"/> (1 to 3) and <paramref name="Ambition"/> (<c>lighter</c>, <c>standard</c>, <c>harder</c>) are the terms; left out they are one year and standard.</summary>
+public sealed record BeginSponsorCall(string ManagerId, string OrganizationId, string SponsorId, int Slot, int? Years = null, string? Ambition = null);
+
+/// <summary>Changes the terms of open sponsor talks.</summary>
+public sealed record SponsorTermsCall(string ManagerId, string OrganizationId, string TalkId, int Years, string Ambition);
+
+/// <summary>Answers a sponsor's renewal offer with other terms. <paramref name="AskMilli"/> is how many thousandths above the sponsor's quote the player asks (left out: none).</summary>
+public sealed record SponsorCounterCall(string ManagerId, string OrganizationId, string OfferId, int Years, string Ambition, int? AskMilli = null);
+
+/// <summary>Signs the current sponsor talks. <paramref name="AskMilli"/> is how many thousandths above the quote the player asks (left out: none).</summary>
+public sealed record SponsorSignCall(string ManagerId, string OrganizationId, string TalkId, int? AskMilli = null);
 
 /// <summary>Signs or leaves the current sponsor talks.</summary>
 public sealed record SponsorTalkCall(string ManagerId, string OrganizationId, string TalkId);

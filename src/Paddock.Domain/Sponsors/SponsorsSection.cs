@@ -10,7 +10,9 @@ namespace Paddock.Domain.Sponsors;
 /// <c>spo:{n}</c>), so an id is never reused (INV-009). Money is not held here: instalments and bonuses are posted to the
 /// finance ledger by the day handler and the commands.
 /// <para>
-/// Canonical text (schema 1), after the section header. A missing value is <c>-</c>.
+/// Canonical text (schema 2), after the section header. A missing value is <c>-</c>. Schema 2 (#268) adds the terms of a deal (years, ambition,
+/// a nationality wish) and of a talk or an offer. They are written after the old fields and <b>only when they are not the defaults</b>
+/// (one year, the standard condition, no wish, no rounds), so a world that never used them has the same text, and the same hash, as before.
 /// <code>
 /// next &lt;n&gt;
 /// talks &lt;count&gt;
@@ -62,7 +64,7 @@ public sealed class SponsorsSection : IWorldSection
 
     public string Name => SectionName;
 
-    public int SchemaVersion => 1;
+    public int SchemaVersion => 2;
 
     public long Next { get; }
 
@@ -251,6 +253,11 @@ public sealed class SponsorsSection : IWorldSection
             writer.Raw(" " + talk.Opened + " " + talk.Status + " " + (talk.ClosedOn?.ToString() ?? "-")
                 + " " + talk.Rival + " " + SponsorText.Invariant(talk.CapMilli)
                 + " " + SponsorText.Invariant(talk.FullAnnualCents));
+            if (!talk.Terms.IsDefault)
+            {
+                writer.Raw(" terms " + SponsorText.Invariant(talk.Years) + " " + SponsorAmbitions.KeyOf(talk.Ambition));
+            }
+
             writer.End();
         }
 
@@ -267,6 +274,18 @@ public sealed class SponsorsSection : IWorldSection
                 + " " + SponsorText.Invariant(deal.AnnualCents) + " " + SponsorText.Invariant(deal.InstalmentsPaid) + " ");
             writer.Field(deal.ObjectiveId ?? "-");
             writer.Raw(" " + deal.Outcome + " " + SponsorText.Invariant(deal.BonusCents) + " " + deal.Status + " " + (deal.EndedOn?.ToString() ?? "-"));
+            if (!deal.Terms.IsDefault)
+            {
+                writer.Raw(" terms " + SponsorText.Invariant(deal.Years) + " " + SponsorAmbitions.KeyOf(deal.Ambition));
+            }
+
+            if (deal.WishNationality is { } wish)
+            {
+                writer.Raw(" wish ");
+                writer.Field(wish);
+                writer.Raw(deal.WishRaceSeat ? " race" : " reserve");
+            }
+
             writer.End();
         }
 
@@ -280,6 +299,16 @@ public sealed class SponsorsSection : IWorldSection
             writer.Field(offer.SponsorId);
             writer.Raw(" " + SponsorText.Invariant(offer.Slot) + " " + SlotKinds.KeyOf(offer.Kind) + " " + SponsorText.Invariant(offer.AnnualCents)
                 + " " + offer.Opened + " " + offer.ValidUntil + " " + offer.Status + " " + (offer.ClosedOn?.ToString() ?? "-"));
+            if (!offer.Terms.IsDefault)
+            {
+                writer.Raw(" terms " + SponsorText.Invariant(offer.Years) + " " + SponsorAmbitions.KeyOf(offer.Ambition));
+            }
+
+            if (offer.Rounds > 0)
+            {
+                writer.Raw(" rounds " + SponsorText.Invariant(offer.Rounds));
+            }
+
             writer.End();
         }
 

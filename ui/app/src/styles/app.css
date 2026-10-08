@@ -896,10 +896,29 @@ select.text.sm{min-height:38px;font-size:14.5px}
 .spon h3{font-size:26px;line-height:1}
 .sp-goal{display:grid;gap:3px;padding:10px 12px;border:1px solid var(--rule);border-radius:12px;background:color-mix(in oklab,var(--card) 70%,transparent)}
 .sp-goal b{font-weight:600}
+.sp-partner{display:grid;gap:3px;padding:10px 12px;border:1px solid var(--rule);border-left:4px solid var(--ink3);border-radius:4px 12px 12px 4px;background:color-mix(in oklab,var(--card) 70%,transparent)}
+.sp-partner b{font-weight:600}
+.sp-partner.open{border-left-color:var(--a2)}
+.sp-partner.eager{border-left-color:var(--good)}
 .sp-offers{margin-bottom:20px}
 .sp-offers .body{display:grid;gap:10px;padding-top:0}
-.sp-offer{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.sp-offer .ask-btns{margin-left:auto}
+.sp-offer{display:grid;gap:14px;padding:16px 0}
+.sp-offer+.sp-offer{border-top:1px solid var(--rule)}
+.sp-offer-head{display:grid;gap:10px}
+.sp-offer-head h3{font-size:26px;line-height:1}
+.sp-offer .ask-btns{justify-content:flex-end}
+.sp-offer .v small{font:600 13px/1 var(--ui);color:var(--good)}
+.terms{display:grid;gap:14px}
+.terms>.fld{padding:0;border-left:0}
+.terms .tabs{flex-wrap:wrap;max-width:100%}
+.terms .tabs button{padding:0 11px}
+.terms-quote{padding-top:2px}
+.terms-quote .fld{padding:0 14px}
+.terms-quote .fld:first-child{padding-left:0}
+.spon .body>*{min-width:0}
+.spon .fields.mid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 0}
+.spon .fields.mid .fld:nth-child(odd){padding-left:0;border-left:0}
+.sp-goal .st{white-space:normal}
 .spon .table td{white-space:normal}
 .spon .table .btn.sm{min-height:34px}
 

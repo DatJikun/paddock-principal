@@ -59,7 +59,7 @@ public static class SponsorOutcomes
                     financeChanged = true;
                 }
 
-                sponsors = sponsors.Replace(deal with { Outcome = DealObjectiveOutcome.Met, BonusCents = bonus });
+                sponsors = sponsors.Replace(deal with { Outcome = DealObjectiveOutcome.Met, BonusCents = deal.BonusCents + bonus });
                 sponsors = sponsors.WithTrust(deal.SponsorId, deal.Organization, trust + reward.Trust);
                 notices.Post(deal.Organization, SponsorKeys.InboxMetSubject, today, ("sponsor", name), ("bonus", SponsorNotices.Dollars(bonus)));
             }

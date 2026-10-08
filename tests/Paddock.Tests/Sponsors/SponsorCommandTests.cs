@@ -48,8 +48,8 @@ public class SponsorCommandTests
         Assert.True(talk.IsOpen);
         Assert.Equal(SlotKind.Technical, talk.Kind);
         Assert.Equal(RivalState.Undecided, talk.Rival);
-        Assert.Equal(480_000, talk.FullAnnualCents);
-        Assert.Equal(384_000, talk.AnnualCentsOn(Opening));
+        Assert.Equal(816_000, talk.FullAnnualCents);
+        Assert.Equal(652_800, talk.AnnualCentsOn(Opening));
         Assert.Equal(SponsorKeys.SlotBusy, kit.Begin(SponsorKit.Anna, SponsorKit.Alfa, "corvane_fuels", 1, Opening));
     }
 
@@ -66,7 +66,7 @@ public class SponsorCommandTests
         Assert.True(today < later);
         Assert.True(later < capped);
         Assert.Equal(talk.CappedAnnualCents, capped);
-        Assert.Equal(504_000, capped);
+        Assert.Equal(856_800, capped);
         Assert.Equal(capped, talk.AnnualCentsOn(Opening.AddDays(900)));
     }
 
@@ -160,7 +160,7 @@ public class SponsorCommandTests
         Assert.Equal(10m, objective.Baseline);
         Assert.Equal(new GameDate(1955, 12, 31), objective.Deadline);
         Assert.Equal("sponsor.objective.onMet", objective.EffectOnMet.Key);
-        Assert.Equal("504", objective.EffectOnMet.Arguments["bonus"]);
+        Assert.Equal("856", objective.EffectOnMet.Arguments["bonus"]);
         Assert.Equal(TalkStatus.Signed, kit.Book.Section.Talks[1].Status);
         Assert.Equal(TalkStatus.Open, kit.Book.Section.FindTalk(talk.Id)!.Status);
     }

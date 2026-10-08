@@ -271,11 +271,13 @@ public class RaceClassifierTests
     // ---- constructors ----------------------------------------------------------------------------------------
 
     [Fact]
-    public void Constructors1955_HaveNoChampionshipPoints()
+    public void Constructors1955_AreStillClassified_ByTheBestPlacedCar()
     {
+        // The era had no official title; the game always runs a classification (#264).
         var race = RaceClassifier.Classify(Rules(1955), Field(4), new RaceContext(50));
 
-        Assert.All(race.ConstructorScores, score => Assert.Equal(0m, score.Points));
+        Assert.Equal(8m, ConstructorPointsOf(race, "c01"));
+        Assert.Equal(4m, ConstructorPointsOf(race, "c02"));
     }
 
     [Fact]

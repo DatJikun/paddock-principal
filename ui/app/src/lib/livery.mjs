@@ -1,11 +1,14 @@
+import { readableOn } from './color.mjs';
+
 /* Team colours for the cards and the summary. A presentation table only: it decides how a team is drawn, not anything the
    game computes. Colours follow the liveries the team is known for in its first decades (national racing colours for the
-   rest); a team that is not listed is drawn in neutral ink. Keys are the authored constructor ids. */
+   rest); a team that is not listed is drawn in colours derived from its id. Keys are the authored constructor ids. */
 
 const RED = ['#c4161c', '#f5c518', '#ffffff'];
 const GREEN = ['#0e4d2f', '#d9b13b', '#ffffff'];
 const BLUE = ['#1d3f8f', '#f1f1ec', '#ffffff'];
-const SILVER = ['#aeb4b9', '#1c1c1c', '#101010'];
+const SILVER = ['#aeb4b9', '#00a19b', '#101010'];
+const COOPER = ['#3a9d62', '#f4f1e4', '#101010'];
 const BLACK = ['#16130e', '#c9a24a', '#f0dba0'];
 
 const TABLE = {
@@ -19,14 +22,14 @@ const TABLE = {
   emw: SILVER,
   afm: SILVER,
   bmw: ['#e8e8ea', '#1c69d4', '#101010'],
-  cooper: GREEN,
-  'cooper-climax': GREEN,
-  'cooper-maserati': GREEN,
-  'cooper-ford': GREEN,
-  connaught: GREEN,
-  vanwall: GREEN,
-  hwm: GREEN,
-  brm: GREEN,
+  cooper: COOPER,
+  'cooper-climax': COOPER,
+  'cooper-maserati': COOPER,
+  'cooper-ford': COOPER,
+  connaught: ['#0a3b2c', '#e8dfc6', '#ffffff'],
+  vanwall: ['#0f5c3a', '#d6283c', '#ffffff'],
+  hwm: ['#8f9ea0', '#1f5a3a', '#101010'],
+  brm: ['#1a5238', '#f26a1b', '#ffffff'],
   lister: GREEN,
   team_lotus: ['#1f5a3a', '#f4d03f', '#ffffff'],
   'lotus-climax': ['#1f5a3a', '#f4d03f', '#ffffff'],
@@ -70,10 +73,31 @@ const TABLE = {
   audi: ['#16130e', '#d6283c', '#ffffff'],
 };
 
-const NEUTRAL = ['#3b3027', '#b9a98f', '#ffffff'];
+/** A team with no authored livery gets colours of its own from its id, so two unlisted teams never share one. */
+function generated(id) {
+  let hash = 2166136261;
+  for (const char of String(id ?? '')) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0;
+  const hue = hash % 360;
+  return [hsl(hue, 42, 30), hsl((hue + 150) % 360, 55, 62), '#ffffff'];
+}
 
-/** { main, accent, on } for a constructor id; neutral ink when the team has no livery here. */
+function hsl(h, s, l) {
+  const sat = s / 100;
+  const light = l / 100;
+  const a = sat * Math.min(light, 1 - light);
+  const channel = (n) => {
+    const k = (n + h / 30) % 12;
+    const value = light - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return Math.round(value * 255).toString(16).padStart(2, '0');
+  };
+  return `#${channel(0)}${channel(8)}${channel(4)}`;
+}
+
+/**
+ * { main, accent, on, onAccent } for a constructor id; derived from the id when the team has no livery here. The authored text colour is
+ * kept when it reads on the colour it sits on; otherwise white or near-black is computed, so every team stays legible.
+ */
 export function livery(id) {
-  const [main, accent, on] = TABLE[id] ?? NEUTRAL;
-  return { main, accent, on, known: id in TABLE };
+  const [main, accent, on] = TABLE[id] ?? generated(id);
+  return { main, accent, on: readableOn(main, on), onAccent: readableOn(accent), known: id in TABLE };
 }

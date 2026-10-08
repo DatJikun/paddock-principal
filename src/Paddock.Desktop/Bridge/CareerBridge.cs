@@ -244,12 +244,22 @@ public sealed partial class CareerBridge
         var inbox = new InboxQuery(Inbox()).View(Access());
         var blocking = Box.Managers.Get(_human).BlockingItem;
         InboxItemView? decision = null;
+        InboxItemView? important = null;
         foreach (var item in inbox.Items)
         {
-            if (item.NeedsDecision && item.Status == Paddock.Domain.Inbox.InboxStatus.Open)
+            if (item.Status != Paddock.Domain.Inbox.InboxStatus.Open)
+            {
+                continue;
+            }
+
+            if (decision is null && item.NeedsDecision)
             {
                 decision = item;
-                break;
+            }
+
+            if (item.Important)
+            {
+                important = item;
             }
         }
 
@@ -264,7 +274,10 @@ public sealed partial class CareerBridge
             decision?.Kind,
             decision?.Subject,
             team.OrganizationId,
-            team.Name);
+            team.Name,
+            important?.Id,
+            important?.Kind,
+            important?.Subject);
     }
 
     private OwnTeamView ReadTeam()

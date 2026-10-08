@@ -99,6 +99,12 @@ export interface CalendarView {
   season: number;
 }
 
+export interface CancelTestCall {
+  managerId: string;
+  organizationId: string;
+  testOn: string;
+}
+
 export interface CarBandView {
   high: number;
   low: number;
@@ -246,6 +252,7 @@ export interface InboxItemView {
   created: IsoDate;
   defaultOptionId: string | null;
   id: string;
+  important: boolean;
   kind: string;
   managerId: string;
   needsDecision: boolean;
@@ -779,6 +786,8 @@ export interface PoolItemView {
 }
 
 export interface PoolView {
+  cheapProgrammeCostCents: number;
+  fastProgrammeCostCents: number;
   focus: ScoutFocusKind | null;
   focusHandle: string | null;
   items: PoolItemView[];
@@ -976,6 +985,9 @@ export interface ShellView {
   decisionItemId: string | null;
   decisionKind: string | null;
   decisionSubject: TranslationMessage | null;
+  importantItemId: string | null;
+  importantKind: string | null;
+  importantSubject: TranslationMessage | null;
   inboxDecisions: number;
   inboxOpen: number;
   managerId: string;
@@ -1154,6 +1166,13 @@ export interface TeamCardEngine {
   supplyType: string;
 }
 
+export interface TeamCardLevels {
+  car: number | null;
+  drivers: number | null;
+  infrastructure: number | null;
+  staff: number | null;
+}
+
 export interface TeamListView {
   problem: TranslationMessage | null;
   teams: TeamOptionView[];
@@ -1162,12 +1181,14 @@ export interface TeamListView {
 
 export interface TeamOptionView {
   budget: string | null;
+  budgetCents: number | null;
   drivers: TeamCardDriver[];
   engine: TeamCardEngine | null;
   expected: number | null;
   fieldSize: number | null;
   id: string;
   lastSeason: number | null;
+  levels: TeamCardLevels | null;
   name: string;
 }
 
@@ -1187,8 +1208,10 @@ export interface TeamsCall {
 
 export interface TestRentalView {
   allowed: boolean;
+  booked: IsoDate[];
   cap: number;
   costCents: number;
+  nextDate: IsoDate;
   used: number;
 }
 
@@ -1294,6 +1317,7 @@ export interface BridgeCommandMap {
   commitConcept: { args: CommitConceptCall; result: CommandAck };
   upgradeFacility: { args: UpgradeFacilityCall; result: CommandAck };
   bookTest: { args: BookTestCall; result: CommandAck };
+  cancelTest: { args: CancelTestCall; result: CommandAck };
   assignScoutFocus: { args: ScoutFocusCall; result: CommandAck };
   fundJunior: { args: FundJuniorCall; result: CommandAck };
   signPoolDriver: { args: SignPoolCall; result: CommandAck };

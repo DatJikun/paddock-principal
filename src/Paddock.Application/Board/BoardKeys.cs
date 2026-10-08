@@ -73,6 +73,12 @@ public static class BoardKeys
     public const string SeasonTargetSubject = "board.seasonTarget.subject";
 
     [TranslationKey]
+    public const string SeasonTargetWinsSubject = "board.seasonTarget.subjectWins";
+
+    [TranslationKey]
+    public const string SeasonTargetAmbitiousWinsConsequence = "board.seasonTarget.ambitiousWins.consequence";
+
+    [TranslationKey]
     public const string SeasonTargetSafeLabel = "board.seasonTarget.safe.label";
 
     [TranslationKey]

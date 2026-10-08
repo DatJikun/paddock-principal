@@ -14,10 +14,12 @@ Jak odpowiedzieć | napisz, co czujesz | np. „sponsorzy podpisują z rywalami 
 
 Z menu głównego wybierasz Kontynuuj (ostatni zapis), Nową karierę, Szybki wyścig, Wczytaj, Ustawienia albo Wyjdź. Nowa kariera to cztery kroki: Ty, Świat, Zespół i podsumowanie, w którym dopiero „Rozpocznij” startuje grę. W trakcie gry menu otwiera klawisz Esc: Zapisz, Zapisz jako, Wczytaj, Ustawienia i Wyjdź do menu. Gra zapisuje się tylko wtedy, gdy sam o to poprosisz.
 
+Przycisk Dalej sam przesuwa kolejne dni, dopóki nic nie wymaga Twojej uwagi. Zatrzymuje się, gdy czas trzyma nierozstrzygnięta decyzja, gdy nadchodzi dzień wyścigu (wyścig uruchamiasz kolejnym kliknięciem), po wyścigu i po przełomie sezonu, oraz gdy w Skrzynce pojawi się nowa ważna wiadomość (wtedy dostajesz też powiadomienie w prawym dolnym rogu). W trakcie biegu Dalej zmienia się w Pauzę (albo Esc). W Ustawieniach wybierasz, czy Dalej biegnie sam i ile czasu zajmuje jeden dzień (domyślnie pół sekundy, do wyboru cztery tempa).
+
 ```wybory
-Ty | imię, nazwisko, narodowość i jedna cecha szefa, w której jesteś mocniejszy
+Ty | imię, nazwisko, narodowość (każda z danych o ludziach) i jedna cecha szefa, w której jesteś mocniejszy; przy każdej opcji jest jej krótki opis
 Rok i zespół | pierwszy sezon do testów to 1955, zespół wybierasz z kart
-Karta zespołu | skład kierowców, silnik, poziom budżetu, miejsce w poprzednim sezonie (gdy jest znane) i miejsce, którego zarząd od Ciebie oczekuje
+Karta zespołu | skład kierowców, silnik (fabryczny albo nazwa dostawcy), budżet w dolarach, miejsce w poprzednim sezonie (gdy jest znane), cztery poziomy od 1 do 5 (auto, infrastruktura, kierowcy, personel) i znak zespołu; karty idą w kolejności poprzedniego sezonu
 Preset | najbardziej historyczny, zbalansowany albo chaos
 Ludzie | prawdziwa kariera rok po roku, prawdziwy sufit talentu, prawdziwe nazwiska z losowymi umiejętnościami albo wszyscy generowani
 Przepisy | historyczne albo głosowane co sezon

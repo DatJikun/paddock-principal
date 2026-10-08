@@ -200,10 +200,14 @@ public sealed partial class CareerBridge
             }
         }
 
+        // Last season's finish first, the way the paddock lists teams; teams with no known place follow, richest first, then by name.
         var teams = roster
             .Select(team => cards.TryGetValue(team.Id, out var card)
-                ? new TeamOptionView(team.Id, team.Name, card.Drivers, card.Engine, card.Budget, card.LastSeason, card.Expected, card.FieldSize)
-                : new TeamOptionView(team.Id, team.Name, [], null, null, null, null, null))
+                ? new TeamOptionView(team.Id, team.Name, card.Drivers, card.Engine, card.Budget, card.LastSeason, card.Expected, card.FieldSize, card.BudgetCents, card.Levels)
+                : new TeamOptionView(team.Id, team.Name, [], null, null, null, null, null, null, null))
+            .OrderBy(team => team.LastSeason ?? int.MaxValue)
+            .ThenByDescending(team => team.BudgetCents ?? 0L)
+            .ThenBy(team => team.Name, StringComparer.Ordinal)
             .ToArray();
         return new TeamListView(year, teams, problem);
     }
@@ -243,7 +247,7 @@ public sealed partial class CareerBridge
             var supplies = created.EngineSupplies
                 .Select(link => new SupplyLink(link.Constructor, link.Supplier, link.EngineName, link.SupplyType))
                 .ToArray();
-            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength);
+            var cards = TeamCardsRead.Of(created.World, created.World.CurrentDate, supplies, tiers, last, starting.CarStrength, data.Facilities);
             _cardsKey = key;
             _cards = cards;
             return cards;
@@ -747,6 +751,8 @@ public sealed partial class CareerBridge
                 return Concept(args, issued, out error);
             case "upgradeFacility":
                 return Facility(args, issued, out error);
+            case "cancelTest":
+                return CancelTest(args, issued, out error);
             case "bookTest":
                 return RentTest(args, issued, out error);
             case "assignScoutFocus":
@@ -949,6 +955,21 @@ public sealed partial class CareerBridge
         }
 
         return new BookTestCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization };
+    }
+
+    private ICommand? CancelTest(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        if (organization is null
+            || TextOf(args, "testOn") is not { } text
+            || !DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var on))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new CancelTestCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization, TestOn = on };
     }
 
     private ICommand? Concept(JsonElement args, DateOnly issued, out TranslationMessage? error)

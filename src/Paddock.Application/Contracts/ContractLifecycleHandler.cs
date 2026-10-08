@@ -127,6 +127,12 @@ public sealed class ContractLifecycleHandler : IDayHandler
             return;
         }
 
+        if (contract.Role.IsStaff && !StaffCatalogue.IsTeamRoster(contract.Role.StaffRole))
+        {
+            // A hidden role (nothing reads it, #265) lapses quietly: the player never saw this person.
+            return;
+        }
+
         if (contract.Role.IsStaff && !NegotiationEstimates.IsKeyStaff(contract.Role.StaffRole))
         {
             if (!grouped.TryGetValue(contract.OrganizationId.Value, out var list))
@@ -155,7 +161,7 @@ public sealed class ContractLifecycleHandler : IDayHandler
                 [
                     new InboxOption(ContractEngine.OptionRenew, ContractKeys.RenewalRenewLabel, ContractKeys.RenewalRenewConsequence),
                     new InboxOption(ContractEngine.OptionExtend, ContractKeys.RenewalExtendLabel, ContractKeys.RenewalExtendConsequence),
-                    new InboxOption(ContractEngine.OptionRelease, ContractKeys.RenewalReleaseLabel, ContractKeys.RenewalReleaseConsequence),
+                    new InboxOption(ContractEngine.OptionRelease, ContractKeys.RenewalReleaseLabel(person.IsFemale), ContractKeys.RenewalReleaseConsequence),
                 ],
                 today.AddDays(NegotiationEstimates.RenewalDecisionDays),
                 ContractEngine.OptionRelease);

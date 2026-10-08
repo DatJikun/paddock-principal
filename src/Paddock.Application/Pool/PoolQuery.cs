@@ -14,6 +14,8 @@ public sealed record PoolBandView(string Key, int Low, int High);
 /// hidden potential, or whether he is a real driver (INV-003, PP-018). The handle is the pool's own number for him.
 /// <paramref name="Attributes"/> and <paramref name="Potential"/> are empty/null until the viewer's organization has observed him.
 /// <paramref name="YourFunding"/> is what the viewer's organization has paid for him this season, if anything.
+/// <paramref name="InYourAcademy"/> is true for a junior the viewer's team recruited; <paramref name="SeasonsLeft"/> is then how many season
+/// changes he can still spend in the pool before his career lapses without a contract (#268), and null for anyone else.
 /// </summary>
 public sealed record PoolItemView(
     string Handle,
@@ -23,7 +25,12 @@ public sealed record PoolItemView(
     int Age,
     IReadOnlyList<PoolBandView> Attributes,
     PoolBandView? Potential,
-    JuniorProgramme? YourFunding);
+    JuniorProgramme? YourFunding,
+    bool InYourAcademy,
+    int? SeasonsLeft);
+
+/// <summary>One programme a team can pay for a junior of its academy: what a season costs and how fast he then moves toward his potential.</summary>
+public sealed record ProgrammeView(JuniorProgramme Programme, int SpeedPercent, long CostCents);
 
 /// <summary>The pool as one viewer sees it. <paramref name="Focus"/> and <paramref name="FocusHandle"/> are the viewer's own scouting focus.</summary>
 public sealed record PoolView(
@@ -31,25 +38,30 @@ public sealed record PoolView(
     IReadOnlyList<PoolItemView> Items,
     ScoutFocusKind? Focus,
     string? FocusHandle,
-    long CheapProgrammeCostCents,
-    long FastProgrammeCostCents);
+    int AcademySlots,
+    int AcademyUsed,
+    int BaseSpeedPercent,
+    IReadOnlyList<ProgrammeView> Programmes);
 
 /// <summary>
 /// The read side of the talent pool (INV-003, INV-005). A manager or an AI manager sees the members with the bands their own
 /// organization has built by scouting; the developer sees the members and no bands, because the truth has its own explicit query
-/// on the world. It changes nothing and draws no RNG.
+/// on the world. A team sees every junior on the market and the juniors of its own academy (#268), never a junior
+/// recruited by another academy. It changes nothing and draws no RNG.
 /// </summary>
 public sealed class PoolQuery
 {
     private readonly PoolBook _book;
     private readonly IManagerOrganizations _organizations;
+    private readonly IJuniorFunding _funding;
 
-    public PoolQuery(PoolBook book, IManagerOrganizations organizations)
+    public PoolQuery(PoolBook book, IManagerOrganizations organizations, IJuniorFunding? funding = null)
     {
         ArgumentNullException.ThrowIfNull(book);
         ArgumentNullException.ThrowIfNull(organizations);
         _book = book;
         _organizations = organizations;
+        _funding = funding ?? UnmeteredJuniorFunding.Instance;
     }
 
     public PoolView View(AccessContext access)
@@ -59,8 +71,14 @@ public sealed class PoolQuery
         var section = _book.Section;
         var organization = Organization(access);
         var items = new List<PoolItemView>();
+        var season = world.CurrentDate.Year;
         foreach (var member in section.Members.OrderBy(member => member.Handle))
         {
+            if (member.Academy is { } holder && organization is OrganizationId viewing && viewing != holder)
+            {
+                continue;
+            }
+
             var person = world.GetPerson(member.Id);
             var attributes = new List<PoolBandView>();
             PoolBandView? potential = null;
@@ -73,6 +91,7 @@ public sealed class PoolQuery
             JuniorProgramme? funding = member.Funding is { } paid && organization is OrganizationId payer && paid.Funder == payer
                 ? paid.Programme
                 : null;
+            var inAcademy = organization is OrganizationId owner && member.Academy == owner;
             items.Add(new PoolItemView(
                 member.HandleText,
                 person.GivenName,
@@ -81,7 +100,9 @@ public sealed class PoolQuery
                 world.CurrentDate.Year - person.BirthDate.Year,
                 attributes,
                 potential,
-                funding));
+                funding,
+                inAcademy,
+                inAcademy ? SeasonsLeft(member, person.BirthDate.Year, season) : null));
         }
 
         var focus = organization is OrganizationId viewer ? section.FocusOf(viewer) : null;
@@ -91,8 +112,23 @@ public sealed class PoolQuery
             items,
             focus?.Kind,
             focusHandle,
-            Money.FromDollars(PoolEstimates.CostOf(JuniorProgramme.CheapSlow)).Cents,
-            Money.FromDollars(PoolEstimates.CostOf(JuniorProgramme.ExpensiveFast)).Cents);
+            PoolEstimates.AcademySlots,
+            organization is OrganizationId team ? section.AcademyCount(team) : 0,
+            100,
+            Enum.GetValues<JuniorProgramme>()
+                .Select(programme => new ProgrammeView(programme, PoolEstimates.SpeedPercent(programme), Money.FromDollars(_funding.Cost(programme)).Cents))
+                .ToArray());
+    }
+
+    /// <summary>
+    /// How many season changes a junior can still spend in the pool: his career lapses after <see cref="PoolEstimates.MaxSeasonsInPool"/>
+    /// seasons, or once he is older than <see cref="PoolEstimates.MaxAge"/>, whichever comes first. The same rule the day handler applies.
+    /// </summary>
+    internal static int SeasonsLeft(PoolMember member, int birthYear, int season)
+    {
+        var byTime = member.EnteredOn.Year + PoolEstimates.MaxSeasonsInPool - season;
+        var byAge = birthYear + PoolEstimates.MaxAge + 1 - season;
+        return Math.Max(0, Math.Min(byTime, byAge));
     }
 
     private OrganizationId? Organization(AccessContext access)

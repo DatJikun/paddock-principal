@@ -33,7 +33,7 @@ public class RenewalDeadlineTests
             {
                 (TechDirector, StaffRole.TechnicalDirector, "Director"),
                 (Scout, StaffRole.Scout, "Scout"),
-                (Mechanic, StaffRole.ChiefMechanic, "Mechanic"),
+                (Mechanic, StaffRole.HeadOfVehicleDynamics, "Mechanic"),
                 (PrincipalB, StaffRole.TeamPrincipal, "Boss"),
             })
             {

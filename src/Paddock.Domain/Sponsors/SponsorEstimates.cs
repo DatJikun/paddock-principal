@@ -41,6 +41,9 @@ public static class SponsorEstimates
     /// <summary>ESTIMATE: the negotiator skill scale tops out here, like the staff attributes it is read from.</summary>
     public const int MaxSkill = 20;
 
+    /// <summary>ESTIMATE: the negotiating skill every team counts with while the commercial director is hidden (#265): an average director.</summary>
+    public const int NeutralSkill = 10;
+
     /// <summary>ESTIMATE: one more parallel talk for every this many points of negotiator skill, on top of the first.</summary>
     public const int SkillPerParallelTalk = 7;
 
@@ -124,6 +127,86 @@ public static class SponsorEstimates
 
     /// <summary>ESTIMATE: a secondary livery slot pays this fraction of a main slot, in thousandths.</summary>
     public const int SecondarySlotMilli = 500;
+
+    /// <summary>
+    /// ESTIMATE (#268): every full price is multiplied by this many thousandths. The owner found the amounts small: a named sponsor
+    /// paid about 7 percent of a typical team budget a year and a team backer 3 to 6 percent. 1700 is 1.7 times, so a named sponsor
+    /// pays about 12 percent and a backer 4 to 10 percent. A guess, to be calibrated with the whole economy.
+    /// </summary>
+    public const int PayScaleMilli = 1700;
+
+    /// <summary>ESTIMATE (#268, owner decision): the shortest deal is one year.</summary>
+    public const int MinYears = 1;
+
+    /// <summary>ESTIMATE (#268, owner decision): the longest deal is three years.</summary>
+    public const int MaxYears = 3;
+
+    /// <summary>
+    /// ESTIMATE (#268, owner decision): how many points a deal completed with the same sponsor adds to how open it is to a long partnership.
+    /// A longer deal pays the same a year as a short one ("then you would always sign for one year"); a long partnership is worth more
+    /// through the raises below.
+    /// </summary>
+    public const int OpennessPerCompletedDeal = 15;
+
+    /// <summary>ESTIMATE (#268): a sponsor this big (<see cref="BigSponsorBudgetLevel"/>) plans further ahead, which adds this many points of openness.</summary>
+    public const int OpennessBigSponsorBonus = 10;
+
+    /// <summary>ESTIMATE (#268): from this many points a sponsor keeps an eye on results and raises the amount for a good year. The starting trust is 50, so a new small backer is below it.</summary>
+    public const int OpennessOpenScore = 55;
+
+    /// <summary>ESTIMATE (#268): from this many points a sponsor wants a long partnership.</summary>
+    public const int OpennessEagerScore = 75;
+
+    /// <summary>ESTIMATE (#268): at an anniversary after a year in which the condition was met, an open sponsor raises the annual amount by this many thousandths.</summary>
+    public const int AnniversaryRaiseOpenMilli = 30;
+
+    /// <summary>ESTIMATE (#268): the same raise for a sponsor that wants a long partnership.</summary>
+    public const int AnniversaryRaiseEagerMilli = 60;
+
+    /// <summary>ESTIMATE (#268): the most the player can ask above the quote, in thousandths. Above what the sponsor will pay it holds at its own limit.</summary>
+    public const int AskMaxMilli = 100;
+
+    /// <summary>ESTIMATE (#268): an open sponsor pays up to this many thousandths above the quote when asked.</summary>
+    public const int AskOpenLimitMilli = 30;
+
+    /// <summary>ESTIMATE (#268): a sponsor that wants a long partnership pays up to this many thousandths above the quote when asked.</summary>
+    public const int AskEagerLimitMilli = 60;
+
+    /// <summary>ESTIMATE (#268): the amounts above the quote, in thousandths, that the screen offers to ask for.</summary>
+    public static readonly IReadOnlyList<int> AskSteps = [0, 30, 60, 100];
+
+    /// <summary>ESTIMATE (#268): an easier condition (a lower target) pays this many thousandths of the standard price.</summary>
+    public const int LighterPayMilli = 930;
+
+    /// <summary>ESTIMATE (#268): a harder condition (a higher target) pays this many thousandths of the standard price.</summary>
+    public const int HarderPayMilli = 1100;
+
+    /// <summary>ESTIMATE (#268): an easier condition asks this many thousandths of the standard target (a smaller number of podiums or points, a worse position).</summary>
+    public const int LighterTargetMilli = 750;
+
+    /// <summary>ESTIMATE (#268): a harder condition asks this many thousandths of the standard target.</summary>
+    public const int HarderTargetMilli = 1300;
+
+    /// <summary>ESTIMATE (#268): the most times the player can change the terms of one renewal offer before the sponsor says it is final.</summary>
+    public const int MaxCounterRounds = 3;
+
+    /// <summary>ESTIMATE (#268): a renewal offer is at least this many thousandths of the amount of the deal that ends, for a sponsor with the starting trust.</summary>
+    public const int RenewalRaiseBaseMilli = 1030;
+
+    /// <summary>ESTIMATE (#268): every point of trust above <see cref="StartTrust"/> adds this many thousandths to the raise of a renewal offer.</summary>
+    public const int RenewalRaisePerTrustMilli = 2;
+
+    /// <summary>ESTIMATE (#268): a sponsor whose budget level (share of the typical team budget) is at least this wants its nationality in a race seat; a smaller one accepts a reserve.</summary>
+    public const double BigSponsorBudgetLevel = 0.10;
+
+    /// <summary>ESTIMATE (#268): a met nationality wish pays this many thousandths of the annual amount a year on top, in the monthly instalments. A bonus only: a missed wish costs nothing else.</summary>
+    public const int WishBonusMilli = 100;
+
+    /// <summary>ESTIMATE (#268): a fuel, oil, tyre or motor sponsor supplies goods worth this many thousandths of the annual amount, paid with each instalment.</summary>
+    public const int InKindMilli = 50;
+
+    /// <summary>ESTIMATE (#268): a finance, consumer or electronics sponsor adds this many thousandths of the annual amount once, with the first instalment.</summary>
+    public const int SigningBonusMilli = 80;
 }
 
 /// <summary>Prices and terms. Pure functions, no randomness.</summary>
@@ -138,7 +221,7 @@ public static class SponsorPricing
         ArgumentNullException.ThrowIfNull(sponsor);
         ArgumentOutOfRangeException.ThrowIfNegative(typicalDollars);
         var slot = kind == SlotKind.Secondary ? SponsorEstimates.SecondarySlotMilli / 1000.0 : 1.0;
-        var dollars = typicalDollars * sponsor.BudgetLevel * (popularityMilli / 1000.0) * slot;
+        var dollars = typicalDollars * sponsor.BudgetLevel * (popularityMilli / 1000.0) * slot * (SponsorEstimates.PayScaleMilli / 1000.0);
         return Money.RoundDollars(dollars).Cents;
     }
 
@@ -167,6 +250,19 @@ public static class SponsorPricing
     }
 
     public static int ClampTrust(int trust) => Math.Clamp(trust, SponsorEstimates.MinTrust, SponsorEstimates.MaxTrust);
+
+    /// <summary>
+    /// The annual amount of a renewal offer in cents (#268). A satisfied sponsor offers more than it paid: at least the amount of the deal that ends,
+    /// raised by <see cref="SponsorEstimates.RenewalRaiseBaseMilli"/> and a little more for every point of trust above the starting one; and never
+    /// less than the old formula from the trust and today's full price. Both are scaled from the terms of the old deal to the terms asked now.
+    /// </summary>
+    public static long RenewalCents(long fullCents, int trust, long previousAnnualCents, SponsorTerms previous, SponsorTerms terms)
+    {
+        var fromPrice = fullCents * (SponsorEstimates.RenewalBaseMilli + (SponsorEstimates.RenewalPerTrustMilli * trust)) / 1000;
+        var raise = SponsorEstimates.RenewalRaiseBaseMilli + (Math.Max(0, trust - SponsorEstimates.StartTrust) * SponsorEstimates.RenewalRaisePerTrustMilli);
+        var fromDeal = previousAnnualCents * raise / 1000 * terms.PayMilli / Math.Max(1, previous.PayMilli);
+        return Math.Max(terms.AnnualCents(fromPrice), fromDeal);
+    }
 }
 
 /// <summary>
@@ -176,7 +272,11 @@ public static class SponsorPricing
 /// </summary>
 public static class SponsorObjectiveScale
 {
-    public static SponsorObjectiveSpec Scale(SponsorObjectiveSpec spec, int expectedPosition, int fieldSize)
+    public static SponsorObjectiveSpec Scale(
+        SponsorObjectiveSpec spec,
+        int expectedPosition,
+        int fieldSize,
+        SponsorAmbition ambition = SponsorAmbition.Standard)
     {
         ArgumentNullException.ThrowIfNull(spec);
         if (spec.Kind == SponsorObjectiveSpec.DriverNationalityInLineup)
@@ -188,6 +288,13 @@ public static class SponsorObjectiveScale
         var expected = Math.Clamp(expectedPosition, 1, size);
         var span = Math.Max(1, size - 1);
         var milli = Milli(spec.Kind, expected, span);
+
+        // The player's choice moves the target on top of the team's strength: a harder condition asks for more podiums and points and a better
+        // position, an easier one for less. A position target moves the other way round, because a smaller number is better.
+        var target = SponsorAmbitions.TargetMilli(ambition);
+        milli = spec.Kind == SponsorObjectiveSpec.ChampionshipPositionAtMost
+            ? (int)Math.Round(milli * 1000.0 / target, MidpointRounding.AwayFromZero)
+            : (int)Math.Round(milli * (target / 1000.0), MidpointRounding.AwayFromZero);
         if (spec.Kind == SponsorObjectiveSpec.ChampionshipPositionAtMost)
         {
             var authored = int.Parse(spec.Value, CultureInfo.InvariantCulture);
@@ -215,6 +322,27 @@ public static class SponsorObjectiveScale
         }
 
         return spec;
+    }
+
+    /// <summary>
+    /// The authored target moved by the player's choice alone, for a team whose strength is not known: a harder condition asks for more podiums
+    /// or points (or a better position), an easier one for less. The standard ambition returns the spec as it is.
+    /// </summary>
+    public static SponsorObjectiveSpec Ambitious(SponsorObjectiveSpec spec, SponsorAmbition ambition)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+        if (ambition == SponsorAmbition.Standard || spec.Kind == SponsorObjectiveSpec.DriverNationalityInLineup)
+        {
+            return spec;
+        }
+
+        var target = SponsorAmbitions.TargetMilli(ambition);
+        var authored = decimal.Parse(spec.Value, CultureInfo.InvariantCulture);
+        var scaled = spec.Kind == SponsorObjectiveSpec.ChampionshipPositionAtMost
+            ? authored * 1000m / target
+            : authored * target / 1000m;
+        var rounded = Math.Max(1m, Math.Round(scaled, 0, MidpointRounding.AwayFromZero));
+        return spec with { Value = rounded.ToString(CultureInfo.InvariantCulture) };
     }
 
     /// <summary>Bonus thousandths and trust gained for meeting <paramref name="scaled"/>, compared with the authored base.</summary>

@@ -145,6 +145,24 @@ public sealed class CommandCodec
                     Programme = Enum.Parse<JuniorProgramme>(fields.String("programme")),
                 };
             }),
+        CommandCodecEntry.For<RecruitJuniorCommand>(
+            "pool.recruit/1",
+            command => FlatJson.Write(("person", command.PersonHandle)),
+            (body, manager, issued) => new RecruitJuniorCommand
+            {
+                ManagerId = manager,
+                IssuedOn = issued,
+                PersonHandle = FlatJson.Read(body, "person").String("person"),
+            }),
+        CommandCodecEntry.For<ReleaseJuniorCommand>(
+            "pool.release/1",
+            command => FlatJson.Write(("person", command.PersonHandle)),
+            (body, manager, issued) => new ReleaseJuniorCommand
+            {
+                ManagerId = manager,
+                IssuedOn = issued,
+                PersonHandle = FlatJson.Read(body, "person").String("person"),
+            }),
         CommandCodecEntry.For<SignPoolDriverCommand>(
             "pool.signDriver/1",
             command => FlatJson.Write(("person", command.PersonHandle), ("role", command.Role.ToString())),

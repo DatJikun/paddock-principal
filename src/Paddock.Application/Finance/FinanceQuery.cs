@@ -137,7 +137,8 @@ public sealed class FinancePayroll : IPayrollLedger
 }
 
 /// <summary>
-/// The ledger as <see cref="IJuniorFunding"/>. The price stays in the pool's whole-dollar ESTIMATE; the posting is cents.
+/// The ledger as <see cref="IJuniorFunding"/>. The price is a share of the season's typical team budget (#268: a fixed sum is nothing in 1976 and
+/// everything in 1955); a ledger with no typical budget yet uses the nominal sum. The posting is cents.
 /// An insolvent organization is refused. A solvent one may go negative (PP-050).
 /// </summary>
 public sealed class FinanceJuniorFunding : IJuniorFunding
@@ -150,7 +151,16 @@ public sealed class FinanceJuniorFunding : IJuniorFunding
         _book = book;
     }
 
-    public long Cost(JuniorProgramme programme) => PoolEstimates.CostOf(programme);
+    public long Cost(JuniorProgramme programme)
+    {
+        var typicalCents = _book.Section.TypicalCents;
+        if (typicalCents <= 0)
+        {
+            return PoolEstimates.CostOf(programme);
+        }
+
+        return Math.Max(1L, (long)Math.Round(typicalCents / 100.0 * PoolEstimates.CostShare(programme), MidpointRounding.AwayFromZero));
+    }
 
     public TranslationMessage? Validate(OrganizationId payer, long amount, GameDate on)
     {

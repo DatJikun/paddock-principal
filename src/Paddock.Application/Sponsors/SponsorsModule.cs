@@ -8,7 +8,7 @@ using Paddock.Domain.Sponsors;
 namespace Paddock.Application.Sponsors;
 
 /// <summary>
-/// T38 sponsors in the career loop (#160). With the sponsor catalog and the era data it registers the four sponsor commands, the
+/// T38 sponsors in the career loop (#160). With the sponsor catalog and the era data it registers the six sponsor commands, the
 /// sponsor day handler (order 750, after the contracts and before finance), and, after each lived day, applies the outcomes of the
 /// sponsors' objectives with the same events the objectives got (<see cref="SponsorOutcomes.Apply"/>). Without that data it does
 /// nothing. The AI teams sign nobody yet: that is the AI principals' job (T44), so in an AI-only run the day handler finds no talks
@@ -52,6 +52,8 @@ public sealed class SponsorsModule : CareerModule
         context.AddCommandHandler(new SignAtCurrentTermsHandler(book, environment));
         context.AddCommandHandler(new WalkAwayFromTalksHandler(book, environment));
         context.AddCommandHandler(new RespondToSponsorOfferHandler(book, environment));
+        context.AddCommandHandler(new ProposeSponsorTermsHandler(book, environment));
+        context.AddCommandHandler(new CounterSponsorOfferHandler(book, environment));
         context.Require<InboxResolvers>().Register(new SponsorOfferResolver(book, environment));
         context.AddDayHandler(new SponsorDayHandler(book, environment, inbox, context.Managers));
         context.AddAfterDay(OutcomeOrder, events => SponsorOutcomes.Apply(book, environment, events, inbox, context.Managers));

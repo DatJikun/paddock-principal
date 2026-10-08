@@ -28,6 +28,9 @@ public static class SeriesIds
 {
     /// <summary>The world championship, the only series of the MVP.</summary>
     public const string WorldChampionship = "f1";
+
+    /// <summary>The ids of every series the game knows, in ordinal order. The authored banned list may name only these.</summary>
+    public static IReadOnlyList<string> All { get; } = [WorldChampionship];
 }
 
 /// <summary>Who put a ballot item on the agenda.</summary>

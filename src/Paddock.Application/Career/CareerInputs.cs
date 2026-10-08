@@ -5,6 +5,7 @@ using Paddock.Domain.Career;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Infrastructure;
+using Paddock.Domain.Racing;
 using Paddock.Domain.Sponsors;
 using Paddock.Domain.Supply;
 using Paddock.Domain.World;
@@ -78,6 +79,12 @@ public sealed class CareerInputs
 
     /// <summary>How a voted career counts votes: one vote each, or with a bank of votes (PP-048, #275). Means nothing for historical rules.</summary>
     public VoteMode VoteMode { get; init; } = VoteMode.OneVoteEach;
+
+    /// <summary>
+    /// The rules and mechanics that can never be proposed or voted on, per series (#275, authored in <c>banned_rules.json</c>). Null
+    /// means nothing is banned (a host with no such data).
+    /// </summary>
+    public BannedRules? BannedRules { get; init; }
 
     /// <summary>Whether a race can kill a driver (PP-006). The default is off.</summary>
     public FatalityLevel Fatality { get; init; } = FatalityLevel.Off;

@@ -144,7 +144,7 @@ jobs:
               $relative -match '(^|/)cache(/|$)' -or
               $relative -match '\.paddock(-wal|-shm)?$' -or
               $relative -match '^saves(/|$)' -or
-              ($relative -match '^data/' -and $relative -notmatch '^data/authored(/|$)')
+              ($relative -match '^data/.' -and $relative -notmatch '^data/authored(/|$)')
             })
           if ($bad.Count -gt 0) {
             Write-Host '::error::The package holds data that must stay local (data/cache, saves or anything outside data/authored):'

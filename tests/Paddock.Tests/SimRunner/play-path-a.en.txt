@@ -30,8 +30,8 @@ gen:27 — William Johnson (USA)
 gen:28 — Peter Walker (GBR)
 gen:29 — Peter Walker (GBR)
 gen:30 — Robert Smith (USA)
-Talks opened: neg:28 with gen:21.
-neg:28 — Jean Bernard, Open.
+Talks opened: neg:27 with gen:21.
+neg:27 — Jean Bernard, Open.
 Development split: current 50, account 25, next car 25.
 Own car car:7, season 1955.
 Own car car:8, season 1955.
@@ -80,6 +80,6 @@ No decision you may read is on record.
 Ready.
 An unresolved matter is holding the clock.
 Waiting for Ada Lovelace.
-World hash 138915e36e14f6c814ef3fceb72db5631a91d9860cf8640d96951bf0fc9a11ad.
-Saved SAVE. World hash 138915e36e14f6c814ef3fceb72db5631a91d9860cf8640d96951bf0fc9a11ad.
+World hash 811694f8a2bce3713c3d370a0d06da876897851047e625bb2c6e78d6aba18817.
+Saved SAVE. World hash 811694f8a2bce3713c3d370a0d06da876897851047e625bb2c6e78d6aba18817.
 Session closed.

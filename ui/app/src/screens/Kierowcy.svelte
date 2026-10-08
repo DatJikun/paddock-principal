@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { SquadData } from '../lib/screens';
   import AttrRow from '../lib/components/AttrRow.svelte';
+  import Stars from '../lib/components/Stars.svelte';
   import Flag from '../lib/components/Flag.svelte';
   import { bandOf, careerTotals, DRIVER_ATTRS, endsThisSeason, seasonRow } from '../lib/people.mjs';
   import { formatDate } from '../lib/date.mjs';
@@ -39,7 +40,7 @@
             <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{row.view?.age ?? '—'}</span></div>
             <div class="fld"><span class="meta">{tr.t('drivers.seat')}</span><span class="v">{tr.t(`seat.${row.driver.seat}`)}</span></div>
             {#if row.view?.overall != null}
-              <div class="fld"><span class="meta">{tr.t('shell.col.overall')}</span><span class="v num">{row.view.overall}</span></div>
+              <div class="fld"><span class="meta">{tr.t('shell.col.overall')}</span><span class="v"><Stars overall={row.view.overall} /></span></div>
             {/if}
             <div class="fld">
               <span class="meta">{tr.t('drivers.contract')}</span>

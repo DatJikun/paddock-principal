@@ -194,4 +194,27 @@ public sealed class PeopleContractsTests
         var man = world.AddPerson(new PersonSpec("Fia", "Flame", new GameDate(1930, 1, 1), "GBR", false, null, [PersonRole.Driver], Truth(12))).State;
         Assert.NotEqual(woman.StateHash(), man.StateHash());
     }
+
+    [Fact]
+    public void TheMarketShowsTheCurrentPayOfAContractAndTheLastPayOfAFreeAgent()
+    {
+        var lab = new Lab();
+        var market = MarketRead.Of(Paddock.Application.Access.AccessContext.ForManager(new Paddock.Application.Access.ManagerId(Anna.Value)), lab.Book, TeamA, lab.Today);
+
+        // The veteran is under contract at team B for 100 000: that is the pay shown, not what team A thinks he is worth.
+        Assert.Equal(100_000, market.Contracted.Single(person => person.PersonId == Veteran.Value).Salary);
+        // A free agent who never had a contract has no pay to show.
+        Assert.Equal(0, market.FreeAgents.First(person => person.PersonId == DriverX.Value).Salary);
+    }
+
+    [Fact]
+    public void WhileTheCommercialDirectorIsHiddenEveryTeamCountsWithTheSameSponsorSkill()
+    {
+        var lab = new Lab();
+        var skills = new Paddock.Application.Sponsors.KnownNegotiatorSkills();
+
+        Assert.Equal(Paddock.Domain.Sponsors.SponsorEstimates.NeutralSkill, skills.Skill(lab.World, TeamA, lab.Today));
+        Assert.Equal(skills.Skill(lab.World, TeamA, lab.Today), skills.Skill(lab.World, TeamB, lab.Today));
+        Assert.Contains(StaffRole.CommercialDirector, StaffCatalogue.HiddenRoles);
+    }
 }

@@ -63,7 +63,7 @@
             attributes: market.attributes.length > 0 ? market.attributes : null,
             contractEnd: market.contractEnd,
             salary: 0,
-            expected: market.expectedSalary,
+            expected: market.salary,
             female: market.female,
           }
         : null,
@@ -140,7 +140,7 @@
                 <div class="fld"><span class="meta">{tr.t('offer.salary')}</span><span class="v num">{formatMoney(person.salary * 100, tr.lang)}</span></div>
               {/if}
               {#if person.expected > 0}
-                <div class="fld"><span class="meta">{tr.t('market.expected')}</span><span class="v num">{formatMoney(person.expected * 100, tr.lang)}</span></div>
+                <div class="fld"><span class="meta">{tr.t('offer.salary')}</span><span class="v num">{formatMoney(person.expected * 100, tr.lang)}</span></div>
               {/if}
             </div>
             {#if talks}<a class="btn" href={`#/negocjacja/${encodeURIComponent(talks.id)}`}>{tr.t('driver.talks')}</a>{/if}

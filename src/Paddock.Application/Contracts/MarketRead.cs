@@ -9,8 +9,8 @@ namespace Paddock.Application.Contracts;
 /// <summary>
 /// One person on the market: a free agent, or a driver or staff member under contract elsewhere. <see cref="Kind"/> is
 /// <c>driver</c> or the name of the staff role. Attributes are the bands this team believes, never the hidden number (INV-003);
-/// <see cref="Overall"/> is their mean on the 1 to 20 scale. <see cref="ExpectedSalary"/> is what this team believes the person
-/// is worth per season (the reference salary), not the pay of the contract they hold, which is another team's business.
+/// <see cref="Overall"/> is their mean on the 1 to 20 scale. <see cref="Salary"/> is the person's current pay per season: the pay of
+/// the contract they hold, or for a free agent the pay of the last one they had; 0 when there is none (or it is not modelled).
 /// <see cref="ContractEnd"/> is the end of the contract the person holds, or for a free agent the day they became free.
 /// </summary>
 public sealed record MarketPersonView(
@@ -26,7 +26,7 @@ public sealed record MarketPersonView(
     int Age,
     string Kind = "driver",
     int? Overall = null,
-    long ExpectedSalary = 0,
+    long Salary = 0,
     bool Female = false);
 
 /// <summary>Free agents and people under contract elsewhere, as the observer's team knows them. Drivers and staff are in the same lists.</summary>
@@ -65,7 +65,7 @@ public static class MarketRead
                 AgeOn(record.BirthDate, today),
                 Kind(wanted),
                 PeopleViews.Overall(wanted, book.World.KnowledgeOf(observer, person.Person)),
-                book.ReferenceSalary(observer, person.Person, wanted, today),
+                LastSalary(book, person.Person),
                 record.IsFemale));
         }
 
@@ -109,11 +109,26 @@ public static class MarketRead
                 AgeOn(person.BirthDate, today),
                 Kind(subject),
                 PeopleViews.Overall(subject, knowledge),
-                book.ReferenceSalary(observer, person.Id, subject, today),
+                contract.Salary,
                 person.IsFemale));
         }
 
         return new MarketView(free, contracted);
+    }
+
+    /// <summary>The pay of the last exclusive contract the person held, or 0 when they never had one.</summary>
+    private static long LastSalary(ContractBook book, PersonId person)
+    {
+        Contract? last = null;
+        foreach (var contract in book.World.Contracts)
+        {
+            if (contract.PersonId == person && contract.Exclusive && (last is null || contract.End > last.End))
+            {
+                last = contract;
+            }
+        }
+
+        return last?.Salary ?? 0;
     }
 
     private static string Kind(NegotiationSubject subject) =>

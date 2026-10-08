@@ -38,7 +38,15 @@ public class StaffEffectTests : IDisposable
         var strong = Negotiator(on, "strong", 18);
         var weak = Negotiator(on, "weak", 8);
         var skills = new KnownNegotiatorSkills();
-        Assert.True(skills.Skill(strong.World, strong.Team, on) > skills.Skill(weak.World, weak.Team, on));
+        if (StaffCatalogue.IsTeamRoster(StaffRole.CommercialDirector))
+        {
+            Assert.True(skills.Skill(strong.World, strong.Team, on) > skills.Skill(weak.World, weak.Team, on));
+        }
+        else
+        {
+            // The commercial director is hidden (#265): every team counts with the same neutral skill.
+            Assert.Equal(skills.Skill(strong.World, strong.Team, on), skills.Skill(weak.World, weak.Team, on));
+        }
     }
 
     [Fact]

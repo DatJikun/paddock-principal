@@ -487,7 +487,6 @@ export interface MarketPersonView {
   age: number;
   attributes: KnownAttributeView[];
   contractEnd: string | null;
-  expectedSalary: number;
   female: boolean;
   freeAgent: boolean;
   kind: string;
@@ -497,6 +496,7 @@ export interface MarketPersonView {
   organizationName: string | null;
   overall: number | null;
   personId: string;
+  salary: number;
   seat: string | null;
 }
 

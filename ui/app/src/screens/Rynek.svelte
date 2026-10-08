@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { MarketPersonView } from '../lib/api/types.generated';
   import PersonCell from '../lib/components/PersonCell.svelte';
+  import Stars from '../lib/components/Stars.svelte';
   import Status from '../lib/components/Status.svelte';
   import Tabs from '../lib/components/Tabs.svelte';
   import { formatDate, formatDay } from '../lib/date.mjs';
@@ -30,7 +31,7 @@
         case 'overall':
           return person.overall;
         case 'salary':
-          return person.expectedSalary;
+          return person.salary;
         case 'team':
           return person.organizationName ?? (person.freeAgent ? '' : null);
         case 'end':
@@ -101,8 +102,8 @@
             <td><PersonCell name={person.name} href={href(person)} nationality={person.nationality} /></td>
             {#if kind === 'staff'}<td>{tr.t(`staff.role.${person.kind}`)}</td>{/if}
             <td class="c num">{person.age}</td>
-            <td class="c num attr-ov">{person.overall ?? ''}</td>
-            <td class="c num">{person.expectedSalary > 0 ? formatMoney(person.expectedSalary * 100, tr.lang) : ''}</td>
+            <td class="c"><Stars overall={person.overall} /></td>
+            <td class="c num">{person.salary > 0 ? formatMoney(person.salary * 100, tr.lang) : '—'}</td>
             <td class="c num" class:bad={!person.freeAgent && endsThisSeason(person.contractEnd, today)}>{person.contractEnd && !person.freeAgent ? formatDate(person.contractEnd, tr.lang) : ''}</td>
             <td>{#if person.freeAgent}<Status text={tr.t('driver.free')} tone="hi" />{:else}{person.organizationName ?? ''}{/if}</td>
           </tr>

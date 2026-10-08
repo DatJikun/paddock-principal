@@ -68,3 +68,8 @@ export function sortRows(rows, get, direction = 'asc') {
     return String(left).localeCompare(String(right)) * sign;
   });
 }
+
+/** Stars (0-5, halves) for an overall on the 1-20 attribute scale: the mean attribute over 4, as DESIGN says (PP-040). */
+export function starsOf(overall) {
+  return Math.min(5, Math.max(0, Math.round((Number(overall) / 4) * 2) / 2));
+}

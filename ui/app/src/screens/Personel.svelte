@@ -1,6 +1,7 @@
 <script lang="ts">
   import { teamLabel } from '../lib/career.mjs';
   import PersonCell from '../lib/components/PersonCell.svelte';
+  import Stars from '../lib/components/Stars.svelte';
   import { formatDate } from '../lib/date.mjs';
   import { endsThisSeason } from '../lib/people.mjs';
   import type { StaffData } from '../lib/screens';
@@ -44,7 +45,7 @@
           <tr class="go-row" onclick={() => open(person.personId)}>
             <td><PersonCell name={person.name} href={`#/osoba/${encodeURIComponent(person.personId)}`} nationality={person.nationality} sub={tr.t('team.card.age', { age: String(person.age) })} /></td>
             <td>{tr.t(`staff.role.${person.role}`)}</td>
-            <td class="c num">{person.overall ?? ''}</td>
+            <td class="c"><Stars overall={person.overall} /></td>
             {#if engineers}
               <td>
                 {#if person.role === 'RaceEngineer' && person.driverId}

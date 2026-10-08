@@ -55,12 +55,13 @@ public class TeamRosterTests
             .ToHashSet();
         Assert.DoesNotContain(StaffRole.Strategist, roles);
         Assert.DoesNotContain(StaffRole.ChiefMechanic, roles);
+        Assert.DoesNotContain(StaffRole.CommercialDirector, roles);
         Assert.Equal(
-            [StaffRole.TechnicalDirector, StaffRole.ChiefDesigner, StaffRole.HeadOfAerodynamics, StaffRole.HeadOfVehicleDynamics, StaffRole.RaceEngineer, StaffRole.Scout, StaffRole.CommercialDirector],
+            [StaffRole.TechnicalDirector, StaffRole.ChiefDesigner, StaffRole.HeadOfAerodynamics, StaffRole.HeadOfVehicleDynamics, StaffRole.RaceEngineer, StaffRole.Scout],
             StaffCatalogue.TeamRoster);
 
         var listed = StaffQuery.Of(filled.World, team, on);
-        Assert.DoesNotContain(listed, person => person.Role is nameof(StaffRole.Strategist) or nameof(StaffRole.ChiefMechanic));
+        Assert.DoesNotContain(listed, person => person.Role is nameof(StaffRole.Strategist) or nameof(StaffRole.ChiefMechanic) or nameof(StaffRole.CommercialDirector));
         Assert.All(listed, person => Assert.NotNull(person.Overall));
     }
 }

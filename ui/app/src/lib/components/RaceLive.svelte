@@ -34,7 +34,8 @@
     pushed,
     onexit,
     backKey = 'live.ui.back',
-  }: { tr: Tr; pushed: LiveClockView | null; onexit: () => void; backKey?: string } = $props();
+    canLeave = false,
+  }: { tr: Tr; pushed: LiveClockView | null; onexit: () => void; backKey?: string; canLeave?: boolean } = $props();
 
   const call = { managerId: HUMAN_MANAGER_ID };
   /* How far ahead of the race time frames are fetched, in seconds of real time at the current speed. */
@@ -51,6 +52,8 @@
   let selected = $state<string | null>(null);
   let following = $state(false);
   let curtain = $state(true);
+  /* Asking whether to leave before the flag: only a race that changes nothing (the quick race) offers it. */
+  let leaving = $state(false);
   /* Speed of the selected car, read from the frames a few times a second (km/h). */
   let selectedKmh = $state<number | null>(null);
   let mapHost: HTMLDivElement | undefined = $state();
@@ -132,10 +135,11 @@
     else if (key === '+' || key === '=') map?.zoomBy(1.25);
     else if (key === '-') map?.zoomBy(0.8);
     else if (key === 'Escape') {
-      /* Esc closes the car card; leaving the race is only "Wróć do gry" (HANDOFF_UI). */
+      /* Esc closes the leave question or the car card; leaving is always a button (HANDOFF_UI). */
       event.preventDefault();
       event.stopPropagation();
-      select(null);
+      if (leaving) leaving = false;
+      else select(null);
     }
   }
 
@@ -329,6 +333,19 @@
             {/each}
           </div>
         </div>
+        {#if canLeave}
+          <div class="seg leave" role="group" aria-label={tr.t('quick.leaveAsk')}>
+            {#if leaving}
+              <span class="meta">{tr.t('quick.leaveAsk')}</span>
+              <div class="speeds">
+                <button type="button" class="ctl" onclick={() => (leaving = false)}>{tr.t('quick.stay')}</button>
+                <button type="button" class="ctl yes" onclick={onexit}>{tr.t(backKey)}</button>
+              </div>
+            {:else}
+              <button type="button" class="ctl" onclick={() => (leaving = true)}>{tr.t('quick.leave')}</button>
+            {/if}
+          </div>
+        {/if}
       {:else}
         <div class="seg back">
           <button type="button" class="rm-btn primary" onclick={onexit}>{tr.t(backKey)}</button>
@@ -613,6 +630,13 @@
   }
   .rm-pace {
     right: 12px;
+  }
+  .leave .ctl {
+    padding: 0 10px;
+  }
+  .leave .ctl.yes {
+    background: var(--t2, var(--gold));
+    color: #15181e;
   }
   .seg {
     display: flex;

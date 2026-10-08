@@ -844,7 +844,7 @@
   </div>
 </div>
 {#if racing && quick}
-  <RaceLive {tr} pushed={raceClock} onexit={leaveQuickRace} backKey="quick.back" />
+  <RaceLive {tr} pushed={raceClock} onexit={leaveQuickRace} backKey="quick.back" canLeave />
 {:else if racing && inGame}
   <RaceLive {tr} pushed={raceClock} onexit={leaveRace} />
 {/if}

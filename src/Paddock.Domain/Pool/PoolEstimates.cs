@@ -66,17 +66,40 @@ public static class PoolEstimates
     /// </summary>
     public const int MaxAnnualStep = 3;
 
-    /// <summary>ESTIMATE: speed of a funded season of the cheap, slow programme, in percent of the unfunded rate.</summary>
-    public const int CheapSlowSpeedPercent = 125;
+    /// <summary>
+    /// ESTIMATE (#268, owner decision: a modest speed-up): speed of a funded season of the basic programme, in percent of the unfunded rate.
+    /// Was 125. A programme changes only the speed toward the potential, never the potential.
+    /// </summary>
+    public const int CheapSlowSpeedPercent = 110;
 
-    /// <summary>ESTIMATE: speed of a funded season of the expensive, fast programme, in percent of the unfunded rate.</summary>
-    public const int ExpensiveFastSpeedPercent = 200;
+    /// <summary>ESTIMATE (#268): speed of a funded season of the intensive programme, in percent of the unfunded rate. Was 200, which was not modest.</summary>
+    public const int ExpensiveFastSpeedPercent = 125;
 
-    /// <summary>ESTIMATE: nominal cost of the cheap, slow programme. The economy is a later phase, so the unit is "not modelled".</summary>
-    public const long CheapSlowCost = 50_000;
+    /// <summary>
+    /// ESTIMATE: nominal cost of the basic programme in whole dollars, for a game with no finance. The career prices it from the era
+    /// (<see cref="CheapSlowCostShare"/>), because a fixed sum is nothing in 1976 and everything in 1955.
+    /// </summary>
+    public const long CheapSlowCost = 3_000;
 
-    /// <summary>ESTIMATE: nominal cost of the expensive, fast programme.</summary>
-    public const long ExpensiveFastCost = 250_000;
+    /// <summary>ESTIMATE: nominal cost of the intensive programme in whole dollars, for a game with no finance.</summary>
+    public const long ExpensiveFastCost = 8_000;
+
+    /// <summary>ESTIMATE (#268): share of a typical team's annual budget one season of the basic programme costs.</summary>
+    public const double CheapSlowCostShare = 0.02;
+
+    /// <summary>ESTIMATE (#268): share of a typical team's annual budget one season of the intensive programme costs.</summary>
+    public const double ExpensiveFastCostShare = 0.05;
+
+    // The academy (#268, owner decision: each team recruits its own juniors, a limited number).
+
+    /// <summary>ESTIMATE (PP-057): places in a team's academy.</summary>
+    public const int AcademySlots = 3;
+
+    /// <summary>
+    /// ESTIMATE (#268): the share of the pool, in thousandths, that a team's own scouts put in front of it in a season. The same member can be
+    /// on the list of one team and not on another's; which ones is fixed by the team, the season and the member, with no random number.
+    /// </summary>
+    public const int ShortlistShareMilli = 600;
 
     // Scouting (PP-013, DESIGN 6.2 and 10).
 
@@ -132,6 +155,14 @@ public static class PoolEstimates
     {
         JuniorProgramme.CheapSlow => CheapSlowSpeedPercent,
         JuniorProgramme.ExpensiveFast => ExpensiveFastSpeedPercent,
+        _ => throw new ArgumentOutOfRangeException(nameof(programme), programme, "Unknown junior programme."),
+    };
+
+    /// <summary>The share of a typical team's annual budget a season of the programme costs.</summary>
+    public static double CostShare(JuniorProgramme programme) => programme switch
+    {
+        JuniorProgramme.CheapSlow => CheapSlowCostShare,
+        JuniorProgramme.ExpensiveFast => ExpensiveFastCostShare,
         _ => throw new ArgumentOutOfRangeException(nameof(programme), programme, "Unknown junior programme."),
     };
 

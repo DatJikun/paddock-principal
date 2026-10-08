@@ -1,5 +1,6 @@
 using Paddock.Application.Career;
 using Paddock.Application.Contracts;
+using Paddock.Application.Inbox;
 using Paddock.Application.Objectives;
 using Paddock.Domain.Pool;
 
@@ -28,6 +29,12 @@ public sealed class PoolModule : CareerModule
         var organizations = context.Require<IManagerOrganizations>();
         context.AddCommandHandler(new AssignScoutFocusHandler(book, organizations));
         context.AddCommandHandler(new FundJuniorHandler(book, organizations, context.TryGet<IJuniorFunding>()));
+        context.AddCommandHandler(new RecruitJuniorHandler(book, organizations));
+        context.AddCommandHandler(new ReleaseJuniorHandler(book, organizations));
         context.AddCommandHandler(new SignPoolDriverHandler(book, organizations, new ContractPoolNegotiations(context.Require<ContractEngine>())));
+        var inbox = context.Require<InboxBook>();
+        context.AddAfterDay(
+            Paddock.Simulation.Pool.TalentPoolDayHandler.DefaultOrder,
+            events => PoolNotices.Apply(book, events, inbox, context.Managers, organizations));
     }
 }

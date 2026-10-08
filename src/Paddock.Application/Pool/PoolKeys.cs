@@ -22,6 +22,27 @@ public static class PoolKeys
     public const string SigningUnavailable = "pool.error.signingUnavailable";
 
     [TranslationKey]
+    public const string AcademyFull = "pool.error.academyFull";
+
+    [TranslationKey]
+    public const string NotOnYourList = "pool.error.notOnYourList";
+
+    [TranslationKey]
+    public const string TakenByAnother = "pool.error.takenByAnother";
+
+    [TranslationKey]
+    public const string NotYourJunior = "pool.error.notYourJunior";
+
+    [TranslationKey]
+    public const string AlreadyRecruited = "pool.error.alreadyRecruited";
+
+    [TranslationKey]
+    public const string InboxLapsedSubject = "pool.inbox.lapsed.subject";
+
+    /// <summary>Inbox kind of the academy notices. A stable code, not text.</summary>
+    public const string InboxKind = "pool.notice";
+
+    [TranslationKey]
     public const string ProgrammeCheapSlow = "pool.programme.cheapSlow";
 
     [TranslationKey]

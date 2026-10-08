@@ -99,6 +99,50 @@ public sealed record SignPoolDriverCommand : ICommand
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
 
+/// <summary>
+/// The manager's team takes a pool member into its academy (#268): the team recruits its own juniors, a limited number
+/// (<see cref="PoolEstimates.AcademySlots"/>), and a recruited junior is on nobody else's list. Only a member the team's own scouts show it
+/// this season (<see cref="PoolShortlist"/>) can be recruited.
+/// </summary>
+public sealed record RecruitJuniorCommand : ICommand
+{
+    public required ManagerId ManagerId { get; init; }
+
+    public long SubmissionNumber { get; init; }
+
+    public required DateOnly IssuedOn { get; init; }
+
+    public required string PersonHandle { get; init; }
+
+    public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
+}
+
+/// <summary>The manager's team frees a place of its academy: the junior goes back to the pool and a programme paid for him is lost.</summary>
+public sealed record ReleaseJuniorCommand : ICommand
+{
+    public required ManagerId ManagerId { get; init; }
+
+    public long SubmissionNumber { get; init; }
+
+    public required DateOnly IssuedOn { get; init; }
+
+    public required string PersonHandle { get; init; }
+
+    public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
+}
+
+/// <summary>A junior joined an academy.</summary>
+public sealed record JuniorRecruited(ManagerId ManagerId, DateOnly OccurredOn, string PersonHandle) : IDomainEvent
+{
+    public string TypeId => "pool.junior.recruited";
+}
+
+/// <summary>A junior left an academy at the team's wish.</summary>
+public sealed record JuniorReleased(ManagerId ManagerId, DateOnly OccurredOn, string PersonHandle) : IDomainEvent
+{
+    public string TypeId => "pool.junior.released";
+}
+
 /// <summary>An organization's scouts have a new focus.</summary>
 public sealed record ScoutFocusAssigned(ManagerId ManagerId, DateOnly OccurredOn, string? PersonHandle) : IDomainEvent
 {
@@ -200,6 +244,11 @@ public sealed class FundJuniorHandler : CommandHandler<FundJuniorCommand>
             return TranslationMessage.Of(PoolKeys.PersonUnknown);
         }
 
+        if (member.Academy != organization)
+        {
+            return TranslationMessage.Of(PoolKeys.NotYourJunior);
+        }
+
         if (member.Funding is not null)
         {
             return TranslationMessage.Of(PoolKeys.AlreadyFunded);
@@ -217,6 +266,100 @@ public sealed class FundJuniorHandler : CommandHandler<FundJuniorCommand>
         _funding.Charge(organization, _funding.Cost(command.Programme), PoolKeys.FundingReason, today);
         _book.Replace(_book.Section.Fund(member.Id, new JuniorFunding(organization, command.Programme, today.Year)));
         return [new JuniorFunded(command.ManagerId, command.IssuedOn, command.PersonHandle, command.Programme)];
+    }
+}
+
+public sealed class RecruitJuniorHandler : CommandHandler<RecruitJuniorCommand>
+{
+    private readonly PoolBook _book;
+    private readonly IManagerOrganizations _organizations;
+
+    public RecruitJuniorHandler(PoolBook book, IManagerOrganizations organizations)
+    {
+        ArgumentNullException.ThrowIfNull(book);
+        ArgumentNullException.ThrowIfNull(organizations);
+        _book = book;
+        _organizations = organizations;
+    }
+
+    protected override TranslationMessage? ValidateTyped(RecruitJuniorCommand command, CommandContext context)
+    {
+        var (organization, rejection) = PoolHandlers.OrganizationOf(_organizations, command.ManagerId);
+        if (rejection is not null)
+        {
+            return rejection;
+        }
+
+        if (PoolHandlers.Member(_book, command.PersonHandle) is not { } member)
+        {
+            return TranslationMessage.Of(PoolKeys.PersonUnknown);
+        }
+
+        if (member.Academy == organization)
+        {
+            return TranslationMessage.Of(PoolKeys.AlreadyRecruited);
+        }
+
+        if (member.Academy is not null)
+        {
+            return TranslationMessage.Of(PoolKeys.TakenByAnother);
+        }
+
+        if (!PoolShortlist.Offers(organization, command.IssuedOn.Year, member))
+        {
+            return TranslationMessage.Of(PoolKeys.NotOnYourList);
+        }
+
+        return _book.Section.AcademyCount(organization) >= PoolEstimates.AcademySlots
+            ? TranslationMessage.Of(PoolKeys.AcademyFull)
+            : null;
+    }
+
+    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(RecruitJuniorCommand command, CommandContext context)
+    {
+        var (organization, _) = PoolHandlers.OrganizationOf(_organizations, command.ManagerId);
+        var member = PoolHandlers.Member(_book, command.PersonHandle)
+            ?? throw new InvalidOperationException("Execute ran for a command that should have been rejected.");
+        _book.Replace(_book.Section.Recruit(member.Id, organization));
+        return [new JuniorRecruited(command.ManagerId, command.IssuedOn, command.PersonHandle)];
+    }
+}
+
+public sealed class ReleaseJuniorHandler : CommandHandler<ReleaseJuniorCommand>
+{
+    private readonly PoolBook _book;
+    private readonly IManagerOrganizations _organizations;
+
+    public ReleaseJuniorHandler(PoolBook book, IManagerOrganizations organizations)
+    {
+        ArgumentNullException.ThrowIfNull(book);
+        ArgumentNullException.ThrowIfNull(organizations);
+        _book = book;
+        _organizations = organizations;
+    }
+
+    protected override TranslationMessage? ValidateTyped(ReleaseJuniorCommand command, CommandContext context)
+    {
+        var (organization, rejection) = PoolHandlers.OrganizationOf(_organizations, command.ManagerId);
+        if (rejection is not null)
+        {
+            return rejection;
+        }
+
+        if (PoolHandlers.Member(_book, command.PersonHandle) is not { } member)
+        {
+            return TranslationMessage.Of(PoolKeys.PersonUnknown);
+        }
+
+        return member.Academy == organization ? null : TranslationMessage.Of(PoolKeys.NotYourJunior);
+    }
+
+    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(ReleaseJuniorCommand command, CommandContext context)
+    {
+        var member = PoolHandlers.Member(_book, command.PersonHandle)
+            ?? throw new InvalidOperationException("Execute ran for a command that should have been rejected.");
+        _book.Replace(_book.Section.Release(member.Id));
+        return [new JuniorReleased(command.ManagerId, command.IssuedOn, command.PersonHandle)];
     }
 }
 
@@ -246,6 +389,11 @@ public sealed class SignPoolDriverHandler : CommandHandler<SignPoolDriverCommand
         if (!Enum.IsDefined(command.Role) || PoolHandlers.Member(_book, command.PersonHandle) is not { } member)
         {
             return TranslationMessage.Of(PoolKeys.PersonUnknown);
+        }
+
+        if (member.Academy is { } owner && owner != organization)
+        {
+            return TranslationMessage.Of(PoolKeys.TakenByAnother);
         }
 
         return _negotiations.ValidateStart(organization, member.Id, command.Role, PoolBook.ToGameDate(command.IssuedOn));

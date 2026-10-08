@@ -74,6 +74,7 @@ public class PoolCommandTests
     {
         var lab = new Lab();
         var handle = lab.HandleOf("d_a");
+        lab.PutInAcademy("d_a", PoolKit.Alpha);
 
         var result = lab.Submit(new FundJuniorCommand { ManagerId = Anna, IssuedOn = Today, PersonHandle = handle, Programme = JuniorProgramme.ExpensiveFast });
 
@@ -83,8 +84,10 @@ public class PoolCommandTests
         var funding = lab.Section.Find(PersonId.Real("d_a"))!.Funding!;
         Assert.Equal((PoolKit.Alpha, JuniorProgramme.ExpensiveFast, 1950), (funding.Funder, funding.Programme, funding.Season));
 
-        var again = lab.Submit(new FundJuniorCommand { ManagerId = Bram, IssuedOn = Today, PersonHandle = handle, Programme = JuniorProgramme.CheapSlow });
+        var again = lab.Submit(new FundJuniorCommand { ManagerId = Anna, IssuedOn = Today, PersonHandle = handle, Programme = JuniorProgramme.CheapSlow });
         Assert.Equal(PoolKeys.AlreadyFunded, Reason(again));
+        var rival = lab.Submit(new FundJuniorCommand { ManagerId = Bram, IssuedOn = Today, PersonHandle = handle, Programme = JuniorProgramme.CheapSlow });
+        Assert.Equal(PoolKeys.NotYourJunior, Reason(rival));
         Assert.Single(lab.Funding.Charges);
         var event0 = Assert.IsType<JuniorFunded>(Assert.Single(((CommandResult.Accepted)result).Events));
         Assert.Equal((handle, JuniorProgramme.ExpensiveFast), (event0.PersonHandle, event0.Programme));
@@ -95,6 +98,7 @@ public class PoolCommandTests
     {
         var lab = new Lab { Broke = true };
         var handle = lab.HandleOf("d_a");
+        lab.PutInAcademy("d_a", PoolKit.Alpha);
 
         var result = lab.Submit(new FundJuniorCommand { ManagerId = Anna, IssuedOn = Today, PersonHandle = handle, Programme = JuniorProgramme.CheapSlow });
 
@@ -190,11 +194,18 @@ public class PoolCommandTests
 
         var view = lab.Query.View(AccessContext.ForManager(new AccessManagerId(Anna.Value)));
 
-        Assert.Equal(4, view.Items.Count);
-        var item = view.Items.Single(i => i.GivenName == "Givenda");
-        Assert.Equal(("Familyda", "GBR", 1950 - 1932), (item.FamilyName, item.Nationality, item.Age));
-        Assert.Empty(item.Attributes);
-        Assert.Null(item.Potential);
+        // A team sees its own list of the pool, not the whole pool (#268).
+        Assert.Equal(lab.Offered(PoolKit.Alpha).Select(member => member.HandleText).Order().ToArray(), view.Items.Select(i => i.Handle).Order().ToArray());
+        Assert.NotEmpty(view.Items);
+        Assert.All(view.Items, item =>
+        {
+            var person = lab.World.GetPerson(lab.Section.FindByHandle(item.Handle)!.Id);
+            Assert.Equal((person.FamilyName, person.Nationality, 1950 - person.BirthDate.Year), (item.FamilyName, item.Nationality, item.Age));
+            Assert.Empty(item.Attributes);
+            Assert.Null(item.Potential);
+            Assert.False(item.InYourAcademy);
+            Assert.Null(item.SeasonsLeft);
+        });
         Assert.All(view.Items, i => Assert.StartsWith(TalentPoolSection.HandlePrefix, i.Handle, StringComparison.Ordinal));
     }
 
@@ -236,7 +247,7 @@ public class PoolCommandTests
         var shape = view.Items.Select(i => System.Text.RegularExpressions.Regex.Replace(i.Handle, "[0-9]+", "#")).Distinct().ToArray();
         Assert.Equal(["talent-#"], shape);
         var real = lab.World.Persons.Where(p => p.IsReal).Select(p => p.GivenName).ToHashSet();
-        Assert.Equal(2, view.Items.Count(i => real.Contains(i.GivenName)));
+        Assert.Equal(lab.Offered(PoolKit.Alpha).Count(member => lab.World.GetPerson(member.Id).IsReal), view.Items.Count(i => real.Contains(i.GivenName)));
     }
 
     [Fact]
@@ -260,9 +271,9 @@ public class PoolCommandTests
         Assert.Equal(4, developer.Items.Count);
 
         // The band holds the true current value for a perfect scout but is not it, and the potential is a band too.
-        var truth = lab.World.TruthOf(PersonId.Real("d_a"));
-        var shown = anna.Items.Single(i => i.GivenName == "Givenda");
-        Assert.All(shown.Attributes, band => Assert.InRange(truth.Value(band.Key), band.Low, band.High));
+        var shown = anna.Items.First();
+        var shownTruth = lab.World.TruthOf(lab.Section.FindByHandle(shown.Handle)!.Id);
+        Assert.All(shown.Attributes, band => Assert.InRange(shownTruth.Value(band.Key), band.Low, band.High));
         Assert.All(shown.Attributes, band => Assert.True(band.High > band.Low));
         Assert.True(shown.Potential!.High > shown.Potential.Low);
     }
@@ -450,12 +461,21 @@ public class PoolCommandTests
 
         public string HandleOf(string personId) => Section.Find(PersonId.Real(personId))!.HandleText;
 
+        /// <summary>Puts a member in a team's academy directly, whatever the team's list says.</summary>
+        public void PutInAcademy(string personId, OrganizationId team) =>
+            Holder.World = Holder.World.WithSection(Section.Recruit(PersonId.Real(personId), team));
+
+        /// <summary>The members the team's own scouts show it in 1950.</summary>
+        public PoolMember[] Offered(OrganizationId team) => Section.Members.Where(member => PoolShortlist.Offers(team, 1950, member)).ToArray();
+
         public CommandResult Submit(ICommand command)
         {
             Funding.Broke = Broke;
             var dispatcher = new CommandDispatcher();
             var teams = new Teams();
             dispatcher.Register(new AssignScoutFocusHandler(Book, teams));
+            dispatcher.Register(new RecruitJuniorHandler(Book, teams));
+            dispatcher.Register(new ReleaseJuniorHandler(Book, teams));
             dispatcher.Register(_defaults ? new FundJuniorHandler(Book, teams) : new FundJuniorHandler(Book, teams, Funding));
             dispatcher.Register(_defaults ? new SignPoolDriverHandler(Book, teams) : new SignPoolDriverHandler(Book, teams, Negotiations));
             Queue.Enqueue(command);

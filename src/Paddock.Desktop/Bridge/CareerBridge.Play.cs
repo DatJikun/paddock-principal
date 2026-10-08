@@ -760,6 +760,10 @@ public sealed partial class CareerBridge
             case "assignScoutFocus":
                 error = null;
                 return new AssignScoutFocusCommand { ManagerId = Human, IssuedOn = issued, PersonHandle = TextOf(args, "personHandle") };
+            case "recruitJunior":
+                return JuniorOf(args, issued, static (manager, day, person) => new RecruitJuniorCommand { ManagerId = manager, IssuedOn = day, PersonHandle = person }, out error);
+            case "releaseJunior":
+                return JuniorOf(args, issued, static (manager, day, person) => new ReleaseJuniorCommand { ManagerId = manager, IssuedOn = day, PersonHandle = person }, out error);
             case "fundJunior":
                 return Junior(args, issued, out error);
             case "signPoolDriver":
@@ -993,6 +997,19 @@ public sealed partial class CareerBridge
         }
 
         return new CommitConceptCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization, ProjectId = project };
+    }
+
+    private ICommand? JuniorOf(JsonElement args, DateOnly issued, Func<HostManagerId, DateOnly, string, ICommand> build, out TranslationMessage? error)
+    {
+        error = null;
+        var person = TextOf(args, "personHandle");
+        if (person is null)
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return build(Human, issued, person);
     }
 
     private ICommand? Junior(JsonElement args, DateOnly issued, out TranslationMessage? error)

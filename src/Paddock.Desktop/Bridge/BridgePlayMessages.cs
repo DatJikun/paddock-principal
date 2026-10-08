@@ -189,6 +189,9 @@ public sealed record ScoutFocusCall(string ManagerId, string? PersonHandle);
 /// <summary>Pays for one junior programme. Programme is <c>CheapSlow</c> or <c>ExpensiveFast</c>.</summary>
 public sealed record FundJuniorCall(string ManagerId, string PersonHandle, string Programme);
 
+/// <summary>Recruits a pool member into the academy, or frees his place.</summary>
+public sealed record JuniorCall(string ManagerId, string PersonHandle);
+
 /// <summary>Starts a pool signing. Role is <c>Test</c> or <c>Junior</c>.</summary>
 public sealed record SignPoolCall(string ManagerId, string PersonHandle, string Role);
 

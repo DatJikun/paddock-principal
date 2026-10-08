@@ -14,6 +14,7 @@
     busy,
     onConfirm,
     onDismiss,
+    onDismissMany,
   }: {
     data: InboxData;
     tr: Tr;
@@ -21,6 +22,7 @@
     busy: boolean;
     onConfirm: (itemId: string, optionId: string) => void;
     onDismiss: (itemId: string) => void;
+    onDismissMany: (itemIds: string[]) => void;
   } = $props();
 
   let filter = $state('all');
@@ -28,11 +30,16 @@
 
   const isDecision = (item: InboxItemView) => item.status === 'Open' && item.needsDecision;
   const isClosed = (item: InboxItemView) => item.status !== 'Open';
+  /* A notice the player has deleted leaves the main list and stays in the closed one. */
+  const isDeleted = (item: InboxItemView) => item.status === 'Dismissed';
+  const isNotice = (item: InboxItemView) => item.status === 'Open' && !item.needsDecision;
 
-  let items = $derived(data.inbox.items);
+  /* The bridge lists items by number, oldest first; the mailbox shows the newest on top. */
+  let items = $derived([...data.inbox.items].reverse());
   let shown = $derived(
-    items.filter((item) => (filter === 'decisions' ? isDecision(item) : filter === 'closed' ? isClosed(item) : true)),
+    items.filter((item) => (filter === 'decisions' ? isDecision(item) : filter === 'closed' ? isClosed(item) : !isDeleted(item))),
   );
+  let notices = $derived(items.filter(isNotice));
   let current = $derived(
     items.find((item) => item.id === selectedId) ??
       items.find((item) => isDecision(item)) ??
@@ -51,19 +58,24 @@
     <Tabs
       group="inbox-filter"
       items={[
-        { value: 'all', label: tr.t('inbox.tab.all', { count: String(items.length) }) },
+        { value: 'all', label: tr.t('inbox.tab.all', { count: String(items.filter((item) => !isDeleted(item)).length) }) },
         { value: 'decisions', label: tr.t('inbox.tab.decisions', { count: String(items.filter(isDecision).length) }) },
         { value: 'closed', label: tr.t('inbox.tab.closed', { count: String(items.filter(isClosed).length) }) },
       ]}
       bind:value={filter}
     />
+    {#if notices.length > 1}
+      <button class="btn sm" type="button" disabled={busy} onclick={() => onDismissMany(notices.map((item) => item.id))}>{tr.t('inbox.deleteNotices')}</button>
+    {/if}
   </div>
 </div>
 
 <div class="mailbox instant">
   <section class="panel list">
     {#each shown as item (item.id)}
-      <div><MailRow {item} {tr} selected={item.id === current?.id} /></div>
+      <div><MailRow {item} {tr} selected={item.id === current?.id} onDelete={isNotice(item) ? onDismiss : null} /></div>
+    {:else}
+      <p class="muted empty">{tr.t('inbox.empty')}</p>
     {/each}
   </section>
   {#if current}
@@ -117,7 +129,7 @@
         {/if}
       {:else if current.status === 'Open'}
         <div class="confirm">
-          <button class="btn sm" type="button" disabled={busy} onclick={() => onDismiss(current!.id)}>{tr.t('inbox.dismiss')}</button>
+          <button class="btn sm" type="button" disabled={busy} onclick={() => onDismiss(current!.id)}>{tr.t('inbox.delete')}</button>
         </div>
       {/if}
     </section>

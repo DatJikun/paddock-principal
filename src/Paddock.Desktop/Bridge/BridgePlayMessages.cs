@@ -42,7 +42,9 @@ public sealed record TeamOptionView(
     string? Budget,
     int? LastSeason,
     int? Expected,
-    int? FieldSize);
+    int? FieldSize,
+    long? BudgetCents,
+    TeamCardLevels? Levels);
 
 /// <summary>Public teams of one season. <paramref name="Problem"/> is why the chosen setup cannot start (the refusal <c>newCareer</c> would give), or null.</summary>
 public sealed record TeamListView(int Year, IReadOnlyList<TeamOptionView> Teams, TranslationMessage? Problem);

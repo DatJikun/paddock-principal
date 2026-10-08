@@ -70,6 +70,9 @@
   let steps = $derived(ORDER.map((value) => ({ value, label: tr.t(`career.step.${value}`) })));
   let at = $derived(ORDER.indexOf(step));
   let name = $derived(`${you.given.trim()} ${you.family.trim()}`.trim());
+  let countries = $derived(
+    [...COUNTRIES].sort((a, b) => countryName(tr, a).localeCompare(countryName(tr, b), tr.lang === 'en' ? 'en' : 'pl')),
+  );
 
   $effect(() => {
     /* A changed world invalidates the grid: the steps after it have to be walked again. */
@@ -160,14 +163,21 @@
             <span class="meta">{tr.t('career.you.country')}</span>
             <select class="text" bind:value={you.nationality}>
               <option value="" disabled>—</option>
-              {#each COUNTRIES as code (code)}
+              {#each countries as code (code)}
                 <option value={code}>{countryName(tr, code)}</option>
               {/each}
             </select>
           </label>
           <div class="fld">
             <span class="meta">{tr.t('shell.start.tilt')}</span>
-            <Tabs group="tilt" items={TILTS.map((value) => ({ value, label: tr.t(TILT_KEYS[value as keyof typeof TILT_KEYS]) }))} bind:value={you.tilt} />
+            <div class="tilts" role="radiogroup" aria-label={tr.t('shell.start.tilt')}>
+              {#each TILTS as value (value)}
+                <button type="button" class="tilt" role="radio" aria-checked={you.tilt === value} onclick={() => (you.tilt = value)}>
+                  <span class="rd">{#if you.tilt === value}{@html icon(ICON.check, 13)}{/if}</span>
+                  <span class="tl"><b>{tr.t(TILT_KEYS[value as keyof typeof TILT_KEYS])}</b><span class="muted">{tr.t(`${TILT_KEYS[value as keyof typeof TILT_KEYS]}.hint`)}</span></span>
+                </button>
+              {/each}
+            </div>
           </div>
         </div>
       </section>
@@ -239,13 +249,21 @@
               <Tabs group="no-numbers" items={AXES.fatality.map((value) => ({ value, label: tr.t(`career.toggle.${value}`) }))} bind:value={setup.noNumbers} />
             </div>
             <div class="adv-nums">
-              <label class="fld">
+              <label class="fld slider">
                 <span class="meta">{tr.t('career.axis.history')}</span>
-                <input class="text num" type="number" min="0" max="10" bind:value={setup.history} />
+                <span class="sl">
+                  <input type="range" min="0" max="10" step="1" bind:value={setup.history} />
+                  <b class="num">{setup.history}</b>
+                </span>
+                <small class="muted num">{tr.t('career.range', { min: '0', max: '10' })}</small>
               </label>
-              <label class="fld">
+              <label class="fld slider">
                 <span class="meta">{tr.t('career.axis.randomness')}</span>
-                <input class="text num" type="number" min="0" max="100" bind:value={setup.randomness} />
+                <span class="sl">
+                  <input type="range" min="0" max="100" step="1" bind:value={setup.randomness} />
+                  <b class="num">{setup.randomness}</b>
+                </span>
+                <small class="muted num">{tr.t('career.range', { min: '0', max: '100' })}</small>
               </label>
               <label class="fld">
                 <span class="meta">{tr.t('career.axis.seed')}</span>
@@ -281,23 +299,29 @@
         <section class="panel">
           <header><h2>{tr.t('career.summary.you')}</h2></header>
           <div class="body">
-            <div class="fields">
-              <div class="fld"><span class="meta">{tr.t('shell.start.given')}</span><span class="v">{name}</span></div>
-              <div class="fld"><span class="meta">{tr.t('career.you.country')}</span><span class="v">{#if hasFlag(you.nationality)}<Flag code={you.nationality} />{/if}{countryName(tr, you.nationality)}</span></div>
-              <div class="fld"><span class="meta">{tr.t('shell.start.tilt')}</span><span class="v">{tr.t(TILT_KEYS[you.tilt as keyof typeof TILT_KEYS])}</span></div>
-            </div>
+            <table class="kvt">
+              <tbody>
+                <tr><th>{tr.t('shell.start.given')}</th><td>{name}</td></tr>
+                <tr><th>{tr.t('career.you.country')}</th><td>{#if hasFlag(you.nationality)}<Flag code={you.nationality} />{/if}{countryName(tr, you.nationality)}</td></tr>
+                <tr><th>{tr.t('shell.start.tilt')}</th><td>{tr.t(TILT_KEYS[you.tilt as keyof typeof TILT_KEYS])}</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
         <section class="panel">
           <header><h2>{tr.t('career.summary.world')}</h2>{#if custom}<Status text={tr.t('career.world.custom')} tone="hi" />{/if}</header>
           <div class="body">
-            <div class="fields">
-              <div class="fld"><span class="meta">{tr.t('shell.start.year')}</span><span class="v num">{setup.year}</span></div>
-              <div class="fld"><span class="meta">{tr.t('shell.start.preset')}</span><span class="v">{tr.t(PRESET_KEYS[setup.preset as keyof typeof PRESET_KEYS])}</span></div>
-              <div class="fld"><span class="meta">{tr.t('career.axis.people')}</span><span class="v">{tr.t(`career.people.${setup.people}`)}</span></div>
-              <div class="fld"><span class="meta">{tr.t('career.axis.ai')}</span><span class="v">{tr.t(`career.ai.${setup.ai}`)}</span></div>
-              <div class="fld"><span class="meta">{tr.t('career.axis.rules')}</span><span class="v">{tr.t(`career.rules.${setup.rules}`)}</span></div>
-            </div>
+            <table class="kvt">
+              <tbody>
+                <tr><th>{tr.t('shell.start.year')}</th><td class="num">{setup.year}</td></tr>
+                <tr><th>{tr.t('shell.start.preset')}</th><td>{tr.t(PRESET_KEYS[setup.preset as keyof typeof PRESET_KEYS])}</td></tr>
+                <tr><th>{tr.t('career.axis.people')}</th><td>{tr.t(`career.people.${setup.people}`)}</td></tr>
+                <tr><th>{tr.t('career.axis.ai')}</th><td>{tr.t(`career.ai.${setup.ai}`)}</td></tr>
+                <tr><th>{tr.t('career.axis.rules')}</th><td>{tr.t(`career.rules.${setup.rules}`)}</td></tr>
+                <tr><th>{tr.t('career.axis.history')}</th><td class="num">{setup.history}</td></tr>
+                <tr><th>{tr.t('career.axis.randomness')}</th><td class="num">{setup.randomness}</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
       </div>

@@ -360,7 +360,7 @@ public class NegotiationCommandTests
         var bram = lab.OpenOk(Bram, TeamB, DriverX);
         lab.Offer(Anna, anna, Terms(130_000));
         lab.Offer(Bram, bram, Terms(60_000));
-        lab.Advance(6);
+        lab.Advance(12);
         // Both answered: Anna's offer is acceptable, Bram's was countered. With no rival left waiting, the person agrees to Anna.
         Assert.Equal(NegotiationStatus.Countered, lab.Find(bram).Status);
         var winner = lab.Find(anna);

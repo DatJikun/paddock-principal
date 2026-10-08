@@ -152,7 +152,8 @@ Czy niepewność skauta pomaga w decyzji, czy tylko irytuje?
 Kierowca ocenia ofertę według swojej osobowości. Jednej „wartości rynkowej” nie ma.
 
 ```wybory
-Pensja | porównywana z typową pensją tego poziomu w epoce
+Pensja | suwak; sugerowany przedział wynika z umiejętności osoby, tak jak widzi je Twój zespół. Premii za punkt nie ma, zostają premia za wygraną i za tytuł
+Przedkontrakt | kierowcę, któremu umowa kończy się w tym roku, można podpisać już teraz na następny sezon; umowa startuje dzień po końcu obecnej
 Długość | do {NegotiationEstimates.MaxYears|sezonów}; długość, opcje i klauzula wyjścia liczą się jako ryzyko
 Status | numer 1, równy albo numer 2
 Kiedy ruszyć kontrakt rywala | na {NegotiationEstimates.NegotiationWindowDays|dni} przed jego końcem
@@ -176,7 +177,7 @@ Ryzyko (minus) | waga {NegotiationEstimates.WeightRisk} | długość, opcje, kla
 
 ```kroki
 Oferta | pensja, lata, status, opcje, klauzule
-Odpowiedź | po kilku dniach, najwcześniej po {NegotiationEstimates.ResponseDelayMinDays|dni}
+Odpowiedź | dzień zależy od osoby: najwcześniej po {NegotiationEstimates.ResponseDelayMinDays|dni}, mniej zawodowa osoba odpowiada nawet o {NegotiationEstimates.ResponseDelayCarelessDays|dni} później. Po wysłaniu oferty dostajesz w skrzynce wiadomość, do kiedy czekasz
 Rundy | {NegotiationEstimates.MinRounds}–{NegotiationEstimates.MaxRounds}, zależnie od charakteru
 Decyzja | najlepsza oferta; przy remisie zaufanie
 ```
@@ -323,22 +324,30 @@ Czy kusi Cię umowa na wiele sezonów z rabatem?
 
 ## 10. Sponsorzy
 
-Masz trzy miejsca na sponsorów, a na każde kilku kandydatów.
+Masz trzy miejsca na sponsorów. Jedna lista pokazuje wszystkich, z którymi możesz rozmawiać: nazwa, branża, miejsce i kwota rocznie. Klikasz sponsora, ustawiasz warunki umowy i potwierdzasz. Miejsce wybiera się samo, bo wynika z rodzaju sponsora.
 
 ```wybory
+Jak długo | umowa trwa od {SponsorEstimates.MinYears|lat} do {SponsorEstimates.MaxYears|lat} i dłuższa płaci rocznie tyle samo co krótka; za to nie szukasz sponsora co roku, a zadowolony sponsor może podnieść kwotę w rocznicę
+Czy sponsor chce długiej współpracy | przed wyborem długości ekran mówi słowami, czy sponsor jest ostrożny, otwarty czy chce długiej współpracy; zależy to od zaufania do Ciebie, umów skończonych razem i wielkości sponsora (duży planuje dalej, od {SponsorEstimates.BigSponsorBudgetLevel|%} budżetu zespołu); otwarty sponsor podnosi kwotę w rocznicę o {SponsorEstimates.AnniversaryRaiseOpenMilli|m%}, a ten, który chce długiej współpracy, o {SponsorEstimates.AnniversaryRaiseEagerMilli|m%}, ale tylko gdy minął rok ze spełnionym warunkiem; o podwyżce dostajesz wiadomość
+Prośba o więcej | przy podpisaniu i przy przedłużeniu możesz poprosić o do {SponsorEstimates.AskMaxMilli|m%} więcej niż wycena; otwarty sponsor zgodzi się na do {SponsorEstimates.AskOpenLimitMilli|m%}, ten, który chce długiej współpracy, na do {SponsorEstimates.AskEagerLimitMilli|m%}, ostrożny zostaje przy wycenie; odpowiedź widzisz przed potwierdzeniem
+Jak trudny warunek | łatwiejszy płaci {SponsorEstimates.LighterPayMilli|m%} standardowej kwoty, trudniejszy {SponsorEstimates.HarderPayMilli|m%}; cel jest zawsze dopasowany do siły Twojego zespołu (jak u zarządu), więc mocny zespół dostaje wyższe cele; sponsor bez celu sportowego ma jedną wersję umowy
 Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, do limitu negocjatora; na razie nikt nie zabierze Ci sponsora
-Który sponsor na które miejsce | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego
-Cel sponsora | dopasowany do siły zespołu (oczekiwana pozycja, jak u zarządu); premia startuje od {SponsorEstimates.BonusMilli|m%} rocznej kwoty i rośnie z trudnością celu, niespełniony może zakończyć umowę
-Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania
-Odpowiedź na ofertę | oferta przedłużenia przychodzi do skrzynki z wyborem: przedłuż albo puść sponsora; bez odpowiedzi umowa po prostu się kończy. Gdy sponsor nie złoży oferty, dostajesz o tym wiadomość {SponsorEstimates.RenewalLeadDays|dni} przed końcem umowy
+Miejsce na aucie | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego; w latach 50. wszystkie trzy to miejsca techniczne
+Cel sponsora | premia startuje od {SponsorEstimates.BonusMilli|m%} rocznej kwoty i rośnie z trudnością celu; niespełniony cel kończy umowę w terminie, a w umowie wieloletniej cel jest liczony od nowa co rok
+Życzenie narodowości | rzadkie i tylko premia: sponsor prosi o kierowcę ze swojego kraju, ale tylko wtedy, gdy taki kierowca jest w stawce albo na rynku; duży sponsor (od {SponsorEstimates.BigSponsorBudgetLevel|%} budżetu zespołu) chce go w składzie wyścigowym, mały zadowoli się rezerwowym; gdy się uda, dostajesz {SponsorEstimates.WishBonusMilli|m%} kwoty rocznej więcej, a gdy nie, nic się nie dzieje
+Dodatki branży | paliwa, oleje, opony i motoryzacja dają towar wartości {SponsorEstimates.InKindMilli|m%} kwoty rocznej z każdą ratą; banki, dobra konsumpcyjne i elektronika dopłacają raz {SponsorEstimates.SigningBonusMilli|m%} kwoty rocznej z pierwszą ratą
+Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania, zwykle więcej niż płacił (od {SponsorEstimates.RenewalRaiseBaseMilli|m%} dawnej kwoty, a im większe zaufanie, tym więcej)
+Negocjacja przedłużenia | w ofercie możesz zmienić długość umowy i poziom warunku; sponsor od razu wycenia nowe warunki i przysyła nową decyzję w skrzynce; masz na to {SponsorEstimates.MaxCounterRounds} zmiany, potem oferta jest ostateczna
+Odpowiedź na ofertę | oferta przychodzi do skrzynki z wyborem: przedłuż albo puść sponsora; bez odpowiedzi umowa po prostu się kończy. Gdy sponsor nie złoży oferty, dostajesz o tym wiadomość {SponsorEstimates.RenewalLeadDays|dni} przed końcem umowy
 Własna pula | każdy zespół ma własnych sponsorów: co sezon {SponsorEstimates.LocalBackersPerSeason} nowych, innych propozycji na rodzaj miejsca, różnych nazwą, kwotą i celem; do tego dochodzą sponsorzy z nazwy, dostępni dla Ciebie co sezon; żaden sponsor nie jest wspólny, więc zespoły AI nigdy nie odbierają Ci propozycji
 ```
 
 ```kroki
+Wybór | sponsor z listy, długość umowy i poziom warunku
 Otwarcie | sponsor proponuje {SponsorEstimates.OpeningTermsMilli|m%} pełnej ceny
 Czekanie | +{SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, do limitu negocjatora
 Rywal | na razie żadnego: zespoły nie walczą o sponsorów, wspólny rynek sponsorów wejdzie później
-Umowa | {SponsorEstimates.DealDays|dni}, raty co miesiąc, cel sponsora
+Umowa | {SponsorEstimates.DealDays|dni} na każdy rok umowy, raty co miesiąc, cel sponsora i dodatki branży
 ```
 
 ```wykres sponsor-czekanie
@@ -348,7 +357,12 @@ Przerywana linia: ile średnio zdobędziesz, czekając tyle dni, gdyby rywal mó
 ```pytania
 Czy podpisałbyś sponsora od razu, czy czekał?
 Skoro nikt nie zabiera sponsorów, czekanie zawsze się opłaca do limitu. Czy brakuje Ci tu ryzyka, czy wolisz spokój?
-Czy cele sponsorów są zrozumiałe i uczciwe?
+Czy wiesz z ekranu, czy sponsor chce długiej współpracy, i czy to zmienia długość umowy, którą wybierasz?
+Czy możliwość poproszenia o trochę więcej to prawdziwa decyzja, czy prosisz zawsze o maksimum?
+Czy cele sponsorów są zrozumiałe i uczciwe, także na poziomie łatwiejszym i trudniejszym?
+Czy wybierałbyś dłuższą umowę za mniejszą kwotę rocznie?
+Czy życzenie narodowości jako sama premia jest dla Ciebie warte uwagi?
+Czy kwoty od sponsorów są teraz wystarczające, czy nadal za małe?
 ```
 
 ---

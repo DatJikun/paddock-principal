@@ -61,10 +61,28 @@ public static class SponsorKeys
     public const string Malformed = "sponsor.error.malformed";
 
     [TranslationKey]
+    public const string BadTerms = "sponsor.error.badTerms";
+
+    [TranslationKey]
+    public const string NoRoundsLeft = "sponsor.error.noRoundsLeft";
+
+    [TranslationKey]
+    public const string SameTerms = "sponsor.error.sameTerms";
+
+    [TranslationKey]
     public const string ReasonInstalment = "sponsor.reason.instalment";
 
     [TranslationKey]
     public const string ReasonBonus = "sponsor.reason.bonus";
+
+    [TranslationKey]
+    public const string ReasonNationality = "sponsor.reason.nationality";
+
+    [TranslationKey]
+    public const string ReasonInKind = "sponsor.reason.inKind";
+
+    [TranslationKey]
+    public const string ReasonSigning = "sponsor.reason.signing";
 
     [TranslationKey]
     public const string ObjectiveKind = "sponsor.objective.kind";
@@ -91,7 +109,19 @@ public static class SponsorKeys
     public const string InboxCompletedSubject = "sponsor.inbox.completed.subject";
 
     [TranslationKey]
+    public const string InboxRaisedSubject = "sponsor.inbox.raised.subject";
+
+    [TranslationKey]
+    public const string BadAsk = "sponsor.error.badAsk";
+
+    [TranslationKey]
     public const string InboxOfferSubject = "sponsor.inbox.offer.subject";
+
+    [TranslationKey]
+    public const string InboxOfferSubject2 = "sponsor.inbox.offer.subject.2";
+
+    [TranslationKey]
+    public const string InboxOfferSubject3 = "sponsor.inbox.offer.subject.3";
 
     [TranslationKey]
     public const string ViewUnknown = "sponsor.view.unknown";
@@ -161,6 +191,14 @@ public static class SponsorKeys
 
     /// <summary>Inbox kind of every sponsor notice. A stable code, not text.</summary>
     public const string InboxKind = "sponsor.notice";
+
+    /// <summary>The subject of a renewal offer for a deal of this many years (one, two or three).</summary>
+    public static string OfferSubject(int years) => years switch
+    {
+        2 => InboxOfferSubject2,
+        3 => InboxOfferSubject3,
+        _ => InboxOfferSubject,
+    };
 
     public static string IndustryName(string industry) => "sponsor.industry." + industry;
 

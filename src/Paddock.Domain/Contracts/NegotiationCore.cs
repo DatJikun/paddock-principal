@@ -51,6 +51,21 @@ public static class NegotiationCore
     }
 
     /// <summary>
+    /// Days a person takes to answer an offer (#265): at least <see cref="NegotiationEstimates.ResponseDelayMinDays"/>, more for a
+    /// less professional person, plus a small spread that comes from a hash of <paramref name="key"/> (the negotiation id and the
+    /// round), so the same offer always gets the same answer day and no random stream is read. Pure (INV-005).
+    /// </summary>
+    public static int ResponseDelayDays(PersonalityTraits traits, string key)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        var careless = (20 - traits.Professionalism) / 19.0;
+        var baseDays = NegotiationEstimates.ResponseDelayMinDays
+            + (int)Math.Round(careless * NegotiationEstimates.ResponseDelayCarelessDays, MidpointRounding.AwayFromZero);
+        var spread = (int)(Paddock.Domain.Random.Fnv1a64.Hash(System.Text.Encoding.UTF8.GetBytes(key)) % (ulong)(NegotiationEstimates.ResponseDelayJitterDays + 1));
+        return baseDays + spread;
+    }
+
+    /// <summary>
     /// True when the latest offer of the negotiation was a nudge: no meaningful change from the counter or offer before it.
     /// </summary>
     public static bool LastOfferWasNudge(Negotiation negotiation)

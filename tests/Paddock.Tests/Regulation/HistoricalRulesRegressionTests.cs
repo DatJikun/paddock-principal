@@ -10,20 +10,22 @@ namespace Paddock.Tests.Regulation;
 /// Regression guard for regulation voting v2 (#275): a career whose rules are historical never writes the
 /// <c>regulations</c> section and keeps its results and state hashes exactly as they were before voting v2 existed.
 /// The golden values were captured on main (commit 0d0f46d) without voting v2 (the same values come out of main and of this branch), with the same fixture (Balanced preset, 1955,
-/// seed 7). Re-pinned once for the academy of #268 (PP-069): the <c>talent pool</c> section moved to schema 2, juniors are recruited into an academy
-/// per team and the programmes changed their speed-up; all of it changes the state hash of every career and none
-/// of it touches the regulations.
-/// Edit them only after a reviewed change to the day rules; this test prints the actual values and never writes them.
+/// seed 7). Edit them only after a reviewed change to the day rules; this test prints the actual values and never writes them.
+/// Re-pinned in #265 (people, contracts, staff, market): the staff roster changes (two race engineers per team, no strategist, chief mechanic or
+/// commercial director on it), and a 1955 career's world contains its people, so its hash moves. The regulations are untouched.
+/// Re-pinned again in #268 (sponsors): the sponsors section is schema 2 and sponsor amounts are scaled, so a 1955 career's hash moves.
+/// Re-pinned again in #268 (academy, PP-069): the talent pool section moved to schema 2, juniors are recruited into an academy per team and the
+/// programmes changed their speed-up; none of it touches the regulations.
 /// </summary>
 public class HistoricalRulesRegressionTests
 {
     private const ulong Seed = 7;
 
-    private const string HashOnTheLastDayOf1955 = "4694726b394ba340c0c4adb9bc6197252ecb83b546ec45110993e588594bffb8";
+    private const string HashOnTheLastDayOf1955 = "3fd4e4d40013a55250791189dc31a93a205fef6bd76feaff1ab425bbefa044a0";
 
-    private const string HashAfterTheSeasonTurned = "26cd7ee5ec79682fd84626f8305c38999a637879a1cf4c228830cca017658618";
+    private const string HashAfterTheSeasonTurned = "55396a1f604612af467e5a47b58c150974897e4f9ceaf2e74d3ef33663bf0779";
 
-    private const string HashAfterTwoSeasons = "c7f306ab1eb2f4d6cc28572f39a32931199a1cf5bc145e02b988cb9dc6f33008";
+    private const string HashAfterTwoSeasons = "3e6feb85a858c6adad96ad0d96beb03d20347f4ab350dcab8d0dbef8e090b0c2";
 
     private static (string Hash, bool HasRegulations, int Season, int Rounds, int NextSessions) Probe(GameDate stopOn)
     {

@@ -479,6 +479,10 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 - **Sponsorzy** to rynek z celami, a jego wielkość w każdym kraju wynika z popularności. Sponsorzy mają **branże** zmieniające się z epokami: paliwa i opony w latach 50., tytoń od 1968 do zakazów w latach 2000., alkohol, banki, telekomy, IT, kryptowaluty. Zakaz reklamy tytoniu to w trybie historycznym realny szok finansowy dla zespołów od niej zależnych.
   - **Cele sponsorów pasują do siły zespołu (PP-058):** słaby zespół dostaje osiągalne cele, a premia i zaufanie rosną z trudnością celu. Wartość liczy się z oczekiwanej pozycji (ostatnie miejsce w mistrzostwach, gdy jest znane, i miejsce w budżecie — te same fakty co zarząd). Rodzaj celu i baza zostają w pliku; narodowość kierowcy się nie skaluje.
   - **Miejsca na aucie:** główne, drugorzędne, mniejsze. Każde daje inną część kwoty.
+  - **Umowa ze sponsorem (PP-068):** od 1 do 3 lat, z warunkiem liczonym od nowa co rok. Dłuższa umowa płaci rocznie tyle samo co krótka (inaczej zawsze podpisywałoby się na rok), a zadowolony sponsor podnosi kwotę w rocznicę, gdy rok spełnił jego warunek i sponsor jest otwarty na dłuższą współpracę; gra mówi o tym w skrzynce. Czy sponsor jest otwarty, widać słowami przed wyborem długości i wynika tylko z tego, co zespół wie: zaufania, wspólnych umów i wielkości sponsora. Gracz może też poprosić o trochę więcej niż wycena i zobaczyć odpowiedź przed potwierdzeniem. Gracz wybiera poziom warunku (łatwiejszy, standardowy, trudniejszy): trudniejszy płaci więcej, a cel zawsze wynika z oczekiwanej pozycji zespołu. Sponsor bez celu sportowego ma jedną wersję umowy.
+  - **Życzenie narodowości (PP-068):** rzadkie, tylko gdy taki kierowca jest na torze albo na rynku, i tylko jako premia do rat. Duży sponsor chce kierowcy w składzie wyścigowym, mały przyjmie rezerwowego. Niespełnione życzenie nie kosztuje zaufania ani umowy.
+  - **Dodatki branż (PP-068):** paliwa, oleje, opony i motoryzacja dają towar wyceniony na część kwoty rocznej z każdą ratą, finanse, dobra konsumpcyjne i elektronika dopłacają raz z pierwszą ratą.
+  - **Przedłużenie to negocjacja (PP-068):** zadowolony sponsor proponuje więcej niż płacił, a gracz zmienia długość i poziom warunku albo prosi o trochę więcej przez kilka rund; każda zmiana kończy się nową wyceną i nową decyzją w skrzynce.
   - **Sponsor tytularny zmienia nazwę zespołu** (historycznie np. „Marlboro McLaren”, „Mild Seven Benetton”). Wymaga prestiżu i długiej umowy, może też chcieć udziałów.
   - **Rozmowy przyspieszają:** zgodna narodowość sponsora i kierowcy, prestiż zespołu, przedłużenie istniejącej umowy.
   - **Rozmowy spowalniają:** konflikt branż, bo dwa koncerny paliwowe na jednym aucie nie przejdą.
@@ -491,7 +495,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 
 ## 10. Rynek i kontrakty
 
-- **Pola kontraktu:** pensja, premie (za punkty, zwycięstwa, tytuł), długość, status (#1 / równy / #2 / rezerwowy). Kierowcy wnoszący sponsora mają osobne pole.
+- **Pola kontraktu:** pensja (suwak z sugerowanym przedziałem wokół pensji, jaką zespół uważa za adekwatną), premie (za zwycięstwa i tytuł; premia za punkt wycofana w #265), długość, status (#1 / równy / #2 / rezerwowy). Kierowcy wnoszący sponsora mają osobne pole.
 - **Klauzule** (głęboki system, którego nikt w gatunku nie ma):
   - **wyjścia z umowy:** kierowca może odejść, jeśli zespół spadnie poniżej np. 5. miejsca w konstruktorach albo nie da mu podium w ciągu N wyścigów; zespół może rozwiązać umowę, jeśli kierowca przegra pojedynek z partnerem albo nie zdobędzie punktów;
   - **opcja przedłużenia** po stronie zespołu albo kierowcy;

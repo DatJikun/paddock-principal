@@ -107,6 +107,15 @@ public sealed class NegotiationDayHandler : IDayHandler
             }
         }
 
+        // The answer day is fixed when the offer is made (#265), so an offer is due when that day comes, queue event or not.
+        foreach (var negotiation in book.Section.Active())
+        {
+            if (negotiation.Status == NegotiationStatus.AwaitingResponse && negotiation.RespondOn is GameDate day && day <= context.Today)
+            {
+                due.Add(negotiation.Number);
+            }
+        }
+
         foreach (var scheduled in context.DueEvents)
         {
             if (scheduled.TypeId != ContractEventTypes.Respond || scheduled.Payload is not MarkerPayload marker)

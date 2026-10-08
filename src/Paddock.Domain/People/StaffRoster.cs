@@ -255,7 +255,8 @@ public static class StaffRoster
             false,
             null,
             [PersonRole.Staff(role)],
-            new PersonTruth(attributes, attributes));
+            new PersonTruth(attributes, attributes),
+            staff.IsFemale);
         (world, var id) = world.AddPerson(spec);
         if (!string.Equals(id.Value, staff.Id, StringComparison.Ordinal))
         {
@@ -347,12 +348,13 @@ public static class StaffRoster
         return holders;
     }
 
+    /// <summary>Drivers in a race seat. A reserve has no race engineer of his own (#265): a team has two, one per car.</summary>
     private static int DriverCount(WorldState world, OrganizationId organization, GameDate on)
     {
         var count = 0;
         foreach (var contract in world.Contracts)
         {
-            if (contract.OrganizationId == organization && contract.Role.IsDriver && contract.IsActiveOn(on) && !world.GetPerson(contract.PersonId).IsRetired)
+            if (contract.OrganizationId == organization && contract.Role.IsDriver && contract.Role.Seat != SeatStatus.Reserve && contract.IsActiveOn(on) && !world.GetPerson(contract.PersonId).IsRetired)
             {
                 count++;
             }

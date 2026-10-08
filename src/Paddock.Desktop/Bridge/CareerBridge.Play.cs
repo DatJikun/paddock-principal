@@ -11,6 +11,7 @@ using Paddock.Application.Infrastructure;
 using Paddock.Application.Pool;
 using Paddock.Application.Racing;
 using Paddock.Application.Sponsors;
+using Paddock.Domain.Sponsors;
 using Paddock.Application.Staff;
 using Paddock.Application.Supply;
 using Paddock.Data.Authored;
@@ -34,6 +35,7 @@ namespace Paddock.Desktop.Bridge;
 public sealed partial class CareerBridge
 {
     private CareerConfig? _config;
+    private Paddock.Data.Historical.DriverCareerHistory? _history;
     private string? _worldDataHash;
     private string? _peopleNotice;
     private string _careerName = "career";
@@ -239,7 +241,7 @@ public sealed partial class CareerBridge
         {
             // The same starting sources as newCareer (#271), so a card shows the car and the budget the career will start with.
             var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
-            var created = WorldInitializer.Create(config, data, CareerData.LoadProvider(files), seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
+            var created = WorldInitializer.Create(config, data, CareerData.LoadProvider(files, root), seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
             var tiers = starting.Tiers ?? TeamTiersLoader.ToSource(TeamTiersLoader.Load(root));
             var last = created.World.Organizations
                 .Where(organization => organization.IsReal && tiers.PreviousPlaceOf(organization.Id, config.StartYear) is not null)
@@ -312,7 +314,32 @@ public sealed partial class CareerBridge
             return DriverProfileRead.None(person);
         }
 
-        return DriverProfileRead.Of(Session.World, id, Session.Date, person);
+        var profile = DriverProfileRead.Of(Session.World, id, Session.Date, person, EarlierSeasons(person));
+        if (!profile.Found)
+        {
+            return profile;
+        }
+
+        // The slider of the offer form: from what this team believes the driver is worth (#265).
+        var reference = Contracts().ReferenceSalary(id, Person(person), NegotiationSubject.DriverSeat, Session.Date);
+        return profile with { SalaryGuide = PeopleViews.SalaryGuide(reference) };
+    }
+
+    /// <summary>
+    /// The seasons a real driver raced before this career began, as plain counts from the local data. A generated driver, a career
+    /// with no local data, or a driver the data does not know has none.
+    /// </summary>
+    private IReadOnlyList<DriverSeasonView> EarlierSeasons(string personId)
+    {
+        if (_config is null || _dataRoot is null || personId.StartsWith("gen:", StringComparison.Ordinal))
+        {
+            return [];
+        }
+
+        _history ??= Paddock.Data.Historical.DriverCareerHistory.Load(_dataRoot);
+        return _history.Before(personId, _config.StartYear)
+            .Select(line => new DriverSeasonView(line.Season, line.ConstructorId, line.ConstructorName, line.Starts, line.Wins, line.Podiums, line.Retirements, line.Best))
+            .ToArray();
     }
 
     private ManagerProfileView ReadManager()
@@ -514,7 +541,7 @@ public sealed partial class CareerBridge
         string display)
     {
         var data = AuthoredDataLoader.Load(root);
-        var provider = CareerData.LoadProvider(files);
+        var provider = CareerData.LoadProvider(files, root);
         var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
         var created = WorldInitializer.Create(config, data, provider, seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
         var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);
@@ -557,7 +584,7 @@ public sealed partial class CareerBridge
                 return PlayStep.Fail(TranslationMessage.Of(PlayKeys.DataChanged, ("saved", loaded.Meta.WorldDataHash), ("now", now)));
             }
 
-            var provider = CareerData.LoadProvider(files);
+            var provider = CareerData.LoadProvider(files, root);
             var date = loaded.Session.World.CurrentDate;
             var standIn = loaded.Session.World.WithDate(date.IsSeasonStart ? GameDate.SeasonStart(date.Year - 1) : date);
             var arrivals = TalentIntakeSchedule.AfterStart(loaded.Meta.CareerConfig, provider, standIn, loaded.Meta.MasterSeed);
@@ -678,6 +705,7 @@ public sealed partial class CareerBridge
         _fixedSession = null;
         _modules = null;
         _config = config;
+        _history = null;
         _peopleFiles = files;
         _worldDataHash = worldDataHash;
         _careerName = careerName;
@@ -740,11 +768,15 @@ public sealed partial class CareerBridge
             case "beginSponsorTalks":
                 return SponsorBegin(args, issued, out error);
             case "signSponsor":
-                return SponsorTalk(args, issued, static (manager, day, org, talk) => new SignAtCurrentTermsCommand { ManagerId = manager, IssuedOn = day, OrganizationId = org, TalkId = talk }, out error);
+                return SponsorSign(args, issued, out error);
             case "walkAwayFromTalks":
                 return SponsorTalk(args, issued, static (manager, day, org, talk) => new WalkAwayFromTalksCommand { ManagerId = manager, IssuedOn = day, OrganizationId = org, TalkId = talk }, out error);
             case "respondToSponsorOffer":
                 return SponsorResponse(args, issued, out error);
+            case "proposeSponsorTerms":
+                return SponsorTerms(args, issued, out error);
+            case "counterSponsorOffer":
+                return SponsorCounter(args, issued, out error);
             case "setDevelopmentSplit":
                 return Split(args, issued, out error);
             case "setNextConcept":
@@ -863,6 +895,15 @@ public sealed partial class CareerBridge
             return null;
         }
 
+        // Terms are optional: a call without them is the one-year, standard-condition deal it always was.
+        var years = IntOf(args, "years") ?? SponsorEstimates.MinYears;
+        var ambition = SponsorAmbition.Standard;
+        if (TextOf(args, "ambition") is { } text && !SponsorAmbitions.TryParse(text, out ambition))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
         return new BeginSponsorTalksCommand
         {
             ManagerId = Human,
@@ -870,6 +911,76 @@ public sealed partial class CareerBridge
             OrganizationId = organization,
             SponsorId = sponsor,
             Slot = slot.Value,
+            Years = years,
+            Ambition = ambition,
+        };
+    }
+
+    private ICommand? SponsorTerms(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        var talk = TextOf(args, "talkId");
+        var years = IntOf(args, "years");
+        if (organization is null || talk is null || years is null || !SponsorAmbitions.TryParse(TextOf(args, "ambition"), out var ambition))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new ProposeSponsorTermsCommand
+        {
+            ManagerId = Human,
+            IssuedOn = issued,
+            OrganizationId = organization,
+            TalkId = talk,
+            Years = years.Value,
+            Ambition = ambition,
+        };
+    }
+
+    private ICommand? SponsorCounter(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        var offer = TextOf(args, "offerId");
+        var years = IntOf(args, "years");
+        if (organization is null || offer is null || years is null || !SponsorAmbitions.TryParse(TextOf(args, "ambition"), out var ambition))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new CounterSponsorOfferCommand
+        {
+            ManagerId = Human,
+            IssuedOn = issued,
+            OrganizationId = organization,
+            OfferId = offer,
+            Years = years.Value,
+            Ambition = ambition,
+            AskMilli = IntOf(args, "askMilli") ?? 0,
+        };
+    }
+
+    private ICommand? SponsorSign(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        var talk = TextOf(args, "talkId");
+        if (organization is null || talk is null)
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new SignAtCurrentTermsCommand
+        {
+            ManagerId = Human,
+            IssuedOn = issued,
+            OrganizationId = organization,
+            TalkId = talk,
+            AskMilli = IntOf(args, "askMilli") ?? 0,
         };
     }
 
@@ -1148,7 +1259,7 @@ public sealed partial class CareerBridge
             exit = new ExitClause(worse);
         }
 
-        return new OfferTerms(salary, LongOf(args, "pointsBonus") ?? 0, LongOf(args, "winBonus") ?? 0, LongOf(args, "titleBonus") ?? 0, years, seat, option, exit);
+        return new OfferTerms(salary, 0, LongOf(args, "winBonus") ?? 0, LongOf(args, "titleBonus") ?? 0, years, seat, option, exit);
     }
 
     private static bool TrySubject(string text, out NegotiationSubject subject)

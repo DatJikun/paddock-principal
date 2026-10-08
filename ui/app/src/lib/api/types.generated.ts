@@ -53,10 +53,12 @@ export interface AreaView {
 }
 
 export interface BeginSponsorCall {
+  ambition: string | null;
   managerId: string;
   organizationId: string;
   slot: number;
   sponsorId: string;
+  years: number | null;
 }
 
 export interface BoardForecastView {
@@ -223,17 +225,23 @@ export interface DriverProfileView {
   attributes: KnownAttributeView[];
   contract: DriverContractView | null;
   contractEnd: string | null;
+  female: boolean;
   found: boolean;
   freeAgent: boolean;
   name: string;
   nationality: string;
   organizationId: string | null;
   organizationName: string | null;
+  overall: number | null;
   own: boolean;
   personId: string;
   potential: KnownAttributeView | null;
+  salaryGuide: SalaryGuideView | null;
   seasons: DriverSeasonView[];
   seat: string | null;
+  upcoming: DriverContractView | null;
+  upcomingOrganizationName: string | null;
+  upcomingStart: string | null;
 }
 
 export interface DriverSeasonView {
@@ -516,12 +524,16 @@ export interface MarketPersonView {
   age: number;
   attributes: KnownAttributeView[];
   contractEnd: string | null;
+  female: boolean;
   freeAgent: boolean;
+  kind: string;
   name: string;
   nationality: string;
   organizationId: string | null;
   organizationName: string | null;
+  overall: number | null;
   personId: string;
+  salary: number;
   seat: string | null;
 }
 
@@ -552,6 +564,7 @@ export interface NegotiationSubjectView {
 export interface NegotiationView {
   counter: OfferTerms | null;
   deadline: IsoDate;
+  female: boolean;
   history: NegotiationRoundView[];
   id: string;
   interest: TranslationMessage;
@@ -561,13 +574,16 @@ export interface NegotiationView {
   nationality: string;
   offer: OfferTerms | null;
   opened: IsoDate;
+  overall: number | null;
   person: string;
   personName: string;
   proposer: string;
   reasons: TranslationMessage[];
   respondOn: IsoDate | null;
   roundsUsed: number;
+  salaryGuide: SalaryGuideView | null;
   signedContract: string | null;
+  startsOn: IsoDate | null;
   status: NegotiationStatus;
   statusText: TranslationMessage;
   subject: NegotiationSubjectView;
@@ -999,8 +1015,10 @@ export interface RaceRowView {
 export interface RenewContractCall {
   contractId: string;
   exerciseOption: boolean;
+  exitWorseThan: number | null;
   managerId: string;
-  pointsBonus: number | null;
+  optionHolder: string | null;
+  optionYears: number | null;
   salary: number | null;
   seat: string | null;
   titleBonus: number | null;
@@ -1051,6 +1069,14 @@ export interface RivalBandView {
 export interface RivalCarView {
   carId: string;
   organizationId: string;
+}
+
+export interface SalaryGuideView {
+  max: number;
+  min: number;
+  suggested: number;
+  suggestedHigh: number;
+  suggestedLow: number;
 }
 
 export interface SaveCareerCall {
@@ -1118,6 +1144,13 @@ export interface SignPoolCall {
   role: string;
 }
 
+export interface SponsorAskView {
+  annualCents: number;
+  appliedMilli: number;
+  milli: number;
+  outcome: string;
+}
+
 export interface SponsorCandidateView {
   blocked: TranslationMessage | null;
   indicativeAnnualCents: number;
@@ -1126,17 +1159,50 @@ export interface SponsorCandidateView {
   sponsorName: string;
 }
 
+export interface SponsorCounterCall {
+  ambition: string;
+  askMilli: number | null;
+  managerId: string;
+  offerId: string;
+  organizationId: string;
+  years: number;
+}
+
 export interface SponsorDealView {
+  ambition: string;
   annualCents: number;
   end: IsoDate;
   id: string;
   industry: TranslationMessage;
+  industryBonus: SponsorIndustryBonusView | null;
   objectiveId: string | null;
   slot: TranslationMessage;
   sponsorId: string;
   sponsorName: string;
   start: IsoDate;
   trust: number;
+  wish: SponsorWishView | null;
+  years: number;
+}
+
+export interface SponsorIndustryBonusView {
+  kind: string;
+  milli: number;
+}
+
+export interface SponsorMarketRow {
+  ambitionOpen: boolean;
+  blocked: TranslationMessage | null;
+  indicativeAnnualCents: number;
+  industry: TranslationMessage;
+  industryBonus: SponsorIndustryBonusView | null;
+  kind: TranslationMessage;
+  partnership: SponsorPartnershipView | null;
+  quotes: SponsorQuoteView[];
+  slot: number;
+  sponsorId: string;
+  sponsorName: string;
+  wish: SponsorWishView | null;
 }
 
 export interface SponsorOfferCall {
@@ -1147,10 +1213,41 @@ export interface SponsorOfferCall {
 }
 
 export interface SponsorOfferView {
+  ambition: string;
+  ambitionOpen: boolean;
   annualCents: number;
   id: string;
+  industryBonus: SponsorIndustryBonusView | null;
+  partnership: SponsorPartnershipView | null;
+  previousAnnualCents: number;
+  quotes: SponsorQuoteView[];
+  roundsLeft: number;
   sponsorName: string;
   validUntil: IsoDate;
+  wish: SponsorWishView | null;
+  years: number;
+}
+
+export interface SponsorPartnershipView {
+  band: string;
+  raiseMilli: number;
+}
+
+export interface SponsorQuoteView {
+  ambition: string;
+  annualCents: number;
+  asks: SponsorAskView[];
+  bonusCents: number;
+  capCents: number;
+  condition: TranslationMessage | null;
+  years: number;
+}
+
+export interface SponsorSignCall {
+  askMilli: number | null;
+  managerId: string;
+  organizationId: string;
+  talkId: string;
 }
 
 export interface SponsorSlotView {
@@ -1168,19 +1265,35 @@ export interface SponsorTalkCall {
 }
 
 export interface SponsorTalkView {
+  ambition: string;
+  ambitionOpen: boolean;
   cappedAnnualCents: number;
   currentAnnualCents: number;
   id: string;
+  industryBonus: SponsorIndustryBonusView | null;
   note: TranslationMessage;
   objective: TranslationMessage | null;
+  partnership: SponsorPartnershipView | null;
+  quotes: SponsorQuoteView[];
   rivalKnown: boolean | null;
   slot: TranslationMessage;
   sponsorId: string;
   sponsorName: string;
+  wish: SponsorWishView | null;
+  years: number;
+}
+
+export interface SponsorTermsCall {
+  ambition: string;
+  managerId: string;
+  organizationId: string;
+  talkId: string;
+  years: number;
 }
 
 export interface SponsorViewOwn {
   deals: SponsorDealView[];
+  market: SponsorMarketRow[];
   objectives: ObjectiveItemView[];
   offers: SponsorOfferView[];
   slots: SponsorSlotView[];
@@ -1189,6 +1302,13 @@ export interface SponsorViewOwn {
 
 export interface SponsorViewUnknown {
   reason: TranslationMessage;
+}
+
+export interface SponsorWishView {
+  bonusMilli: number;
+  met: boolean | null;
+  nationality: string;
+  raceSeat: boolean;
 }
 
 export interface StaffAttributeView {
@@ -1206,13 +1326,16 @@ export interface StaffPersonView {
   attributes: StaffAttributeView[] | null;
   contractEnd: string | null;
   driverId: string | null;
+  female: boolean;
   name: string;
   nationality: string;
   organizationId: string;
+  overall: number | null;
   ownTeam: boolean;
   personId: string;
   relationship: number | null;
   role: string;
+  salary: number;
 }
 
 export interface StandingRowView {
@@ -1242,7 +1365,6 @@ export interface SubmitOfferCall {
   negotiationId: string;
   optionHolder: string | null;
   optionYears: number | null;
-  pointsBonus: number;
   salary: number;
   seat: string | null;
   titleBonus: number;
@@ -1438,9 +1560,11 @@ export interface BridgeCommandMap {
   walkAway: { args: NegotiationIdCall; result: CommandAck };
   renewContract: { args: RenewContractCall; result: CommandAck };
   beginSponsorTalks: { args: BeginSponsorCall; result: CommandAck };
-  signSponsor: { args: SponsorTalkCall; result: CommandAck };
+  signSponsor: { args: SponsorSignCall; result: CommandAck };
   walkAwayFromTalks: { args: SponsorTalkCall; result: CommandAck };
   respondToSponsorOffer: { args: SponsorOfferCall; result: CommandAck };
+  proposeSponsorTerms: { args: SponsorTermsCall; result: CommandAck };
+  counterSponsorOffer: { args: SponsorCounterCall; result: CommandAck };
   setDevelopmentSplit: { args: DevelopmentSplitCall; result: CommandAck };
   setNextConcept: { args: NextConceptCall; result: CommandAck };
   commitConcept: { args: CommitConceptCall; result: CommandAck };

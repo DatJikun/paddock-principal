@@ -143,7 +143,8 @@ public sealed partial class WorldState
             spec.Nationality,
             spec.IsReal,
             spec.Roles,
-            spec.Truth);
+            spec.Truth,
+            isFemale: spec.IsFemale);
         var persons = Clone(_persons);
         persons.Add(id.Value, person);
         return (new WorldState(CurrentDate, ids, persons, _organizations, _contracts, _knowledge, _sections), id);

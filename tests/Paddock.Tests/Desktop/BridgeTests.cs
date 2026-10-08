@@ -772,7 +772,7 @@ public class BridgeTests
 
         var market = career.Host.Handle(Message("market", "query", "market"));
         using var marketJson = JsonDocument.Parse(market.Response);
-        var free = marketJson.RootElement.GetProperty("data").GetProperty("freeAgents")[0].GetProperty("personId").GetString();
+        var free = marketJson.RootElement.GetProperty("data").GetProperty("freeAgents").EnumerateArray().First(person => person.GetProperty("kind").GetString() == "driver").GetProperty("personId").GetString();
         var opened = career.Host.Handle(Message(
             "open",
             "command",
@@ -794,7 +794,7 @@ public class BridgeTests
             "offer",
             "command",
             "submitOffer",
-            "{\"managerId\":\"human:player\",\"negotiationId\":\"" + id + "\",\"salary\":50000,\"pointsBonus\":0,\"winBonus\":0,\"titleBonus\":0,\"years\":1,\"seat\":\"Equal\",\"optionHolder\":null,\"optionYears\":null,\"exitWorseThan\":null}"));
+            "{\"managerId\":\"human:player\",\"negotiationId\":\"" + id + "\",\"salary\":50000,\"winBonus\":0,\"titleBonus\":0,\"years\":1,\"seat\":\"Equal\",\"optionHolder\":null,\"optionYears\":null,\"exitWorseThan\":null}"));
         using (var offeredJson = JsonDocument.Parse(offered.Response))
         {
             Assert.True(offeredJson.RootElement.GetProperty("ok").GetBoolean(), offered.Response);

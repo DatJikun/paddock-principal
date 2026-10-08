@@ -47,7 +47,8 @@ public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "3a0b09c36a69ed89d3b4420d8f9230c4f720ab30b6089c17176915ac963fdbe1";
+    // Changed again in #265: two race engineers per team, no hidden roles on the roster.
+    private const string StoredWorldHash = "7398ce6445f7400ed1f16a1ad6ae32758b53c8511bd3b213db2863d9bd44e903";
 
     private const string StoredRetired = "chief,leap,vet";
 

@@ -66,20 +66,32 @@ public sealed record SponsorTalk(
     GameDate? ClosedOn,
     RivalState Rival,
     int CapMilli,
-    long FullAnnualCents)
+    long FullAnnualCents,
+    int Years = 1,
+    SponsorAmbition Ambition = SponsorAmbition.Standard)
 {
     public string Id => SponsorsSection.TalkIdOf(Number);
 
     public bool IsOpen => Status == TalkStatus.Open;
 
+    /// <summary>What the player has put on the table: how long and how hard (#268). The defaults are a one-year deal with the standard condition.</summary>
+    public SponsorTerms Terms => new(Years, Ambition);
+
     /// <summary>Terms today in thousandths of the full price: they improve with waiting, up to the cap.</summary>
     public int TermsMilliOn(GameDate today) => SponsorPricing.TermsMilli(Opened.DaysUntil(today), CapMilli);
 
-    /// <summary>The annual amount the sponsor would sign for today.</summary>
-    public long AnnualCentsOn(GameDate today) => FullAnnualCents * TermsMilliOn(today) / 1000;
+    /// <summary>The annual amount the sponsor would sign for today, for the terms on the table.</summary>
+    public long AnnualCentsOn(GameDate today) => AnnualCentsOn(today, Terms);
 
-    /// <summary>The annual amount at the cap, which is the best the waiting can reach.</summary>
-    public long CappedAnnualCents => FullAnnualCents * CapMilli / 1000;
+    /// <summary>The annual amount the sponsor would sign for today if the terms were <paramref name="terms"/>.</summary>
+    public long AnnualCentsOn(GameDate today, SponsorTerms terms) =>
+        FullAnnualCents * TermsMilliOn(today) / 1000 * terms.PayMilli / 1000;
+
+    /// <summary>The annual amount at the cap, which is the best the waiting can reach, for the terms on the table.</summary>
+    public long CappedAnnualCents => CappedAnnualCentsFor(Terms);
+
+    /// <summary>The best the waiting can reach if the terms were <paramref name="terms"/>.</summary>
+    public long CappedAnnualCentsFor(SponsorTerms terms) => FullAnnualCents * CapMilli / 1000 * terms.PayMilli / 1000;
 }
 
 /// <summary>A signed sponsorship. Immutable; the section returns a new one when it changes.</summary>
@@ -97,11 +109,23 @@ public sealed record SponsorDeal(
     DealObjectiveOutcome Outcome,
     long BonusCents,
     DealStatus Status,
-    GameDate? EndedOn)
+    GameDate? EndedOn,
+    int Years = 1,
+    SponsorAmbition Ambition = SponsorAmbition.Standard,
+    string? WishNationality = null,
+    bool WishRaceSeat = false)
 {
     public string Id => SponsorsSection.DealIdOf(Number);
 
     public bool IsActive => Status == DealStatus.Active;
+
+    public SponsorTerms Terms => new(Years, Ambition);
+
+    /// <summary>The instalments the deal pays in all: twelve a year.</summary>
+    public int InstalmentsInAll => Years * SponsorEstimates.InstalmentsPerYear;
+
+    /// <summary>The first day of the year of the deal that starts <paramref name="year"/> years after it began (0 is the first year).</summary>
+    public GameDate YearStart(int year) => Start.AddDays(year * SponsorEstimates.DealDays);
 
     public bool IsActiveOn(GameDate day) => IsActive && Start <= day && day <= End;
 }
@@ -118,11 +142,19 @@ public sealed record SponsorOffer(
     GameDate Opened,
     GameDate ValidUntil,
     OfferStatus Status,
-    GameDate? ClosedOn)
+    GameDate? ClosedOn,
+    int Years = 1,
+    SponsorAmbition Ambition = SponsorAmbition.Standard,
+    int Rounds = 0)
 {
     public string Id => SponsorsSection.OfferIdOf(Number);
 
     public bool IsOpen => Status == OfferStatus.Open;
+
+    public SponsorTerms Terms => new(Years, Ambition);
+
+    /// <summary>True while the player may still change the terms: the sponsor gives <see cref="SponsorEstimates.MaxCounterRounds"/> rounds.</summary>
+    public bool CanCounter => IsOpen && Rounds < SponsorEstimates.MaxCounterRounds;
 }
 
 /// <summary>Ledger reason keys of the sponsor system. Copy lives in the string files under the same keys.</summary>
@@ -131,6 +163,15 @@ public static class SponsorReason
     public const string Instalment = "sponsor.reason.instalment";
 
     public const string Bonus = "sponsor.reason.bonus";
+
+    /// <summary>The bonus of a met nationality wish (#268).</summary>
+    public const string Nationality = "sponsor.reason.nationality";
+
+    /// <summary>Goods a sponsor supplies, worth money (#268).</summary>
+    public const string InKind = "sponsor.reason.inKind";
+
+    /// <summary>The one-off bonus of some industries, paid with the first instalment (#268).</summary>
+    public const string Signing = "sponsor.reason.signing";
 }
 
 internal static class SponsorText

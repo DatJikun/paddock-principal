@@ -30,8 +30,8 @@ gen:27 — William Johnson (USA)
 gen:28 — Peter Walker (GBR)
 gen:29 — Peter Walker (GBR)
 gen:30 — Robert Smith (USA)
-Talks opened: neg:28 with gen:21.
-neg:28 — Jean Bernard, Open.
+Talks opened: neg:27 with gen:21.
+neg:27 — Jean Bernard, Open.
 Development split: current car 75, next concept 25.
 Own car car:7, season 1955.
 Own car car:8, season 1955.
@@ -53,9 +53,9 @@ Rival car car:4, team connaught.
 Rival car car:5, team cooper.
 Rival car car:6, team cooper.
 Rival car car:9, team gordini.
-Sponsor slot 1: Technical or patron slot.
-Sponsor slot 2: Technical or patron slot.
-Sponsor slot 3: Technical or patron slot.
+Sponsor slot 1: Technical or patron.
+Sponsor slot 2: Technical or patron.
+Sponsor slot 3: Technical or patron.
 Cash: 60000.00.
 Forecast to the end of the season: 60000.00.
 Board of ferrari: confidence 60.
@@ -80,6 +80,6 @@ No decision you may read is on record.
 Ready.
 An unresolved matter is holding the clock.
 Waiting for Ada Lovelace.
-World hash 115c9f9a4825e2a0a1e31bee476b2211e58d45321e0c097ee223f7277b4deb07.
-Saved SAVE. World hash 115c9f9a4825e2a0a1e31bee476b2211e58d45321e0c097ee223f7277b4deb07.
+World hash ceecf841160ec45515ab74bfa25cac84545c72060b6f224d8f880833df947c7f.
+Saved SAVE. World hash ceecf841160ec45515ab74bfa25cac84545c72060b6f224d8f880833df947c7f.
 Session closed.

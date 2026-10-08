@@ -187,7 +187,7 @@ public sealed partial class WorldRepository
             }
         }
 
-        var persons = ReadPersons(connection, HasColumn(connection, null, "persons", "injured_until"));
+        var persons = ReadPersons(connection, HasColumn(connection, null, "persons", "injured_until"), HasColumn(connection, null, "persons", "is_female"));
         var organizations = ReadOrganizations(connection);
         var contracts = ReadContracts(connection);
         var knowledge = ReadKnowledge(connection);
@@ -258,8 +258,20 @@ public sealed partial class WorldRepository
         return sections;
     }
 
-    private static List<Person> ReadPersons(SqliteConnection connection, bool hasInjuredUntil)
+    private static List<Person> ReadPersons(SqliteConnection connection, bool hasInjuredUntil, bool hasFemale)
     {
+        var women = new HashSet<string>(StringComparer.Ordinal);
+        if (hasFemale)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT id FROM persons WHERE is_female = 1";
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                women.Add(reader.GetString(0));
+            }
+        }
+
         var roles = new Dictionary<string, List<PersonRole>>(StringComparer.Ordinal);
         using (var command = connection.CreateCommand())
         {
@@ -318,7 +330,8 @@ public sealed partial class WorldRepository
                     personRoles,
                     new PersonTruth(current, potentials[text]),
                     reader.IsDBNull(6) ? null : ParseDate(reader.GetString(6)),
-                    hasInjuredUntil && !reader.IsDBNull(7) ? ParseDate(reader.GetString(7)) : null));
+                    hasInjuredUntil && !reader.IsDBNull(7) ? ParseDate(reader.GetString(7)) : null,
+                    women.Contains(text)));
             }
         }
 

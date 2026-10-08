@@ -99,7 +99,7 @@ public static class CareerData
     /// </summary>
     public static RaceDateBook LoadRaceDates(string dataRoot) => RaceDateLoader.Load(dataRoot);
 
-    public static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files)
+    public static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files, string? dataRoot = null)
     {
         if (files is not var (schedulePath, driversPath))
         {
@@ -112,7 +112,7 @@ public static class CareerData
             ?? throw new JsonException("The drivers file is empty.");
         var ratingsPath = RatingsPathFor(schedulePath);
         var ratings = ratingsPath is null ? null : FittedDriverRatings.Load(ratingsPath);
-        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers, ratings is null ? null : ratings.RatingFor, ConstructorIdsFor(driversPath));
+        return new ScheduleBackedPeopleProvider(schedule, drivers.Drivers, ratings is null ? null : ratings.RatingFor, ConstructorIdsFor(driversPath), dataRoot is null ? null : RealPersonOverridesLoader.Load(dataRoot));
     }
 
     /// <summary>

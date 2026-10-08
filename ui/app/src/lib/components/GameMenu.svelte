@@ -4,7 +4,7 @@
   import { formatDate } from '../date.mjs';
   import type { Language } from '../i18n';
   import { icon, ICON, type Tr } from '../ui';
-  import LanguageSetting from './LanguageSetting.svelte';
+  import SettingsPanel from './SettingsPanel.svelte';
   import LoadList from './LoadList.svelte';
   import Status from './Status.svelte';
 
@@ -16,6 +16,7 @@
     busy,
     error,
     lang = $bindable(),
+    settings = $bindable(),
     onClear,
     onSave,
     onLoad,
@@ -31,6 +32,7 @@
     busy: boolean;
     error: string;
     lang: Language;
+    settings: { autoAdvance: boolean; daySeconds: number; menuMotion: boolean };
     onClear: () => void;
     onSave: (name: string) => void;
     onLoad: (name: string) => void;
@@ -149,7 +151,7 @@
         </div>
       {:else if view === 'settings'}
         <div class="gm-form">
-          <LanguageSetting {tr} bind:value={lang} />
+          <SettingsPanel {tr} bind:lang bind:settings />
           <div class="confirm">
             <button class="btn" type="button" onclick={() => (view = 'list')}>{@html icon(ICON.back, 17)}<span>{tr.t('career.back')}</span></button>
           </div>

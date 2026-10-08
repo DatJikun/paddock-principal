@@ -4,18 +4,21 @@
   import type { BridgeCommandName, LiveClockView, NewCareerCall, NextRaceView, QuickRaceCall, QuickRaceStartedView, SaveListItem, SessionView, ShellView } from './lib/api/types.generated';
   import { latestSave, newestFirst, saveLabel } from './lib/career.mjs';
   import GameMenu from './lib/components/GameMenu.svelte';
-  import LanguageSetting from './lib/components/LanguageSetting.svelte';
+  import SettingsPanel from './lib/components/SettingsPanel.svelte';
+  import Toasts, { type Toast } from './lib/components/Toasts.svelte';
   import LoadList from './lib/components/LoadList.svelte';
   import MenuHome from './lib/components/MenuHome.svelte';
   import NewCareer from './lib/components/NewCareer.svelte';
   import QuickRace from './lib/components/QuickRace.svelte';
   import RaceLive from './lib/components/RaceLive.svelte';
   import Status from './lib/components/Status.svelte';
+  import { isNewerItem, mayStart, stopReason } from './lib/autoplay.mjs';
   import { addDays, daysBetween, formatDate, weekdayIndex } from './lib/date.mjs';
   import { flagSprite } from './lib/flags.mjs';
   import { getLanguage, loadLanguage, setLanguage, subscribeLanguage, translate, type Language } from './lib/i18n';
   import { formatMoney } from './lib/money.mjs';
-  import { afterAdvance, blockingLabel, nextAction } from './lib/protocol.mjs';
+  import { afterAdvance, blockingLabel, inboxArea, nextAction } from './lib/protocol.mjs';
+  import { loadSettings, saveSettings } from './lib/settings.mjs';
   import { livery } from './lib/livery.mjs';
   import { loadScreen, type ScreenData } from './lib/screens';
   import { NAV, navOwner, parseRoute, sameRoute, screenKey, SETTINGS } from './lib/shell-nav.mjs';
@@ -63,8 +66,18 @@
   let savedName = $state<string | null>(null);
   let savedDate = $state<string | null>(null);
   let loadPick = $state('');
-  let toast = $state('');
-  let toastTimer: ReturnType<typeof setTimeout> | undefined;
+  let toasts = $state<Toast[]>([]);
+  let toastKey = 0;
+  /* Dalej runs the days by itself while `running`; a pause or any stop reason ends the run. */
+  let settings = $state(loadSettings());
+  let running = $state(false);
+  /* Nothing is drawn until the first read says whether a career is already open, so the menu does not flash over a running game. */
+  let booted = $state(false);
+  let runToken = 0;
+  let racedNow = false;
+  let seasonNow = false;
+  /* The newest important inbox item the player has already been told about. */
+  let toldAbout: string | null | undefined;
   let route = $state<Route>({ name: 'pulpit', args: [] });
   let screenData = $state<ScreenData>({ kind: 'none' });
   let fault = $state<BridgeError | null>(null);
@@ -211,10 +224,40 @@
     saves = (await query('saves', call)).saves;
   }
 
+  function pushToast(item: Omit<Toast, 'key'>, seconds = 3) {
+    const key = ++toastKey;
+    toasts = [...toasts.slice(-3), { ...item, key }];
+    setTimeout(() => closeToast(key), seconds * 1000);
+  }
+
+  function closeToast(key: number) {
+    toasts = toasts.filter((item) => item.key !== key);
+  }
+
   function say(text: string) {
-    toast = text;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => (toast = ''), 2800);
+    pushToast({ title: '', text, href: null, action: '' });
+  }
+
+  /** The newest important inbox item is new to the player: say so, wherever the day was advanced from. */
+  function tellAboutImportant() {
+    if (!shell) return;
+    const id = shell.importantItemId ?? null;
+    /* The first read of a career (or of a loaded one) only sets the baseline: what was already there is not news. */
+    if (toldAbout === undefined) {
+      toldAbout = id;
+      return;
+    }
+    if (!id || !shell.importantSubject || !isNewerItem(id, toldAbout)) return;
+    toldAbout = id;
+    pushToast(
+      {
+        title: `${t('toast.inbox')} · ${t(inboxArea(shell.importantKind))}`,
+        text: tr.tMsg(shell.importantSubject),
+        href: `#/skrzynka/${encodeURIComponent(id)}`,
+        action: t('toast.open'),
+      },
+      9,
+    );
   }
 
   async function openMenuPage(page: 'home' | 'new' | 'quick' | 'load' | 'settings') {
@@ -234,13 +277,8 @@
     gameMenu = true;
   }
 
-  async function nextDay() {
-    if (!shell || busy || moving) return;
-    const action = nextAction(shell);
-    if (action.type === 'show') {
-      location.hash = `#/skrzynka/${encodeURIComponent(action.itemId)}`;
-      return;
-    }
+  /** One day through the same command Dalej always used. Returns false when the clock did not move. */
+  async function stepDay(): Promise<boolean> {
     busy = true;
     try {
       const resultDay = await command('advanceDay', call);
@@ -250,15 +288,60 @@
         [{ background: 'color-mix(in oklab, var(--t2) 40%, transparent)' }, { background: 'transparent' }],
         { duration: 900, easing: 'ease-out' },
       );
+      return true;
     } catch (error) {
       const bridge = error instanceof BridgeError ? error : new BridgeError('bridge.error.internal');
       const outcome = afterAdvance({ ok: false, error: { key: bridge.key, parameters: bridge.parameters } });
       await refresh().catch(() => {});
       if (outcome.type === 'show') location.hash = '#/skrzynka';
       else fault = bridge;
+      return false;
     } finally {
       busy = false;
     }
+  }
+
+  function stopRun() {
+    runToken++;
+    running = false;
+  }
+
+  /** Days one after another until something needs the player: a held clock, a race day, a new important message. */
+  async function runDays() {
+    const mine = ++runToken;
+    running = true;
+    let seen = shell?.importantItemId ?? null;
+    try {
+      while (mine === runToken) {
+        const began = performance.now();
+        racedNow = false;
+        seasonNow = false;
+        if (!(await stepDay())) break;
+        if (mine !== runToken) break;
+        const reason = stopReason({ shell, nextRace, seenImportantId: seen, raced: racedNow, seasonChanged: seasonNow });
+        seen = shell?.importantItemId ?? seen;
+        if (reason) break;
+        const rest = settings.daySeconds * 1000 - (performance.now() - began);
+        if (rest > 0) await new Promise((resolve) => setTimeout(resolve, rest));
+      }
+    } finally {
+      if (mine === runToken) running = false;
+    }
+  }
+
+  async function nextDay() {
+    if (running) {
+      stopRun();
+      return;
+    }
+    if (!shell || busy || moving) return;
+    const action = nextAction(shell);
+    if (action.type === 'show') {
+      location.hash = `#/skrzynka/${encodeURIComponent(action.itemId)}`;
+      return;
+    }
+    if (settings.autoAdvance && mayStart({ shell, nextRace })) await runDays();
+    else await stepDay();
   }
 
   async function confirmChoice(itemId: string, optionId: string) {
@@ -291,6 +374,20 @@
     }
   }
 
+  async function dismissMany(itemIds: string[]) {
+    if (busy) return;
+    busy = true;
+    try {
+      for (const itemId of itemIds) await command('dismissInbox', { managerId: HUMAN_MANAGER_ID, itemId });
+      await refresh();
+    } catch (error) {
+      catchFault(error);
+      await refresh().catch(() => {});
+    } finally {
+      busy = false;
+    }
+  }
+
   async function dismissItem(itemId: string) {
     if (busy) return;
     busy = true;
@@ -308,6 +405,7 @@
   async function enterGame() {
     route = { name: 'pulpit', args: [] };
     location.hash = '#/pulpit';
+    toldAbout = undefined;
     await swap(async () => {
       await refresh();
       savedDate = shell?.date ?? null;
@@ -371,6 +469,7 @@
 
   async function leaveToMenu() {
     if (busy) return;
+    stopRun();
     gameMenu = false;
     fault = null;
     await refreshSaves().catch(catchFault);
@@ -420,7 +519,10 @@
 
   function onKey(event: KeyboardEvent) {
     if (event.key !== 'Escape' || event.defaultPrevented || gameMenu || racing) return;
-    if (phase === 'game') {
+    if (running) {
+      event.preventDefault();
+      stopRun();
+    } else if (phase === 'game') {
       event.preventDefault();
       void openGameMenu();
     } else if (menuPage !== 'home') {
@@ -439,11 +541,15 @@
     });
     const stopSmoke = air ? startSmoke(air) : () => {};
     const stopBridge = connect((type, data) => {
-      if (type === 'raceClock') {
+      /* raceTape: a pit wall order re-ran the race (#286); the clock it carries tells the race screen to read it again. */
+      if (type === 'raceClock' || type === 'raceTape') {
         raceClock = data as LiveClockView;
         return;
       }
-      if (type === 'dayAdvanced' || type === 'inboxChanged' || type === 'seasonChanged' || type === 'raceFinished') {
+      if (type === 'raceFinished') racedNow = true;
+      if (type === 'seasonChanged') seasonNow = true;
+      /* While days run, the loop reads the world once per day itself. */
+      if (!running && (type === 'dayAdvanced' || type === 'inboxChanged' || type === 'seasonChanged' || type === 'raceFinished')) {
         void refresh().catch(catchFault);
       }
       /* The race ran today: watch it live (the result is already written; leaving early skips nothing). */
@@ -463,12 +569,12 @@
           phase = 'game';
         }
       })
-      .catch(catchFault);
+      .catch(catchFault)
+      .finally(() => (booted = true));
     return () => {
       stopLang();
       stopSmoke();
       stopBridge();
-      clearTimeout(toastTimer);
       window.removeEventListener('hashchange', onHash);
       window.removeEventListener('keydown', onKey);
     };
@@ -491,6 +597,16 @@
   });
 
   $effect(() => {
+    saveSettings(settings);
+  });
+
+  $effect(() => {
+    /* A new important message raises a toast, whether the day came from a run or from a click. */
+    shell?.importantItemId;
+    if (phase === 'game') tellAboutImportant();
+  });
+
+  $effect(() => {
     if (langChoice !== getLanguage()) setLanguage(langChoice);
   });
 
@@ -509,7 +625,7 @@
     const body = document.body;
     if (!id) {
       delete body.dataset.team;
-      for (const name of ['--t1', '--t2', '--on1']) body.style.removeProperty(name);
+      for (const name of ['--t1', '--t2', '--on1', '--on2']) body.style.removeProperty(name);
       return;
     }
     const colours = livery(id);
@@ -518,6 +634,7 @@
     body.style.setProperty('--t1', colours.main);
     body.style.setProperty('--t2', colours.accent);
     body.style.setProperty('--on1', colours.on);
+    body.style.setProperty('--on2', colours.onAccent);
   });
 
   let team = $derived(crest(shell?.organizationName));
@@ -534,7 +651,6 @@
   let ordered = $derived(newestFirst(saves));
   let faultText = $derived(fault ? t(fault.key, fault.parameters) : '');
   let unsavedSince = $derived(savedDate !== null && shell && shell.date !== savedDate ? savedDate : null);
-  let menuLit = $derived(menuPage === 'home' ? '' : menuPage);
   let lit = $derived(navOwner(route.name));
   let teamId = $derived(shell?.organizationId ?? '');
   let raceDays = $derived(shell && nextRace?.date ? daysBetween(shell.date, nextRace.date) : null);
@@ -544,7 +660,7 @@
     for (let day = 0; day <= raceDays; day++) {
       const date = addDays(shell.date, day) ?? '';
       const weekday = weekdayIndex(date);
-      const cls = day === 0 ? 'now' : day === raceDays ? 'race' : weekday === 5 || weekday === 6 ? 'we' : '';
+      const cls = day === 0 ? 'now' : day === raceDays ? 'finish' : weekday === 5 || weekday === 6 ? 'we' : '';
       list.push({ cls, date });
     }
     return list;
@@ -554,12 +670,13 @@
 
 {@html flagSprite()}
 <canvas id="air" aria-hidden="true" bind:this={air}></canvas>
-<div class="app" bind:this={appEl}>
-  <aside>
-    <div class="crest">
-      <div class="team">{inGame ? team.lead : 'Paddock'}{#if inGame && team.rest}<span>{team.rest}</span>{:else if !inGame}<span>Principal</span>{/if}</div>
-    </div>
-    {#if inGame}
+{#if !inGame && booted}<div class="menu-drift" aria-hidden="true"><i></i><i></i><i></i></div>{/if}
+<div class="app" bind:this={appEl} class:menu={!inGame} class:still={!settings.menuMotion} class:booting={!booted}>
+  {#if inGame}
+    <aside>
+      <div class="crest">
+        <div class="team">{team.lead}{#if team.rest}<span>{team.rest}</span>{/if}</div>
+      </div>
       <nav id="nav">
         <span class="nav-ind" aria-hidden="true" bind:this={marker}></span>
         {#each NAV as item, index (item.id ?? `sep-${index}`)}
@@ -582,27 +699,9 @@
           {t(SETTINGS.key)}
         </a>
       </div>
-    {:else}
-      <nav id="nav" class="menu-nav">
-        <span class="nav-ind" aria-hidden="true" bind:this={marker}></span>
-        {#if latest}
-          <button type="button" class="mi" disabled={busy} onclick={continueCareer}>{@html icon(ICON.play)}<span>{t('menu.continue')}</span></button>
-        {/if}
-        <button type="button" class="mi" class:on={menuLit === 'new'} onclick={() => openMenuPage('new')}>{@html icon(ICON.plus)}<span>{t('menu.new')}</span></button>
-        <button type="button" class="mi" class:on={menuLit === 'quick'} onclick={() => openMenuPage('quick')}>{@html icon(ICON.flag)}<span>{t('menu.quick')}</span></button>
-        <button type="button" class="mi" class:on={menuLit === 'load'} disabled={saves.length === 0} onclick={() => openMenuPage('load')}>
-          {@html icon(ICON.folder)}<span>{t('menu.load')}</span>
-          {#if saves.length === 0}<small>{t('menu.noSaves')}</small>{/if}
-        </button>
-        <button type="button" class="mi" class:on={menuLit === 'settings'} onclick={() => openMenuPage('settings')}>{@html icon(ICON.gear)}<span>{t('menu.settings')}</span></button>
-        {#if canExit()}
-          <div class="sep"></div>
-          <button type="button" class="mi" onclick={exitApp}>{@html icon(ICON.exit)}<span>{t('menu.quit')}</span></button>
-        {/if}
-      </nav>
-    {/if}
-    <div class="stripes"></div>
-  </aside>
+      <div class="stripes"></div>
+    </aside>
+  {/if}
   <div class="content" bind:this={contentEl}>
     {#if inGame}
       <header class="top">
@@ -635,12 +734,12 @@
           {/if}
           <a class="cell date" href="#/kalendarz"><b>{shell ? formatDate(shell.date, lang) : '—'}</b></a>
         </div>
-        <button class="go" type="button" aria-disabled={!shell || busy} title={decision ? tr.tMsg(decision.subject) : undefined} onclick={nextDay}>
+        <button class="go" class:running type="button" aria-disabled={!shell || (busy && !running)} title={decision ? tr.tMsg(decision.subject) : undefined} onclick={nextDay}>
           <span>
-            <b>{t('shell.next')}</b>
-            {#if blocking}<small><i class="blk"></i>{blocking}</small>{/if}
+            <b>{running ? t('shell.pause') : t('shell.next')}</b>
+            {#if !running && blocking}<small><i class="blk"></i>{blocking}</small>{:else if !running && raceDays === 0}<small><i class="blk"></i>{t('shell.go.race')}</small>{/if}
           </span>
-          <span class="arr">{@html icon(ICON.arrow)}</span>
+          <span class="arr">{@html icon(running ? ICON.pause : ICON.arrow)}</span>
         </button>
       </header>
     {/if}
@@ -649,17 +748,22 @@
         {#if menuPage === 'home'}
           <MenuHome {tr} {latest} saveCount={saves.length} {busy} canQuit={canExit()} onContinue={continueCareer} onOpen={openMenuPage} onQuit={exitApp} />
         {:else if menuPage === 'new'}
-          <div class="screen-head"><h1 class="screen">{t('menu.new')}</h1></div>
-          {#if session}
-            <NewCareer {tr} presets={session.presets} suggestedYear={session.suggestedYear} suggestedSeed={session.suggestedSeed} {busy} error={faultText} onStart={beginCareer} />
-          {/if}
+          <div class="menu-page">
+            <div class="screen-head"><h1 class="screen">{t('menu.new')}</h1><button class="btn sm back-home" type="button" onclick={() => openMenuPage('home')}>{@html icon(ICON.back, 16)}<span>{t('career.back')}</span></button></div>
+            {#if session}
+              <NewCareer {tr} presets={session.presets} suggestedYear={session.suggestedYear} suggestedSeed={session.suggestedSeed} {busy} error={faultText} onStart={beginCareer} />
+            {/if}
+          </div>
         {:else if menuPage === 'quick'}
-          <div class="screen-head"><h1 class="screen">{t('menu.quick')}</h1></div>
-          {#if session}
-            <QuickRace {tr} suggestedYear={session.suggestedYear} {busy} error={faultText} onStart={startQuickRace} />
-          {/if}
+          <div class="menu-page">
+            <div class="screen-head"><h1 class="screen">{t('menu.quick')}</h1><button class="btn sm back-home" type="button" onclick={() => openMenuPage('home')}>{@html icon(ICON.back, 16)}<span>{t('career.back')}</span></button></div>
+            {#if session}
+              <QuickRace {tr} suggestedYear={session.suggestedYear} {busy} error={faultText} onStart={startQuickRace} />
+            {/if}
+          </div>
         {:else if menuPage === 'load'}
-          <div class="screen-head"><h1 class="screen">{t('menu.load')}</h1></div>
+          <div class="menu-page narrow">
+          <div class="screen-head"><h1 class="screen">{t('menu.load')}</h1><button class="btn sm back-home" type="button" onclick={() => openMenuPage('home')}>{@html icon(ICON.back, 16)}<span>{t('career.back')}</span></button></div>
           <div class="load-page">
             <LoadList saves={ordered} {tr} selected={loadPick} onSelect={(name) => (loadPick = name)} />
             {#if faultText}<p class="bad">{faultText}</p>{/if}
@@ -669,9 +773,12 @@
               </button>
             </div>
           </div>
+          </div>
         {:else}
-          <div class="screen-head"><h1 class="screen">{t('menu.settings')}</h1></div>
-          <LanguageSetting {tr} bind:value={langChoice} />
+          <div class="menu-page narrow">
+            <div class="screen-head"><h1 class="screen">{t('menu.settings')}</h1><button class="btn sm back-home" type="button" onclick={() => openMenuPage('home')}>{@html icon(ICON.back, 16)}<span>{t('career.back')}</span></button></div>
+            <SettingsPanel {tr} bind:lang={langChoice} bind:settings />
+          </div>
         {/if}
       {:else}
         {#if faultText && !gameMenu}
@@ -685,7 +792,7 @@
             <Pulpit data={screenData} {tr} today={shell?.date ?? ''} {teamId} />
           </div>
         {:else if screenData.kind === 'skrzynka' && route.name === 'skrzynka'}
-          <Skrzynka data={screenData} {tr} selectedId={route.args[0] ?? null} {busy} onConfirm={confirmChoice} onDismiss={dismissItem} />
+          <Skrzynka data={screenData} {tr} selectedId={route.args[0] ?? null} {busy} onConfirm={confirmChoice} onDismiss={dismissItem} onDismissMany={dismissMany} />
         {:else if screenData.kind === 'kalendarz' && route.name === 'kalendarz'}
           <Kalendarz data={screenData} {tr} />
         {:else if screenData.kind === 'wyscig' && route.name === 'wyscig'}
@@ -726,7 +833,7 @@
           <div class="screen-head">
             <h1 class="screen">{t(SETTINGS.key)}</h1>
           </div>
-          <LanguageSetting {tr} bind:value={langChoice} />
+          <SettingsPanel {tr} bind:lang={langChoice} bind:settings />
         {:else}
           <div class="screen-head">
             <h1 class="screen">{t(screenKey(route.name))}</h1>
@@ -738,7 +845,7 @@
   </div>
 </div>
 {#if racing && quick}
-  <RaceLive {tr} pushed={raceClock} onexit={leaveQuickRace} backKey="quick.back" />
+  <RaceLive {tr} pushed={raceClock} onexit={leaveQuickRace} backKey="quick.back" canLeave />
 {:else if racing && inGame}
   <RaceLive {tr} pushed={raceClock} onexit={leaveRace} />
 {/if}
@@ -751,6 +858,7 @@
     {busy}
     error={faultText}
     bind:lang={langChoice}
+    bind:settings
     onClear={() => (fault = null)}
     onSave={saveCareer}
     onLoad={loadCareer}
@@ -758,4 +866,4 @@
     onClose={() => (gameMenu = false)}
   />
 {/if}
-{#if toast}<div class="toast" role="status">{toast}</div>{/if}
+<Toasts items={toasts} onClose={closeToast} />

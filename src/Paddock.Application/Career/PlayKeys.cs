@@ -108,9 +108,6 @@ public static class PlayKeys
     public const string RaceRow = "play.race.row";
 
     [TranslationKey]
-    public const string RaceSkipped = "play.race.skipped";
-
-    [TranslationKey]
     public const string WatchHeader = "play.watch.header";
 
     [TranslationKey]

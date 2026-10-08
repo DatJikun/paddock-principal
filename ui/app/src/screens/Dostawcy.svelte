@@ -52,7 +52,7 @@
       <div class="fields">
         <div class="fld"><span class="meta">{tr.t('supply.agreement')}</span><span class="v"><Status text={tr.t(`supply.kind.${lc(deal.kind)}`)} tone={deal.kind === 'Works' ? 'team' : deal.kind === 'Partner' ? 'hi' : ''} /></span></div>
         <div class="fld"><span class="meta">{tr.t('supply.seasons')}</span><span class="v num" class:bad={deal.lastSeason <= season}>{deal.firstSeason}–{deal.lastSeason}</span></div>
-        <div class="fld"><span class="meta">{tr.t('supply.price')}</span><span class="v num">{formatMoney(deal.annualPriceCents, tr.lang)}</span></div>
+        <div class="fld"><span class="meta">{tr.t('supply.price')}</span><span class="v num">{deal.kind === 'Works' ? tr.t('supply.price.none') : formatMoney(deal.annualPriceCents, tr.lang)}</span></div>
         {#if deal.exclusive}<div class="fld"><span class="meta">{tr.t('supply.exclusive')}</span><span class="v">{tr.t('supply.yes')}</span></div>{/if}
       </div>
       {#if deal.engine}

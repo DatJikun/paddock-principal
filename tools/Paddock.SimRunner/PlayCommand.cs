@@ -772,7 +772,7 @@ public static class PlayCommand
         private void PrintRace(CareerShell shell)
         {
             if (shell.Modules.TryGet<Paddock.Application.Racing.RaceWatch>() is not { } watch
-                || !watch.TryTake(out _, out var round, out var layout, out var tape, out var lines, out var skipped))
+                || !watch.TryTake(out _, out var round, out var layout, out var tape, out var lines))
             {
                 return;
             }
@@ -832,17 +832,6 @@ public static class PlayCommand
                     ("driver", PersonName(shell, line.DriverId)),
                     ("team", TeamName(shell, line.TeamId)),
                     ("points", line.Points));
-            }
-
-            if (shell.TeamOf(shell.Player) is OrganizationId player)
-            {
-                foreach (var teamId in skipped)
-                {
-                    if (teamId == player.Value)
-                    {
-                        Say(PlayKeys.RaceSkipped, ("team", TeamName(shell, teamId)));
-                    }
-                }
             }
         }
 

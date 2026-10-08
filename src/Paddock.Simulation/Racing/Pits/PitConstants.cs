@@ -118,6 +118,56 @@ public static class PitConstants
     /// <summary>ESTIMATE: tyre wear speed in save mode, as a multiple of standard (the pace loss and burn saving are T30's fuel-saving numbers).</summary>
     public const double SaveWearFactor = 0.80;
 
+    // ---- Pit wall only (#286): the two extreme driver modes, the engine modes and the team order ----
+
+    /// <summary>ESTIMATE: seconds per lap lost in the conserve mode (lift and coast).</summary>
+    public const double ConservePaceLossSeconds = 0.80;
+
+    /// <summary>ESTIMATE: tyre wear speed in the conserve mode, as a multiple of standard.</summary>
+    public const double ConserveWearFactor = 0.60;
+
+    /// <summary>ESTIMATE: fuel burn in the conserve mode, as a multiple of standard.</summary>
+    public const double ConserveBurnFactor = 0.82;
+
+    /// <summary>ESTIMATE: change of the driver's aggression (0–100) in the conserve mode: fewer incidents.</summary>
+    public const double ConserveAggressionShift = -15;
+
+    /// <summary>ESTIMATE: seconds per lap gained at qualifying pace.</summary>
+    public const double QualifyingPaceGainSeconds = 0.55;
+
+    /// <summary>ESTIMATE: tyre wear speed at qualifying pace, as a multiple of standard.</summary>
+    public const double QualifyingWearFactor = 2.10;
+
+    /// <summary>ESTIMATE: fuel burn at qualifying pace, as a multiple of standard.</summary>
+    public const double QualifyingBurnFactor = 1.08;
+
+    /// <summary>ESTIMATE: change of the driver's aggression (0–100) at qualifying pace: more incidents.</summary>
+    public const double QualifyingAggressionShift = 25;
+
+    /// <summary>ESTIMATE: engine power in the lean engine mode, as a share of standard.</summary>
+    public const double LeanEnginePower = 0.96;
+
+    /// <summary>ESTIMATE: fuel burn in the lean engine mode, as a multiple of standard.</summary>
+    public const double LeanEngineBurn = 0.93;
+
+    /// <summary>ESTIMATE: failure hazard of the engine and its cooling in the lean engine mode, as a multiple of standard.</summary>
+    public const double LeanEngineHazard = 0.60;
+
+    /// <summary>ESTIMATE: engine power in the full-power engine mode, as a share of standard.</summary>
+    public const double FullEnginePower = 1.04;
+
+    /// <summary>ESTIMATE: fuel burn in the full-power engine mode, as a multiple of standard.</summary>
+    public const double FullEngineBurn = 1.07;
+
+    /// <summary>ESTIMATE: failure hazard of the engine and its cooling in the full-power engine mode, as a multiple of standard.</summary>
+    public const double FullEngineHazard = 1.80;
+
+    /// <summary>ESTIMATE: a team-mate this close behind at the start of a lap is let by on that lap (seconds).</summary>
+    public const double LetByGapSeconds = 1.5;
+
+    /// <summary>ESTIMATE: seconds the car letting its team-mate by loses lifting, on top of dropping behind.</summary>
+    public const double LetByCostSeconds = 0.4;
+
     // ---- Strategist: scoring ----
 
     /// <summary>ESTIMATE: share of extra fuel loaded at a stop over the computed need of the stint.</summary>

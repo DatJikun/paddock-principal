@@ -49,9 +49,10 @@ public sealed record PointsScaleView(
 
 /// <summary>
 /// One line of a table. <see cref="Points"/> is the counted total, in invariant text. For a driver, nationality and
-/// the team of his latest race this season; for a constructor both stay empty.
+/// the team of his latest race this season; for a constructor both stay empty. <see cref="Podiums"/> counts every
+/// top-three finish of the season (wins included), whether or not its points were dropped.
 /// </summary>
-public sealed record StandingRowView(int Position, string Id, string Name, string Points, int Wins, string Nationality, string? TeamId, string? TeamName);
+public sealed record StandingRowView(int Position, string Id, string Name, string Points, int Wins, string Nationality, string? TeamId, string? TeamName, int Podiums);
 
 /// <summary>Drivers and constructors after the era's points rules. Empty until the first race.</summary>
 public sealed record StandingsView(
@@ -405,11 +406,14 @@ public static class ChampionshipRead
             row.Wins,
             Nationality(session.World, row.Id),
             team,
-            team is null ? null : TeamName(session.World, session.Date, team));
+            team is null ? null : TeamName(session.World, session.Date, team),
+            PodiumCount(row));
     }
 
     private static StandingRowView TeamRow(WorldState world, GameDate on, StandingsRow row) =>
-        new(row.Position, row.Id, TeamName(world, on, row.Id), Points(row.CountedPoints), row.Wins, "", null, null);
+        new(row.Position, row.Id, TeamName(world, on, row.Id), Points(row.CountedPoints), row.Wins, "", null, null, PodiumCount(row));
+
+    private static int PodiumCount(StandingsRow row) => row.FinishCounts.Take(3).Sum();
 
     private static string? LatestTeam(CareerSession session, string driverId)
     {

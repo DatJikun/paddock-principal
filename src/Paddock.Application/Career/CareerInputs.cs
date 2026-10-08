@@ -9,6 +9,7 @@ using Paddock.Domain.Racing;
 using Paddock.Domain.Sponsors;
 using Paddock.Domain.Supply;
 using Paddock.Domain.World;
+using Paddock.Domain.World.Tracks;
 
 namespace Paddock.Application.Career;
 
@@ -52,6 +53,9 @@ public sealed class CareerInputs
 
     /// <summary>The authored ESTIMATE of constructor car strength. Supply derives a supplier's base engine from it; without it the tier fallback applies.</summary>
     public ICarStrengthSource? CarStrength { get; init; }
+
+    /// <summary>The centre lines of the layouts, for the race frames only (#286): cars brake for the corners on the map. Without it they run at an even speed.</summary>
+    public ITrackGeometrySource? TrackGeometry { get; init; }
 
     /// <summary>Track layouts for the championship calendar. Without them the career runs no races.</summary>
     public IReadOnlyList<TrackLayout>? Layouts { get; init; }

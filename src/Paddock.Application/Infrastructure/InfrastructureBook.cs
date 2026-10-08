@@ -106,4 +106,6 @@ public static class InfrastructureEventTypes
     public const string BuildFinished = "infrastructure.build_finished";
 
     public const string TestBooked = "infrastructure.test_booked";
+
+    public const string TestCancelled = "infrastructure.test_cancelled";
 }

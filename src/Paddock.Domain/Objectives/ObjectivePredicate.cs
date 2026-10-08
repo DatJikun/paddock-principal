@@ -27,6 +27,9 @@ public static class ObjectiveFactKeys
     /// <summary>Podium finishes so far this season.</summary>
     public const string SeasonPodiums = "season.podiums";
 
+    /// <summary>Races won so far this season.</summary>
+    public const string SeasonWins = "season.wins";
+
     /// <summary>Championship points so far this season.</summary>
     public const string SeasonPoints = "season.points";
 
@@ -106,6 +109,7 @@ public abstract record ObjectivePredicate
         return name switch
         {
             "championshipPositionAtMost" => new ChampionshipPositionAtMost(int.Parse(parameter, CultureInfo.InvariantCulture)),
+            "championshipPositionWithWins" => ChampionshipPositionWithWins.FromParameter(parameter),
             "podiumsAtLeast" => new PodiumsAtLeast(int.Parse(parameter, CultureInfo.InvariantCulture)),
             "pointsAtLeast" => new PointsAtLeast(decimal.Parse(parameter, CultureInfo.InvariantCulture)),
             "cashAtLeast" => new CashAtLeast(long.Parse(parameter, CultureInfo.InvariantCulture)),
@@ -273,5 +277,56 @@ public sealed record PersonFromCountryInLineup : ObjectivePredicate
     {
         ArgumentNullException.ThrowIfNull(facts);
         return facts.Flag(owner, FactKey, Country);
+    }
+}
+
+/// <summary>
+/// The championship position is <paramref name="Position"/> or better AND the team has won at least <paramref name="Wins"/> races
+/// this season. The board asks it for the ambitious target of a team already expected to lead (#264), where "P1 or better" alone
+/// would be the same ask as the expected target. Two facts, so there is nothing to project.
+/// </summary>
+public sealed record ChampionshipPositionWithWins : ObjectivePredicate
+{
+    public ChampionshipPositionWithWins(int position, int wins)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(position, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(wins, 1);
+        Position = position;
+        Wins = wins;
+    }
+
+    public int Position { get; }
+
+    public int Wins { get; }
+
+    public override string Name => "championshipPositionWithWins";
+
+    public override string FactKey => ObjectiveFactKeys.ChampionshipPosition;
+
+    public override string Parameter => Position.ToString(CultureInfo.InvariantCulture) + ":" + Wins.ToString(CultureInfo.InvariantCulture);
+
+    public override bool? Evaluate(OrganizationId owner, IObjectiveFacts facts)
+    {
+        ArgumentNullException.ThrowIfNull(facts);
+        if (facts.Number(owner, ObjectiveFactKeys.ChampionshipPosition) is not decimal position
+            || facts.Number(owner, ObjectiveFactKeys.SeasonWins) is not decimal wins)
+        {
+            return null;
+        }
+
+        return position <= Position && wins >= Wins;
+    }
+
+    public static ChampionshipPositionWithWins FromParameter(string parameter)
+    {
+        var parts = parameter.Split(':');
+        if (parts.Length != 2
+            || !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var position)
+            || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var wins))
+        {
+            throw new ArgumentException("Bad position-with-wins parameter '" + parameter + "'.", nameof(parameter));
+        }
+
+        return new ChampionshipPositionWithWins(position, wins);
     }
 }

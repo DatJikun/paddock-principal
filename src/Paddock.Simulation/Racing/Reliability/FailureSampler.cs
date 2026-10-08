@@ -31,13 +31,18 @@ public static class FailureSampler
     /// <param name="components">The parts of the car. Missing parts cannot fail. Each part at most once.</param>
     /// <param name="inputs">Season and stress.</param>
     /// <param name="options">Warning lead; the default when null.</param>
+    /// <param name="hazardScale">
+    /// A multiple of the hazard of a part on a lap (the engine mode the pit wall chose for that lap, #286); null is 1 everywhere.
+    /// The draws do not depend on it, so the same draws meet a harder or gentler race.
+    /// </param>
     public static FailureSample Sample(
         RngStream raceStream,
         string carId,
         int laps,
         IReadOnlyList<ComponentState> components,
         FailureInputs inputs,
-        FailureSamplerOptions? options = null)
+        FailureSamplerOptions? options = null,
+        Func<int, MechanicalComponent, double>? hazardScale = null)
     {
         ArgumentNullException.ThrowIfNull(raceStream);
         ArgumentException.ThrowIfNullOrWhiteSpace(carId);
@@ -79,8 +84,8 @@ public static class FailureSampler
             }
 
             var split = ReliabilityConstants.EffectSplit(component);
-            var retireLap = FirstLap(inputs.Season, component, state, stress, laps, retireExponential, split.Retire);
-            var otherLap = FirstLap(inputs.Season, component, state, stress, laps, otherExponential, 1 - split.Retire);
+            var retireLap = FirstLap(inputs.Season, component, state, stress, laps, retireExponential, split.Retire, hazardScale);
+            var otherLap = FirstLap(inputs.Season, component, state, stress, laps, otherExponential, 1 - split.Retire, hazardScale);
 
             if (retireLap is int lapR)
             {
@@ -140,7 +145,8 @@ public static class FailureSampler
         double stress,
         int laps,
         double exponential,
-        double processShare)
+        double processShare,
+        Func<int, MechanicalComponent, double>? hazardScale)
     {
         if (processShare <= 0)
         {
@@ -151,7 +157,8 @@ public static class FailureSampler
         for (var lap = 1; lap <= laps; lap++)
         {
             var mileage = state.MileageLaps + (lap - 1);
-            cumulative += processShare * ReliabilityEraProfile.LapHazard(season, component, stress, state.ReliabilityRating, mileage);
+            var hazard = processShare * ReliabilityEraProfile.LapHazard(season, component, stress, state.ReliabilityRating, mileage);
+            cumulative += hazardScale is null ? hazard : hazard * hazardScale(lap, component);
             if (cumulative >= exponential)
             {
                 return lap;

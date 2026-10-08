@@ -3,6 +3,8 @@ using Paddock.Application.Career;
 using Paddock.Simulation.Career;
 using Paddock.Domain.Racing;
 using Paddock.Domain.World;
+using Paddock.Simulation.Racing.Pits;
+using Paddock.Simulation.Racing.Tyres;
 
 namespace Paddock.Application.Racing;
 
@@ -21,7 +23,8 @@ public sealed record LiveCarView(
 /// One fact of the race tape as the screen gets it. The structured fields feed the timing tower and the map; <see cref="Key"/> and
 /// <see cref="Args"/> are the transcript line (null when the fact is not narrated, like most lap crossings). Kinds: <c>start</c>,
 /// <c>lap</c>, <c>pitIn</c>, <c>pitOut</c>, <c>gain</c>, <c>loss</c>, <c>incident</c>, <c>retire</c>, <c>weather</c>, <c>sc</c>,
-/// <c>scEnd</c>, <c>red</c>, <c>fastest</c>, <c>finish</c>, <c>end</c>, and <c>call</c> (own strategist on the radio).
+/// <c>scEnd</c>, <c>red</c>, <c>fastest</c>, <c>finish</c>, <c>end</c>, <c>call</c> (own strategist on the radio), and, for own
+/// cars only (#286), <c>driver</c> (the driver on the radio about tyres and fuel) and <c>order</c> (the driver answering an order).
 /// </summary>
 public sealed record LiveEventView(
     int Seq,
@@ -43,6 +46,46 @@ public sealed record LiveEventView(
 public sealed record LiveStrategyView(string? StrategistId, string? StrategistName);
 
 /// <summary>
+/// What the pit wall knows about one of its own cars at the start of a lap (#286): tyres and their age, fuel and how many laps
+/// it lasts at the pace the car runs (<see cref="FuelLaps"/>), laps still to run counting this one, the pace and whether it is the
+/// pit wall's order (<see cref="Manual"/>), how the driver says the tyres feel (<c>good</c>, <c>worn</c>, <c>gone</c>), the engine mode
+/// (<c>lean</c>, <c>standard</c>, <c>full</c>) and whether the team order to let the team-mate by is on.
+/// </summary>
+public sealed record LivePitWallLapView(
+    string CarId,
+    int Lap,
+    long StartMs,
+    string Tyres,
+    int TyreLaps,
+    double FuelKg,
+    double FuelLaps,
+    int LapsLeft,
+    string Pace,
+    bool Manual,
+    string Feel,
+    string Engine,
+    bool LetBy);
+
+/// <summary>One pit wall order the host took (#286): the car, the lap it acts on, when it was given, and what it asks.</summary>
+public sealed record LiveOrderView(string CarId, int Lap, long AtMs, string Kind, string? Pace, string? Tyres, string? Engine, bool On);
+
+/// <summary>
+/// The player's side of the pit wall (#286). <see cref="CanOrder"/> says whether orders are taken now; when not,
+/// <see cref="Locked"/> is the reason key. <see cref="Compounds"/> are the tyres a stop may fit (softest first, then the wet
+/// tyre), <see cref="StartTyres"/> the set every car starts on. <see cref="Laps"/> and <see cref="Orders"/> hold own cars only (INV-003).
+/// </summary>
+public sealed record LivePitWallView(
+    bool CanOrder,
+    string? Locked,
+    int Revision,
+    IReadOnlyList<string> Compounds,
+    string? StartTyres,
+    bool TyreChange,
+    bool Refuelling,
+    IReadOnlyList<LivePitWallLapView> Laps,
+    IReadOnlyList<LiveOrderView> Orders);
+
+/// <summary>
 /// A watched race (PP-052): everything the race mode draws except the frames, which come in windows
 /// (<see cref="LiveFramesView"/>). Built from the tape the career just ran and the round's archive; it reads no truth the
 /// player may not see (no lap noise, no true weather, rival strategists stay silent) and draws no random numbers (INV-005).
@@ -62,7 +105,8 @@ public sealed record LiveRaceView(
     bool FramesApproximate,
     IReadOnlyList<LiveCarView> Cars,
     IReadOnlyList<LiveEventView> Events,
-    LiveStrategyView Strategy);
+    LiveStrategyView Strategy,
+    LivePitWallView PitWall);
 
 /// <summary>Display samples of one car in a window, as parallel arrays (time, racing-line metres, speed, pit lane, pit-lane metres).</summary>
 public sealed record LiveCarFramesView(
@@ -145,7 +189,11 @@ public static class LiveRaceRead
             }
         }
 
-        events.AddRange(Calls(watch.Calls, tape, Mine, events.Count));
+        var pitWall = OwnPitWall(watch, started.TotalLaps, Mine);
+        var manual = pitWall.Where(l => l.Manual).Select(l => (l.CarId, l.Lap)).ToHashSet();
+        events.AddRange(Calls(watch.Calls, tape, Mine, events.Count, manual));
+        events.AddRange(Radio(pitWall, watch.Tyres, Name, events.Count + tape.Count));
+        events.AddRange(Acks(watch.Steering, Mine, Name, events.Count + (2 * tape.Count)));
         events.Sort((a, b) => a.TimeMs != b.TimeMs ? a.TimeMs.CompareTo(b.TimeMs) : a.Seq.CompareTo(b.Seq));
 
         tracks.TryGetValue(watch.LayoutId, out var track);
@@ -166,7 +214,8 @@ public static class LiveRaceRead
             tape.FrameAccuracy is not FrameAccuracy.Exact,
             cars,
             events,
-            Strategy(world, observer, session));
+            Strategy(world, observer, session),
+            PitWallOf(watch, pitWall, Mine));
     }
 
     /// <summary>The frames between <paramref name="fromMs"/> and <paramref name="toMs"/>, cut to <see cref="MaxWindowMs"/>.</summary>
@@ -209,7 +258,149 @@ public static class LiveRaceRead
     }
 
     private static LiveRaceView Empty(int season) =>
-        new(false, season, 0, null, null, null, 0, 0, 0, null, null, true, [], [], new LiveStrategyView(null, null));
+        new(false, season, 0, null, null, null, 0, 0, 0, null, null, true, [], [], new LiveStrategyView(null, null), NoPitWall);
+
+    private static LivePitWallView NoPitWall { get; } = new(false, LiveOrderKeys.Locked, 0, [], null, false, false, [], []);
+
+    private static LivePitWallView PitWallOf(RaceWatch watch, IReadOnlyList<LivePitWallLapView> laps, Func<string, bool> mine)
+    {
+        var steering = watch.Steering;
+        var orders = steering is null
+            ? []
+            : steering.Issued
+                .Where(o => mine(o.Order.CarId))
+                .Select(o => new LiveOrderView(
+                    o.Order.CarId,
+                    o.Order.Lap,
+                    o.AtMs,
+                    Camel(o.Order.Kind.ToString()),
+                    o.Order.Kind == PitWallOrderKind.Pace ? PaceText(o.Order.Pace) : null,
+                    o.Order.CompoundId,
+                    o.Order.Kind == PitWallOrderKind.Engine ? EngineText(o.Order.Engine) : null,
+                    o.Order.On))
+                .ToArray();
+        var tyres = watch.Tyres;
+        return new LivePitWallView(
+            steering is not null,
+            steering is null ? LiveOrderKeys.Locked : null,
+            steering?.Revision ?? 0,
+            tyres?.Compounds ?? [],
+            tyres?.StartCompound,
+            tyres?.TyreChange ?? false,
+            tyres?.Refuelling ?? false,
+            laps,
+            orders);
+    }
+
+    /// <summary>Own cars' pit wall laps, with fuel turned into laps at the pace run (the same burn the lap engine uses).</summary>
+    private static List<LivePitWallLapView> OwnPitWall(RaceWatch watch, int totalLaps, Func<string, bool> mine)
+    {
+        var laps = new List<LivePitWallLapView>();
+        foreach (var lap in watch.PitWall)
+        {
+            if (!mine(lap.CarId))
+            {
+                continue;
+            }
+
+            var burn = lap.BurnKg * PaceEffects.Of(lap.Pace).BurnFactor * PaceEffects.Burn(lap.Engine);
+            laps.Add(new LivePitWallLapView(
+                lap.CarId,
+                lap.Lap,
+                lap.StartMs,
+                lap.CompoundId,
+                lap.TyreAgeLaps,
+                Math.Round(lap.FuelKg, 1),
+                burn > 0 ? Math.Round(lap.FuelKg / burn, 1) : 0,
+                Math.Max(0, totalLaps - lap.Lap + 1),
+                PaceText(lap.Pace),
+                lap.Manual,
+                Camel(lap.Feel.ToString()),
+                EngineText(lap.Engine),
+                lap.LetBy));
+        }
+
+        return laps;
+    }
+
+    /// <summary>
+    /// The driver on the radio (#286): the tyres going off or past their cliff, and, where nobody may refuel, fuel that will not
+    /// last at this pace. Heard at the start of the lap the driver feels it; own cars only (INV-003).
+    /// </summary>
+    private static IEnumerable<LiveEventView> Radio(IReadOnlyList<LivePitWallLapView> laps, TyreOffer? tyres, Func<string, string> name, int firstSeq)
+    {
+        var seq = firstSeq;
+        var last = new Dictionary<string, LivePitWallLapView>(StringComparer.Ordinal);
+        var shortOfFuel = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var lap in laps)
+        {
+            last.TryGetValue(lap.CarId, out var before);
+            last[lap.CarId] = lap;
+            if (before is not null && before.Feel != lap.Feel && lap.Feel != "good")
+            {
+                yield return Said(lap, lap.Feel == "gone" ? LiveRaceKeys.TyresGone : LiveRaceKeys.TyresWorn, [("driver", name(lap.CarId))]);
+            }
+
+            var willRunOut = tyres is { Refuelling: false } && lap.FuelLaps < lap.LapsLeft;
+            if (willRunOut && shortOfFuel.Add(lap.CarId))
+            {
+                yield return Said(lap, LiveRaceKeys.FuelShort, [("driver", name(lap.CarId)), ("laps", Math.Floor(lap.FuelLaps).ToString("0", CultureInfo.InvariantCulture))]);
+            }
+            else if (!willRunOut)
+            {
+                shortOfFuel.Remove(lap.CarId);
+            }
+        }
+
+        LiveEventView Said(LivePitWallLapView lap, string key, (string Name, string Value)[] args) =>
+            new(seq++, lap.Lap, lap.StartMs, "driver", lap.CarId, null, null, null, null, lap.Tyres, [], true, key, args.Select(a => new ReportArgView(a.Name, a.Value)).ToArray());
+    }
+
+    /// <summary>The driver answering an order of our pit wall, when it was given (#286). Rivals' orders are never sent (INV-003).</summary>
+    private static IEnumerable<LiveEventView> Acks(RaceSteering? steering, Func<string, bool> mine, Func<string, string> name, int firstSeq)
+    {
+        if (steering is null)
+        {
+            yield break;
+        }
+
+        var seq = firstSeq;
+        foreach (var issued in steering.Issued)
+        {
+            var order = issued.Order;
+            if (!mine(order.CarId))
+            {
+                continue;
+            }
+
+            var key = LiveRaceKeys.Ack(order);
+            IReadOnlyList<ReportArgView> args =
+            [
+                new("driver", name(order.CarId)),
+                new("lap", Number(order.Lap)),
+                .. order.CompoundId is { } tyre ? [new ReportArgView("tyres", tyre)] : Array.Empty<ReportArgView>(),
+            ];
+            yield return new LiveEventView(seq++, order.Lap, issued.AtMs, "order", order.CarId, null, null, null, null, order.CompoundId, [], true, key, args);
+        }
+    }
+
+    internal static string PaceText(PaceMode pace) => pace switch
+    {
+        PaceMode.Push => "push",
+        PaceMode.Save => "save",
+        PaceMode.Conserve => "conserve",
+        PaceMode.Qualifying => "qualifying",
+        _ => "standard",
+    };
+
+    internal static string EngineText(EngineMode engine) => engine switch
+    {
+        EngineMode.Lean => "lean",
+        EngineMode.Full => "full",
+        _ => "standard",
+    };
+
+    private static string Camel(string text) => text.Length == 0 ? text : char.ToLowerInvariant(text[0]) + text[1..];
 
     /// <summary>Index of the first frame at or after <paramref name="time"/> (frames are in time order).</summary>
     private static int First(System.Collections.Immutable.ImmutableArray<CarFrame> frames, long time)
@@ -339,7 +530,12 @@ public static class LiveRaceRead
     /// The own strategist's calls as radio lines. A call is made before the lap it names, so it is heard when the car
     /// crosses the line before that lap (the start for lap 1). Rivals' calls are never sent (INV-003).
     /// </summary>
-    private static IEnumerable<LiveEventView> Calls(IReadOnlyList<StrategyCall> calls, RaceTape tape, Func<string, bool> mine, int firstSeq)
+    private static IEnumerable<LiveEventView> Calls(
+        IReadOnlyList<StrategyCall> calls,
+        RaceTape tape,
+        Func<string, bool> mine,
+        int firstSeq,
+        IReadOnlySet<(string Car, int Lap)> manual)
     {
         var crossings = new Dictionary<(string Car, int Lap), (long Time, int Seq)>();
         foreach (var raceEvent in tape.Events)
@@ -353,7 +549,8 @@ public static class LiveRaceRead
         var seq = Math.Max(firstSeq, tape.Count);
         foreach (var call in calls)
         {
-            if (!mine(call.CarId))
+            // A pace call the pit wall overruled is not heard: the car runs the ordered pace (#286).
+            if (!mine(call.CarId) || (call.Call != StrategyCalls.Pit && manual.Contains((call.CarId, call.Lap))))
             {
                 continue;
             }
@@ -483,4 +680,26 @@ public static class LiveRaceKeys
 
     public static string Call(string call, bool withTyres) =>
         "live.call." + call + (call == StrategyCalls.Pit && withTyres ? "Tyres" : "");
+
+    public const string TyresWorn = "live.driver.tyresWorn";
+    public const string TyresGone = "live.driver.tyresGone";
+    public const string FuelShort = "live.driver.fuelShort";
+
+    /// <summary>Every answer a driver gives to an order (#286).</summary>
+    public static IReadOnlyList<string> Acks { get; } =
+        [
+            "live.ack.push", "live.ack.save", "live.ack.standard", "live.ack.conserve", "live.ack.qualifying", "live.ack.auto",
+            "live.ack.pit", "live.ack.pitTyres", "live.ack.engine.lean", "live.ack.engine.standard", "live.ack.engine.full",
+            "live.ack.letByOn", "live.ack.letByOff",
+        ];
+
+    /// <summary>The driver's answer to <paramref name="order"/>.</summary>
+    public static string Ack(PitWallOrder order) => order.Kind switch
+    {
+        PitWallOrderKind.Pace => "live.ack." + LiveRaceRead.PaceText(order.Pace),
+        PitWallOrderKind.Auto => "live.ack.auto",
+        PitWallOrderKind.Engine => "live.ack.engine." + LiveRaceRead.EngineText(order.Engine),
+        PitWallOrderKind.LetBy => order.On ? "live.ack.letByOn" : "live.ack.letByOff",
+        _ => order.CompoundId is null ? "live.ack.pit" : "live.ack.pitTyres",
+    };
 }

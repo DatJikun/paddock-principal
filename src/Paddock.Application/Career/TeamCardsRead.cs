@@ -1,6 +1,7 @@
 using Paddock.Domain.Board;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Finance;
+using Paddock.Domain.Infrastructure;
 using Paddock.Domain.Supply;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -14,8 +15,16 @@ public sealed record TeamCardDriver(string Name, string Nationality, int Age, st
 public sealed record TeamCardEngine(string Name, string Supplier, string SupplyType);
 
 /// <summary>
+/// Rough public levels of a team, 1 (weakest) to 5 (strongest), by its place among the teams of the same season. They are quintiles
+/// of the grid, not a score: a principal reads the paddock's reputation of a team, not its hidden ratings (INV-003). A level is null
+/// when the world holds nothing to judge that area by.
+/// </summary>
+public sealed record TeamCardLevels(int? Car, int? Infrastructure, int? Drivers, int? Staff);
+
+/// <summary>
 /// What a principal can know about a team before he takes it. <see cref="Budget"/> is the finance tier the books start from
-/// (low, typical, top). <see cref="LastSeason"/> is last season's constructors' place when the authored order has it.
+/// (low, typical, top) and <see cref="BudgetCents"/> the nominal opening budget of that tier in cents (an ESTIMATE).
+/// <see cref="LastSeason"/> is last season's constructors' place when the authored order has it.
 /// <see cref="Expected"/> is the position the board will ask for, from the same rule it uses on appointment.
 /// </summary>
 public sealed record TeamCardView(
@@ -26,11 +35,13 @@ public sealed record TeamCardView(
     string Budget,
     int? LastSeason,
     int Expected,
-    int FieldSize);
+    int FieldSize,
+    long BudgetCents,
+    TeamCardLevels Levels);
 
 /// <summary>
 /// The team cards of a career's first morning, for the screen that picks a team. A pure read of a world the caller already
-/// built: no state change, no random number (INV-005). It reads only public facts (INV-003).
+/// built: no state change, no random number (INV-005). It reads only public facts (INV-003); the four levels are coarse bands.
 /// </summary>
 public static class TeamCardsRead
 {
@@ -40,7 +51,8 @@ public static class TeamCardsRead
         IReadOnlyList<SupplyLink> supplies,
         ITeamTierSource tiers,
         IReadOnlyDictionary<string, int> lastSeason,
-        ICarStrengthSource? carStrength = null)
+        ICarStrengthSource? carStrength = null,
+        FacilityCatalog? facilities = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(supplies);
@@ -49,6 +61,58 @@ public static class TeamCardsRead
         var teams = CareerTeams.Active(world, on);
         var ranking = new PublicRankKeys(tiers, carStrength);
         var cards = new List<TeamCardView>(teams.Count);
+        var carScores = new Dictionary<OrganizationId, double>();
+        var infraScores = new Dictionary<OrganizationId, double>();
+        var driverScores = new Dictionary<OrganizationId, double>();
+        var staffScores = new Dictionary<OrganizationId, double>();
+        foreach (var team in teams)
+        {
+            if (carStrength is not null && team.Id.IsReal && carStrength.TryGet(team.Id.Value, on.Year, out var strength))
+            {
+                carScores[team.Id] = strength;
+            }
+
+            if (InfrastructureScore(facilities, team.Id, on.Year) is double built)
+            {
+                infraScores[team.Id] = built;
+            }
+
+            var raceSide = new List<double>();
+            var staffSide = new List<double>();
+            foreach (var contract in world.Contracts)
+            {
+                if (contract.OrganizationId != team.Id || !contract.IsActiveOn(on))
+                {
+                    continue;
+                }
+
+                var member = world.GetPerson(contract.PersonId);
+                if (member.IsRetired)
+                {
+                    continue;
+                }
+
+                if (contract.Role.IsDriver && contract.Role.Seat != SeatStatus.Reserve)
+                {
+                    raceSide.Add(member.Truth.Attributes.Average(item => (double)item.Value));
+                }
+                else if (contract.Role.IsStaff)
+                {
+                    staffSide.Add(member.Truth.Attributes.Average(item => (double)item.Value));
+                }
+            }
+
+            if (raceSide.Count > 0)
+            {
+                driverScores[team.Id] = raceSide.Average();
+            }
+
+            if (staffSide.Count > 0)
+            {
+                staffScores[team.Id] = staffSide.Average();
+            }
+        }
+
         foreach (var team in teams)
         {
             var drivers = new List<(SeatStatus Seat, Person Person)>();
@@ -91,10 +155,54 @@ public static class TeamCardsRead
                 tiers.TierOf(team.Id, on.Year).ToString().ToLowerInvariant(),
                 lastSeason.TryGetValue(team.Id.Value, out var place) ? place : null,
                 ReputationModel.ExpectedPosition(null, rank, teams.Count),
-                teams.Count));
+                teams.Count,
+                team.Budget * 100L,
+                new TeamCardLevels(
+                    LevelOf(carScores, team.Id),
+                    LevelOf(infraScores, team.Id),
+                    LevelOf(driverScores, team.Id),
+                    LevelOf(staffScores, team.Id))));
         }
 
         return cards;
+    }
+
+    /// <summary>Mean working quality of the unlocked facilities against the frontier of the year; null when the catalog has none.</summary>
+    private static double? InfrastructureScore(FacilityCatalog? facilities, OrganizationId team, int year)
+    {
+        if (facilities is null)
+        {
+            return null;
+        }
+
+        var shares = new List<double>();
+        foreach (var spec in facilities.Kinds)
+        {
+            if (year < spec.UnlockYear)
+            {
+                continue;
+            }
+
+            var quality = facilities.StartingQualityMilli(team.Value, spec.Kind);
+            if (quality > 0)
+            {
+                shares.Add(InfrastructureMath.Relative(quality, year, building: false));
+            }
+        }
+
+        return shares.Count == 0 ? null : shares.Average();
+    }
+
+    /// <summary>1 to 5 by the place among the scored teams (ties share a place); null when this team has no score.</summary>
+    private static int? LevelOf(IReadOnlyDictionary<OrganizationId, double> scores, OrganizationId team)
+    {
+        if (!scores.TryGetValue(team, out var own))
+        {
+            return null;
+        }
+
+        var place = 1 + scores.Count(pair => pair.Value > own);
+        return 5 - ((place - 1) * 5 / scores.Count);
     }
 
     private static int AgeOn(GameDate born, GameDate on)

@@ -66,6 +66,9 @@ internal sealed partial class WeekendRun
 
         public bool Held { get; set; }
 
+        /// <summary>The team-mate this car lets by on this lap (team order, #286); null when it races everyone.</summary>
+        public LapWork? LetsBy { get; set; }
+
         public RetireInfo? Retire { get; set; }
 
         public string Compound { get; set; } = string.Empty;
@@ -133,6 +136,10 @@ internal sealed partial class WeekendRun
             {
                 Consult(start[i], i, start, lap);
             }
+
+            // The team's own orders come after the strategist, so they win (#286).
+            ApplyOrders(start[i], i, start, lap, consult);
+            RecordPitWall(start[i], lap);
         }
 
         // Failures arrive from the Failures stream (sampled once per car); fuel runs out.
@@ -172,6 +179,22 @@ internal sealed partial class WeekendRun
             if (w.Retire is { } r && Math.Abs(r.TimeSeconds - w.RetireTime) > 0d)
             {
                 w.Retire = r with { TimeSeconds = w.RetireTime };
+            }
+        }
+
+        // Team orders: a car told to let its team-mate by does so when the team-mate starts the lap right behind it (#286).
+        if (kind == NeutralisationKind.None)
+        {
+            for (var i = 0; i + 1 < n; i++)
+            {
+                var ahead = work[i];
+                var behind = work[i + 1];
+                if (ahead.Car.LetBy && ahead.Retire is null && behind.Retire is null
+                    && string.Equals(ahead.Car.Entry.ConstructorId, behind.Car.Entry.ConstructorId, StringComparison.Ordinal)
+                    && behind.StartCum - ahead.StartCum <= PitConstants.LetByGapSeconds)
+                {
+                    ahead.LetsBy = behind;
+                }
             }
         }
 
@@ -375,6 +398,120 @@ internal sealed partial class WeekendRun
         car.Pit = new PendingPit(compound, refuel, swap);
     }
 
+    // ---- Orders from the pit wall (#286) -------------------------------------------------------------------
+
+    private readonly List<PitWallLap> _pitWall = [];
+
+    private void ApplyOrders(Car car, int index, Car[] start, int lap, bool consulted)
+    {
+        foreach (var order in _in.Orders)
+        {
+            if (order.Lap != lap || !string.Equals(order.CarId, car.TapeId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            switch (order.Kind)
+            {
+                case PitWallOrderKind.Pace:
+                    car.ManualPace = order.Pace;
+                    break;
+                case PitWallOrderKind.Auto:
+                    car.ManualPace = null;
+                    if (!consulted)
+                    {
+                        // Handed back between two consultations: the strategist decides the pace now, not a few laps later.
+                        var pit = car.Pit;
+                        Consult(car, index, start, lap);
+                        car.Pit ??= pit;
+                    }
+
+                    break;
+                case PitWallOrderKind.Pit:
+                    car.Pit = OrderedStop(car, order, lap) ?? car.Pit;
+                    break;
+                case PitWallOrderKind.Engine when order.Engine != car.Engine:
+                    car.Engine = order.Engine;
+                    car.EngineLaps.Add((lap, order.Engine));
+                    ResampleFailures(car, lap);
+                    break;
+                case PitWallOrderKind.LetBy:
+                    car.LetBy = order.On;
+                    break;
+            }
+        }
+
+        if (car.ManualPace is { } pace)
+        {
+            car.Mode = pace;
+        }
+    }
+
+    /// <summary>
+    /// The engine mode changed on <paramref name="lap"/>: the failures are sampled again with the same draws and the hazard of every
+    /// lap scaled by the mode it is (or, from now on, will be) run in. Laps already driven keep their modes, so a failure that
+    /// already happened happens again on the same lap; one still to come can move earlier or later, or out of the race.
+    /// </summary>
+    private void ResampleFailures(Car car, int lap)
+    {
+        var modes = car.EngineLaps;
+        car.Failure = FailureSampler.Sample(
+            _failureStream!,
+            car.Entry.CarId,
+            _in.TotalLaps,
+            car.Entry.Components,
+            car.FailureInputs,
+            hazardScale: (at, component) => PaceEffects.Hazard(EngineAt(modes, at), component));
+    }
+
+    private static EngineMode EngineAt(List<(int FromLap, EngineMode Mode)> modes, int lap)
+    {
+        var mode = EngineMode.Standard;
+        foreach (var (from, set) in modes)
+        {
+            if (from <= lap)
+            {
+                mode = set;
+            }
+        }
+
+        return mode;
+    }
+
+    // A stop the pit wall calls: the tyres it asks for, and where refuelling is allowed the fuel to reach the flag.
+    private PendingPit? OrderedStop(Car car, PitWallOrder order, int lap)
+    {
+        if (lap >= _in.TotalLaps)
+        {
+            return null;
+        }
+
+        var compound = order.CompoundId is { } id && _pitRules.TyreChangeAllowed && car.Compounds.ContainsKey(id) ? id : null;
+        var refuel = 0d;
+        if (_pitRules.RefuellingAllowed)
+        {
+            var target = car.Burn * (_in.TotalLaps - lap) * (1 + PitConstants.RefuelSafetyMargin);
+            refuel = Math.Max(0d, target - Math.Max(0d, car.Fuel - car.Burn));
+        }
+
+        return compound is null && refuel <= 0d ? null : new PendingPit(compound, refuel, false);
+    }
+
+    private void RecordPitWall(Car car, int lap) =>
+        _pitWall.Add(new PitWallLap(
+            car.TapeId,
+            lap,
+            Ms(car.Cum),
+            car.Tyre.Compound.Id,
+            car.Tyre.AgeLaps,
+            car.Fuel,
+            car.Burn,
+            car.Mode,
+            car.ManualPace is not null,
+            TyreFeelBands.Of(car.Tyre),
+            car.Engine,
+            car.LetBy));
+
     // ---- Failures and lap times ---------------------------------------------------------------------------
 
     private void ApplyFailures(LapWork w, int lap)
@@ -402,13 +539,7 @@ internal sealed partial class WeekendRun
 
     private double BurnThisLap(Car car, NeutralisationKind kind)
     {
-        var mode = car.Mode switch
-        {
-            PaceMode.Push => PitConstants.PushBurnFactor,
-            PaceMode.Save => 1d - TyreFuelConstants.FuelSavingBurnReduction,
-            _ => 1d,
-        };
-        return car.Burn * mode * NeutralWearBurnFactor(kind);
+        return car.Burn * PaceEffects.Of(car.Mode).BurnFactor * PaceEffects.Burn(car.Engine) * NeutralWearBurnFactor(kind);
     }
 
     private static double NeutralWearBurnFactor(NeutralisationKind kind) => kind switch
@@ -442,7 +573,7 @@ internal sealed partial class WeekendRun
             $"race:{car.Entry.CarId}:lap:{lap}"));
         var draw = Gaussian.FromUniforms(rng.NextDouble(), rng.NextDouble());
 
-        var performance = car.Entry.Car with { Power = Math.Clamp(car.Entry.Car.Power * car.PowerFactor, 0d, 100d) };
+        var performance = car.Entry.Car with { Power = Math.Clamp(car.Entry.Car.Power * car.PowerFactor * PaceEffects.Power(car.Engine), 0d, 100d) };
         var inputs = new LapInputs
         {
             Track = _in.Track,
@@ -469,12 +600,7 @@ internal sealed partial class WeekendRun
             });
         }
 
-        var paceDelta = car.Mode switch
-        {
-            PaceMode.Push => -PitConstants.PushPaceGainSeconds,
-            PaceMode.Save => FuelModel.FuelSavingPaceLossSeconds,
-            _ => 0d,
-        };
+        var paceDelta = PaceEffects.Of(car.Mode).LapSeconds;
         var degrade = 0d;
         foreach (var failure in new[] { car.Failure.First, car.Failure.Retirement })
         {
@@ -520,7 +646,7 @@ internal sealed partial class WeekendRun
             var driver = w.Car.Driver;
             var incident = IncidentSampler.SampleLap(
                 _incidentStream,
-                new IncidentCar(w.Car.Entry.CarId, driver.Aggression, driver.Pace.Composure),
+                new IncidentCar(w.Car.Entry.CarId, Math.Clamp(driver.Aggression + PaceEffects.Of(w.Car.Mode).AggressionShift, 0d, 100d), driver.Pace.Composure),
                 new LapContext(lap, wetness, nearby),
                 _incidentContext);
             if (incident is null)
@@ -658,6 +784,12 @@ internal sealed partial class WeekendRun
                         break;
                     }
 
+                    if (other.LetsBy == w)
+                    {
+                        // The team-mate ahead lifts: no fight for the place.
+                        continue;
+                    }
+
                     var situation = new PassSituation(
                         w.StartCum - other.StartCum,
                         w.Clean,
@@ -683,14 +815,29 @@ internal sealed partial class WeekendRun
 
             w.End = end;
             w.Held = held;
-            var at = placed.Count;
-            while (at > 0 && placed[at - 1].End > end)
-            {
-                at--;
-            }
+            Place(placed, w);
 
-            placed.Insert(at, w);
+            // The car that let this one by drops in behind it and loses the lift on top (#286).
+            var yielding = placed.FirstOrDefault(other => other.LetsBy == w);
+            if (yielding is not null && yielding.StopSeconds <= 0d)
+            {
+                placed.Remove(yielding);
+                yielding.End = Math.Max(yielding.End + PitConstants.LetByCostSeconds, w.End + follow);
+                yielding.Held = true;
+                Place(placed, yielding);
+            }
         }
+    }
+
+    private static void Place(List<LapWork> placed, LapWork w)
+    {
+        var at = placed.Count;
+        while (at > 0 && placed[at - 1].End > w.End)
+        {
+            at--;
+        }
+
+        placed.Insert(at, w);
     }
 
     private void ResolveSafetyCar(List<LapWork> survivors)
@@ -734,12 +881,7 @@ internal sealed partial class WeekendRun
 
             // Tyres and fuel of the lap just run.
             var weight = FuelModel.CarWeightFactor(w.FuelStart);
-            var wearMode = car.Mode switch
-            {
-                PaceMode.Push => PitConstants.PushWearFactor,
-                PaceMode.Save => PitConstants.SaveWearFactor,
-                _ => 1d,
-            };
+            var wearMode = PaceEffects.Of(car.Mode).WearFactor;
             var multiplier = TyreWear.WearMultiplier(new TyreConditions(_abrasiveness, car.Driver.Smoothness / 100d, weight));
             car.Tyre = new TyreSet(car.Tyre.Compound, car.Tyre.AgeLaps + 1, car.Tyre.Wear + (multiplier * wearMode * wearBurn));
             car.Fuel = Math.Max(0d, car.Fuel - BurnThisLap(car, kind));

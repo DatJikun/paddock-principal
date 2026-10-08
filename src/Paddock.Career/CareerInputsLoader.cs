@@ -47,6 +47,7 @@ public static class CareerInputsLoader
             Fatality = career?.FatalityLevel ?? FatalityLevel.Off,
             Facilities = data.Facilities,
             TeamCountries = TeamCountriesOf(data.Founders),
+            TrackGeometry = TrackGeometryCatalog.Create(data),
         };
     }
 

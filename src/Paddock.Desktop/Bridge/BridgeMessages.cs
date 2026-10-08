@@ -13,7 +13,8 @@ public sealed record DismissInboxCall(string ManagerId, string ItemId);
 
 /// <summary>
 /// The top bar: the career date, the team's cash in integer cents, and whatever is holding the clock.
-/// Cash is null when this manager does not run a team with open books.
+/// Cash is null when this manager does not run a team with open books. The Important fields name the newest open item that should
+/// stop automatic play and raise a toast (a decision, or a notice that changes the situation); null when there is none.
 /// </summary>
 public sealed record ShellView(
     string ManagerId,
@@ -26,7 +27,10 @@ public sealed record ShellView(
     string? DecisionKind,
     TranslationMessage? DecisionSubject,
     string? OrganizationId,
-    string? OrganizationName);
+    string? OrganizationName,
+    string? ImportantItemId,
+    string? ImportantKind,
+    TranslationMessage? ImportantSubject);
 
 /// <summary>The team this manager runs, as the shell and the team screen both read it.</summary>
 public sealed record OwnTeamView(string? OrganizationId, string? Name, long? CashCents);

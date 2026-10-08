@@ -10,7 +10,7 @@ namespace Paddock.Tests.Racing.Points;
 public class PointsRulesTests
 {
     [Fact]
-    public void Season1950_FiveScoringPlaces_SharedDrives_BestFour_NoConstructorsTitle()
+    public void Season1950_FiveScoringPlaces_SharedDrives_BestFour_ConstructorsClassificationStillRuns()
     {
         var rules = Rules(1950);
 
@@ -18,7 +18,9 @@ public class PointsRulesTests
         Assert.Equal([8, 6, 4, 3, 2], rules.PositionPoints.ToArray());
         Assert.Equal(FastestLapRule.OnePointSharedIfTied, rules.FastestLap);
         Assert.Equal(SharedDriveRule.SharedEqually, rules.SharedDrive);
-        Assert.Equal(ConstructorCounting.NoChampionship, rules.ConstructorCounting);
+        // The data has no official title, but the game always classifies constructors (#264).
+        Assert.Equal("no_championship", Real.RuleSetFor(1950).Value("constructors_points_counting"));
+        Assert.Equal(ConstructorCounting.BestFinishingCarOnly, rules.ConstructorCounting);
         Assert.Equal(ResultsCountingRule.Best(4), rules.ResultsCounting);
         Assert.Equal(ClassificationRule.RunningAtFlag, rules.Classification);
         Assert.False(rules.DoublePointsFinale);
@@ -165,7 +167,7 @@ public class PointsRulesTests
     }
 
     [Theory]
-    [InlineData(1955, 0)] // no constructors' title yet
+    [InlineData(1955, 8)] // no official title yet, but the game classifies constructors by the best car (#264)
     [InlineData(1970, 9)] // best car only
     [InlineData(1985, 15)] // two cars: 9 + 6
     public void MaxConstructorPointsPerRoundFollowsTheCountingRule(int season, int expected) =>

@@ -1,5 +1,6 @@
 using Paddock.Application.Access;
 using Paddock.Application.Objectives;
+using Paddock.Domain.Finance;
 using Paddock.Domain.Pool;
 using Paddock.Domain.World;
 
@@ -29,7 +30,9 @@ public sealed record PoolView(
     AccessContext Viewer,
     IReadOnlyList<PoolItemView> Items,
     ScoutFocusKind? Focus,
-    string? FocusHandle);
+    string? FocusHandle,
+    long CheapProgrammeCostCents,
+    long FastProgrammeCostCents);
 
 /// <summary>
 /// The read side of the talent pool (INV-003, INV-005). A manager or an AI manager sees the members with the bands their own
@@ -83,7 +86,13 @@ public sealed class PoolQuery
 
         var focus = organization is OrganizationId viewer ? section.FocusOf(viewer) : null;
         string? focusHandle = focus?.Person is PersonId target ? section.Find(target)?.HandleText : null;
-        return new PoolView(access, items, focus?.Kind, focusHandle);
+        return new PoolView(
+            access,
+            items,
+            focus?.Kind,
+            focusHandle,
+            Money.FromDollars(PoolEstimates.CostOf(JuniorProgramme.CheapSlow)).Cents,
+            Money.FromDollars(PoolEstimates.CostOf(JuniorProgramme.ExpensiveFast)).Cents);
     }
 
     private OrganizationId? Organization(AccessContext access)

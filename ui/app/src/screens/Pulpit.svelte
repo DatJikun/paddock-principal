@@ -17,7 +17,7 @@
 
   const rank = (item: { status: string; needsDecision: boolean }) =>
     item.status !== 'Open' ? 2 : item.needsDecision ? 0 : 1;
-  let mails = $derived([...data.inbox.items].filter((item) => item.status === 'Open').sort((a, b) => rank(a) - rank(b)).slice(0, 7));
+  let mails = $derived([...data.inbox.items].reverse().filter((item) => item.status === 'Open').sort((a, b) => rank(a) - rank(b)).slice(0, 7));
   let next = $derived(data.next.round ? data.calendar.rounds.find((round) => round.round === data.next.round) ?? null : null);
   let daysLeft = $derived(daysBetween(today, data.next.date));
   let titles = $derived(
@@ -28,7 +28,7 @@
   );
   let latestRound = $derived(data.latest.found ? data.calendar.rounds.find((round) => round.round === data.latest.round && round.season === data.latest.season) ?? null : null);
   let latestRows = $derived(
-    data.latest.rows.filter((row, index) => index < 6 || row.teamId === teamId) as RaceRowView[],
+    data.latest.rows.filter((row, index) => index < 10 || row.teamId === teamId) as RaceRowView[],
   );
   let own = $derived(data.board.own);
 </script>

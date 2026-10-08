@@ -55,8 +55,22 @@ public static class ChampionshipFacts
             ObjectiveFactKeys.ChampionshipPosition => row.Position,
             ObjectiveFactKeys.SeasonPoints => row.CountedPoints,
             ObjectiveFactKeys.SeasonPodiums => Podiums(section, owner.Value),
+            ObjectiveFactKeys.SeasonWins => Wins(section, owner.Value),
             _ => null,
         };
+    }
+
+    private static int Wins(ChampionshipSection section, string organization)
+    {
+        foreach (var row in section.Constructors)
+        {
+            if (row.Id == organization)
+            {
+                return row.Positions.Count(position => position == 1);
+            }
+        }
+
+        return 0;
     }
 
     private static int Podiums(ChampionshipSection section, string organization)

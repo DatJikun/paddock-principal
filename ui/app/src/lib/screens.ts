@@ -18,6 +18,7 @@ import type {
   NegotiationsView,
   NextRaceView,
   RaceResultView,
+  SeasonOverviewView,
   StaffListView,
   StandingsView,
   TrackView,
@@ -53,7 +54,7 @@ export type RaceData = {
   track: TrackView | null;
 };
 
-export type StandingsData = { kind: 'klasyfikacje'; standings: StandingsView };
+export type StandingsData = { kind: 'klasyfikacje'; standings: StandingsView; overview: SeasonOverviewView };
 
 export type SquadData = { kind: 'kierowcy'; drivers: DriversView; profiles: DriverProfileView[]; season: number };
 
@@ -155,8 +156,10 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
       ]);
       return { kind: 'wyscig', calendar, round, result, track: view };
     }
-    case 'klasyfikacje':
-      return { kind: 'klasyfikacje', standings: await query('standings', call) };
+    case 'klasyfikacje': {
+      const [standings, overview] = await Promise.all([query('standings', call), query('seasonOverview', call)]);
+      return { kind: 'klasyfikacje', standings, overview };
+    }
     case 'kierowcy': {
       const [drivers, shell] = await Promise.all([query('drivers', call), query('shell', call)]);
       const profiles = await Promise.all(drivers.own.map((driver) => profile(driver.personId)));

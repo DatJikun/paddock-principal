@@ -1,4 +1,5 @@
 using Paddock.Domain.Racing;
+using Paddock.Simulation.Racing.Pace;
 using Paddock.Simulation.Racing.Weekend;
 
 namespace Paddock.Simulation.Racing;
@@ -25,10 +26,12 @@ public sealed class LapRaceSimulator : IRaceSimulator
         }
 
         var result = RaceWeekend.Run(request.Weekend, request.Sink, request.Strategist);
+        var shape = request.Geometry is { } geometry ? LapSpeedShape.For(geometry, request.Weekend.Season) : null;
         var tape = LapFrameInterpolator.Attach(
             result.Tape,
             request.Weekend.Track.LengthKm * 1000d,
-            request.FrameSampleSeconds);
+            request.FrameSampleSeconds,
+            shape);
         request.Publish(RacePublishedFacts.From(result) with { Tape = tape });
         return tape;
     }

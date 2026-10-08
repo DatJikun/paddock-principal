@@ -21,6 +21,12 @@ public static class InfrastructureKeys
     public const string NoMoney = "infrastructure.error.noMoney";
 
     [TranslationKey]
+    public const string NoMoneyTest = "infrastructure.error.noMoneyTest";
+
+    [TranslationKey]
+    public const string NoSuchTest = "infrastructure.error.noSuchTest";
+
+    [TranslationKey]
     public const string EraNotReached = "infrastructure.error.eraNotReached";
 
     [TranslationKey]
@@ -51,6 +57,17 @@ public static class InfrastructureKeys
 
     [TranslationKey]
     public const string BuildFinishedSubject = "infrastructure.inbox.buildFinished.subject";
+
+    public const string TestNoticeKind = "infrastructure.testDone";
+
+    [TranslationKey]
+    public const string TestDoneSubject = "infrastructure.inbox.testDone.subject";
+
+    [TranslationKey]
+    public const string TestCappedSubject = "infrastructure.inbox.testCapped.subject";
+
+    [TranslationKey]
+    public const string TestNoCarSubject = "infrastructure.inbox.testNoCar.subject";
 
     [TranslationKey]
     public const string KindFactory = "infrastructure.kind.factory";

@@ -50,8 +50,30 @@ function controls(p0, p1, p2, p3) {
 }
 
 /**
- * Points in metres -> { viewBox, d, tick } for an SVG, or null when there is no shape to draw.
- * `tick` is a short mark across the start line (point 0).
+ * A schematic pit lane beside the start straight: a short line parallel to the track at the start line with an entry and
+ * an exit taper. Display only. No layout has authored pit-lane data, so this is drawn from the start line's direction.
+ */
+function pitLane(pts) {
+  const n = pts.length;
+  const [sx, sy] = pts[0];
+  const [px, py] = pts[n - 1];
+  const [nx, ny] = pts[1];
+  const len = Math.hypot(nx - px, ny - py) || 1;
+  const tx = (nx - px) / len;
+  const ty = (ny - py) / len;
+  const rx = -ty;
+  const ry = tx;
+  const behind = 8;
+  const ahead = 8;
+  const taper = 2.5;
+  const gap = 3.1;
+  const at = (along, side) => `${f(sx + tx * along + rx * side)},${f(sy + ty * along + ry * side)}`;
+  return `M${at(-behind, 0)}L${at(-behind + taper, gap)}L${at(ahead - taper, gap)}L${at(ahead, 0)}`;
+}
+
+/**
+ * Points in metres -> { viewBox, d, tick, pit } for an SVG, or null when there is no shape to draw.
+ * `tick` is a short mark across the start line (point 0); `pit` is the schematic pit lane beside it.
  */
 export function trackOutline(points) {
   if (!Array.isArray(points) || points.length < 3) return null;
@@ -80,5 +102,5 @@ export function trackOutline(points) {
   const ux = -(ny - sy) / len;
   const uy = (nx - sx) / len;
   const tick = `M${f(sx - ux * 3)},${f(sy - uy * 3)}L${f(sx + ux * 3)},${f(sy + uy * 3)}`;
-  return { viewBox: `${f(x0)} ${f(y0)} ${f(w)} ${f(h)}`, d, tick };
+  return { viewBox: `${f(x0)} ${f(y0)} ${f(w)} ${f(h)}`, d, tick, pit: pitLane(pts) };
 }

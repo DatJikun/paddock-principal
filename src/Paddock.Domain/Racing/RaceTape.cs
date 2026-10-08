@@ -61,6 +61,19 @@ public sealed class RaceTape
     public string ToCanonicalJson() => RaceTapeJson.Write(Events);
 
     /// <summary>
+    /// True when this tape and <paramref name="other"/> hold the same events before race time <paramref name="beforeMs"/>,
+    /// compared as canonical JSON. A race re-run with a pit wall order must keep what was already seen (#286).
+    /// </summary>
+    public bool SameBefore(RaceTape other, long beforeMs)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+        return string.Equals(
+            RaceTapeJson.Write([.. Events.Where(e => e.RaceTime < beforeMs)]),
+            RaceTapeJson.Write([.. other.Events.Where(e => e.RaceTime < beforeMs)]),
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Versioned document. No frames: the same array as <see cref="ToCanonicalJson"/> (old tapes stay byte-identical).
     /// With frames: <c>{"v":2,...}</c>.
     /// </summary>

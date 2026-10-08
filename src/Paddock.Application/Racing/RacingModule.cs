@@ -51,6 +51,9 @@ public sealed class RacingModule : CareerModule
             facts.RegisterNumber(
                 ObjectiveFactKeys.SeasonPodiums,
                 owner => ChampionshipFacts.Number(session, inputs, owner, ObjectiveFactKeys.SeasonPodiums));
+            facts.RegisterNumber(
+                ObjectiveFactKeys.SeasonWins,
+                owner => ChampionshipFacts.Number(session, inputs, owner, ObjectiveFactKeys.SeasonWins));
         }
     }
 

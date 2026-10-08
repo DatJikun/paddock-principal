@@ -84,7 +84,6 @@ public sealed record Phase4Play(
     string? SoftLock,
     string? KnownIssue,
     int RacesEntered,
-    int RacesSkipped,
     bool Dismissed,
     bool Insolvent,
     TimeSpan Wall,
@@ -143,7 +142,6 @@ public static class Phase4Bot
         ApplyOpening(shell, policy);
         var notes = new List<string>();
         var races = 0;
-        var skipped = 0;
         string? known = null;
         string? lockReason = null;
         var days = 0;
@@ -165,7 +163,7 @@ public static class Phase4Bot
                 break;
             }
 
-            WatchRace(shell, teamId, ref races, ref skipped, notes);
+            WatchRace(shell, teamId, ref races, notes);
             shell.Ready(shell.Player);
             var before = shell.Date;
             var advance = shell.Advance();
@@ -188,7 +186,7 @@ public static class Phase4Bot
             }
         }
 
-        WatchRace(shell, teamId, ref races, ref skipped, notes);
+        WatchRace(shell, teamId, ref races, notes);
         var team = OrganizationId.Real(teamId);
         var board = shell.Modules.Require<BoardBook>();
         var dismissed = board.Section.OrganizationOf(shell.Player.Value) is null
@@ -217,7 +215,6 @@ public static class Phase4Bot
             lockReason,
             known,
             races,
-            skipped,
             dismissed,
             insolvent,
             DateTime.UtcNow - started,
@@ -497,10 +494,10 @@ public static class Phase4Bot
         return null;
     }
 
-    private static void WatchRace(CareerShell shell, string teamId, ref int races, ref int skipped, List<string> notes)
+    private static void WatchRace(CareerShell shell, string teamId, ref int races, List<string> notes)
     {
         if (shell.Modules.TryGet<RaceWatch>() is not { } watch
-            || !watch.TryTake(out _, out _, out _, out _, out var lines, out var skippedIds))
+            || !watch.TryTake(out _, out _, out _, out _, out var lines))
         {
             return;
         }
@@ -508,13 +505,6 @@ public static class Phase4Bot
         if (lines.Any(line => line.TeamId == teamId))
         {
             races++;
-            return;
-        }
-
-        if (skippedIds.Contains(teamId, StringComparer.Ordinal))
-        {
-            skipped++;
-            notes.Add("Skipped a race (running and transport) on " + shell.Date + ".");
         }
     }
 

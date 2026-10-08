@@ -37,6 +37,7 @@ export const ICON = {
   folder: '<path d="M3 7h6l2 2h10v10H3z"/>',
   exit: '<path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/>',
   flag: '<path d="M5 21V4M5 4h13l-2.5 4.5L18 13H5"/>',
+  pause: '<path d="M8 5v14M16 5v14"/>',
   gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',
 };
 

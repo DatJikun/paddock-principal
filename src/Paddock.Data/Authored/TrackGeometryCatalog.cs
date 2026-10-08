@@ -31,7 +31,7 @@ public sealed record ResolvedTrackGeometry(
 /// files are caught; the UI applies the same rule (<c>ui/prototype/js/track-shape.js</c>).
 /// An unknown layout id is a programming error and throws <see cref="ArgumentException"/>.
 /// </summary>
-public sealed class TrackGeometryCatalog
+public sealed class TrackGeometryCatalog : ITrackGeometrySource
 {
     private readonly Dictionary<string, double> _lengthKmByLayout;
     private readonly Dictionary<string, TrackGeometryFile> _filesByLayout;
@@ -69,6 +69,10 @@ public sealed class TrackGeometryCatalog
 
     /// <summary>True when the layout has an authored geometry file.</summary>
     public bool HasAuthored(string layoutId) => _filesByLayout.ContainsKey(layoutId);
+
+    /// <summary>The geometry <see cref="Resolve"/> gives (the fallback shape when there is no file); null for an unknown layout.</summary>
+    public TrackGeometry? GeometryOf(string layoutId) =>
+        !string.IsNullOrWhiteSpace(layoutId) && _lengthKmByLayout.ContainsKey(layoutId) ? Resolve(layoutId).Geometry : null;
 
     public ResolvedTrackGeometry Resolve(string layoutId)
     {

@@ -190,7 +190,8 @@ jobs:
             for ($i = 0; $i -lt 120 -and -not $base; $i++) {
               if ($proc.HasExited) { throw "The exe exited early with code $($proc.ExitCode)" }
               if (Test-Path $out) {
-                $m = [regex]::Match((Get-Content $out -Raw), 'bridge (http://127\.0\.0\.1:\d+/)')
+                $text = [string](Get-Content $out -Raw)
+                $m = [regex]::Match($text, 'bridge (http://127\.0\.0\.1:\d+/)')
                 if ($m.Success) { $base = $m.Groups[1].Value }
               }
               if (-not $base) { Start-Sleep -Milliseconds 500 }

@@ -153,6 +153,12 @@ public sealed record RaceWeekendResult(
     int LapsRun)
 {
     /// <summary>
+    /// What each pit wall knew about its own car at the start of every lap (#286). Derived from the same run as the laps, so it
+    /// is not part of <see cref="Digest"/>; a read for a team keeps only its own cars (INV-003).
+    /// </summary>
+    public ImmutableArray<PitWallLap> PitWall { get; init; } = [];
+
+    /// <summary>
     /// Lowercase hex SHA-256 of a canonical text of everything deterministic in the result (grid, tape, results, classification,
     /// outcomes, laps, stops, neutralisations, the true weather). Equal results give equal digests.
     /// </summary>

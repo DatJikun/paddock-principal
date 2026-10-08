@@ -398,9 +398,10 @@ Przed wyścigiem przygotowujesz zespół, w wyścigu pracują Twoi ludzie, a wyn
 Strateg | steruje postojami i tempem; słabszy gorzej ocenia zużycie opon i plany. Jego umiejętność to w {RaceStaffEstimates.StrategyWeight|%} strategia, reszta to „Reakcja”; atrybut „Pogoda” decyduje o trafności prognozy. Rywale mają swoich strategów na tych samych zasadach
 Ekipa w boksie | jej jakość to atrybut „Pit stopy” szefa mechaników; od niej zależy ryzyko błędu: +{PitConstants.ErrorMinSeconds|s}–{PitConstants.ErrorMaxSeconds|s} straty
 Kierowca i auto pod tor | tor nagradza różne parametry auta
-Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, klasyfikacja, przebieg i polecenia stratega przez radio; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości
+Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, które zwalniają w zakrętach, klasyfikacja, przebieg, a w radiu strateg i Twoi kierowcy; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości. Auto-pauza sama zatrzymuje wyścig przy fladze, deszczu i ważnej wieści o Twoim aucie, a komunikat pokazuje, co się stało. Kropka przy różnicy w klasyfikacji to walka o pozycję
 Szybki wyścig | z menu głównego, bez kariery: wybierasz sezon, zespół i rundę z kalendarza tego sezonu, a wyścig od razu rusza w trybie wyścigu. Świat jest taki, w jakim zaczęłaby się kariera w tym roku, wyścig liczy się według tych samych zasad, a po mecie wracasz do menu. Z szybkiego wyścigu możesz też wyjść w każdej chwili przyciskiem „Wyjdź” obok tempa; gra pyta wtedy, czy na pewno. Kariera w pamięci zostaje nietknięta i nic się nie zapisuje
-Ręczna kontrola | w planach jako opcja kariery: ręczne pit-stopy i polecenia tempa
+Polecenia z boksu | w szybkim wyścigu możesz przejąć auto od stratega. Tempo kierowcy ma pięć stopni, od pełnego oszczędzania do tempa kwalifikacyjnego, a „Strateg” oddaje mu tempo z powrotem. Silnik ma trzy tryby: oszczędny, normalny i pełną moc. Polecenie zespołowe „Przepuść kolegę” każe kierowcy oddać miejsce koledze z zespołu, gdy ten jedzie tuż za nim. Tempo, silnik i polecenie zespołowe działają od następnego okrążenia. Zjazd: wybierasz opony i klikasz „Potwierdź zjazd”; auto zjeżdża na końcu okrążenia, a jeśli już minęło wjazd do boksu (po {LiveRaceOrders.PitCallShare|%} okrążenia jest na to za późno), okrążenie później. Zjazd można odwołać, dopóki auto nie minie wjazdu do boksu. Co już widziałeś, nie zmienia się: polecenie działa tylko na dalszą część wyścigu
+Polecenia w karierze | na razie zablokowane: wynik wyścigu kariery jest zapisany w dniu wyścigu, zanim go obejrzysz, więc boks pokazuje dane aut, ale nie przyjmuje poleceń
 ```
 
 ```kroki
@@ -418,6 +419,14 @@ Brudne powietrze | do {PaceConstants.DirtyAirMaxLossSeconds|s} straty na okrąż
 Pierwsze okrążenie | {IncidentConstants.FirstLapFactor}× groźniejsze niż zwykle | drugie {IncidentConstants.SecondLapFactor}×
 Pogoda | zmienia się minuta po minucie | prognoza w boksie ma błąd: najlepsza osoba {WeatherConstants.GoodForecasterScale}×, najsłabsza {WeatherConstants.PoorForecasterScale}×
 Ostrzeżenie o awarii | {ReliabilityConstants.DefaultWarningLeadLaps} okrążenia wcześniej | auto zwalnia; około {ReliabilityConstants.SuddenFailureShare|%} awarii przychodzi nagle, bez ostrzeżenia
+Pełne oszczędzanie | {PitConstants.ConservePaceLossSeconds|s} wolniej na okrążeniu | opony zużywają się {PitConstants.ConserveWearFactor}× tak szybko, paliwa schodzi {PitConstants.ConserveBurnFactor}× tyle; kierowca jedzie spokojniej, więc rzadziej ma wypadek
+Oszczędzaj | {TyreFuelConstants.FuelSavingPaceLossSeconds|s} wolniej na okrążeniu | opony zużywają się {PitConstants.SaveWearFactor}× tak szybko, paliwa schodzi o {TyreFuelConstants.FuelSavingBurnReduction|%} mniej
+Atak | {PitConstants.PushPaceGainSeconds|s} szybciej na okrążeniu | opony zużywają się {PitConstants.PushWearFactor}× szybciej, paliwa schodzi {PitConstants.PushBurnFactor}× więcej
+Tempo kwalifikacyjne | {PitConstants.QualifyingPaceGainSeconds|s} szybciej na okrążeniu | opony zużywają się {PitConstants.QualifyingWearFactor}× szybciej, paliwa schodzi {PitConstants.QualifyingBurnFactor}× więcej, a kierowca ryzykuje: częściej ma wypadek
+Silnik na pełnej mocy | {PitConstants.FullEnginePower|%} mocy | paliwa schodzi {PitConstants.FullEngineBurn}× więcej, a silnik i chłodzenie psują się {PitConstants.FullEngineHazard}× częściej. Moc daje najwięcej na torach, które ją nagradzają
+Silnik oszczędny | {PitConstants.LeanEnginePower|%} mocy | paliwa schodzi {PitConstants.LeanEngineBurn}× tyle, a silnik i chłodzenie psują się {PitConstants.LeanEngineHazard}× tak często
+Przepuść kolegę | gdy kolega jedzie do {PitConstants.LetByGapSeconds|s} za Twoim kierowcą | kierowca oddaje miejsce i traci jeszcze {PitConstants.LetByCostSeconds|s} na odpuszczeniu gazu
+Kierowca w radiu | opony słabną po {TyreFeelBands.WornFromCliffShare|%} drogi do klifu | mówi też, gdy są skończone, a gdy nie wolno tankować, że paliwa przy tym tempie nie starczy do mety
 ```
 
 ```wykres dopasowanie-toru
@@ -460,6 +469,7 @@ Czy wyprzedzania jest za dużo, za mało, czy w sam raz?
 Czy awarii jest tyle, ile się spodziewasz w danej epoce?
 Czy wyścig z 1955 i z 1988 wygląda inaczej? Napisz, w czym.
 Czy szybki wyścig to dobry sposób na sprawdzenie jednego toru albo epoki? Czego Ci w nim brakuje?
+Czy polecenia z boksu (tempo i zjazd) dają Ci coś do roboty w trakcie wyścigu? Kiedy chciałeś coś zrobić, a nie mogłeś?
 ```
 
 ---

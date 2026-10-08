@@ -79,6 +79,7 @@ public static class BridgeRegistry
         Endpoint(Command, "proposeSupply", typeof(SupplyProposalCall), typeof(CommandAck)),
         Endpoint(Command, "respondToSupply", typeof(SupplyResponseCall), typeof(CommandAck)),
         Endpoint(Command, "liveRaceControl", typeof(LiveRaceControlCall), typeof(LiveClockView)),
+        Endpoint(Command, "liveRaceOrder", typeof(LiveRaceOrderCall), typeof(LiveClockView)),
         Endpoint(Command, "startQuickRace", typeof(QuickRaceCall), typeof(QuickRaceStartedView)),
         Endpoint(Command, "closeQuickRace", typeof(ManagerCall), typeof(CommandAck)),
     ];

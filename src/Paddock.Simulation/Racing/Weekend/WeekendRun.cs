@@ -44,6 +44,7 @@ internal sealed partial class WeekendRun
     private readonly IncidentRaceContext _incidentContext;
 
     private List<Car> _cars = [];
+    private RngStream? _failureStream;
     private int _endLap;
 
     public WeekendRun(RaceWeekendInput input, ITraceSink sink, StrategistFactory? factory)
@@ -217,6 +218,7 @@ internal sealed partial class WeekendRun
             ? WeekendConstants.PlannedFuelStopsWithFastRig
             : 0;
         var failureStream = FailureSampler.DeriveRaceStream(_in.MasterSeed, _in.Season, _in.Round);
+        _failureStream = failureStream;
         var aiStream = RuleBasedStrategist.DeriveRaceStream(_in.MasterSeed, _in.Season, _in.Round);
         var options = _in.StrategistOptions
             ?? new StrategistOptions(WeekendConstants.DefaultStrategistMaxStops, WeekendConstants.DefaultStrategistStopShiftVariants);
@@ -236,12 +238,8 @@ internal sealed partial class WeekendRun
             var burn = _fuel.BurnPerLapKg(_in.Season, entry.Engine, _in.Track.LengthKm, _in.TotalLaps);
             var tank = _fuel.StartLoadKg(_in.Season, entry.Engine, _in.Track.LengthKm, _in.TotalLaps);
             var start = _fuel.StartLoadKg(_in.Season, entry.Engine, _in.Track.LengthKm, _in.TotalLaps, plannedFuelStops);
-            var failure = FailureSampler.Sample(
-                failureStream,
-                entry.CarId,
-                _in.TotalLaps,
-                entry.Components,
-                new FailureInputs(_in.Season, entry.Primary.Smoothness / 100d, WeekendConstants.FailurePaceStress, heat));
+            var failureInputs = new FailureInputs(_in.Season, entry.Primary.Smoothness / 100d, WeekendConstants.FailurePaceStress, heat);
+            var failure = FailureSampler.Sample(failureStream, entry.CarId, _in.TotalLaps, entry.Components, failureInputs);
 
             // The planner can hand over a fuel load a rounding error below zero when a plan burns exactly what is on board.
             var calculators = new StrategyCalculators(
@@ -266,6 +264,7 @@ internal sealed partial class WeekendRun
                 Burn = burn,
                 Tank = tank,
                 Failure = failure,
+                FailureInputs = failureInputs,
             });
         }
 
@@ -319,9 +318,23 @@ internal sealed partial class WeekendRun
 
         public required double Tank { get; init; }
 
-        public required FailureSample Failure { get; init; }
+        public required FailureSample Failure { get; set; }
+
+        /// <summary>What the failures were sampled with, so an engine mode can sample them again with the same draws (#286).</summary>
+        public required FailureInputs FailureInputs { get; init; }
+
+        /// <summary>The engine mode the pit wall set (#286), and the lap each mode started on.</summary>
+        public EngineMode Engine { get; set; } = EngineMode.Standard;
+
+        public List<(int FromLap, EngineMode Mode)> EngineLaps { get; } = [];
+
+        /// <summary>The team order (#286): let the team-mate by when it is right behind.</summary>
+        public bool LetBy { get; set; }
 
         public PaceMode Mode { get; set; } = PaceMode.Standard;
+
+        /// <summary>The pace the pit wall ordered (#286); null while the strategist decides.</summary>
+        public PaceMode? ManualPace { get; set; }
 
         public int DriverIndex { get; set; }
 

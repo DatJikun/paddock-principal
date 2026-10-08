@@ -66,6 +66,8 @@ export function conditionAt(race, t) {
  */
 export function towerAt(race, t) {
   const cars = new Map();
+  /* Every car starts on the same set (the race's pit wall knows it, #286); a stop changes it. */
+  const start = race.pitWall?.startTyres ?? null;
   for (const car of race.cars) {
     cars.set(car.carId, {
       carId: car.carId,
@@ -75,7 +77,7 @@ export function towerAt(race, t) {
       lastLapMs: null,
       bestLapMs: null,
       stops: 0,
-      tyres: null,
+      tyres: start,
       stintFrom: 0,
       inPit: false,
       out: false,
@@ -179,7 +181,7 @@ export function fastestAt(events, t) {
   return null;
 }
 
-/** What the pit wall hears up to `t`, newest first: our strategist's calls and race control (flags and weather). */
+/** What the pit wall hears up to `t`, newest first: our strategist, our drivers, the answers to our orders, and race control. */
 export function radioAt(race, t, limit = 4) {
   const out = [];
   for (let i = lastIndexAt(race.events, t); i >= 0 && out.length < limit; i--) {
@@ -189,7 +191,65 @@ export function radioAt(race, t, limit = 4) {
   return out;
 }
 
-const RADIO_KINDS = new Set(['call', 'sc', 'scEnd', 'red', 'weather']);
+const RADIO_KINDS = new Set(['call', 'driver', 'order', 'sc', 'scEnd', 'red', 'weather']);
+
+/** Radio lines spoken from the car or to it (our strategist, the driver, an order's answer), as opposed to race control. */
+export function fromTheCar(event) {
+  return event.kind === 'call' || event.kind === 'driver' || event.kind === 'order';
+}
+
+/** ESTIMATE: a car this close behind the one ahead is in a fight for the place (a timing screen's interval, ms). */
+export const BATTLE_MS = 1_000;
+
+/** The cars fighting for a place in tower `rows`: the chaser and the car ahead of it, both on track. */
+export function battlesAt(rows, within = BATTLE_MS) {
+  const out = new Set();
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const ahead = rows[i - 1];
+    if (row.out || ahead.out || row.inPit || ahead.inPit || row.finished || ahead.finished) continue;
+    if (row.intervalMs !== null && row.intervalMs !== undefined && row.intervalMs <= within) {
+      out.add(row.carId);
+      out.add(ahead.carId);
+    }
+  }
+  return out;
+}
+
+/**
+ * What our pit wall knows about each own car at `t` (#286): the last lap it started (tyres, fuel in laps, pace, the driver's
+ * feel for the tyres) and a stop it called that has not happened yet. Built from the host's data only; no rule here.
+ */
+export function pitWallAt(race, t) {
+  const wall = race.pitWall;
+  const out = new Map();
+  if (!wall) return out;
+  for (const lap of wall.laps) {
+    if (lap.startMs > t) continue;
+    const known = out.get(lap.carId);
+    if (!known || lap.lap >= known.lap.lap) out.set(lap.carId, { lap, stop: null });
+  }
+  const end = lastIndexAt(race.events, t);
+  const stopped = new Set();
+  for (let i = 0; i <= end; i++) {
+    const e = race.events[i];
+    if (e.kind === 'pitIn' && e.carId) stopped.add(`${e.carId}:${e.lap}`);
+  }
+  for (const order of wall.orders) {
+    if (order.kind !== 'pit' || order.atMs > t) continue;
+    const entry = out.get(order.carId);
+    if (!entry || stopped.has(`${order.carId}:${order.lap}`)) continue;
+    if (order.lap >= entry.lap.lap && (!entry.stop || order.lap < entry.stop.lap)) entry.stop = order;
+  }
+  return out;
+}
+
+/** Kinds that stop the clock when the player asked to be woken for them: flags, rain, and anything about our cars. */
+export function wakesUp(event) {
+  if (event.kind === 'sc' || event.kind === 'red' || event.kind === 'weather') return true;
+  if (!event.own) return false;
+  return event.kind === 'retire' || event.kind === 'driver' || event.kind === 'incident' || (event.kind === 'call' && event.key?.startsWith('live.call.pit'));
+}
 
 /** Events that became due between two race times (exclusive, inclusive], in tape order, for the radio and race-control pop-ups. */
 export function eventsBetween(events, from, to) {

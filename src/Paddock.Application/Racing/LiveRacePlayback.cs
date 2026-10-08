@@ -24,7 +24,8 @@ public sealed record LiveRaceControl(string ManagerId, LiveRaceAction Action, do
 
 /// <summary>
 /// The clock every viewer of one race follows. <see cref="RaceTimeMs"/> is the race time now; a viewer draws the race at that
-/// time and moves its own picture forward at <see cref="Speed"/> until the next reading.
+/// time and moves its own picture forward at <see cref="Speed"/> until the next reading. <see cref="Revision"/> grows when a pit
+/// wall order re-ran the race (#286): a viewer whose copy of the race is older reads it again.
 /// </summary>
 public sealed record LiveClockView(
     bool Active,
@@ -35,7 +36,8 @@ public sealed record LiveClockView(
     double Speed,
     bool Paused,
     bool Finished,
-    IReadOnlyList<double> Speeds);
+    IReadOnlyList<double> Speeds,
+    int Revision = 0);
 
 /// <summary>
 /// The host's playback of one race (multiplayer foundation, TECH §5.1): a single race clock, owned by the host, that every viewer
@@ -71,7 +73,7 @@ public sealed class LiveRacePlayback
 
     public int Round { get; }
 
-    public long DurationMs { get; }
+    public long DurationMs { get; private set; }
 
     public double Speed { get; private set; }
 
@@ -96,7 +98,24 @@ public sealed class LiveRacePlayback
 
     public bool Finished => RaceTimeMs >= DurationMs;
 
-    public LiveClockView View() => new(true, Season, Round, RaceTimeMs, DurationMs, Speed, Paused || Finished, Finished, Speeds);
+    /// <summary>How many times a pit wall order re-ran the race being played (#286).</summary>
+    public int Revision { get; private set; }
+
+    public LiveClockView View() => new(true, Season, Round, RaceTimeMs, DurationMs, Speed, Paused || Finished, Finished, Speeds, Revision);
+
+    /// <summary>
+    /// The race was re-run by a pit wall order (#286): it now lasts <paramref name="durationMs"/>. The race time stays where it is,
+    /// so every viewer goes on from the same instant.
+    /// </summary>
+    public void Retime(long durationMs, int revision)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(durationMs);
+        var now = RaceTimeMs;
+        _anchorRaceMs = Math.Min(now, durationMs);
+        _anchorClockMs = _clock.NowMs;
+        DurationMs = durationMs;
+        Revision = revision;
+    }
 
     /// <summary>
     /// Applies one order. A speed outside <see cref="Speeds"/> is refused with a reason key and changes nothing. Starting a

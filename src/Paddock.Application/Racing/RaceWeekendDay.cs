@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using Paddock.Application.Career;
 using Paddock.Application.Contracts;
@@ -18,6 +19,7 @@ using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Racing;
 using Paddock.Simulation.Racing.Incidents;
+using Paddock.Simulation.Racing.Pits;
 using Paddock.Simulation.Racing.Points;
 using Paddock.Simulation.Racing.Weather;
 using Paddock.Simulation.Racing.Weekend;
@@ -79,7 +81,7 @@ public sealed class RaceWeekendDay : IDayHandler
 
     private void RunRace(DayContext context, GameDate today, RaceSessionPayload payload)
     {
-        if (Simulate(today, payload) is not { } run)
+        if (Simulate(today, payload, []) is not { } run)
         {
             return;
         }
@@ -104,13 +106,29 @@ public sealed class RaceWeekendDay : IDayHandler
     public bool RunAlone(GameDate day, RaceSessionPayload payload)
     {
         ArgumentNullException.ThrowIfNull(payload);
-        if (Simulate(day, payload) is not { } run)
+        if (Simulate(day, payload, []) is not { } run)
         {
             return false;
         }
 
-        Publish(payload, run);
+        // Nothing is booked from a race run on its own, so the pit walls may still steer it while it is watched (#286).
+        Publish(payload, run, new RaceSteering(new Rerun(this, day, payload)));
         return true;
+    }
+
+    /// <summary>The same round again, with the pit walls' orders: same field, rules, streams and seed (INV-002).</summary>
+    private sealed class Rerun(RaceWeekendDay owner, GameDate day, RaceSessionPayload payload) : IRaceRerun
+    {
+        public PreparedRace? Prepare(ImmutableArray<PitWallOrder> orders)
+        {
+            if (owner.Simulate(day, payload, orders) is not { } run)
+            {
+                return null;
+            }
+
+            var steering = owner._watch.Steering;
+            return new PreparedRace(run.Published.Tape, () => owner.Publish(payload, run, steering));
+        }
     }
 
     private sealed record WeekendRun(
@@ -119,9 +137,10 @@ public sealed class RaceWeekendDay : IDayHandler
         TrackLayout Layout,
         RaceField Field,
         RacePublishedFacts Published,
-        StrategyCalls Calls);
+        StrategyCalls Calls,
+        TyreOffer Tyres);
 
-    private WeekendRun? Simulate(GameDate today, RaceSessionPayload payload)
+    private WeekendRun? Simulate(GameDate today, RaceSessionPayload payload, ImmutableArray<PitWallOrder> orders)
     {
         var rules = ActiveRules(payload.Season);
         if (rules is null)
@@ -170,16 +189,17 @@ public sealed class RaceWeekendDay : IDayHandler
             Month = today.Month,
             TotalLaps = RaceDistance.LapsFor(rules, layout),
             Entries = field.Entries,
+            Orders = orders,
         };
         var calls = new StrategyCalls();
-        var request = RaceSimulationRequest.ForWeekend(input, calls);
+        var request = RaceSimulationRequest.ForWeekend(input, calls, geometry: _context.Inputs.TrackGeometry?.GeometryOf(payload.LayoutId));
         _ = RaceSession.Run(request);
         var published = request.Published ?? throw new InvalidOperationException("The lap engine published no race facts.");
-        return new WeekendRun(rules, total, layout, field, published, calls);
+        return new WeekendRun(rules, total, layout, field, published, calls, TyreOffer.For(input));
     }
 
     /// <summary>The race goes to the watch (the shell and the race mode) and to the round archive.</summary>
-    private void Publish(RaceSessionPayload payload, WeekendRun run)
+    private void Publish(RaceSessionPayload payload, WeekendRun run, RaceSteering? steering = null)
     {
         var published = run.Published;
         _watch.Publish(
@@ -189,6 +209,7 @@ public sealed class RaceWeekendDay : IDayHandler
             published.Tape,
             Lines(published),
             ByDriver(run.Calls.Calls, run.Field.Entries));
+        _watch.PublishPitWall(published.PitWall, run.Tyres, steering);
         var world = _context.Session.World;
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;
         _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, run.Field.StandIns, (int)Math.Round(run.Layout.LengthKm * 1000d, MidpointRounding.AwayFromZero))));

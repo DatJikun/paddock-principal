@@ -78,6 +78,16 @@ public class LiveRaceBridgeTests
             Assert.Equal(LiveRaceText.BadSpeed, bad.RootElement.GetProperty("error").GetProperty("key").GetString());
         }
 
+        // The career's result is booked on race day, so its pit wall takes no orders yet (#286), and says why.
+        Assert.False(race.GetProperty("pitWall").GetProperty("canOrder").GetBoolean());
+        Assert.Equal(LiveOrderKeys.Locked, race.GetProperty("pitWall").GetProperty("locked").GetString());
+        var ownCar = own.First();
+        var locked = host.Handle(Message("o", "command", "liveRaceOrder", "{\"managerId\":\"human:player\",\"carId\":\"" + ownCar + "\",\"action\":\"pace\",\"pace\":\"push\"}"));
+        using (var lockedJson = JsonDocument.Parse(locked.Response))
+        {
+            Assert.Equal(LiveOrderKeys.Locked, lockedJson.RootElement.GetProperty("error").GetProperty("key").GetString());
+        }
+
         var frames = Data(host, "query", "liveFrames", "{\"managerId\":\"human:player\",\"fromMs\":30000,\"toMs\":40000}");
         Assert.True(frames.GetProperty("found").GetBoolean());
         Assert.NotEmpty(frames.GetProperty("cars").EnumerateArray());

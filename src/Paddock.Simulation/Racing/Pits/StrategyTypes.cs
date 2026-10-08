@@ -15,6 +15,12 @@ public enum PaceMode
 
     /// <summary>Slower, easier on tyres and fuel (T30's fuel-saving numbers and <see cref="PitConstants.SaveWearFactor"/>).</summary>
     Save,
+
+    /// <summary>The pit wall's slowest mode (#286): lift and coast, nurse the tyres; the strategist never picks it.</summary>
+    Conserve,
+
+    /// <summary>The pit wall's fastest mode (#286): qualifying pace, hard on tyres and fuel and riskier; the strategist never picks it.</summary>
+    Qualifying,
 }
 
 /// <summary>A tyre compound as the strategist sees it: an id and whether it is a wet-weather tyre. Nothing else is needed; the numbers live behind the calculators.</summary>

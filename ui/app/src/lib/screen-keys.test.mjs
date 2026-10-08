@@ -37,6 +37,7 @@ test('keys built from bridge values exist for every value the bridge can send', 
     ...['Resolved', 'Dismissed', 'Expired'].map((status) => `inbox.status.${status}`),
     ...['None', 'OnePointSharedIfTied', 'OnePointIfTopTen', 'OnePointIfTopTenAndHalfDistance'].map((rule) => `standings.fastestLap.${rule}`),
     ...['NoChampionship', 'BestFinishingCarOnly', 'AllCars'].map((rule) => `standings.constructors.${rule}`),
+    ...['good', 'worn', 'gone'].map((feel) => `live.feel.${feel}`),
   ];
   const circuits = JSON.parse(readFileSync(new URL('../../../../data/authored/tracks/circuits.json', import.meta.url), 'utf8'));
   for (const tag of circuits.character_tags) families.push(`track.character.${tag.id}`);

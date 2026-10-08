@@ -1,4 +1,5 @@
 using Paddock.Domain.Spy;
+using Paddock.Domain.World.Tracks;
 using Paddock.Simulation.Racing.Weekend;
 
 namespace Paddock.Simulation.Racing;
@@ -29,11 +30,17 @@ public sealed class RaceSimulationRequest
     public double FrameSampleSeconds { get; init; } = 1.0;
 
     /// <summary>
+    /// The layout's centre line, for the frames only (#286): cars brake for its corners inside each lap. Null keeps an even
+    /// speed through the lap. It never changes a lap time or a result.
+    /// </summary>
+    public TrackGeometry? Geometry { get; init; }
+
+    /// <summary>
     /// Spectator facts the lap engine publishes. A stub simulator leaves this null. Never holds lap records.
     /// </summary>
     public RacePublishedFacts? Published { get; internal set; }
 
-    public static RaceSimulationRequest ForWeekend(RaceWeekendInput weekend, ITraceSink sink, StrategistFactory? strategist = null)
+    public static RaceSimulationRequest ForWeekend(RaceWeekendInput weekend, ITraceSink sink, StrategistFactory? strategist = null, TrackGeometry? geometry = null)
     {
         ArgumentNullException.ThrowIfNull(weekend);
         ArgumentNullException.ThrowIfNull(sink);
@@ -43,6 +50,7 @@ public sealed class RaceSimulationRequest
             Seed = weekend.MasterSeed,
             Sink = sink,
             Strategist = strategist,
+            Geometry = geometry,
         };
     }
 

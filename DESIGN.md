@@ -388,6 +388,16 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 
 **Automatyczny, sterowany przez sztab (zostaje ze starej dokumentacji, PP-029).** Nie ma magazynu pojedynczych części ani mikrozarządzania: zatrudniasz stratega, a on steruje postojami i tempem. Gra jest modularna, więc chętni mogą włączyć moduły ręcznej kontroli (np. ręczne pit-stopy i polecenia tempa w wyścigu). To ustawienie kariery, a nie wymóg. Gracz przygotowuje zespół, a strategię w wyścigu realizują jego ludzie. Jakość ich decyzji zależy od ich umiejętności. Race Spy wyjaśnia każdą decyzję.
 
+**Polecenia z boksu (PP-067, wersja testowa).** Wzorem są Motorsport Manager i F1 Manager: w obu gracz w trakcie wyścigu zmienia tryb jazdy kierowcy, zamawia postój z wyborem opon, słyszy kierowcę w radiu (opony, paliwo) i przyspiesza albo zatrzymuje czas, a pod ręką ma dane własnych aut. U nas na początek:
+- **Tempo kierowcy, pięć stopni:** pełne oszczędzanie, oszczędzaj, normalnie, atak, tempo kwalifikacyjne. Środkowe trzy to tryby stratega z tym samym kosztem; skrajne są tylko dla boksu. Szybciej znaczy więcej zużycia opon i paliwa, a tempo kwalifikacyjne także większe ryzyko wypadku; wolniej znaczy odwrotnie (PP-058). „Strateg” oddaje mu tempo.
+- **Silnik, trzy tryby:** oszczędny, normalny, pełna moc. Moc działa przez parametr mocy auta, więc najwięcej daje na torach, które nagradzają moc; pełna moc pali więcej i częściej psuje silnik i chłodzenie, oszczędny odwrotnie.
+- **Polecenie zespołowe:** „Przepuść kolegę”, gdy kolega z zespołu jedzie tuż za kierowcą; oddanie miejsca kosztuje trochę czasu.
+- **Zjazd:** wybór opon, potem osobne „Potwierdź zjazd”. Auto zjeżdża na końcu okrążenia albo okrążenie później, gdy minęło już wjazd do boksu. Zjazd można odwołać.
+- **Dane w boksie:** paliwo w okrążeniach przy obecnym tempie, czucie opon kierowcy (dobre, zużyte, koniec), postoje. Tylko własne auta (INV-003).
+- **Więcej do oglądania:** radio kierowcy i potwierdzenia poleceń, kropka walki o pozycję w klasyfikacji, komunikaty o flagach, deszczu i własnych autach, auto-pauza przy nich, a kropki na mapie zwalniają w zakrętach.
+- **Powiązania, które już działają:** tempo i silnik zmieniają spalanie, a paliwo w okrążeniach w boksie i radio kierowcy od razu to pokazują (bez tankowania: „paliwa nie starczy”); tempo zmienia zużycie opon, a zużyte opony same spowalniają auto i kierowca mówi o tym przez radio; cięższy bak jest wolniejszy; pełna moc skraca życie silnika, mocniej w upał (hazard awarii rośnie z temperaturą).
+- **Powiązania na później:** jazda w brudnym powietrzu zużywa opony szybciej, temperatura opon i hamulców, tryb silnika w rękach stratega, zjazd pod samochód bezpieczeństwa jednym kliknięciem i polecenia w karierze (tam wynik jest zapisany przed oglądaniem). Tych nie ma, bo zmieniłyby każdy wyścig, także te bez poleceń, i wymagają kalibracji.
+
 **Czas okrążenia składa się z warstw:** baza toru, dopasowanie samochodu, kierowca, paliwo, opony, ruch i brudne powietrze, pogoda, szum losowy. **Każda warstwa jest parametryzowana epoką:**
 - **lata 50.:** jedna mieszanka opon, rzadkie postoje, awaryjność decyduje o połowie wyników, zmiana kierowcy w trakcie wyścigu;
 - **era tankowania:** strategia paliwowa;

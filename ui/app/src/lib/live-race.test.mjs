@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  battlesAt,
   clockNow,
   conditionAt,
   covered,
@@ -9,12 +10,15 @@ import {
   flagAt,
   formatClock,
   formatTowerGap,
+  fromTheCar,
+  pitWallAt,
   radioAt,
   sampleAt,
   towerAt,
   transcriptAt,
   tyreFamily,
   tyreLetter,
+  wakesUp,
 } from './live-race.mjs';
 
 const ev = (timeMs, kind, extra = {}) => ({
@@ -173,4 +177,55 @@ test('the fastest lap and the pit wall radio read only what has happened', () =>
   assert.equal(fastestAt(fast.events, 95_000).carId, 'a');
   assert.deepEqual(radioAt(race, 160_000).map((e) => e.kind), ['scEnd', 'weather', 'sc']);
   assert.equal(radioAt(race, 160_000, 1).length, 1);
+});
+
+test('every car starts on the tyres the pit wall names, until a stop changes them', () => {
+  const withWall = { ...race, pitWall: { startTyres: 'treaded.medium', laps: [], orders: [] } };
+  assert.equal(towerAt(withWall, 0).rows[0].tyres, 'treaded.medium');
+  assert.equal(towerAt(withWall, 186_000).rows.find((row) => row.carId === 'a').tyres, 'wet');
+  assert.equal(towerAt(race, 0).rows[0].tyres, null);
+});
+
+test('a battle is two running cars within a second on the same lap', () => {
+  const rows = [
+    { carId: 'x', intervalMs: null },
+    { carId: 'y', intervalMs: 800 },
+    { carId: 'z', intervalMs: 3_000 },
+    { carId: 'p', intervalMs: 400, inPit: true },
+    { carId: 'q', intervalMs: null },
+  ];
+  assert.deepEqual([...battlesAt(rows)].sort(), ['x', 'y']);
+  assert.equal(battlesAt(rows, 5_000).has('z'), true);
+});
+
+test('the pit wall shows the last lap a car started and a stop it called that is still to come', () => {
+  const lap = (carId, n, startMs, extra = {}) => ({ carId, lap: n, startMs, tyres: 'wet', pace: 'standard', manual: false, feel: 'good', ...extra });
+  const steered = {
+    ...race,
+    events: race.events.map((e) => (e.kind === 'pitIn' ? { ...e, lap: 2 } : e)),
+    pitWall: {
+      startTyres: 'wet',
+      laps: [lap('a', 1, 0), lap('a', 2, 90_000), lap('a', 3, 190_000, { feel: 'worn' })],
+      orders: [{ carId: 'a', lap: 2, atMs: 120_000, kind: 'pit', tyres: 'wet', pace: null }],
+    },
+  };
+  assert.equal(pitWallAt(steered, 50_000).get('a').lap.lap, 1);
+  assert.equal(pitWallAt(steered, 50_000).get('a').stop, null, 'not called yet');
+  assert.equal(pitWallAt(steered, 130_000).get('a').stop.lap, 2);
+  assert.equal(pitWallAt(steered, 175_000).get('a').stop, null, 'in the pit lane: the stop is being made');
+  assert.equal(pitWallAt(steered, 200_000).get('a').lap.feel, 'worn');
+  assert.equal(pitWallAt(race, 200_000).size, 0);
+});
+
+test('the radio speaks for the car; the clock wakes for flags, rain and our own cars only', () => {
+  assert.ok(fromTheCar(ev(0, 'driver')));
+  assert.ok(fromTheCar(ev(0, 'order')));
+  assert.ok(!fromTheCar(ev(0, 'sc')));
+  assert.ok(wakesUp(ev(0, 'sc')));
+  assert.ok(wakesUp(ev(0, 'weather')));
+  assert.ok(wakesUp(ev(0, 'retire', { own: true })));
+  assert.ok(!wakesUp(ev(0, 'retire')));
+  assert.ok(wakesUp(ev(0, 'call', { own: true, key: 'live.call.pitTyres' })));
+  assert.ok(!wakesUp(ev(0, 'call', { own: true, key: 'live.call.push' })));
+  assert.ok(!wakesUp(ev(0, 'order', { own: true })), 'our own order does not stop the clock');
 });

@@ -100,9 +100,8 @@ public sealed record SignPoolDriverCommand : ICommand
 }
 
 /// <summary>
-/// The manager's team takes a pool member into its academy (#268): the team recruits its own juniors, a limited number
-/// (<see cref="PoolEstimates.AcademySlots"/>), and a recruited junior is on nobody else's list. Only a member the team's own scouts show it
-/// this season (<see cref="PoolShortlist"/>) can be recruited.
+/// The manager's team takes a pool member into its academy (#268): every junior on the market can be recruited, into an academy with a
+/// limited number of places (<see cref="PoolEstimates.AcademySlots"/>), and a recruited junior belongs to that academy alone.
 /// </summary>
 public sealed record RecruitJuniorCommand : ICommand
 {
@@ -303,11 +302,6 @@ public sealed class RecruitJuniorHandler : CommandHandler<RecruitJuniorCommand>
         if (member.Academy is not null)
         {
             return TranslationMessage.Of(PoolKeys.TakenByAnother);
-        }
-
-        if (!PoolShortlist.Offers(organization, command.IssuedOn.Year, member))
-        {
-            return TranslationMessage.Of(PoolKeys.NotOnYourList);
         }
 
         return _book.Section.AcademyCount(organization) >= PoolEstimates.AcademySlots

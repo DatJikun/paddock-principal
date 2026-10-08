@@ -25,9 +25,6 @@ public static class PoolKeys
     public const string AcademyFull = "pool.error.academyFull";
 
     [TranslationKey]
-    public const string NotOnYourList = "pool.error.notOnYourList";
-
-    [TranslationKey]
     public const string TakenByAnother = "pool.error.takenByAnother";
 
     [TranslationKey]

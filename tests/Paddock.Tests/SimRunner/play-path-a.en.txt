@@ -64,10 +64,13 @@ You cannot be dismissed yet: a new principal is protected for a full season, lon
 talent-1 — Robert Smith, age 22.
 talent-2 — Peter Walker, age 20.
 talent-3 — Peter Walker, age 30.
+talent-4 — John Walker, age 21.
+talent-5 — Peter Walker, age 25.
 talent-6 — William Johnson, age 32.
 talent-7 — John Clarke, age 31.
 talent-8 — Jean Bernard, age 31.
 talent-9 — Karl Schmidt, age 34.
+talent-10 — John Clarke, age 28.
 Scouting focus set to all.
 inb:1 (board.seasonTarget): The board asks how hard this season should be. Safe is P4, expected is P2, ambitious is P1.
   safe — Safe

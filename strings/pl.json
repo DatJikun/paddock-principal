@@ -401,7 +401,6 @@
   "pool.error.alreadyFunded": "Program juniorski na ten sezon jest już opłacony.",
   "pool.error.signingUnavailable": "Podpisanie kierowcy z puli nie jest jeszcze możliwe: negocjacje kontraktów nie są dostępne.",
   "pool.error.academyFull": "Akademia nie ma wolnego miejsca. Zwolnij jedno, żeby przyjąć kolejnego juniora.",
-  "pool.error.notOnYourList": "Twoi skauci nie pokazali Ci tego kierowcy w tym sezonie.",
   "pool.error.takenByAnother": "Ten junior jest w akademii innego zespołu.",
   "pool.error.notYourJunior": "To nie jest junior Twojej akademii.",
   "pool.error.alreadyRecruited": "Ten junior jest już w Twojej akademii.",

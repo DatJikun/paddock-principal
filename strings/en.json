@@ -397,7 +397,6 @@
   "pool.error.alreadyFunded": "A junior programme is already paid for this season.",
   "pool.error.signingUnavailable": "Signing a pool driver is not possible yet: contract negotiations are not available.",
   "pool.error.academyFull": "The academy has no free place. Release one to take another junior.",
-  "pool.error.notOnYourList": "Your scouts did not put this driver in front of you this season.",
   "pool.error.takenByAnother": "This junior is in another team's academy.",
   "pool.error.notYourJunior": "This is not a junior of your academy.",
   "pool.error.alreadyRecruited": "This junior is already in your academy.",

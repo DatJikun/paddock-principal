@@ -10,8 +10,8 @@ namespace Paddock.Tests.Regulation;
 /// Regression guard for regulation voting v2 (#275): a career whose rules are historical never writes the
 /// <c>regulations</c> section and keeps its results and state hashes exactly as they were before voting v2 existed.
 /// The golden values were captured on main (commit 0d0f46d) without voting v2 (the same values come out of main and of this branch), with the same fixture (Balanced preset, 1955,
-/// seed 7). Re-pinned once for the academy of #268 (PP-069): the <c>talent pool</c> section moved to schema 2, juniors are offered
-/// to each team from a shortlist and the programmes changed their speed-up; all of it changes the state hash of every career and none
+/// seed 7). Re-pinned once for the academy of #268 (PP-069): the <c>talent pool</c> section moved to schema 2, juniors are recruited into an academy
+/// per team and the programmes changed their speed-up; all of it changes the state hash of every career and none
 /// of it touches the regulations.
 /// Edit them only after a reviewed change to the day rules; this test prints the actual values and never writes them.
 /// </summary>

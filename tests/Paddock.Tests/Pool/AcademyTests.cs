@@ -30,51 +30,54 @@ public sealed class AcademyTests
 
     private static readonly DateOnly Today = new(1950, 1, 1);
 
-    // ------------------------------------------------------------------ the lists
+    // ------------------------------------------------------------------ the market
 
     [Fact]
-    public void AListIsAFixedShareOfThePoolThatDiffersByTeamAndSeason()
+    public void EveryTeamSeesEveryJuniorOnTheMarket()
     {
-        var members = Enumerable.Range(1, 400)
-            .Select(index => new PoolMember(PersonId.Real("p" + index), index, Today.ToGameDate(), null))
-            .ToArray();
+        var lab = new Lab();
+        var free = lab.Section.Members.Where(member => member.Academy is null).Select(member => member.HandleText).Order().ToArray();
+        Assert.True(free.Length > PoolEstimates.AcademySlots, "The fixture pool must be bigger than an academy.");
 
-        int Share(OrganizationId team, int season) => members.Count(member => PoolShortlist.Offers(team, season, member));
-
-        Assert.Equal(Share(PoolKit.Alpha, 1950), Share(PoolKit.Alpha, 1950));
-        foreach (var team in new[] { PoolKit.Alpha, PoolKit.Bravo })
-        {
-            var share = Share(team, 1950) / 400.0;
-            Assert.InRange(share, (PoolEstimates.ShortlistShareMilli - 100) / 1000.0, (PoolEstimates.ShortlistShareMilli + 100) / 1000.0);
-        }
-
-        Assert.NotEqual(
-            members.Where(member => PoolShortlist.Offers(PoolKit.Alpha, 1950, member)).Select(member => member.Handle),
-            members.Where(member => PoolShortlist.Offers(PoolKit.Bravo, 1950, member)).Select(member => member.Handle));
-        Assert.NotEqual(
-            members.Where(member => PoolShortlist.Offers(PoolKit.Alpha, 1950, member)).Select(member => member.Handle),
-            members.Where(member => PoolShortlist.Offers(PoolKit.Alpha, 1951, member)).Select(member => member.Handle));
+        Assert.Equal(free, lab.View(Anna).Items.Select(item => item.Handle).Order().ToArray());
+        Assert.Equal(free, lab.View(Bram).Items.Select(item => item.Handle).Order().ToArray());
+        Assert.Equal(lab.Section.Members.Count, lab.View(null).Items.Count);
     }
 
     [Fact]
-    public void AJuniorOfAnAcademyIsAlwaysOnItsOwnListAndNeverOnAnotherTeams()
+    public void ARecruitedJuniorLeavesTheMarketForEveryoneButHisAcademy()
     {
-        var free = new PoolMember(PersonId.Real("p1"), 1, Today.ToGameDate(), null);
-        var recruited = new PoolMember(PersonId.Real("p2"), 2, Today.ToGameDate(), null, PoolKit.Alpha);
+        var lab = new Lab();
+        var handle = lab.Section.Members.First(member => member.Academy is null).HandleText;
+        var before = lab.View(Bram).Items.Count;
 
-        Assert.True(PoolShortlist.Offers(PoolKit.Alpha, 1950, recruited));
-        Assert.True(PoolShortlist.Offers(PoolKit.Alpha, 2000, recruited));
-        Assert.False(PoolShortlist.Offers(PoolKit.Bravo, 1950, recruited));
-        Assert.Equal(PoolShortlist.Offers(PoolKit.Bravo, 1950, free), PoolShortlist.Offers(PoolKit.Bravo, 1950, free));
+        lab.Submit(Recruit(Anna, handle));
+
+        Assert.Equal(before - 1, lab.View(Bram).Items.Count);
+        Assert.DoesNotContain(lab.View(Bram).Items, item => item.Handle == handle);
+        Assert.Contains(lab.View(Anna).Items, item => item.Handle == handle && item.InYourAcademy);
+        Assert.Equal(before, lab.View(Anna).Items.Count);
+    }
+
+    [Fact]
+    public void WhatATeamKnowsAboutTheMarketIsStillItsOwnScoutingAndNotTheTruth()
+    {
+        var lab = new Lab();
+        var handle = lab.Section.Members.First(member => member.Academy is null).HandleText;
+
+        var item = lab.View(Anna).Items.Single(row => row.Handle == handle);
+
+        Assert.Empty(item.Attributes);
+        Assert.Null(item.Potential);
     }
 
     // ------------------------------------------------------------------ recruiting
 
     [Fact]
-    public void ARecruitedJuniorBelongsToOneAcademyAndShowsOnNobodyElsesList()
+    public void ARecruitedJuniorBelongsToOneAcademyAndShowsOnNobodyElsesScreen()
     {
         var lab = new Lab();
-        var handle = lab.OfferedTo(PoolKit.Alpha).First();
+        var handle = lab.Free().First();
 
         Assert.IsType<CommandResult.Accepted>(lab.Submit(Recruit(Anna, handle)));
 
@@ -93,8 +96,8 @@ public sealed class AcademyTests
     public void AnAcademyHasLimitedPlacesAndReleasingOneFreesIt()
     {
         var lab = new Lab();
-        var offered = lab.OfferedTo(PoolKit.Alpha);
-        Assert.True(offered.Count > PoolEstimates.AcademySlots, "The fixture pool must offer more members than the academy has places.");
+        var offered = lab.Free();
+        Assert.True(offered.Count > PoolEstimates.AcademySlots, "The fixture pool must have more members than the academy has places.");
         foreach (var handle in offered.Take(PoolEstimates.AcademySlots))
         {
             Assert.IsType<CommandResult.Accepted>(lab.Submit(Recruit(Anna, handle)));
@@ -111,21 +114,25 @@ public sealed class AcademyTests
     }
 
     [Fact]
-    public void OnlyAMemberOnTheTeamsOwnListCanBeRecruited()
+    public void AnyJuniorOnTheMarketCanBeRecruitedByAnyTeamAndAnUnknownOneCannot()
     {
         var lab = new Lab();
-        var hidden = lab.Section.Members.First(member => !PoolShortlist.Offers(PoolKit.Alpha, 1950, member)).HandleText;
+        var free = lab.Free();
 
-        Assert.Equal(PoolKeys.NotOnYourList, Reason(lab.Submit(Recruit(Anna, hidden))));
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(Recruit(Anna, free[0])));
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(Recruit(Bram, free[1])));
         Assert.Equal(PoolKeys.PersonUnknown, Reason(lab.Submit(Recruit(Anna, "talent-999"))));
-        Assert.Equal(0, lab.Section.AcademyCount(PoolKit.Alpha));
+        Assert.Equal(PoolKit.Alpha, lab.Section.FindByHandle(free[0])!.Academy);
+        Assert.Equal(PoolKit.Bravo, lab.Section.FindByHandle(free[1])!.Academy);
+        Assert.Equal(1, lab.Section.AcademyCount(PoolKit.Alpha));
+        Assert.Equal(1, lab.Section.AcademyCount(PoolKit.Bravo));
     }
 
     [Fact]
     public void AnotherTeamsJuniorCannotBeRecruitedSignedOrPaidFor()
     {
         var lab = new Lab();
-        var handle = lab.OfferedTo(PoolKit.Alpha).First();
+        var handle = lab.Free().First();
         lab.Submit(Recruit(Anna, handle));
 
         Assert.Equal(PoolKeys.TakenByAnother, Reason(lab.Submit(Recruit(Bram, handle))));
@@ -143,7 +150,7 @@ public sealed class AcademyTests
     public void AProgrammeIsPaidOnlyForAJuniorOfTheOwnAcademyAndReleasingLosesIt()
     {
         var lab = new Lab();
-        var handle = lab.OfferedTo(PoolKit.Alpha).First();
+        var handle = lab.Free().First();
 
         Assert.Equal(
             PoolKeys.NotYourJunior,
@@ -237,7 +244,7 @@ public sealed class AcademyTests
     public void ACareerThatLapsesInAnAcademyIsToldToTheTeamAndNotToAnyoneElse()
     {
         var lab = new Lab();
-        var handle = lab.OfferedTo(PoolKit.Alpha).First();
+        var handle = lab.Free().First();
         lab.Submit(Recruit(Anna, handle));
         var member = lab.Section.FindByHandle(handle)!;
         lab.Holder.World = lab.Holder.World.WithSection(lab.Section.Lapse(member.Id, new GameDate(1956, 1, 1)));
@@ -337,8 +344,9 @@ public sealed class AcademyTests
 
         public TalentPoolSection Section => Book.Section;
 
-        public IReadOnlyList<string> OfferedTo(OrganizationId team) =>
-            Section.Members.Where(member => PoolShortlist.Offers(team, 1950, member) && member.Academy is null).Select(member => member.HandleText).ToArray();
+        /// <summary>The members nobody has recruited, in handle order: what the market shows every team.</summary>
+        public IReadOnlyList<string> Free() =>
+            Section.Members.Where(member => member.Academy is null).OrderBy(member => member.Handle).Select(member => member.HandleText).ToArray();
 
         public PoolView View(ManagerId? manager) =>
             new PoolQuery(Book, new Teams()).View(manager is { } who ? AccessContext.ForManager(new AccessManagerId(who.Value)) : AccessContext.Developer);

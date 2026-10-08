@@ -95,12 +95,6 @@ public static class PoolEstimates
     /// <summary>ESTIMATE (PP-057): places in a team's academy.</summary>
     public const int AcademySlots = 3;
 
-    /// <summary>
-    /// ESTIMATE (#268): the share of the pool, in thousandths, that a team's own scouts put in front of it in a season. The same member can be
-    /// on the list of one team and not on another's; which ones is fixed by the team, the season and the member, with no random number.
-    /// </summary>
-    public const int ShortlistShareMilli = 600;
-
     // Scouting (PP-013, DESIGN 6.2 and 10).
 
     /// <summary>ESTIMATE: half the width of a band at the start of observation, in attribute points (the band is about twice this).</summary>

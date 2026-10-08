@@ -194,8 +194,8 @@ public class PoolCommandTests
 
         var view = lab.Query.View(AccessContext.ForManager(new AccessManagerId(Anna.Value)));
 
-        // A team sees its own list of the pool, not the whole pool (#268).
-        Assert.Equal(lab.Offered(PoolKit.Alpha).Select(member => member.HandleText).Order().ToArray(), view.Items.Select(i => i.Handle).Order().ToArray());
+        // A team sees the whole market: every member nobody has recruited (#268).
+        Assert.Equal(lab.Section.Members.Where(member => member.Academy is null).Select(member => member.HandleText).Order().ToArray(), view.Items.Select(i => i.Handle).Order().ToArray());
         Assert.NotEmpty(view.Items);
         Assert.All(view.Items, item =>
         {
@@ -247,7 +247,7 @@ public class PoolCommandTests
         var shape = view.Items.Select(i => System.Text.RegularExpressions.Regex.Replace(i.Handle, "[0-9]+", "#")).Distinct().ToArray();
         Assert.Equal(["talent-#"], shape);
         var real = lab.World.Persons.Where(p => p.IsReal).Select(p => p.GivenName).ToHashSet();
-        Assert.Equal(lab.Offered(PoolKit.Alpha).Count(member => lab.World.GetPerson(member.Id).IsReal), view.Items.Count(i => real.Contains(i.GivenName)));
+        Assert.Equal(lab.Section.Members.Count(member => member.Academy is null && lab.World.GetPerson(member.Id).IsReal), view.Items.Count(i => real.Contains(i.GivenName)));
     }
 
     [Fact]
@@ -461,12 +461,9 @@ public class PoolCommandTests
 
         public string HandleOf(string personId) => Section.Find(PersonId.Real(personId))!.HandleText;
 
-        /// <summary>Puts a member in a team's academy directly, whatever the team's list says.</summary>
+        /// <summary>Puts a member in a team's academy directly, without a command.</summary>
         public void PutInAcademy(string personId, OrganizationId team) =>
             Holder.World = Holder.World.WithSection(Section.Recruit(PersonId.Real(personId), team));
-
-        /// <summary>The members the team's own scouts show it in 1950.</summary>
-        public PoolMember[] Offered(OrganizationId team) => Section.Members.Where(member => PoolShortlist.Offers(team, 1950, member)).ToArray();
 
         public CommandResult Submit(ICommand command)
         {

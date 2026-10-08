@@ -46,8 +46,8 @@ public sealed record PoolView(
 /// <summary>
 /// The read side of the talent pool (INV-003, INV-005). A manager or an AI manager sees the members with the bands their own
 /// organization has built by scouting; the developer sees the members and no bands, because the truth has its own explicit query
-/// on the world. A team sees only its own list (#268, <see cref="PoolShortlist"/>) and the juniors of its own academy, never a junior
-/// of another academy. It changes nothing and draws no RNG.
+/// on the world. A team sees every junior on the market and the juniors of its own academy (#268), never a junior
+/// recruited by another academy. It changes nothing and draws no RNG.
 /// </summary>
 public sealed class PoolQuery
 {
@@ -74,7 +74,7 @@ public sealed class PoolQuery
         var season = world.CurrentDate.Year;
         foreach (var member in section.Members.OrderBy(member => member.Handle))
         {
-            if (organization is OrganizationId viewing && !PoolShortlist.Offers(viewing, season, member))
+            if (member.Academy is { } holder && organization is OrganizationId viewing && viewing != holder)
             {
                 continue;
             }

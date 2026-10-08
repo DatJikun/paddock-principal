@@ -283,6 +283,14 @@ Statek | {InfrastructureEstimates.LogisticsShipDays|dni} do rundy za oceanem (Ar
 Efekt | przez rozwój auta | nie przez sam poziom fabryki
 ```
 
+```pola
+Co daje fabryka | wykonanie części od {InfrastructureEstimates.ExecutionFloor|%} do 100%, czas projektu od {InfrastructureEstimates.DurationSlow|%} do {InfrastructureEstimates.DurationFast|%} bazowego, tempo poznawania auta od {InfrastructureEstimates.UnderstandingFactoryFloor|%} do 100% | zależnie od jakości względem roku
+Co daje tunel | do +{InfrastructureEstimates.ExecutionTunnelSpan|%} do wykonania części | od 1968
+Co daje CFD | do +{InfrastructureEstimates.ExecutionCfdSpan|%} do wykonania części | od 1990
+Co daje symulator | do +{InfrastructureEstimates.UnderstandingSimulatorSpan|%} do tempa poznawania auta | od 2012
+Dlaczego transport tyle kosztuje | podróż ma być widoczną pozycją obok kosztu samego weekendu: skok po własnym kraju to {InfrastructureEstimates.LogisticsHomeShare|%} typowego budżetu, ciężarówka po Europie około jedna trzecia do połowy kosztu uruchomienia wyścigu, a statek na inny kontynent więcej niż cały weekend | wartość jest szacunkiem
+```
+
 ```pytania
 Czy czujesz, że bez modernizacji fabryka zostaje w tyle?
 Czy wynajem toru jest jasnym kosztem za wiedzę, a nie kolejnym budynkiem?
@@ -294,7 +302,7 @@ Czy kolejny poziom fabryki jest wystarczająco drogi, żebyś się wahał?
 
 ## 9. Dostawcy
 
-Rodzaj umowy z dostawcą decyduje, kiedy dostajesz nowości i ile płacisz.
+Rodzaj umowy z dostawcą decyduje, kiedy dostajesz nowości i ile płacisz. Na razie kupujesz tylko silnik: ekran pokazuje, jaki to silnik i kto go dostarcza, osobno parametry silnika i osobno umowę. Opony i paliwo wrócą później.
 
 ```wybory
 Fabryczna | nowości od razu, wspólny rozwój, ale zależność od dostawcy
@@ -313,7 +321,7 @@ Klienci jednego dostawcy | najwyżej {SupplyEstimates.MaxCustomersPerSupplier}
 
 ```pytania
 Czy klient jest dla Ciebie wyraźnie wolniejszy niż zespół fabryczny?
-Czy wybór dostawcy opon cokolwiek zmienia w wynikach?
+Czy widzisz wprost, jaki silnik masz i od kogo?
 Czy kusi Cię umowa na wiele sezonów z rabatem?
 ```
 

@@ -104,6 +104,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 ## Faza 6: UI (HTML/TS/Svelte w Photino)
 - Most JSON, tryb deweloperski w przeglądarce, zrzuty ekranu do przeglądu.
 - Prawdziwe ekrany z design systemu (tor równoległy): gęste tabele, ekran wyścigu, onboarding.
+- **Playtest 1, wyjaśnienia (#268):** sponsorzy z warunkami umowy (długość, poziom warunku, życzenie narodowości, negocjacja przedłużenia; PP-068).
 - **Multiplayer online (PP-045):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo.
 
 **Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.

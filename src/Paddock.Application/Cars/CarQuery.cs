@@ -32,8 +32,24 @@ public sealed record OwnCarView(
 /// <summary>A rival car. No ceiling and no performance vector: those stay hidden until public results exist (not in this task).</summary>
 public sealed record RivalCarView(string CarId, string OrganizationId);
 
+/// <summary>
+/// A car of the manager's team that is in the workshop after a crash (#270). <c>Kind</c> is <c>light</c>, <c>heavy</c> or <c>wrecked</c>
+/// (a new chassis); <c>Source</c> is <c>race</c> or <c>test</c>. Dates are ISO text.
+/// </summary>
+public sealed record OwnCarDamageView(string CarId, string Kind, string Source, string DamagedOn, string ReadyOn, int DaysLeft, long CostCents);
+
+/// <summary>The older chassis the manager's team keeps for a crash it cannot repair in time, and how much slower it runs, in percent.</summary>
+public sealed record OwnSpareView(string OrganizationId, int Season, int SlowerPercent);
+
 /// <summary>What one manager or AI may see. Queries do not change the world and do not draw RNG (INV-005).</summary>
-public sealed record ManagerCarRoster(IReadOnlyList<OwnCarView> Own, IReadOnlyList<RivalCarView> Rivals);
+public sealed record ManagerCarRoster(IReadOnlyList<OwnCarView> Own, IReadOnlyList<RivalCarView> Rivals)
+{
+    /// <summary>Own cars still being repaired (#270).</summary>
+    public IReadOnlyList<OwnCarDamageView> Damage { get; init; } = [];
+
+    /// <summary>Own spare chassis, if any (#270).</summary>
+    public IReadOnlyList<OwnSpareView> Spares { get; init; } = [];
+}
 
 public sealed class CarQuery
 {
@@ -77,7 +93,39 @@ public sealed class CarQuery
             }
         }
 
-        return new ManagerCarRoster(own, rivals);
+        var damage = new List<OwnCarDamageView>();
+        var spares = new List<OwnSpareView>();
+        var section = _book.World.Section<CarDamageSection>(CarDamageSection.SectionName);
+        if (section is not null)
+        {
+            foreach (var item in section.Damages)
+            {
+                if (item.ReadyOn > today && _control.Controls(manager, item.Organization))
+                {
+                    damage.Add(new OwnCarDamageView(
+                        item.CarId,
+                        item.Kind.ToString().ToLowerInvariant(),
+                        item.Source.ToString().ToLowerInvariant(),
+                        item.DamagedOn.ToString(),
+                        item.ReadyOn.ToString(),
+                        today.DaysUntil(item.ReadyOn),
+                        item.CostCents));
+                }
+            }
+
+            foreach (var spare in section.Spares)
+            {
+                if (_control.Controls(manager, spare.Organization))
+                {
+                    spares.Add(new OwnSpareView(
+                        spare.Organization.Value,
+                        spare.Season,
+                        (int)Math.Round(CarDamageEstimates.SpareLevelShare * 100d)));
+                }
+            }
+        }
+
+        return new ManagerCarRoster(own, rivals) { Damage = damage, Spares = spares };
     }
 
     private static OwnCarView Own(TeamCar car, WorldState world, GameDate today)

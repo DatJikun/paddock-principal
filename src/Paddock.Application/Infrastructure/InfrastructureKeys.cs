@@ -67,6 +67,12 @@ public static class InfrastructureKeys
     public const string TestCappedSubject = "infrastructure.inbox.testCapped.subject";
 
     [TranslationKey]
+    public const string TestCrashedSubject = "infrastructure.inbox.testCrashed.subject";
+
+    [TranslationKey]
+    public const string TestCarsDamagedSubject = "infrastructure.inbox.testCarsDamaged.subject";
+
+    [TranslationKey]
     public const string TestNoCarSubject = "infrastructure.inbox.testNoCar.subject";
 
     [TranslationKey]

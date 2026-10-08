@@ -253,6 +253,11 @@ To dokładnie pasuje do modelu zapasu opisanego wyżej.
 
 **Zrozumienie części:** nowa część czy nowy pakiet nie daje pełnych osiągów od razu. Zespół musi go **zrozumieć** przez testy, kilometry w wyścigach i pracę inżynierów (procent zrozumienia na projekt). Limity testów z regulaminu sprawiają, że wprowadzenie dużej poprawki w połowie sezonu to realny koszt.
 
+### 5.3a. Wypadki i zapasowe podwozia (#270)
+- Wypadek w wyścigu lub na prywatnym teście może uszkodzić auto (stopień zależy od epoki: w latach 50. częściej i ciężej). Naprawa albo nowe podwozie zawsze kosztuje i trwa co najmniej kilka dni (ESTYMATA wg epoki).
+- Jeśli auto nie jest gotowe na następny wyścig, jedzie na starszym zapasowym podwoziu (poprzednia koncepcja, wolniejsze), a bez zapasu zostaje w garażu. Zawsze pojawia się wiadomość z powodem. Zasady są te same dla AI.
+- Obrażenia kierowcy zostają przy zasadach zastępców (PP-061).
+
 ### 5.4. Osiągi, silnik, opony
 - **Wektor osiągów:** Moc, Docisk (ograniczony epoką i technologią), Przyczepność mechaniczna, Hamowanie, Niezawodność. Dopasowanie do toru to iloczyn skalarny z wagami profilu toru.
 - **Silnik:** kliencki albo **własny** (PP-019). Gracz może zostać producentem jak Ferrari, BRM czy Honda:

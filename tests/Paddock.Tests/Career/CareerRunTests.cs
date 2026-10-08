@@ -47,7 +47,7 @@ public class CareerRunTests
 {
     private const ulong Seed = 7;
 
-    private const string StoredWorldHash = "aae0ca511d94ed774d5901eeb4cb1620b610fdb9887e262ec29f56e3578a7057";
+    private const string StoredWorldHash = "2f80e1c9d21c7e8e92e22c7462a38ba7aeb41a76ac64e14df92099796297490f";
 
     private const string StoredRetired = "chief,leap,vet";
 

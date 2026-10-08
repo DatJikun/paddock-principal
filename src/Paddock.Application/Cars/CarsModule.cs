@@ -21,7 +21,7 @@ public sealed class CarsModule : CareerModule
 
     public override string Name => ModuleName;
 
-    public override IReadOnlyList<string> Sections => [CarsSection.SectionName];
+    public override IReadOnlyList<string> Sections => [CarsSection.SectionName, CarDamageSection.SectionName];
 
     public override IReadOnlyList<CommandCodecEntry> CommandCodecs => CarCommandCodecs.Entries;
 

@@ -37,6 +37,13 @@ public sealed class InfrastructureBook
         return new InfrastructureBook(() => session.World, session.StoreWorld);
     }
 
+    /// <summary>Replaces the whole world; for a helper that writes a section this book does not own.</summary>
+    public void Store(WorldState world)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        _write(world);
+    }
+
     public void Write(
         InfrastructureSection infrastructure,
         FinanceSection? finance = null,
@@ -71,7 +78,8 @@ public sealed class InfrastructureEnvironment
         IOrganizationControl control,
         FacilityCatalog catalog,
         IReadOnlyDictionary<string, string>? teamCountries = null,
-        IReadOnlyList<RulePeriod>? rulePeriods = null)
+        IReadOnlyList<RulePeriod>? rulePeriods = null,
+        ulong masterSeed = 0)
     {
         ArgumentNullException.ThrowIfNull(control);
         ArgumentNullException.ThrowIfNull(catalog);
@@ -79,7 +87,11 @@ public sealed class InfrastructureEnvironment
         Catalog = catalog;
         TeamCountries = teamCountries ?? new Dictionary<string, string>(StringComparer.Ordinal);
         RulePeriods = rulePeriods ?? [];
+        MasterSeed = masterSeed;
     }
+
+    /// <summary>Seed of the career: a test crash is drawn from the Incidents stream (#270).</summary>
+    public ulong MasterSeed { get; }
 
     public IOrganizationControl Control { get; }
 

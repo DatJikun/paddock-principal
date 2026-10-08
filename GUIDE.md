@@ -428,6 +428,30 @@ Przepuść kolegę | gdy kolega jedzie do {PitConstants.LetByGapSeconds|s} za Tw
 Kierowca w radiu | opony słabną po {TyreFeelBands.WornFromCliffShare|%} drogi do klifu | mówi też, gdy są skończone, a gdy nie wolno tankować, że paliwa przy tym tempie nie starczy do mety
 ```
 
+### Wypadki, naprawy i zapasowe podwozie
+
+Wypadek w wyścigu albo na prywatnym teście może uszkodzić auto. Naprawa zawsze kosztuje: pieniądze lecą do księgi, a gotówka nie jest bramką. Auto stoi w warsztacie do dnia gotowości. Jeśli ten dzień wypada po następnym wyścigu, zespół jedzie na starszym, zapasowym podwoziu albo, gdy go nie ma, zostawia to auto w garażu. Zawsze dostajesz wiadomość w skrzynce z powodem. Te same zasady mają zespoły AI.
+
+```wybory
+Naprawa czy nowe podwozie | lekki wypadek to naprawa, ciężki to dłuższa naprawa, rozbite auto wymaga nowego podwozia; im starsza epoka, tym częściej i dłużej
+Prywatny test | każdy test to także ryzyko wypadku na torze; auto w warsztacie w teście nie jedzie
+Zapasowe podwozie | po sezonie zespół zachowuje swoje ostatnie podwozie; w pierwszym sezonie zapasu nie ma
+Jedno zapasowe | jeśli uszkodzone są oba auta, zapas dostaje jedno, drugie stoi
+```
+
+```pola
+Czas naprawy | nie krócej niż {CarDamageEstimates.MinDays|dni}, plus do {CarDamageEstimates.MaxExtraDays|dni} losowo; w starszych epokach dłużej
+Zapas | wolniejszy o około {CarDamageEstimates.SpareLevelShare|%} | rozumienie auta na nim to {CarDamageEstimates.SpareUnderstandingShare|%} tego, co ma auto
+Wypadek na teście | około {CarDamageEstimates.TestCrashChance1950|%} na auto w 1950 roku, potem coraz rzadziej
+Kierowca | obrażenia kierowcy działają jak dotąd (zastępca, kolejne wyścigi); uszkodzone auto nie zmienia tych zasad
+```
+
+```pytania
+Czy brak zapasowego podwozia w pierwszym sezonie boli, ale nie wydaje się niesprawiedliwy?
+Czy wiadomość o nieobecności auta mówi jasno, dlaczego i do kiedy?
+Czy ryzyko wypadku na teście sprawia, że wahasz się przed rezerwacją?
+```
+
 ```wykres dopasowanie-toru
 Dlatego to samo auto jest na jednym torze z przodu, a na innym w środku stawki.
 ```

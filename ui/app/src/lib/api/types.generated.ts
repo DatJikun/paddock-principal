@@ -481,8 +481,10 @@ export interface ManagerCall {
 }
 
 export interface ManagerCarRoster {
+  damage: OwnCarDamageView[];
   own: OwnCarView[];
   rivals: RivalCarView[];
+  spares: OwnSpareView[];
 }
 
 export interface ManagerProfileView {
@@ -722,6 +724,16 @@ export interface OwnBoardView {
   why: BoardWhyView;
 }
 
+export interface OwnCarDamageView {
+  carId: string;
+  costCents: number;
+  damagedOn: string;
+  daysLeft: number;
+  kind: string;
+  readyOn: string;
+  source: string;
+}
+
 export interface OwnCarView {
   aeroMilli: number;
   braking: CarBandView;
@@ -805,6 +817,12 @@ export interface OwnProjectView {
   status: string;
   timing: string;
   timingRaces: number;
+}
+
+export interface OwnSpareView {
+  organizationId: string;
+  season: number;
+  slowerPercent: number;
 }
 
 export interface OwnSupplyDealView {

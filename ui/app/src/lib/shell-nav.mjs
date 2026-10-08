@@ -16,6 +16,8 @@ export const NAV = [
   { id: 'zarzad', key: 'shell.nav.board', icon: '<path d="M4 20h16M6 20V10M10 20V10M14 20V10M18 20V10M3 10l9-6 9 6z"/>' },
   { sep: true },
   { id: 'rynek', key: 'shell.nav.market', icon: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>' },
+  { sep: true },
+  { id: 'poradnik', key: 'shell.nav.guide', icon: '<path d="M5 4.5h10a3 3 0 013 3V20H8a3 3 0 01-3-3z"/><path d="M5 17a3 3 0 013-3h10M9 8h5"/>' },
 ];
 
 export const SETTINGS = {

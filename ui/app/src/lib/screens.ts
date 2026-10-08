@@ -85,6 +85,7 @@ export type SponsorData = { kind: 'sponsorzy'; sponsors: SponsorView; today: str
 export type BoardData = { kind: 'zarzad'; board: BoardView; manager: ManagerProfileView; today: string };
 export type ManagerData = { kind: 'menedzer'; board: BoardView; manager: ManagerProfileView };
 export type SupplyData = { kind: 'dostawcy'; supply: ManagerSupplyView; today: string };
+export type GuideData = { kind: 'poradnik' };
 export type AcademyData = { kind: 'akademia'; pool: PoolView; today: string };
 
 export type ScreenData =
@@ -95,6 +96,7 @@ export type ScreenData =
   | ManagerData
   | SupplyData
   | AcademyData
+  | GuideData
   | PulpitData
   | InboxData
   | CalendarData
@@ -217,6 +219,8 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
       const [market, negotiations, drivers] = await Promise.all([query('market', call), query('negotiations', call), query('drivers', call)]);
       return { kind: name, market, negotiations, drivers };
     }
+    case 'poradnik':
+      return { kind: 'poradnik' };
     default:
       return { kind: 'none' };
   }

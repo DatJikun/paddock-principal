@@ -21,6 +21,7 @@
     onSave,
     onLoad,
     onToMenu,
+    onGuide,
     onClose,
   }: {
     tr: Tr;
@@ -37,6 +38,7 @@
     onSave: (name: string) => void;
     onLoad: (name: string) => void;
     onToMenu: () => void;
+    onGuide: () => void;
     onClose: () => void;
   } = $props();
 
@@ -74,11 +76,12 @@
     else view = 'list';
   }
 
-  const items: { id: View | 'save'; key: string }[] = [
+  const items: { id: View | 'save' | 'guide'; key: string }[] = [
     { id: 'save', key: 'game.menu.save' },
     { id: 'saveAs', key: 'game.menu.saveAs' },
     { id: 'load', key: 'game.menu.load' },
     { id: 'settings', key: 'game.menu.settings' },
+    { id: 'guide', key: 'game.menu.guide' },
     { id: 'toMenu', key: 'game.menu.toMenu' },
   ];
 </script>
@@ -99,7 +102,7 @@
               type="button"
               class="gm-item"
               disabled={item.id === 'load' && saves.length === 0}
-              onclick={() => (item.id === 'save' ? save() : open(item.id))}
+              onclick={() => (item.id === 'save' ? save() : item.id === 'guide' ? onGuide() : open(item.id))}
             >
               <b>{tr.t(item.key)}</b>
               {#if item.id === 'save' && savedName}<small>{saveLabel(savedName)}</small>{/if}

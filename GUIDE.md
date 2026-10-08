@@ -12,7 +12,7 @@ Jak odpowiedzieć | napisz, co czujesz | np. „sponsorzy podpisują z rywalami 
 
 ## 1. Start kariery
 
-Z menu głównego wybierasz Kontynuuj (ostatni zapis), Nową karierę, Szybki wyścig, Wczytaj, Ustawienia, Poradnik albo Wyjdź. Poradnik to ten przewodnik w formie książki: spis rozdziałów po lewej, jeden rozdział na raz po prawej; jest tylko po polsku. Nowa kariera to cztery kroki: Ty, Świat, Zespół i podsumowanie, w którym dopiero „Rozpocznij” startuje grę. W trakcie gry menu otwiera klawisz Esc: Zapisz, Zapisz jako, Wczytaj, Ustawienia i Wyjdź do menu. Gra zapisuje się tylko wtedy, gdy sam o to poprosisz.
+Z menu głównego wybierasz Kontynuuj (ostatni zapis), Nową karierę, Szybki wyścig, Wczytaj, Ustawienia, Poradnik albo Wyjdź. Poradnik to ten przewodnik w formie książki: spis rozdziałów po lewej, jeden rozdział na raz po prawej; jest tylko po polsku. W trakcie gry otwierasz go z lewego menu (pozycja Poradnik, na dole) albo z menu na Esc. Nowa kariera to cztery kroki: Ty, Świat, Zespół i podsumowanie, w którym dopiero „Rozpocznij” startuje grę. W trakcie gry menu otwiera klawisz Esc: Zapisz, Zapisz jako, Wczytaj, Ustawienia, Poradnik i Wyjdź do menu. Gra zapisuje się tylko wtedy, gdy sam o to poprosisz.
 
 Przycisk Dalej sam przesuwa kolejne dni, dopóki nic nie wymaga Twojej uwagi. Zatrzymuje się, gdy czas trzyma nierozstrzygnięta decyzja, gdy nadchodzi dzień wyścigu (wyścig uruchamiasz kolejnym kliknięciem), po wyścigu i po przełomie sezonu, oraz gdy w Skrzynce pojawi się nowa ważna wiadomość (wtedy dostajesz też powiadomienie w prawym dolnym rogu). W trakcie biegu Dalej zmienia się w Pauzę (albo Esc). W Ustawieniach wybierasz, czy Dalej biegnie sam i ile czasu zajmuje jeden dzień (domyślnie pół sekundy, do wyboru cztery tempa).
 

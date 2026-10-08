@@ -271,6 +271,12 @@
     });
   }
 
+  /** The guide opens as a screen of the career, so the menu closes and the route moves there. */
+  function openGuide() {
+    gameMenu = false;
+    location.hash = '#/poradnik';
+  }
+
   async function openGameMenu() {
     if (gameMenu || phase !== 'game') return;
     fault = null;
@@ -835,6 +841,11 @@
           <Dostawcy data={screenData} {tr} {teamId} {busy} {act} />
         {:else if screenData.kind === 'akademia' && route.name === 'akademia'}
           <Akademia data={screenData} {tr} {busy} {act} />
+        {:else if route.name === 'poradnik'}
+          <div class="menu-page">
+            <div class="screen-head"><h1 class="screen">{t('menu.guide')}</h1></div>
+            <Poradnik {tr} />
+          </div>
         {:else if route.name === 'ustawienia'}
           <div class="screen-head">
             <h1 class="screen">{t(SETTINGS.key)}</h1>
@@ -869,6 +880,7 @@
     onSave={saveCareer}
     onLoad={loadCareer}
     onToMenu={leaveToMenu}
+    onGuide={openGuide}
     onClose={() => (gameMenu = false)}
   />
 {/if}

@@ -1,0 +1,8 @@
+{
+  "default": [
+    "cash_bonus_last_place",
+    "cash_bonus_promoted_team",
+    "ers_charge_by_position"
+  ],
+  "series": {}
+}

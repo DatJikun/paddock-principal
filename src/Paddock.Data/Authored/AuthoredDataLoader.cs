@@ -49,6 +49,9 @@ public static class AuthoredDataLoader
         // Optional like the car strengths: without the file every team starts as a typical one.
         var tiersPath = Path.Combine(root, TeamTiersLoader.RelativePath.Replace('/', Path.DirectorySeparatorChar));
         var teamTiers = File.Exists(tiersPath) ? TryRead<TeamTiersFile>(tiersPath, failures) : null;
+        // Optional like the car strengths: a fixture data directory bans nothing.
+        var bannedPath = Path.Combine(root, BannedRulesLoader.RelativePath.Replace('/', Path.DirectorySeparatorChar));
+        var bannedRules = File.Exists(bannedPath) ? TryRead<BannedRulesFile>(bannedPath, failures) : null;
         var staff = TryRead<List<StaffMember>>(
             Path.Combine(root, "authored", "people", "staff.json"),
             failures);
@@ -141,7 +144,8 @@ public static class AuthoredDataLoader
             geometryFiles,
             carStrength is null ? null : CarStrengthLoader.ToSource(carStrength),
             teamTiers is null ? null : TeamTiersLoader.ToSource(teamTiers),
-            facilities);
+            facilities,
+            bannedRules);
     }
 
     private static T? TryRead<T>(string path, List<string> failures)

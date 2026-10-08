@@ -1,5 +1,6 @@
 using Paddock.Domain.Racing;
 using Paddock.Domain.World;
+using Paddock.Simulation.Regulation;
 using Paddock.Simulation.Time;
 
 namespace Paddock.Application.Racing;
@@ -20,6 +21,29 @@ public static class SeasonPlans
     {
         ArgumentNullException.ThrowIfNull(world);
         return Stored(world, season) ?? SeasonCalendar.Plan(season, layouts, assignments);
+    }
+
+    /// <summary>The number of rounds of <paramref name="season"/> and its last round number, from the stored plan; null when none is stored.</summary>
+    public static (int Rounds, int LastRound)? Rounds(WorldState world, int season)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        if (Stored(world, season) is not { } plan)
+        {
+            return null;
+        }
+
+        var rounds = 0;
+        var last = 0;
+        foreach (var session in plan)
+        {
+            if (session.TypeId == ScheduledEventType.Race)
+            {
+                rounds++;
+                last = Math.Max(last, session.Round);
+            }
+        }
+
+        return rounds == 0 ? null : (rounds, last);
     }
 
     /// <summary>The stored plan of <paramref name="season"/>, or null when the world has none for it.</summary>
@@ -54,7 +78,14 @@ public static class SeasonPlans
             return (stored, world);
         }
 
-        var plan = SeasonCalendar.Plan(season, layouts, assignments, dates);
+        // A voted career lays a season out from the authored map with the calendar policy its teams voted (#275). The policy of a
+        // season is fixed before the season is laid out (the votes of the season before are resolved by October), and a plan
+        // that is already stored is returned above, so a vote never changes a season that is laid out.
+        var policy = world.Section<RegulationsSection>(RegulationsSection.SectionName)?.Find(SeriesIds.WorldChampionship)?.CalendarFor(season);
+        var (planAssignments, planDates) = policy is { Count: > 0 }
+            ? CalendarPolicy.Resolve(season, layouts, assignments, dates, policy)
+            : (assignments, dates);
+        var plan = SeasonCalendar.Plan(season, layouts, planAssignments, planDates);
         if (plan.Count == 0)
         {
             return (plan, world);

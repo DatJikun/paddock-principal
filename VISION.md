@@ -409,3 +409,10 @@ Szczegóły w DESIGN §5.3.
 - **Prawda i wiedza.** Gracz i AI widzą cztery obszary (silnik, aerodynamika, prowadzenie, niezawodność) jako zakresy z oceny sztabu technicznego (lepszy sztab, węższy zakres) oraz zakresy czołowej trójki rywali jako wiedzę publiczną. Symulacja czyta prawdę. Zrozumienie auta rośnie z testami i kilometrami, a brak zrozumienia kosztuje osiągi.
 - **Skrzynka:** nowa część (obszar, zakres przed i po, miejsce wobec czołowej trójki), gotowa koncepcja jako decyzja z liczbami (zysk, czas budowy, koszt, pierwszy wyścig), porażka i wejście koncepcji do auta. Koncepcje mają nazwy „zespół rok”, nigdy numer projektu.
 - **Wszystkie liczby to szacunki do strojenia.**
+
+**PP-069: Akademia: każdy zespół rekrutuje własnych juniorów, program zmienia tylko tempo rozwoju** (decyzja właściciela z 2026-10-07 z playtestu 1, #268; doprecyzowuje PP-057 i PP-058). Liczby to szacunki.
+- **Pula talentów to świat poza F1.** Zespół nie dostaje wszystkich jej członków: jego skauci pokazują mu co sezon własną listę, stały ułamek puli, inny dla każdego zespołu i sezonu (bez losowania w zapisie, więc ta sama lista w każdym przebiegu). Lista nie zdradza, kto jest prawdziwy.
+- **Zespół rekrutuje własnych juniorów, w ograniczonej liczbie miejsc** (na start 3, PP-057). Przyjęty junior należy do jednej akademii: nie ma go na liście żadnego innego zespołu i nikt inny nie podpisze go ani nie opłaci mu programu. Miejsce można zwolnić, wtedy junior wraca do puli, a opłacony program przepada.
+- **Junior w akademii nie jest wolny na zawsze.** Zostaje ile sezonów mu zostało w puli (te same granice co dla każdego: czas w puli i wiek). Gdy odchodzi bez kontraktu, zespół dostaje o tym wiadomość w skrzynce.
+- **Program zmienia tylko tempo rozwoju w stronę potencjału, nigdy samego potencjału.** Dwa programy, podstawowy i intensywny, każdy z kosztem na sezon i tempem pokazanymi przed potwierdzeniem. Intensywny to skromne przyspieszenie, a nie podwojenie. Koszt jest ułamkiem typowego budżetu zespołu z epoki, więc coś znaczy i w latach 50., i w 70.
+- **Nazwy dla gracza:** „program podstawowy” i „program intensywny” zamiast „tani i wolny” oraz „drogi i szybki”.

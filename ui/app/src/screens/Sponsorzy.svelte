@@ -1,9 +1,15 @@
 <script lang="ts">
-  import type { BridgeCommandName, ObjectiveItemView } from '../lib/api/types.generated';
+  import { untrack } from 'svelte';
+  import type { BridgeCommandName, ObjectiveItemView, SponsorMarketRow, SponsorQuoteView } from '../lib/api/types.generated';
   import Confirmation from '../lib/components/Confirmation.svelte';
+  import SponsorExtras from '../lib/components/SponsorExtras.svelte';
+  import SponsorOffer from '../lib/components/SponsorOffer.svelte';
+  import SponsorTalk from '../lib/components/SponsorTalk.svelte';
   import Status from '../lib/components/Status.svelte';
+  import TermsPicker from '../lib/components/TermsPicker.svelte';
   import { formatDate } from '../lib/date.mjs';
   import { formatMoney } from '../lib/money.mjs';
+  import { sortRows } from '../lib/people.mjs';
   import type { SponsorData } from '../lib/screens';
   import type { Tr } from '../lib/ui';
 
@@ -21,42 +27,60 @@
     act: (name: BridgeCommandName, args: Record<string, unknown>) => Promise<boolean>;
   } = $props();
 
-  type Ask =
-    | { kind: 'begin'; slot: number; sponsorId: string; name: string }
-    | { kind: 'sign'; talkId: string; name: string }
-    | { kind: 'leave'; talkId: string; name: string }
-    | { kind: 'offer'; offerId: string; accept: boolean; name: string };
+  type Key = 'name' | 'industry' | 'slot' | 'value';
 
   let view = $derived('slots' in data.sponsors ? data.sponsors : null);
   let unknown = $derived('reason' in data.sponsors ? data.sponsors.reason : null);
-  let asking = $state<Ask | null>(null);
-  let listing = $state<number | null>(null);
-  let freeSlots = $derived(view ? view.slots.filter((slot) => !slot.dealId && !slot.talkId) : []);
-  let listed = $derived(freeSlots.find((slot) => slot.slot === listing) ?? freeSlots[0] ?? null);
 
   let yearly = $derived(view ? view.deals.reduce((sum, deal) => sum + deal.annualCents, 0) : 0);
   const objectiveOf = (id: string | null): ObjectiveItemView | null => view?.objectives.find((item) => item.id === id) ?? null;
 
-  const askText = (ask: Ask) =>
-    ask.kind === 'begin'
-      ? tr.t('sponsor.ask.begin', { name: ask.name })
-      : ask.kind === 'sign'
-        ? tr.t('sponsor.ask.sign', { name: ask.name })
-        : ask.kind === 'leave'
-          ? tr.t('sponsor.ask.leave', { name: ask.name })
-          : tr.t(ask.accept ? 'sponsor.ask.accept' : 'sponsor.ask.decline', { name: ask.name });
-
-  async function run() {
-    const ask = asking;
-    asking = null;
-    if (!ask) return;
-    if (ask.kind === 'begin') await act('beginSponsorTalks', { organizationId: teamId, sponsorId: ask.sponsorId, slot: ask.slot });
-    else if (ask.kind === 'sign') await act('signSponsor', { organizationId: teamId, talkId: ask.talkId });
-    else if (ask.kind === 'leave') await act('walkAwayFromTalks', { organizationId: teamId, talkId: ask.talkId });
-    else await act('respondToSponsorOffer', { organizationId: teamId, offerId: ask.offerId, accept: ask.accept });
+  /* The market: one list, sortable by what a person compares sponsors by. The best-paying come first until the player chooses otherwise. */
+  let sortKey = $state<Key>('value');
+  let direction = $state<'asc' | 'desc'>('desc');
+  const sortValue = (row: SponsorMarketRow) =>
+    sortKey === 'name' ? row.sponsorName : sortKey === 'industry' ? tr.tMsg(row.industry) : sortKey === 'slot' ? row.slot : row.indicativeAnnualCents;
+  let rows = $derived(view ? sortRows(view.market, sortValue, direction) : []);
+  const sortClass = (key: Key) => (sortKey === key ? `sorted ${direction}` : '');
+  function sortBy(key: Key) {
+    if (sortKey === key) direction = direction === 'asc' ? 'desc' : 'asc';
+    else {
+      sortKey = key;
+      direction = key === 'value' ? 'desc' : 'asc';
+    }
   }
 
-  const same = (a: Ask | null, b: Ask) => a !== null && JSON.stringify(a) === JSON.stringify(b);
+  let picked = $state('');
+  let years = $state('1');
+  let ambition = $state('standard');
+  let asking = $state(false);
+  let current = $derived(rows.find((row) => row.sponsorId === picked) ?? rows[0] ?? null);
+  let quote = $derived.by(() => {
+    const row = current;
+    return row?.quotes.find((item: SponsorQuoteView) => String(item.years) === years && item.ambition === (row.ambitionOpen ? ambition : 'standard')) ?? null;
+  });
+
+  /* The terms belong to the sponsor on show: another sponsor starts from the standard one-year deal. */
+  $effect(() => {
+    current?.sponsorId;
+    untrack(() => {
+      years = '1';
+      ambition = 'standard';
+      asking = false;
+    });
+  });
+
+  const termsText = () =>
+    current?.ambitionOpen
+      ? tr.t('sponsor.terms.summary', { years: tr.t(`sponsor.terms.years.${years}`), level: tr.t(`sponsor.ambition.${ambition}`).toLowerCase() })
+      : tr.t(`sponsor.terms.years.${years}`);
+
+  async function begin() {
+    const row = current;
+    asking = false;
+    if (!row) return;
+    if (await act('beginSponsorTalks', { organizationId: teamId, sponsorId: row.sponsorId, slot: row.slot, years: Number(years), ambition: row.ambitionOpen ? ambition : 'standard' })) picked = '';
+  }
 </script>
 
 <div class="screen-head">
@@ -77,21 +101,7 @@
       <header><h2>{tr.t('sponsor.offers')}</h2></header>
       <div class="body">
         {#each view.offers as offer (offer.id)}
-          {@const accept = { kind: 'offer', offerId: offer.id, accept: true, name: offer.sponsorName } as const}
-          {@const decline = { kind: 'offer', offerId: offer.id, accept: false, name: offer.sponsorName } as const}
-          <div class="sp-offer">
-            <b>{offer.sponsorName}</b>
-            <span class="num">{formatMoney(offer.annualCents, tr.lang)}<small class="muted"> {tr.t('sponsor.perYear')}</small></span>
-            <span class="muted">{tr.t('sponsor.until', { date: formatDate(offer.validUntil, tr.lang) })}</span>
-            {#if same(asking, accept) || same(asking, decline)}
-              {#if asking}<Confirmation {tr} {busy} ask={askText(asking)} onCancel={() => (asking = null)} onConfirm={run} />{/if}
-            {:else}
-              <div class="ask-btns">
-                <button class="btn sm" type="button" disabled={busy} onclick={() => (asking = decline)}>{tr.t('sponsor.decline')}</button>
-                <button class="btn sm primary" type="button" disabled={busy} onclick={() => (asking = accept)}>{tr.t('sponsor.accept')}</button>
-              </div>
-            {/if}
-          </div>
+          <SponsorOffer {offer} {tr} {teamId} {busy} {act} />
         {/each}
       </div>
     </section>
@@ -110,6 +120,7 @@
             <span class="muted">{tr.tMsg(deal.industry)}</span>
             <div class="fields mid">
               <div class="fld"><span class="meta">{tr.t('sponsor.amount')}</span><span class="v num">{formatMoney(deal.annualCents, tr.lang)}</span></div>
+              <div class="fld"><span class="meta">{tr.t('sponsor.length')}</span><span class="v">{tr.t(`sponsor.terms.years.${deal.years}`)}</span></div>
               <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v num" class:bad={deal.end.slice(0, 4) <= data.today.slice(0, 4)}>{formatDate(deal.end, tr.lang)}</span></div>
               <div class="fld"><span class="meta">{tr.t('sponsor.trust')}</span><span class="v num">{deal.trust}</span></div>
             </div>
@@ -121,59 +132,67 @@
                 {#if goal.forecast}<Status text={tr.tMsg(goal.forecast.message)} />{/if}
               </div>
             {/if}
+            <SponsorExtras {tr} wish={deal.wish} industry={deal.industryBonus} />
           {:else if talk}
-            <h3>{talk.sponsorName}</h3>
-            <div class="fields mid">
-              <div class="fld"><span class="meta">{tr.t('sponsor.now')}</span><span class="v num">{formatMoney(talk.currentAnnualCents, tr.lang)}</span></div>
-              <div class="fld"><span class="meta">{tr.t('sponsor.cap')}</span><span class="v num">{formatMoney(talk.cappedAnnualCents, tr.lang)}</span></div>
-            </div>
-            <p class="muted">{tr.tMsg(talk.note)}</p>
-            {#if talk.objective}<div class="sp-goal"><span class="meta">{tr.t('sponsor.goal')}</span><b>{tr.tMsg(talk.objective)}</b></div>{/if}
-            {#if talk.rivalKnown}<Status text={tr.t('sponsor.rival')} tone="warn" />{/if}
-            {@const sign = { kind: 'sign', talkId: talk.id, name: talk.sponsorName } as const}
-            {@const leave = { kind: 'leave', talkId: talk.id, name: talk.sponsorName } as const}
-            {#if same(asking, sign) || same(asking, leave)}
-              {#if asking}<Confirmation {tr} {busy} ask={askText(asking)} onCancel={() => (asking = null)} onConfirm={run} />{/if}
-            {:else}
-              <div class="confirm">
-                <button class="btn" type="button" disabled={busy} onclick={() => (asking = leave)}>{tr.t('sponsor.leave')}</button>
-                <button class="btn primary" type="button" disabled={busy} onclick={() => (asking = sign)}>{tr.t('sponsor.sign')}</button>
-              </div>
-            {/if}
-          {:else}
-            <button class="btn" type="button" class:primary={listed?.slot === slot.slot} onclick={() => (listing = slot.slot)}>{tr.t('sponsor.choose')}</button>
+            <SponsorTalk {talk} {tr} {teamId} {busy} {act} />
           {/if}
         </div>
       </section>
     {/each}
   </div>
 
-  {#if listed}
-    <section class="panel tbl cand">
-      <header><h2>{tr.t('sponsor.candidates')}</h2><span class="meta">{tr.tMsg(listed.kind)}</span></header>
-      <table class="table tight">
-        <thead><tr><th>{tr.t('sponsor.company')}</th><th>{tr.t('sponsor.industry')}</th><th class="r">{tr.t('sponsor.indicative')}</th><th></th></tr></thead>
-        <tbody>
-          {#each listed.candidates as candidate (candidate.sponsorId)}
-            {@const begin = { kind: 'begin', slot: listed.slot, sponsorId: candidate.sponsorId, name: candidate.sponsorName } as const}
+  {#if rows.length > 0}
+    <div class="acad cand">
+      <section class="panel tbl market">
+        <header><h2>{tr.t('sponsor.market')}</h2></header>
+        <table class="table tight">
+          <thead>
             <tr>
-              <td><b>{candidate.sponsorName}</b></td>
-              <td class="muted">{tr.tMsg(candidate.industry)}</td>
-              <td class="r num">{formatMoney(candidate.indicativeAnnualCents, tr.lang)}</td>
-              <td>
-                {#if candidate.blocked}
-                  <Status text={tr.tMsg(candidate.blocked)} tone="bad" />
-                {:else if !same(asking, begin)}
-                  <button class="btn sm" type="button" disabled={busy} onclick={() => (asking = begin)}>{tr.t('sponsor.begin')}</button>
-                {/if}
-              </td>
+              <th data-sort class={sortClass('name')} onclick={() => sortBy('name')}><span>{tr.t('sponsor.company')}</span></th>
+              <th data-sort class={sortClass('industry')} onclick={() => sortBy('industry')}><span>{tr.t('sponsor.industry')}</span></th>
+              <th data-sort class={sortClass('slot')} onclick={() => sortBy('slot')}><span>{tr.t('sponsor.col.slot')}</span></th>
+              <th data-sort class={`r ${sortClass('value')}`} onclick={() => sortBy('value')}><span>{tr.t('sponsor.col.value')}</span></th>
             </tr>
-            {#if same(asking, begin) && asking}
-              <tr><td colspan="4"><Confirmation {tr} {busy} ask={askText(asking)} onCancel={() => (asking = null)} onConfirm={run} /></td></tr>
+          </thead>
+          <tbody>
+            {#each rows as row (row.sponsorId)}
+              <tr class="go-row" class:sel={row.sponsorId === current?.sponsorId} onclick={() => (picked = row.sponsorId)}>
+                <td><b>{row.sponsorName}</b></td>
+                <td class="muted">{tr.tMsg(row.industry)}</td>
+                <td class="muted">{tr.tMsg(row.kind)}</td>
+                <td class="r num">{formatMoney(row.indicativeAnnualCents, tr.lang)}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel acad-detail">
+        {#if current}
+          <header><h2>{current.sponsorName}</h2><Status text={tr.tMsg(current.industry)} /></header>
+          <div class="body">
+            {#if current.blocked}
+              <Status text={tr.tMsg(current.blocked)} tone="bad" />
+            {:else}
+              <TermsPicker {tr} group="market" quotes={current.quotes} ambitionOpen={current.ambitionOpen} bind:years bind:ambition />
+              <SponsorExtras {tr} wish={current.wish} industry={current.industryBonus} />
+              {#if asking}
+                <Confirmation
+                  {tr}
+                  {busy}
+                  ask={tr.t('sponsor.ask.begin', { name: current.sponsorName, terms: termsText() })}
+                  onCancel={() => (asking = false)}
+                  onConfirm={begin}
+                />
+              {:else}
+                <div class="confirm">
+                  <button class="btn primary" type="button" disabled={busy || quote === null} onclick={() => (asking = true)}>{tr.t('sponsor.begin')}</button>
+                </div>
+              {/if}
             {/if}
-          {/each}
-        </tbody>
-      </table>
-    </section>
+          </div>
+        {/if}
+      </section>
+    </div>
   {/if}
 {/if}

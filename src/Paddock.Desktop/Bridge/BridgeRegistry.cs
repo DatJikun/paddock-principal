@@ -68,6 +68,8 @@ public static class BridgeRegistry
         Endpoint(Command, "signSponsor", typeof(SponsorTalkCall), typeof(CommandAck)),
         Endpoint(Command, "walkAwayFromTalks", typeof(SponsorTalkCall), typeof(CommandAck)),
         Endpoint(Command, "respondToSponsorOffer", typeof(SponsorOfferCall), typeof(CommandAck)),
+        Endpoint(Command, "proposeSponsorTerms", typeof(SponsorTermsCall), typeof(CommandAck)),
+        Endpoint(Command, "counterSponsorOffer", typeof(SponsorCounterCall), typeof(CommandAck)),
         Endpoint(Command, "setDevelopmentSplit", typeof(DevelopmentSplitCall), typeof(CommandAck)),
         Endpoint(Command, "setNextConcept", typeof(NextConceptCall), typeof(CommandAck)),
         Endpoint(Command, "commitConcept", typeof(CommitConceptCall), typeof(CommandAck)),

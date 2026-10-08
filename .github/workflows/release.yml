@@ -1,0 +1,285 @@
+name: Windows release
+
+# A zip with the game for Windows (#296): the self-contained exe plus strings/, data/authored/ and
+# ui/app/dist/ next to it, the layout BridgeHost.RepositoryRoot() looks for.
+#   - workflow_dispatch: build any ref by hand, the zip is a workflow artifact.
+#   - pull_request that touches this file: builds and smoke-tests, publishes nothing.
+#   - tag v*: the same zip is also attached to a GitHub Release.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag or commit to build (empty = the branch selected above)
+        required: false
+        default: ""
+  push:
+    tags:
+      - "v*"
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: package and smoke test (windows-x64)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    outputs:
+      package: ${{ steps.meta.outputs.package }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Name the package
+        id: meta
+        run: |
+          $sha = (git rev-parse --short=7 HEAD).Trim()
+          $date = (Get-Date).ToUniversalTime().ToString('yyyyMMdd')
+          $tag = ''
+          if ($env:GITHUB_REF_TYPE -eq 'tag') { $tag = $env:GITHUB_REF_NAME + '-' }
+          $package = "PaddockPrincipal-$tag" + "win-x64-$date-$sha"
+          "package=$package" >> $env:GITHUB_OUTPUT
+          "Package name: $package"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the UI
+        working-directory: ui/app
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          npm ci
+          npm run build
+
+      - name: Publish the game (self-contained, win-x64)
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          dotnet publish src/Paddock.Desktop -c Release -r win-x64 --self-contained true -o "$env:RUNNER_TEMP/publish"
+
+      - name: Lay out the package folder
+        env:
+          PACKAGE: ${{ steps.meta.outputs.package }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stage = Join-Path $PWD "dist/$env:PACKAGE"
+          New-Item -ItemType Directory -Path $stage | Out-Null
+          Copy-Item -Path "$env:RUNNER_TEMP/publish/*" -Destination $stage -Recurse
+          Rename-Item -Path (Join-Path $stage 'Paddock.Desktop.exe') -NewName 'PaddockPrincipal.exe'
+          Copy-Item -Path 'strings' -Destination (Join-Path $stage 'strings') -Recurse
+          New-Item -ItemType Directory -Path (Join-Path $stage 'data') | Out-Null
+          Copy-Item -Path 'data/authored' -Destination (Join-Path $stage 'data/authored') -Recurse
+          New-Item -ItemType Directory -Path (Join-Path $stage 'ui/app') -Force | Out-Null
+          Copy-Item -Path 'ui/app/dist' -Destination (Join-Path $stage 'ui/app/dist') -Recurse
+          $readme = @'
+          PADDOCK PRINCIPAL - wersja dla Windows
+          Build: __PACKAGE__
+
+          JAK URUCHOMIĆ
+          1. Rozpakuj CAŁY plik zip do zwykłego folderu, na przykład C:\Gry\PaddockPrincipal.
+             Nie uruchamiaj gry z wnętrza spakowanego pliku i nie rozpakowuj do Program Files
+             (zapisy gry trafiają do folderu "saves" obok programu, więc folder musi być zapisywalny).
+          2. Kliknij dwukrotnie PaddockPrincipal.exe. Okno gry otworzy się samo.
+          3. Nie przenoś samego PaddockPrincipal.exe w inne miejsce. Obok niego muszą zostać
+             foldery strings, data i ui, bo gra czyta z nich swoje dane i ekrany.
+
+          CO ZROBIĆ, GDY WINDOWS OSTRZEGA
+          Program nie jest podpisany certyfikatem, więc Windows SmartScreen może pokazać
+          niebieskie okno "System Windows ochronił ten komputer". To normalne dla gry z
+          niepodpisanym plikiem. Kliknij "Więcej informacji", a potem "Uruchom mimo to".
+          Jeśli plik został pobrany z internetu i nie chce się uruchomić, kliknij go prawym
+          przyciskiem, wybierz Właściwości i zaznacz "Odblokuj" na dole karty Ogólne.
+
+          WYMAGANIA
+          - Windows 10 lub 11 w wersji 64-bitowej.
+          - Microsoft Edge WebView2 Runtime. Windows 10 i 11 mają go w systemie. Gdyby okno
+            pozostało puste lub gra zgłosiła brak WebView2, pobierz "WebView2 Runtime" ze strony
+            Microsoftu i zainstaluj go.
+          - Nie trzeba instalować .NET: wszystko jest w paczce.
+
+          DANE
+          W paczce są tylko dane własne gry (folder data\authored). Nie ma w niej danych
+          historycznych z zewnętrznych źródeł, więc ludzie w świecie są generowani.
+
+          Ta wersja to wczesny build do testów. Błędy zgłaszaj właścicielowi projektu.
+          '@
+          $readme = $readme.Replace('__PACKAGE__', $env:PACKAGE)
+          $utf8Bom = New-Object System.Text.UTF8Encoding($true)
+          [System.IO.File]::WriteAllText((Join-Path $stage 'README.txt'), ($readme -replace "`r?`n", "`r`n"), $utf8Bom)
+          Get-ChildItem -Path $stage | Select-Object Mode, Length, Name | Format-Table -AutoSize
+
+      - name: Zip the package
+        env:
+          PACKAGE: ${{ steps.meta.outputs.package }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Compress-Archive -Path "dist/$env:PACKAGE" -DestinationPath "dist/$env:PACKAGE.zip" -CompressionLevel Optimal
+          "{0:N1} MB" -f ((Get-Item "dist/$env:PACKAGE.zip").Length / 1MB)
+
+      - name: Fail if third-party data or a save is in the zip (PP-041)
+        env:
+          PACKAGE: ${{ steps.meta.outputs.package }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path "dist/$env:PACKAGE.zip"))
+          try { $names = @($zip.Entries | ForEach-Object { $_.FullName.Replace('\', '/') }) } finally { $zip.Dispose() }
+          "$($names.Count) entries in the zip"
+          $root = "$env:PACKAGE/"
+          $bad = @($names | Where-Object {
+              $relative = if ($_.StartsWith($root)) { $_.Substring($root.Length) } else { $_ }
+              $relative -match '(^|/)cache(/|$)' -or
+              $relative -match '\.paddock(-wal|-shm)?$' -or
+              $relative -match '^saves(/|$)' -or
+              ($relative -match '^data/' -and $relative -notmatch '^data/authored(/|$)')
+            })
+          if ($bad.Count -gt 0) {
+            Write-Host '::error::The package holds data that must stay local (data/cache, saves or anything outside data/authored):'
+            $bad | Select-Object -First 30 | ForEach-Object { Write-Host "  $_" }
+            exit 1
+          }
+          $required = @('PaddockPrincipal.exe', 'Photino.Native.dll', 'strings/en.json', 'strings/pl.json', 'ui/app/dist/index.html', 'README.txt')
+          $missing = @($required | Where-Object { $names -notcontains ($root + $_) })
+          if ($missing.Count -gt 0) {
+            Write-Host "::error::Missing from the zip: $($missing -join ', ')"
+            exit 1
+          }
+          if (-not ($names | Where-Object { $_.StartsWith($root + 'data/authored/') })) {
+            Write-Host '::error::data/authored is empty in the zip'
+            exit 1
+          }
+          'No cache, save or foreign data in the package; required files are present.'
+
+      - name: Smoke test (unzip to a clean folder, start the exe, ask the bridge)
+        env:
+          PACKAGE: ${{ steps.meta.outputs.package }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $clean = Join-Path $env:RUNNER_TEMP 'smoke'
+          if (Test-Path $clean) { Remove-Item -Recurse -Force $clean }
+          New-Item -ItemType Directory -Path $clean | Out-Null
+          Expand-Archive -Path "dist/$env:PACKAGE.zip" -DestinationPath $clean
+          $exe = Join-Path $clean "$env:PACKAGE/PaddockPrincipal.exe"
+          if (-not (Test-Path $exe)) { throw "No exe at $exe" }
+
+          $probe = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+          $probe.Start()
+          $port = $probe.LocalEndpoint.Port
+          $probe.Stop()
+          "Starting $exe --dev --port $port"
+
+          $out = Join-Path $env:RUNNER_TEMP 'smoke.out.txt'
+          $err = Join-Path $env:RUNNER_TEMP 'smoke.err.txt'
+          $proc = Start-Process -FilePath $exe -ArgumentList @('--dev', '--port', "$port") -WorkingDirectory (Split-Path $exe) -RedirectStandardOutput $out -RedirectStandardError $err -PassThru
+          try {
+            # 1. The exe prints the URL the bridge listens on. Wait for it.
+            $base = $null
+            for ($i = 0; $i -lt 120 -and -not $base; $i++) {
+              if ($proc.HasExited) { throw "The exe exited early with code $($proc.ExitCode)" }
+              if (Test-Path $out) {
+                $m = [regex]::Match((Get-Content $out -Raw), 'bridge (http://127\.0\.0\.1:\d+/)')
+                if ($m.Success) { $base = $m.Groups[1].Value }
+              }
+              if (-not $base) { Start-Sleep -Milliseconds 500 }
+            }
+            if (-not $base) { throw 'The exe did not print its bridge URL within 60 s' }
+            "Bridge at $base"
+
+            # 2. HTTP: /bridge answers with the WebSocket address.
+            $info = Invoke-RestMethod -Uri ($base + 'bridge') -TimeoutSec 30
+            if (-not $info.ws -or $info.ws -notmatch '^ws://127\.0\.0\.1:\d+/bridge$') { throw "Unexpected /bridge answer: $($info | ConvertTo-Json -Compress)" }
+            "HTTP /bridge -> $($info.ws)"
+
+            # 3. HTTP: the real UI from ui/app/dist is served (not the "UI build is not in ui/app/dist yet" stub).
+            $page = Invoke-WebRequest -Uri $base -UseBasicParsing -TimeoutSec 30
+            if ($page.Content -notmatch 'id="app"' -or $page.Content -match 'is not in ui/app/dist') { throw 'The UI page is missing or is the placeholder' }
+            $script = [regex]::Match($page.Content, 'src="(/assets/[^"]+\.js)"')
+            if (-not $script.Success) { throw 'index.html does not reference a built script' }
+            $asset = Invoke-WebRequest -Uri ($base.TrimEnd('/') + $script.Groups[1].Value) -UseBasicParsing -TimeoutSec 30
+            if ($asset.RawContentLength -lt 1000) { throw 'The UI script is empty' }
+            "HTTP / -> UI page and $($script.Groups[1].Value) ($($asset.RawContentLength) bytes)"
+
+            # 4. WebSocket: two real bridge queries, the second one reads data/authored through the exe.
+            $ws = [System.Net.WebSockets.ClientWebSocket]::new()
+            $cts = [System.Threading.CancellationTokenSource]::new([TimeSpan]::FromSeconds(90))
+            $ws.ConnectAsync([Uri]$info.ws, $cts.Token).GetAwaiter().GetResult()
+            function Invoke-Bridge([string]$json) {
+              $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+              $ws.SendAsync([ArraySegment[byte]]::new($bytes), [System.Net.WebSockets.WebSocketMessageType]::Text, $true, $cts.Token).GetAwaiter().GetResult()
+              $buffer = New-Object byte[] 65536
+              $stream = New-Object System.IO.MemoryStream
+              do {
+                $r = $ws.ReceiveAsync([ArraySegment[byte]]::new($buffer), $cts.Token).GetAwaiter().GetResult()
+                $stream.Write($buffer, 0, $r.Count)
+              } until ($r.EndOfMessage)
+              [System.Text.Encoding]::UTF8.GetString($stream.ToArray()) | ConvertFrom-Json
+            }
+
+            $session = Invoke-Bridge '{"id":"smoke-1","kind":"query","name":"session","args":{"managerId":"human:player"}}'
+            if ($session.id -ne 'smoke-1' -or $session.ok -ne $true) { throw "session query failed: $($session | ConvertTo-Json -Depth 5 -Compress)" }
+            "WS session -> ok, started=$($session.data.started)"
+
+            $teams = Invoke-Bridge '{"id":"smoke-2","kind":"query","name":"teams","args":{"managerId":"human:player","year":1955}}'
+            if ($teams.ok -ne $true) { throw "teams query failed: $($teams | ConvertTo-Json -Depth 5 -Compress)" }
+            $count = @($teams.data.teams).Count
+            if ($count -lt 1) { throw 'teams query returned no teams: data/authored was not read' }
+            $withDrivers = @($teams.data.teams | Where-Object { @($_.drivers).Count -gt 0 }).Count
+            "WS teams (1955) -> $count teams, $withDrivers with a preview of drivers, problem=$($teams.data.problem | ConvertTo-Json -Compress)"
+            $ws.Dispose()
+          }
+          finally {
+            if (-not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+            $proc.WaitForExit(15000) | Out-Null
+            '--- exe stdout ---'
+            if (Test-Path $out) { Get-Content $out }
+            '--- exe stderr ---'
+            if (Test-Path $err) { Get-Content $err }
+          }
+          if (-not $proc.HasExited) { throw 'The exe is still running after Stop-Process' }
+          'Smoke test passed and the exe was stopped.'
+
+      - name: Upload the zip as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.package }}
+          path: dist/${{ steps.meta.outputs.package }}.zip
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: attach to the GitHub Release
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download the zip
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.package }}
+          path: release
+
+      - name: Create the release if needed and upload the zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" release/*.zip --repo "$GITHUB_REPOSITORY" --clobber

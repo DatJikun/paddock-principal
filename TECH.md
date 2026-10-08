@@ -28,6 +28,7 @@ Awaryjnie, jeśli Photino sprawi problem: WinForms + WebView2, ten sam frontend.
 - **UI nie ma logiki gry** i nie mutuje stanu. Wszystko idzie przez komendy (INV-001).
 - W trybie deweloperskim ten sam most działa przez lokalny HTTP/WebSocket, więc UI można otworzyć w zwykłej przeglądarce (szybka iteracja, zrzuty ekranu).
 - Typy TS generowane z DTO w C#, żeby most się nie rozjeżdżał.
+- **Paczka dla Windows (#296):** `.github/workflows/release.yml` na `windows-latest` buduje UI (`ui/app`), robi `dotnet publish src/Paddock.Desktop -c Release -r win-x64 --self-contained true` (bez single-file i bez trimowania) i układa w jednym folderze `PaddockPrincipal.exe`, `strings/`, `data/authored/` i `ui/app/dist/`, bo `BridgeHost.RepositoryRoot()` szuka właśnie takiego układu. Do zipa trafia README.txt po polsku. Zip nigdy nie zawiera `data/cache/` ani zapisów (PP-041): krok workflow sprawdza listę plików w gotowym zipie i kończy się błędem, gdy znajdzie coś poza `data/authored/`. Smoke test rozpakowuje zip do czystego folderu, uruchamia exe z `--dev --port`, sprawdza `/bridge`, stronę UI oraz zapytania `session` i `teams` przez WebSocket (to drugie czyta `data/authored` i działa bez cache, bo ludzie są wtedy generowani), po czym zatrzymuje proces. Smoke test nie otwiera okna Photino. Wyzwalacze: `workflow_dispatch` (opcjonalny `ref`), tag `v*` (dołącza zip do GitHub Release; tylko ten job ma `contents: write`) oraz pull request zmieniający sam workflow (buduje i testuje, nie publikuje). Bez instalatora, podpisu i autoaktualizacji.
 
 ---
 

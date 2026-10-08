@@ -189,24 +189,26 @@ Czy pensja jest zbyt silnym albo zbyt słabym argumentem?
 
 ## 6. Auto: koncepcja
 
-Auto to zestaw osiągów, a jego koncepcja to sześć osi i każda ma swoją cenę.
+Auto to zestaw osiągów, a jego koncepcja to sześć osi i każda ma swoją cenę. Koncepcja ma nazwę zespołu i rok, w którym weszła do auta (na przykład „Maserati 56”), i może jeździć kilka sezonów.
 
 ```wybory
 Ewolucja czy rewolucja | bezpieczniejszy start albo wyższy sufit z większym rozrzutem
+Kierunek aerodynamiki | na proste, wyważona albo na zakręty, z liczbami dla prostych i zakrętów
 Kierowca do auta | rozjazd w balansie, trakcji i stylu hamowania kosztuje {CarEstimates.PaceSecondsPerMismatch|s} na okrążeniu za jednostkę
-Nowa koncepcja | startuje ze zrozumieniem {CarEstimates.NewConceptUnderstanding} na 100 i rośnie z kilometrami i pracą
+Nowa koncepcja | startuje ze zrozumieniem {CarEstimates.NewConceptUnderstanding} na 100 i rośnie z testami i kilometrami
 ```
 
 ```porownanie Ewolucja | Rewolucja
-Średni sufit | {CarEstimates.EvolutionCeilingMean} | {CarEstimates.RevolutionCeilingMean}
-Rozrzut sufitu | ±{CarEstimates.EvolutionCeilingSd} | ±{CarEstimates.RevolutionCeilingSd}
-Auto na start | {CarEstimates.EvolutionStartFraction|%} sufitu | {CarEstimates.RevolutionStartFraction|%} sufitu
+Sufit nowej koncepcji względem obecnej | +{DevelopmentEstimates.EvolutionCeilingShift} | +{DevelopmentEstimates.RevolutionCeilingShift}
+Rozrzut sufitu | ±{DevelopmentEstimates.EvolutionCeilingSd} | ±{DevelopmentEstimates.RevolutionCeilingSd}
+Auto na start | {DevelopmentEstimates.EvolutionStartFraction|%} sufitu | {DevelopmentEstimates.RevolutionStartFraction|%} sufitu
 ```
 
 ```pola
 Auto na starcie kariery | startuje ze swoją siłą, a rozwój może ją podnieść o {CarEstimates.InitialHeadroom} punktów
 Osiągi | moc · docisk · przyczepność mechaniczna · hamowanie · niezawodność | docisk ograniczony epoką
 Osie koncepcji | aero · filozofia · okno pracy · chłodzenie · opony · silnik
+Zrozumienie auta | brak zrozumienia kosztuje do {CarEstimates.UnderstandingMaxLoss} punktów w każdym obszarze poza mocą
 ```
 
 ```wykres koncepcja
@@ -223,42 +225,39 @@ Czy niepewność co do sufitu koncepcji jest ciekawa, czy frustrująca?
 
 ## 7. Rozwój auta
 
-Zasoby dzielisz Ty, a konkretne projekty wybierają inżynierowie.
+Części do auta, które jedzie, wybierają i dowożą inżynierowie, a Ty decydujesz o trzech rzeczach: jak podzielić ludzi, jaki charakter ma mieć następna koncepcja i kiedy ją wprowadzić. Wynik zależy od ludzi: od umiejętności i od innowacyjności, więc najdroższy sztab nie zawsze zbuduje najlepsze auto.
 
 ```wybory
-Podział zasobów | bieżące auto (domyślnie {DevelopmentEstimates.DefaultCurrentPercent|%%}), konto rozwoju ({DevelopmentEstimates.DefaultAccountPercent|%%}) albo przyszły rok ({DevelopmentEstimates.DefaultNextYearPercent|%%})
-Priorytety obszarów | aerodynamika, podwozie, niezawodność, opony, każdy w skali 0–10
-Zatwierdzić koncepcję czy czekać | punkty teraz albo lepsze auto później
-Inżynier prosi o czas | trzymać plan albo ciąć projekt (zostaje to, co zrobiono)
+Podział ludzi | suwak między autem, które jedzie, a następną koncepcją (domyślnie {DevelopmentEstimates.DefaultNextYearPercent|%%} na koncepcję)
+Charakter następnej koncepcji | ewolucja albo rewolucja i kierunek aerodynamiki, z liczbami przy każdej opcji
+Kiedy wprowadzić gotową koncepcję | od razu albo poczekać; budowa trwa kilka tygodni
 ```
 
 ```kroki
-Gotowa | decyzja w skrzynce; po {DevelopmentEstimates.ConceptDecisionDays|dni} bez odpowiedzi rozwijamy dalej
-Produkcja | koszt {DevelopmentEstimates.ConceptProductionCostShare|%} kosztu rozwoju, płatny od razu, bez anulowania
-Stare auto jedzie | wyścigi do końca produkcji
-Nowe auto | pierwszego dnia po produkcji, nigdy w środku weekendu
+Projekt | powstaje przez {DevelopmentEstimates.ConceptDesignDays1955|dni} w 1955 przy domyślnym podziale; większy udział ludzi skraca czas
+Gotowa | decyzja w skrzynce z zakresem sufitu, zyskiem, poziomem na starcie, czasem budowy, kosztem i pierwszym wyścigiem; po {DevelopmentEstimates.ConceptDecisionDays|dni} bez odpowiedzi czekamy
+Budowa | koszt {DevelopmentEstimates.ConceptProductionCostShare|%} kosztu rozwoju, płatny od razu, bez anulowania
+Stare auto jedzie | wyścigi do końca budowy
+Nowa koncepcja | pierwszego dnia po budowie, nigdy w środku weekendu; zrozumienie auta spada
 ```
 
 ```pola
-Konto rozwoju | wiedza na później | traci wartość, gdy rywale idą do przodu
-Zysk | część dystansu do sufitu koncepcji | blisko sufitu każda dziesiątka kosztuje więcej
+Zasięg koncepcji | może jeździć kilka sezonów, a co sezon traci {DevelopmentEstimates.ConceptAgingPerSeason} pkt sufitu
+Zysk części | część dystansu do sufitu koncepcji | blisko sufitu każda dziesiątka kosztuje więcej
+Przełom | szansa {DevelopmentEstimates.BreakthroughBase|%} u każdego inżyniera, u najbardziej innowacyjnych wyraźnie większa | część daje wtedy dużo więcej niż zakładano
 Ludzie | skracają czas | nie podnoszą jakości
-Porażka | {DevelopmentEstimates.BaseRisk|%} szansy przed umiejętnościami | koncepcja {DevelopmentEstimates.ConceptRiskMultiple}× ryzykowniejsza, a w 1950 jeszcze {DevelopmentEstimates.EarlyConceptRiskScale}×
-Czas koncepcji | {DevelopmentEstimates.ConceptDesignDays1955|dni} w 1955, {DevelopmentEstimates.ConceptDesignDays2025|dni} w 2025 | przy typowej załodze epoki; zysk w 1950 to {DevelopmentEstimates.EarlyGainScale} późniejszego
-Projekty naraz | 1 na {DevelopmentEstimates.HeadcountPerSlot|osób} inżynierów | najwyżej {DevelopmentEstimates.MaxSlots}
-```
-
-```wykres konto-rozwoju
-Zmiana przepisów zabiera dodatkową część konta.
+Porażka | {DevelopmentEstimates.BaseRisk|%} szansy przed umiejętnościami | koncepcja {DevelopmentEstimates.ConceptRiskMultiple}× ryzykowniejsza, a rewolucja jeszcze bardziej
+Zakresy | auto widzisz w zakresach z oceny sztabu technicznego | lepszy sztab, węższy zakres
+Rywale | czołowa trójka tylko jako szersze zakresy
 ```
 
 ```wykres czas-produkcji
 ```
 
 ```pytania
-Czy podział na bieżące auto, konto i przyszły rok jest zrozumiały bez tłumaczenia?
-Czy wolisz wybierać konkretne projekty zamiast ustawiać priorytety?
-Czy czekanie z zatwierdzeniem koncepcji bywa dla Ciebie prawdziwym dylematem?
+Czy suwak i charakter następnej koncepcji są zrozumiałe bez tłumaczenia?
+Czy trzymanie jednej koncepcji kilka sezonów jest czasem lepsze od zmiany?
+Czy czekanie z wprowadzeniem koncepcji bywa dla Ciebie prawdziwym dylematem?
 ```
 
 ---
@@ -398,7 +397,7 @@ Przed wyścigiem przygotowujesz zespół, w wyścigu pracują Twoi ludzie, a wyn
 Strateg | steruje postojami i tempem; słabszy gorzej ocenia zużycie opon i plany. Jego umiejętność to w {RaceStaffEstimates.StrategyWeight|%} strategia, reszta to „Reakcja”; atrybut „Pogoda” decyduje o trafności prognozy. Rywale mają swoich strategów na tych samych zasadach
 Ekipa w boksie | jej jakość to atrybut „Pit stopy” szefa mechaników; od niej zależy ryzyko błędu: +{PitConstants.ErrorMinSeconds|s}–{PitConstants.ErrorMaxSeconds|s} straty
 Kierowca i auto pod tor | tor nagradza różne parametry auta
-Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, które zwalniają w zakrętach, klasyfikacja, przebieg, a w radiu strateg i Twoi kierowcy; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości. Auto-pauza sama zatrzymuje wyścig przy fladze, deszczu i ważnej wieści o Twoim aucie, a komunikat pokazuje, co się stało. Kropka przy różnicy w klasyfikacji to walka o pozycję
+Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, które zwalniają w zakrętach, klasyfikacja, przebieg, a w radiu strateg i Twoi kierowcy; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości. Auto-pauza sama zatrzymuje wyścig przy fladze, deszczu i ważnej wieści o Twoim aucie, a komunikat pokazuje, co się stało. Kropka przy różnicy w klasyfikacji to walka o pozycję. Klasyfikację i panel boksu poszerzysz albo zwęzisz, przeciągając ich wewnętrzną krawędź; dwuklik przywraca szerokość domyślną
 Szybki wyścig | z menu głównego, bez kariery: wybierasz sezon, zespół i rundę z kalendarza tego sezonu, a wyścig od razu rusza w trybie wyścigu. Świat jest taki, w jakim zaczęłaby się kariera w tym roku, wyścig liczy się według tych samych zasad, a po mecie wracasz do menu. Z szybkiego wyścigu możesz też wyjść w każdej chwili przyciskiem „Wyjdź” obok tempa; gra pyta wtedy, czy na pewno. Kariera w pamięci zostaje nietknięta i nic się nie zapisuje
 Polecenia z boksu | w szybkim wyścigu możesz przejąć auto od stratega. Tempo kierowcy ma pięć stopni, od pełnego oszczędzania do tempa kwalifikacyjnego, a „Strateg” oddaje mu tempo z powrotem. Silnik ma trzy tryby: oszczędny, normalny i pełną moc. Polecenie zespołowe „Przepuść kolegę” każe kierowcy oddać miejsce koledze z zespołu, gdy ten jedzie tuż za nim. Tempo, silnik i polecenie zespołowe działają od następnego okrążenia. Zjazd: wybierasz opony i klikasz „Potwierdź zjazd”; auto zjeżdża na końcu okrążenia, a jeśli już minęło wjazd do boksu (po {LiveRaceOrders.PitCallShare|%} okrążenia jest na to za późno), okrążenie później. Zjazd można odwołać, dopóki auto nie minie wjazdu do boksu. Co już widziałeś, nie zmienia się: polecenie działa tylko na dalszą część wyścigu
 Polecenia w karierze | na razie zablokowane: wynik wyścigu kariery jest zapisany w dniu wyścigu, zanim go obejrzysz, więc boks pokazuje dane aut, ale nie przyjmuje poleceń

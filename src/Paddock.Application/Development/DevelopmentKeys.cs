@@ -26,6 +26,9 @@ public static class DevelopmentKeys
     public const string BadPriority = "development.error.badPriority";
 
     [TranslationKey]
+    public const string BadCharacter = "development.error.badCharacter";
+
+    [TranslationKey]
     public const string UnknownProject = "development.error.unknownProject";
 
     [TranslationKey]
@@ -125,6 +128,79 @@ public static class DevelopmentKeys
 
     [TranslationKey]
     public const string ForecastNote = "development.view.forecastNote";
+
+    // ---- Car development v2 (PP-066): what the engineers report. Subjects of a part are built from a variant and an area. ----
+
+    [TranslationKey]
+    public const string PartOkAero = "development.inbox.part.ok.Aero";
+
+    [TranslationKey]
+    public const string PartOkHandling = "development.inbox.part.ok.Handling";
+
+    [TranslationKey]
+    public const string PartOkReliability = "development.inbox.part.ok.Reliability";
+
+    [TranslationKey]
+    public const string PartBigAero = "development.inbox.part.big.Aero";
+
+    [TranslationKey]
+    public const string PartBigHandling = "development.inbox.part.big.Handling";
+
+    [TranslationKey]
+    public const string PartBigReliability = "development.inbox.part.big.Reliability";
+
+    [TranslationKey]
+    public const string PartFailedAero = "development.inbox.part.failed.Aero";
+
+    [TranslationKey]
+    public const string PartFailedHandling = "development.inbox.part.failed.Handling";
+
+    [TranslationKey]
+    public const string PartFailedReliability = "development.inbox.part.failed.Reliability";
+
+    [TranslationKey]
+    public const string NewConceptWithRace = "development.inbox.newConcept.subject";
+
+    [TranslationKey]
+    public const string NewConceptNoRace = "development.inbox.newConcept.subject.noRace";
+
+    [TranslationKey]
+    public const string NewConceptBigWithRace = "development.inbox.newConcept.big.subject";
+
+    [TranslationKey]
+    public const string NewConceptBigNoRace = "development.inbox.newConcept.big.subject.noRace";
+
+    [TranslationKey]
+    public const string NewConceptCommitLabel = "development.inbox.newConcept.commit.label";
+
+    [TranslationKey]
+    public const string NewConceptCommitConsequence = "development.inbox.newConcept.commit.consequence";
+
+    [TranslationKey]
+    public const string NewConceptWaitLabel = "development.inbox.newConcept.wait.label";
+
+    [TranslationKey]
+    public const string NewConceptWaitConsequence = "development.inbox.newConcept.wait.consequence";
+
+    [TranslationKey]
+    public const string ConceptFailedSubject = "development.inbox.conceptFailed.subject";
+
+    [TranslationKey]
+    public const string ConceptLiveSubject = "development.inbox.conceptLive.subject";
+
+    /// <summary>Inbox kind of a finished part (an information item). A stable code, not text.</summary>
+    public const string PartKind = "development.part";
+
+    public const string ConceptFailedKind = "development.conceptFailed";
+
+    public const string ConceptLiveKind = "development.conceptLive";
+
+    public static string PartSubject(string variant, string area) => "development.inbox.part." + variant + "." + area;
+
+    public static string NewConceptSubject(bool breakthrough, bool hasRace) =>
+        breakthrough
+            ? (hasRace ? NewConceptBigWithRace : NewConceptBigNoRace)
+            : (hasRace ? NewConceptWithRace : NewConceptNoRace);
 
     /// <summary>Inbox kind of the engineers' reply to a changed split. A stable code, not text.</summary>
     public const string InboxKind = "development.reply";

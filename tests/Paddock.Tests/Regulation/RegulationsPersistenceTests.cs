@@ -211,9 +211,12 @@ public sealed class RegulationsPersistenceTests : IDisposable
     }
 
     [Fact]
-    public void TheCurrentSchemaVersionIsTheNextOneAfterTheInfrastructureSection()
+    public void TheVotingMigrationIsRegisteredUnderItsOwnNumber()
     {
-        Assert.Equal(28, SaveMigrations.CurrentVersion);
+        // Not pinned to the latest version: later migrations (another PR) must not break this test.
+        Assert.Equal(29, new V029_RegulationVoting().Version);
+        Assert.Contains(SaveMigrations.Production, migration => migration is V029_RegulationVoting && migration.Version == 29);
+        Assert.True(SaveMigrations.CurrentVersion >= 29);
         Assert.Equal(2, new RegulationsSectionStore().SchemaVersion);
         Assert.Equal(2, RegulationsSection.Create(1955, new Dictionary<string, string> { ["a"] = "b" }, []).SchemaVersion);
     }

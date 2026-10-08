@@ -36,6 +36,24 @@ public static class DevelopmentCommandCodecs
                     TyresPriority = fields.Int32("tyres"),
                 };
             }),
+        CommandCodecEntry.For<SetNextConceptCommand>(
+            "development.setNextConcept/1",
+            command => FlatJson.Write(
+                ("organization", command.OrganizationId),
+                ("philosophy", command.PhilosophyMilli),
+                ("aero", command.AeroMilli)),
+            (body, manager, issued) =>
+            {
+                var fields = FlatJson.Read(body, "organization", "philosophy", "aero");
+                return new SetNextConceptCommand
+                {
+                    ManagerId = manager,
+                    IssuedOn = issued,
+                    OrganizationId = fields.String("organization"),
+                    PhilosophyMilli = fields.Int32("philosophy"),
+                    AeroMilli = fields.Int32("aero"),
+                };
+            }),
         CommandCodecEntry.For<DeployConceptCommand>(
             "development.deployConcept/1",
             command => FlatJson.Write(

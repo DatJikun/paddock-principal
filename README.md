@@ -9,6 +9,19 @@ Manager motorsportu, w którym możesz zacząć karierę w 1950 roku, prowadzić
 - Pętla kariery (faza 4) jest w toku, część zadań czeka na decyzje właściciela.
 - Klikalny prototyp UI w wersji szkicowej: `ui/prototype/`, uwagi w `ui/HANDOFF_UI.md`.
 
+## Jak uruchomić grę (Windows)
+
+Gra jest w wersji do testów i nie ma instalatora. Dostajesz zwykły plik zip z programem, w którym jest wszystko, co potrzebne. Nie musisz instalować .NET ani niczego budować.
+
+1. Pobierz zip. Są dwa miejsca:
+   - **Wydanie na GitHubie:** zakładka Releases w repozytorium, plik `PaddockPrincipal-…-win-x64-….zip`. Pojawia się tylko przy oznaczonych wersjach (tagi `v…`).
+   - **Zakładka Actions:** w workflow „Windows release” wybierz ostatni zielony przebieg i pobierz plik z sekcji Artifacts. GitHub pakuje go jeszcze raz, więc po pobraniu rozpakuj najpierw tę zewnętrzną paczkę. Nowy build uruchomisz tam przyciskiem „Run workflow”. W nazwie jest data i skrót commita, więc wiadomo, który to build.
+2. Rozpakuj cały zip do zwykłego folderu (na przykład `C:\Gry\PaddockPrincipal`, nie do Program Files). Zapisy gry trafiają do folderu `saves` obok programu.
+3. Kliknij dwukrotnie `PaddockPrincipal.exe`. Okno gry otwiera się samo.
+4. Jeśli Windows pokaże ostrzeżenie SmartScreen, to dlatego, że program nie jest podpisany. Kliknij „Więcej informacji”, a potem „Uruchom mimo to”.
+
+Potrzebny jest Windows 10 lub 11 (64-bit) z WebView2, który system ma domyślnie. W paczce są tylko dane własne gry, bez danych historycznych z zewnętrznych źródeł, więc ludzie w świecie są generowani. To samo, krócej, jest w pliku `README.txt` w środku zipa.
+
 ## Dokumentacja
 
 | Plik | Co zawiera |

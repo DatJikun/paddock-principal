@@ -747,6 +747,8 @@ public sealed partial class CareerBridge
                 return SponsorResponse(args, issued, out error);
             case "setDevelopmentSplit":
                 return Split(args, issued, out error);
+            case "setNextConcept":
+                return NextConcept(args, issued, out error);
             case "commitConcept":
                 return Concept(args, issued, out error);
             case "upgradeFacility":
@@ -906,28 +908,35 @@ public sealed partial class CareerBridge
     {
         error = null;
         var organization = TextOf(args, "organizationId");
-        if (organization is null
-            || IntOf(args, "currentPercent") is not int current
-            || IntOf(args, "accountPercent") is not int account
-            || IntOf(args, "nextYearPercent") is not int next)
+        if (organization is null || IntOf(args, "nextPercent") is not int next)
         {
             error = TranslationMessage.Of(BridgeKeys.BadMessage);
             return null;
         }
 
+        // PP-066: the player sets one slider. The account and the area priorities are not the player's any more.
         return new SetDevelopmentSplitCommand
         {
             ManagerId = Human,
             IssuedOn = issued,
             OrganizationId = organization,
-            CurrentPercent = current,
-            AccountPercent = account,
+            CurrentPercent = 100 - next,
+            AccountPercent = 0,
             NextYearPercent = next,
-            AeroPriority = IntOf(args, "aeroPriority") ?? DevelopmentEstimates.DefaultPriority,
-            ChassisPriority = IntOf(args, "chassisPriority") ?? DevelopmentEstimates.DefaultPriority,
-            ReliabilityPriority = IntOf(args, "reliabilityPriority") ?? DevelopmentEstimates.DefaultPriority,
-            TyresPriority = IntOf(args, "tyresPriority") ?? DevelopmentEstimates.DefaultPriority,
         };
+    }
+
+    private ICommand? NextConcept(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        if (organization is null || IntOf(args, "philosophyMilli") is not int philosophy || IntOf(args, "aeroMilli") is not int aero)
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new SetNextConceptCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization, PhilosophyMilli = philosophy, AeroMilli = aero };
     }
 
     private ICommand? Facility(JsonElement args, DateOnly issued, out TranslationMessage? error)

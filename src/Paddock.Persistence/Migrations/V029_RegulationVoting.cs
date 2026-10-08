@@ -15,9 +15,9 @@ namespace Paddock.Persistence;
 /// historical path is untouched: a career with historical rules never writes the section, so its world hash does not change.
 /// </para>
 /// </summary>
-public sealed class V028_RegulationVoting : ISaveMigration
+public sealed class V029_RegulationVoting : ISaveMigration
 {
-    public int Version => 28;
+    public int Version => 29;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

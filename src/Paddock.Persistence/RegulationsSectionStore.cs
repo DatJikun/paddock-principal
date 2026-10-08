@@ -8,7 +8,7 @@ using static Paddock.Persistence.SectionRows;
 namespace Paddock.Persistence;
 
 /// <summary>
-/// Saves the <c>regulations</c> section (schema 2) into the tables made by <see cref="V028_RegulationVoting"/>, and reads schema 1 from
+/// Saves the <c>regulations</c> section (schema 2) into the tables made by <see cref="V029_RegulationVoting"/>, and reads schema 1 from
 /// the tables made by <see cref="V020_RaceSections"/> (one series, no teams, no ballot). A save writes the new tables and empties the
 /// old ones, so a section is never stored twice.
 /// </summary>

@@ -1182,9 +1182,8 @@ public static class PlayCommand
             {
                 Say(
                     PlayKeys.DevLine,
-                    ("current", own.CurrentPercent.ToString(CultureInfo.InvariantCulture)),
-                    ("account", own.AccountPercent.ToString(CultureInfo.InvariantCulture)),
-                    ("next", own.NextYearPercent.ToString(CultureInfo.InvariantCulture)));
+                    ("current", (100 - own.Next.SharePercent).ToString(CultureInfo.InvariantCulture)),
+                    ("next", own.Next.SharePercent.ToString(CultureInfo.InvariantCulture)));
             }
         }
 

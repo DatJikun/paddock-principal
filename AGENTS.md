@@ -55,3 +55,11 @@ A mechanic is not ready if any of these is true:
 - Small, focused commits and PRs with a clear "why". Do not mix unrelated changes.
 - Do not commit generated caches (`data/cache/`), saves (`*.paddock`) or
   third-party data. Jolpica/Ergast data is CC BY-NC-SA and stays local (PP-041).
+
+## Cursor Cloud specific instructions
+
+- The .NET 10 SDK is not in the base image. Environment `install` places it in `/usr/local/share/dotnet` and links `/usr/local/bin/dotnet`. `global.json` requests 10.0.100 with `rollForward: latestFeature`, so any 10.0 SDK satisfies it.
+- CI checks, from the repo root: `dotnet build --configuration Release`, then `dotnet test --configuration Release --no-build`, then `dotnet run --project tools/Paddock.DataPipeline --configuration Release --no-build -- validate-authored`. The suite does not need the Jolpica cache.
+- The clickable UI is the static prototype in `ui/prototype/`, not the Photino desktop host (WebView2, Windows). `start` serves it when port 5178 is free: `python3 -m http.server 5178 --bind 0.0.0.0 --directory ui/prototype`. Open `http://127.0.0.1:5178/`.
+- A short core check: `dotnet run --project tools/Paddock.SimRunner --configuration Release -- race --year 1950 --round 1 --seed 1 --lang en`.
+- Do not commit `data/cache/`, `*.paddock`, `bin/`, or `obj/`.

@@ -223,17 +223,23 @@ export interface DriverProfileView {
   attributes: KnownAttributeView[];
   contract: DriverContractView | null;
   contractEnd: string | null;
+  female: boolean;
   found: boolean;
   freeAgent: boolean;
   name: string;
   nationality: string;
   organizationId: string | null;
   organizationName: string | null;
+  overall: number | null;
   own: boolean;
   personId: string;
   potential: KnownAttributeView | null;
+  salaryGuide: SalaryGuideView | null;
   seasons: DriverSeasonView[];
   seat: string | null;
+  upcoming: DriverContractView | null;
+  upcomingOrganizationName: string | null;
+  upcomingStart: string | null;
 }
 
 export interface DriverSeasonView {
@@ -511,12 +517,16 @@ export interface MarketPersonView {
   age: number;
   attributes: KnownAttributeView[];
   contractEnd: string | null;
+  female: boolean;
   freeAgent: boolean;
+  kind: string;
   name: string;
   nationality: string;
   organizationId: string | null;
   organizationName: string | null;
+  overall: number | null;
   personId: string;
+  salary: number;
   seat: string | null;
 }
 
@@ -547,6 +557,7 @@ export interface NegotiationSubjectView {
 export interface NegotiationView {
   counter: OfferTerms | null;
   deadline: IsoDate;
+  female: boolean;
   history: NegotiationRoundView[];
   id: string;
   interest: TranslationMessage;
@@ -556,13 +567,16 @@ export interface NegotiationView {
   nationality: string;
   offer: OfferTerms | null;
   opened: IsoDate;
+  overall: number | null;
   person: string;
   personName: string;
   proposer: string;
   reasons: TranslationMessage[];
   respondOn: IsoDate | null;
   roundsUsed: number;
+  salaryGuide: SalaryGuideView | null;
   signedContract: string | null;
+  startsOn: IsoDate | null;
   status: NegotiationStatus;
   statusText: TranslationMessage;
   subject: NegotiationSubjectView;
@@ -984,8 +998,10 @@ export interface RaceRowView {
 export interface RenewContractCall {
   contractId: string;
   exerciseOption: boolean;
+  exitWorseThan: number | null;
   managerId: string;
-  pointsBonus: number | null;
+  optionHolder: string | null;
+  optionYears: number | null;
   salary: number | null;
   seat: string | null;
   titleBonus: number | null;
@@ -1036,6 +1052,14 @@ export interface RivalBandView {
 export interface RivalCarView {
   carId: string;
   organizationId: string;
+}
+
+export interface SalaryGuideView {
+  max: number;
+  min: number;
+  suggested: number;
+  suggestedHigh: number;
+  suggestedLow: number;
 }
 
 export interface SaveCareerCall {
@@ -1191,13 +1215,16 @@ export interface StaffPersonView {
   attributes: StaffAttributeView[] | null;
   contractEnd: string | null;
   driverId: string | null;
+  female: boolean;
   name: string;
   nationality: string;
   organizationId: string;
+  overall: number | null;
   ownTeam: boolean;
   personId: string;
   relationship: number | null;
   role: string;
+  salary: number;
 }
 
 export interface StandingRowView {
@@ -1227,7 +1254,6 @@ export interface SubmitOfferCall {
   negotiationId: string;
   optionHolder: string | null;
   optionYears: number | null;
-  pointsBonus: number;
   salary: number;
   seat: string | null;
   titleBonus: number;

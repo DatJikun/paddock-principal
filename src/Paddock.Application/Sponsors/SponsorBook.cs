@@ -113,6 +113,12 @@ public sealed class KnownNegotiatorSkills : INegotiatorSkills
     public int Skill(WorldState world, OrganizationId organization, GameDate on)
     {
         ArgumentNullException.ThrowIfNull(world);
+        // The commercial director is hidden for now (#265): every team counts with an average one, so none is penalised.
+        if (!StaffCatalogue.IsTeamRoster(StaffRole.CommercialDirector))
+        {
+            return SponsorEstimates.NeutralSkill;
+        }
+
         var director = Read(world, organization, on, StaffRole.CommercialDirector, "negotiation", "marketing");
         return director ?? Read(world, organization, on, StaffRole.TeamPrincipal, "negotiation", "business") ?? 0;
     }

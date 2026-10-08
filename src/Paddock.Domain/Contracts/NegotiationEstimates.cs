@@ -141,6 +141,12 @@ public static class NegotiationEstimates
     /// <summary>ESTIMATE: extra days of response delay, drawn from the Market stream (0 up to this value, inclusive).</summary>
     public const int ResponseDelayJitterDays = 3;
 
+    /// <summary>
+    /// ESTIMATE: days a person with professionalism 1 takes longer than one with professionalism 20 (#265). A professional person
+    /// answers soon; a careless one lets the offer lie. The answer day depends on the person, not on a fixed date.
+    /// </summary>
+    public const int ResponseDelayCarelessDays = 6;
+
     /// <summary>ESTIMATE: a person under contract may be approached only in the last this-many days of it.</summary>
     public const int NegotiationWindowDays = 365;
 
@@ -176,6 +182,20 @@ public static class NegotiationEstimates
 
     /// <summary>ESTIMATE: pay of a zero-star person as a share of the midfield benchmark.</summary>
     public const double MinPayShare = 0.2;
+
+    // --- The salary slider of the offer form (#265). Shares of the reference salary the team believes the person is worth. ---
+
+    /// <summary>ESTIMATE: lowest salary the slider offers, as a share of the reference.</summary>
+    public const double SalarySliderMinShare = 0.5;
+
+    /// <summary>ESTIMATE: highest salary the slider offers. Paying double the reference is the most that adds utility (<see cref="SalaryScoreMax"/>).</summary>
+    public const double SalarySliderMaxShare = 2.0;
+
+    /// <summary>ESTIMATE: start of the suggested range on the slider, as a share of the reference.</summary>
+    public const double SalarySuggestedLowShare = 0.85;
+
+    /// <summary>ESTIMATE: end of the suggested range on the slider, as a share of the reference.</summary>
+    public const double SalarySuggestedHighShare = 1.25;
 
     // --- Parallel work, ending a contract ---
 

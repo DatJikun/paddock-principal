@@ -54,7 +54,8 @@ public static class PoolFillers
             false,
             null,
             [PersonRole.Driver],
-            PersonTruth.FromDriver(driver.Attributes, driver.PotentialAttributes));
+            PersonTruth.FromDriver(driver.Attributes, driver.PotentialAttributes),
+            driver.IsFemale == true);
         return new PoolFiller(spec, driver.Id);
     }
 

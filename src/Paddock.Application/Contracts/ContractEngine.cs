@@ -401,8 +401,20 @@ public sealed class ContractEngine
         var negotiation = _book.Section.Find(negotiationId) ?? throw new InvalidOperationException("Submit ran for a command that should have been rejected.");
         var nudge = negotiation.WouldBeNudge(terms);
         var changed = negotiation.WithOffer(terms, today);
+        // The person's answer day is fixed now, so the manager can be told when to expect it (#265).
+        var delay = NegotiationCore.ResponseDelayDays(
+            _book.Environment.Personality.TraitsOf(negotiation.Counterparty),
+            string.Create(CultureInfo.InvariantCulture, $"delay:{negotiation.Id}:{changed.RoundsUsed}"));
+        var respondOn = today.AddDays(delay);
+        if (respondOn > changed.Deadline)
+        {
+            respondOn = changed.Deadline;
+        }
+
+        changed = changed.WithResponseScheduled(respondOn);
         _book.Update(_book.Section.Replace(changed));
         CloseResponseItems(negotiation.Id, OptionRevise, today);
+        PostWaiting(changed, respondOn, today);
         return [new OfferSubmitted(manager, InboxBook.ToDateOnly(today), negotiation.Id, changed.RoundsUsed, nudge)];
     }
 
@@ -633,7 +645,7 @@ public sealed class ContractEngine
             }
             : new[]
             {
-                new InboxOption(OptionAccept, ContractKeys.InboxAcceptLabel, ContractKeys.InboxAcceptConsequence),
+                new InboxOption(OptionAccept, ContractKeys.InboxAcceptLabel(_book.World.GetPerson(negotiation.Counterparty).IsFemale), ContractKeys.InboxAcceptConsequence),
                 new InboxOption(OptionWalk, ContractKeys.InboxWalkLabel, ContractKeys.InboxWalkConsequence),
                 new InboxOption(OptionRevise, ContractKeys.InboxReviseLabel, ContractKeys.InboxReviseConsequence),
             };
@@ -642,6 +654,29 @@ public sealed class ContractEngine
             agreed ? ContractKeys.InboxAgreedSubject : ContractKeys.InboxCounterSubject,
             ArgumentsOf(negotiation, terms),
             options,
+            null,
+            null);
+        _inbox.Post(_managers, new ManagerId(negotiation.ManagerId), draft, today);
+    }
+
+    /// <summary>Tells a human manager that an offer is with the person and the day the answer is due (#265).</summary>
+    public void PostWaiting(Negotiation negotiation, GameDate respondOn, GameDate today)
+    {
+        ArgumentNullException.ThrowIfNull(negotiation);
+        if (!IsHuman(negotiation.ManagerId))
+        {
+            return;
+        }
+
+        var draft = new InboxItemDraft(
+            NoticeKind,
+            ContractKeys.InboxWaitingSubject,
+            [
+                new(NegotiationArgument, negotiation.Id),
+                new("person", _book.World.GetPerson(negotiation.Counterparty).Name),
+                new("until", respondOn.ToString()),
+            ],
+            null,
             null,
             null);
         _inbox.Post(_managers, new ManagerId(negotiation.ManagerId), draft, today);

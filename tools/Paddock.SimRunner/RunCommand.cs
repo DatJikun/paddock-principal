@@ -164,7 +164,7 @@ public static class RunCommand
 
             var data = AuthoredDataLoader.Load(root);
             var files = ResolveProviderFiles(root, schedulePath, driversPath);
-            var provider = LoadProvider(files);
+            var provider = LoadProvider(files, root);
             var starting = CareerData.LoadStartingSources(root, data, config.StartYear);
             var created = WorldInitializer.Create(config, data, provider, seed.Value, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
             var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed.Value);
@@ -250,7 +250,7 @@ public static class RunCommand
                 return 1;
             }
 
-            var provider = LoadProvider(files);
+            var provider = LoadProvider(files, root);
 
             // The arrivals the saved run still has ahead of it: those dated on or after the save date. The schedule is built
             // from a world dated the season before when the save is on 1 January, because an entry on that day has not happened.
@@ -395,8 +395,8 @@ public static class RunCommand
     public static (string Schedule, string Drivers)? ResolveProviderFiles(string dataRoot, string? schedulePath, string? driversPath) =>
         CareerData.ResolveProviderFiles(dataRoot, schedulePath, driversPath);
 
-    public static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files) =>
-        CareerData.LoadProvider(files);
+    public static IPeopleProvider LoadProvider((string Schedule, string Drivers)? files, string? dataRoot = null) =>
+        CareerData.LoadProvider(files, dataRoot);
 
     private static string FormatInit(string template, IReadOnlyList<string> arguments, CareerConfig config)
     {

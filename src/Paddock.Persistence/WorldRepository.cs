@@ -227,11 +227,19 @@ public sealed partial class WorldRepository
 
         var present = new HashSet<string>(StringComparer.Ordinal);
         var hasInjuredUntil = HasColumn(connection, transaction, "persons", "injured_until");
-        var personColumns = hasInjuredUntil
-            ? ["id", "is_real", "given_name", "family_name", "birth_date", "nationality", "retired_on", "injured_until"]
-            : new[] { "id", "is_real", "given_name", "family_name", "birth_date", "nationality", "retired_on" };
+        var hasFemale = HasColumn(connection, transaction, "persons", "is_female");
+        var personColumns = new List<string> { "id", "is_real", "given_name", "family_name", "birth_date", "nationality", "retired_on" };
+        if (hasInjuredUntil)
+        {
+            personColumns.Add("injured_until");
+        }
 
-        using (var persons = new Insert(connection, transaction, "persons", personColumns))
+        if (hasFemale)
+        {
+            personColumns.Add("is_female");
+        }
+
+        using (var persons = new Insert(connection, transaction, "persons", personColumns.ToArray()))
         using (var roles = new Insert(connection, transaction, "person_roles", "person_id", "role"))
         using (var attributes = new Insert(connection, transaction, "person_attributes", "person_id", "attribute_key", "value", "potential"))
         {
@@ -239,14 +247,21 @@ public sealed partial class WorldRepository
             {
                 var id = person.Id.Value;
                 present.Add(id);
+                var row = new List<object?>
+                {
+                    id, person.IsReal ? 1L : 0L, person.GivenName, person.FamilyName, person.BirthDate.ToString(), person.Nationality, person.RetiredOn?.ToString(),
+                };
                 if (hasInjuredUntil)
                 {
-                    persons.Run(id, person.IsReal ? 1L : 0L, person.GivenName, person.FamilyName, person.BirthDate.ToString(), person.Nationality, person.RetiredOn?.ToString(), person.InjuredUntil?.ToString());
+                    row.Add(person.InjuredUntil?.ToString());
                 }
-                else
+
+                if (hasFemale)
                 {
-                    persons.Run(id, person.IsReal ? 1L : 0L, person.GivenName, person.FamilyName, person.BirthDate.ToString(), person.Nationality, person.RetiredOn?.ToString());
+                    row.Add(person.IsFemale ? 1L : 0L);
                 }
+
+                persons.Run(row.ToArray());
 
                 foreach (var role in person.Roles)
                 {

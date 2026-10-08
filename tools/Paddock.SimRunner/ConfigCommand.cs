@@ -130,6 +130,15 @@ public static class ConfigCommand
 
                 updated = config.WithRulesSource(rules);
                 return true;
+            case "vote":
+                if (!TryNamed(value, out VoteMode vote))
+                {
+                    stderr.WriteLine($"Invalid --axis vote value: {value}");
+                    return false;
+                }
+
+                updated = config.WithVoteMode(vote);
+                return true;
             case "ai":
                 if (!TryNamed(value, out AiBehavior ai))
                 {

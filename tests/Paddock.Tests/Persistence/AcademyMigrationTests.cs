@@ -5,18 +5,18 @@ using Paddock.Persistence;
 
 namespace Paddock.Tests.Persistence;
 
-/// <summary>V029 gives pool members an academy (#268): a junior season paid for by a team means the team had recruited him.</summary>
+/// <summary>V030 gives pool members an academy (#268): a junior season paid for by a team means the team had recruited him.</summary>
 public sealed class AcademyMigrationTests : IDisposable
 {
-    private readonly string _directory = Directory.CreateTempSubdirectory("paddock-v29a-").FullName;
+    private readonly string _directory = Directory.CreateTempSubdirectory("paddock-v30a-").FullName;
 
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 
     [Fact]
-    public void AV28SaveKeepsItsPoolAndReadsAPaidJuniorAsRecruitedByThePayer()
+    public void AV29SaveKeepsItsPoolAndReadsAPaidJuniorAsRecruitedByThePayer()
     {
-        var path = Path.Combine(_directory, "v28.paddock");
-        using (var created = SaveFile.Create(path, WorldFixtures.Meta(), [.. SaveMigrations.Production.Take(28)]))
+        var path = Path.Combine(_directory, "v29.paddock");
+        using (var created = SaveFile.Create(path, WorldFixtures.Meta(), [.. SaveMigrations.Production.Take(29)]))
         {
             Exec(created, """
                 INSERT INTO pool_counter (id, next_handle) VALUES (1, 4);

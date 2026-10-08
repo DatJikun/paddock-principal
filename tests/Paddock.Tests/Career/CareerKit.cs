@@ -34,9 +34,14 @@ internal static class CareerKit
 
     public static CareerSession Open(CareerPreset preset, int startYear, ulong seed) => Opened(preset, startYear, seed).Session;
 
-    public static OpenedCareer Opened(CareerPreset preset, int startYear, ulong seed)
+    public static OpenedCareer Opened(CareerPreset preset, int startYear, ulong seed, Func<CareerConfig, CareerConfig>? tweak = null)
     {
         var config = CareerConfig.FromPreset(preset).WithStartYear(startYear);
+        if (tweak is not null)
+        {
+            config = tweak(config);
+        }
+
         var provider = EmptyPeopleProvider.Instance;
         var created = WorldInitializer.Create(config, Data, provider, seed);
         var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, seed);

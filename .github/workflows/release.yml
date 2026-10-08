@@ -216,7 +216,7 @@ jobs:
             # 4. WebSocket: two real bridge queries, the second one reads data/authored through the exe.
             $ws = [System.Net.WebSockets.ClientWebSocket]::new()
             $cts = [System.Threading.CancellationTokenSource]::new([TimeSpan]::FromSeconds(90))
-            $ws.ConnectAsync([Uri]$info.ws, $cts.Token).GetAwaiter().GetResult()
+            $ws.ConnectAsync([Uri]$info.ws, $cts.Token).GetAwaiter().GetResult() | Out-Null
             function Invoke-Bridge([string]$json) {
               $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
               $ws.SendAsync([ArraySegment[byte]]::new($bytes), [System.Net.WebSockets.WebSocketMessageType]::Text, $true, $cts.Token).GetAwaiter().GetResult() | Out-Null

@@ -43,8 +43,8 @@ public sealed class TalentPoolSectionStore : ISectionStore
             Run(
                 connection,
                 transaction,
-                "INSERT INTO pool_members (person_id, handle, entered, funder_id, programme, funding_season) "
-                + "VALUES ($person, $handle, $entered, $funder, $programme, $season)",
+                "INSERT INTO pool_members (person_id, handle, entered, funder_id, programme, funding_season, academy_id) "
+                + "VALUES ($person, $handle, $entered, $funder, $programme, $season, $academy)",
                 [
                     ("$person", member.Id.Value),
                     ("$handle", member.Handle),
@@ -52,6 +52,7 @@ public sealed class TalentPoolSectionStore : ISectionStore
                     ("$funder", member.Funding?.Funder.Value),
                     ("$programme", member.Funding?.Programme.ToString()),
                     ("$season", member.Funding is { } funding ? (long)funding.Season : null),
+                    ("$academy", member.Academy?.Value),
                 ]);
         }
 
@@ -60,8 +61,8 @@ public sealed class TalentPoolSectionStore : ISectionStore
             Run(
                 connection,
                 transaction,
-                "INSERT INTO pool_lapsed (person_id, lapsed_on) VALUES ($person, $on)",
-                [("$person", career.Id.Value), ("$on", career.On.ToString())]);
+                "INSERT INTO pool_lapsed (person_id, lapsed_on, academy_id) VALUES ($person, $on, $academy)",
+                [("$person", career.Id.Value), ("$on", career.On.ToString()), ("$academy", career.Academy?.Value)]);
         }
 
         foreach (var focus in pool.Focuses)
@@ -86,7 +87,7 @@ public sealed class TalentPoolSectionStore : ISectionStore
     public IWorldSection Load(SqliteConnection connection, int storedSchemaVersion)
     {
         ArgumentNullException.ThrowIfNull(connection);
-        if (storedSchemaVersion != 1)
+        if (storedSchemaVersion is not (1 or 2))
         {
             throw new InvalidDataException($"The stored talent pool has schema version {storedSchemaVersion}, which this build cannot read.");
         }
@@ -103,7 +104,7 @@ public sealed class TalentPoolSectionStore : ISectionStore
         var members = new List<PoolMember>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT person_id, handle, entered, funder_id, programme, funding_season FROM pool_members ORDER BY person_id";
+            command.CommandText = "SELECT person_id, handle, entered, funder_id, programme, funding_season, academy_id FROM pool_members ORDER BY person_id";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -118,18 +119,26 @@ public sealed class TalentPoolSectionStore : ISectionStore
                     funding = new JuniorFunding(OrganizationIdFrom(reader.GetString(3)), programme, checked((int)reader.GetInt64(5)));
                 }
 
-                members.Add(new PoolMember(PersonIdFrom(reader.GetString(0)), reader.GetInt64(1), ParseDate(reader.GetString(2)), funding));
+                members.Add(new PoolMember(
+                    PersonIdFrom(reader.GetString(0)),
+                    reader.GetInt64(1),
+                    ParseDate(reader.GetString(2)),
+                    funding,
+                    reader.IsDBNull(6) ? null : OrganizationIdFrom(reader.GetString(6))));
             }
         }
 
         var lapsed = new List<LapsedCareer>();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "SELECT person_id, lapsed_on FROM pool_lapsed ORDER BY person_id";
+            command.CommandText = "SELECT person_id, lapsed_on, academy_id FROM pool_lapsed ORDER BY person_id";
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                lapsed.Add(new LapsedCareer(PersonIdFrom(reader.GetString(0)), ParseDate(reader.GetString(1))));
+                lapsed.Add(new LapsedCareer(
+                    PersonIdFrom(reader.GetString(0)),
+                    ParseDate(reader.GetString(1)),
+                    reader.IsDBNull(2) ? null : OrganizationIdFrom(reader.GetString(2))));
             }
         }
 

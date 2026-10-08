@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { bandOf, bandText, careerTotals, DRIVER_ATTRS, endsThisSeason, SEATS, seasonRow, sortRows } from './people.mjs';
+import { bandOf, bandText, careerTotals, DRIVER_ATTRS, endsThisSeason, SEATS, seasonRow, sortRows, starsOf } from './people.mjs';
 
 const pl = JSON.parse(readFileSync(new URL('../../../../strings/pl.json', import.meta.url), 'utf8'));
 const en = JSON.parse(readFileSync(new URL('../../../../strings/en.json', import.meta.url), 'utf8'));
@@ -49,4 +49,11 @@ test('every driver attribute and seat has text in both languages', () => {
     assert.ok(`seat.${seat}` in pl, `pl: seat.${seat}`);
     assert.ok(`seat.${seat}` in en, `en: seat.${seat}`);
   }
+});
+
+test('starsOf turns the 1-20 overall into half stars', () => {
+  assert.equal(starsOf(20), 5);
+  assert.equal(starsOf(10), 2.5);
+  assert.equal(starsOf(13), 3.5);
+  assert.equal(starsOf(1), 0.5);
 });

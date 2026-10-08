@@ -136,12 +136,12 @@ public class PoolPersistenceTests : IDisposable
         var run = new PoolKit.Run(world, 21, ids, [], new Paddock.Simulation.Pool.TalentPoolOptions { TargetSize = 8 });
         run.SetFocus(PoolKit.Alpha, ScoutFocusKind.Pool);
         run.SetFocus(PoolKit.Bravo, ScoutFocusKind.Person, ids[4]);
-        run.World = run.World.WithSection(run.Pool.Fund(ids[3], new JuniorFunding(PoolKit.Bravo, JuniorProgramme.CheapSlow, 1950)));
+        run.World = run.World.WithSection(run.Pool.Recruit(ids[3], PoolKit.Bravo).Fund(ids[3], new JuniorFunding(PoolKit.Bravo, JuniorProgramme.CheapSlow, 1950)));
         run.LiveUntil(new GameDate(1953, 1, 2));
         run.LiveUntil(new GameDate(1957, 1, 2));
         // A season that is funded now and has not acted yet is part of the saved state too.
         var member = run.Pool.Members.First(m => m.Funding is null);
-        run.World = run.World.WithSection(run.Pool.Fund(member.Id, new JuniorFunding(PoolKit.Alpha, JuniorProgramme.ExpensiveFast, 1957)));
+        run.World = run.World.WithSection(run.Pool.Recruit(member.Id, PoolKit.Alpha).Fund(member.Id, new JuniorFunding(PoolKit.Alpha, JuniorProgramme.ExpensiveFast, 1957)));
         run.World = run.World.WithSection(run.Pool.SetFocus(new ScoutFocus(PoolKit.Bravo, ScoutFocusKind.Pool, null)));
         return run.World.WithDate(WorldFixtures.Opening);
     }

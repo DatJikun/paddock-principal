@@ -10,6 +10,7 @@ using Paddock.Data.Authored;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Objectives;
+using Paddock.Domain.People;
 using Paddock.Domain.Sponsors;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -127,6 +128,8 @@ internal sealed class SponsorKit
             SignAtCurrentTermsCommand => new SignAtCurrentTermsHandler(Book, Environment),
             WalkAwayFromTalksCommand => new WalkAwayFromTalksHandler(Book, Environment),
             RespondToSponsorOfferCommand => new RespondToSponsorOfferHandler(Book, Environment),
+            ProposeSponsorTermsCommand => new ProposeSponsorTermsHandler(Book, Environment),
+            CounterSponsorOfferCommand => new CounterSponsorOfferHandler(Book, Environment),
             _ => throw new ArgumentException("Not a sponsor command."),
         };
         var rejection = handler.Validate(command, Context);
@@ -141,6 +144,59 @@ internal sealed class SponsorKit
 
     public string? Begin(ManagerId manager, OrganizationId organization, string sponsor, int slot, GameDate on) =>
         Run(new BeginSponsorTalksCommand { ManagerId = manager, IssuedOn = Day(on), OrganizationId = organization.Value, SponsorId = sponsor, Slot = slot });
+
+    public string? Begin(ManagerId manager, OrganizationId organization, string sponsor, int slot, GameDate on, SponsorTerms terms) =>
+        Run(new BeginSponsorTalksCommand
+        {
+            ManagerId = manager,
+            IssuedOn = Day(on),
+            OrganizationId = organization.Value,
+            SponsorId = sponsor,
+            Slot = slot,
+            Years = terms.Years,
+            Ambition = terms.Ambition,
+        });
+
+    public void SetTrust(string sponsor, int trust) => Book.Write(Book.Section.WithTrust(sponsor, Alfa, trust));
+
+    /// <summary>Opens talks on the given terms and signs them the same day.</summary>
+    public SponsorDeal SignDeal(string sponsor, int slot, GameDate on, SponsorTerms terms)
+    {
+        Assert.Null(Begin(Anna, Alfa, sponsor, slot, on, terms));
+        var talk = Book.Section.Talks.Last();
+        Assert.Null(Run(new SignAtCurrentTermsCommand { ManagerId = Anna, IssuedOn = Day(on), OrganizationId = Alfa.Value, TalkId = talk.Id }));
+        return Book.Section.Deals.Last();
+    }
+
+    /// <summary>Puts a driver of a nationality in the world, under contract with a team in a seat, or free when no seat is given.</summary>
+    public PersonId AddDriver(string nationality, SeatStatus? seat, OrganizationId? team = null, int bornYear = 1925)
+    {
+        var (world, id) = _world.AddPerson(new PersonSpec(
+            "Test",
+            "Driver" + (_world.Persons.Count + 1).ToString(System.Globalization.CultureInfo.InvariantCulture),
+            new GameDate(bornYear, 3, 14),
+            nationality,
+            false,
+            null,
+            [PersonRole.Driver],
+            Paddock.Tests.Persistence.WorldFixtures.DriverTruth(10, 14)));
+        _world = world;
+        if (seat is { } status)
+        {
+            (_world, _) = _world.AddContract(new ContractSpec(
+                id,
+                team ?? Alfa,
+                ContractRole.Driver(status),
+                Start,
+                new GameDate(Start.Year + 5, 12, 31),
+                100_000,
+                false,
+                null,
+                null));
+        }
+
+        return id;
+    }
 
     public SponsorTalk OpenTalk(string sponsor, int slot, GameDate on, OrganizationId? organization = null)
     {

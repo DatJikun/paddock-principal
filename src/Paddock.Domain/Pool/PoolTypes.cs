@@ -4,7 +4,11 @@ using Paddock.Domain.World;
 
 namespace Paddock.Domain.Pool;
 
-/// <summary>The two programmes an organization can pay for to develop a junior "somewhere lower" (DESIGN 2.1).</summary>
+/// <summary>
+/// The two programmes a team can pay for to speed up one junior of its academy for a season (DESIGN 2.1, #268). The names are the stored
+/// ones: <see cref="CheapSlow"/> is the basic programme and <see cref="ExpensiveFast"/> the intensive one. A programme changes only how fast
+/// the junior moves toward his potential; it never changes the potential.
+/// </summary>
 public enum JuniorProgramme
 {
     CheapSlow = 0,
@@ -59,10 +63,12 @@ public sealed record JuniorFunding
 /// <summary>
 /// One person in the pool. <see cref="Handle"/> is the opaque name a manager or an AI uses for him: it comes from the
 /// section's own counter, so it says nothing about whether the person is a real driver or a filler (INV-003, PP-018).
+/// <see cref="Academy"/> is the team that recruited him (#268): a recruited junior belongs to that team's academy alone, and
+/// no other team sees him in its list or can start a negotiation with him.
 /// </summary>
 public sealed record PoolMember
 {
-    public PoolMember(PersonId id, long handle, GameDate enteredOn, JuniorFunding? funding)
+    public PoolMember(PersonId id, long handle, GameDate enteredOn, JuniorFunding? funding, OrganizationId? academy = null)
     {
         if (!id.IsAssigned)
         {
@@ -70,10 +76,21 @@ public sealed record PoolMember
         }
 
         ArgumentOutOfRangeException.ThrowIfLessThan(handle, 1);
+        if (academy is { } team && !team.IsAssigned)
+        {
+            throw new ArgumentException("The academy is unassigned.", nameof(academy));
+        }
+
+        if (funding is not null && funding.Funder != academy)
+        {
+            throw new ArgumentException("A programme is paid by the team whose academy the junior is in.", nameof(funding));
+        }
+
         Id = id;
         Handle = handle;
         EnteredOn = enteredOn;
         Funding = funding;
+        Academy = academy;
     }
 
     public PersonId Id { get; }
@@ -83,6 +100,9 @@ public sealed record PoolMember
     public GameDate EnteredOn { get; }
 
     public JuniorFunding? Funding { get; }
+
+    /// <summary>The team whose academy the junior is in, or null for a member nobody has recruited.</summary>
+    public OrganizationId? Academy { get; }
 
     public string HandleText => TalentPoolSection.HandleOf(Handle);
 }
@@ -142,8 +162,11 @@ public sealed record ObservationRow
     public long Milli { get; }
 }
 
-/// <summary>A pool member who aged out without a contract. Kept so the chronicle can find him and so he never re-enters.</summary>
-public sealed record LapsedCareer(PersonId Id, GameDate On);
+/// <summary>
+/// A pool member who aged out without a contract. Kept so the chronicle can find him and so he never re-enters.
+/// <paramref name="Academy"/> is the team whose academy he left, so that team can be told (#268).
+/// </summary>
+public sealed record LapsedCareer(PersonId Id, GameDate On, OrganizationId? Academy = null);
 
 /// <summary>Helper for the canonical text of the pool.</summary>
 internal static class PoolText

@@ -106,7 +106,7 @@ public class TalentPoolSectionTests
     public void AMemberHasOneFundedSeasonAtATime()
     {
         var funding = new JuniorFunding(PoolKit.Alpha, JuniorProgramme.CheapSlow, 1950);
-        var section = TalentPoolSection.Empty.EnterAll([People[0]], Day).Fund(People[0], funding);
+        var section = TalentPoolSection.Empty.EnterAll([People[0]], Day).Recruit(People[0], PoolKit.Alpha).Fund(People[0], funding);
 
         Assert.Equal(funding, section.Find(People[0])!.Funding);
         Assert.Throws<InvalidOperationException>(() => section.Fund(People[0], funding));
@@ -121,10 +121,10 @@ public class TalentPoolSectionTests
         var texts = new[]
         {
             Canonical(baseline),
-            Canonical(baseline.Fund(People[0], new JuniorFunding(PoolKit.Alpha, JuniorProgramme.CheapSlow, 1950))),
-            Canonical(baseline.Fund(People[0], new JuniorFunding(PoolKit.Alpha, JuniorProgramme.ExpensiveFast, 1950))),
-            Canonical(baseline.Fund(People[0], new JuniorFunding(PoolKit.Bravo, JuniorProgramme.CheapSlow, 1950))),
-            Canonical(baseline.Fund(People[0], new JuniorFunding(PoolKit.Alpha, JuniorProgramme.CheapSlow, 1951))),
+            Canonical(baseline.Recruit(People[0], PoolKit.Alpha).Fund(People[0], new JuniorFunding(PoolKit.Alpha, JuniorProgramme.CheapSlow, 1950))),
+            Canonical(baseline.Recruit(People[0], PoolKit.Alpha).Fund(People[0], new JuniorFunding(PoolKit.Alpha, JuniorProgramme.ExpensiveFast, 1950))),
+            Canonical(baseline.Recruit(People[0], PoolKit.Bravo).Fund(People[0], new JuniorFunding(PoolKit.Bravo, JuniorProgramme.CheapSlow, 1950))),
+            Canonical(baseline.Recruit(People[0], PoolKit.Alpha).Fund(People[0], new JuniorFunding(PoolKit.Alpha, JuniorProgramme.CheapSlow, 1951))),
             Canonical(baseline.SetFocus(new ScoutFocus(PoolKit.Alpha, ScoutFocusKind.Pool, null))),
             Canonical(baseline.SetFocus(new ScoutFocus(PoolKit.Alpha, ScoutFocusKind.Person, People[0]))),
             Canonical(baseline.AddObservation(PoolKit.Alpha, People[0], 1)),
@@ -143,6 +143,7 @@ public class TalentPoolSectionTests
     public void ARestoredSectionHasTheSameText()
     {
         var section = TalentPoolSection.Empty.EnterAll(People, Day)
+            .Recruit(People[0], PoolKit.Alpha)
             .Fund(People[0], new JuniorFunding(PoolKit.Alpha, JuniorProgramme.ExpensiveFast, 1950))
             .SetFocus(new ScoutFocus(PoolKit.Bravo, ScoutFocusKind.Person, People[1]))
             .AddObservation(PoolKit.Bravo, People[1], 2500)
@@ -173,7 +174,7 @@ public class TalentPoolSectionTests
     public void TheSectionIsRegisteredByItsOwnNameAndVersion()
     {
         Assert.True(SectionNames.IsValid(TalentPoolSection.SectionName));
-        Assert.Equal(1, TalentPoolSection.Empty.SchemaVersion);
+        Assert.Equal(2, TalentPoolSection.Empty.SchemaVersion);
         var world = PoolKit.EmptyWorld().WithSection(TalentPoolSection.Empty.EnterAll(People.Take(1), Day));
         Assert.NotEqual(PoolKit.EmptyWorld().StateHash(), world.StateHash());
     }

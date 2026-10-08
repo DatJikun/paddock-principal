@@ -13,7 +13,10 @@ namespace Paddock.Application.Supply;
 /// <summary>The engine a team races, as its engineers read it: bands, never the supplier's exact numbers (INV-003).</summary>
 public sealed record OwnEngineView(CarBandView Power, CarBandView Reliability, int VersionSeason, int LagSeasons);
 
-/// <summary>One of the team's own deals. The engine bands are present for an engine deal that is in force.</summary>
+/// <summary>
+/// One of the team's own deals. The engine bands are present for an engine deal that is in force. <paramref name="EngineName"/> is the
+/// authored model of the engine when there is one and <paramref name="SupplierName"/> is the supplier as the world names it (#268).
+/// </summary>
 public sealed record OwnSupplyDealView(
     string DealId,
     string SupplierId,
@@ -24,7 +27,9 @@ public sealed record OwnSupplyDealView(
     long AnnualPriceCents,
     bool Exclusive,
     SupplyDealStatus Status,
-    OwnEngineView? Engine);
+    OwnEngineView? Engine,
+    string? EngineName,
+    string SupplierName);
 
 /// <summary>One of the team's own negotiations, with what the supplier has said (the stated reasons are translation keys).</summary>
 public sealed record OwnSupplyTalkView(
@@ -37,9 +42,13 @@ public sealed record OwnSupplyTalkView(
     long? CounterCents,
     int RoundsLeft,
     GameDate Deadline,
-    IReadOnlyList<string> Reasons);
+    IReadOnlyList<string> Reasons,
+    string SupplierName);
 
-/// <summary>What one manager may see: own deals and own talks only. A supplier's other customers and true development state stay hidden.</summary>
+/// <summary>
+/// What one manager may see: own deals and own talks only. A supplier's other customers and true development state stay hidden. Only the engine
+/// is listed for now (PP-064: tyres and fuel come later), so a deal or a talk for anything else is not shown.
+/// </summary>
 public sealed record ManagerSupplyView(IReadOnlyList<OwnSupplyDealView> Deals, IReadOnlyList<OwnSupplyTalkView> Talks);
 
 /// <summary>Queries do not change the world and do not draw RNG (INV-005).</summary>
@@ -74,7 +83,7 @@ public sealed class SupplyQuery
         var today = new GameDate(world.CurrentDate.Year, world.CurrentDate.Month, world.CurrentDate.Day);
         var section = _book.Section;
         var deals = section.Deals
-            .Where(deal => _environment.Control.Controls(manager, deal.Customer))
+            .Where(deal => deal.Item == SupplyItem.Engine && _environment.Control.Controls(manager, deal.Customer))
             .Select(deal => new OwnSupplyDealView(
                 deal.Id,
                 deal.Supplier.Value,
@@ -85,10 +94,12 @@ public sealed class SupplyQuery
                 deal.AnnualPriceCents,
                 deal.Terms.Exclusive,
                 deal.Status,
-                deal.Item == SupplyItem.Engine && deal.IsInForceOn(today) ? EngineBand(deal, world, today) : null))
+                deal.Item == SupplyItem.Engine && deal.IsInForceOn(today) ? EngineBand(deal, world, today) : null,
+                deal.EngineName,
+                SupplierName(world, deal.Supplier, today)))
             .ToArray();
         var talks = section.Negotiations
-            .Where(negotiation => _environment.Control.Controls(manager, negotiation.Customer))
+            .Where(negotiation => negotiation.Item == SupplyItem.Engine && _environment.Control.Controls(manager, negotiation.Customer))
             .Select(negotiation => new OwnSupplyTalkView(
                 negotiation.Id,
                 negotiation.Supplier.Value,
@@ -99,9 +110,24 @@ public sealed class SupplyQuery
                 negotiation.Counter?.AnnualPriceCents,
                 negotiation.RoundsLeft,
                 negotiation.Deadline,
-                negotiation.Reasons))
+                negotiation.Reasons,
+                SupplierName(world, negotiation.Supplier, today)))
             .ToArray();
         return new ManagerSupplyView(deals, talks);
+    }
+
+    /// <summary>The supplier as the world names it on the day, or its id when the world does not know it.</summary>
+    private static string SupplierName(Paddock.Domain.World.WorldState world, Paddock.Domain.World.OrganizationId supplier, GameDate today)
+    {
+        foreach (var organization in world.Organizations)
+        {
+            if (organization.Id == supplier)
+            {
+                return organization.NameOn(today);
+            }
+        }
+
+        return supplier.Value;
     }
 
     private OwnEngineView EngineBand(SupplyDeal deal, Paddock.Domain.World.WorldState world, GameDate today)

@@ -128,6 +128,12 @@ public sealed partial class WorldState
                 canon.TextLine("injured", injuredUntil.ToString());
             }
 
+            // Only a woman is written, so the hash of every world made before gender existed stays the same.
+            if (person.IsFemale)
+            {
+                canon.Flag("female", true);
+            }
+
             canon.Count("roles", person.Roles.Count);
             foreach (var role in person.Roles)
             {

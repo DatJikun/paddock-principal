@@ -49,25 +49,50 @@ public static class LogisticsMath
         _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "Unknown logistics mode."),
     };
 
-    public static LogisticsQuote Quote(string? homeCountry, string? circuitCountry, long typicalBudgetCents)
+    /// <summary>
+    /// The quote of one round (#268). The season's transport costs <see cref="InfrastructureEstimates.LogisticsSeasonShare"/> of the era's typical
+    /// budget and each round gets its part by its weight among the rounds of the season (<paramref name="seasonCircuits"/>, the countries of the rounds
+    /// of the season being raced, one per round). Without a calendar the round is priced as one round of a usual
+    /// season (<see cref="InfrastructureEstimates.LogisticsFallbackRounds"/> rounds, the others lorry trips). Pure: the team's cash is not an input.
+    /// </summary>
+    public static LogisticsQuote Quote(string? homeCountry, string? circuitCountry, long typicalBudgetCents, IReadOnlyList<string?>? seasonCircuits = null)
     {
         var home = Normalize(homeCountry);
         var circuit = Normalize(circuitCountry);
         var mode = ModeOf(home, circuit);
         var days = DaysOf(home, circuit, mode);
-        var share = mode == LogisticsMode.Ship
-            ? InfrastructureEstimates.LogisticsShipShare
-            : SamePlace(home, circuit)
-                ? InfrastructureEstimates.LogisticsHomeShare
-                : InfrastructureEstimates.LogisticsLorryShare;
+        var own = WeightOf(home, circuit);
+        var total = 0L;
+        if (seasonCircuits is not null)
+        {
+            foreach (var other in seasonCircuits)
+            {
+                total += WeightOf(home, Normalize(other));
+            }
+        }
+
+        if (total < own)
+        {
+            // No calendar, or one that does not hold this round: a season of the usual size in which the other rounds are lorry trips.
+            total = own + ((long)(InfrastructureEstimates.LogisticsFallbackRounds - 1) * InfrastructureEstimates.LogisticsLorryWeight);
+        }
+
         var cents = typicalBudgetCents <= 0
             ? 0L
-            : Math.Max(1L, (long)Math.Round(typicalBudgetCents * share, MidpointRounding.AwayFromZero));
+            : Math.Max(1L, (long)Math.Round(typicalBudgetCents * InfrastructureEstimates.LogisticsSeasonShare * own / total, MidpointRounding.AwayFromZero));
         return new LogisticsQuote(mode, days, cents);
     }
 
-    public static long CostCents(string? homeCountry, string? circuitCountry, long typicalBudgetCents) =>
-        Quote(homeCountry, circuitCountry, typicalBudgetCents).CostCents;
+    public static long CostCents(string? homeCountry, string? circuitCountry, long typicalBudgetCents, IReadOnlyList<string?>? seasonCircuits = null) =>
+        Quote(homeCountry, circuitCountry, typicalBudgetCents, seasonCircuits).CostCents;
+
+    /// <summary>How much of the season's transport a round takes for a team from <paramref name="home"/>: a ship more than a lorry, a home round the least.</summary>
+    private static int WeightOf(string home, string circuit) =>
+        ModeOf(home, circuit) == LogisticsMode.Ship
+            ? InfrastructureEstimates.LogisticsShipWeight
+            : SamePlace(home, circuit)
+                ? InfrastructureEstimates.LogisticsHomeWeight
+                : InfrastructureEstimates.LogisticsLorryWeight;
 
     public static LogisticsMode ModeOf(string? homeCountry, string? circuitCountry)
     {

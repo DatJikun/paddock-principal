@@ -167,7 +167,7 @@ public class PoolDayTests
             run = new PoolKit.Run(world, Seed, [id], [], new TalentPoolOptions { TargetSize = 0 });
             if (programme is { } chosen)
             {
-                run.World = run.World.WithSection(run.Pool.Fund(id, new JuniorFunding(PoolKit.Alpha, chosen, 1950)));
+                run.World = run.World.WithSection(run.Pool.Recruit(id, PoolKit.Alpha).Fund(id, new JuniorFunding(PoolKit.Alpha, chosen, 1950)));
             }
 
             run.LiveUntil(new GameDate(1951, 1, 2));
@@ -189,7 +189,7 @@ public class PoolDayTests
         (world, var id) = PoolKit.Add(world, PoolKit.RealDriver("d_late", 1932, current: 4, extra: 14));
         var run = new PoolKit.Run(world, Seed, [id], [], new TalentPoolOptions { TargetSize = 0 });
         run.LiveUntil(new GameDate(1951, 1, 1));
-        run.World = run.World.WithSection(run.Pool.Fund(id, new JuniorFunding(PoolKit.Alpha, JuniorProgramme.CheapSlow, 1951)));
+        run.World = run.World.WithSection(run.Pool.Recruit(id, PoolKit.Alpha).Fund(id, new JuniorFunding(PoolKit.Alpha, JuniorProgramme.CheapSlow, 1951)));
 
         run.LiveDay();
         Assert.NotNull(run.Pool.Find(id)!.Funding);

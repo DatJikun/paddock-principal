@@ -438,7 +438,7 @@ public sealed partial class CareerBridge
         new CarBook(() => Session.World, Session.StoreWorld, Session.Clock.MasterSeed),
         Box.Require<IOrganizationControl>());
 
-    private PoolQuery Pool() => new(PoolBook.ForSession(Session), Box.Require<IManagerOrganizations>());
+    private PoolQuery Pool() => new(PoolBook.ForSession(Session), Box.Require<IManagerOrganizations>(), Box.TryGet<IJuniorFunding>());
 
     private InboxBook Inbox() => Box.Require<InboxBook>();
 

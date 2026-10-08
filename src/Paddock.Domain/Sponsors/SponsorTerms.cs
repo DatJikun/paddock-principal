@@ -63,8 +63,9 @@ public static class SponsorAmbitions
 
 /// <summary>
 /// What the player negotiates with a sponsor: how many years the deal runs (1 to 3) and how hard its condition is. The price a year follows
-/// from both (<see cref="PayMilli"/>). A longer deal pays a little less a year but cannot be lost to a missed renewal; a harder condition pays
-/// more and fails more often. Pure: no state, no random number. Every figure is an ESTIMATE in <see cref="SponsorEstimates"/>.
+/// from the condition alone (<see cref="PayMilli"/>): a longer deal pays the same a year as a short one (owner decision) and cannot be lost
+/// to a missed renewal, and a sponsor that is open to it raises the amount for good years (<see cref="SponsorPartnership"/>). A harder
+/// condition pays more and fails more often. Pure: no state, no random number. Every figure is an ESTIMATE in <see cref="SponsorEstimates"/>.
 /// </summary>
 public readonly record struct SponsorTerms(int Years, SponsorAmbition Ambition)
 {
@@ -74,16 +75,8 @@ public readonly record struct SponsorTerms(int Years, SponsorAmbition Ambition)
 
     public bool IsValid => Years >= SponsorEstimates.MinYears && Years <= SponsorEstimates.MaxYears && Enum.IsDefined(Ambition);
 
-    /// <summary>Thousandths of the one-year, standard price a year of this deal pays.</summary>
-    public int PayMilli => YearsPayMilli(Years) * SponsorAmbitions.PayMilli(Ambition) / 1000;
-
-    public static int YearsPayMilli(int years) => years switch
-    {
-        1 => 1000,
-        2 => SponsorEstimates.TwoYearPayMilli,
-        3 => SponsorEstimates.ThreeYearPayMilli,
-        _ => throw new ArgumentOutOfRangeException(nameof(years), years, "A sponsor deal runs 1 to 3 years."),
-    };
+    /// <summary>Thousandths of the one-year, standard price a year of this deal pays: the length of the deal does not change it.</summary>
+    public int PayMilli => SponsorAmbitions.PayMilli(Ambition);
 
     /// <summary>The days a deal of this length runs, from its first day to its last.</summary>
     public int Days => Years * SponsorEstimates.DealDays;

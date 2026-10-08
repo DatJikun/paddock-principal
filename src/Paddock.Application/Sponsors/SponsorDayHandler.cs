@@ -263,6 +263,7 @@ public sealed class SponsorDayHandler : IDayHandler
     /// <summary>
     /// A deal of more than one year gets a new condition on each anniversary: the sponsor looks at the team as it is then, and the player's
     /// chosen ambition applies again (#268). The result of the year that ended was settled by its own deadline, so the slate is clean.
+    /// A sponsor that is open to a long partnership first raises the annual amount when the year's condition was met, and tells the manager.
     /// </summary>
     private (SponsorsSection Sponsors, ObjectivesSection Objectives) RollYears(SponsorsSection sponsors, ObjectivesSection objectives, GameDate today)
     {
@@ -274,14 +275,37 @@ public sealed class SponsorDayHandler : IDayHandler
                 anniversary |= deal.YearStart(year) == today;
             }
 
-            if (!anniversary || _environment.Catalog.Find(deal.SponsorId) is not { } sponsor || !SponsorRules.AmbitionOpen(sponsor))
+            if (!anniversary || _environment.Catalog.Find(deal.SponsorId) is not { } sponsor)
             {
                 continue;
             }
 
-            var (granted, objectiveId) = SponsorRules.GrantObjective(objectives, _environment, sponsor, deal.Organization, deal.AnnualCents, today, deal.Ambition);
-            objectives = granted;
-            sponsors = sponsors.Replace(deal with { ObjectiveId = objectiveId, Outcome = DealObjectiveOutcome.None });
+            // A satisfied sponsor raises the amount for the year that starts today, and says so (#268, owner decision).
+            var updated = deal;
+            var raise = SponsorRules.AnniversaryRaiseMilli(sponsors, sponsor, deal);
+            if (raise > 0)
+            {
+                updated = deal with { AnnualCents = SponsorPartnership.Raised(deal.AnnualCents, raise) };
+                _notices.Post(
+                    deal.Organization,
+                    SponsorKeys.InboxRaisedSubject,
+                    today,
+                    ("sponsor", sponsor.Name),
+                    ("amount", SponsorNotices.Dollars(updated.AnnualCents)),
+                    ("percent", (raise / 10.0).ToString("0.#", CultureInfo.InvariantCulture)));
+            }
+
+            if (SponsorRules.AmbitionOpen(sponsor))
+            {
+                var (granted, objectiveId) = SponsorRules.GrantObjective(objectives, _environment, sponsor, deal.Organization, updated.AnnualCents, today, deal.Ambition);
+                objectives = granted;
+                updated = updated with { ObjectiveId = objectiveId, Outcome = DealObjectiveOutcome.None };
+            }
+
+            if (!ReferenceEquals(updated, deal))
+            {
+                sponsors = sponsors.Replace(updated);
+            }
         }
 
         return (sponsors, objectives);

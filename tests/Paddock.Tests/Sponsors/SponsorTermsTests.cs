@@ -22,12 +22,19 @@ public sealed class SponsorTermsTests
     // ------------------------------------------------------------------ the price of the terms
 
     [Fact]
-    public void ALongerDealPaysLessAYearAndAHarderConditionMore()
+    public void ALongerDealPaysTheSameAYearAndAHarderConditionMore()
     {
         Assert.Equal(1000, SponsorTerms.Default.PayMilli);
         var two = new SponsorTerms(2, SponsorAmbition.Standard).PayMilli;
         var three = new SponsorTerms(3, SponsorAmbition.Standard).PayMilli;
-        Assert.True(three < two && two < 1000);
+        Assert.Equal(1000, two);
+        Assert.Equal(1000, three);
+        foreach (var ambition in SponsorAmbitions.All)
+        {
+            Assert.Equal(new SponsorTerms(1, ambition).PayMilli, new SponsorTerms(2, ambition).PayMilli);
+            Assert.Equal(new SponsorTerms(1, ambition).PayMilli, new SponsorTerms(3, ambition).PayMilli);
+        }
+
         Assert.True(new SponsorTerms(1, SponsorAmbition.Lighter).PayMilli < 1000);
         Assert.True(new SponsorTerms(1, SponsorAmbition.Harder).PayMilli > 1000);
         Assert.Equal(1_000_000, SponsorTerms.Default.AnnualCents(1_000_000));
@@ -191,7 +198,10 @@ public sealed class SponsorTermsTests
         Assert.Equal(24, done.InstalmentsPaid);
         var instalments = kit.SponsorEntries(SponsorKit.Alfa).Where(entry => entry.ReasonKey == SponsorReason.Instalment).ToList();
         Assert.Equal(24, instalments.Count);
-        Assert.Equal(deal.AnnualCents * 2, instalments.Sum(entry => entry.AmountCents));
+
+        // The first year met its condition and the sponsor trusts the team now, so the second year pays more (see SponsorPartnershipTests).
+        Assert.Equal(SponsorPartnership.Raised(deal.AnnualCents, SponsorEstimates.AnniversaryRaiseOpenMilli), midway.AnnualCents);
+        Assert.Equal(deal.AnnualCents + midway.AnnualCents, instalments.Sum(entry => entry.AmountCents));
         Assert.True(done.BonusCents > 0);
     }
 
@@ -212,15 +222,14 @@ public sealed class SponsorTermsTests
     }
 
     [Fact]
-    public void ADealOfThreeYearsPaysLessAYearThanThreeSeparateYears()
+    public void ADealOfThreeYearsPaysTheSameAYearAsADealOfOne()
     {
         var kit = new SponsorKit(Opening, skill: 20);
         var one = kit.SignDeal("vestoil_works", 1, Opening);
         var other = new SponsorKit(Opening, skill: 20);
         var three = other.SignDeal("vestoil_works", 1, Opening, new SponsorTerms(3, SponsorAmbition.Standard));
 
-        Assert.True(three.AnnualCents < one.AnnualCents);
-        Assert.Equal(three.AnnualCents, SponsorTerms.YearsPayMilli(3) * one.AnnualCents / 1000);
+        Assert.Equal(one.AnnualCents, three.AnnualCents);
     }
 
     // ------------------------------------------------------------------ nationality wishes

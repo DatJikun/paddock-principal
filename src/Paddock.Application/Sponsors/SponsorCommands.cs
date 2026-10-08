@@ -73,9 +73,13 @@ public sealed record CounterSponsorOfferCommand : ICommand
 
     public required SponsorAmbition Ambition { get; init; }
 
+    /// <summary>Thousandths above the sponsor's quote the player asks for (#268). The sponsor pays it, or holds at the most it will pay.</summary>
+    public int AskMilli { get; init; }
+
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
 
+/// <summary>Signs open talks at the price they have reached, optionally asking for a little more than the quote (#268).</summary>
 public sealed record SignAtCurrentTermsCommand : ICommand
 {
     public required ManagerId ManagerId { get; init; }
@@ -87,6 +91,9 @@ public sealed record SignAtCurrentTermsCommand : ICommand
     public required string OrganizationId { get; init; }
 
     public required string TalkId { get; init; }
+
+    /// <summary>Thousandths above the quote the player asks for (#268). The sponsor pays it, or holds at the most it will pay.</summary>
+    public int AskMilli { get; init; }
 
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
@@ -240,7 +247,7 @@ public sealed class SignAtCurrentTermsHandler : CommandHandler<SignAtCurrentTerm
             return TranslationMessage.Of(SponsorKeys.TalkClosed);
         }
 
-        return null;
+        return SponsorPartnership.IsAskable(command.AskMilli) ? null : TranslationMessage.Of(SponsorKeys.BadAsk);
     }
 
     protected override IReadOnlyList<IDomainEvent> ExecuteTyped(SignAtCurrentTermsCommand command, CommandContext context)
@@ -249,6 +256,7 @@ public sealed class SignAtCurrentTermsHandler : CommandHandler<SignAtCurrentTerm
         var section = _book.Section;
         var talk = section.FindTalk(command.TalkId)!;
         var sponsor = _environment.Catalog.Find(talk.SponsorId)!;
+        var answer = SponsorPartnership.Answer(command.AskMilli, SponsorRules.PartnershipOf(section, sponsor, talk.Organization));
         var (sponsors, objectives, deal) = SponsorRules.Sign(
             section.Replace(talk with { Status = TalkStatus.Signed, ClosedOn = today }),
             _book.Objectives,
@@ -257,7 +265,7 @@ public sealed class SignAtCurrentTermsHandler : CommandHandler<SignAtCurrentTerm
             talk.Organization,
             talk.Slot,
             talk.Kind,
-            talk.AnnualCentsOn(today),
+            SponsorPartnership.Raised(talk.AnnualCentsOn(today), answer.AppliedMilli),
             today,
             talk.Terms,
             SponsorWishes.Offered(_book.World, sponsor, today));
@@ -424,7 +432,12 @@ public sealed class CounterSponsorOfferHandler : CommandHandler<CounterSponsorOf
         }
 
         var terms = new SponsorTerms(command.Years, command.Ambition);
-        if (terms == offer.Terms)
+        if (!SponsorPartnership.IsAskable(command.AskMilli))
+        {
+            return TranslationMessage.Of(SponsorKeys.BadAsk);
+        }
+
+        if (terms == offer.Terms && command.AskMilli == 0)
         {
             return TranslationMessage.Of(SponsorKeys.SameTerms);
         }
@@ -439,7 +452,8 @@ public sealed class CounterSponsorOfferHandler : CommandHandler<CounterSponsorOf
         var sponsor = _environment.Catalog.Find(offer.SponsorId)!;
         var deal = _book.Section.FindDeal(SponsorsSection.DealIdOf(offer.DealNumber))!;
         var terms = new SponsorTerms(command.Years, command.Ambition);
-        var amount = SponsorRules.RenewalCents(_book, _environment, deal, sponsor, terms);
+        var answer = SponsorPartnership.Answer(command.AskMilli, SponsorRules.PartnershipOf(_book.Section, sponsor, offer.Organization));
+        var amount = SponsorPartnership.Raised(SponsorRules.RenewalCents(_book, _environment, deal, sponsor, terms), answer.AppliedMilli);
         var countered = offer with { Years = terms.Years, Ambition = terms.Ambition, AnnualCents = amount, Rounds = offer.Rounds + 1 };
         _book.Write(_book.Section.Replace(countered));
 
@@ -570,14 +584,26 @@ public static class SponsorCommandCodecs
             }),
         CommandCodecEntry.For<CounterSponsorOfferCommand>(
             "sponsor.counter/1",
-            command => FlatJson.Write(
-                ("organization", command.OrganizationId),
-                ("offer", command.OfferId),
-                ("years", command.Years),
-                ("ambition", SponsorAmbitions.KeyOf(command.Ambition))),
+
+            // The ask (#268) is written only when there is one, so a counter without an ask is encoded as it was.
+            command => command.AskMilli == 0
+                ? FlatJson.Write(
+                    ("organization", command.OrganizationId),
+                    ("offer", command.OfferId),
+                    ("years", command.Years),
+                    ("ambition", SponsorAmbitions.KeyOf(command.Ambition)))
+                : FlatJson.Write(
+                    ("organization", command.OrganizationId),
+                    ("offer", command.OfferId),
+                    ("years", command.Years),
+                    ("ambition", SponsorAmbitions.KeyOf(command.Ambition)),
+                    ("ask", command.AskMilli)),
             (body, manager, issued) =>
             {
-                var fields = FlatJson.Read(body, "organization", "offer", "years", "ambition");
+                var asked = body.Contains("\"ask\"", StringComparison.Ordinal);
+                var fields = asked
+                    ? FlatJson.Read(body, "organization", "offer", "years", "ambition", "ask")
+                    : FlatJson.Read(body, "organization", "offer", "years", "ambition");
                 return new CounterSponsorOfferCommand
                 {
                     ManagerId = manager,
@@ -586,20 +612,25 @@ public static class SponsorCommandCodecs
                     OfferId = fields.String("offer"),
                     Years = fields.Int32("years"),
                     Ambition = Ambition(fields.String("ambition")),
+                    AskMilli = asked ? fields.Int32("ask") : 0,
                 };
             }),
         CommandCodecEntry.For<SignAtCurrentTermsCommand>(
             "sponsor.sign/1",
-            command => FlatJson.Write(("organization", command.OrganizationId), ("talk", command.TalkId)),
+            command => command.AskMilli == 0
+                ? FlatJson.Write(("organization", command.OrganizationId), ("talk", command.TalkId))
+                : FlatJson.Write(("organization", command.OrganizationId), ("talk", command.TalkId), ("ask", command.AskMilli)),
             (body, manager, issued) =>
             {
-                var fields = FlatJson.Read(body, "organization", "talk");
+                var asked = body.Contains("\"ask\"", StringComparison.Ordinal);
+                var fields = asked ? FlatJson.Read(body, "organization", "talk", "ask") : FlatJson.Read(body, "organization", "talk");
                 return new SignAtCurrentTermsCommand
                 {
                     ManagerId = manager,
                     IssuedOn = issued,
                     OrganizationId = fields.String("organization"),
                     TalkId = fields.String("talk"),
+                    AskMilli = asked ? fields.Int32("ask") : 0,
                 };
             }),
         CommandCodecEntry.For<WalkAwayFromTalksCommand>(

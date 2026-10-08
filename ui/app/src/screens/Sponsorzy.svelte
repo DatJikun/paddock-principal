@@ -174,7 +174,7 @@
             {#if current.blocked}
               <Status text={tr.tMsg(current.blocked)} tone="bad" />
             {:else}
-              <TermsPicker {tr} group="market" quotes={current.quotes} ambitionOpen={current.ambitionOpen} bind:years bind:ambition />
+              <TermsPicker {tr} group="market" quotes={current.quotes} ambitionOpen={current.ambitionOpen} bind:years bind:ambition partnership={current.partnership} />
               <SponsorExtras {tr} wish={current.wish} industry={current.industryBonus} />
               {#if asking}
                 <Confirmation

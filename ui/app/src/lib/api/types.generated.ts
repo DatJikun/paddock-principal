@@ -1105,6 +1105,13 @@ export interface SignPoolCall {
   role: string;
 }
 
+export interface SponsorAskView {
+  annualCents: number;
+  appliedMilli: number;
+  milli: number;
+  outcome: string;
+}
+
 export interface SponsorCandidateView {
   blocked: TranslationMessage | null;
   indicativeAnnualCents: number;
@@ -1115,6 +1122,7 @@ export interface SponsorCandidateView {
 
 export interface SponsorCounterCall {
   ambition: string;
+  askMilli: number | null;
   managerId: string;
   offerId: string;
   organizationId: string;
@@ -1150,6 +1158,7 @@ export interface SponsorMarketRow {
   industry: TranslationMessage;
   industryBonus: SponsorIndustryBonusView | null;
   kind: TranslationMessage;
+  partnership: SponsorPartnershipView | null;
   quotes: SponsorQuoteView[];
   slot: number;
   sponsorId: string;
@@ -1170,6 +1179,7 @@ export interface SponsorOfferView {
   annualCents: number;
   id: string;
   industryBonus: SponsorIndustryBonusView | null;
+  partnership: SponsorPartnershipView | null;
   previousAnnualCents: number;
   quotes: SponsorQuoteView[];
   roundsLeft: number;
@@ -1179,13 +1189,26 @@ export interface SponsorOfferView {
   years: number;
 }
 
+export interface SponsorPartnershipView {
+  band: string;
+  raiseMilli: number;
+}
+
 export interface SponsorQuoteView {
   ambition: string;
   annualCents: number;
+  asks: SponsorAskView[];
   bonusCents: number;
   capCents: number;
   condition: TranslationMessage | null;
   years: number;
+}
+
+export interface SponsorSignCall {
+  askMilli: number | null;
+  managerId: string;
+  organizationId: string;
+  talkId: string;
 }
 
 export interface SponsorSlotView {
@@ -1211,6 +1234,7 @@ export interface SponsorTalkView {
   industryBonus: SponsorIndustryBonusView | null;
   note: TranslationMessage;
   objective: TranslationMessage | null;
+  partnership: SponsorPartnershipView | null;
   quotes: SponsorQuoteView[];
   rivalKnown: boolean | null;
   slot: TranslationMessage;
@@ -1495,7 +1519,7 @@ export interface BridgeCommandMap {
   walkAway: { args: NegotiationIdCall; result: CommandAck };
   renewContract: { args: RenewContractCall; result: CommandAck };
   beginSponsorTalks: { args: BeginSponsorCall; result: CommandAck };
-  signSponsor: { args: SponsorTalkCall; result: CommandAck };
+  signSponsor: { args: SponsorSignCall; result: CommandAck };
   walkAwayFromTalks: { args: SponsorTalkCall; result: CommandAck };
   respondToSponsorOffer: { args: SponsorOfferCall; result: CommandAck };
   proposeSponsorTerms: { args: SponsorTermsCall; result: CommandAck };

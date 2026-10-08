@@ -109,6 +109,12 @@ public static class SponsorKeys
     public const string InboxCompletedSubject = "sponsor.inbox.completed.subject";
 
     [TranslationKey]
+    public const string InboxRaisedSubject = "sponsor.inbox.raised.subject";
+
+    [TranslationKey]
+    public const string BadAsk = "sponsor.error.badAsk";
+
+    [TranslationKey]
     public const string InboxOfferSubject = "sponsor.inbox.offer.subject";
 
     [TranslationKey]

@@ -116,6 +116,36 @@ public static class SponsorRules
         return SponsorPricing.RenewalCents(full, trust, deal.AnnualCents, deal.Terms, terms);
     }
 
+    /// <summary>
+    /// How open the sponsor is to a long partnership with this organization (#268), from what the organization knows: the trust the sponsor has in
+    /// it, the deals they completed together and how big the sponsor is. Never from hidden truth (INV-003). Pure.
+    /// </summary>
+    public static PartnershipBand PartnershipOf(SponsorsSection section, SponsorDefinition sponsor, OrganizationId organization)
+    {
+        ArgumentNullException.ThrowIfNull(section);
+        ArgumentNullException.ThrowIfNull(sponsor);
+        var completed = section.Deals.Count(deal => deal.Organization == organization && deal.SponsorId == sponsor.Id && deal.Status == DealStatus.Completed);
+        return SponsorPartnership.BandOf(SponsorPartnership.Score(
+            section.TrustOf(sponsor.Id, organization),
+            completed,
+            sponsor.BudgetLevel >= SponsorEstimates.BigSponsorBudgetLevel));
+    }
+
+    /// <summary>
+    /// The thousandths a sponsor adds to the annual amount at an anniversary of a long deal: only when the year that ended met the sponsor's
+    /// condition (a sponsor with no condition has none to miss) and the sponsor is open to it. A year with a missed or unsettled condition adds nothing.
+    /// </summary>
+    public static int AnniversaryRaiseMilli(SponsorsSection section, SponsorDefinition sponsor, SponsorDeal deal)
+    {
+        ArgumentNullException.ThrowIfNull(deal);
+        if (AmbitionOpen(sponsor) && deal.Outcome != DealObjectiveOutcome.Met)
+        {
+            return 0;
+        }
+
+        return SponsorPartnership.AnniversaryRaiseMilli(PartnershipOf(section, sponsor, deal.Organization));
+    }
+
     /// <summary>The authored objective scaled to the team's public strength, or the authored one when that strength is unknown.</summary>
     public static SponsorObjectiveSpec ForTeam(
         SponsorObjectiveSpec spec,

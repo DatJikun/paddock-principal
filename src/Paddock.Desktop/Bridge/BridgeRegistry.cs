@@ -65,7 +65,7 @@ public static class BridgeRegistry
         Endpoint(Command, "walkAway", typeof(NegotiationIdCall), typeof(CommandAck)),
         Endpoint(Command, "renewContract", typeof(RenewContractCall), typeof(CommandAck)),
         Endpoint(Command, "beginSponsorTalks", typeof(BeginSponsorCall), typeof(CommandAck)),
-        Endpoint(Command, "signSponsor", typeof(SponsorTalkCall), typeof(CommandAck)),
+        Endpoint(Command, "signSponsor", typeof(SponsorSignCall), typeof(CommandAck)),
         Endpoint(Command, "walkAwayFromTalks", typeof(SponsorTalkCall), typeof(CommandAck)),
         Endpoint(Command, "respondToSponsorOffer", typeof(SponsorOfferCall), typeof(CommandAck)),
         Endpoint(Command, "proposeSponsorTerms", typeof(SponsorTermsCall), typeof(CommandAck)),

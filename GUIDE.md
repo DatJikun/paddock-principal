@@ -324,7 +324,9 @@ Czy kusi Cię umowa na wiele sezonów z rabatem?
 Masz trzy miejsca na sponsorów. Jedna lista pokazuje wszystkich, z którymi możesz rozmawiać: nazwa, branża, miejsce i kwota rocznie. Klikasz sponsora, ustawiasz warunki umowy i potwierdzasz. Miejsce wybiera się samo, bo wynika z rodzaju sponsora.
 
 ```wybory
-Jak długo | umowa trwa od {SponsorEstimates.MinYears|lat} do {SponsorEstimates.MaxYears|lat}; dwuletnia płaci rocznie {SponsorEstimates.TwoYearPayMilli|m%} ceny na rok, trzyletnia {SponsorEstimates.ThreeYearPayMilli|m%}; za to nie szukasz sponsora co roku, a kwota nie zmienia się do końca umowy
+Jak długo | umowa trwa od {SponsorEstimates.MinYears|lat} do {SponsorEstimates.MaxYears|lat} i dłuższa płaci rocznie tyle samo co krótka; za to nie szukasz sponsora co roku, a zadowolony sponsor może podnieść kwotę w rocznicę
+Czy sponsor chce długiej współpracy | przed wyborem długości ekran mówi słowami, czy sponsor jest ostrożny, otwarty czy chce długiej współpracy; zależy to od zaufania do Ciebie, umów skończonych razem i wielkości sponsora (duży planuje dalej, od {SponsorEstimates.BigSponsorBudgetLevel|%} budżetu zespołu); otwarty sponsor podnosi kwotę w rocznicę o {SponsorEstimates.AnniversaryRaiseOpenMilli|m%}, a ten, który chce długiej współpracy, o {SponsorEstimates.AnniversaryRaiseEagerMilli|m%}, ale tylko gdy minął rok ze spełnionym warunkiem; o podwyżce dostajesz wiadomość
+Prośba o więcej | przy podpisaniu i przy przedłużeniu możesz poprosić o do {SponsorEstimates.AskMaxMilli|m%} więcej niż wycena; otwarty sponsor zgodzi się na do {SponsorEstimates.AskOpenLimitMilli|m%}, ten, który chce długiej współpracy, na do {SponsorEstimates.AskEagerLimitMilli|m%}, ostrożny zostaje przy wycenie; odpowiedź widzisz przed potwierdzeniem
 Jak trudny warunek | łatwiejszy płaci {SponsorEstimates.LighterPayMilli|m%} standardowej kwoty, trudniejszy {SponsorEstimates.HarderPayMilli|m%}; cel jest zawsze dopasowany do siły Twojego zespołu (jak u zarządu), więc mocny zespół dostaje wyższe cele; sponsor bez celu sportowego ma jedną wersję umowy
 Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, do limitu negocjatora; na razie nikt nie zabierze Ci sponsora
 Miejsce na aucie | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego; w latach 50. wszystkie trzy to miejsca techniczne
@@ -352,6 +354,8 @@ Przerywana linia: ile średnio zdobędziesz, czekając tyle dni, gdyby rywal mó
 ```pytania
 Czy podpisałbyś sponsora od razu, czy czekał?
 Skoro nikt nie zabiera sponsorów, czekanie zawsze się opłaca do limitu. Czy brakuje Ci tu ryzyka, czy wolisz spokój?
+Czy wiesz z ekranu, czy sponsor chce długiej współpracy, i czy to zmienia długość umowy, którą wybierasz?
+Czy możliwość poproszenia o trochę więcej to prawdziwa decyzja, czy prosisz zawsze o maksimum?
 Czy cele sponsorów są zrozumiałe i uczciwe, także na poziomie łatwiejszym i trudniejszym?
 Czy wybierałbyś dłuższą umowę za mniejszą kwotę rocznie?
 Czy życzenie narodowości jako sama premia jest dla Ciebie warte uwagi?

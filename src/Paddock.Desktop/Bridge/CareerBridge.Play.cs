@@ -741,7 +741,7 @@ public sealed partial class CareerBridge
             case "beginSponsorTalks":
                 return SponsorBegin(args, issued, out error);
             case "signSponsor":
-                return SponsorTalk(args, issued, static (manager, day, org, talk) => new SignAtCurrentTermsCommand { ManagerId = manager, IssuedOn = day, OrganizationId = org, TalkId = talk }, out error);
+                return SponsorSign(args, issued, out error);
             case "walkAwayFromTalks":
                 return SponsorTalk(args, issued, static (manager, day, org, talk) => new WalkAwayFromTalksCommand { ManagerId = manager, IssuedOn = day, OrganizationId = org, TalkId = talk }, out error);
             case "respondToSponsorOffer":
@@ -928,6 +928,28 @@ public sealed partial class CareerBridge
             OfferId = offer,
             Years = years.Value,
             Ambition = ambition,
+            AskMilli = IntOf(args, "askMilli") ?? 0,
+        };
+    }
+
+    private ICommand? SponsorSign(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var organization = TextOf(args, "organizationId");
+        var talk = TextOf(args, "talkId");
+        if (organization is null || talk is null)
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        return new SignAtCurrentTermsCommand
+        {
+            ManagerId = Human,
+            IssuedOn = issued,
+            OrganizationId = organization,
+            TalkId = talk,
+            AskMilli = IntOf(args, "askMilli") ?? 0,
         };
     }
 

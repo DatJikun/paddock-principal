@@ -162,8 +162,11 @@ public sealed record BeginSponsorCall(string ManagerId, string OrganizationId, s
 /// <summary>Changes the terms of open sponsor talks.</summary>
 public sealed record SponsorTermsCall(string ManagerId, string OrganizationId, string TalkId, int Years, string Ambition);
 
-/// <summary>Answers a sponsor's renewal offer with other terms.</summary>
-public sealed record SponsorCounterCall(string ManagerId, string OrganizationId, string OfferId, int Years, string Ambition);
+/// <summary>Answers a sponsor's renewal offer with other terms. <paramref name="AskMilli"/> is how many thousandths above the sponsor's quote the player asks (left out: none).</summary>
+public sealed record SponsorCounterCall(string ManagerId, string OrganizationId, string OfferId, int Years, string Ambition, int? AskMilli = null);
+
+/// <summary>Signs the current sponsor talks. <paramref name="AskMilli"/> is how many thousandths above the quote the player asks (left out: none).</summary>
+public sealed record SponsorSignCall(string ManagerId, string OrganizationId, string TalkId, int? AskMilli = null);
 
 /// <summary>Signs or leaves the current sponsor talks.</summary>
 public sealed record SponsorTalkCall(string ManagerId, string OrganizationId, string TalkId);

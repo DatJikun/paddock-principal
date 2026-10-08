@@ -29,8 +29,9 @@
   let ambition = $state(untrack(() => offer.ambition));
   let asking = $state<Ask | null>(null);
   let negotiating = $state(false);
+  let askMilli = $state('0');
 
-  let changed = $derived(years !== String(offer.years) || (offer.ambitionOpen && ambition !== offer.ambition));
+  let changed = $derived(years !== String(offer.years) || (offer.ambitionOpen && ambition !== offer.ambition) || askMilli !== '0');
   let chosen = $derived(offer.quotes.find((item) => String(item.years) === years && item.ambition === (offer.ambitionOpen ? ambition : 'standard')) ?? null);
   const level = (key: string) => tr.t(`sponsor.ambition.${key}`).toLowerCase();
   const summary = (y: string, a: string) =>
@@ -38,16 +39,21 @@
   /* The raise over the deal that ends, as the sponsor would say it. Zero when the old amount is unknown. */
   let raise = $derived(offer.previousAnnualCents > 0 ? Math.round((offer.annualCents / offer.previousAnnualCents - 1) * 100) : null);
 
+  let asked = $derived(chosen?.asks.find((item) => String(item.milli) === askMilli) ?? null);
+
   const askText = (ask: Ask) =>
     ask === 'counter'
-      ? tr.t('sponsor.ask.counter', { name: offer.sponsorName, terms: summary(years, ambition), amount: formatMoney(chosen?.annualCents ?? 0, tr.lang) })
+      ? tr.t('sponsor.ask.counter', { name: offer.sponsorName, terms: summary(years, ambition), amount: formatMoney(asked?.annualCents ?? chosen?.annualCents ?? 0, tr.lang) })
       : tr.t(ask === 'accept' ? 'sponsor.ask.accept' : 'sponsor.ask.decline', { name: offer.sponsorName });
 
   async function run() {
     const ask = asking;
     asking = null;
     if (ask === 'counter') {
-      if (await act('counterSponsorOffer', { organizationId: teamId, offerId: offer.id, years: Number(years), ambition: offer.ambitionOpen ? ambition : 'standard' })) negotiating = false;
+      if (await act('counterSponsorOffer', { organizationId: teamId, offerId: offer.id, years: Number(years), ambition: offer.ambitionOpen ? ambition : 'standard', askMilli: Number(askMilli) })) {
+        negotiating = false;
+        askMilli = '0';
+      }
     } else if (ask) await act('respondToSponsorOffer', { organizationId: teamId, offerId: offer.id, accept: ask === 'accept' });
   }
 </script>
@@ -75,7 +81,7 @@
   </div>
   <SponsorExtras {tr} wish={offer.wish} industry={offer.industryBonus} />
   {#if negotiating}
-    <TermsPicker {tr} group={`offer-${offer.id}`} quotes={offer.quotes} ambitionOpen={offer.ambitionOpen} bind:years bind:ambition />
+    <TermsPicker {tr} group={`offer-${offer.id}`} quotes={offer.quotes} ambitionOpen={offer.ambitionOpen} bind:years bind:ambition partnership={offer.partnership} askable bind:askMilli />
   {/if}
   {#if asking}
     <Confirmation {tr} {busy} ask={askText(asking)} onCancel={() => (asking = null)} onConfirm={run} />

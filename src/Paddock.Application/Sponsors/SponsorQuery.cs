@@ -14,7 +14,14 @@ namespace Paddock.Application.Sponsors;
 /// meeting it (#268). <paramref name="Condition"/> is null for a sponsor that asks nothing of the team's results. <paramref name="CapCents"/> is the
 /// most waiting can reach in open talks and zero everywhere else. The numbers come from the same functions the commands sign with.
 /// </summary>
-public sealed record SponsorQuoteView(int Years, string Ambition, long AnnualCents, long CapCents, TranslationMessage? Condition, long BonusCents);
+public sealed record SponsorQuoteView(
+    int Years,
+    string Ambition,
+    long AnnualCents,
+    long CapCents,
+    TranslationMessage? Condition,
+    long BonusCents,
+    IReadOnlyList<SponsorAskView> Asks);
 
 /// <summary>
 /// A sponsor's wish for a driver of one nationality (#268). A bonus only. <paramref name="Met"/> is null before a deal exists, otherwise whether
@@ -24,6 +31,19 @@ public sealed record SponsorWishView(string Nationality, bool RaceSeat, int Bonu
 
 /// <summary>What the sponsor's industry adds: goods with every instalment (<c>inKind</c>) or a sum with the first one (<c>signing</c>), in thousandths of the annual amount.</summary>
 public sealed record SponsorIndustryBonusView(string Kind, int Milli);
+
+/// <summary>
+/// What the sponsor would answer to an ask of <paramref name="Milli"/> thousandths above the quote: <c>accepted</c>, or <c>countered</c> at
+/// <paramref name="AppliedMilli"/>. <paramref name="AnnualCents"/> is what a year then pays on those terms, so the screen shows it and does no sums.
+/// </summary>
+public sealed record SponsorAskView(int Milli, string Outcome, int AppliedMilli, long AnnualCents);
+
+/// <summary>
+/// How open the sponsor is to a long partnership (#268), as a plain band (<c>reserved</c>, <c>open</c>, <c>eager</c>), what a good year would add at an
+/// anniversary (<paramref name="RaiseMilli"/>, zero for a reserved sponsor). It is read from what the team knows (trust, deals completed together,
+/// the sponsor's size), never from hidden truth (INV-003). The screen says it in words.
+/// </summary>
+public sealed record SponsorPartnershipView(string Band, int RaiseMilli);
 
 public sealed record SponsorDealView(
     string Id,
@@ -60,7 +80,8 @@ public sealed record SponsorTalkView(
     bool AmbitionOpen,
     IReadOnlyList<SponsorQuoteView> Quotes,
     SponsorWishView? Wish,
-    SponsorIndustryBonusView? IndustryBonus);
+    SponsorIndustryBonusView? IndustryBonus,
+    SponsorPartnershipView? Partnership);
 
 /// <summary>A renewal the sponsor offers. The player can answer it, or ask other terms while <paramref name="RoundsLeft"/> is above zero.</summary>
 public sealed record SponsorOfferView(
@@ -75,7 +96,8 @@ public sealed record SponsorOfferView(
     long PreviousAnnualCents,
     IReadOnlyList<SponsorQuoteView> Quotes,
     SponsorWishView? Wish,
-    SponsorIndustryBonusView? IndustryBonus);
+    SponsorIndustryBonusView? IndustryBonus,
+    SponsorPartnershipView? Partnership);
 
 /// <summary>A sponsor that could fill a slot, and the reason it cannot yet, if there is one.</summary>
 public sealed record SponsorCandidateView(string SponsorId, string SponsorName, TranslationMessage Industry, long IndicativeAnnualCents, TranslationMessage? Blocked);
@@ -95,7 +117,8 @@ public sealed record SponsorMarketRow(
     bool AmbitionOpen,
     IReadOnlyList<SponsorQuoteView> Quotes,
     SponsorWishView? Wish,
-    SponsorIndustryBonusView? IndustryBonus);
+    SponsorIndustryBonusView? IndustryBonus,
+    SponsorPartnershipView? Partnership);
 
 public sealed record SponsorSlotView(int Slot, TranslationMessage Kind, string? DealId, string? TalkId, IReadOnlyList<SponsorCandidateView> Candidates);
 
@@ -224,9 +247,10 @@ public static class SponsorQuery
                 talk.Years,
                 SponsorAmbitions.KeyOf(talk.Ambition),
                 sponsor is not null && SponsorRules.AmbitionOpen(sponsor),
-                sponsor is null ? [] : Quotes(sponsor, subject, environment, today, terms => talk.AnnualCentsOn(today, terms), terms => talk.CappedAnnualCentsFor(terms)),
+                sponsor is null ? [] : Quotes(sponsor, subject, environment, today, SponsorRules.PartnershipOf(section, sponsor, subject), terms => talk.AnnualCentsOn(today, terms), terms => talk.CappedAnnualCentsFor(terms)),
                 sponsor is null ? null : WishView(book, sponsor, today),
-                IndustryBonusOf(sponsor));
+                IndustryBonusOf(sponsor),
+                sponsor is null ? null : PartnershipView(section, sponsor, subject));
         }).ToArray();
 
         var offerViews = section.OpenOffersOf(subject).Select(offer =>
@@ -245,9 +269,10 @@ public static class SponsorQuery
                 deal?.AnnualCents ?? 0,
                 sponsor is null || deal is null
                     ? []
-                    : Quotes(sponsor, subject, environment, today, terms => SponsorRules.RenewalCents(book, environment, deal, sponsor, terms), null),
+                    : Quotes(sponsor, subject, environment, today, SponsorRules.PartnershipOf(section, sponsor, subject), terms => SponsorRules.RenewalCents(book, environment, deal, sponsor, terms), null),
                 sponsor is null ? null : WishView(book, sponsor, today),
-                IndustryBonusOf(sponsor));
+                IndustryBonusOf(sponsor),
+                sponsor is null ? null : PartnershipView(section, sponsor, subject));
         }).ToArray();
 
         var objectiveIds = deals.Where(deal => deal.ObjectiveId is not null).Select(deal => deal.ObjectiveId!).ToHashSet(StringComparer.Ordinal);
@@ -275,9 +300,30 @@ public static class SponsorQuery
             candidate.IndicativeAnnualCents,
             candidate.Blocked,
             SponsorRules.AmbitionOpen(sponsor),
-            Quotes(sponsor, subject, environment, today, terms => terms.AnnualCents(candidate.IndicativeAnnualCents), null),
+            Quotes(sponsor, subject, environment, today, SponsorRules.PartnershipOf(book.Section, sponsor, subject), terms => terms.AnnualCents(candidate.IndicativeAnnualCents), null),
             WishView(book, sponsor, today),
-            IndustryBonusOf(sponsor));
+            IndustryBonusOf(sponsor),
+            PartnershipView(book.Section, sponsor, subject));
+
+    private static SponsorPartnershipView PartnershipView(SponsorsSection section, SponsorDefinition sponsor, OrganizationId subject)
+    {
+        var band = SponsorRules.PartnershipOf(section, sponsor, subject);
+        return new SponsorPartnershipView(SponsorPartnership.KeyOf(band), SponsorPartnership.AnniversaryRaiseMilli(band));
+    }
+
+    /// <summary>What a sponsor of this band answers to each amount the player can ask for on a quote of <paramref name="quoteCents"/>, with the same functions the commands sign with.</summary>
+    private static IReadOnlyList<SponsorAskView> Asks(PartnershipBand band, long quoteCents) =>
+        SponsorEstimates.AskSteps
+            .Select(step =>
+            {
+                var answer = SponsorPartnership.Answer(step, band);
+                return new SponsorAskView(
+                    step,
+                    answer.Outcome == SponsorAskOutcome.Accepted ? "accepted" : "countered",
+                    answer.AppliedMilli,
+                    SponsorPartnership.Raised(quoteCents, answer.AppliedMilli));
+            })
+            .ToArray();
 
     /// <summary>
     /// The table of terms of one sponsor: every length from one to three years, and every ambition when the sponsor has a condition to change.
@@ -288,6 +334,7 @@ public static class SponsorQuery
         OrganizationId subject,
         SponsorEnvironment environment,
         GameDate today,
+        PartnershipBand band,
         Func<SponsorTerms, long> annual,
         Func<SponsorTerms, long>? cap)
     {
@@ -305,7 +352,8 @@ public static class SponsorQuery
                     cents,
                     cap?.Invoke(terms) ?? 0L,
                     ObjectiveOf(sponsor, subject, environment, today, ambition),
-                    BonusCents(sponsor, subject, environment, today, ambition, cents)));
+                    BonusCents(sponsor, subject, environment, today, ambition, cents),
+                    Asks(band, cents)));
             }
         }
 

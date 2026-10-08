@@ -138,11 +138,39 @@ public static class SponsorEstimates
     /// <summary>ESTIMATE (#268, owner decision): the longest deal is three years.</summary>
     public const int MaxYears = 3;
 
-    /// <summary>ESTIMATE (#268): a two-year deal pays this many thousandths of the one-year price a year: certainty is paid for with a little money.</summary>
-    public const int TwoYearPayMilli = 970;
+    /// <summary>
+    /// ESTIMATE (#268, owner decision): how many points a deal completed with the same sponsor adds to how open it is to a long partnership.
+    /// A longer deal pays the same a year as a short one ("then you would always sign for one year"); a long partnership is worth more
+    /// through the raises below.
+    /// </summary>
+    public const int OpennessPerCompletedDeal = 15;
 
-    /// <summary>ESTIMATE (#268): a three-year deal pays this many thousandths of the one-year price a year.</summary>
-    public const int ThreeYearPayMilli = 940;
+    /// <summary>ESTIMATE (#268): a sponsor this big (<see cref="BigSponsorBudgetLevel"/>) plans further ahead, which adds this many points of openness.</summary>
+    public const int OpennessBigSponsorBonus = 10;
+
+    /// <summary>ESTIMATE (#268): from this many points a sponsor keeps an eye on results and raises the amount for a good year. The starting trust is 50, so a new small backer is below it.</summary>
+    public const int OpennessOpenScore = 55;
+
+    /// <summary>ESTIMATE (#268): from this many points a sponsor wants a long partnership.</summary>
+    public const int OpennessEagerScore = 75;
+
+    /// <summary>ESTIMATE (#268): at an anniversary after a year in which the condition was met, an open sponsor raises the annual amount by this many thousandths.</summary>
+    public const int AnniversaryRaiseOpenMilli = 30;
+
+    /// <summary>ESTIMATE (#268): the same raise for a sponsor that wants a long partnership.</summary>
+    public const int AnniversaryRaiseEagerMilli = 60;
+
+    /// <summary>ESTIMATE (#268): the most the player can ask above the quote, in thousandths. Above what the sponsor will pay it holds at its own limit.</summary>
+    public const int AskMaxMilli = 100;
+
+    /// <summary>ESTIMATE (#268): an open sponsor pays up to this many thousandths above the quote when asked.</summary>
+    public const int AskOpenLimitMilli = 30;
+
+    /// <summary>ESTIMATE (#268): a sponsor that wants a long partnership pays up to this many thousandths above the quote when asked.</summary>
+    public const int AskEagerLimitMilli = 60;
+
+    /// <summary>ESTIMATE (#268): the amounts above the quote, in thousandths, that the screen offers to ask for.</summary>
+    public static readonly IReadOnlyList<int> AskSteps = [0, 30, 60, 100];
 
     /// <summary>ESTIMATE (#268): an easier condition (a lower target) pays this many thousandths of the standard price.</summary>
     public const int LighterPayMilli = 930;

@@ -179,16 +179,16 @@ public sealed class CareerWiringTests
 
         CareerHost.Run(session, 1955, null, CareerKit.Options);
 
-        // The run has no standings, so a position objective cannot be shown to be met: it fails on 31 December. The board must have
-        // seen it open to move its confidence, and it is settled afterwards.
+        // The game always classifies constructors (#264), so a position objective is met or failed on 31 December. The board must have
+        // seen it open to move its confidence either way, and it is settled afterwards.
         var objectives = session.World.Section<ObjectivesSection>(ObjectivesSection.SectionName)!;
         var board = session.World.Section<BoardSection>(BoardSection.SectionName)!;
         Assert.Empty(objectives.Due(new GameDate(1955, 12, 31)));
         Assert.All(
             board.Boards,
-            record => Assert.True(
-                record.ConfidenceTenths < BoardEstimates.InitialConfidenceTenths,
-                record.Organization.Value + " kept its initial confidence although its season objective failed."));
+            record => Assert.NotEqual(
+                BoardEstimates.InitialConfidenceTenths,
+                record.ConfidenceTenths));
     }
 
     [Fact]

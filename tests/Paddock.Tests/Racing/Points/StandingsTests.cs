@@ -60,13 +60,14 @@ public class StandingsTests
     }
 
     [Fact]
-    public void EraWithoutConstructorsTitle_HasAnEmptyConstructorTable()
+    public void EraWithoutAnOfficialConstructorsTitle_StillHasAConstructorTable()
     {
+        // The data says no title in 1953; the game always classifies constructors (#264).
         var rules = Rules(1953);
         var standings = Season(rules, 2, Classify(rules, Car("a", 50)));
 
-        Assert.Empty(standings.Constructors());
-        Assert.False(standings.ConstructorsChampionDecision().IsDecided);
+        var row = Assert.Single(standings.Constructors());
+        Assert.True(row.CountedPoints > 0m);
     }
 
     [Fact]

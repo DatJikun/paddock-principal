@@ -76,6 +76,9 @@ public static class InfrastructureEstimates
     /// <summary>ESTIMATE: understanding points one booked test adds, through the same cap as daily growth.</summary>
     public const double UnderstandingPerTest = 2.4;
 
+    /// <summary>ESTIMATE: days between booking a private test and the test itself. Until then the booking can be cancelled for free.</summary>
+    public const int TestLeadDays = 7;
+
     /// <summary>ESTIMATE: private tests allowed when in-season testing is unrestricted.</summary>
     public const int TestsUnrestricted = 12;
 

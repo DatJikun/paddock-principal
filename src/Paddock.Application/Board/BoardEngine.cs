@@ -186,6 +186,15 @@ public sealed class BoardEngine
         }
     }
 
+    /// <summary>Rounds of this season's calendar, public to everyone. The board's own assumption when the calendar is not stored yet.</summary>
+    private int SeasonRounds(GameDate today)
+    {
+        var championship = _book.World.Section<ChampionshipSection>(ChampionshipSection.SectionName);
+        return championship is not null && championship.Season == today.Year && championship.TotalRounds > 0
+            ? championship.TotalRounds
+            : BoardEstimates.FallbackSeasonRounds;
+    }
+
     private bool SeasonAlreadyRaced(GameDate today)
     {
         var championship = _book.World.Section<ChampionshipSection>(ChampionshipSection.SectionName);
@@ -551,7 +560,7 @@ public sealed class BoardEngine
     }
 
     /// <summary>Grants the season objective for a chosen ambition. The expected position stays the public one until this runs.</summary>
-    public void GrantSeason(OrganizationId organization, int expected, int fieldSize, SeasonAmbition ambition, decimal baseline, GameDate today)
+    public void GrantSeason(OrganizationId organization, int expected, int fieldSize, SeasonAmbition ambition, decimal baseline, GameDate today, int? wins = null)
     {
         var target = SeasonTarget.Position(expected, fieldSize, ambition);
         Grant(
@@ -565,7 +574,8 @@ public sealed class BoardEngine
             today,
             SeasonTarget.PenaltyTenths(ambition),
             SeasonTarget.KeyOf(ambition),
-            ambition == SeasonAmbition.Ambitious);
+            ambition == SeasonAmbition.Ambitious,
+            wins ?? SeasonTarget.WinsRequired(expected, fieldSize, SeasonRounds(today), ambition));
         var board = _book.Section.Board(organization);
         if (board is not null)
         {
@@ -597,7 +607,12 @@ public sealed class BoardEngine
         }
 
         var baseline = _book.Facts.Number(owner, ObjectiveFactKeys.ChampionshipPosition) ?? expected;
-        GrantSeason(owner, expected, fieldSize, ambition, baseline, today);
+        int? wins = ambition == SeasonAmbition.Ambitious
+            && item.Arguments.TryGetValue("ambitiousWins", out var winsText)
+            && int.TryParse(winsText, NumberStyles.None, CultureInfo.InvariantCulture, out var asked)
+                ? asked
+                : null;
+        GrantSeason(owner, expected, fieldSize, ambition, baseline, today, wins);
     }
 
     // ---------------------------------------------------------------- dismissal and replacement
@@ -910,7 +925,8 @@ public sealed class BoardEngine
         GameDate today,
         int? penaltyTenths = null,
         string? ambition = null,
-        bool dismissOnFail = false)
+        bool dismissOnFail = false,
+        int wins = 0)
     {
         var penalty = penaltyTenths ?? tenths;
         var metPoints = (tenths / 10).ToString(CultureInfo.InvariantCulture);
@@ -938,8 +954,8 @@ public sealed class BoardEngine
                 organization,
                 kind,
                 reason,
-                new ChampionshipPositionAtMost(target),
-                baseline,
+                wins > 0 ? new ChampionshipPositionWithWins(target, wins) : new ChampionshipPositionAtMost(target),
+                wins > 0 ? null : baseline,
                 deadline,
                 new ObjectiveEffect(BoardKeys.EffectConfidenceUp, met),
                 new ObjectiveEffect(BoardKeys.EffectConfidenceDown, failed)),
@@ -962,14 +978,16 @@ public sealed class BoardEngine
             (SeasonTarget.RewardTenths(ambition) / 10).ToString(CultureInfo.InvariantCulture);
         string Loss(SeasonAmbition ambition) =>
             (SeasonTarget.PenaltyTenths(ambition) / 10).ToString(CultureInfo.InvariantCulture);
+        var wins = SeasonTarget.WinsRequired(expected, fieldSize, SeasonRounds(today), SeasonAmbition.Ambitious);
         _inbox.Post(
             _managers,
             manager,
             new InboxItemDraft(
                 SeasonTargetKind,
-                BoardKeys.SeasonTargetSubject,
+                wins > 0 ? BoardKeys.SeasonTargetWinsSubject : BoardKeys.SeasonTargetSubject,
                 [
                     new(OrganizationArgument, organization.Value),
+                    new("ambitiousWins", wins.ToString(CultureInfo.InvariantCulture)),
                     new("expected", expected.ToString(CultureInfo.InvariantCulture)),
                     new("field", fieldSize.ToString(CultureInfo.InvariantCulture)),
                     new("safeTarget", Text(SeasonAmbition.Safe)),
@@ -985,7 +1003,10 @@ public sealed class BoardEngine
                 [
                     new InboxOption(SeasonTarget.Safe, BoardKeys.SeasonTargetSafeLabel, BoardKeys.SeasonTargetSafeConsequence),
                     new InboxOption(SeasonTarget.Expected, BoardKeys.SeasonTargetExpectedLabel, BoardKeys.SeasonTargetExpectedConsequence),
-                    new InboxOption(SeasonTarget.Ambitious, BoardKeys.SeasonTargetAmbitiousLabel, BoardKeys.SeasonTargetAmbitiousConsequence),
+                    new InboxOption(
+                        SeasonTarget.Ambitious,
+                        BoardKeys.SeasonTargetAmbitiousLabel,
+                        wins > 0 ? BoardKeys.SeasonTargetAmbitiousWinsConsequence : BoardKeys.SeasonTargetAmbitiousConsequence),
                 ],
                 today.AddDays(BoardEstimates.SeasonTargetDecisionDays),
                 SeasonTarget.Expected),

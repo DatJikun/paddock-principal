@@ -94,10 +94,10 @@ public class RaceCommandTests
         var fifties = Run("race", "--year", "1955", "--round", "1", "--seed", "7").Lines;
         var eighties = Run("race", "--year", "1988", "--round", "1", "--seed", "7").Lines;
 
-        // 1955: shared cars and no constructors' points; 1988: no shared cars and a constructors' table.
+        // 1955: shared cars; 1988: no shared cars. Both print a constructors table (#264: the game always classifies constructors).
         Assert.Contains("== Shared drives ==", fifties);
         Assert.DoesNotContain("== Shared drives ==", eighties);
-        Assert.DoesNotContain(fifties, l => l.Contains("constructor point", StringComparison.Ordinal));
+        Assert.Contains(fifties, l => l.Contains("constructor point", StringComparison.Ordinal));
         Assert.Contains(eighties, l => l.Contains("constructor point", StringComparison.Ordinal));
     }
 

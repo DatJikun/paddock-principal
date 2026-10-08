@@ -1,4 +1,5 @@
 using Paddock.Domain.Development;
+using Paddock.Domain.Time;
 
 namespace Paddock.Domain.Infrastructure;
 
@@ -90,6 +91,13 @@ public static class InfrastructureMath
     {
         var next = qualityMilli + UpgradeGainMilli(qualityMilli, year);
         return Math.Clamp(next, 0, InfrastructureEstimates.MaxQualityMilli);
+    }
+
+    /// <summary>The day a test booked on <paramref name="booked"/> runs: the lead time later, never past 31 December of the booking year (the era cap counts tests per year).</summary>
+    public static GameDate TestDate(GameDate booked)
+    {
+        var due = booked.AddDays(InfrastructureEstimates.TestLeadDays);
+        return due.Year == booked.Year ? due : GameDate.SeasonEnd(booked.Year);
     }
 
     /// <summary>Cents of one private test-track rental. Zero when the typical budget is missing.</summary>

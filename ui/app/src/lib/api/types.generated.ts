@@ -99,6 +99,12 @@ export interface CalendarView {
   season: number;
 }
 
+export interface CancelTestCall {
+  managerId: string;
+  organizationId: string;
+  testOn: string;
+}
+
 export interface CarBandView {
   high: number;
   low: number;
@@ -735,6 +741,8 @@ export interface PoolItemView {
 }
 
 export interface PoolView {
+  cheapProgrammeCostCents: number;
+  fastProgrammeCostCents: number;
   focus: ScoutFocusKind | null;
   focusHandle: string | null;
   items: PoolItemView[];
@@ -1134,8 +1142,10 @@ export interface TeamsCall {
 
 export interface TestRentalView {
   allowed: boolean;
+  booked: IsoDate[];
   cap: number;
   costCents: number;
+  nextDate: IsoDate;
   used: number;
 }
 
@@ -1239,6 +1249,7 @@ export interface BridgeCommandMap {
   commitConcept: { args: CommitConceptCall; result: CommandAck };
   upgradeFacility: { args: UpgradeFacilityCall; result: CommandAck };
   bookTest: { args: BookTestCall; result: CommandAck };
+  cancelTest: { args: CancelTestCall; result: CommandAck };
   assignScoutFocus: { args: ScoutFocusCall; result: CommandAck };
   fundJunior: { args: FundJuniorCall; result: CommandAck };
   signPoolDriver: { args: SignPoolCall; result: CommandAck };

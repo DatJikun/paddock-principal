@@ -18,16 +18,15 @@ using Paddock.Simulation.Supply;
 
 namespace Paddock.Application.Racing;
 
-/// <summary>Who starts a championship round, and who stays home because running plus transport is above the cash on hand.</summary>
+/// <summary>Who starts a championship round. Cash is never a gate (#264): a team with no money still races and the bill posts to its ledger.</summary>
 public sealed record RaceField(
     ImmutableArray<RaceEntry> Entries,
-    IReadOnlyList<string> SkippedTeamIds,
     ImmutableArray<StandInFact> StandIns = default);
 
 /// <summary>
 /// Builds the grid from the world (T47, open question 3, PP-050). Each team starts the cars it owns this season, one
-/// contracted driver per car. A team whose cash is below the race running cost plus transport (the same ESTIMATES the
-/// ledger charges) does not start. No private entries and no shared drives.
+/// contracted driver per car. Cash is not a gate: the running cost and transport post to the ledger after the race and
+/// may push the balance below zero (consequences come from finance and the board). No private entries and no shared drives.
 /// </summary>
 public static class RaceFieldBuilder
 {
@@ -50,7 +49,7 @@ public static class RaceFieldBuilder
         var finance = world.Section<FinanceSection>(FinanceSection.SectionName);
         if (cars is null)
         {
-            return new RaceField([], []);
+            return new RaceField([]);
         }
 
         var people = new Dictionary<string, Person>(world.Persons.Count, StringComparer.Ordinal);
@@ -59,15 +58,11 @@ public static class RaceFieldBuilder
             people[person.Id.Value] = person;
         }
 
-        var races = finance is { Races: > 0 } ? finance.Races : racesInSeason;
-        var running = finance is null ? 0L : RunningCost(finance, races);
-        var typical = finance?.TypicalCents ?? 0L;
         var limits = EraPerformanceLimits.EstimateFor(today.Year);
         var formula = rules.Values.TryGetValue("engine_formula", out var engineFormula) ? engineFormula : "";
         var usedDrivers = new HashSet<string>(StringComparer.Ordinal);
         var entries = ImmutableArray.CreateBuilder<RaceEntry>();
         var standIns = ImmutableArray.CreateBuilder<StandInFact>();
-        var skipped = new List<string>();
         foreach (var team in CareerTeams.Active(world, today))
         {
             var owned = cars.Of(team.Id)
@@ -80,15 +75,6 @@ public static class RaceFieldBuilder
             }
 
             var staff = RaceStaff.Of(world, team.Id, today);
-
-            var transport = TransportCost(team.Id, typical, circuitCountry, teamCountries);
-            if (finance is not null && running + transport > 0
-                && finance.HasBook(team.Id)
-                && finance.BalanceOf(team.Id) < running + transport)
-            {
-                skipped.Add(team.Id.Value);
-                continue;
-            }
 
             if (finance is not null && !finance.HasBook(team.Id))
             {
@@ -226,24 +212,7 @@ public static class RaceFieldBuilder
             }
         }
 
-        skipped.Sort(StringComparer.Ordinal);
-        return new RaceField(entries.ToImmutable(), skipped, standIns.ToImmutable());
-    }
-
-    /// <summary>
-    /// ESTIMATE: the same per-race running cost <see cref="RevenueModels"/> posts, so "cannot afford the race" is that bill
-    /// and not a second threshold. <paramref name="races"/> is the season length the ledger is splitting the year across.
-    /// </summary>
-    public static long RunningCost(FinanceSection finance, int races)
-    {
-        ArgumentNullException.ThrowIfNull(finance);
-        if (finance.TypicalCents <= 0 || races < 1)
-        {
-            return 0;
-        }
-
-        var popularity = finance.PopularityMilli / 1000.0;
-        return Money.RoundCents(finance.TypicalCents * FinanceEstimates.RaceRunningShare * popularity / races);
+        return new RaceField(entries.ToImmutable(), standIns.ToImmutable());
     }
 
     /// <summary>

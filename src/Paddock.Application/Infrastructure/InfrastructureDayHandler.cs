@@ -1,6 +1,7 @@
 using System.Globalization;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
+using Paddock.Domain.Development;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Inbox;
 using Paddock.Domain.Infrastructure;
@@ -10,7 +11,7 @@ using Paddock.Simulation.Time;
 namespace Paddock.Application.Infrastructure;
 
 /// <summary>
-/// One lived day of facilities: a build that has reached its end day becomes usable and posts an inbox notice; on 1 January
+/// One lived day of facilities: a booked private test runs (the car learns, the rental is charged, an inbox notice says what it gave); a build that has reached its end day becomes usable and posts an inbox notice; on 1 January
 /// each owned facility pays upkeep. Quiet days write nothing.
 /// </summary>
 public sealed class InfrastructureDayHandler : IDayHandler
@@ -52,7 +53,9 @@ public sealed class InfrastructureDayHandler : IDayHandler
         }
 
         var finance = _book.Finance;
+        var cars = _book.Cars;
         var changed = false;
+        var carsChanged = false;
         foreach (var facility in section.Facilities)
         {
             if (facility.BuildEnds is { } ends && today >= ends)
@@ -62,6 +65,57 @@ public sealed class InfrastructureDayHandler : IDayHandler
                 changed = true;
                 Notice(facility.Organization, facility.Kind, today);
             }
+        }
+
+        foreach (var booking in section.Tests.Where(test => test.Date == today).ToArray())
+        {
+            changed = true;
+            var held = cars.Of(booking.Organization).OrderBy(car => car.Id, StringComparer.Ordinal).ToArray();
+            if (held.Length == 0)
+            {
+                section = section.RemoveTest(booking);
+                NoticeTest(booking.Organization, InfrastructureKeys.TestNoCarSubject, today, 0, 0);
+                continue;
+            }
+
+            var cap = DevelopmentMath.UnderstandingCap(_environment.TestingRule(today.Year), aeroTesting: null);
+            var gained = 0d;
+            foreach (var car in held)
+            {
+                var grown = DevelopmentMath.GrowUnderstanding(car.Understanding, InfrastructureEstimates.UnderstandingPerTest, cap);
+                gained += grown - car.Understanding;
+                if (grown != car.Understanding)
+                {
+                    cars = cars.Replace(car.WithDesign(
+                        car.Season,
+                        car.Concept,
+                        car.Levels,
+                        car.ConceptCeiling,
+                        grown,
+                        car.TyreWearMultiplier,
+                        car.SupplierChangeCost));
+                    carsChanged = true;
+                }
+            }
+
+            if (finance.HasBook(booking.Organization))
+            {
+                finance = finance.Post(
+                    booking.Organization,
+                    today,
+                    LedgerCategories.Infrastructure,
+                    "test",
+                    -booking.CostCents,
+                    InfrastructureKeys.LedgerTest);
+            }
+
+            var average = (int)Math.Round(gained / held.Length, MidpointRounding.AwayFromZero);
+            NoticeTest(
+                booking.Organization,
+                average > 0 ? InfrastructureKeys.TestDoneSubject : InfrastructureKeys.TestCappedSubject,
+                today,
+                average,
+                booking.CostCents);
         }
 
         if (today.IsSeasonStart)
@@ -92,7 +146,32 @@ public sealed class InfrastructureDayHandler : IDayHandler
 
         if (changed)
         {
-            _book.Write(section, finance.HasBooks ? finance : null);
+            _book.Write(section, finance.HasBooks ? finance : null, carsChanged ? cars : null);
+        }
+    }
+
+    private void NoticeTest(Paddock.Domain.World.OrganizationId organization, string subject, GameDate today, int gain, long costCents)
+    {
+        if (_inbox is null || _managers is null)
+        {
+            return;
+        }
+
+        foreach (var manager in _environment.Control.ManagersOf(organization))
+        {
+            var draft = new InboxItemDraft(
+                InfrastructureKeys.TestNoticeKind,
+                subject,
+                [
+                    new KeyValuePair<string, string>("gain", gain.ToString(CultureInfo.InvariantCulture)),
+                    new KeyValuePair<string, string>("cost", "$" + new Money(costCents).WholeDollars.ToString("N0", CultureInfo.InvariantCulture)),
+                    new KeyValuePair<string, string>("organization", organization.Value),
+                    new KeyValuePair<string, string>("date", today.ToString()),
+                ],
+                options: null,
+                validUntil: null,
+                defaultOptionId: null);
+            _inbox.Post(_managers, manager, draft, today);
         }
     }
 

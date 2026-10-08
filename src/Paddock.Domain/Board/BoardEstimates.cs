@@ -92,6 +92,18 @@ public static class BoardEstimates
     /// <summary>ESTIMATE (PP-058): places easier than the expected finish that the safe target asks for.</summary>
     public const int SafePlacesEasier = 2;
 
+    /// <summary>ESTIMATE (#264): a team expected to lead has only one place to give: its safe target is P2.</summary>
+    public const int SafePlacesEasierForLeader = 1;
+
+    /// <summary>
+    /// ESTIMATE (#264): share of the season's races a team expected to lead must win for the ambitious target ("P1 and at least N wins").
+    /// N is derived from the public season length only: the board reads no hidden car strength (INV-003).
+    /// </summary>
+    public const double AmbitiousWinShare = 0.4;
+
+    /// <summary>ESTIMATE (#264): season length the board assumes when the calendar is not stored yet.</summary>
+    public const int FallbackSeasonRounds = 8;
+
     /// <summary>ESTIMATE (PP-058): places harder than the expected finish that the ambitious target asks for.</summary>
     public const int AmbitiousPlacesHarder = 2;
 

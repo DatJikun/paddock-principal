@@ -34,6 +34,12 @@
     asking = null;
   }
 
+  async function cancelTest(testOn: string) {
+    if (!team) return;
+    await act('cancelTest', { organizationId: team.organizationId, testOn });
+    asking = null;
+  }
+
   const fill = (facility: OwnFacilityView) => Math.max(0, Math.min(100, facility.relativeQuality * 100));
 </script>
 
@@ -97,7 +103,7 @@
           <Confirmation
             {tr}
             {busy}
-            ask={tr.t('infra.tests.ask', { cost: formatMoney(team.tests.costCents, tr.lang) })}
+            ask={tr.t('infra.tests.ask', { cost: formatMoney(team.tests.costCents, tr.lang), date: formatDate(team.tests.nextDate, tr.lang) })}
             onCancel={() => (asking = null)}
             onConfirm={rent}
           />
@@ -106,6 +112,24 @@
             <button class="btn primary" type="button" disabled={busy || !team.tests.allowed} onclick={() => (asking = 'test')}>{tr.t('infra.tests.rent')}</button>
           </div>
         {/if}
+        {#each team.tests.booked as testOn (testOn)}
+          {#if asking === `cancel:${testOn}`}
+            <Confirmation
+              {tr}
+              {busy}
+              ask={tr.t('infra.tests.cancel.ask', { date: formatDate(testOn, tr.lang) })}
+              onCancel={() => (asking = null)}
+              onConfirm={() => cancelTest(testOn)}
+            />
+          {:else}
+            <div class="confirm">
+              <div class="fields">
+                <div class="fld"><span class="meta">{tr.t('infra.tests.booked')}</span><span class="v num">{formatDate(testOn, tr.lang)}</span></div>
+              </div>
+              <button class="btn" type="button" disabled={busy} onclick={() => (asking = `cancel:${testOn}`)}>{tr.t('infra.tests.cancel')}</button>
+            </div>
+          {/if}
+        {/each}
       </div>
     </section>
 

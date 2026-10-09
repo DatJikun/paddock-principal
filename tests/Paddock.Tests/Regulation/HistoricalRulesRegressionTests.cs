@@ -17,16 +17,17 @@ namespace Paddock.Tests.Regulation;
 /// Re-pinned again in #268 (academy, PP-069): the talent pool section moved to schema 2, juniors are recruited into an academy per team and the
 /// programmes changed their speed-up; none of it touches the regulations.
 /// Re-pinned again in #268 (infrastructure): a career pays its race travel from the ledger, so the season's transport share changes the state hash.
+/// Re-pinned again in #270 (crash damage): a crash can damage a car and a repair costs money, so a 1955 career's ledger and hash move.
 /// </summary>
 public class HistoricalRulesRegressionTests
 {
     private const ulong Seed = 7;
 
-    private const string HashOnTheLastDayOf1955 = "ae6b5ba11e5385716424bcab549cea410e99c0ef11b5a190310e83850dd70e36";
+    private const string HashOnTheLastDayOf1955 = "013c8bc4aa531191d4c776615f09eca867caf7a7523c606fd5ca7dfb5366c126";
 
-    private const string HashAfterTheSeasonTurned = "54eb63c66dbc83dab67ddb4a4029b185edd1ca21b168bac21d3ddc2008649150";
+    private const string HashAfterTheSeasonTurned = "06d27a3476b0c17f318eb46d3c040fba1abbca4e17a0b334a9d3ae24476ef1d9";
 
-    private const string HashAfterTwoSeasons = "bfa75b8703d4ed2624bcac5254aef90b197bbc306e99619a237e6b6c5ab8b6ff";
+    private const string HashAfterTwoSeasons = "6dce07333ebc32d35f6f37ff25c4453415564b41bb13db3092ce8431e4da1db0";
 
     private static (string Hash, bool HasRegulations, int Season, int Rounds, int NextSessions) Probe(GameDate stopOn)
     {

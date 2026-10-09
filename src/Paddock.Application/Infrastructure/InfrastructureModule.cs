@@ -36,7 +36,8 @@ public sealed class InfrastructureModule : CareerModule
             context.Require<IOrganizationControl>(),
             catalog,
             context.Inputs.TeamCountries,
-            context.Inputs.RulePeriods);
+            context.Inputs.RulePeriods,
+            session.Clock.MasterSeed);
         context.Provide(book);
         context.Provide(environment);
         context.AddCommandHandlers(dispatcher => InfrastructureRegistration.Register(dispatcher, book, environment));

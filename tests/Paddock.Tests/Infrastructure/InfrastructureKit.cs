@@ -27,7 +27,7 @@ internal sealed class InfrastructureKit
 
     private WorldState _world;
 
-    public InfrastructureKit(bool cars = true, string? testing = "unrestricted")
+    public InfrastructureKit(bool cars = true, string? testing = "unrestricted", ulong masterSeed = 0)
     {
         var (world, _) = WorldState.At(Opening).AddOrganization(Team(Alfa, "Alfa"));
         (world, _) = world.AddOrganization(Team(Beta, "Beta"));
@@ -59,7 +59,8 @@ internal sealed class InfrastructureKit
             Control,
             Catalog,
             new Dictionary<string, string>(StringComparer.Ordinal) { ["alfa"] = "ITA", ["beta"] = "GBR" },
-            periods);
+            periods,
+            masterSeed);
         Inbox = new InboxBook();
         Dispatcher = new CommandDispatcher();
         InfrastructureRegistration.Register(Dispatcher, Book, Environment);

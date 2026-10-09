@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Paddock.Application.Career;
+using Paddock.Application.Cars;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Inbox;
@@ -21,7 +22,15 @@ namespace Paddock.Application.Racing;
 /// <summary>Who starts a championship round. Cash is never a gate (#264): a team with no money still races and the bill posts to its ledger.</summary>
 public sealed record RaceField(
     ImmutableArray<RaceEntry> Entries,
-    ImmutableArray<StandInFact> StandIns = default);
+    ImmutableArray<StandInFact> StandIns = default,
+    ImmutableArray<CarAbsence> Absences = default,
+    ImmutableArray<SpareRun> SpareRuns = default);
+
+/// <summary>A damaged car that cannot start (#270): not repaired by the race day, and no spare chassis free. HasSpare is true when the team has a spare but its other car runs on it.</summary>
+public sealed record CarAbsence(string CarId, OrganizationId Organization, GameDate ReadyOn, bool HasSpare);
+
+/// <summary>A damaged car that starts on the team's older spare chassis (#270).</summary>
+public sealed record SpareRun(string CarId, OrganizationId Organization, GameDate ReadyOn);
 
 /// <summary>
 /// Builds the grid from the world (T47, open question 3, PP-050). Each team starts the cars it owns this season, one
@@ -47,6 +56,7 @@ public static class RaceFieldBuilder
         ArgumentOutOfRangeException.ThrowIfLessThan(racesInSeason, 1);
         var cars = world.Section<CarsSection>(CarsSection.SectionName);
         var finance = world.Section<FinanceSection>(FinanceSection.SectionName);
+        var damage = world.Section<CarDamageSection>(CarDamageSection.SectionName);
         if (cars is null)
         {
             return new RaceField([]);
@@ -63,6 +73,8 @@ public static class RaceFieldBuilder
         var usedDrivers = new HashSet<string>(StringComparer.Ordinal);
         var entries = ImmutableArray.CreateBuilder<RaceEntry>();
         var standIns = ImmutableArray.CreateBuilder<StandInFact>();
+        var absences = ImmutableArray.CreateBuilder<CarAbsence>();
+        var spareRuns = ImmutableArray.CreateBuilder<SpareRun>();
         foreach (var team in CareerTeams.Active(world, today))
         {
             var owned = cars.Of(team.Id)
@@ -84,8 +96,27 @@ public static class RaceFieldBuilder
             var (tyreProfile, partnerTuned) = supply is null
                 ? (TyreSupplierProfile.Neutral, false)
                 : SupplyPerformance.TyresFor(supply, team.Id, today);
-            foreach (var car in owned)
+            var spareTaken = false;
+            foreach (var ownedCar in owned)
             {
+                // A crashed car that is not repaired by the race day runs on the team's older spare, or stays out (#270).
+                var car = ownedCar;
+                if (damage?.OpenOn(ownedCar.Id, today) is { } open)
+                {
+                    var spare = damage.SpareOf(team.Id);
+                    if (spare is not null && !spareTaken)
+                    {
+                        spareTaken = true;
+                        car = CarDamageDesk.OnSpare(ownedCar, spare);
+                        spareRuns.Add(new SpareRun(ownedCar.Id, team.Id, open.ReadyOn));
+                    }
+                    else
+                    {
+                        absences.Add(new CarAbsence(ownedCar.Id, team.Id, open.ReadyOn, spare is not null));
+                        continue;
+                    }
+                }
+
                 // A car with nobody in it (every contract of its seat ended, #253) is filled the way an injured driver's car is:
                 // the player's choice from the inbox, else reserve, free agent, talent pool; the car stays out only when nobody is left.
                 var vacant = car.Driver is null;
@@ -212,7 +243,7 @@ public static class RaceFieldBuilder
             }
         }
 
-        return new RaceField(entries.ToImmutable(), standIns.ToImmutable());
+        return new RaceField(entries.ToImmutable(), standIns.ToImmutable(), absences.ToImmutable(), spareRuns.ToImmutable());
     }
 
     /// <summary>

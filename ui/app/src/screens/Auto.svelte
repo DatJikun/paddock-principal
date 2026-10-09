@@ -29,6 +29,10 @@
   const AEROS = ['Straights', 'Balanced', 'Corners'] as const;
 
   let view = $derived<OwnDevelopmentView | null>(data.development.own[0] ?? null);
+  let damaged = $derived(data.cars.damage ?? []);
+  let spare = $derived((data.cars.spares ?? [])[0] ?? null);
+  /* The car number the player knows: its place among the team's own cars. */
+  const carNumber = (carId: string) => Math.max(1, data.cars.own.findIndex((car) => car.carId === carId) + 1);
 
   type Draft = { share: number; philosophy: number; aero: number };
   const draftOf = (v: OwnDevelopmentView | null): Draft => ({
@@ -163,6 +167,23 @@
           </ul>
         {:else}
           <Status text={tr.t('dev.noNotes')} />
+        {/if}
+      </div>
+    </section>
+
+    <section class="panel p-damage">
+      <header><h2>{tr.t('dev.damage.title')}</h2></header>
+      <div class="body">
+        {#each damaged as hurt (hurt.carId)}
+          <div class="fld">
+            <span class="meta">{tr.t('dev.car', { n: String(carNumber(hurt.carId)) })}: {tr.t(`dev.damage.source.${hurt.source}`)}</span>
+            <span class="v"><b>{tr.t(`dev.damage.kind.${hurt.kind}`)}</b>, {tr.t('dev.damage.until', { date: formatDate(hurt.readyOn, tr.lang) })} ({tr.tCount('shell.days', hurt.daysLeft)})</span>
+          </div>
+        {/each}
+        {#if spare}
+          <span class="meta">{tr.t('dev.spare.has', { season: String(spare.season), slower: String(spare.slowerPercent) })}</span>
+        {:else}
+          <span class="meta">{tr.t('dev.spare.none')}</span>
         {/if}
       </div>
     </section>

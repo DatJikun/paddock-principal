@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using Paddock.Application.Career;
+using Paddock.Application.Cars;
 using Paddock.Application.Contracts;
 using Paddock.Application.Development;
 using Paddock.Application.Finance;
@@ -65,6 +66,7 @@ public sealed class RaceWeekendDay : IDayHandler
 
         if (today.IsSeasonEnd)
         {
+            Desk().CloseSeason(today, CareerTeams.Active(_context.Session.World, today).Select(team => team.Id).ToArray());
             ScheduleNextSeason(context, today.Year + 1);
             SettleSeason(today);
         }
@@ -92,6 +94,7 @@ public sealed class RaceWeekendDay : IDayHandler
         ApplyUnderstanding(today, run.Layout.LengthKm, published.CarResults);
         ApplyMoney(today, payload, run.TotalRounds, published, run.Field, run.Layout.Country);
         ApplyPeople(context, today, published.PersonOutcomes, payload);
+        ApplyDamage(today, payload, run);
         PostDueStandInDecisions(today);
         Publish(payload, run);
     }
@@ -212,6 +215,46 @@ public sealed class RaceWeekendDay : IDayHandler
         var world = _context.Session.World;
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;
         _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, run.Field.StandIns, (int)Math.Round(run.Layout.LengthKm * 1000d, MidpointRounding.AwayFromZero))));
+    }
+
+    private CarDamageDesk Desk() => new(
+        () => _context.Session.World,
+        _context.Session.StoreWorld,
+        _context.TryGet<ControlTable>() ?? _context.TryGet<IOrganizationControl>(),
+        _context.TryGet<InboxBook>(),
+        _context.Managers);
+
+    /// <summary>
+    /// A car that crashed out (retired by accident) is damaged: it costs money and days (#270). The same stream and rules serve
+    /// every team. A car that ran on the spare and crashed loses the spare instead. Cars left out or on a spare are told to the
+    /// team, so a missed race is never silent.
+    /// </summary>
+    private void ApplyDamage(GameDate today, RaceSessionPayload payload, WeekendRun run)
+    {
+        var desk = Desk();
+        desk.NoteRaceField(run.Field, today);
+        var stream = RngStream.Derive(_context.Session.Clock.MasterSeed, RngStreamName.Incidents, payload.Season, payload.Round);
+        var crashed = run.Published.PersonOutcomes
+            .Where(outcome => outcome.Retired && outcome.Reason == RetirementReason.Accident)
+            .OrderBy(outcome => outcome.CarId, StringComparer.Ordinal)
+            .ToArray();
+        var done = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var outcome in crashed)
+        {
+            if (!done.Add(outcome.CarId))
+            {
+                continue;
+            }
+
+            if (run.Field.SpareRuns.IsDefault is false && run.Field.SpareRuns.FirstOrDefault(spare => spare.CarId == outcome.CarId) is { } onSpare)
+            {
+                desk.WriteOffSpare(onSpare.Organization, outcome.CarId, today);
+                continue;
+            }
+
+            var hurt = outcome.Fatal || outcome.Injury != InjuryGrade.None;
+            desk.Record(outcome.CarId, DamageSource.Race, today, hurt, stream.DeriveChild($"damage:{outcome.CarId}"));
+        }
     }
 
     private void ApplyUnderstanding(GameDate today, double lengthKm, IReadOnlyList<CarRaceResult> results)

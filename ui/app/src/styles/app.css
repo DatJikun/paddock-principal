@@ -813,8 +813,8 @@ select.text.sm{min-height:38px;font-size:14.5px}
 .pips{display:inline-flex;gap:3px}
 .pips i{width:7px;height:14px;border-radius:2px;background:color-mix(in oklab,var(--ink) 16%,transparent);transform:skewX(-14deg)}
 .pips i.on{background:var(--c1)}
-.dev{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);grid-template-areas:"concept next" "grid next" "und next" "decision decision" "projects projects";gap:20px;align-items:start}
-.p-concept{grid-area:concept}.p-grid{grid-area:grid}.p-und{grid-area:und}.p-next{grid-area:next}.p-decision{grid-area:decision}.p-projects{grid-area:projects}
+.dev{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);grid-template-areas:"concept next" "grid next" "und next" "damage next" "decision decision" "projects projects";gap:20px;align-items:start}
+.p-concept{grid-area:concept}.p-grid{grid-area:grid}.p-und{grid-area:und}.p-damage{grid-area:damage}.p-next{grid-area:next}.p-decision{grid-area:decision}.p-projects{grid-area:projects}
 .cname{font-size:18px}
 .dev-grid td.own{background:color-mix(in oklab,var(--t2) 10%,transparent)}
 .rng{display:block;position:relative;height:5px;margin-top:5px;border-radius:3px;background:color-mix(in oklab,var(--ink) 10%,transparent)}

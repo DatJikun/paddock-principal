@@ -1,10 +1,13 @@
 using System.Globalization;
+using Paddock.Application.Cars;
 using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
+using Paddock.Domain.Cars;
 using Paddock.Domain.Development;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Inbox;
 using Paddock.Domain.Infrastructure;
+using Paddock.Domain.Random;
 using Paddock.Domain.Time;
 using Paddock.Simulation.Time;
 
@@ -59,6 +62,7 @@ public sealed class InfrastructureDayHandler : IDayHandler
         var development = _book.World.Section<Paddock.Domain.Development.DevelopmentSection>(Paddock.Domain.Development.DevelopmentSection.SectionName)
             ?? Paddock.Domain.Development.DevelopmentSection.Empty;
         var noted = false;
+        var crashes = new List<(string CarId, Xoshiro256StarStar Stream)>();
         foreach (var facility in section.Facilities)
         {
             if (facility.BuildEnds is { } ends && today >= ends)
@@ -73,18 +77,37 @@ public sealed class InfrastructureDayHandler : IDayHandler
         foreach (var booking in section.Tests.Where(test => test.Date == today).ToArray())
         {
             changed = true;
-            var held = cars.Of(booking.Organization).OrderBy(car => car.Id, StringComparer.Ordinal).ToArray();
-            if (held.Length == 0)
+            var damageNow = _book.World.Section<CarDamageSection>(CarDamageSection.SectionName) ?? CarDamageSection.Empty;
+            var all = cars.Of(booking.Organization).OrderBy(car => car.Id, StringComparer.Ordinal).ToArray();
+            if (all.Length == 0)
             {
                 section = section.RemoveTest(booking);
                 NoticeTest(booking.Organization, InfrastructureKeys.TestNoCarSubject, today, 0, 0);
                 continue;
             }
 
+            // A car still in the workshop cannot run; with every car out the test is dropped and nothing is charged (#270).
+            var held = all.Where(car => damageNow.OpenOn(car.Id, today) is null).ToArray();
+            if (held.Length == 0)
+            {
+                section = section.RemoveTest(booking);
+                NoticeTest(booking.Organization, InfrastructureKeys.TestCarsDamagedSubject, today, 0, 0);
+                continue;
+            }
+
             var cap = DevelopmentMath.UnderstandingCap(_environment.TestingRule(today.Year), aeroTesting: null);
             var gained = 0d;
+            var crashedBefore = crashes.Count;
             foreach (var car in held)
             {
+                var crashStream = RngStream.Derive(_environment.MasterSeed, RngStreamName.Incidents, today.Year, today.DayOfYear);
+                var crashRng = crashStream.DeriveChild($"testcrash:{car.Id}");
+                if (crashRng.NextDouble() < CarDamageEstimates.TestCrashChance(today.Year))
+                {
+                    crashes.Add((car.Id, crashStream.DeriveChild($"testdamage:{car.Id}")));
+                    continue;
+                }
+
                 var grown = DevelopmentMath.GrowUnderstanding(car.Understanding, InfrastructureEstimates.UnderstandingPerTest, cap);
                 gained += grown - car.Understanding;
                 if (grown != car.Understanding)
@@ -126,7 +149,9 @@ public sealed class InfrastructureDayHandler : IDayHandler
             var average = (int)Math.Round(gained / held.Length, MidpointRounding.AwayFromZero);
             NoticeTest(
                 booking.Organization,
-                average > 0 ? InfrastructureKeys.TestDoneSubject : InfrastructureKeys.TestCappedSubject,
+                average > 0
+                    ? InfrastructureKeys.TestDoneSubject
+                    : (crashes.Count > crashedBefore ? InfrastructureKeys.TestCrashedSubject : InfrastructureKeys.TestCappedSubject),
                 today,
                 average,
                 booking.CostCents);
@@ -161,6 +186,16 @@ public sealed class InfrastructureDayHandler : IDayHandler
         if (changed)
         {
             _book.Write(section, finance.HasBooks ? finance : null, carsChanged ? cars : null, noted ? development : null);
+        }
+
+        // The crash is recorded after the day's own writes, so its bill and its notice land on the fresh ledger and world.
+        if (crashes.Count > 0)
+        {
+            var desk = new CarDamageDesk(() => _book.World, _book.Store, _environment.Control, _inbox, _managers);
+            foreach (var (carId, stream) in crashes)
+            {
+                desk.Record(carId, DamageSource.Test, today, driverHurt: false, stream);
+            }
         }
     }
 

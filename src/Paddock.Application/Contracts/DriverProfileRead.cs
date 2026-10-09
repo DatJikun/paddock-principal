@@ -1,4 +1,5 @@
 using System.Globalization;
+using Paddock.Application.Racing;
 using Paddock.Domain.Contracts;
 using Paddock.Domain.Racing;
 using Paddock.Domain.Time;
@@ -9,8 +10,20 @@ namespace Paddock.Application.Contracts;
 /// <summary>
 /// What this career's archive says about one driver in one season: the races he started and how they ended.
 /// Only finished rounds of this career are counted, so a driver who was never in a result has no row.
+/// <see cref="Place"/> is his place in the championship that season and <see cref="Points"/> his points, both as invariant text
+/// (#331). A past season has no stored table, so both come from the plain totals of that season (<see cref="SeasonPlaces"/>).
 /// </summary>
-public sealed record DriverSeasonView(int Season, string TeamId, string TeamName, int Starts, int Wins, int Podiums, int Retirements, int? Best);
+public sealed record DriverSeasonView(
+    int Season,
+    string TeamId,
+    string TeamName,
+    int Starts,
+    int Wins,
+    int Podiums,
+    int Retirements,
+    int? Best,
+    int? Place = null,
+    string? Points = null);
 
 /// <summary>The terms of a contract the observer's own team holds. Salary is a nominal placeholder, not a calibrated figure.</summary>
 public sealed record DriverContractView(string ContractId, string Seat, string Start, string End, long Salary, int? OptionYears, string? OptionDeadline, long? ReleaseAmount);
@@ -53,12 +66,17 @@ public static class DriverProfileRead
     /// Seasons the driver raced before this career began, read by the host from local data (plain counts, #265). They come first
     /// in <see cref="DriverProfileView.Seasons"/>; a season this career has already archived wins over them.
     /// </param>
+    /// <param name="standings">
+    /// The championship of the season in progress, when the career has one. Its place and points replace the plain totals of that
+    /// season, so the profile and the standings agree (#331).
+    /// </param>
     public static DriverProfileView Of(
         WorldState world,
         OrganizationId observer,
         GameDate today,
         string personId,
-        IReadOnlyList<DriverSeasonView>? earlier = null)
+        IReadOnlyList<DriverSeasonView>? earlier = null,
+        StandingsView? standings = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         if (!observer.IsAssigned)
@@ -133,7 +151,7 @@ public static class DriverProfileRead
             terms,
             attributes,
             potential,
-            Merge(earlier, Seasons(world, person.Id.Value)),
+            WithStandings(Merge(earlier, Seasons(world, person.Id.Value)), standings, person.Id.Value),
             person.IsFemale,
             PeopleViews.Overall(NegotiationSubject.DriverSeat, world.KnowledgeOf(observer, person.Id)),
             next,
@@ -173,6 +191,20 @@ public static class DriverProfileRead
         return seasons.Values.ToArray();
     }
 
+    /// <summary>The season in progress takes the official place and points from the standings, when the driver is in them.</summary>
+    private static IReadOnlyList<DriverSeasonView> WithStandings(IReadOnlyList<DriverSeasonView> seasons, StandingsView? standings, string personId)
+    {
+        var row = standings?.Drivers.FirstOrDefault(item => string.Equals(item.Id, personId, StringComparison.Ordinal));
+        if (standings is null || row is null)
+        {
+            return seasons;
+        }
+
+        return seasons
+            .Select(season => season.Season == standings.Season ? season with { Place = row.Position, Points = row.Points } : season)
+            .ToArray();
+    }
+
     private static IReadOnlyList<DriverSeasonView> Seasons(WorldState world, string personId)
     {
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName);
@@ -181,29 +213,38 @@ public static class DriverProfileRead
             return [];
         }
 
-        var seasons = new SortedDictionary<int, Tally>();
+        // Every driver of every season is tallied, so the place is read over the whole field (#331).
+        var tallies = new Dictionary<(int Season, string DriverId), Tally>();
         foreach (var race in archive.Races)
         {
             foreach (var row in race.Rows)
             {
-                if (!string.Equals(row.DriverId, personId, StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                if (!seasons.TryGetValue(race.Season, out var tally))
+                var key = (race.Season, row.DriverId);
+                if (!tallies.TryGetValue(key, out var tally))
                 {
                     tally = new Tally();
-                    seasons.Add(race.Season, tally);
+                    tallies.Add(key, tally);
                 }
 
                 tally.Add(row);
             }
         }
 
-        var views = new List<DriverSeasonView>(seasons.Count);
-        foreach (var (season, tally) in seasons)
+        var places = SeasonPlaces.Of(tallies.Select(entry => new SeasonTotal(
+            entry.Key.Season,
+            entry.Key.DriverId,
+            entry.Value.Points,
+            entry.Value.Wins,
+            entry.Value.Podiums)));
+
+        var views = new List<DriverSeasonView>();
+        foreach (var ((season, driver), tally) in tallies.OrderBy(entry => entry.Key.Season))
         {
+            if (!string.Equals(driver, personId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             var team = world.Organizations.FirstOrDefault(item => string.Equals(item.Id.Value, tally.TeamId, StringComparison.Ordinal));
             views.Add(new DriverSeasonView(
                 season,
@@ -213,7 +254,9 @@ public static class DriverProfileRead
                 tally.Wins,
                 tally.Podiums,
                 tally.Retirements,
-                tally.Best));
+                tally.Best,
+                places[(season, driver)],
+                tally.Points.ToString("0.##########", CultureInfo.InvariantCulture)));
         }
 
         return views;
@@ -244,10 +287,13 @@ public static class DriverProfileRead
 
         public int? Best { get; private set; }
 
+        public decimal Points { get; private set; }
+
         public void Add(RaceResultRow row)
         {
             TeamId = row.TeamId;
             Starts++;
+            Points += decimal.TryParse(row.Points, NumberStyles.Number, CultureInfo.InvariantCulture, out var points) ? points : 0m;
             if (!row.Classified)
             {
                 Retirements++;

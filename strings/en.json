@@ -1307,6 +1307,7 @@
   "driver.season": "Season",
   "driver.retired": "Retirements",
   "driver.best": "Best finish",
+  "driver.champPlace": "Championship place",
   "driver.noRaces": "No race yet",
   "compare.season": "Season {season}",
   "compare.career": "In this career",

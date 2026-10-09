@@ -1343,6 +1343,7 @@
   "driver.season": "Sezon",
   "driver.retired": "Nieukończone",
   "driver.best": "Najlepsze miejsce",
+  "driver.champPlace": "Miejsce w mistrzostwach",
   "driver.noRaces": "Jeszcze bez wyścigu",
   "compare.season": "Sezon {season}",
   "compare.career": "W tej karierze",

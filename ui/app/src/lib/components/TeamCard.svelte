@@ -23,6 +23,8 @@
   } = $props();
 
   const AREAS = ['car', 'infrastructure', 'drivers', 'staff'] as const;
+  /* The level scale of the bridge (TeamCardsRead.MaxLevel). */
+  const LEVEL_PIPS = Array.from({ length: 10 }, (_, index) => index + 1);
 
   let colours = $derived(livery(team.id));
   /* Race seats are listed; reserves are only counted, so a long roster does not read as a line-up. */
@@ -70,9 +72,9 @@
       <span class="tc-levels" role="group" aria-label={tr.t('team.card.levels')}>
         {#each AREAS as area (area)}
           {@const level = team.levels[area]}
-          <span class="lv" title={level === null ? '' : tr.t('team.level.title', { area: tr.t(`team.level.${area}`), level: String(level) })}>
+          <span class="lv" title={level === null ? '' : tr.t('team.level.title', { area: tr.t(`team.level.${area}`), level: String(level), max: String(LEVEL_PIPS.length) })}>
             <span class="meta">{tr.t(`team.level.${area}`)}</span>
-            <span class="pips" aria-hidden="true">{#each [1, 2, 3, 4, 5] as pip (pip)}<i class:on={level !== null && pip <= level}></i>{/each}</span>
+            <span class="pips" aria-hidden="true">{#each LEVEL_PIPS as pip (pip)}<i class:on={level !== null && pip <= level}></i>{/each}</span>
           </span>
         {/each}
       </span>

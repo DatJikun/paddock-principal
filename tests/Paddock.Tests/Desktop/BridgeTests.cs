@@ -412,7 +412,7 @@ public class BridgeTests
     public void TheTeamCardsComeInOrderOfLastSeasonWithABudgetAndRoughLevels()
     {
         // #266: the cards are listed by last season's finish (teams without a known place last), carry the opening budget as money,
-        // and show four coarse levels from 1 to 5 that follow the paddock's picture of a team, not a hidden score.
+        // and show four coarse levels from 1 to 10 that follow the paddock's picture of a team, not a hidden score.
         using var lobby = Lobby();
         var response = lobby.Host.Handle(Message(
             "cards",
@@ -435,7 +435,7 @@ public class BridgeTests
                 var level = team.GetProperty("levels").GetProperty(area);
                 if (level.ValueKind != JsonValueKind.Null)
                 {
-                    Assert.InRange(level.GetInt32(), 1, 5);
+                    Assert.InRange(level.GetInt32(), 1, Paddock.Application.Career.TeamCardsRead.MaxLevel);
                 }
             }
         }

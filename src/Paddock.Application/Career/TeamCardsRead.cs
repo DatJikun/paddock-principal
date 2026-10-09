@@ -15,8 +15,9 @@ public sealed record TeamCardDriver(string Name, string Nationality, int Age, st
 public sealed record TeamCardEngine(string Name, string Supplier, string SupplyType);
 
 /// <summary>
-/// Rough public levels of a team, 1 (weakest) to 5 (strongest), by its place among the teams of the same season. They are quintiles
-/// of the grid, not a score: a principal reads the paddock's reputation of a team, not its hidden ratings (INV-003). A level is null
+/// Rough public levels of a team, 1 (weakest) to <see cref="TeamCardsRead.MaxLevel"/> (strongest), by where its score lies between the weakest and the
+/// strongest team of the same season (#327). The scale is relative to the season's grid and keeps the order of the scores, so a far
+/// stronger team is not shown level with a merely good one (a rank band would put the first three teams at the top). A level is null
 /// when the world holds nothing to judge that area by.
 /// </summary>
 public sealed record TeamCardLevels(int? Car, int? Infrastructure, int? Drivers, int? Staff);
@@ -45,6 +46,9 @@ public sealed record TeamCardView(
 /// </summary>
 public static class TeamCardsRead
 {
+    /// <summary>The top of the level scale of a team card (a design choice); the UI draws this many pips.</summary>
+    public const int MaxLevel = 10;
+
     public static IReadOnlyList<TeamCardView> Of(
         WorldState world,
         GameDate on,
@@ -193,7 +197,11 @@ public static class TeamCardsRead
         return shares.Count == 0 ? null : shares.Average();
     }
 
-    /// <summary>1 to 5 by the place among the scored teams (ties share a place); null when this team has no score.</summary>
+    /// <summary>
+    /// 1 to <see cref="MaxLevel"/> by the score's place between the lowest and the highest score of the grid (a monotone
+    /// map, so equal scores share a level and a stronger one never shows lower); null when this team has no score. A grid where
+    /// every score is equal sits in the middle.
+    /// </summary>
     private static int? LevelOf(IReadOnlyDictionary<OrganizationId, double> scores, OrganizationId team)
     {
         if (!scores.TryGetValue(team, out var own))
@@ -201,8 +209,15 @@ public static class TeamCardsRead
             return null;
         }
 
-        var place = 1 + scores.Count(pair => pair.Value > own);
-        return 5 - ((place - 1) * 5 / scores.Count);
+        var low = scores.Values.Min();
+        var high = scores.Values.Max();
+        if (high <= low)
+        {
+            return (MaxLevel + 1) / 2;
+        }
+
+        var share = (own - low) / (high - low);
+        return 1 + (int)Math.Round(share * (MaxLevel - 1), MidpointRounding.AwayFromZero);
     }
 
     private static int AgeOn(GameDate born, GameDate on)

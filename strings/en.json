@@ -1906,7 +1906,7 @@
   "team.level.infrastructure": "Infrastructure",
   "team.level.drivers": "Drivers",
   "team.level.staff": "Staff",
-  "team.level.title": "{area}: {level} of 5",
+  "team.level.title": "{area}: {level} of {max}",
   "car.ledger.repair": "Crash repair.",
   "car.ledger.chassis": "New chassis after a crash.",
   "car.inbox.raceRepair.subject": "Car {n} was damaged in the race. The repair takes {days} days (ready {ready}) and costs {cost}.",

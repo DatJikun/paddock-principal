@@ -6,6 +6,7 @@
   import Status from '../lib/components/Status.svelte';
   import { formatMoney } from '../lib/money.mjs';
   import { bandOf, bandText, DRIVER_ATTRS, sortRows } from '../lib/people.mjs';
+  import { driverHref, formatAge } from '../lib/person.mjs';
   import type { AcademyData } from '../lib/screens';
   import type { Tr } from '../lib/ui';
 
@@ -101,15 +102,22 @@
     <header><h2>{tr.t('academy.yours')}</h2><span class="meta num">{juniors.length} / {pool.academySlots}</span></header>
     <div class="slot-row">
       {#each juniors as junior (junior.handle)}
-        <button type="button" class="slot-tile" class:sel={current?.handle === junior.handle} onclick={() => (picked = junior.handle)}>
-          <PersonCell name={name(junior)} nationality={junior.nationality} />
+        <div
+          class="slot-tile"
+          class:sel={current?.handle === junior.handle}
+          role="button"
+          tabindex="0"
+          onclick={() => (picked = junior.handle)}
+          onkeydown={(event) => (event.key === 'Enter' || event.key === ' ') && event.target === event.currentTarget && (picked = junior.handle)}
+        >
+          <PersonCell name={name(junior)} href={driverHref(junior.handle)} nationality={junior.nationality} />
           <div class="fields">
-            <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{junior.age}</span></div>
+            <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{formatAge(junior.age)}</span></div>
             <div class="fld"><span class="meta">{tr.t('driver.potential')}</span><span class="v num">{junior.potential ? bandText(junior.potential.low, junior.potential.high) : '—'}</span></div>
             <div class="fld"><span class="meta">{tr.t('academy.seasonsLeft')}</span><span class="v num" class:bad={junior.seasonsLeft === 0}>{junior.seasonsLeft ?? '—'}</span></div>
           </div>
           {#if junior.yourFunding}<Status text={programmeName(junior.yourFunding)} tone="good" />{:else}<Status text={tr.t('academy.programme.none')} />{/if}
-        </button>
+        </div>
       {/each}
       {#each Array.from({ length: open }, (_, index) => index) as index (index)}
         <div class="slot-tile empty"><span class="meta">{tr.t('academy.free')}</span></div>
@@ -134,8 +142,8 @@
           <tbody>
             {#each list as item (item.handle)}
               <tr class="go-row" class:sel={item.handle === current?.handle} onclick={() => (picked = item.handle)}>
-                <td><PersonCell name={name(item)} nationality={item.nationality} /></td>
-                <td class="c num">{item.age}</td>
+                <td><PersonCell name={name(item)} href={driverHref(item.handle)} nationality={item.nationality} /></td>
+                <td class="c num">{formatAge(item.age)}</td>
                 <td class="c num">{item.potential ? bandText(item.potential.low, item.potential.high) : '—'}</td>
               </tr>
             {/each}
@@ -148,7 +156,7 @@
           {@const watch = { kind: 'focus', handle: current.handle } as Ask}
           {@const recruit = { kind: 'recruit', handle: current.handle } as Ask}
           {@const release = { kind: 'release', handle: current.handle } as Ask}
-          <header><h2>{name(current)}</h2><Status text={`${current.age}`} /></header>
+          <header><h2><a class="plain" href={driverHref(current.handle)}>{name(current)}</a></h2><Status text={formatAge(current.age)} /></header>
           <div class="body">
             {#if current.attributes.length > 0}
               <div class="attrs">

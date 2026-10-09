@@ -60,6 +60,24 @@ public sealed class AcademyTests
     }
 
     [Fact]
+    public void AHandleOpensItsPersonOnlyForTheTeamsThatSeeHimOnTheirList()
+    {
+        var lab = new Lab();
+        var handle = lab.Section.Members.First(member => member.Academy is null).HandleText;
+        var person = lab.Section.FindByHandle(handle)!.Id;
+        var query = new PoolQuery(lab.Book, new Teams());
+        Assert.Equal(person, query.Resolve(AccessContext.ForManager(new AccessManagerId(Anna.Value)), handle));
+        Assert.Equal(person, query.Resolve(AccessContext.ForManager(new AccessManagerId(Bram.Value)), handle));
+
+        lab.Submit(Recruit(Anna, handle));
+
+        Assert.Equal(person, query.Resolve(AccessContext.ForManager(new AccessManagerId(Anna.Value)), handle));
+        Assert.Null(query.Resolve(AccessContext.ForManager(new AccessManagerId(Bram.Value)), handle));
+        Assert.Null(query.Resolve(AccessContext.ForManager(new AccessManagerId(Anna.Value)), "talent-0"));
+        Assert.Null(query.Resolve(AccessContext.ForManager(new AccessManagerId(Anna.Value)), person.Value));
+    }
+
+    [Fact]
     public void WhatATeamKnowsAboutTheMarketIsStillItsOwnScoutingAndNotTheTruth()
     {
         var lab = new Lab();

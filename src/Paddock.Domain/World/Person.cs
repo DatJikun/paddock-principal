@@ -133,6 +133,12 @@ public sealed class Person
 
     public GameDate BirthDate { get; }
 
+    /// <summary>
+    /// The age of this person on <paramref name="on"/>, in whole years. Every screen takes an age from here, so one person is the
+    /// same age in the academy, on the market and in the team on the same day (#326).
+    /// </summary>
+    public int AgeOn(GameDate on) => BirthDate.WholeYearsUntil(on);
+
     public string Nationality { get; }
 
     public bool IsReal { get; }

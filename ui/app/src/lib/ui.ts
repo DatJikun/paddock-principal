@@ -65,6 +65,11 @@ export function initials(name: string) {
   return name.slice(0, 2).toUpperCase();
 }
 
+/** A person's age written for the line under a name ("26 l."). */
+export function ageLabel(tr: Tr, age: number) {
+  return tr.t('team.card.age', { age: String(age) });
+}
+
 /** Country name through the catalog; an unknown code stays a code. */
 export function countryName(tr: Tr, code: string | null | undefined) {
   if (!code) return '';

@@ -123,7 +123,7 @@ public static class DriverProfileRead
             person.Id.Value,
             person.Name,
             person.Nationality,
-            AgeOn(person.BirthDate, today),
+            person.AgeOn(today),
             contract?.OrganizationId.Value,
             contract is null ? null : world.GetOrganization(contract.OrganizationId).NameOn(today),
             own,
@@ -217,17 +217,6 @@ public static class DriverProfileRead
         }
 
         return views;
-    }
-
-    private static int AgeOn(GameDate born, GameDate on)
-    {
-        var age = on.Year - born.Year;
-        if (on.Month < born.Month || (on.Month == born.Month && on.Day < born.Day))
-        {
-            age--;
-        }
-
-        return Math.Max(0, age);
     }
 
     private sealed class Tally

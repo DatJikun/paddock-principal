@@ -75,7 +75,7 @@ public static class StaffQuery
                 pairedHere ? link!.Driver.Value : null,
                 own && pairedHere ? link!.Relationship : null,
                 person.Nationality,
-                AgeOn(person.BirthDate, on),
+                person.AgeOn(on),
                 own ? contract.End.ToString() : null,
                 PeopleViews.Overall(Paddock.Domain.Contracts.NegotiationSubject.Staff(contract.Role.StaffRole), world.KnowledgeOf(observer, person.Id)),
                 person.IsFemale,
@@ -87,16 +87,5 @@ public static class StaffQuery
             .ThenBy(row => row.Role, StringComparer.Ordinal)
             .ThenBy(row => row.PersonId, StringComparer.Ordinal)
             .ToArray();
-    }
-
-    private static int AgeOn(GameDate born, GameDate on)
-    {
-        var age = on.Year - born.Year;
-        if (on.Month < born.Month || (on.Month == born.Month && on.Day < born.Day))
-        {
-            age--;
-        }
-
-        return Math.Max(0, age);
     }
 }

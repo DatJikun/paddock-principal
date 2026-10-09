@@ -55,6 +55,24 @@ export function careerTotals(profile) {
   return total;
 }
 
+/**
+ * One season row as the career table shows it. A zero stays 0; a missing value (no place or points) is an empty cell.
+ * The place and the points come from the bridge as they are (#331).
+ */
+export function careerCells(row) {
+  const cell = (value) => (value === null || value === undefined ? '' : String(value));
+  return {
+    season: cell(row.season),
+    team: cell(row.teamName),
+    starts: cell(row.starts),
+    wins: cell(row.wins),
+    podiums: cell(row.podiums),
+    retirements: cell(row.retirements),
+    place: cell(row.place),
+    points: cell(row.points),
+  };
+}
+
 /** Sorts a copy of the rows by one value, text with the locale and numbers as numbers; a missing value goes last. */
 export function sortRows(rows, get, direction = 'asc') {
   const sign = direction === 'desc' ? -1 : 1;

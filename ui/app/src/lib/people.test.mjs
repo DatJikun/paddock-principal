@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { bandOf, bandText, careerTotals, DRIVER_ATTRS, endsThisSeason, SEATS, seasonRow, sortRows, starsOf } from './people.mjs';
+import { bandOf, bandText, careerCells, careerTotals, DRIVER_ATTRS, endsThisSeason, SEATS, seasonRow, sortRows, starsOf } from './people.mjs';
 
 const pl = JSON.parse(readFileSync(new URL('../../../../strings/pl.json', import.meta.url), 'utf8'));
 const en = JSON.parse(readFileSync(new URL('../../../../strings/en.json', import.meta.url), 'utf8'));
@@ -23,14 +23,21 @@ test('a contract that ends this season turns red, a later one does not', () => {
 test('the career line adds up the seasons of this career', () => {
   const profile = {
     seasons: [
-      { season: 1955, starts: 5, wins: 1, podiums: 2, retirements: 1, best: 1 },
-      { season: 1956, starts: 7, wins: 0, podiums: 1, retirements: 2, best: 3 },
+      { season: 1955, starts: 5, wins: 1, podiums: 2, retirements: 1, best: 1, place: 1, points: '30' },
+      { season: 1956, starts: 7, wins: 0, podiums: 1, retirements: 2, best: 3, place: 4, points: '12.5' },
     ],
   };
   assert.deepEqual(careerTotals(profile), { starts: 12, wins: 1, podiums: 3, retirements: 3, best: 1 });
   assert.equal(seasonRow(profile, 1956).starts, 7);
   assert.equal(seasonRow(profile, 1950), null);
   assert.deepEqual(careerTotals({ seasons: [] }), { starts: 0, wins: 0, podiums: 0, retirements: 0, best: null });
+});
+
+test('the career table shows the championship place and the points, and a zero as 0', () => {
+  const cells = careerCells({ season: 1955, teamName: 'Scuderia', starts: 5, wins: 0, podiums: 0, retirements: 0, place: 12, points: '0' });
+  assert.deepEqual(cells, { season: '1955', team: 'Scuderia', starts: '5', wins: '0', podiums: '0', retirements: '0', place: '12', points: '0' });
+  assert.equal('best' in cells, false);
+  assert.equal(careerCells({ season: 1950, teamName: 'X', starts: 1, wins: 0, podiums: 0, retirements: 0, place: null, points: null }).points, '');
 });
 
 test('sorting puts missing values last in either direction', () => {

@@ -246,7 +246,9 @@ export interface DriverProfileView {
 
 export interface DriverSeasonView {
   best: number | null;
+  place: number | null;
   podiums: number;
+  points: string | null;
   retirements: number;
   season: number;
   starts: number;

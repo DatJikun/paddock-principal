@@ -755,6 +755,8 @@ select.text.sm{min-height:38px;font-size:14.5px}
 .bar.band i{background:color-mix(in oklab,var(--ink) 55%,transparent)}
 .persona{margin-top:6px}
 .table.fit{width:100%}
+.profile .table.career{width:max-content;max-width:100%}
+.profile .career-panel{justify-self:start;max-width:100%}
 .profile .confirm{margin-top:0}
 
 /* comparison */

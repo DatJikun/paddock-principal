@@ -1966,5 +1966,40 @@
   "dev.damage.source.test": "wypadek na teście",
   "dev.damage.until": "gotowe {date}",
   "dev.spare.has": "Zapasowe podwozie: starsze auto z {season}, wolniejsze o {slower}%.",
-  "dev.spare.none": "Brak zapasowego podwozia. Auto, którego nie da się naprawić przed wyścigiem, nie jedzie."
+  "dev.spare.none": "Brak zapasowego podwozia. Auto, którego nie da się naprawić przed wyścigiem, nie jedzie.",
+  "paper.name": "Paddock",
+  "paper.empty": "Na razie bez wiadomości.",
+  "paper.kind.race": "Wyścig",
+  "paper.kind.own": "Nasz zespół",
+  "paper.kind.injury": "Kontuzja",
+  "paper.kind.retirement": "Koniec kariery",
+  "paper.kind.signing": "Transfer",
+  "paper.race.win": "{driver} wygrywa: {circuit}",
+  "paper.race.podium": "Dalej {second} i {third}",
+  "paper.race.own": "{team}, {circuit}: {driver} na {position}. miejscu",
+  "paper.race.ownOut": "{team}, {circuit}: {driver} nie kończy wyścigu",
+  "paper.race.ownPoints": {
+    "one": "{count} punkt dla zespołu",
+    "few": "{count} punkty dla zespołu",
+    "many": "{count} punktów dla zespołu",
+    "other": "{count} punktu dla zespołu"
+  },
+  "paper.line.team": "{team}",
+  "paper.injury.light": "{driver} lekko ranny: {circuit}",
+  "paper.injury.serious": "{driver} poważnie ranny: {circuit}",
+  "paper.injury.careerEnding": "{driver} kończy karierę po wypadku: {circuit}",
+  "paper.injury.fatal": "{driver} ginie: {circuit}",
+  "paper.retired": "{driver} kończy karierę",
+  "paper.retired.age": {
+    "one": "{count} rok",
+    "few": "{count} lata",
+    "many": "{count} lat",
+    "other": "{count} roku"
+  },
+  "paper.signing.driver": "{driver} podpisuje z zespołem {team}",
+  "paper.signing.from": "Z zespołu {team}",
+  "paper.signing.renewed": "{driver} zostaje w zespole {team}",
+  "paper.team.hired": "{team} zatrudnia: {person}",
+  "paper.rules.adopted": "Nowy przepis od sezonu {season}",
+  "paper.rules.kept": "Zespoły zostawiają przepis"
 }

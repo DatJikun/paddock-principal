@@ -538,8 +538,19 @@ Rywale | wyniki, czasy, klasyfikacje | finansów, umów, wektora auta
 Pogoda | prognozę z błędem | przyszłej pogody
 ```
 
+### Gazeta na pulpicie
+
+Na pulpicie skrzynka zajmuje górną połowę kolumny, a dolną gazeta „Paddock”. Pisze o tym, co naprawdę wydarzyło się w świecie gry, i tylko o tym, co zobaczyłby każdy w padoku. Każdy nagłówek ma datę i prowadzi tam, gdzie dalej o tym przeczytasz.
+
+```pola
+O czym pisze | zwycięzca wyścigu i wynik Twojego zespołu, kontuzje, podpisane umowy i przedłużenia, nowy kluczowy pracownik zespołu, koniec kariery kierowcy, wynik głosowania nad przepisami | wiadomości o Twoim zespole mają wyraźniejsze tło
+Jak długo zostaje | nagłówek wisi przez {NewspaperEstimates.WindowDays|dni}, a gazeta mieści najwyżej {NewspaperEstimates.MaxHeadlines} najnowszych | starsze wiadomości znikają same
+Czego nie ma | warunków cudzych umów, ich ofert w toku, ukrytych ocen kierowców, juniorów rywali | to wszystko zostaje poza gazetą
+```
+
 ```pytania
 Czy rywale zachowują się bezmyślnie, wszechwiedząco, czy wiarygodnie? Opisz konkretną sytuację.
+Czy czegoś w gazecie brakuje albo czegoś jest za dużo?
 Czy gdzieś w grze widać dokładną wartość, której nie powinieneś znać?
 Czy chciałbyś grać w trybie bez liczb, w którym ludzie mówią słowami, np. „młody jest szybki, ale zjada opony”?
 ```

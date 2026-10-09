@@ -1928,5 +1928,36 @@
   "dev.damage.source.test": "crashed in the test",
   "dev.damage.until": "ready {date}",
   "dev.spare.has": "Spare chassis: the older car of {season}, {slower}% slower.",
-  "dev.spare.none": "No spare chassis. A car that cannot be repaired before the race stays out."
+  "dev.spare.none": "No spare chassis. A car that cannot be repaired before the race stays out.",
+  "paper.name": "Paddock",
+  "paper.empty": "No news yet.",
+  "paper.kind.race": "Race",
+  "paper.kind.own": "Our team",
+  "paper.kind.injury": "Injury",
+  "paper.kind.retirement": "Retirement",
+  "paper.kind.signing": "Signing",
+  "paper.race.win": "{driver} wins at {circuit}",
+  "paper.race.podium": "Then {second} and {third}",
+  "paper.race.own": "{team} at {circuit}: {driver} takes P{position}",
+  "paper.race.ownOut": "{team} at {circuit}: {driver} retires",
+  "paper.race.ownPoints": {
+    "one": "{count} point for the team",
+    "other": "{count} points for the team"
+  },
+  "paper.line.team": "{team}",
+  "paper.injury.light": "{driver} lightly injured at {circuit}",
+  "paper.injury.serious": "{driver} seriously injured at {circuit}",
+  "paper.injury.careerEnding": "{driver}'s career ends after the crash at {circuit}",
+  "paper.injury.fatal": "{driver} dies at {circuit}",
+  "paper.retired": "{driver} retires from racing",
+  "paper.retired.age": {
+    "one": "{count} year old",
+    "other": "{count} years old"
+  },
+  "paper.signing.driver": "{driver} signs for {team}",
+  "paper.signing.from": "From {team}",
+  "paper.signing.renewed": "{driver} stays at {team}",
+  "paper.team.hired": "{team} hires {person}",
+  "paper.rules.adopted": "New rule from season {season}",
+  "paper.rules.kept": "Teams keep the rule"
 }

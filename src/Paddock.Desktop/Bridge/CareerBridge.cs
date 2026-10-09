@@ -171,6 +171,7 @@ public sealed partial class CareerBridge
             "nextRace" => BridgeValues.ToNode(ChampionshipRead.Next(Session, Circuits)),
             "track" => BridgeValues.ToNode(TrackRead.Read(Watched()?.Session ?? Session, Tracks, TextOf(args, "layoutId"), PastRaces())),
             "quickRounds" => BridgeValues.ToNode(ReadQuickRounds(args)),
+            "newspaper" => BridgeValues.ToNode(ReadNewspaper()),
             "seasonOverview" => BridgeValues.ToNode(SeasonOverviewRead.Read(Session, Box.Inputs, Circuits)),
             "staff" => BridgeValues.ToNode(ReadStaff()),
             "market" => BridgeValues.ToNode(ReadMarket(access)),

@@ -16,6 +16,7 @@ import type {
   ManagerCarRoster,
   MarketView,
   NegotiationsView,
+  NewspaperView,
   NextRaceView,
   RaceResultView,
   SeasonOverviewView,
@@ -35,6 +36,7 @@ export type PulpitData = {
   board: BoardView;
   calendar: CalendarView;
   latest: RaceResultView;
+  newspaper: NewspaperView;
 };
 
 export type InboxData = { kind: 'skrzynka'; inbox: InboxView };
@@ -123,15 +125,16 @@ function track(layoutId: string | null | undefined) {
 export async function loadScreen(name: string, args: string[]): Promise<ScreenData> {
   switch (name) {
     case 'pulpit': {
-      const [inbox, next, standings, board, calendar, latest] = await Promise.all([
+      const [inbox, next, standings, board, calendar, latest, newspaper] = await Promise.all([
         query('inbox', call),
         query('nextRace', call),
         query('standings', call),
         query('board', call),
         query('calendar', call),
         query('raceResult', { managerId: HUMAN_MANAGER_ID, season: null, round: null }),
+        query('newspaper', call),
       ]);
-      return { kind: 'pulpit', inbox, next, track: await track(next.layoutId), standings, board, calendar, latest };
+      return { kind: 'pulpit', inbox, next, track: await track(next.layoutId), standings, board, calendar, latest, newspaper };
     }
     case 'skrzynka':
       return { kind: 'skrzynka', inbox: await query('inbox', call) };

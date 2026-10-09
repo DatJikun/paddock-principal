@@ -1,12 +1,17 @@
 using Paddock.Application.Access;
+using Paddock.Domain.Contracts;
+using Paddock.Domain.People;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 
 namespace Paddock.Application.Contracts;
 
 /// <summary>
-/// One driver on the market: a free agent, or a driver under contract elsewhere.
-/// Attributes are the bands this team believes, never the hidden number (INV-003).
+/// One person on the market: a free agent, or a driver or staff member under contract elsewhere. <see cref="Kind"/> is
+/// <c>driver</c> or the name of the staff role. Attributes are the bands this team believes, never the hidden number (INV-003);
+/// <see cref="Overall"/> is their mean on the 1 to 20 scale. <see cref="Salary"/> is the person's current pay per season: the pay of
+/// the contract they hold, or for a free agent the pay of the last one they had; 0 when there is none (or it is not modelled).
+/// <see cref="ContractEnd"/> is the end of the contract the person holds, or for a free agent the day they became free.
 /// </summary>
 public sealed record MarketPersonView(
     string PersonId,
@@ -18,12 +23,16 @@ public sealed record MarketPersonView(
     string? Seat,
     string? ContractEnd,
     IReadOnlyList<KnownAttributeView> Attributes,
-    int Age);
+    int Age,
+    string Kind = "driver",
+    int? Overall = null,
+    long Salary = 0,
+    bool Female = false);
 
-/// <summary>Free agents and contracted drivers, as the observer's team knows them.</summary>
+/// <summary>Free agents and people under contract elsewhere, as the observer's team knows them. Drivers and staff are in the same lists.</summary>
 public sealed record MarketView(IReadOnlyList<MarketPersonView> FreeAgents, IReadOnlyList<MarketPersonView> Contracted);
 
-/// <summary>The driver market a manager may read. A pure query (INV-005).</summary>
+/// <summary>The market a manager may read. A pure query (INV-005).</summary>
 public static class MarketRead
 {
     public static MarketView Of(AccessContext access, ContractBook book, OrganizationId observer, GameDate today)
@@ -31,13 +40,18 @@ public static class MarketRead
         ArgumentNullException.ThrowIfNull(access);
         ArgumentNullException.ThrowIfNull(book);
         var free = new List<MarketPersonView>();
-        foreach (var person in new FreeAgentQuery(book).List(access, observer, today, Paddock.Domain.Contracts.NegotiationSubject.DriverSeat))
+        var query = new FreeAgentQuery(book);
+        foreach (var person in query.List(access, observer, today))
         {
-            if (!person.IsDriver)
+            var subject = person.IsDriver
+                ? NegotiationSubject.DriverSeat
+                : person.StaffRoles.Where(StaffCatalogue.IsTeamRoster).Select(NegotiationSubject.Staff).Cast<NegotiationSubject?>().FirstOrDefault();
+            if (subject is not NegotiationSubject wanted)
             {
                 continue;
             }
 
+            var record = book.World.GetPerson(person.Person);
             free.Add(new MarketPersonView(
                 person.Person.Value,
                 person.Name,
@@ -48,13 +62,22 @@ public static class MarketRead
                 null,
                 person.FreeSince?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
                 person.KnownAttributes,
-                AgeOn(book.World.GetPerson(person.Person).BirthDate, today)));
+                AgeOn(record.BirthDate, today),
+                Kind(wanted),
+                PeopleViews.Overall(wanted, book.World.KnowledgeOf(observer, person.Person)),
+                LastSalary(book, person.Person),
+                record.IsFemale));
         }
 
         var contracted = new List<MarketPersonView>();
         foreach (var contract in book.World.Contracts.OrderBy(item => item.PersonId.Value, StringComparer.Ordinal))
         {
-            if (!contract.Role.IsDriver || !contract.IsActiveOn(today) || contract.OrganizationId == observer)
+            if (!contract.IsActiveOn(today) || contract.OrganizationId == observer)
+            {
+                continue;
+            }
+
+            if (!contract.Role.IsDriver && !(contract.Role.IsStaff && StaffCatalogue.IsTeamRoster(contract.Role.StaffRole)))
             {
                 continue;
             }
@@ -65,10 +88,14 @@ public static class MarketRead
                 continue;
             }
 
-            IReadOnlyList<KnownAttributeView> attributes = book.World.KnowledgeOf(observer, person.Id) is { } knowledge
-                ? knowledge.Attributes.Select(attribute => new KnownAttributeView(attribute.Key, attribute.Band.Low, attribute.Band.High)).ToArray()
+            var subject = ContractEngine.SubjectOf(contract);
+            var knowledge = book.World.KnowledgeOf(observer, person.Id);
+            IReadOnlyList<KnownAttributeView> attributes = knowledge is { } known
+                ? known.Attributes.Select(attribute => new KnownAttributeView(attribute.Key, attribute.Band.Low, attribute.Band.High)).ToArray()
                 : [];
             var organization = book.World.GetOrganization(contract.OrganizationId);
+            // The end of the last contract the person holds: a signed renewal moves it past the one running today.
+            var holds = book.LiveContractsOf(person.Id, today);
             contracted.Add(new MarketPersonView(
                 person.Id.Value,
                 person.Name,
@@ -76,14 +103,36 @@ public static class MarketRead
                 false,
                 contract.OrganizationId.Value,
                 organization.NameOn(today),
-                contract.Role.Seat.ToString(),
-                contract.End.ToString(),
+                contract.Role.IsDriver ? contract.Role.Seat.ToString() : null,
+                (holds.Count > 0 ? holds[^1].End : contract.End).ToString(),
                 attributes,
-                AgeOn(person.BirthDate, today)));
+                AgeOn(person.BirthDate, today),
+                Kind(subject),
+                PeopleViews.Overall(subject, knowledge),
+                contract.Salary,
+                person.IsFemale));
         }
 
         return new MarketView(free, contracted);
     }
+
+    /// <summary>The pay of the last exclusive contract the person held, or 0 when they never had one.</summary>
+    private static long LastSalary(ContractBook book, PersonId person)
+    {
+        Contract? last = null;
+        foreach (var contract in book.World.Contracts)
+        {
+            if (contract.PersonId == person && contract.Exclusive && (last is null || contract.End > last.End))
+            {
+                last = contract;
+            }
+        }
+
+        return last?.Salary ?? 0;
+    }
+
+    private static string Kind(NegotiationSubject subject) =>
+        subject.Kind == NegotiationSubjectKind.DriverSeat ? "driver" : subject.StaffRole.ToString();
 
     private static int AgeOn(GameDate born, GameDate on)
     {

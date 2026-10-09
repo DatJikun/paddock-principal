@@ -278,7 +278,7 @@ public static class PlayCommand
                     return 1;
                 }
 
-                var provider = RunCommand.LoadProvider(_peopleFiles);
+                var provider = RunCommand.LoadProvider(_peopleFiles, _dataRoot);
                 var date = loaded.Session.World.CurrentDate;
                 var standIn = loaded.Session.World.WithDate(date.IsSeasonStart ? GameDate.SeasonStart(date.Year - 1) : date);
                 var arrivals = TalentIntakeSchedule.AfterStart(loaded.Meta.CareerConfig, provider, standIn, loaded.Meta.MasterSeed);
@@ -572,7 +572,7 @@ public static class PlayCommand
             try
             {
                 var data = AuthoredDataLoader.Load(_dataRoot!);
-                var provider = RunCommand.LoadProvider(_peopleFiles);
+                var provider = RunCommand.LoadProvider(_peopleFiles, _dataRoot);
                 var starting = CareerData.LoadStartingSources(_dataRoot!, data, config.StartYear);
                 var created = WorldInitializer.Create(config, data, provider, _seed, new WorldInitOptions(CarStrength: starting.CarStrength, Tiers: starting.Tiers));
                 var arrivals = TalentIntakeSchedule.AfterStart(config, provider, created.World, _seed);
@@ -1396,6 +1396,15 @@ public static class PlayCommand
                     }
 
                     updated = config.WithRulesSource(rules);
+                    return true;
+                case "vote":
+                    if (!TryNamed(value, out VoteMode vote))
+                    {
+                        Say(PlayKeys.BadAxisValue, ("axis", name), ("value", value));
+                        return false;
+                    }
+
+                    updated = config.WithVoteMode(vote);
                     return true;
                 case "ai":
                     if (!TryNamed(value, out AiBehavior ai))

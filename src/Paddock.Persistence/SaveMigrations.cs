@@ -34,7 +34,11 @@ public static class SaveMigrations
         new V026_RaceCalendarSection(),
         new V027_InfrastructureSection(),
         new V028_CarDevelopmentV2(),
-        new V029_CarDamage(),
+        new V029_RegulationVoting(),
+        new V030_PersonGender(),
+        new V031_SponsorTerms(),
+        new V032_AcademyPerTeam(),
+        new V033_CarDamage(),
     ];
 
     static SaveMigrations()

@@ -1,3 +1,4 @@
+using Paddock.Application.Contracts;
 using Paddock.Domain.People;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
@@ -22,7 +23,10 @@ public sealed record StaffPersonView(
     int? Relationship,
     string Nationality,
     int Age,
-    string? ContractEnd);
+    string? ContractEnd,
+    int? Overall = null,
+    bool Female = false,
+    long Salary = 0);
 
 /// <summary>The staff a manager can see on one day. Reads no truth about a rival and draws no random numbers (INV-003, INV-005).</summary>
 public static class StaffQuery
@@ -72,7 +76,10 @@ public static class StaffQuery
                 own && pairedHere ? link!.Relationship : null,
                 person.Nationality,
                 AgeOn(person.BirthDate, on),
-                own ? contract.End.ToString() : null));
+                own ? contract.End.ToString() : null,
+                PeopleViews.Overall(Paddock.Domain.Contracts.NegotiationSubject.Staff(contract.Role.StaffRole), world.KnowledgeOf(observer, person.Id)),
+                person.IsFemale,
+                own ? contract.Salary : 0));
         }
 
         return rows

@@ -24,6 +24,22 @@ public enum RulesSource
 }
 
 /// <summary>
+/// How the teams vote when the rules are voted (<see cref="RulesSource.VotedEachSeason"/>; PP-048, #275).
+/// It is part of the career-start choice, next to <see cref="RulesSource"/>, and means nothing for historical rules.
+/// </summary>
+public enum VoteMode
+{
+    /// <summary>Every team, the player and every AI team, has exactly one vote in each ballot.</summary>
+    OneVoteEach = 0,
+
+    /// <summary>
+    /// Like <see cref="OneVoteEach"/>, but abstaining stores that vote in the team's private bank, and banked votes can be spent
+    /// on a later ballot that matters more. The same rules for the player and for every AI team.
+    /// </summary>
+    VoteBank = 1,
+}
+
+/// <summary>
 /// How AI actors choose transfers, entries, and exits (PP-046).
 /// Replay is a script of events, not knowledge of the future.
 /// </summary>
@@ -65,6 +81,8 @@ public static class CareerConfigCodes
 
     public const string RulesSource = "config.error.rules_source";
 
+    public const string VoteMode = "config.error.vote_mode";
+
     public const string AiBehavior = "config.error.ai_behavior";
 
     public const string FatalityLevel = "config.error.fatality_level";
@@ -84,6 +102,8 @@ public static class CareerConfigCodes
     public const string LateStartNeedsGeneratedPeople = "config.error.late_start_needs_generated_people";
 
     public const string HistoryStrengthWithPureRandom = "config.warning.history_strength_with_pure_random";
+
+    public const string VoteModeWithHistoricalRules = "config.warning.vote_mode_with_historical_rules";
 }
 
 /// <summary>
@@ -206,11 +226,13 @@ public sealed record CareerConfig
         FatalityLevel fatalityLevel,
         int startYear,
         string playerTeam,
-        bool noNumbers)
+        bool noNumbers,
+        VoteMode voteMode = VoteMode.OneVoteEach)
     {
         ArgumentNullException.ThrowIfNull(playerTeam);
         PeopleSource = peopleSource;
         RulesSource = rulesSource;
+        VoteMode = voteMode;
         AiBehavior = aiBehavior;
         HistoryStrength = historyStrength;
         RandomnessLevel = randomnessLevel;
@@ -223,6 +245,9 @@ public sealed record CareerConfig
     public PeopleSource PeopleSource { get; }
 
     public RulesSource RulesSource { get; }
+
+    /// <summary>How voted rules are counted (#275). Read only when <see cref="RulesSource"/> is voted.</summary>
+    public VoteMode VoteMode { get; }
 
     public AiBehavior AiBehavior { get; }
 
@@ -325,7 +350,8 @@ public sealed record CareerConfig
             FatalityLevel,
             StartYear,
             PlayerTeam,
-            NoNumbers);
+            NoNumbers,
+            VoteMode);
 
     public CareerConfig WithRulesSource(RulesSource rulesSource) =>
         new(
@@ -337,7 +363,21 @@ public sealed record CareerConfig
             FatalityLevel,
             StartYear,
             PlayerTeam,
-            NoNumbers);
+            NoNumbers,
+            VoteMode);
+
+    public CareerConfig WithVoteMode(VoteMode voteMode) =>
+        new(
+            PeopleSource,
+            RulesSource,
+            AiBehavior,
+            HistoryStrength,
+            RandomnessLevel,
+            FatalityLevel,
+            StartYear,
+            PlayerTeam,
+            NoNumbers,
+            voteMode);
 
     public CareerConfig WithAiBehavior(AiBehavior aiBehavior) =>
         new(
@@ -349,7 +389,8 @@ public sealed record CareerConfig
             FatalityLevel,
             StartYear,
             PlayerTeam,
-            NoNumbers);
+            NoNumbers,
+            VoteMode);
 
     public CareerConfig WithHistoryStrength(int historyStrength) =>
         new(
@@ -361,7 +402,8 @@ public sealed record CareerConfig
             FatalityLevel,
             StartYear,
             PlayerTeam,
-            NoNumbers);
+            NoNumbers,
+            VoteMode);
 
     public CareerConfig WithRandomnessLevel(int randomnessLevel) =>
         new(
@@ -373,7 +415,8 @@ public sealed record CareerConfig
             FatalityLevel,
             StartYear,
             PlayerTeam,
-            NoNumbers);
+            NoNumbers,
+            VoteMode);
 
     public CareerConfig WithFatalityLevel(FatalityLevel fatalityLevel) =>
         new(
@@ -385,7 +428,8 @@ public sealed record CareerConfig
             fatalityLevel,
             StartYear,
             PlayerTeam,
-            NoNumbers);
+            NoNumbers,
+            VoteMode);
 
     public CareerConfig WithStartYear(int startYear) =>
         new(
@@ -397,7 +441,8 @@ public sealed record CareerConfig
             FatalityLevel,
             startYear,
             PlayerTeam,
-            NoNumbers);
+            NoNumbers,
+            VoteMode);
 
     public CareerConfig WithPlayerTeam(string playerTeam) =>
         new(
@@ -409,7 +454,8 @@ public sealed record CareerConfig
             FatalityLevel,
             StartYear,
             playerTeam,
-            NoNumbers);
+            NoNumbers,
+            VoteMode);
 
     public CareerConfig WithNoNumbers(bool noNumbers) =>
         new(
@@ -421,7 +467,8 @@ public sealed record CareerConfig
             FatalityLevel,
             StartYear,
             PlayerTeam,
-            noNumbers);
+            noNumbers,
+            VoteMode);
 
     public CareerConfigValidation Validate()
     {
@@ -443,6 +490,11 @@ public sealed record CareerConfig
         if (!aiDefined)
         {
             errors.Add(CareerConfigIssue.Of(CareerConfigCodes.AiBehavior));
+        }
+
+        if (!Enum.IsDefined(VoteMode))
+        {
+            errors.Add(CareerConfigIssue.Of(CareerConfigCodes.VoteMode));
         }
 
         if (!Enum.IsDefined(FatalityLevel))
@@ -505,11 +557,18 @@ public sealed record CareerConfig
             warnings.Add(CareerConfigIssue.Of(CareerConfigCodes.HistoryStrengthWithPureRandom));
         }
 
+        if (rulesDefined && RulesSource == RulesSource.Historical && Enum.IsDefined(VoteMode) && VoteMode != VoteMode.OneVoteEach)
+        {
+            warnings.Add(CareerConfigIssue.Of(CareerConfigCodes.VoteModeWithHistoricalRules));
+        }
+
         return new CareerConfigValidation(errors, warnings);
     }
 
     /// <summary>
-    /// Compact JSON with a fixed property order. This string is the save payload and the hash input.
+    /// Compact JSON with a fixed property order. This string is the save payload and the hash input. <c>voteMode</c> follows
+    /// <c>rulesSource</c> and is written only when it is not <see cref="VoteMode.OneVoteEach"/>: a save from before voting v2
+    /// has no such property and reads as one vote each, with the bytes it had.
     /// </summary>
     public string ToCanonicalJson()
     {
@@ -517,6 +576,12 @@ public sealed record CareerConfig
         builder.Append('{');
         AppendString(builder, first: true, "peopleSource", PeopleSource.ToString());
         AppendString(builder, first: false, "rulesSource", RulesSource.ToString());
+        if (VoteMode != VoteMode.OneVoteEach)
+        {
+            // Written only when chosen, so a career that never chose a vote mode keeps the exact bytes (and hash) it always had.
+            AppendString(builder, first: false, "voteMode", VoteMode.ToString());
+        }
+
         AppendString(builder, first: false, "aiBehavior", AiBehavior.ToString());
         AppendNumber(builder, "historyStrength", HistoryStrength);
         AppendNumber(builder, "randomnessLevel", RandomnessLevel);
@@ -534,6 +599,7 @@ public sealed record CareerConfig
         var prototype = FromPreset(preset);
         return PeopleSource == prototype.PeopleSource
             && RulesSource == prototype.RulesSource
+            && VoteMode == prototype.VoteMode
             && AiBehavior == prototype.AiBehavior
             && HistoryStrength == prototype.HistoryStrength
             && RandomnessLevel == prototype.RandomnessLevel

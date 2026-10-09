@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { BridgeCommandName, OwnFacilityView } from '../lib/api/types.generated';
+  import type { BridgeCommandName, FacilityEffectView, OwnFacilityView } from '../lib/api/types.generated';
   import Confirmation from '../lib/components/Confirmation.svelte';
   import Status from '../lib/components/Status.svelte';
   import { formatDate } from '../lib/date.mjs';
@@ -41,6 +41,12 @@
   }
 
   const fill = (facility: OwnFacilityView) => Math.max(0, Math.min(100, facility.relativeQuality * 100));
+
+  /* A multiplier reads as a share of the baseline ("91%"); a bonus as a share added to it ("+2,4%"). One decimal for a bonus, which is small. */
+  const number = (value: number, digits: number) =>
+    new Intl.NumberFormat(tr.lang === 'en' ? 'en-GB' : 'pl-PL', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+  const show = (effect: FacilityEffectView, value: number) => (effect.mode === 'bonus' ? `+${number(value * 100, 1)}%` : percent(tr, value));
+  const range = (effect: FacilityEffectView) => `${show(effect, effect.atZero)} – ${show(effect, effect.atFull)}`;
 </script>
 
 <div class="screen-head">
@@ -54,19 +60,42 @@
         <header>
           <h2>{tr.t(`infrastructure.kind.${facility.kind}`)}</h2>
           {#if !facility.unlocked}
-            <Status text={tr.t('infra.unavailable')} />
+            <Status text={tr.t('infra.unavailable', { year: String(facility.unlockYear) })} />
           {:else if facility.building && facility.buildEnds}
             <Status text={tr.t('infra.building', { date: formatDate(facility.buildEnds, tr.lang) })} tone="hi" />
           {/if}
         </header>
-        {#if facility.unlocked}
-          <div class="body">
+        <div class="body">
+          {#if facility.unlocked}
             <div class="fields eq">
               <div class="fld"><span class="meta">{tr.t('infra.own')}</span><span class="v num">{quality(tr, facility.qualityMilli)}</span></div>
-              <div class="fld"><span class="meta">{tr.t('infra.frontier', { year: data.today.slice(0, 4) })}</span><span class="v num">{quality(tr, facility.frontierMilli)}</span></div>
+              <div class="fld"><span class="meta">{tr.t('infra.frontier')}</span><span class="v num">{quality(tr, facility.frontierMilli)}</span></div>
               <div class="fld"><span class="meta">{tr.t('infra.relative')}</span><span class="v num">{percent(tr, facility.relativeQuality)}</span></div>
             </div>
             <div class="bar fac-bar"><i style="width:{fill(facility)}%"></i></div>
+          {/if}
+          <table class="table tight effects">
+            <thead>
+              <tr>
+                <th>{tr.t('infra.gives')}</th>
+                {#if facility.unlocked}<th class="r">{tr.t('infra.now')}</th><th class="r">{tr.t('infra.after')}</th>{/if}
+                <th class="r">{tr.t('infra.range')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each facility.effects as effect (effect.key)}
+                <tr>
+                  <td>{tr.t(`infra.effect.${effect.key}`)}</td>
+                  {#if facility.unlocked}
+                    <td class="r num">{show(effect, effect.now)}</td>
+                    <td class="r num">{show(effect, effect.afterUpgrade)}</td>
+                  {/if}
+                  <td class="r num muted">{range(effect)}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+          {#if facility.unlocked}
             {#if asking === facility.kind}
               <Confirmation
                 {tr}
@@ -84,8 +113,8 @@
                 <button class="btn primary" type="button" disabled={busy || facility.building || !facility.eligible} onclick={() => (asking = facility.kind)}>{tr.t('infra.upgrade')}</button>
               </div>
             {/if}
-          </div>
-        {/if}
+          {/if}
+        </div>
       </section>
     {/each}
 

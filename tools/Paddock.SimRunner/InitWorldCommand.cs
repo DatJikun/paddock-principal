@@ -227,7 +227,8 @@ public static class InitWorldCommand
             schedule,
             drivers.Drivers,
             ratings is null ? null : ratings.RatingFor,
-            CareerData.ConstructorIdsFor(driversPath));
+            CareerData.ConstructorIdsFor(driversPath),
+            RealPersonOverridesLoader.Load(dataRoot));
     }
 
     private static double Mean(PersonTruth truth) => truth.Attributes.Average(attribute => attribute.Value);

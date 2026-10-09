@@ -32,6 +32,7 @@
   } from '../live-race.mjs';
   import { livery } from '../livery.mjs';
   import { fallbackPoints, RaceMap, TrackSpline } from '../race-map.mjs';
+  import { fitPanels, loadPanels, savePanels, SIDE, STEP, TOWER } from '../race-panels.mjs';
   import { formatLapTime } from '../race.mjs';
   import type { Tr } from '../ui';
   import Flag from './Flag.svelte';
@@ -93,6 +94,10 @@
   let reloading = false;
   /* Grows when the race is read again after an order, so a frame window fetched for the old race is dropped. */
   let generation = 0;
+  /* Widths of the tower and the right column as the viewer dragged them, and as drawn in this window. */
+  let panels = $state(loadPanels());
+  let viewWidth = $state(window.innerWidth);
+  const fitted = $derived(fitPanels(panels, viewWidth));
   let mapHost: HTMLDivElement | undefined = $state();
   let canvas: HTMLCanvasElement | undefined = $state();
 
@@ -304,15 +309,60 @@
   /* The track is fitted to the area the overlays leave free, so no part of it sits under the tower or the pit wall. */
   function placeMap() {
     if (!map) return;
-    map.setInset({ l: tower ? 290 : 12, t: 82, r: 344, b: 56 });
+    map.setInset({ l: tower ? fitted.tower + 24 : 12, t: 82, r: fitted.side + 24, b: 56 });
     map.fit();
     map.draw();
   }
 
   $effect(() => {
     tower;
+    fitted;
     placeMap();
   });
+
+  /* Dragging a panel's inner edge: the tower grows to the right, the right column to the left. The drawn width is the
+     starting point, so a panel squeezed by a small window moves at once. */
+  function grip(event: PointerEvent, which: 'tower' | 'side') {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const handle = event.currentTarget as HTMLElement;
+    handle.setPointerCapture(event.pointerId);
+    const startX = event.clientX;
+    const start = { ...fitted };
+    const move = (moved: PointerEvent) => {
+      const delta = moved.clientX - startX;
+      panels = which === 'tower' ? { ...start, tower: start.tower + delta } : { ...start, side: start.side - delta };
+    };
+    const done = () => {
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', done);
+      handle.removeEventListener('pointercancel', done);
+      panels = fitted;
+      savePanels(panels);
+    };
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', done);
+    handle.addEventListener('pointercancel', done);
+  }
+
+  function gripKey(event: KeyboardEvent, which: 'tower' | 'side') {
+    const wider = which === 'tower' ? 'ArrowRight' : 'ArrowLeft';
+    const narrower = which === 'tower' ? 'ArrowLeft' : 'ArrowRight';
+    const step = event.key === wider ? STEP : event.key === narrower ? -STEP : 0;
+    if (!step && event.key !== 'Home') return;
+    event.preventDefault();
+    event.stopPropagation();
+    const base = which === 'tower' ? TOWER.base : SIDE.base;
+    panels = { ...fitted, [which]: step ? fitted[which] + step : base };
+    panels = fitted;
+    savePanels(panels);
+  }
+
+  function gripReset(which: 'tower' | 'side') {
+    panels = { ...fitted, [which]: which === 'tower' ? TOWER.base : SIDE.base };
+    savePanels(panels);
+  }
 
   function colors() {
     return {
@@ -338,6 +388,7 @@
     let tick: ReturnType<typeof setInterval> | undefined;
     let alive = true;
     const resize = () => {
+      viewWidth = window.innerWidth;
       map?.resize();
       placeMap();
     };
@@ -435,18 +486,18 @@
   );
 </script>
 
-<div class="rm" data-tower={tower ? 'on' : 'off'} data-event={eventIndex}>
+<div class="rm" data-tower={tower ? 'on' : 'off'} data-event={eventIndex} style:--tw="{fitted.tower}px" style:--rw="{fitted.side}px">
   <div class="rm-host" bind:this={mapHost}>
     <canvas class="rm-map" bind:this={canvas}></canvas>
   </div>
 
   {#if race && !race.found}
-    <div class="ov rm-empty">
+    <div class="rm-pane rm-empty">
       <p>{tr.t('live.error.noRace')}</p>
       <button type="button" class="rm-btn primary" onclick={onexit}>{tr.t(backKey)}</button>
     </div>
   {:else if race}
-    <div class="ov rm-status">
+    <div class="rm-pane rm-status">
       <div class="seg gp">
         {#if race.country}<Flag code={race.country} />{/if}
         <span><b>{race.circuitName ?? ''}</b><small>{race.season} · {tr.t('live.ui.race')} {race.round}</small></span>
@@ -477,7 +528,7 @@
       {/if}
     </div>
 
-    <div class="ov rm-pace">
+    <div class="rm-pane rm-pace">
       {#if !finished}
         <div class="seg">
           <span class="meta">{tr.t('live.ui.wake')}</span>
@@ -517,7 +568,7 @@
     </div>
 
     <button type="button" class="ctl rm-tower-tab" onclick={() => (tower = true)}>{tr.t('live.ui.towerKey')}</button>
-    <div class="ov rm-tower">
+    <div class="rm-pane rm-tower">
       <header>
         <b>{tr.t('live.ui.tower')}</b>
         <button type="button" class="ctl ico" title={tr.t('live.ui.towerKey')} onclick={() => (tower = false)}>✕</button>
@@ -545,10 +596,43 @@
       </ol>
     </div>
 
+    <!-- A focusable separator is the ARIA window splitter: arrows move it, Home restores it. -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+    <div
+      class="rm-grip tower"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={tr.t('live.ui.resizeTower')}
+      aria-valuemin={TOWER.min}
+      aria-valuemax={TOWER.max}
+      aria-valuenow={fitted.tower}
+      tabindex="0"
+      title={tr.t('live.ui.resizeHint')}
+      onpointerdown={(event) => grip(event, 'tower')}
+      onkeydown={(event) => gripKey(event, 'tower')}
+      ondblclick={() => gripReset('tower')}
+    ></div>
+
     <div class="rm-right">
+      <!-- A focusable separator is the ARIA window splitter: arrows move it, Home restores it. -->
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+      <div
+        class="rm-grip side"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={tr.t('live.ui.resizeSide')}
+        aria-valuemin={SIDE.min}
+        aria-valuemax={SIDE.max}
+        aria-valuenow={fitted.side}
+        tabindex="0"
+        title={tr.t('live.ui.resizeHint')}
+        onpointerdown={(event) => grip(event, 'side')}
+        onkeydown={(event) => gripKey(event, 'side')}
+        ondblclick={() => gripReset('side')}
+      ></div>
       {#if card && cardCar}
         {@const colours = livery(cardCar.teamId)}
-        <div class="ov rm-card">
+        <div class="rm-pane rm-card">
           <header>
             <span class="bignum" style:background={colours.main} style:color={colours.on} style:box-shadow={`inset 0 0 0 2px ${colours.accent}`}>{card.out ? '—' : card.pos}</span>
             <div class="who">
@@ -574,7 +658,7 @@
         </div>
       {/if}
 
-      <div class="ov rm-pit">
+      <div class="rm-pane rm-pit">
         <header><b>{tr.t('live.ui.pitWall')}</b><small>{teamName}</small></header>
         <p class="who">
           <span class="meta">{tr.t('live.ui.strategist')}</span>
@@ -700,7 +784,7 @@
         {/if}
       </div>
 
-      <div class="ov rm-radio">
+      <div class="rm-pane rm-radio">
         <header><b>{tr.t('live.ui.radioLog')}</b></header>
         <ol>
           {#each radio as event, index (event.seq)}
@@ -720,7 +804,7 @@
 
     <button type="button" class="ctl rm-log-tab" aria-pressed={transcript} onclick={() => (transcript = !transcript)}>{tr.t('live.ui.transcriptKey')}</button>
     {#if transcript && podium.length === 0}
-      <div class="ov rm-log">
+      <div class="rm-pane rm-log">
         <header>
           <b>{tr.t('live.ui.transcript')}</b>
           <span class="gapsw">
@@ -742,7 +826,7 @@
     {/if}
 
     {#if podium.length > 0}
-      <div class="ov rm-finish">
+      <div class="rm-pane rm-finish">
         <span class="meta">{tr.t('live.ui.resultCard')}</span>
         <ol>
           {#each podium as row (row.carId)}
@@ -760,7 +844,7 @@
 
     {#if toast}
       {#key toast.seq}
-        <div class="ov rm-toast {toast.kind}" class:ours={toast.own} role="status">
+        <div class="rm-pane rm-toast {toast.kind}" class:ours={toast.own} role="status">
           <span class="meta">
             {fromTheCar(toast) ? `${tr.t('live.ui.radio')} · ${cars.get(toast.carId ?? '')?.shortName ?? ''}` : tr.t('live.ui.control')}
             {#if toast.lap > 0}· {tr.t('live.ui.lap')} {toast.lap}{/if}
@@ -774,7 +858,7 @@
       <p class="rm-approx">{tr.t('live.ui.approximate')}</p>
     {/if}
 
-    <div class="ov rm-zoom">
+    <div class="rm-pane rm-zoom">
       <button type="button" class="ctl" title={tr.t('live.ui.zoomIn')} onclick={() => map?.zoomBy(1.25)}>+</button>
       <button type="button" class="ctl" title={tr.t('live.ui.zoomOut')} onclick={() => map?.zoomBy(0.8)}>−</button>
       <button type="button" class="ctl" title={tr.t('live.ui.fit')} onclick={placeMap}>⤢</button>
@@ -814,7 +898,7 @@
     cursor: grab;
     touch-action: none;
   }
-  .ov {
+  .rm-pane {
     position: absolute;
     box-sizing: border-box;
     background: var(--ov);
@@ -997,8 +1081,9 @@
   .rm-tower {
     top: 82px;
     left: 12px;
-    width: 266px;
-    max-height: calc(100% - 94px);
+    width: var(--tw, 266px);
+    /* ends above the transcript key in the corner */
+    max-height: calc(100% - 136px);
     overflow: auto;
     padding: 8px 4px 4px;
     transition: transform 0.42s var(--ease), opacity 0.3s;
@@ -1176,14 +1261,69 @@
     top: 82px;
     right: 12px;
     bottom: 48px;
-    width: 320px;
+    width: var(--rw, 320px);
     display: flex;
     flex-direction: column;
     gap: 10px;
     pointer-events: none;
   }
-  .rm-right > .ov {
+  .rm-right > .rm-pane {
     position: relative;
+    pointer-events: auto;
+    flex: none;
+  }
+  /* The column never runs past the window: the pit wall scrolls inside itself and the radio keeps a few lines. */
+  .rm-right > .rm-pit {
+    flex: 0 1 auto;
+    min-height: 140px;
+    overflow: auto;
+  }
+  .rm-right > .rm-radio {
+    flex: 0 1 auto;
+    min-height: 96px;
+  }
+  .rm-grip {
+    position: absolute;
+    z-index: 2;
+    width: 12px;
+    cursor: ew-resize;
+    touch-action: none;
+  }
+  .rm-grip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    width: 4px;
+    height: 44px;
+    margin-top: -22px;
+    border-radius: 2px;
+    background: var(--ov-ink3);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .rm-grip:hover::after,
+  .rm-grip:focus-visible::after {
+    opacity: 1;
+  }
+  .rm-grip:focus-visible {
+    outline: none;
+  }
+  .rm-grip:focus-visible::after {
+    background: var(--gold);
+  }
+  .rm-grip.tower {
+    top: 82px;
+    bottom: 54px;
+    left: calc(12px + var(--tw, 266px) - 6px);
+  }
+  .rm[data-tower='off'] .rm-grip.tower {
+    display: none;
+  }
+  .rm-grip.side {
+    top: 0;
+    bottom: 0;
+    left: -12px;
     pointer-events: auto;
   }
   .rm-right > .rm-pit {
@@ -1409,7 +1549,7 @@
     left: 50%;
     bottom: 54px;
     transform: translateX(-50%);
-    width: min(560px, calc(100% - 720px));
+    width: min(560px, calc(100% - 2 * max(var(--tw, 266px), var(--rw, 320px)) - 80px));
     min-width: 360px;
     max-height: 38%;
     display: flex;
@@ -1553,7 +1693,7 @@
   .rm-toast {
     top: 82px;
     left: 50%;
-    width: min(440px, calc(100% - 720px));
+    width: min(440px, calc(100% - 2 * max(var(--tw, 266px), var(--rw, 320px)) - 80px));
     min-width: 300px;
     padding: 12px 16px;
     display: flex;
@@ -1593,7 +1733,7 @@
     right: 12px;
     bottom: 12px;
     margin: 0;
-    max-width: 320px;
+    max-width: var(--rw, 320px);
     font-size: 11.5px;
     color: var(--ov-ink3);
     text-align: right;

@@ -17,17 +17,19 @@ namespace Paddock.Domain.Pool;
 /// own counter, which only moves forward, so a handle is never reused (INV-009).
 /// </para>
 /// <para>
-/// Canonical text (<see cref="SchemaVersion"/> 1), after the section header written by the state hash:
+/// Canonical text (<see cref="SchemaVersion"/> 2, #268), after the section header written by the state hash. The academy lines are written
+/// only for a junior of an academy, so a pool that never had one has the text it always had:
 /// <code>
 /// next &lt;nextHandle&gt;
 /// members &lt;count&gt;
 /// member &lt;len&gt;:&lt;personId&gt; &lt;handle&gt; &lt;len&gt;:&lt;entered&gt;
 /// funding &lt;0|1&gt;
+/// academy &lt;len&gt;:&lt;organizationId&gt;      (only for a recruited member, written after the funding flag)
 /// funder &lt;len&gt;:&lt;organizationId&gt;        (only when funding is 1)
 /// programme &lt;CheapSlow|ExpensiveFast&gt;       (only when funding is 1)
 /// season &lt;int&gt;                              (only when funding is 1)
 /// lapsed &lt;count&gt;
-/// lapse &lt;len&gt;:&lt;personId&gt; &lt;len&gt;:&lt;date&gt;
+/// lapse &lt;len&gt;:&lt;personId&gt; &lt;len&gt;:&lt;date&gt; [&lt;len&gt;:&lt;organizationId&gt; when he left an academy]
 /// focus &lt;count&gt;
 /// focus &lt;len&gt;:&lt;organizationId&gt; &lt;Pool|Person&gt; &lt;len&gt;:&lt;personId or -&gt;
 /// observations &lt;count&gt;
@@ -64,7 +66,7 @@ public sealed class TalentPoolSection : IWorldSection
 
     public string Name => SectionName;
 
-    public int SchemaVersion => 1;
+    public int SchemaVersion => 2;
 
     /// <summary>The number the next member gets. Starts at 1.</summary>
     public long NextHandle { get; }
@@ -258,7 +260,7 @@ public sealed class TalentPoolSection : IWorldSection
         }
 
         var lapsed = Clone(_lapsed);
-        lapsed.Add(person.Value, new LapsedCareer(person, on));
+        lapsed.Add(person.Value, new LapsedCareer(person, on, Find(person)!.Academy));
         return WithoutMember(person, lapsed);
     }
 
@@ -272,8 +274,13 @@ public sealed class TalentPoolSection : IWorldSection
             throw new InvalidOperationException($"Person '{person}' already has a funded season.");
         }
 
+        if (member.Academy != funding.Funder)
+        {
+            throw new InvalidOperationException($"Person '{person}' is not in the academy of '{funding.Funder}'.");
+        }
+
         var members = Clone(_members);
-        members[person.Value] = new PoolMember(member.Id, member.Handle, member.EnteredOn, funding);
+        members[person.Value] = new PoolMember(member.Id, member.Handle, member.EnteredOn, funding, member.Academy);
         return new TalentPoolSection(NextHandle, members, _lapsed, _focus, _observations);
     }
 
@@ -282,6 +289,46 @@ public sealed class TalentPoolSection : IWorldSection
     {
         var member = Find(person);
         if (member?.Funding is null)
+        {
+            return this;
+        }
+
+        var members = Clone(_members);
+        members[person.Value] = new PoolMember(member.Id, member.Handle, member.EnteredOn, null, member.Academy);
+        return new TalentPoolSection(NextHandle, members, _lapsed, _focus, _observations);
+    }
+
+    /// <summary>The juniors of the team's academy, in order of person id.</summary>
+    public IReadOnlyList<PoolMember> AcademyOf(OrganizationId team) =>
+        _members.Values.Where(member => member.Academy == team).ToArray();
+
+    /// <summary>How many places of the team's academy are taken.</summary>
+    public int AcademyCount(OrganizationId team) => _members.Values.Count(member => member.Academy == team);
+
+    /// <summary>Takes a member who nobody has recruited into the team's academy. The caller checks the places.</summary>
+    public TalentPoolSection Recruit(PersonId person, OrganizationId team)
+    {
+        if (!team.IsAssigned)
+        {
+            throw new ArgumentException("The team is unassigned.", nameof(team));
+        }
+
+        var member = Find(person) ?? throw new InvalidOperationException($"Person '{person}' is not in the pool.");
+        if (member.Academy is not null)
+        {
+            throw new InvalidOperationException($"Person '{person}' is already in an academy.");
+        }
+
+        var members = Clone(_members);
+        members[person.Value] = new PoolMember(member.Id, member.Handle, member.EnteredOn, null, team);
+        return new TalentPoolSection(NextHandle, members, _lapsed, _focus, _observations);
+    }
+
+    /// <summary>Frees the place: the junior goes back to the pool and a programme paid for him is lost. A member nobody recruited is left alone.</summary>
+    public TalentPoolSection Release(PersonId person)
+    {
+        var member = Find(person);
+        if (member?.Academy is null)
         {
             return this;
         }
@@ -336,6 +383,11 @@ public sealed class TalentPoolSection : IWorldSection
             writer.Field(member.EnteredOn.ToString());
             writer.End();
             writer.Flag("funding", member.Funding is not null);
+            if (member.Academy is { } academy)
+            {
+                writer.TextLine("academy", academy.Value);
+            }
+
             if (member.Funding is { } funding)
             {
                 writer.TextLine("funder", funding.Funder.Value);
@@ -351,6 +403,12 @@ public sealed class TalentPoolSection : IWorldSection
             writer.Field(career.Id.Value);
             writer.Space();
             writer.Field(career.On.ToString());
+            if (career.Academy is { } left)
+            {
+                writer.Space();
+                writer.Field(left.Value);
+            }
+
             writer.End();
         }
 

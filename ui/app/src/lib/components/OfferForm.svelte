@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import type { OfferTerms } from '../api/types.generated';
+  import type { OfferTerms, SalaryGuideView } from '../api/types.generated';
   import { SEATS } from '../people.mjs';
   import { formatMoney } from '../money.mjs';
   import { icon, ICON, type Tr } from '../ui';
@@ -10,7 +10,6 @@
   /** What the bridge takes as an offer. Money is whole currency units; the option and the exit clause are empty when unused. */
   export type OfferInput = {
     salary: number;
-    pointsBonus: number;
     winBonus: number;
     titleBonus: number;
     years: number;
@@ -23,12 +22,15 @@
   let {
     tr,
     initial,
+    guide = null,
     busy,
     label,
     onSubmit,
   }: {
     tr: Tr;
     initial: OfferTerms | null;
+    /** What the slider spans and where the suggested range sits, from the bridge. Without it the salary is a plain number. */
+    guide?: SalaryGuideView | null;
     busy: boolean;
     /** The button that starts the confirm step ("Wyślij ofertę", "Zaproponuj nowy kontrakt"). */
     label: string;
@@ -36,10 +38,9 @@
   } = $props();
 
   /* The form starts from the terms on the table, if any; nothing here is a suggestion, it only saves retyping. */
-  let salary = $state<number | null>(untrack(() => initial?.salary ?? null));
+  let salary = $state<number | null>(untrack(() => initial?.salary ?? guide?.suggested ?? null));
   let years = $state(untrack(() => String(initial?.years ?? 1)));
   let seat = $state(untrack(() => initial?.seat ?? 'Equal'));
-  let pointsBonus = $state<number | null>(untrack(() => initial?.pointsBonus ?? 0));
   let winBonus = $state<number | null>(untrack(() => initial?.winBonus ?? 0));
   let titleBonus = $state<number | null>(untrack(() => initial?.titleBonus ?? 0));
   let holder = $state(untrack(() => initial?.option?.holder ?? 'none'));
@@ -47,12 +48,20 @@
   let exitWorse = $state<number | null>(untrack(() => initial?.exit?.positionWorseThan ?? null));
   let asking = $state(false);
 
+  /* The slider moves in round steps; the suggested range is painted on its track from the bridge's numbers. */
+  let step = $derived(guide && guide.max >= 20000 ? 1000 : 100);
+  const share = (value: number, g: SalaryGuideView) => ((value - g.min) / (g.max - g.min)) * 100;
+  let band = $derived(
+    guide && guide.max > guide.min
+      ? `linear-gradient(90deg, transparent ${share(guide.suggestedLow, guide)}%, var(--good) ${share(guide.suggestedLow, guide)}% ${share(guide.suggestedHigh, guide)}%, transparent ${share(guide.suggestedHigh, guide)}%)`
+      : '',
+  );
+
   let ready = $derived(salary !== null && salary >= 0 && Number.isFinite(Number(salary)));
 
   function offer(): OfferInput {
     return {
       salary: Math.trunc(Number(salary ?? 0)),
-      pointsBonus: Math.trunc(Number(pointsBonus ?? 0)),
       winBonus: Math.trunc(Number(winBonus ?? 0)),
       titleBonus: Math.trunc(Number(titleBonus ?? 0)),
       years: Number(years),
@@ -73,10 +82,21 @@
 
 <div class="offer">
   <div class="offer-grid">
-    <label class="fld">
+    <div class="fld salary">
       <span class="meta">{tr.t('offer.salary')}</span>
-      <input class="text num" type="number" min="0" step="1000" bind:value={salary} />
-    </label>
+      {#if guide}
+        <div class="slide">
+          <div class="track" style:background={band}></div>
+          <input type="range" min={guide.min} max={guide.max} {step} bind:value={salary} aria-label={tr.t('offer.salary')} />
+        </div>
+        <div class="slide-v">
+          <b class="num">{formatMoney(Math.trunc(Number(salary ?? 0)) * 100, tr.lang)}</b>
+          <small class="muted num">{tr.t('offer.suggested', { low: formatMoney(guide.suggestedLow * 100, tr.lang), high: formatMoney(guide.suggestedHigh * 100, tr.lang) })}</small>
+        </div>
+      {:else}
+        <input class="text num" type="number" min="0" step="1000" bind:value={salary} />
+      {/if}
+    </div>
     <div class="fld">
       <span class="meta">{tr.t('offer.years')}</span>
       <Tabs group="offer-years" items={['1', '2', '3', '4', '5'].map((value) => ({ value, label: value }))} bind:value={years} />
@@ -85,10 +105,6 @@
       <span class="meta">{tr.t('offer.seat')}</span>
       <Tabs group="offer-seat" items={SEATS.map((value) => ({ value, label: tr.t(`seat.${value}`) }))} bind:value={seat} />
     </div>
-    <label class="fld">
-      <span class="meta">{tr.t('offer.pointsBonus')}</span>
-      <input class="text num" type="number" min="0" step="100" bind:value={pointsBonus} />
-    </label>
     <label class="fld">
       <span class="meta">{tr.t('offer.winBonus')}</span>
       <input class="text num" type="number" min="0" step="1000" bind:value={winBonus} />
@@ -108,6 +124,7 @@
         ]}
         bind:value={holder}
       />
+      <small class="muted hint">{tr.t('offer.option.explain', { days: '120' })}</small>
     </div>
     {#if holder !== 'none'}
       <label class="fld">
@@ -118,6 +135,7 @@
     <label class="fld">
       <span class="meta">{tr.t('offer.exit')}</span>
       <input class="text num" type="number" min="1" placeholder="—" bind:value={exitWorse} />
+      <small class="muted hint">{tr.t('offer.exit.explain')}</small>
     </label>
   </div>
 

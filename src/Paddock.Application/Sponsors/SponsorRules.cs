@@ -104,21 +104,87 @@ public static class SponsorRules
             environment.Finance.Facts(year).TypicalDollars,
             book.Finance.PopularityMilli);
 
+    /// <summary>
+    /// The annual amount a sponsor offers to renew <paramref name="deal"/> on <paramref name="terms"/>: the full price of the season the renewal
+    /// starts in, the sponsor's trust in the team, and what the old deal paid (a satisfied sponsor offers more than it paid). Pure.
+    /// </summary>
+    public static long RenewalCents(SponsorBook book, SponsorEnvironment environment, SponsorDeal deal, SponsorDefinition sponsor, SponsorTerms terms)
+    {
+        var start = deal.End.AddDays(1);
+        var full = FullAnnualCents(book, environment, sponsor, deal.Kind, start.Year);
+        var trust = book.Section.TrustOf(deal.SponsorId, deal.Organization);
+        return SponsorPricing.RenewalCents(full, trust, deal.AnnualCents, deal.Terms, terms);
+    }
+
+    /// <summary>
+    /// How open the sponsor is to a long partnership with this organization (#268), from what the organization knows: the trust the sponsor has in
+    /// it, the deals they completed together and how big the sponsor is. Never from hidden truth (INV-003). Pure.
+    /// </summary>
+    public static PartnershipBand PartnershipOf(SponsorsSection section, SponsorDefinition sponsor, OrganizationId organization)
+    {
+        ArgumentNullException.ThrowIfNull(section);
+        ArgumentNullException.ThrowIfNull(sponsor);
+        var completed = section.Deals.Count(deal => deal.Organization == organization && deal.SponsorId == sponsor.Id && deal.Status == DealStatus.Completed);
+        return SponsorPartnership.BandOf(SponsorPartnership.Score(
+            section.TrustOf(sponsor.Id, organization),
+            completed,
+            sponsor.BudgetLevel >= SponsorEstimates.BigSponsorBudgetLevel));
+    }
+
+    /// <summary>
+    /// The thousandths a sponsor adds to the annual amount at an anniversary of a long deal: only when the year that ended met the sponsor's
+    /// condition (a sponsor with no condition has none to miss) and the sponsor is open to it. A year with a missed or unsettled condition adds nothing.
+    /// </summary>
+    public static int AnniversaryRaiseMilli(SponsorsSection section, SponsorDefinition sponsor, SponsorDeal deal)
+    {
+        ArgumentNullException.ThrowIfNull(deal);
+        if (AmbitionOpen(sponsor) && deal.Outcome != DealObjectiveOutcome.Met)
+        {
+            return 0;
+        }
+
+        return SponsorPartnership.AnniversaryRaiseMilli(PartnershipOf(section, sponsor, deal.Organization));
+    }
+
     /// <summary>The authored objective scaled to the team's public strength, or the authored one when that strength is unknown.</summary>
     public static SponsorObjectiveSpec ForTeam(
         SponsorObjectiveSpec spec,
         OrganizationId organization,
         SponsorEnvironment environment,
-        GameDate on)
+        GameDate on,
+        SponsorAmbition ambition = SponsorAmbition.Standard)
     {
         ArgumentNullException.ThrowIfNull(spec);
         ArgumentNullException.ThrowIfNull(environment);
         if (environment.Outlook?.ExpectedPosition(organization, on) is not int expected)
         {
-            return spec;
+            // The team's strength is unknown, so the authored target stands, but the player's choice of a harder or an easier condition still counts.
+            return SponsorObjectiveScale.Ambitious(spec, ambition);
         }
 
-        return SponsorObjectiveScale.Scale(spec, expected, environment.Outlook.FieldSize(on));
+        return SponsorObjectiveScale.Scale(spec, expected, environment.Outlook.FieldSize(on), ambition);
+    }
+
+    /// <summary>
+    /// True when the sponsor asks for something the team's results can meet, so the player can ask an easier or a harder condition. A sponsor with
+    /// no condition, and one whose only wish is a nationality (a bonus, not a condition), has a single standard deal.
+    /// </summary>
+    public static bool AmbitionOpen(SponsorDefinition sponsor)
+    {
+        ArgumentNullException.ThrowIfNull(sponsor);
+        return sponsor.Objective is { } spec && spec.Kind != SponsorObjectiveSpec.DriverNationalityInLineup;
+    }
+
+    /// <summary>Why the terms cannot be asked of this sponsor, or null. An ambition other than the standard one needs a condition to change.</summary>
+    public static TranslationMessage? CheckTerms(SponsorDefinition sponsor, SponsorTerms terms)
+    {
+        ArgumentNullException.ThrowIfNull(sponsor);
+        if (!terms.IsValid || (terms.Ambition != SponsorAmbition.Standard && !AmbitionOpen(sponsor)))
+        {
+            return TranslationMessage.Of(SponsorKeys.BadTerms);
+        }
+
+        return null;
     }
 
     public static ObjectivePredicate PredicateOf(SponsorObjectiveSpec spec) => spec.Kind switch
@@ -133,7 +199,11 @@ public static class SponsorRules
     /// <summary>The grantor of a sponsor's objectives. Sponsors are catalogue entries, not world organizations, so the id is the sponsor's own.</summary>
     public static OrganizationId GrantorOf(string sponsorId) => OrganizationId.Real(sponsorId);
 
-    /// <summary>Adds a signed deal and, if the sponsor asks for something, its objective. Returns the new sections.</summary>
+    /// <summary>
+    /// Adds a signed deal and, if the sponsor asks for something, its objective. Returns the new sections. The deal runs
+    /// <see cref="SponsorTerms.Years"/> years; a deal of more than one year gets a fresh objective each year (<see cref="GrantObjective"/>, called
+    /// by the day handler on each anniversary). A nationality wish, when the caller passes one, rides on the deal as a bonus and is no objective.
+    /// </summary>
     public static (SponsorsSection Sponsors, ObjectivesSection Objectives, SponsorDeal Deal) Sign(
         SponsorsSection sponsors,
         ObjectivesSection objectives,
@@ -143,36 +213,15 @@ public static class SponsorRules
         int slot,
         SlotKind kind,
         long annualCents,
-        GameDate start)
+        GameDate start,
+        SponsorTerms? terms = null,
+        SponsorWish? wish = null)
     {
+        var agreed = terms ?? SponsorTerms.Default;
         string? objectiveId = null;
-        if (sponsor.Objective is { } spec)
+        if (AmbitionOpen(sponsor))
         {
-            var scaled = ForTeam(spec, organization, environment, start);
-            var predicate = PredicateOf(scaled);
-            decimal? baseline = predicate is NumericPredicate numeric ? environment.Facts.Number(organization, numeric.FactKey) ?? 0m : null;
-            var reward = SponsorObjectiveScale.Reward(spec, scaled);
-            var bonusDollars = new Money(annualCents * reward.BonusMilli / 1000).WholeDollars;
-            var arguments = new[]
-            {
-                new KeyValuePair<string, string>("sponsorId", sponsor.Id),
-                new KeyValuePair<string, string>("bonus", bonusDollars.ToString(CultureInfo.InvariantCulture)),
-                new KeyValuePair<string, string>("bonusMilli", reward.BonusMilli.ToString(CultureInfo.InvariantCulture)),
-                new KeyValuePair<string, string>("trust", reward.Trust.ToString(CultureInfo.InvariantCulture)),
-            };
-            var draft = new ObjectiveDraft(
-                organization,
-                GrantorOf(sponsor.Id),
-                SponsorKeys.ObjectiveKind,
-                SponsorKeys.ObjectiveReason,
-                predicate,
-                baseline,
-                start.AddDays(Math.Min(spec.WithinDays, SponsorEstimates.DealDays - 1)),
-                new ObjectiveEffect(SponsorKeys.ObjectiveOnMet, arguments),
-                new ObjectiveEffect(SponsorKeys.ObjectiveOnFailed, arguments));
-            var added = objectives.Add(draft, start);
-            objectives = added.Section;
-            objectiveId = added.Objective.Id;
+            (objectives, objectiveId) = GrantObjective(objectives, environment, sponsor, organization, annualCents, start, agreed.Ambition);
         }
 
         var deal = new SponsorDeal(
@@ -182,15 +231,64 @@ public static class SponsorRules
             slot,
             kind,
             start,
-            start.AddDays(SponsorEstimates.DealDays - 1),
+            start.AddDays(agreed.Days - 1),
             annualCents,
             0,
             objectiveId,
             DealObjectiveOutcome.None,
             0,
             DealStatus.Active,
-            null);
+            null,
+            agreed.Years,
+            agreed.Ambition,
+            wish?.Nationality,
+            wish?.RaceSeat ?? false);
         var result = sponsors.AddDeal(deal);
         return (result.Section, objectives, result.Deal);
+    }
+
+    /// <summary>
+    /// The objective of one year of a deal: the sponsor's authored condition, scaled to the team's strength today and to the ambition the player
+    /// chose, with the bonus for meeting it fixed in the effect (so a later change of the numbers cannot change a deal already signed).
+    /// Returns the objectives section and the new objective's id, or the section and null when the sponsor asks for nothing.
+    /// </summary>
+    public static (ObjectivesSection Objectives, string? ObjectiveId) GrantObjective(
+        ObjectivesSection objectives,
+        SponsorEnvironment environment,
+        SponsorDefinition sponsor,
+        OrganizationId organization,
+        long annualCents,
+        GameDate start,
+        SponsorAmbition ambition)
+    {
+        if (!AmbitionOpen(sponsor) || sponsor.Objective is not { } spec)
+        {
+            return (objectives, null);
+        }
+
+        var scaled = ForTeam(spec, organization, environment, start, ambition);
+        var predicate = PredicateOf(scaled);
+        decimal? baseline = predicate is NumericPredicate numeric ? environment.Facts.Number(organization, numeric.FactKey) ?? 0m : null;
+        var reward = SponsorObjectiveScale.Reward(spec, scaled);
+        var bonusDollars = new Money(annualCents * reward.BonusMilli / 1000).WholeDollars;
+        var arguments = new[]
+        {
+            new KeyValuePair<string, string>("sponsorId", sponsor.Id),
+            new KeyValuePair<string, string>("bonus", bonusDollars.ToString(CultureInfo.InvariantCulture)),
+            new KeyValuePair<string, string>("bonusMilli", reward.BonusMilli.ToString(CultureInfo.InvariantCulture)),
+            new KeyValuePair<string, string>("trust", reward.Trust.ToString(CultureInfo.InvariantCulture)),
+        };
+        var draft = new ObjectiveDraft(
+            organization,
+            GrantorOf(sponsor.Id),
+            SponsorKeys.ObjectiveKind,
+            SponsorKeys.ObjectiveReason,
+            predicate,
+            baseline,
+            start.AddDays(Math.Min(spec.WithinDays, SponsorEstimates.DealDays - 1)),
+            new ObjectiveEffect(SponsorKeys.ObjectiveOnMet, arguments),
+            new ObjectiveEffect(SponsorKeys.ObjectiveOnFailed, arguments));
+        var added = objectives.Add(draft, start);
+        return (added.Section, added.Objective.Id);
     }
 }

@@ -12,7 +12,7 @@ Jak odpowiedzieć | napisz, co czujesz | np. „sponsorzy podpisują z rywalami 
 
 ## 1. Start kariery
 
-Z menu głównego wybierasz Kontynuuj (ostatni zapis), Nową karierę, Szybki wyścig, Wczytaj, Ustawienia albo Wyjdź. Nowa kariera to cztery kroki: Ty, Świat, Zespół i podsumowanie, w którym dopiero „Rozpocznij” startuje grę. W trakcie gry menu otwiera klawisz Esc: Zapisz, Zapisz jako, Wczytaj, Ustawienia i Wyjdź do menu. Gra zapisuje się tylko wtedy, gdy sam o to poprosisz.
+Z menu głównego wybierasz Kontynuuj (ostatni zapis), Nową karierę, Szybki wyścig, Wczytaj, Ustawienia, Poradnik albo Wyjdź. Poradnik to ten przewodnik w formie książki: spis rozdziałów po lewej, jeden rozdział na raz po prawej; jest tylko po polsku. W trakcie gry otwierasz go z lewego menu (pozycja Poradnik, na dole) albo z menu na Esc. Nowa kariera to cztery kroki: Ty, Świat, Zespół i podsumowanie, w którym dopiero „Rozpocznij” startuje grę. W trakcie gry menu otwiera klawisz Esc: Zapisz, Zapisz jako, Wczytaj, Ustawienia, Poradnik i Wyjdź do menu. Gra zapisuje się tylko wtedy, gdy sam o to poprosisz.
 
 Przycisk Dalej sam przesuwa kolejne dni, dopóki nic nie wymaga Twojej uwagi. Zatrzymuje się, gdy czas trzyma nierozstrzygnięta decyzja, gdy nadchodzi dzień wyścigu (wyścig uruchamiasz kolejnym kliknięciem), po wyścigu i po przełomie sezonu, oraz gdy w Skrzynce pojawi się nowa ważna wiadomość (wtedy dostajesz też powiadomienie w prawym dolnym rogu). W trakcie biegu Dalej zmienia się w Pauzę (albo Esc). W Ustawieniach wybierasz, czy Dalej biegnie sam i ile czasu zajmuje jeden dzień (domyślnie pół sekundy, do wyboru cztery tempa).
 
@@ -22,7 +22,7 @@ Rok i zespół | pierwszy sezon do testów to 1955, zespół wybierasz z kart
 Karta zespołu | skład kierowców, silnik (fabryczny albo nazwa dostawcy), budżet w dolarach, miejsce w poprzednim sezonie (gdy jest znane), cztery poziomy od 1 do 5 (auto, infrastruktura, kierowcy, personel) i znak zespołu; karty idą w kolejności poprzedniego sezonu
 Preset | najbardziej historyczny, zbalansowany albo chaos
 Ludzie | prawdziwa kariera rok po roku, prawdziwy sufit talentu, prawdziwe nazwiska z losowymi umiejętnościami albo wszyscy generowani
-Przepisy | historyczne albo głosowane co sezon
+Przepisy | historyczne albo głosowane co sezon; przy głosowanych wybierasz jeden głos na zespół albo bank głosów (rozdział 14)
 Zachowanie AI | odtwarza historię, reaguje na sytuację albo gra losowo
 Siła historii | skala 0–10: jak chętnie AI powtarza prawdziwe zdarzenia
 Losowość | suwak 0–100: rozwój, forma, awarie
@@ -112,20 +112,21 @@ Czy różnica między oceną a potencjałem młodych kierowców wydaje Ci się s
 
 ## 4. Juniorzy i skauci
 
-Nowi ludzie wchodzą do gry przez pulę talentów, czyli świat poza F1. Skauci pomagają odgadnąć, kto z niej wyrośnie.
+Nowi ludzie wchodzą do gry przez pulę talentów, czyli świat poza F1: juniorzy, kierowcy z innych serii i testerzy. Juniorzy są na rynku, widocznym dla wszystkich zespołów. Skauci pomagają odgadnąć, kto z nich wyrośnie, a Ty możesz przyjąć najciekawszych do własnej akademii, osobnej i z ograniczoną liczbą miejsc.
 
 ```wybory
+Kogo przyjąć do akademii | akademia ma {PoolEstimates.AcademySlots|osób} miejsca; przyjęty junior jest tylko Twój: znika z rynku dla innych zespołów i nikt inny go nie podpisze; miejsce możesz zwolnić, a junior wraca na rynek
+Który program mu opłacić | podstawowy przyspiesza jego rozwój do {PoolEstimates.CheapSlowSpeedPercent|%%} zwykłego tempa i kosztuje {PoolEstimates.CheapSlowCostShare|%} typowego budżetu na sezon, intensywny do {PoolEstimates.ExpensiveFastSpeedPercent|%%} za {PoolEstimates.ExpensiveFastCostShare|%}; program zmienia tylko tempo, nigdy sufit talentu
 Obserwuj całą pulę | wolno, wszyscy naraz
 Obserwuj jedną osobę | szybko, jej widełki się zawężają
-Opłać sezon juniorski | tani i wolny albo drogi i szybki
-Podpisz | kierowca wyścigowy, testowy albo junior z opcją
-Akademia | ograniczone miejsca; poziom akademii daje lepszych juniorów, ale kosztuje co sezon; około 1 na 10 juniorów nie dochodzi do potencjału
+Podpisz | kierowca wyścigowy, testowy albo junior z opcją; juniora innej akademii podpisać nie można
 ```
 
 ```pola
+Rynek juniorów | widzisz wszystkich, których nikt nie przyjął do akademii, z widełkami z własnego skautingu | prawdziwych i fikcyjnych nie da się odróżnić
 Prawdziwi kierowcy | trafiają do puli {PeopleScheduleRules.DefaultPoolLeadYears|lat} przed debiutem | najwcześniej w wieku {PeopleScheduleRules.PoolMinimumAgeYears|lat}
 Fikcyjni juniorzy | pula uzupełniana do {PoolEstimates.TargetSize|osób} co sezon | AI nie wie, kto jest prawdziwy
-Odpada | po {PoolEstimates.MaxSeasonsInPool|sezonów} bez kontraktu albo po {PoolEstimates.MaxAge|lat}
+Odpada | po {PoolEstimates.MaxSeasonsInPool|sezonów} bez kontraktu albo po {PoolEstimates.MaxAge|lat}; junior z Twojej akademii, który odpada, zostawia wiadomość w skrzynce
 Rozwój | {PoolEstimates.DevelopmentRatePercent|%%} dystansu do potencjału na sezon | najwyżej {PoolEstimates.MaxAnnualStep|pkt} na atrybut
 ```
 
@@ -139,7 +140,8 @@ Widełki potencjału są szersze niż widełki atrybutu. Słaby skaut może się
 
 ```pytania
 Czy wybór między obserwacją całej puli a jednej osoby to dla Ciebie prawdziwa decyzja?
-Czy junior z programem jest gotowy w sensownym czasie?
+Czy ograniczone miejsca w akademii i to, że przyjęty junior znika innym z rynku, zmieniają to, kogo wybierasz?
+Czy junior z programem jest gotowy w sensownym czasie, a przyspieszenie jest odczuwalne, choć skromne?
 Czy niepewność skauta pomaga w decyzji, czy tylko irytuje?
 ```
 
@@ -150,7 +152,8 @@ Czy niepewność skauta pomaga w decyzji, czy tylko irytuje?
 Kierowca ocenia ofertę według swojej osobowości. Jednej „wartości rynkowej” nie ma.
 
 ```wybory
-Pensja | porównywana z typową pensją tego poziomu w epoce
+Pensja | suwak; sugerowany przedział wynika z umiejętności osoby, tak jak widzi je Twój zespół. Premii za punkt nie ma, zostają premia za wygraną i za tytuł
+Przedkontrakt | kierowcę, któremu umowa kończy się w tym roku, można podpisać już teraz na następny sezon; umowa startuje dzień po końcu obecnej
 Długość | do {NegotiationEstimates.MaxYears|sezonów}; długość, opcje i klauzula wyjścia liczą się jako ryzyko
 Status | numer 1, równy albo numer 2
 Kiedy ruszyć kontrakt rywala | na {NegotiationEstimates.NegotiationWindowDays|dni} przed jego końcem
@@ -174,7 +177,7 @@ Ryzyko (minus) | waga {NegotiationEstimates.WeightRisk} | długość, opcje, kla
 
 ```kroki
 Oferta | pensja, lata, status, opcje, klauzule
-Odpowiedź | po kilku dniach, najwcześniej po {NegotiationEstimates.ResponseDelayMinDays|dni}
+Odpowiedź | dzień zależy od osoby: najwcześniej po {NegotiationEstimates.ResponseDelayMinDays|dni}, mniej zawodowa osoba odpowiada nawet o {NegotiationEstimates.ResponseDelayCarelessDays|dni} później. Po wysłaniu oferty dostajesz w skrzynce wiadomość, do kiedy czekasz
 Rundy | {NegotiationEstimates.MinRounds}–{NegotiationEstimates.MaxRounds}, zależnie od charakteru
 Decyzja | najlepsza oferta; przy remisie zaufanie
 ```
@@ -278,9 +281,17 @@ Jakość | względem granicy roku | granica rośnie o {InfrastructureEstimates.F
 W budowie | {InfrastructureEstimates.BuildingWorkShare|%} sprawności | aż do dnia końca
 Pierwszy krok | około {InfrastructureEstimates.BaseUpgradeCostShare|%} typowego budżetu i {InfrastructureEstimates.BaseUpgradeDays|dni} | potem drożej i dłużej
 Wynajem toru | około {InfrastructureEstimates.TestRentalShare|%} typowego budżetu za test
-Ciężarówki | {InfrastructureEstimates.LogisticsLorryDays|dni} w Europie, około {InfrastructureEstimates.LogisticsLorryShare|%} typowego budżetu
-Statek | {InfrastructureEstimates.LogisticsShipDays|dni} do rundy za oceanem (Argentyna), około {InfrastructureEstimates.LogisticsShipShare|%} typowego budżetu
+Ciężarówki | {InfrastructureEstimates.LogisticsLorryDays|dni} w Europie, trzy razy więcej niż skok po własnym kraju
+Statek | {InfrastructureEstimates.LogisticsShipDays|dni} do rundy za oceanem (Argentyna), osiem razy więcej niż skok po własnym kraju
 Efekt | przez rozwój auta | nie przez sam poziom fabryki
+```
+
+```pola
+Co daje fabryka | wykonanie części od {InfrastructureEstimates.ExecutionFloor|%} do 100%, czas projektu od {InfrastructureEstimates.DurationSlow|%} do {InfrastructureEstimates.DurationFast|%} bazowego, tempo poznawania auta od {InfrastructureEstimates.UnderstandingFactoryFloor|%} do 100% | zależnie od jakości względem roku
+Co daje tunel | do +{InfrastructureEstimates.ExecutionTunnelSpan|%} do wykonania części | od 1968
+Co daje CFD | do +{InfrastructureEstimates.ExecutionCfdSpan|%} do wykonania części | od 1990
+Co daje symulator | do +{InfrastructureEstimates.UnderstandingSimulatorSpan|%} do tempa poznawania auta | od 2012
+Ile kosztuje transport | cały sezon kosztuje {InfrastructureEstimates.LogisticsSeasonShare|%} typowego rocznego budżetu epoki, niezależnie od liczby rund; ta kwota dzieli się na rundy według odległości (statek ciężej niż ciężarówka, własny kraj najlżej), więc dłuższy kalendarz robi każdą rundę tańszą, a nie rok droższy | płacisz automatycznie, jedną pozycją w księdze z powodem, z budżetu epoki, a nie z Twojej gotówki; wartość jest szacunkiem
 ```
 
 ```pytania
@@ -294,7 +305,7 @@ Czy kolejny poziom fabryki jest wystarczająco drogi, żebyś się wahał?
 
 ## 9. Dostawcy
 
-Rodzaj umowy z dostawcą decyduje, kiedy dostajesz nowości i ile płacisz.
+Rodzaj umowy z dostawcą decyduje, kiedy dostajesz nowości i ile płacisz. Na razie kupujesz tylko silnik: ekran pokazuje, jaki to silnik i kto go dostarcza, osobno parametry silnika i osobno umowę. Opony i paliwo wrócą później.
 
 ```wybory
 Fabryczna | nowości od razu, wspólny rozwój, ale zależność od dostawcy
@@ -313,7 +324,7 @@ Klienci jednego dostawcy | najwyżej {SupplyEstimates.MaxCustomersPerSupplier}
 
 ```pytania
 Czy klient jest dla Ciebie wyraźnie wolniejszy niż zespół fabryczny?
-Czy wybór dostawcy opon cokolwiek zmienia w wynikach?
+Czy widzisz wprost, jaki silnik masz i od kogo?
 Czy kusi Cię umowa na wiele sezonów z rabatem?
 ```
 
@@ -321,22 +332,30 @@ Czy kusi Cię umowa na wiele sezonów z rabatem?
 
 ## 10. Sponsorzy
 
-Masz trzy miejsca na sponsorów, a na każde kilku kandydatów.
+Masz trzy miejsca na sponsorów. Jedna lista pokazuje wszystkich, z którymi możesz rozmawiać: nazwa, branża, miejsce i kwota rocznie. Klikasz sponsora, ustawiasz warunki umowy i potwierdzasz. Miejsce wybiera się samo, bo wynika z rodzaju sponsora.
 
 ```wybory
+Jak długo | umowa trwa od {SponsorEstimates.MinYears|lat} do {SponsorEstimates.MaxYears|lat} i dłuższa płaci rocznie tyle samo co krótka; za to nie szukasz sponsora co roku, a zadowolony sponsor może podnieść kwotę w rocznicę
+Czy sponsor chce długiej współpracy | przed wyborem długości ekran mówi słowami, czy sponsor jest ostrożny, otwarty czy chce długiej współpracy; zależy to od zaufania do Ciebie, umów skończonych razem i wielkości sponsora (duży planuje dalej, od {SponsorEstimates.BigSponsorBudgetLevel|%} budżetu zespołu); otwarty sponsor podnosi kwotę w rocznicę o {SponsorEstimates.AnniversaryRaiseOpenMilli|m%}, a ten, który chce długiej współpracy, o {SponsorEstimates.AnniversaryRaiseEagerMilli|m%}, ale tylko gdy minął rok ze spełnionym warunkiem; o podwyżce dostajesz wiadomość
+Prośba o więcej | przy podpisaniu i przy przedłużeniu możesz poprosić o do {SponsorEstimates.AskMaxMilli|m%} więcej niż wycena; otwarty sponsor zgodzi się na do {SponsorEstimates.AskOpenLimitMilli|m%}, ten, który chce długiej współpracy, na do {SponsorEstimates.AskEagerLimitMilli|m%}, ostrożny zostaje przy wycenie; odpowiedź widzisz przed potwierdzeniem
+Jak trudny warunek | łatwiejszy płaci {SponsorEstimates.LighterPayMilli|m%} standardowej kwoty, trudniejszy {SponsorEstimates.HarderPayMilli|m%}; cel jest zawsze dopasowany do siły Twojego zespołu (jak u zarządu), więc mocny zespół dostaje wyższe cele; sponsor bez celu sportowego ma jedną wersję umowy
 Podpisać od razu czy czekać | czekanie poprawia warunki o {SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, do limitu negocjatora; na razie nikt nie zabierze Ci sponsora
-Który sponsor na które miejsce | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego
-Cel sponsora | dopasowany do siły zespołu (oczekiwana pozycja, jak u zarządu); premia startuje od {SponsorEstimates.BonusMilli|m%} rocznej kwoty i rośnie z trudnością celu, niespełniony może zakończyć umowę
-Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania
-Odpowiedź na ofertę | oferta przedłużenia przychodzi do skrzynki z wyborem: przedłuż albo puść sponsora; bez odpowiedzi umowa po prostu się kończy. Gdy sponsor nie złoży oferty, dostajesz o tym wiadomość {SponsorEstimates.RenewalLeadDays|dni} przed końcem umowy
+Miejsce na aucie | miejsce dodatkowe płaci {SponsorEstimates.SecondarySlotMilli|m%} kwoty głównego; w latach 50. wszystkie trzy to miejsca techniczne
+Cel sponsora | premia startuje od {SponsorEstimates.BonusMilli|m%} rocznej kwoty i rośnie z trudnością celu; niespełniony cel kończy umowę w terminie, a w umowie wieloletniej cel jest liczony od nowa co rok
+Życzenie narodowości | rzadkie i tylko premia: sponsor prosi o kierowcę ze swojego kraju, ale tylko wtedy, gdy taki kierowca jest w stawce albo na rynku; duży sponsor (od {SponsorEstimates.BigSponsorBudgetLevel|%} budżetu zespołu) chce go w składzie wyścigowym, mały zadowoli się rezerwowym; gdy się uda, dostajesz {SponsorEstimates.WishBonusMilli|m%} kwoty rocznej więcej, a gdy nie, nic się nie dzieje
+Dodatki branży | paliwa, oleje, opony i motoryzacja dają towar wartości {SponsorEstimates.InKindMilli|m%} kwoty rocznej z każdą ratą; banki, dobra konsumpcyjne i elektronika dopłacają raz {SponsorEstimates.SigningBonusMilli|m%} kwoty rocznej z pierwszą ratą
+Przedłużenie | sponsor proponuje sam od {SponsorEstimates.RenewalMinTrust} zaufania, zwykle więcej niż płacił (od {SponsorEstimates.RenewalRaiseBaseMilli|m%} dawnej kwoty, a im większe zaufanie, tym więcej)
+Negocjacja przedłużenia | w ofercie możesz zmienić długość umowy i poziom warunku; sponsor od razu wycenia nowe warunki i przysyła nową decyzję w skrzynce; masz na to {SponsorEstimates.MaxCounterRounds} zmiany, potem oferta jest ostateczna
+Odpowiedź na ofertę | oferta przychodzi do skrzynki z wyborem: przedłuż albo puść sponsora; bez odpowiedzi umowa po prostu się kończy. Gdy sponsor nie złoży oferty, dostajesz o tym wiadomość {SponsorEstimates.RenewalLeadDays|dni} przed końcem umowy
 Własna pula | każdy zespół ma własnych sponsorów: co sezon {SponsorEstimates.LocalBackersPerSeason} nowych, innych propozycji na rodzaj miejsca, różnych nazwą, kwotą i celem; do tego dochodzą sponsorzy z nazwy, dostępni dla Ciebie co sezon; żaden sponsor nie jest wspólny, więc zespoły AI nigdy nie odbierają Ci propozycji
 ```
 
 ```kroki
+Wybór | sponsor z listy, długość umowy i poziom warunku
 Otwarcie | sponsor proponuje {SponsorEstimates.OpeningTermsMilli|m%} pełnej ceny
 Czekanie | +{SponsorEstimates.WaitingGainMilliPerDay|m%} dziennie, do limitu negocjatora
 Rywal | na razie żadnego: zespoły nie walczą o sponsorów, wspólny rynek sponsorów wejdzie później
-Umowa | {SponsorEstimates.DealDays|dni}, raty co miesiąc, cel sponsora
+Umowa | {SponsorEstimates.DealDays|dni} na każdy rok umowy, raty co miesiąc, cel sponsora i dodatki branży
 ```
 
 ```wykres sponsor-czekanie
@@ -346,7 +365,12 @@ Przerywana linia: ile średnio zdobędziesz, czekając tyle dni, gdyby rywal mó
 ```pytania
 Czy podpisałbyś sponsora od razu, czy czekał?
 Skoro nikt nie zabiera sponsorów, czekanie zawsze się opłaca do limitu. Czy brakuje Ci tu ryzyka, czy wolisz spokój?
-Czy cele sponsorów są zrozumiałe i uczciwe?
+Czy wiesz z ekranu, czy sponsor chce długiej współpracy, i czy to zmienia długość umowy, którą wybierasz?
+Czy możliwość poproszenia o trochę więcej to prawdziwa decyzja, czy prosisz zawsze o maksimum?
+Czy cele sponsorów są zrozumiałe i uczciwe, także na poziomie łatwiejszym i trudniejszym?
+Czy wybierałbyś dłuższą umowę za mniejszą kwotę rocznie?
+Czy życzenie narodowości jako sama premia jest dla Ciebie warte uwagi?
+Czy kwoty od sponsorów są teraz wystarczające, czy nadal za małe?
 ```
 
 ---
@@ -397,7 +421,7 @@ Przed wyścigiem przygotowujesz zespół, w wyścigu pracują Twoi ludzie, a wyn
 Strateg | steruje postojami i tempem; słabszy gorzej ocenia zużycie opon i plany. Jego umiejętność to w {RaceStaffEstimates.StrategyWeight|%} strategia, reszta to „Reakcja”; atrybut „Pogoda” decyduje o trafności prognozy. Rywale mają swoich strategów na tych samych zasadach
 Ekipa w boksie | jej jakość to atrybut „Pit stopy” szefa mechaników; od niej zależy ryzyko błędu: +{PitConstants.ErrorMinSeconds|s}–{PitConstants.ErrorMaxSeconds|s} straty
 Kierowca i auto pod tor | tor nagradza różne parametry auta
-Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, które zwalniają w zakrętach, klasyfikacja, przebieg, a w radiu strateg i Twoi kierowcy; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości. Auto-pauza sama zatrzymuje wyścig przy fladze, deszczu i ważnej wieści o Twoim aucie, a komunikat pokazuje, co się stało. Kropka przy różnicy w klasyfikacji to walka o pozycję
+Jak oglądać wyścig | w dniu wyścigu gra przechodzi w tryb wyścigu: mapa toru z kropkami, które zwalniają w zakrętach, klasyfikacja, przebieg, a w radiu strateg i Twoi kierowcy; tempo ×1, ×5, ×10, ×20 i pauza; wyścig ogląda się w całości. Auto-pauza sama zatrzymuje wyścig przy fladze, deszczu i ważnej wieści o Twoim aucie, a komunikat pokazuje, co się stało. Kropka przy różnicy w klasyfikacji to walka o pozycję. Klasyfikację i panel boksu poszerzysz albo zwęzisz, przeciągając ich wewnętrzną krawędź; dwuklik przywraca szerokość domyślną
 Szybki wyścig | z menu głównego, bez kariery: wybierasz sezon, zespół i rundę z kalendarza tego sezonu, a wyścig od razu rusza w trybie wyścigu. Świat jest taki, w jakim zaczęłaby się kariera w tym roku, wyścig liczy się według tych samych zasad, a po mecie wracasz do menu. Z szybkiego wyścigu możesz też wyjść w każdej chwili przyciskiem „Wyjdź” obok tempa; gra pyta wtedy, czy na pewno. Kariera w pamięci zostaje nietknięta i nic się nie zapisuje
 Polecenia z boksu | w szybkim wyścigu możesz przejąć auto od stratega. Tempo kierowcy ma pięć stopni, od pełnego oszczędzania do tempa kwalifikacyjnego, a „Strateg” oddaje mu tempo z powrotem. Silnik ma trzy tryby: oszczędny, normalny i pełną moc. Polecenie zespołowe „Przepuść kolegę” każe kierowcy oddać miejsce koledze z zespołu, gdy ten jedzie tuż za nim. Tempo, silnik i polecenie zespołowe działają od następnego okrążenia. Zjazd: wybierasz opony i klikasz „Potwierdź zjazd”; auto zjeżdża na końcu okrążenia, a jeśli już minęło wjazd do boksu (po {LiveRaceOrders.PitCallShare|%} okrążenia jest na to za późno), okrążenie później. Zjazd można odwołać, dopóki auto nie minie wjazdu do boksu. Co już widziałeś, nie zmienia się: polecenie działa tylko na dalszą część wyścigu
 Polecenia w karierze | na razie zablokowane: wynik wyścigu kariery jest zapisany w dniu wyścigu, zanim go obejrzysz, więc boks pokazuje dane aut, ale nie przyjmuje poleceń
@@ -518,4 +542,63 @@ Pogoda | prognozę z błędem | przyszłej pogody
 Czy rywale zachowują się bezmyślnie, wszechwiedząco, czy wiarygodnie? Opisz konkretną sytuację.
 Czy gdzieś w grze widać dokładną wartość, której nie powinieneś znać?
 Czy chciałbyś grać w trybie bez liczb, w którym ludzie mówią słowami, np. „młody jest szybki, ale zjada opony”?
+```
+
+---
+
+## 14. Przepisy i głosowania
+
+Przy starcie kariery wybierasz, czy przepisy idą swoim historycznym torem, czy co sezon głosują nad nimi zespoły. Gdy głosują, Ty też masz głos, a Twój zespół może zapłacić za własną propozycję. Każda zmiana, także w kalendarzu, wchodzi dopiero od pierwszego wyścigu sezonu po głosowaniu.
+
+```wybory
+Tryb przepisów | historyczny (bez głosowania, wszystko jak w prawdziwej historii), głosowany z jednym głosem na zespół albo głosowany z bankiem głosów
+Jak zagłosować | za wariantem, za obecnym przepisem albo wstrzymać się; do terminu możesz zmienić zdanie
+Czy zapłacić za propozycję | zgłaszasz zmianę wybranego przepisu albo toru w kalendarzu, ale płacisz opłatę i przez {RegulationEstimates.CooldownSeasons|sezonów} nie zgłosisz kolejnej
+Co zrobić z głosem w trybie z bankiem | zagłosować od razu albo wstrzymać się i odłożyć głos do banku na ważniejszą sprawę
+Jak się dogadać z rywalami | nie ma lobbingu; skłonności zespołów AI widzisz po ich głosach i powodach
+```
+
+```kroki
+Od pierwszego dnia sezonu | okno zgłoszeń: zespoły płacą za propozycje; propozycje na ten sam przepis scalają się w jedno głosowanie z wariantami
+Przerwy między wyścigami | głosowania są rozłożone równo przez cały sezon, każde w przerwie między dwoma weekendami wyścigowymi: od dnia po wyścigu do dnia przed następnym weekendem; w roku jest od {RegulationEstimates.FiaVotesMin} do {RegulationEstimates.FiaVotesMax} głosowań FIA i jedno nad propozycjami zespołów, mniej więcej w środku sezonu
+Dzień przed głosowaniem zespołów | okno zgłoszeń się zamyka; następnego dnia propozycje stają się głosowaniem
+Termin | głosowanie jest liczone przed następnym weekendem wyścigowym, nigdy w jego trakcie; kto nie zagłosował, wstrzymał się; wynik z powodem trafia do skrzynki
+Pierwszy wyścig kolejnego sezonu | przyjęta zmiana zaczyna działać; sezon, w którym głosowano, jedzie po staremu
+```
+
+```pola
+Bank głosów | wstrzymanie się odkłada jeden głos; bank nie ma limitu | na jedno głosowanie wydasz tyle, ile masz wolnych głosów, bez limitu na pozycję; bank nie spada poniżej zera
+Remis | rozstrzyga prezydent FIA | tylko wtedy; przy wyraźnej przewadze jego głos nic nie zmienia
+Opłata za propozycję | {RegulationEstimates.FeeRevenueShare|%} przychodu z ostatniego zakończonego sezonu | nie zależy od gotówki, więc czekanie na gorszy moment nic nie daje; nie wraca, także gdy propozycja przepadnie
+Dolna granica opłaty | {RegulationEstimates.FeeFloorShareOfTypicalBudget|%} typowego budżetu epoki | opłata nigdy nie jest zerem
+Zejście pod kreskę | opłatę możesz zapłacić nawet wtedy, gdy saldo spadnie poniżej zera | zadłużenie ma swoje skutki w finansach
+Karencja | po propozycji w sezonie N nie zgłosisz nowej w N+1 i N+2, a w N+3 znów możesz | dotyczy tylko zespołu; przepis, który właśnie się zmienił, może zmienić ponownie FIA albo inny zespół
+Start kariery | zespoły AI mają różne karencje startowe, od 0 do {RegulationEstimates.StartingCooldownMaxSeasons|sezonów} | Ty zaczynasz bez karencji
+Kalendarz | można skreślić wyścig, dodać wyścig albo zmienić układ toru | kalendarz zachowuje co najmniej {RegulationEstimates.MinimumRounds} rund
+```
+
+```porownanie Jeden głos na zespół | Bank głosów
+Wstrzymanie się | głos przepada | głos trafia do Twojego banku
+Ważna sprawa | masz jeden głos jak zawsze | możesz dołożyć zbankowane głosy
+Ryzyko | niczego nie oszczędzasz | odłożone głosy nie wygasają, ale nie pomogą w głosowaniu, które właśnie mija; zespoły AI też wydają swoje banki, więc nie czekaj w nieskończoność
+```
+
+```wybory
+Co możesz zmienić głosowaniem | punktację (tabela, punkt za najszybsze okrążenie, podwójne punkty w finale, ile wyników się liczy, punkty konstruktorów), format kwalifikacji, samochód bezpieczeństwa, tankowanie, dystans wyścigu i kalendarz
+Czego nigdy nie da się zmienić | zasad i mechanik z listy zakazanych swojej serii: to stały rdzeń mistrzostw, FIA i zespoły AI ich nie proponują, a Twoja próba kończy się odmową z powodem; na razie na liście każdej serii są ładowanie odzysku energii zależne od pozycji oraz premie pieniężne dla ostatniego i dla awansującego zespołu (zostają w katalogu jako możliwe kiedyś, ale nie działają)
+Czego jeszcze nie da się zmienić | czerwone flagi, odwróconej kolejności startowej, sprintów, długości sesji, opon, pit-stopów, DRS i ERS, części typowych ani podziału nagród; silnik wyścigu jeszcze tego nie symuluje
+```
+
+```pola
+Skłonność zespołu | tradycjonalista, postępowiec, egalitarysta albo showman | stała; do własnego interesu dokłada głos AI
+Jak głosuje AI | według własnego interesu i skłonności | zna tylko publiczną tabelę, swoje finanse i własny kraj, nigdy ukrytych wartości ani przyszłości
+Kiedy AI składa propozycję | gdy spodziewa się zysku większego niż opłata, zadłużenie i trzy sezony karencji | zadłużony zespół nie wyda opłaty na przepis, a zakazanej zasady nie proponuje nigdy
+Powód wyniku | zawsze zapisany | widzisz, kto jak głosował i dlaczego
+```
+
+```pytania
+Czy wiesz, co zagłosowano, kiedy zmiana zacznie działać i dlaczego tak wyszło?
+Czy bank głosów daje sensowny wybór, czy jest dodatkową księgowością?
+Czy opłata i karencja sprawiają, że propozycja jest decyzją, a nie klikaniem?
+Czy zmiany przepisów i kalendarza zmieniają wyścigi tak, jak się spodziewałeś?
 ```

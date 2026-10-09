@@ -89,6 +89,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - [ ] Czekają na decyzję właściciela (etykieta `needs-owner-decision`): T45 reputacja i zarząd (#110), T46 cykl życia zespołów (#111).
 - [ ] W toku: T43 dostawy i silniki (#108): umowy dostaw bez własnego programu silnikowego, ten czeka na T42 (`IEngineProgrammes`).
 - [ ] Reszta otwarta: T42, T44, T47, T48 (`scenario phase4-1955`, #113).
+- [ ] Głosowanie nad przepisami v2 (#275, PP-066): trzy tryby, zmiany od następnego sezonu, kalendarz, propozycje zespołów z opłatą (20% przychodu) i karencją, głosowania FIA rozłożone równo między weekendami wyścigowymi, bank głosów bez limitu, lista zasad zakazanych dla głosowania w każdej serii. Backend w PR; interfejs czeka na #273, a wymiary przepisów, których silnik jeszcze nie symuluje, mają osobne zadania.
 
 **Bramka:** pełny sezon 1955 od A do Z, w którym decyzje mają odczuwalne konsekwencje.
 
@@ -104,7 +105,11 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 ## Faza 6: UI (HTML/TS/Svelte w Photino)
 - Most JSON, tryb deweloperski w przeglądarce, zrzuty ekranu do przeglądu.
 - Prawdziwe ekrany z design systemu (tor równoległy): gęste tabele, ekran wyścigu, onboarding.
+- **Playtest 1, wyjaśnienia (#268):** sponsorzy z warunkami umowy (długość, poziom warunku, życzenie narodowości, negocjacja przedłużenia; PP-068).
+- **Playtest 1, wyjaśnienia (#268):** własna akademia z ograniczoną liczbą miejsc, juniorzy z rynku wyłączni dla akademii, która ich przyjęła, i programy o jasnym koszcie i tempie (PP-069).
+- **Playtest 1, wyjaśnienia (#268):** infrastruktura z liczbami tego, co daje, droższy transport, dostawcy tylko silnik w panelach (PP-070).
 - **Multiplayer online (PP-045):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo.
+- **Playtest 1, poradnik w grze (#268):** książka z GUIDE.md otwierana z menu głównego, z lewego menu kariery i z menu na Esc, po polsku (PP-071).
 
 **Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.
 
@@ -122,6 +127,7 @@ Serie juniorskie, Le Mans / WEC / GT (wizja endurance i zasady wejścia na wyśc
 2. **System awatarów: odłożony.** Dotychczasowe próby (Peloton, Ping-Pong, brief w HANDOFF_UI §7) nie dały zadowalającego wyniku. Wracamy później.
 3. **Dane do wydania komercyjnego (PP-041):** Jolpica to CC BY-NC-SA 4.0. Na Steam trzeba własnej bazy albo zgody. Decyzja do podjęcia przed fazą wydania.
 4. **Kalibracja ocen:** ile lat przed debiutem kierowca trafia do puli talentów (fazy 1 i 4).
+5. **Kalibracja kosztu transportu (PP-070):** do kalibracji są `InfrastructureEstimates.LogisticsSeasonShare` (ułamek typowego rocznego budżetu, jaki kosztuje cały sezon transportu, na start 7%, czyli około 6 do 8% jak w 1955), wagi rund `LogisticsHomeWeight`, `LogisticsLorryWeight` i `LogisticsShipWeight` (1, 3, 8) oraz `LogisticsFallbackRounds` (sezon zastępczy, gdy kalendarz jest nieznany). Pierwsza wersja liczyła ułamek od rundy i na nowoczesnym kalendarzu (19 rund, 11 poza Europą) dawała około jednej trzeciej budżetu; teraz suma sezonu nie zależy od liczby rund. Nie sprawdzono tego z prawdziwymi budżetami późniejszych epok: prawdziwy udział frachtu w nowoczesnym budżecie zespołu to pojedyncze procenty, więc 7% może być za dużo dla późnych epok.
 
 Rozstrzygnięte 2026-09-26: technologie jako przełomy od ludzi, bez drzewka (PP-042); rozwój auta z dwiema ścieżkami, MVP z autonomicznymi inżynierami (PP-043); szef zespołu ma atrybuty (PP-044).
 

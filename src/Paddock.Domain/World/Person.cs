@@ -16,7 +16,8 @@ public sealed class PersonSpec
         bool isReal,
         string? realId,
         IReadOnlyList<PersonRole> roles,
-        PersonTruth truth)
+        PersonTruth truth,
+        bool isFemale = false)
     {
         GivenName = DisplayText.Require(givenName, nameof(givenName));
         FamilyName = DisplayText.Require(familyName, nameof(familyName));
@@ -40,6 +41,7 @@ public sealed class PersonSpec
         ArgumentNullException.ThrowIfNull(truth);
         Roles = roles;
         Truth = truth;
+        IsFemale = isFemale;
     }
 
     public string GivenName { get; }
@@ -53,6 +55,9 @@ public sealed class PersonSpec
     public bool IsReal { get; }
 
     public string? RealId { get; }
+
+    /// <summary>The person's gender (#265): texts about the person pick a pronoun by it. Every real 1950s driver in the data is male.</summary>
+    public bool IsFemale { get; }
 
     public IReadOnlyList<PersonRole> Roles { get; }
 
@@ -77,7 +82,8 @@ public sealed class Person
         IReadOnlyList<PersonRole> roles,
         PersonTruth truth,
         GameDate? retiredOn = null,
-        GameDate? injuredUntil = null)
+        GameDate? injuredUntil = null,
+        bool isFemale = false)
     {
         if (!id.IsAssigned)
         {
@@ -114,6 +120,7 @@ public sealed class Person
 
         RetiredOn = retiredOn;
         InjuredUntil = injuredUntil;
+        IsFemale = isFemale;
     }
 
     public PersonId Id { get; }
@@ -142,11 +149,14 @@ public sealed class Person
     /// <summary>The date the person is injured until (unable to race), or null while they are healthy (PP-061).</summary>
     public GameDate? InjuredUntil { get; }
 
+    /// <summary>The person's gender (#265): texts about the person pick a pronoun by it.</summary>
+    public bool IsFemale { get; }
+
     public bool IsInjured(GameDate on) => InjuredUntil is not null && on <= InjuredUntil;
 
     /// <summary>The same person with other simulation truth (development moves it). Everything else, retirement and injury included, is kept.</summary>
     internal Person WithTruth(PersonTruth truth) =>
-        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, truth, RetiredOn, InjuredUntil);
+        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, truth, RetiredOn, InjuredUntil, IsFemale);
 
     internal Person Retire(GameDate on)
     {
@@ -155,14 +165,14 @@ public sealed class Person
             throw new InvalidOperationException($"Person '{Id}' has already retired.");
         }
 
-        return new Person(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, on, InjuredUntil);
+        return new Person(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, on, InjuredUntil, IsFemale);
     }
 
     internal Person Injure(GameDate until) =>
-        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, RetiredOn, until);
+        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, RetiredOn, until, IsFemale);
 
     internal Person ClearInjury() =>
-        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, RetiredOn, null);
+        new(Id, GivenName, FamilyName, BirthDate, Nationality, IsReal, Roles, Truth, RetiredOn, null, IsFemale);
 
     private static PersonRole[] CanonicalRoles(IReadOnlyList<PersonRole> roles)
     {

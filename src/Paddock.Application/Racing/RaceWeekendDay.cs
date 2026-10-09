@@ -24,7 +24,6 @@ using Paddock.Simulation.Racing.Pits;
 using Paddock.Simulation.Racing.Points;
 using Paddock.Simulation.Racing.Weather;
 using Paddock.Simulation.Racing.Weekend;
-using Paddock.Simulation.Regulation;
 using Paddock.Simulation.Time;
 
 namespace Paddock.Application.Racing;
@@ -32,8 +31,9 @@ namespace Paddock.Application.Racing;
 /// <summary>
 /// The championship day (T47). Order 50: after the season rollover and before contracts, so a race's table exists when an
 /// exit clause, an objective or the board reads it. The weekend itself draws only the streams <see cref="RaceWeekend"/> already
-/// owns, each derived from the career seed by season and round (INV-004). A voted season draws the Regulations stream
-/// the same way, once, on 31 December.
+/// owns, each derived from the career seed by season and round (INV-004). It no longer votes the rules: a voted career's
+/// proposals, ballots and results are the regulations module's (#275), and this handler only reads the rules in force and lays
+/// the next season out on 31 December from whatever that module has decided by then.
 /// </summary>
 public sealed class RaceWeekendDay : IDayHandler
 {
@@ -68,7 +68,6 @@ public sealed class RaceWeekendDay : IDayHandler
         {
             Desk().CloseSeason(today, CareerTeams.Active(_context.Session.World, today).Select(team => team.Id).ToArray());
             ScheduleNextSeason(context, today.Year + 1);
-            VoteNextSeason(today);
             SettleSeason(today);
         }
 
@@ -302,6 +301,7 @@ public sealed class RaceWeekendDay : IDayHandler
         var race = FinanceStandings.Race(payload.Season, payload.Round, total, facts.RevenueModel, rows);
         var (section, _) = book.Section.ApplyRace(race, Money.FromDollars(facts.TypicalDollars).Cents, today);
         var typical = section.TypicalCents;
+        var seasonCircuits = SeasonCircuitCountries(payload.Season);
         var started = new SortedSet<string>(StringComparer.Ordinal);
         foreach (var entry in field.Entries)
         {
@@ -315,7 +315,7 @@ public sealed class RaceWeekendDay : IDayHandler
             {
                 continue;
             }
-            var due = RaceFieldBuilder.TransportCost(organization, typical, circuitCountry, _context.Inputs.TeamCountries);
+            var due = RaceFieldBuilder.TransportCost(organization, typical, circuitCountry, _context.Inputs.TeamCountries, seasonCircuits);
             if (due > 0 && section.HasBook(organization))
             {
                 section = section.Post(
@@ -329,6 +329,31 @@ public sealed class RaceWeekendDay : IDayHandler
         }
 
         book.Replace(section);
+    }
+
+    /// <summary>
+    /// The country of every race of the season being raced, from the season's stored calendar: what the transport of a round is split over (#268).
+    /// Empty when the calendar or a track is not known, and then a round is priced as one of a usual season. It reads only what exists when the race is posted.
+    /// </summary>
+    private IReadOnlyList<string?> SeasonCircuitCountries(int season)
+    {
+        var calendar = _context.Session.World.Section<RaceCalendarSection>(RaceCalendarSection.SectionName);
+        if (calendar is null || _context.Inputs.Layouts is not { } layouts)
+        {
+            return [];
+        }
+
+        var countries = new List<string?>();
+        foreach (var session in calendar.SeasonSessions(season).Where(session => session.TypeId == ScheduledEventType.Race))
+        {
+            var layout = layouts.FirstOrDefault(item => string.Equals(item.Id, session.LayoutId, StringComparison.Ordinal));
+            if (layout is not null)
+            {
+                countries.Add(layout.Country);
+            }
+        }
+
+        return countries;
     }
 
     private void ApplyPeople(DayContext context, GameDate today, IReadOnlyList<PersonRaceOutcome> outcomes, RaceSessionPayload payload)
@@ -616,85 +641,6 @@ public sealed class RaceWeekendDay : IDayHandler
         StoreChampionship(section.Season, standings, settled: true);
     }
 
-    private void VoteNextSeason(GameDate today)
-    {
-        if (_context.Inputs.Rules != RulesSource.VotedEachSeason || _context.Inputs.RegulationCatalog is not { } catalog)
-        {
-            return;
-        }
-
-        var nextYear = today.Year + 1;
-        var current = ActiveRules(today.Year);
-        if (current is null)
-        {
-            return;
-        }
-
-        var teams = CareerTeams.Active(_context.Session.World, today);
-        if (teams.Count == 0)
-        {
-            return;
-        }
-
-        var stored = RegulationsOf();
-        var rejected = new List<RejectedProposal>();
-        if (stored is not null)
-        {
-            foreach (var item in stored.Rejected)
-            {
-                rejected.Add(new RejectedProposal(item.DimensionId, item.Value, item.Season));
-            }
-        }
-
-        var rounds = RoundsIn(today.Year);
-        var standings = rounds > 0 && ChampionshipOf() is { Season: var season } && season == today.Year
-            ? LoadStandings(today.Year, PointsOf(today.Year), rounds)
-            : null;
-        var place = new Dictionary<string, (decimal Points, int Position)>(StringComparer.Ordinal);
-        if (standings is not null)
-        {
-            foreach (var row in standings.Constructors())
-            {
-                place[row.Id] = (row.CountedPoints, row.Position);
-            }
-        }
-
-        var proposers = new List<string>(teams.Count);
-        var voters = new List<Voter>(teams.Count);
-        foreach (var team in teams)
-        {
-            proposers.Add(team.Id.Value);
-            var (points, position) = place.TryGetValue(team.Id.Value, out var row) ? row : (0m, teams.Count);
-            voters.Add(new Voter(team.Id.Value, new StableTasteInterest(team.Id.Value), (double)points, position));
-        }
-
-        var rng = ProposalGenerator.StreamFor(_context.Session.Clock.MasterSeed, nextYear);
-        var proposals = ProposalGenerator.Generate(current, catalog, proposers, rejected, new ProposalGeneratorOptions(), rng);
-        var outcomes = SeasonVote.Run(current, proposals, voters, VotingBodyDefaults.ForSeason(nextYear), rng);
-        var specs = new Dictionary<string, RuleDimensionSpec>(catalog.Count, StringComparer.Ordinal);
-        foreach (var spec in catalog)
-        {
-            specs[spec.Id] = spec;
-        }
-
-        var next = SeasonVote.Apply(current, outcomes, specs, nextYear);
-        var memory = new List<RejectedRegulation>();
-        if (stored is not null)
-        {
-            memory.AddRange(stored.Rejected);
-        }
-
-        foreach (var outcome in outcomes)
-        {
-            if (!outcome.Passed)
-            {
-                memory.Add(new RejectedRegulation(outcome.Proposal.DimensionId, outcome.Proposal.ProposedValue, nextYear));
-            }
-        }
-
-        _context.Session.StoreWorld(_context.Session.World.WithSection(RegulationsSection.Create(nextYear, next.Values, memory)));
-    }
-
     private void ScheduleNextSeason(DayContext context, int season)
     {
         if (_context.Inputs.Layouts is not { } layouts || _context.Inputs.RaceAssignments is not { } assignments)
@@ -735,10 +681,10 @@ public sealed class RaceWeekendDay : IDayHandler
 
     private RuleSet? ActiveRules(int season)
     {
-        var stored = RegulationsOf();
-        if (stored is not null && stored.Season == season)
+        var stored = RegulationsOf()?.RuleSetFor(SeriesIds.WorldChampionship, season);
+        if (stored is not null)
         {
-            return stored.ToRuleSet();
+            return stored;
         }
 
         if (_context.Inputs.RegulationDimensionIds is not { } dimensions || _context.Inputs.RulePeriods is not { } periods)
@@ -775,6 +721,12 @@ public sealed class RaceWeekendDay : IDayHandler
 
     private int RoundsIn(int season)
     {
+        // A season laid out keeps the rounds it was laid out with: a voted calendar (#275) has more or fewer than the authored map.
+        if (SeasonPlans.Rounds(_context.Session.World, season) is { } laid)
+        {
+            return laid.Rounds;
+        }
+
         var count = 0;
         if (_context.Inputs.RaceAssignments is not { } assignments)
         {
@@ -794,6 +746,11 @@ public sealed class RaceWeekendDay : IDayHandler
 
     private int LastRound(int season)
     {
+        if (SeasonPlans.Rounds(_context.Session.World, season) is { } laid)
+        {
+            return laid.LastRound;
+        }
+
         var last = 0;
         foreach (var assignment in _context.Inputs.RaceAssignments ?? [])
         {

@@ -68,12 +68,13 @@ export type DriverData = {
 
 export type CompareData = { kind: 'porownaj'; a: DriverProfileView; b: DriverProfileView; season: number };
 
-export type StaffData = { kind: 'personel' | 'osoba'; staff: StaffListView; drivers: DriversView; today: string };
+export type StaffData = { kind: 'personel' | 'osoba'; staff: StaffListView; drivers: DriversView; market: MarketView; negotiations: NegotiationsView; today: string };
 
 export type CarData = { kind: 'auto'; cars: ManagerCarRoster; development: DevelopmentOverview; staff: StaffListView };
 
 export type MarketData = {
   kind: 'rynek' | 'negocjacja';
+  today: string;
   market: MarketView;
   negotiations: NegotiationsView;
   drivers: DriversView;
@@ -85,6 +86,7 @@ export type SponsorData = { kind: 'sponsorzy'; sponsors: SponsorView; today: str
 export type BoardData = { kind: 'zarzad'; board: BoardView; manager: ManagerProfileView; today: string };
 export type ManagerData = { kind: 'menedzer'; board: BoardView; manager: ManagerProfileView };
 export type SupplyData = { kind: 'dostawcy'; supply: ManagerSupplyView; today: string };
+export type GuideData = { kind: 'poradnik' };
 export type AcademyData = { kind: 'akademia'; pool: PoolView; today: string };
 
 export type ScreenData =
@@ -95,6 +97,7 @@ export type ScreenData =
   | ManagerData
   | SupplyData
   | AcademyData
+  | GuideData
   | PulpitData
   | InboxData
   | CalendarData
@@ -179,8 +182,8 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
     }
     case 'personel':
     case 'osoba': {
-      const [staff, drivers, shell] = await Promise.all([query('staff', call), query('drivers', call), query('shell', call)]);
-      return { kind: name, staff, drivers, today: shell.date };
+      const [staff, drivers, shell, market, negotiations] = await Promise.all([query('staff', call), query('drivers', call), query('shell', call), query('market', call), query('negotiations', call)]);
+      return { kind: name, staff, drivers, market, negotiations, today: shell.date };
     }
     case 'infrastruktura': {
       const [infra, shell] = await Promise.all([query('infrastructure', call), query('shell', call)]);
@@ -214,9 +217,11 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
     }
     case 'rynek':
     case 'negocjacja': {
-      const [market, negotiations, drivers] = await Promise.all([query('market', call), query('negotiations', call), query('drivers', call)]);
-      return { kind: name, market, negotiations, drivers };
+      const [market, negotiations, drivers, shell] = await Promise.all([query('market', call), query('negotiations', call), query('drivers', call), query('shell', call)]);
+      return { kind: name, market, negotiations, drivers, today: shell.date };
     }
+    case 'poradnik':
+      return { kind: 'poradnik' };
     default:
       return { kind: 'none' };
   }

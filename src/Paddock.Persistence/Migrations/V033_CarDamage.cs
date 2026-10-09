@@ -3,12 +3,12 @@ using Microsoft.Data.Sqlite;
 namespace Paddock.Persistence;
 
 /// <summary>
-/// Crash damage and spare chassis (#270): one row per damaged car and one per team spare. Number is V029, the next free one on
-/// main after V028 (car development v2, #269) when this was written.
+/// Crash damage and spare chassis (#270): one row per damaged car and one per team spare. Number is V033, the next free one on
+/// main after V032 (academy per team, #268) when this was merged.
 /// </summary>
-public sealed class V029_CarDamage : ISaveMigration
+public sealed class V033_CarDamage : ISaveMigration
 {
-    public int Version => 29;
+    public int Version => 33;
 
     public void Apply(SqliteConnection connection, SqliteTransaction transaction)
     {

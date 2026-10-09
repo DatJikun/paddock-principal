@@ -4,6 +4,7 @@ using Paddock.Application.Inbox;
 using Paddock.Application.Managers;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Inbox;
+using Paddock.Domain.Objectives;
 using Paddock.Domain.Random;
 using Paddock.Domain.Sponsors;
 using Paddock.Domain.Time;
@@ -51,19 +52,26 @@ internal sealed class SponsorNotices
     }
 
     /// <summary>A renewal offer as a decision: accept, or let the sponsor go. Unanswered by the end of the deal it is declined.</summary>
-    public void PostOffer(OrganizationId organization, GameDate today, GameDate until, params (string Name, string Value)[] arguments)
+    public void PostOffer(OrganizationId organization, GameDate today, GameDate until, SponsorOffer offer, string sponsorName)
     {
         if (_inbox is null || _managers is null)
         {
             return;
         }
 
+        var arguments = new KeyValuePair<string, string>[]
+        {
+            new("sponsor", sponsorName),
+            new("amount", Dollars(offer.AnnualCents)),
+            new(SponsorOfferCodes.OfferArgument, offer.Id),
+            new("until", until.ToString()),
+        };
         foreach (var manager in Humans(organization))
         {
             var draft = new InboxItemDraft(
                 SponsorOfferCodes.OfferKind,
-                SponsorKeys.InboxOfferSubject,
-                arguments.Select(argument => new KeyValuePair<string, string>(argument.Name, argument.Value)),
+                SponsorKeys.OfferSubject(offer.Years),
+                arguments,
                 [
                     new InboxOption(SponsorOfferCodes.OptionAccept, SponsorKeys.OfferAcceptLabel, SponsorKeys.OfferAcceptConsequence),
                     new InboxOption(SponsorOfferCodes.OptionDecline, SponsorKeys.OfferDeclineLabel, SponsorKeys.OfferDeclineConsequence),
@@ -133,18 +141,24 @@ public sealed class SponsorDayHandler : IDayHandler
         }
 
         var finance = _book.Finance;
+        var objectives = _book.Objectives;
         var market = new Lazy<RngStream>(() => new RngStream(RngStreamName.Market, context.Stream(RngStreamName.Market).State));
         var before = sponsors;
         var financeBefore = finance;
+        var objectivesBefore = objectives;
 
         sponsors = RunTalks(sponsors, market, today);
         (sponsors, finance) = PostInstalments(sponsors, finance, today);
+        (sponsors, objectives) = RollYears(sponsors, objectives, today);
         sponsors = Expire(sponsors, today);
         sponsors = OfferRenewals(sponsors, today);
 
-        if (!ReferenceEquals(before, sponsors) || !ReferenceEquals(financeBefore, finance))
+        if (!ReferenceEquals(before, sponsors) || !ReferenceEquals(financeBefore, finance) || !ReferenceEquals(objectivesBefore, objectives))
         {
-            _book.Write(sponsors, null, ReferenceEquals(financeBefore, finance) ? null : finance);
+            _book.Write(
+                sponsors,
+                ReferenceEquals(objectivesBefore, objectives) ? null : objectives,
+                ReferenceEquals(financeBefore, finance) ? null : finance);
         }
     }
 
@@ -189,22 +203,48 @@ public sealed class SponsorDayHandler : IDayHandler
     {
         foreach (var deal in sponsors.Deals.Where(deal => deal.IsActiveOn(today)))
         {
-            if (deal.InstalmentsPaid >= SponsorEstimates.InstalmentsPerYear || !finance.HasBook(deal.Organization))
+            var total = deal.InstalmentsInAll;
+            if (deal.InstalmentsPaid >= total || !finance.HasBook(deal.Organization))
             {
                 continue;
             }
 
             var owed = today == deal.End
-                ? SponsorEstimates.InstalmentsPerYear - deal.InstalmentsPaid
+                ? total - deal.InstalmentsPaid
                 : today.Day == SponsorEstimates.InstalmentDayOfMonth ? 1 : 0;
+            var industry = _environment.Catalog.Find(deal.SponsorId)?.Industry;
+            var industryMilli = industry is null ? 0 : SponsorIndustryBonus.Milli(industry);
+            var industryKind = industry is null ? IndustryBonusKind.None : SponsorIndustryBonus.KindOf(industry);
+            var wished = deal.WishNationality is { } nationality
+                && SponsorWishes.Satisfied(_book.World, deal.Organization, new SponsorWish(nationality, deal.WishRaceSeat), today);
             var paid = deal.InstalmentsPaid;
             for (var step = 0; step < owed; step++)
             {
                 paid++;
-                var cents = SponsorPricing.InstalmentCents(deal.AnnualCents, paid);
+                var number = ((paid - 1) % SponsorEstimates.InstalmentsPerYear) + 1;
+                var cents = SponsorPricing.InstalmentCents(deal.AnnualCents, number);
                 if (cents > 0)
                 {
                     finance = finance.Post(deal.Organization, today, LedgerCategories.Sponsor, deal.SponsorId, cents, SponsorReason.Instalment);
+                }
+
+                if (industryKind == IndustryBonusKind.InKind)
+                {
+                    finance = PostExtra(finance, deal, today, SponsorPricing.InstalmentCents(deal.AnnualCents * industryMilli / 1000, number), SponsorReason.InKind);
+                }
+                else if (industryKind == IndustryBonusKind.Signing && paid == 1)
+                {
+                    finance = PostExtra(finance, deal, today, deal.AnnualCents * industryMilli / 1000, SponsorReason.Signing);
+                }
+
+                if (wished)
+                {
+                    finance = PostExtra(
+                        finance,
+                        deal,
+                        today,
+                        SponsorPricing.InstalmentCents(deal.AnnualCents * SponsorEstimates.WishBonusMilli / 1000, number),
+                        SponsorReason.Nationality);
                 }
             }
 
@@ -215,6 +255,60 @@ public sealed class SponsorDayHandler : IDayHandler
         }
 
         return (sponsors, finance);
+    }
+
+    private static FinanceSection PostExtra(FinanceSection finance, SponsorDeal deal, GameDate today, long cents, string reason) =>
+        cents > 0 ? finance.Post(deal.Organization, today, LedgerCategories.Sponsor, deal.SponsorId, cents, reason) : finance;
+
+    /// <summary>
+    /// A deal of more than one year gets a new condition on each anniversary: the sponsor looks at the team as it is then, and the player's
+    /// chosen ambition applies again (#268). The result of the year that ended was settled by its own deadline, so the slate is clean.
+    /// A sponsor that is open to a long partnership first raises the annual amount when the year's condition was met, and tells the manager.
+    /// </summary>
+    private (SponsorsSection Sponsors, ObjectivesSection Objectives) RollYears(SponsorsSection sponsors, ObjectivesSection objectives, GameDate today)
+    {
+        foreach (var deal in sponsors.Deals.Where(deal => deal.IsActive && deal.Years > 1))
+        {
+            var anniversary = false;
+            for (var year = 1; year < deal.Years; year++)
+            {
+                anniversary |= deal.YearStart(year) == today;
+            }
+
+            if (!anniversary || _environment.Catalog.Find(deal.SponsorId) is not { } sponsor)
+            {
+                continue;
+            }
+
+            // A satisfied sponsor raises the amount for the year that starts today, and says so (#268, owner decision).
+            var updated = deal;
+            var raise = SponsorRules.AnniversaryRaiseMilli(sponsors, sponsor, deal);
+            if (raise > 0)
+            {
+                updated = deal with { AnnualCents = SponsorPartnership.Raised(deal.AnnualCents, raise) };
+                _notices.Post(
+                    deal.Organization,
+                    SponsorKeys.InboxRaisedSubject,
+                    today,
+                    ("sponsor", sponsor.Name),
+                    ("amount", SponsorNotices.Dollars(updated.AnnualCents)),
+                    ("percent", (raise / 10.0).ToString("0.#", CultureInfo.InvariantCulture)));
+            }
+
+            if (SponsorRules.AmbitionOpen(sponsor))
+            {
+                var (granted, objectiveId) = SponsorRules.GrantObjective(objectives, _environment, sponsor, deal.Organization, updated.AnnualCents, today, deal.Ambition);
+                objectives = granted;
+                updated = updated with { ObjectiveId = objectiveId, Outcome = DealObjectiveOutcome.None };
+            }
+
+            if (!ReferenceEquals(updated, deal))
+            {
+                sponsors = sponsors.Replace(updated);
+            }
+        }
+
+        return (sponsors, objectives);
     }
 
     private SponsorsSection Expire(SponsorsSection sponsors, GameDate today)
@@ -259,18 +353,11 @@ public sealed class SponsorDayHandler : IDayHandler
                 continue;
             }
 
-            var full = SponsorRules.FullAnnualCents(_book, _environment, sponsor, deal.Kind, start.Year);
-            var amount = full * (SponsorEstimates.RenewalBaseMilli + (SponsorEstimates.RenewalPerTrustMilli * trust)) / 1000;
-            var added = sponsors.AddOffer(new SponsorOffer(0, deal.Number, deal.Organization, deal.SponsorId, deal.Slot, deal.Kind, amount, today, deal.End, OfferStatus.Open, null));
+            var amount = SponsorRules.RenewalCents(_book, _environment, deal, sponsor, deal.Terms);
+            var added = sponsors.AddOffer(new SponsorOffer(
+                0, deal.Number, deal.Organization, deal.SponsorId, deal.Slot, deal.Kind, amount, today, deal.End, OfferStatus.Open, null, deal.Years, deal.Ambition));
             sponsors = added.Section;
-            _notices.PostOffer(
-                deal.Organization,
-                today,
-                deal.End,
-                ("sponsor", sponsor.Name),
-                ("amount", SponsorNotices.Dollars(amount)),
-                ("offer", added.Offer.Id),
-                ("until", deal.End.ToString()));
+            _notices.PostOffer(deal.Organization, today, deal.End, added.Offer, sponsor.Name);
         }
 
         return sponsors;

@@ -8,6 +8,7 @@
   import Toasts, { type Toast } from './lib/components/Toasts.svelte';
   import LoadList from './lib/components/LoadList.svelte';
   import MenuHome from './lib/components/MenuHome.svelte';
+  import Poradnik from './lib/components/Poradnik.svelte';
   import NewCareer from './lib/components/NewCareer.svelte';
   import QuickRace from './lib/components/QuickRace.svelte';
   import RaceLive from './lib/components/RaceLive.svelte';
@@ -60,7 +61,7 @@
   let saves = $state<SaveListItem[]>([]);
   /* 'menu' is the main menu and its pages; 'game' is the career. The bridge keeps a career in memory in both. */
   let phase = $state<'menu' | 'game'>('menu');
-  let menuPage = $state<'home' | 'new' | 'quick' | 'load' | 'settings'>('home');
+  let menuPage = $state<'home' | 'new' | 'quick' | 'load' | 'settings' | 'guide'>('home');
   let gameMenu = $state(false);
   /* The file the career was last saved to or loaded from, and the date it held then. Saving is manual only. */
   let savedName = $state<string | null>(null);
@@ -260,7 +261,7 @@
     );
   }
 
-  async function openMenuPage(page: 'home' | 'new' | 'quick' | 'load' | 'settings') {
+  async function openMenuPage(page: 'home' | 'new' | 'quick' | 'load' | 'settings' | 'guide') {
     if (page === menuPage || moving) return;
     fault = null;
     if (page === 'load') await refreshSaves().catch(catchFault);
@@ -268,6 +269,12 @@
     await swap(() => {
       menuPage = page;
     });
+  }
+
+  /** The guide opens as a screen of the career, so the menu closes and the route moves there. */
+  function openGuide() {
+    gameMenu = false;
+    location.hash = '#/poradnik';
   }
 
   async function openGameMenu() {
@@ -774,6 +781,11 @@
             </div>
           </div>
           </div>
+        {:else if menuPage === 'guide'}
+          <div class="menu-page">
+            <div class="screen-head"><h1 class="screen">{t('menu.guide')}</h1><button class="btn sm back-home" type="button" onclick={() => openMenuPage('home')}>{@html icon(ICON.back, 16)}<span>{t('career.back')}</span></button></div>
+            <Poradnik {tr} />
+          </div>
         {:else}
           <div class="menu-page narrow">
             <div class="screen-head"><h1 class="screen">{t('menu.settings')}</h1><button class="btn sm back-home" type="button" onclick={() => openMenuPage('home')}>{@html icon(ICON.back, 16)}<span>{t('career.back')}</span></button></div>
@@ -808,7 +820,7 @@
         {:else if screenData.kind === 'personel' && route.name === 'personel'}
           <Personel data={screenData} {tr} {teamId} />
         {:else if screenData.kind === 'osoba' && route.name === 'osoba'}
-          <Osoba data={screenData} {tr} id={route.args[0] ?? ''} />
+          <Osoba data={screenData} {tr} id={route.args[0] ?? ''} {teamId} {busy} {act} />
         {:else if screenData.kind === 'auto' && route.name === 'auto'}
           <Auto data={screenData} {tr} {teamId} {busy} {act} />
         {:else if screenData.kind === 'rynek' && route.name === 'rynek'}
@@ -829,6 +841,11 @@
           <Dostawcy data={screenData} {tr} {teamId} {busy} {act} />
         {:else if screenData.kind === 'akademia' && route.name === 'akademia'}
           <Akademia data={screenData} {tr} {busy} {act} />
+        {:else if route.name === 'poradnik'}
+          <div class="menu-page">
+            <div class="screen-head"><h1 class="screen">{t('menu.guide')}</h1></div>
+            <Poradnik {tr} />
+          </div>
         {:else if route.name === 'ustawienia'}
           <div class="screen-head">
             <h1 class="screen">{t(SETTINGS.key)}</h1>
@@ -863,6 +880,7 @@
     onSave={saveCareer}
     onLoad={loadCareer}
     onToMenu={leaveToMenu}
+    onGuide={openGuide}
     onClose={() => (gameMenu = false)}
   />
 {/if}

@@ -40,6 +40,18 @@ public enum VoteMode
 }
 
 /// <summary>
+/// How long the contracts of a career's first morning run (#325). <see cref="Real"/> is the default: a real driver or staff member
+/// is under contract until the end of his real stint with that team, never before the start year; a person with no stint in the
+/// data keeps the default of one season. <see cref="AllEndThisYear"/> is the old behaviour: every contract ends in the start year.
+/// It decides only the end date; it means nothing for a career with generated people. Chosen at career start, stored in the config.
+/// </summary>
+public enum StartContracts
+{
+    Real = 0,
+    AllEndThisYear = 1,
+}
+
+/// <summary>
 /// How AI actors choose transfers, entries, and exits (PP-046).
 /// Replay is a script of events, not knowledge of the future.
 /// </summary>
@@ -82,6 +94,8 @@ public static class CareerConfigCodes
     public const string RulesSource = "config.error.rules_source";
 
     public const string VoteMode = "config.error.vote_mode";
+
+    public const string StartContracts = "config.error.start_contracts";
 
     public const string AiBehavior = "config.error.ai_behavior";
 
@@ -227,7 +241,8 @@ public sealed record CareerConfig
         int startYear,
         string playerTeam,
         bool noNumbers,
-        VoteMode voteMode = VoteMode.OneVoteEach)
+        VoteMode voteMode = VoteMode.OneVoteEach,
+        StartContracts startContracts = StartContracts.Real)
     {
         ArgumentNullException.ThrowIfNull(playerTeam);
         PeopleSource = peopleSource;
@@ -240,6 +255,7 @@ public sealed record CareerConfig
         StartYear = startYear;
         PlayerTeam = playerTeam;
         NoNumbers = noNumbers;
+        StartContracts = startContracts;
     }
 
     public PeopleSource PeopleSource { get; }
@@ -250,6 +266,9 @@ public sealed record CareerConfig
     public VoteMode VoteMode { get; }
 
     public AiBehavior AiBehavior { get; }
+
+    /// <summary>How long the contracts of the first morning run (#325). Read by the world initializer only.</summary>
+    public StartContracts StartContracts { get; }
 
     public int HistoryStrength { get; }
 
@@ -286,7 +305,8 @@ public sealed record CareerConfig
     public bool NoNumbers { get; }
 
     /// <summary>
-    /// The preset these axes match, or <see cref="CareerPreset.Custom"/> when any axis differs.
+    /// The preset these axes match, or <see cref="CareerPreset.Custom"/> when any axis differs. <see cref="StartContracts"/> is not an
+    /// axis of a preset, so it is not compared.
     /// </summary>
     public CareerPreset PresetName =>
         Matches(CareerPreset.MostHistorical) ? CareerPreset.MostHistorical
@@ -351,7 +371,8 @@ public sealed record CareerConfig
             StartYear,
             PlayerTeam,
             NoNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
 
     public CareerConfig WithRulesSource(RulesSource rulesSource) =>
         new(
@@ -364,7 +385,8 @@ public sealed record CareerConfig
             StartYear,
             PlayerTeam,
             NoNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
 
     public CareerConfig WithVoteMode(VoteMode voteMode) =>
         new(
@@ -377,7 +399,8 @@ public sealed record CareerConfig
             StartYear,
             PlayerTeam,
             NoNumbers,
-            voteMode);
+            voteMode,
+            StartContracts);
 
     public CareerConfig WithAiBehavior(AiBehavior aiBehavior) =>
         new(
@@ -390,7 +413,8 @@ public sealed record CareerConfig
             StartYear,
             PlayerTeam,
             NoNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
 
     public CareerConfig WithHistoryStrength(int historyStrength) =>
         new(
@@ -403,7 +427,8 @@ public sealed record CareerConfig
             StartYear,
             PlayerTeam,
             NoNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
 
     public CareerConfig WithRandomnessLevel(int randomnessLevel) =>
         new(
@@ -416,7 +441,8 @@ public sealed record CareerConfig
             StartYear,
             PlayerTeam,
             NoNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
 
     public CareerConfig WithFatalityLevel(FatalityLevel fatalityLevel) =>
         new(
@@ -429,7 +455,8 @@ public sealed record CareerConfig
             StartYear,
             PlayerTeam,
             NoNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
 
     public CareerConfig WithStartYear(int startYear) =>
         new(
@@ -442,7 +469,8 @@ public sealed record CareerConfig
             startYear,
             PlayerTeam,
             NoNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
 
     public CareerConfig WithPlayerTeam(string playerTeam) =>
         new(
@@ -455,7 +483,8 @@ public sealed record CareerConfig
             StartYear,
             playerTeam,
             NoNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
 
     public CareerConfig WithNoNumbers(bool noNumbers) =>
         new(
@@ -468,7 +497,22 @@ public sealed record CareerConfig
             StartYear,
             PlayerTeam,
             noNumbers,
-            VoteMode);
+            VoteMode,
+            StartContracts);
+
+    public CareerConfig WithStartContracts(StartContracts startContracts) =>
+        new(
+            PeopleSource,
+            RulesSource,
+            AiBehavior,
+            HistoryStrength,
+            RandomnessLevel,
+            FatalityLevel,
+            StartYear,
+            PlayerTeam,
+            NoNumbers,
+            VoteMode,
+            startContracts);
 
     public CareerConfigValidation Validate()
     {
@@ -495,6 +539,11 @@ public sealed record CareerConfig
         if (!Enum.IsDefined(VoteMode))
         {
             errors.Add(CareerConfigIssue.Of(CareerConfigCodes.VoteMode));
+        }
+
+        if (!Enum.IsDefined(StartContracts))
+        {
+            errors.Add(CareerConfigIssue.Of(CareerConfigCodes.StartContracts));
         }
 
         if (!Enum.IsDefined(FatalityLevel))
@@ -568,7 +617,8 @@ public sealed record CareerConfig
     /// <summary>
     /// Compact JSON with a fixed property order. This string is the save payload and the hash input. <c>voteMode</c> follows
     /// <c>rulesSource</c> and is written only when it is not <see cref="VoteMode.OneVoteEach"/>: a save from before voting v2
-    /// has no such property and reads as one vote each, with the bytes it had.
+    /// has no such property and reads as one vote each, with the bytes it had. <c>startContracts</c> follows <c>voteMode</c> and is
+    /// written only when it is not <see cref="StartContracts.Real"/>, the same way (#325).
     /// </summary>
     public string ToCanonicalJson()
     {
@@ -580,6 +630,13 @@ public sealed record CareerConfig
         {
             // Written only when chosen, so a career that never chose a vote mode keeps the exact bytes (and hash) it always had.
             AppendString(builder, first: false, "voteMode", VoteMode.ToString());
+        }
+
+        if (StartContracts != StartContracts.Real)
+        {
+            // Written only when chosen (#325), like voteMode: a career that kept real contracts, and every save from before the
+            // option, keeps the exact bytes (and hash) it always had.
+            AppendString(builder, first: false, "startContracts", StartContracts.ToString());
         }
 
         AppendString(builder, first: false, "aiBehavior", AiBehavior.ToString());

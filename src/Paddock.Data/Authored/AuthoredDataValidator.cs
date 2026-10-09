@@ -136,7 +136,56 @@ public static partial class AuthoredDataValidator
         AppendTrackGeometryErrors(errors, data);
         AppendFacilities(errors, data);
         AppendBannedRules(errors, data);
+        AppendDriverRoles(errors, data);
         return errors;
+    }
+
+    public const string DriverRoleUnknown = "driver-role-unknown";
+
+    public const string DriverRoleYear = "driver-role-year";
+
+    public const string DriverRoleDriver = "driver-role-driver";
+
+    public const string DriverRoleDuplicate = "driver-role-duplicate";
+
+    /// <summary>
+    /// The authored first and second drivers (#325): the role is <c>first</c> or <c>second</c>, the year is a year a career can start in
+    /// with real people, the driver id is written, and a driver has one entry per year. Whether the id names a real driver is checked
+    /// against the Jolpica cache by <c>validate-authored --with-cache</c>, because the cache is not part of the repository.
+    /// A data directory with no file has nothing to check.
+    /// </summary>
+    private static void AppendDriverRoles(List<AuthoredDataError> errors, AuthoredData data)
+    {
+        if (data.DriverRolesFile is not { } file)
+        {
+            return;
+        }
+
+        var seen = new HashSet<(int Year, string DriverId)>();
+        foreach (var entry in file.Roles)
+        {
+            var year = entry.Year.ToString(CultureInfo.InvariantCulture);
+            if (string.IsNullOrWhiteSpace(entry.DriverId))
+            {
+                errors.Add(new AuthoredDataError(DriverRoleDriver, $"a driver role for {year} has no driver id"));
+                continue;
+            }
+
+            if (entry.Year < FirstSeason || entry.Year > LastSeason)
+            {
+                errors.Add(new AuthoredDataError(DriverRoleYear, $"the driver role of '{entry.DriverId}' names the year {year}, outside {FirstSeason.ToString(CultureInfo.InvariantCulture)}-{LastSeason.ToString(CultureInfo.InvariantCulture)}"));
+            }
+
+            if (DriverRoleWords.SeatOf(entry.Role) is null)
+            {
+                errors.Add(new AuthoredDataError(DriverRoleUnknown, $"the driver role of '{entry.DriverId}' in {year} is '{entry.Role}', expected '{DriverRoleWords.First}' or '{DriverRoleWords.Second}'"));
+            }
+
+            if (!seen.Add((entry.Year, entry.DriverId)))
+            {
+                errors.Add(new AuthoredDataError(DriverRoleDuplicate, $"the driver '{entry.DriverId}' has more than one role in {year}"));
+            }
+        }
     }
 
     public const string BannedUnknownRule = "banned-unknown-rule";

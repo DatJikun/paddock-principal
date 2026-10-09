@@ -18,16 +18,19 @@ namespace Paddock.Tests.Regulation;
 /// programmes changed their speed-up; none of it touches the regulations.
 /// Re-pinned again in #268 (infrastructure): a career pays its race travel from the ledger, so the season's transport share changes the state hash.
 /// Re-pinned again in #270 (crash damage): a crash can damage a car and a repair costs money, so a 1955 career's ledger and hash move.
+/// Re-pinned again in #325 (real contracts): the real staff of the authored data (Enzo Ferrari, Colotti, Maddock and others) now hold a
+/// contract to the end of their authored stint instead of the end of 1955, and contract end dates are in the hash. The 1955 fixture has no
+/// people cache, so every driver is generated: no driver contract, role or id moved, and the regulations are untouched.
 /// </summary>
 public class HistoricalRulesRegressionTests
 {
     private const ulong Seed = 7;
 
-    private const string HashOnTheLastDayOf1955 = "013c8bc4aa531191d4c776615f09eca867caf7a7523c606fd5ca7dfb5366c126";
+    private const string HashOnTheLastDayOf1955 = "a7a48822066f8350c77197e022fce1847bc79f0df0f63f5c9a36e0fa33526fda";
 
-    private const string HashAfterTheSeasonTurned = "06d27a3476b0c17f318eb46d3c040fba1abbca4e17a0b334a9d3ae24476ef1d9";
+    private const string HashAfterTheSeasonTurned = "68bd918a22570029343ad4895678baa74d5e93bf6a5300c82b17dc00cccb9f62";
 
-    private const string HashAfterTwoSeasons = "6dce07333ebc32d35f6f37ff25c4453415564b41bb13db3092ce8431e4da1db0";
+    private const string HashAfterTwoSeasons = "587cf9178686f26f991d7afe2f47b1b82607efeb210c8b023ae9dbf141270632";
 
     private static (string Hash, bool HasRegulations, int Season, int Rounds, int NextSessions) Probe(GameDate stopOn)
     {

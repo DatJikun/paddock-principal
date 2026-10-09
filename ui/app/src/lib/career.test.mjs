@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   AXES,
   clampYear,
+  contractsArg,
   COUNTRIES,
   emptySetup,
   isCustom,
@@ -59,6 +60,19 @@ test('the teams query and the newCareer command carry the same axes', () => {
   assert.equal(command.teamId, 'ferrari');
 });
 
+test('real contracts are the default, only newCareer carries the choice and it never makes the form custom', () => {
+  const setup = withPreset(emptySetup(2010, '1'), balanced);
+  const you = { given: 'Enzo', family: 'Test', nationality: 'ITA', tilt: 'none' };
+  assert.equal(setup.contracts, 'Real');
+  assert.equal(newCareerArgs('m', setup, you, 'ferrari').startContracts, 'Real');
+  assert.equal(newCareerArgs('m', { ...setup, contracts: 'AllEndThisYear' }, you, 'ferrari').startContracts, 'AllEndThisYear');
+  assert.equal(newCareerArgs('m', { ...setup, contracts: 'nonsense' }, you, 'ferrari').startContracts, 'Real');
+  assert.equal(contractsArg({}), 'Real');
+  assert.equal('startContracts' in teamsArgs('m', setup), false);
+  assert.equal(isCustom({ ...setup, contracts: 'AllEndThisYear' }, balanced), false);
+  assert.equal(withPreset({ ...setup, contracts: 'AllEndThisYear' }, balanced).contracts, 'AllEndThisYear');
+});
+
 test('a seed that is not a plain number is left to the bridge default', () => {
   assert.equal(teamsArgs('m', { ...emptySetup(1955, 'abc') }).seed, null);
   assert.equal(teamsArgs('m', { ...emptySetup(1955, '') }).seed, null);
@@ -102,6 +116,8 @@ test('every option the form offers has text in both languages', () => {
     ...AXES.rules.map((value) => `career.rules.${value}`),
     ...AXES.ai.map((value) => `career.ai.${value}`),
     ...AXES.fatality.map((value) => `career.toggle.${value}`),
+    ...AXES.contracts.map((value) => `career.contracts.${value}`),
+    'career.axis.contracts',
     ...['low', 'typical', 'top'].map((tier) => `team.budget.${tier}`),
     ...['works', 'customer', 'partner', 'badged', 'unknown'].map((kind) => `team.engine.${kind}`),
   ];

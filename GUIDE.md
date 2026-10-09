@@ -27,6 +27,7 @@ Zachowanie AI | odtwarza historię, reaguje na sytuację albo gra losowo
 Siła historii | skala 0–10: jak chętnie AI powtarza prawdziwe zdarzenia
 Losowość | suwak 0–100: rozwój, forma, awarie
 Śmiertelność | domyślnie wyłączona
+Kontrakty na starcie | prawdziwe (domyślnie): prawdziwy kierowca i prawdziwy personel mają umowę do końca swojego prawdziwego stażu w zespole, a kto takiego stażu w danych nie ma, tylko do końca pierwszego sezonu; albo umowa każdego kończy się w pierwszym roku
 ```
 
 ```pola
@@ -156,6 +157,7 @@ Pensja | suwak; sugerowany przedział wynika z umiejętności osoby, tak jak wid
 Przedkontrakt | kierowcę, któremu umowa kończy się w tym roku, można podpisać już teraz na następny sezon; umowa startuje dzień po końcu obecnej
 Długość | do {NegotiationEstimates.MaxYears|sezonów}; długość, opcje i klauzula wyjścia liczą się jako ryzyko
 Status | numer 1, równy albo numer 2
+Pierwszy i drugi kierowca | na starcie pierwszym jest lepiej oceniony kierowca zespołu, a przy remisie starszy; pierwszy kierowca jest zawsze po lewej, drugi po prawej, na karcie zespołu, na ekranie Kierowcy i w panelach wyścigu. Drugi kierowca nie żąda miejsca numer 1, dopóki zajmuje je ktoś inny w tym zespole
 Kiedy ruszyć kontrakt rywala | na {NegotiationEstimates.NegotiationWindowDays|dni} przed jego końcem
 Czy dociskać | podwyżka poniżej {NegotiationEstimates.MinMeaningfulImprovementPercent|%%} nie jest zmianą i odbiera zainteresowanie
 Zerwać umowę | płacisz {NegotiationEstimates.TerminationShare|%} reszty pensji

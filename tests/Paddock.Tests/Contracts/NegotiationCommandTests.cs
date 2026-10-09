@@ -34,6 +34,19 @@ public class NegotiationCommandTests
     }
 
     [Fact]
+    public void TheFirstSeatIsTakenForEveryoneButItsHolder()
+    {
+        // #325: team B's Locked is its number one. Anyone else weighing a seat there cannot ask for that seat in a counter.
+        var lab = new Lab();
+        var driver = NegotiationSubject.DriverSeat;
+
+        Assert.True(lab.Book.ContextFor(TeamB, DriverX, driver, lab.Today, Reference).FirstSeatTaken);
+        Assert.False(lab.Book.ContextFor(TeamB, Locked, driver, lab.Today, Reference).FirstSeatTaken);
+        Assert.False(lab.Book.ContextFor(TeamA, DriverX, driver, lab.Today, Reference).FirstSeatTaken);
+        Assert.False(lab.Book.ContextFor(TeamB, Strategist, NegotiationSubject.Staff(StaffRole.Strategist), lab.Today, Reference).FirstSeatTaken);
+    }
+
+    [Fact]
     public void AnOpenedNegotiationHoldsItsPartiesDeadlineAndPatience()
     {
         var lab = new Lab();

@@ -206,6 +206,10 @@
         />
       </div>
       <div class="fld">
+        <span class="meta">{tr.t('career.axis.contracts')}</span>
+        <Tabs group="contracts" items={AXES.contracts.map((value) => ({ value, label: tr.t(`career.contracts.${value}`) }))} bind:value={setup.contracts} />
+      </div>
+      <div class="fld">
         <span class="meta">{tr.t('shell.start.preset')}</span>
         <div class="choices presets" role="radiogroup">
           {#each presets as item (item.name)}
@@ -318,6 +322,7 @@
                 <tr><th>{tr.t('career.axis.people')}</th><td>{tr.t(`career.people.${setup.people}`)}</td></tr>
                 <tr><th>{tr.t('career.axis.ai')}</th><td>{tr.t(`career.ai.${setup.ai}`)}</td></tr>
                 <tr><th>{tr.t('career.axis.rules')}</th><td>{tr.t(`career.rules.${setup.rules}`)}</td></tr>
+                <tr><th>{tr.t('career.axis.contracts')}</th><td>{tr.t(`career.contracts.${setup.contracts}`)}</td></tr>
                 <tr><th>{tr.t('career.axis.history')}</th><td class="num">{setup.history}</td></tr>
                 <tr><th>{tr.t('career.axis.randomness')}</th><td class="num">{setup.randomness}</td></tr>
               </tbody>

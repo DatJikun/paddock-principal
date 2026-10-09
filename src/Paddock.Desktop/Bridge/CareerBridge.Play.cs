@@ -414,6 +414,16 @@ public sealed partial class CareerBridge
             config = config.WithAiBehavior(behavior);
         }
 
+        if (TextOf(args, "startContracts") is { } contractsText)
+        {
+            if (!Enum.TryParse<StartContracts>(contractsText, ignoreCase: false, out var contracts) || !Enum.IsDefined(contracts))
+            {
+                return TranslationMessage.Of(PlayKeys.BadAxisValue, ("axis", "startContracts"), ("value", contractsText));
+            }
+
+            config = config.WithStartContracts(contracts);
+        }
+
         if (IntOf(args, "history") is int history)
         {
             config = config.WithHistoryStrength(history);

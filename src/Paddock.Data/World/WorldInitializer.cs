@@ -82,7 +82,7 @@ public static class WorldInitializer
         string? Country,
         bool FoundedFromData);
 
-    private sealed record StaffSlot(string PersonId, StaffMember Member, OrganizationId Organization, StaffRole Role);
+    private sealed record StaffSlot(string PersonId, StaffMember Member, OrganizationId Organization, StaffRole Role, int LastSeason);
 
     private sealed class Builder
     {
@@ -156,6 +156,7 @@ public static class WorldInitializer
                     break;
             }
 
+            FlushDriverContracts();
             var slots = StaffSlots();
             if (_config.PeopleSource != PeopleSource.FullyGenerated)
             {
@@ -663,12 +664,12 @@ public static class WorldInitializer
                 var subs = mine.Where(candidate => candidate.Substitute).ToList();
                 foreach (var driver in race.Take(WorldInitEstimates.RaceSeatsPerTeam))
                 {
-                    AddDriverContract(driver.Id, _teamIds[team], WorldInitEstimates.DefaultSeatStatus);
+                    AddDriverContract(driver.Id, _teamIds[team], WorldInitEstimates.DefaultSeatStatus, driver.Record, team);
                 }
 
                 foreach (var driver in subs.Take(WorldInitEstimates.MaxReservesPerTeam))
                 {
-                    AddDriverContract(driver.Id, _teamIds[team], SeatStatus.Reserve);
+                    AddDriverContract(driver.Id, _teamIds[team], SeatStatus.Reserve, driver.Record, team);
                 }
 
                 reserves[team] = Math.Min(subs.Count, WorldInitEstimates.MaxReservesPerTeam);
@@ -694,7 +695,7 @@ public static class WorldInitializer
                 if (reserves[driver.TeamId] < WorldInitEstimates.MaxReservesPerTeam)
                 {
                     reserves[driver.TeamId]++;
-                    AddDriverContract(driver.Id, _teamIds[driver.TeamId], SeatStatus.Reserve);
+                    AddDriverContract(driver.Id, _teamIds[driver.TeamId], SeatStatus.Reserve, driver.Record, driver.TeamId);
                 }
             }
         }
@@ -713,7 +714,7 @@ public static class WorldInitializer
             if (same.Candidate is not null)
             {
                 free.Remove(same.Candidate);
-                AddDriverContract(same.Candidate.Id, id, WorldInitEstimates.DefaultSeatStatus);
+                AddDriverContract(same.Candidate.Id, id, WorldInitEstimates.DefaultSeatStatus, same.Candidate.Record, team);
                 Gap(WorldInitGapCodes.SeatFilledFromSameSeasonStint, same.Candidate.DriverId + "@" + team);
                 return;
             }
@@ -742,7 +743,7 @@ public static class WorldInitializer
 
                 if (person is PersonId known)
                 {
-                    AddDriverContract(known, id, WorldInitEstimates.DefaultSeatStatus);
+                    AddDriverContract(known, id, WorldInitEstimates.DefaultSeatStatus, entry.Record, team);
                     Gap(WorldInitGapCodes.SeatFilledFromPreviousSeasonStint, entry.Record.DriverId + "@" + team);
                     return;
                 }
@@ -875,20 +876,155 @@ public static class WorldInitializer
             return id;
         }
 
-        private void AddDriverContract(PersonId person, OrganizationId team, SeatStatus status)
+        private sealed record PendingDriverContract(PersonId Person, OrganizationId Team, SeatStatus Status, int EndYear, string? DriverId);
+
+        private readonly List<PendingDriverContract> _pendingDrivers = [];
+
+        /// <summary>
+        /// Queues the contract of a driver; <see cref="FlushDriverContracts"/> writes them in this order once both seats of every team are
+        /// known, because the first and second driver are decided per team (#325). <paramref name="record"/> is the real driver (null for
+        /// a generated one) and <paramref name="teamKey"/> the constructor id of the stint his contract follows.
+        /// </summary>
+        private void AddDriverContract(PersonId person, OrganizationId team, SeatStatus status, RealDriverRecord? record = null, string? teamKey = null)
         {
-            var spec = new ContractSpec(
-                person,
-                team,
-                ContractRole.Driver(status),
-                GameDate.SeasonStart(_start),
-                GameDate.SeasonEnd(_start + WorldInitEstimates.InitialContractSeasons - 1),
-                WorldInitEstimates.PlaceholderSalary,
-                true,
-                null,
-                null);
-            (_world, _) = _world.AddContract(spec);
-            _racingDrivers++;
+            var end = record is not null && teamKey is not null ? StintEnd(record, teamKey) : EndYear(_start);
+            _pendingDrivers.Add(new PendingDriverContract(person, team, status, end, record?.DriverId));
+        }
+
+        /// <summary>The last season of a contract that should run until <paramref name="lastSeason"/>: not before the start year, and the start year only when the career chose so.</summary>
+        private int EndYear(int lastSeason) =>
+            _config.StartContracts == StartContracts.AllEndThisYear
+                ? _start + WorldInitEstimates.InitialContractSeasons - 1
+                : Math.Max(lastSeason, _start + WorldInitEstimates.InitialContractSeasons - 1);
+
+        /// <summary>
+        /// The last season of the real stint a driver has with a team, counted from the start year: the run of following seasons in
+        /// which he is still listed for that team or for the team it became (the same lineage). A driver with no seat at the team in the
+        /// start year has no stint to follow and gets the default. A race driver's stint needs a race seat in each season, a reserve's
+        /// any seat. The schedule knows seasons after the start, which is why the end is real history and not a guess.
+        /// </summary>
+        private int StintEnd(RealDriverRecord record, string team)
+        {
+            if (_config.StartContracts == StartContracts.AllEndThisYear)
+            {
+                return EndYear(_start);
+            }
+
+            var current = record.Seats
+                .Where(seat => seat.Season == _start && string.Equals(seat.ConstructorId, team, StringComparison.Ordinal))
+                .OrderBy(seat => IsSubstitute(seat) ? 1 : 0)
+                .FirstOrDefault();
+            if (current is null)
+            {
+                return EndYear(_start);
+            }
+
+            var raceStint = !IsSubstitute(current);
+            var constructor = current.ConstructorId;
+            var last = _start;
+            while (true)
+            {
+                var season = last + 1;
+                var next = record.Seats
+                    .Where(seat => seat.Season == season && (!raceStint || !IsSubstitute(seat)) && SameTeam(constructor, last, seat.ConstructorId, season))
+                    .OrderByDescending(seat => seat.Starts)
+                    .ThenBy(seat => seat.FirstRound)
+                    .ThenBy(seat => seat.ConstructorId, Ordinal)
+                    .FirstOrDefault();
+                if (next is null)
+                {
+                    return EndYear(last);
+                }
+
+                constructor = next.ConstructorId;
+                last = season;
+            }
+        }
+
+        /// <summary>True when the constructor of the later season is the same team as the earlier one: the same id, or the next step of its lineage.</summary>
+        private bool SameTeam(string earlier, int earlierSeason, string later, int laterSeason)
+        {
+            if (string.Equals(earlier, later, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            var lineage = TeamLineage.LineageOf(earlier, earlierSeason, _data.LineageSpans);
+            return lineage is not null
+                && string.Equals(lineage, TeamLineage.LineageOf(later, laterSeason, _data.LineageSpans), StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Writes the queued driver contracts in the order they were queued. A team with two race seats, at least one of them a real
+        /// driver, gets a first and a second driver: the authored role of <c>driver_roles.json</c> wins, otherwise the better-rated driver
+        /// is first, ties by age (the older) and then by id (#325). A team of two generated drivers has no history to read a hierarchy
+        /// from and keeps equal seats, as before.
+        /// </summary>
+        private void FlushDriverContracts()
+        {
+            var roles = SeatRoles();
+            foreach (var pending in _pendingDrivers)
+            {
+                var status = pending.Status == SeatStatus.Reserve ? SeatStatus.Reserve : roles.GetValueOrDefault(pending.Person, pending.Status);
+                var spec = new ContractSpec(
+                    pending.Person,
+                    pending.Team,
+                    ContractRole.Driver(status),
+                    GameDate.SeasonStart(_start),
+                    GameDate.SeasonEnd(pending.EndYear),
+                    WorldInitEstimates.PlaceholderSalary,
+                    true,
+                    null,
+                    null);
+                (_world, _) = _world.AddContract(spec);
+                _racingDrivers++;
+            }
+
+            _pendingDrivers.Clear();
+        }
+
+        private Dictionary<PersonId, SeatStatus> SeatRoles()
+        {
+            var roles = new Dictionary<PersonId, SeatStatus>();
+            var driverIds = _pendingDrivers
+                .Where(item => item.DriverId is not null)
+                .ToDictionary(item => item.Person, item => item.DriverId!);
+            foreach (var team in _pendingDrivers.Where(item => item.Status != SeatStatus.Reserve).GroupBy(item => item.Team))
+            {
+                var seats = team.ToArray();
+                if (seats.Length != WorldInitEstimates.RaceSeatsPerTeam || seats.All(seat => seat.DriverId is null))
+                {
+                    continue;
+                }
+
+                var ranked = seats
+                    .Select(seat => (Seat: seat, Person: _world.GetPerson(seat.Person)))
+                    .OrderByDescending(entry => entry.Person.Truth.Attributes.Average(item => (double)item.Value))
+                    .ThenBy(entry => entry.Person.BirthDate)
+                    .ThenBy(entry => entry.Person.Id.Value, Ordinal)
+                    .ToArray();
+                SeatStatus? Authored(PersonId person) =>
+                    driverIds.TryGetValue(person, out var id) ? _data.DriverRoles.RoleOf(_start, id) : null;
+
+                var first = ranked[0].Seat.Person;
+                var firsts = ranked.Where(entry => Authored(entry.Seat.Person) == SeatStatus.NumberOne).ToArray();
+                var seconds = ranked.Where(entry => Authored(entry.Seat.Person) == SeatStatus.NumberTwo).ToArray();
+                if (firsts.Length >= 1)
+                {
+                    first = firsts[0].Seat.Person;
+                }
+                else if (seconds.Length == 1)
+                {
+                    first = ranked.First(entry => entry.Seat.Person != seconds[0].Seat.Person).Seat.Person;
+                }
+
+                foreach (var entry in ranked)
+                {
+                    roles[entry.Seat.Person] = entry.Seat.Person == first ? SeatStatus.NumberOne : SeatStatus.NumberTwo;
+                }
+            }
+
+            return roles;
         }
 
         private QualityBand PickBand(string tag, (QualityBand Band, int Weight)[] weights)
@@ -977,7 +1113,7 @@ public static class WorldInitializer
 
                     if (seen.Add(member.Id + "|" + organization.Value + "|" + role))
                     {
-                        slots.Add(new StaffSlot(member.Id, member, organization, role));
+                        slots.Add(new StaffSlot(member.Id, member, organization, role, stint.To));
                     }
                 }
             }
@@ -1019,7 +1155,7 @@ public static class WorldInitializer
                 var known = attributes.Select(attribute => new KnownAttribute(attribute.Key, new AttributeBand(attribute.Value, attribute.Value))).ToArray();
                 foreach (var slot in group)
                 {
-                    AddStaffContract(id, slot.Organization, slot.Role);
+                    AddStaffContract(id, slot.Organization, slot.Role, slot.LastSeason);
                     _world = _world.SetKnowledge(new PersonKnowledge(slot.Organization, id, known, null));
                 }
             }
@@ -1103,14 +1239,18 @@ public static class WorldInitializer
             return created;
         }
 
-        private void AddStaffContract(PersonId person, OrganizationId organization, StaffRole role)
+        /// <summary>
+        /// A staff contract ends with the authored stint (<paramref name="lastSeason"/>, never before the start year) unless the career
+        /// chose that every contract ends in the start year (#325). The authored stint is a real tenure, so its end is not a guess.
+        /// </summary>
+        private void AddStaffContract(PersonId person, OrganizationId organization, StaffRole role, int lastSeason)
         {
             var spec = new ContractSpec(
                 person,
                 organization,
                 ContractRole.Staff(role),
                 GameDate.SeasonStart(_start),
-                GameDate.SeasonEnd(_start + WorldInitEstimates.InitialContractSeasons - 1),
+                GameDate.SeasonEnd(EndYear(lastSeason)),
                 WorldInitEstimates.PlaceholderSalary,
                 false,
                 null,

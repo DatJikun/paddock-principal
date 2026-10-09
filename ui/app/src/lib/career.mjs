@@ -25,6 +25,7 @@ export const AXES = {
   rules: ['Historical', 'VotedEachSeason'],
   ai: ['ReplayHistory', 'ReactToSituation', 'PureRandom'],
   fatality: ['Off', 'On'],
+  contracts: ['Real', 'AllEndThisYear'],
 };
 
 export const MIN_YEAR = 1950;
@@ -49,6 +50,7 @@ export function emptySetup(year = 1955, seed = '') {
     randomness: 0,
     fatality: '',
     noNumbers: 'Off',
+    contracts: 'Real',
     seed,
   };
 }
@@ -104,6 +106,12 @@ export function axisArgs(setup) {
   };
 }
 
+/** How long the contracts of the first morning run. Not an axis of a preset, so it stays out of `isCustom` and out of the
+    `teams` query (the cards do not depend on it); only `newCareer` takes it. */
+export function contractsArg(setup) {
+  return AXES.contracts.includes(setup.contracts) ? setup.contracts : AXES.contracts[0];
+}
+
 export function teamsArgs(managerId, setup) {
   return { managerId, year: Number(setup.year), ...axisArgs(setup) };
 }
@@ -118,6 +126,7 @@ export function newCareerArgs(managerId, setup, you, teamId) {
     tilt: you.tilt,
     year: Number(setup.year),
     name: null,
+    startContracts: contractsArg(setup),
     ...axisArgs(setup),
   };
 }

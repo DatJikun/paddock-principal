@@ -34,6 +34,7 @@
   import { fallbackPoints, RaceMap, TrackSpline } from '../race-map.mjs';
   import { fitPanels, loadPanels, savePanels, SIDE, STEP, TOWER } from '../race-panels.mjs';
   import { formatLapTime } from '../race.mjs';
+  import { ownCarRows } from '../team-seats.mjs';
   import type { Tr } from '../ui';
   import Flag from './Flag.svelte';
 
@@ -460,10 +461,8 @@
   let cars = $derived(new Map((race?.cars ?? []).map((car) => [car.carId, car])));
   let card = $derived(selected && towerView ? towerView.rows.find((row) => row.carId === selected) ?? null : null);
   let cardCar = $derived(selected ? cars.get(selected) ?? null : null);
-  /* Our cars in a fixed order (the grid), so a pit wall button never moves under the pointer when the cars swap places. */
-  let ownRows = $derived(
-    towerView ? towerView.rows.filter((row) => cars.get(row.carId)?.own).sort((a, b) => a.grid - b.grid) : [],
-  );
+  /* Our cars in a fixed order (the first driver, then the second), so a pit wall button never moves under the pointer when the cars swap places. */
+  let ownRows = $derived(towerView ? ownCarRows(towerView.rows, cars) : []);
   let finished = $derived(clock?.finished || flag === 'chequered');
   let podium = $derived(
     towerView && clock?.finished ? towerView.rows.filter((row) => row.finished).slice(0, 6) : [],

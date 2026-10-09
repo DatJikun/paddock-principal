@@ -299,7 +299,10 @@ public sealed partial class CareerBridge
         var own = new List<OwnDriverView>();
         if (organization is OrganizationId id)
         {
-            foreach (var contract in Session.World.Contracts.OrderBy(item => item.Id.Value, StringComparer.Ordinal))
+            // The first driver comes first, then the second, then the reserves; the screen lists them in this order (#325).
+            foreach (var contract in Session.World.Contracts
+                .OrderBy(item => item.Role.IsDriver ? (int)item.Role.Seat : int.MaxValue)
+                .ThenBy(item => item.Id.Value, StringComparer.Ordinal))
             {
                 if (contract.OrganizationId != id || !contract.Role.IsDriver || !contract.IsActiveOn(Session.Date))
                 {

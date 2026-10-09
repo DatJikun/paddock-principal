@@ -74,7 +74,8 @@ public sealed record SaveListView(IReadOnlyList<SaveListItem> Saves);
 
 /// <summary>
 /// Starts a career. Preset defaults to Chaos and the year to 1955. Axes override the preset when set.
-/// People fall back to generated names when the local cache is missing.
+/// People fall back to generated names when the local cache is missing. <c>StartContracts</c> is <c>Real</c> (the default) or
+/// <c>AllEndThisYear</c> (#325); it is not an axis of a preset.
 /// </summary>
 public sealed record NewCareerCall(
     string ManagerId,
@@ -93,7 +94,8 @@ public sealed record NewCareerCall(
     int? History,
     int? Randomness,
     string? Fatality,
-    bool? NoNumbers);
+    bool? NoNumbers,
+    string? StartContracts = null);
 
 /// <summary>What <c>newCareer</c> and <c>loadCareer</c> return.</summary>
 public sealed record CareerStartedView(

@@ -94,6 +94,45 @@ public class LiveRaceTests
     }
 
     [Fact]
+    public void TheRaceOpensAtTheSlowestSpeedAndOffersEveryStepUpToThirty()
+    {
+        var clock = new ManualClock();
+        var playback = new LiveRacePlayback(1955, 1, 600_000, clock);
+        Assert.Equal(1, LiveRacePlayback.DefaultSpeed);
+        Assert.Equal(new double[] { 1, 2, 5, 10, 20, 30 }, playback.View().Speeds);
+        Assert.Equal(1, playback.View().Speed);
+
+        Assert.Null(playback.Apply("human:a", LiveRaceAction.Play));
+        clock.Now += 1_000;
+        Assert.Equal(1_000L, playback.RaceTimeMs);
+
+        Assert.Null(playback.Apply("human:a", LiveRaceAction.SetSpeed, 30));
+        clock.Now += 1_000;
+        Assert.Equal(31_000L, playback.RaceTimeMs);
+        Assert.Equal(LiveRaceText.BadSpeed, playback.Apply("human:a", LiveRaceAction.SetSpeed, 40));
+    }
+
+    [Fact]
+    public void PauseKeepsTheSpeedAndResumeReturnsToIt()
+    {
+        var clock = new ManualClock();
+        var playback = new LiveRacePlayback(1955, 1, 600_000, clock);
+        Assert.Null(playback.Apply("human:a", LiveRaceAction.SetSpeed, 20));
+        clock.Now += 1_000;
+
+        Assert.Null(playback.Apply("human:a", LiveRaceAction.Pause));
+        Assert.Equal(20, playback.View().Speed);
+        var paused = playback.RaceTimeMs;
+        clock.Now += 60_000;
+        Assert.Equal(paused, playback.RaceTimeMs);
+
+        Assert.Null(playback.Apply("human:a", LiveRaceAction.Play));
+        Assert.Equal(20, playback.View().Speed);
+        clock.Now += 1_000;
+        Assert.Equal(paused + 20_000L, playback.RaceTimeMs);
+    }
+
+    [Fact]
     public void TwoViewersOfOneClockSeeTheSameRaceTime()
     {
         var clock = new ManualClock();

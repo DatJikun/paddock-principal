@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Paddock.Application.Racing;
 using Paddock.Domain.Racing;
 using Paddock.Simulation.Racing;
 using Paddock.Simulation.Racing.Playback;
@@ -84,6 +85,25 @@ public class PlaybackSchedulerTests
         Assert.Equal([1], Seqs(cursor.Poll()));
         Assert.Equal(15_000, cursor.RaceTimeMs);
         Assert.Equal(10, cursor.Speed);
+    }
+
+    [Fact]
+    public void EveryWatchingSpeedShowsTheSameEventsInTheSameOrder()
+    {
+        // #322: the speed only changes how fast the tape is shown. Every step, from x1 to x30, delivers the same tape.
+        foreach (var speed in LiveRacePlayback.Speeds)
+        {
+            var clock = new FakeClock();
+            var cursor = new PlaybackScheduler(SmallTape(), clock, speed).CreateCursor();
+            var shown = new List<int>(Seqs(cursor.Poll()));
+            while (!cursor.IsFinished)
+            {
+                clock.Advance(100);
+                shown.AddRange(Seqs(cursor.Poll()));
+            }
+
+            Assert.Equal([0, 1, 2, 3, 4], shown);
+        }
     }
 
     [Fact]

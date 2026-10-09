@@ -1755,6 +1755,8 @@
   "live.ui.pace": "Tempo",
   "live.ui.pause": "Pauza (spacja)",
   "live.ui.play": "Wznów (spacja)",
+  "live.ui.slower": "Wolniej (←)",
+  "live.ui.faster": "Szybciej (→)",
   "live.ui.live": "Na żywo",
   "live.ui.back": "Wróć do gry",
   "live.ui.tower": "Klasyfikacja",

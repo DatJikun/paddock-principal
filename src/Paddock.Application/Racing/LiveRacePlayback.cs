@@ -41,15 +41,16 @@ public sealed record LiveClockView(
 
 /// <summary>
 /// The host's playback of one race (multiplayer foundation, TECH §5.1): a single race clock, owned by the host, that every viewer
-/// reads. A single player is a host with no guests. Speeds are the watching speeds of DESIGN (live, ×5, ×10, ×20). There is no
-/// jump to the flag: the race is watched as it runs (owner's call, #276). It reads only the injected <see cref="IClock"/>, so tests drive it by hand.
+/// reads. A single player is a host with no guests. Speeds are the watching speeds of the race screen's speed control (#322, ×1 to
+/// ×30, one step at a time). There is no jump to the flag: the race is watched as it runs (owner's call, #276). It reads only the
+/// injected <see cref="IClock"/>, so tests drive it by hand.
 /// </summary>
 public sealed class LiveRacePlayback
 {
-    public static IReadOnlyList<double> Speeds { get; } = [1, 5, 10, 20];
+    public static IReadOnlyList<double> Speeds { get; } = [1, 2, 5, 10, 20, 30];
 
-    /// <summary>The speed a race opens at. A choice of the screen, not a number of the world.</summary>
-    public const double DefaultSpeed = 10;
+    /// <summary>The speed a race opens at (#322: the slowest, so nothing is missed by default). A choice of the screen, not a number of the world.</summary>
+    public const double DefaultSpeed = 1;
 
     private readonly IClock _clock;
     private readonly List<LiveRaceControl> _log = [];

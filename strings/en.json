@@ -1719,6 +1719,8 @@
   "live.ui.pace": "Speed",
   "live.ui.pause": "Pause (space)",
   "live.ui.play": "Resume (space)",
+  "live.ui.slower": "Slower (←)",
+  "live.ui.faster": "Faster (→)",
   "live.ui.live": "Live",
   "live.ui.back": "Back to the game",
   "live.ui.tower": "Classification",

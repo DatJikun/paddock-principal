@@ -200,7 +200,7 @@ public class PoolCommandTests
         Assert.All(view.Items, item =>
         {
             var person = lab.World.GetPerson(lab.Section.FindByHandle(item.Handle)!.Id);
-            Assert.Equal((person.FamilyName, person.Nationality, 1950 - person.BirthDate.Year), (item.FamilyName, item.Nationality, item.Age));
+            Assert.Equal((person.FamilyName, person.Nationality, person.AgeOn(lab.World.CurrentDate)), (item.FamilyName, item.Nationality, item.Age));
             Assert.Empty(item.Attributes);
             Assert.Null(item.Potential);
             Assert.False(item.InYourAcademy);

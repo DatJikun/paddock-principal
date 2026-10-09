@@ -62,7 +62,7 @@ public static class MarketRead
                 null,
                 person.FreeSince?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
                 person.KnownAttributes,
-                AgeOn(record.BirthDate, today),
+                record.AgeOn(today),
                 Kind(wanted),
                 PeopleViews.Overall(wanted, book.World.KnowledgeOf(observer, person.Person)),
                 LastSalary(book, person.Person),
@@ -106,7 +106,7 @@ public static class MarketRead
                 contract.Role.IsDriver ? contract.Role.Seat.ToString() : null,
                 (holds.Count > 0 ? holds[^1].End : contract.End).ToString(),
                 attributes,
-                AgeOn(person.BirthDate, today),
+                person.AgeOn(today),
                 Kind(subject),
                 PeopleViews.Overall(subject, knowledge),
                 contract.Salary,
@@ -133,15 +133,4 @@ public static class MarketRead
 
     private static string Kind(NegotiationSubject subject) =>
         subject.Kind == NegotiationSubjectKind.DriverSeat ? "driver" : subject.StaffRole.ToString();
-
-    private static int AgeOn(GameDate born, GameDate on)
-    {
-        var age = on.Year - born.Year;
-        if (on.Month < born.Month || (on.Month == born.Month && on.Day < born.Day))
-        {
-            age--;
-        }
-
-        return Math.Max(0, age);
-    }
 }

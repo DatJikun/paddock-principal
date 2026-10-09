@@ -308,12 +308,14 @@ public sealed partial class CareerBridge
     private DriverProfileView ReadDriver(JsonElement args)
     {
         var organization = Box.Require<BoardBook>().Section.OrganizationOf(Human.Value);
-        var person = TextOf(args, "personId") ?? "";
+        var asked = TextOf(args, "personId") ?? "";
         if (organization is not OrganizationId id)
         {
-            return DriverProfileRead.None(person);
+            return DriverProfileRead.None(asked);
         }
 
+        // A row of the academy names its person by the pool handle; the profile answers under the same name (PP-018, #326).
+        var person = PersonBehind(asked);
         var profile = DriverProfileRead.Of(Session.World, id, Session.Date, person, EarlierSeasons(person));
         if (!profile.Found)
         {
@@ -322,8 +324,11 @@ public sealed partial class CareerBridge
 
         // The slider of the offer form: from what this team believes the driver is worth (#265).
         var reference = Contracts().ReferenceSalary(id, Person(person), NegotiationSubject.DriverSeat, Session.Date);
-        return profile with { SalaryGuide = PeopleViews.SalaryGuide(reference) };
+        return profile with { PersonId = asked, SalaryGuide = PeopleViews.SalaryGuide(reference) };
     }
+
+    /// <summary>The id of the person a screen names: a pool handle is turned into the person the human may see behind it, any other text is an id already.</summary>
+    private string PersonBehind(string idOrHandle) => Pool().Resolve(Access(), idOrHandle)?.Value ?? idOrHandle;
 
     /// <summary>
     /// The seasons a real driver raced before this career began, as plain counts from the local data. A generated driver, a career
@@ -820,6 +825,8 @@ public sealed partial class CareerBridge
             error = TranslationMessage.Of(BridgeKeys.BadMessage);
             return null;
         }
+
+        person = PersonBehind(person);
 
         DateOnly? deadline = null;
         if (TextOf(args, "deadline") is { } text && DateOnly.TryParse(text, CultureInfo.InvariantCulture, out var date))

@@ -35,6 +35,8 @@ public class LiveRaceBridgeTests
         Assert.True(opened.GetProperty("active").GetBoolean());
         Assert.True(opened.GetProperty("paused").GetBoolean());
         Assert.Equal(0, opened.GetProperty("raceTimeMs").GetInt64());
+        Assert.Equal(1, opened.GetProperty("speed").GetDouble());
+        Assert.Equal(new double[] { 1, 2, 5, 10, 20, 30 }, opened.GetProperty("speeds").EnumerateArray().Select(item => item.GetDouble()));
         var duration = opened.GetProperty("durationMs").GetInt64();
         Assert.True(duration > 0);
 
@@ -76,6 +78,13 @@ public class LiveRaceBridgeTests
         using (var bad = JsonDocument.Parse(badSpeed.Response))
         {
             Assert.Equal(LiveRaceText.BadSpeed, bad.RootElement.GetProperty("error").GetProperty("key").GetString());
+        }
+
+        // #322: the top step is offered and accepted; the speed never changes what the tape holds (the hash is checked below).
+        var top = host.Handle(Message("t", "command", "liveRaceControl", "{\"managerId\":\"human:player\",\"action\":\"setSpeed\",\"speed\":30}"));
+        using (var topJson = JsonDocument.Parse(top.Response))
+        {
+            Assert.False(topJson.RootElement.TryGetProperty("error", out _));
         }
 
         // The career's result is booked on race day, so its pit wall takes no orders yet (#286), and says why.

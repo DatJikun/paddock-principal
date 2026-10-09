@@ -34,8 +34,10 @@
   import { fallbackPoints, RaceMap, TrackSpline } from '../race-map.mjs';
   import { fitPanels, loadPanels, savePanels, SIDE, STEP, TOWER } from '../race-panels.mjs';
   import { formatLapTime } from '../race.mjs';
+  import { pauseOrder, speedOrder, stepOfKey } from '../race-speed.mjs';
   import type { Tr } from '../ui';
   import Flag from './Flag.svelte';
+  import SpeedControl from './SpeedControl.svelte';
 
   let {
     tr,
@@ -275,6 +277,10 @@
     if (key === ' ') {
       event.preventDefault();
       void togglePause();
+    } else if (stepOfKey(key) !== 0 && !(event.target instanceof HTMLElement && event.target.classList.contains('rm-grip'))) {
+      /* The arrows step the speed (#322). A panel grip that has focus keeps them: they widen or narrow its panel. */
+      event.preventDefault();
+      void step(stepOfKey(key));
     } else if (key === 't' || key === 'T') tower = !tower;
     else if (key === 'r' || key === 'R') transcript = !transcript;
     else if ((key === 'f' || key === 'F') && selected) setFollow(!following);
@@ -290,9 +296,27 @@
     }
   }
 
-  async function togglePause() {
-    if (!clock || clock.finished) return;
-    await control(clock.paused ? 'play' : 'pause');
+  /* Speed and pause presses wait for the order before them: a second press read before the first is answered would start
+     from the old speed and repeat it (#322). Each order reads the clock as the last one left it. */
+  let orders: Promise<void> = Promise.resolve();
+  function inTurn(run: () => Promise<void>): Promise<void> {
+    orders = orders.then(run);
+    return orders;
+  }
+
+  function togglePause() {
+    return inTurn(async () => {
+      const order = pauseOrder(clock);
+      if (order) await control(order.action);
+    });
+  }
+
+  /* One step up or down the watching speeds (#322). Pausing keeps the speed, so a step from a paused race starts from it. */
+  function step(direction: number) {
+    return inTurn(async () => {
+      const order = speedOrder(clock, direction);
+      if (order) await control(order.action, order.speed);
+    });
   }
 
   function select(id: string | null) {
@@ -470,7 +494,6 @@
   );
   /* Recomputed on every event boundary only; the map moves every animation frame on its own. */
   let eventIndex = $derived(race ? lastIndexAt(race.events, now) : -1);
-  let speed = $derived(clock?.speed ?? 0);
   let fastest = $derived(race ? fastestAt(race.events, now) : null);
   let radio = $derived(race ? radioAt(race, now) : []);
   let teamName = $derived(race?.cars.find((car) => car.own)?.teamName ?? '');
@@ -536,17 +559,6 @@
             <button type="button" class="ctl" aria-pressed={wake} title={tr.t('live.ui.wakeHint')} onclick={() => (wake = !wake)}>{wake ? '●' : '○'}</button>
           </div>
         </div>
-        <div class="seg">
-          <span class="meta">{tr.t('live.ui.pace')}</span>
-          <div class="speeds">
-            <button type="button" class="ctl" aria-pressed={clock?.paused ?? true} title={clock?.paused ? tr.t('live.ui.play') : tr.t('live.ui.pause')} onclick={togglePause}>
-              {#if clock?.paused}▶{:else}❚❚{/if}
-            </button>
-            {#each clock?.speeds ?? [] as option (option)}
-              <button type="button" class="ctl" aria-pressed={!clock?.paused && speed === option} onclick={() => control('setSpeed', option)}>{option}×</button>
-            {/each}
-          </div>
-        </div>
         {#if canLeave}
           <div class="seg leave" role="group" aria-label={tr.t('quick.leaveAsk')}>
             {#if leaving}
@@ -566,6 +578,19 @@
         </div>
       {/if}
     </div>
+
+    {#if !finished}
+      <div class="rm-pane rm-speed">
+        <SpeedControl
+          {tr}
+          paused={clock?.paused ?? true}
+          speed={clock?.speed ?? 1}
+          speeds={clock?.speeds ?? []}
+          ontoggle={togglePause}
+          onstep={step}
+        />
+      </div>
+    {/if}
 
     <button type="button" class="ctl rm-tower-tab" onclick={() => (tower = true)}>{tr.t('live.ui.towerKey')}</button>
     <div class="rm-pane rm-tower">
@@ -996,6 +1021,12 @@
   }
   .rm-pace {
     right: 12px;
+  }
+  /* The speed control sits at the bottom centre of the race screen (#322). */
+  .rm-speed {
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
   }
   .leave .ctl {
     padding: 0 10px;
@@ -1730,7 +1761,7 @@
   }
   .rm-approx {
     position: absolute;
-    right: 12px;
+    right: 136px;
     bottom: 12px;
     margin: 0;
     max-width: var(--rw, 320px);
@@ -1739,9 +1770,8 @@
     text-align: right;
   }
   .rm-zoom {
-    left: 50%;
+    right: 12px;
     bottom: 12px;
-    transform: translateX(-50%);
     display: flex;
     gap: 2px;
     padding: 3px;

@@ -22,6 +22,36 @@ public class BridgeTests
     }
 
     [Fact]
+    public void TheStartScreenOffersTheYear2010()
+    {
+        // #323: the owner's playtest year is the one the wizard opens on.
+        using var lobby = Lobby();
+        var session = lobby.Host.Handle(Message("session", "query", "session"));
+        using var json = JsonDocument.Parse(session.Response);
+        Assert.Equal(2010, json.RootElement.GetProperty("data").GetProperty("suggestedYear").GetInt32());
+    }
+
+    [Fact]
+    public void ANewCareerThatNamesNoYearStartsIn2010()
+    {
+        // #323: a career started with the defaults (no year sent) opens in 2010, not in the pinned 1955 world.
+        using var lobby = Lobby();
+        var started = lobby.Host.Handle(Message(
+            "start",
+            "command",
+            "newCareer",
+            """{"managerId":"human:player","teamId":"ferrari","givenName":"Enzo","familyName":"Test","nationality":"IT","tilt":"none","preset":"Balanced"}"""));
+        using (var startedJson = JsonDocument.Parse(started.Response))
+        {
+            Assert.True(startedJson.RootElement.GetProperty("ok").GetBoolean(), started.Response);
+        }
+
+        var shell = lobby.Host.Handle(Message("sh", "query", "shell"));
+        using var shellJson = JsonDocument.Parse(shell.Response);
+        Assert.Equal("2010-01-01", shellJson.RootElement.GetProperty("data").GetProperty("date").GetString());
+    }
+
+    [Fact]
     public void EveryRegisteredQueryReturnsOk()
     {
         using var career = Open();
@@ -1067,7 +1097,10 @@ public class BridgeTests
         return answered;
     }
 
-    private static Opened Open() => new(BridgeHost.Open(BridgeTestData.DataRoot));
+    /// <summary>The 1955 world every pinned date and state hash in this file was taken in (#323 moved the default to 2010).</summary>
+    private const int PinnedYear = 1955;
+
+    private static Opened Open() => new(BridgeHost.Open(BridgeTestData.DataRoot, PinnedYear));
 
     private static Opened Lobby() => new(BridgeHost.Lobby(BridgeTestData.DataRoot));
 

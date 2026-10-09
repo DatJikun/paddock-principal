@@ -42,7 +42,11 @@ public sealed partial class CareerBridge
 {
     public const string HumanManagerId = "human:player";
 
-    public const int DefaultYear = 1955;
+    /// <summary>
+    /// The start year the page offers and the year a command names when it names none (#323: the owner's playtest year).
+    /// Tests that pin a state hash or a 1955 date pass 1955 explicitly; the pinned worlds do not move with this default.
+    /// </summary>
+    public const int DefaultYear = 2010;
 
     public const ulong DefaultSeed = 1;
 

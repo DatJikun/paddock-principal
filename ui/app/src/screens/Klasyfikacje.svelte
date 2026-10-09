@@ -1,7 +1,6 @@
 <script lang="ts">
-  import Flag from '../lib/components/Flag.svelte';
+  import PersonName from '../lib/components/PersonName.svelte';
   import SeasonGrid from '../lib/components/SeasonGrid.svelte';
-  import { hasFlag } from '../lib/flags.mjs';
   import type { StandingsData } from '../lib/screens';
   import { icon, ICON, points, type Tr } from '../lib/ui';
 
@@ -50,7 +49,7 @@
           {#each table.drivers as row (row.id)}
             <tr class:mine={row.teamId === teamId}>
               <td class="c num">{row.position}</td>
-              <td><span class="person">{#if hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}{row.name}</span></td>
+              <td><PersonName name={row.name} id={row.id} nationality={row.nationality} bold={false} /></td>
               <td class="muted">{row.teamName ?? ''}</td>
               <td class="c num" class:zero={row.wins === 0}>{row.wins}</td>
               <td class="c num" class:zero={row.podiums === 0}>{row.podiums}</td>

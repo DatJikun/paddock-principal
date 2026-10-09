@@ -2,11 +2,11 @@
   import type { SquadData } from '../lib/screens';
   import AttrRow from '../lib/components/AttrRow.svelte';
   import Stars from '../lib/components/Stars.svelte';
-  import Flag from '../lib/components/Flag.svelte';
-  import { bandOf, careerTotals, DRIVER_ATTRS, endsThisSeason, seasonRow } from '../lib/people.mjs';
-  import { formatDate } from '../lib/date.mjs';
-  import { hasFlag } from '../lib/flags.mjs';
-  import { countryName, initials, type Tr } from '../lib/ui';
+  import ContractEnd from '../lib/components/ContractEnd.svelte';
+  import Nationality from '../lib/components/Nationality.svelte';
+  import { bandOf, careerTotals, DRIVER_ATTRS, seasonRow } from '../lib/people.mjs';
+  import { driverHref, formatAge } from '../lib/person.mjs';
+  import { initials, type Tr } from '../lib/ui';
 
   let { data, tr, today }: { data: SquadData; tr: Tr; today: string } = $props();
 
@@ -27,7 +27,7 @@
 
 <div class="squad-cards">
   {#each rows as row (row.driver.personId)}
-    <a class="panel dcard" href={`#/kierowca/${encodeURIComponent(row.driver.personId)}`}>
+    <a class="panel dcard" href={driverHref(row.driver.personId)}>
       <div class="dcard-top">
         <span class="av-big">{initials(row.driver.name)}</span>
         <div class="dcard-name">
@@ -35,16 +35,16 @@
           <div class="fields mid">
             <div class="fld">
               <span class="meta">{tr.t('career.you.country')}</span>
-              <span class="v">{#if hasFlag(row.driver.nationality)}<Flag code={row.driver.nationality} size="md" />{/if}{countryName(tr, row.driver.nationality)}</span>
+              <span class="v"><Nationality {tr} code={row.driver.nationality} /></span>
             </div>
-            <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{row.view?.age ?? '—'}</span></div>
+            <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{formatAge(row.view?.age)}</span></div>
             <div class="fld"><span class="meta">{tr.t('drivers.seat')}</span><span class="v">{tr.t(`seat.${row.driver.seat}`)}</span></div>
             {#if row.view?.overall != null}
               <div class="fld"><span class="meta">{tr.t('shell.col.overall')}</span><span class="v"><Stars overall={row.view.overall} /></span></div>
             {/if}
             <div class="fld">
               <span class="meta">{tr.t('drivers.contract')}</span>
-              <span class="v num" class:bad={endsThisSeason(row.view?.contractEnd ?? row.driver.end, today) && !row.view?.upcoming}>{formatDate(row.view?.contractEnd ?? row.driver.end, tr.lang)}</span>
+              <span class="v"><ContractEnd {tr} end={row.view?.contractEnd ?? row.driver.end} {today} quiet={!!row.view?.upcoming} /></span>
             </div>
           </div>
         </div>

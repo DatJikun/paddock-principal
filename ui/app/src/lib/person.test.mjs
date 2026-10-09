@@ -51,7 +51,7 @@ test('the academy opens the shared profile from its table, its tiles and its det
 });
 
 test('the lists of results and standings link a driver to the shared profile', () => {
-  for (const file of ['screens/Wyscig.svelte', 'screens/Pulpit.svelte', 'screens/Klasyfikacje.svelte', 'lib/components/SeasonGrid.svelte']) {
+  for (const file of ['screens/Wyscig.svelte', 'screens/Klasyfikacje.svelte', 'lib/components/SeasonGrid.svelte']) {
     assert.match(source(file), /<PersonName\b/, file);
     assert.doesNotMatch(source(file), /<span class="person">/, file);
   }

@@ -1,13 +1,13 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import type { DriverProfileView } from '../lib/api/types.generated';
-  import Flag from '../lib/components/Flag.svelte';
+  import Nationality from '../lib/components/Nationality.svelte';
   import Status from '../lib/components/Status.svelte';
   import Tabs from '../lib/components/Tabs.svelte';
-  import { hasFlag } from '../lib/flags.mjs';
   import { bandOf, bandText, careerTotals, DRIVER_ATTRS, seasonRow } from '../lib/people.mjs';
+  import { driverHref, formatAge } from '../lib/person.mjs';
   import type { CompareData } from '../lib/screens';
-  import { countryName, icon, ICON, initials, type Tr } from '../lib/ui';
+  import { icon, ICON, initials, type Tr } from '../lib/ui';
 
   let { data, tr }: { data: CompareData; tr: Tr } = $props();
 
@@ -71,16 +71,16 @@
   <Status text={tr.t('driver.unknown')} tone="warn" />
 {:else}
   {#snippet side(profile: DriverProfileView, cls: string)}
-    <a class="cmp-side {cls}" href={`#/kierowca/${encodeURIComponent(profile.personId)}`}>
+    <a class="cmp-side {cls}" href={driverHref(profile.personId)}>
       <span class="face">{initials(profile.name)}</span>
       <div>
         <h2>{profile.name}</h2>
         <div class="fields">
           <div class="fld">
             <span class="meta">{tr.t('career.you.country')}</span>
-            <span class="v">{#if hasFlag(profile.nationality)}<Flag code={profile.nationality} size="md" />{/if}{countryName(tr, profile.nationality)}</span>
+            <span class="v"><Nationality {tr} code={profile.nationality} /></span>
           </div>
-          <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{profile.age}</span></div>
+          <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{formatAge(profile.age)}</span></div>
         </div>
       </div>
     </a>

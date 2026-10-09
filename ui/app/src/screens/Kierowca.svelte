@@ -2,15 +2,16 @@
   import type { BridgeCommandName } from '../lib/api/types.generated';
   import AttrRow from '../lib/components/AttrRow.svelte';
   import Confirmation from '../lib/components/Confirmation.svelte';
-  import Flag from '../lib/components/Flag.svelte';
+  import ContractEnd from '../lib/components/ContractEnd.svelte';
+  import Nationality from '../lib/components/Nationality.svelte';
   import OfferForm, { type OfferInput } from '../lib/components/OfferForm.svelte';
   import Status from '../lib/components/Status.svelte';
   import { formatDate } from '../lib/date.mjs';
-  import { hasFlag } from '../lib/flags.mjs';
   import { formatMoney } from '../lib/money.mjs';
-  import { bandOf, careerTotals, DRIVER_ATTRS, endsThisSeason } from '../lib/people.mjs';
+  import { bandOf, careerTotals, DRIVER_ATTRS } from '../lib/people.mjs';
+  import { formatAge } from '../lib/person.mjs';
   import type { DriverData } from '../lib/screens';
-  import { countryName, icon, ICON, initials, type Tr } from '../lib/ui';
+  import { icon, ICON, initials, type Tr } from '../lib/ui';
 
   let {
     data,
@@ -66,9 +67,9 @@
         <div class="fields mid">
           <div class="fld">
             <span class="meta">{tr.t('career.you.country')}</span>
-            <span class="v">{#if hasFlag(profile.nationality)}<Flag code={profile.nationality} size="md" />{/if}{countryName(tr, profile.nationality)}</span>
+            <span class="v"><Nationality {tr} code={profile.nationality} /></span>
           </div>
-          <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{profile.age}</span></div>
+          <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{formatAge(profile.age)}</span></div>
           <div class="fld">
             <span class="meta">{tr.t('shell.col.team')}</span>
             <span class="v">{#if profile.freeAgent}<Status text={tr.t('driver.free')} tone="hi" />{:else}{profile.organizationName ?? '—'}{/if}</span>
@@ -132,7 +133,7 @@
           <div class="body">
             {#if profile.contract}
               <div class="fields">
-                <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v num" class:bad={endsThisSeason(profile.contract.end, today)}>{formatDate(profile.contract.end, tr.lang)}</span></div>
+                <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v"><ContractEnd {tr} end={profile.contract.end} {today} /></span></div>
                 {#if profile.contract.salary > 0}
                   <div class="fld"><span class="meta">{tr.t('offer.salary')}</span><span class="v num">{formatMoney(profile.contract.salary * 100, tr.lang)}</span></div>
                 {/if}
@@ -149,7 +150,7 @@
               {#if profile.upcoming}
                 <div class="fields next">
                   <div class="fld"><span class="meta">{tr.t('driver.contract.from')}</span><span class="v num">{formatDate(profile.upcoming.start, tr.lang)}</span></div>
-                  <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v num">{formatDate(profile.upcoming.end, tr.lang)}</span></div>
+                  <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v"><ContractEnd {tr} end={profile.upcoming.end} {today} quiet /></span></div>
                   {#if profile.upcoming.salary > 0}
                     <div class="fld"><span class="meta">{tr.t('offer.salary')}</span><span class="v num">{formatMoney(profile.upcoming.salary * 100, tr.lang)}</span></div>
                   {/if}
@@ -170,7 +171,7 @@
               {/if}
             {:else if profile.contractEnd}
               <div class="fields">
-                <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v num" class:bad={endsThisSeason(profile.contractEnd, today)}>{formatDate(profile.contractEnd, tr.lang)}</span></div>
+                <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v"><ContractEnd {tr} end={profile.contractEnd} {today} /></span></div>
                 {#if profile.upcomingStart}
                   <div class="fld"><span class="meta">{tr.t('driver.contract.from')}</span><span class="v">{formatDate(profile.upcomingStart, tr.lang)}{#if profile.upcomingOrganizationName}<small class="muted"> {profile.upcomingOrganizationName}</small>{/if}</span></div>
                 {/if}

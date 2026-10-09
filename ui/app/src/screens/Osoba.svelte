@@ -3,14 +3,13 @@
   import { teamLabel } from '../lib/career.mjs';
   import AttrRow from '../lib/components/AttrRow.svelte';
   import Confirmation from '../lib/components/Confirmation.svelte';
-  import Flag from '../lib/components/Flag.svelte';
+  import ContractEnd from '../lib/components/ContractEnd.svelte';
+  import Nationality from '../lib/components/Nationality.svelte';
   import Status from '../lib/components/Status.svelte';
-  import { formatDate } from '../lib/date.mjs';
-  import { hasFlag } from '../lib/flags.mjs';
   import { formatMoney } from '../lib/money.mjs';
-  import { endsThisSeason } from '../lib/people.mjs';
+  import { driverHref, formatAge } from '../lib/person.mjs';
   import type { StaffData } from '../lib/screens';
-  import { countryName, icon, ICON, initials, type Tr } from '../lib/ui';
+  import { icon, ICON, initials, type Tr } from '../lib/ui';
 
   let {
     data,
@@ -104,8 +103,8 @@
     {/if}
 
     <div class="info-panels">
-      <section class="panel"><div class="body"><span class="meta">{tr.t('career.you.country')}</span><b class="v">{#if hasFlag(person.nationality)}<Flag code={person.nationality} size="md" />{/if}{countryName(tr, person.nationality)}</b></div></section>
-      <section class="panel"><div class="body"><span class="meta">{tr.t('drivers.age')}</span><b class="v num">{person.age}</b></div></section>
+      <section class="panel"><div class="body"><span class="meta">{tr.t('career.you.country')}</span><b class="v"><Nationality {tr} code={person.nationality} /></b></div></section>
+      <section class="panel"><div class="body"><span class="meta">{tr.t('drivers.age')}</span><b class="v num">{formatAge(person.age)}</b></div></section>
       <section class="panel"><div class="body"><span class="meta">{tr.t('staff.role')}</span><b class="v">{tr.t(`staff.role.${person.role}`)}</b></div></section>
       <section class="panel"><div class="body"><span class="meta">{tr.t('shell.col.team')}</span><b class="v">{#if person.free}<Status text={tr.t('driver.free')} tone="hi" />{:else}{person.teamName ?? '—'}{/if}</b></div></section>
       {#if person.overall !== null}
@@ -134,7 +133,7 @@
           <div class="body">
             <div class="fields">
               {#if person.contractEnd}
-                <div class="fld"><span class="meta">{person.free ? tr.t('market.freeSince') : tr.t('driver.contract.until')}</span><span class="v num" class:bad={person.own && endsThisSeason(person.contractEnd, data.today)}>{formatDate(person.contractEnd, tr.lang)}</span></div>
+                <div class="fld"><span class="meta">{person.free ? tr.t('market.freeSince') : tr.t('driver.contract.until')}</span><span class="v"><ContractEnd {tr} end={person.contractEnd} today={data.today} quiet={!person.own} /></span></div>
               {/if}
               {#if person.salary > 0}
                 <div class="fld"><span class="meta">{tr.t('offer.salary')}</span><span class="v num">{formatMoney(person.salary * 100, tr.lang)}</span></div>
@@ -151,7 +150,7 @@
             <header><h2>{tr.t('staff.driver')}</h2></header>
             <div class="body">
               <div class="fields">
-                <div class="fld"><span class="meta">{tr.t('shell.col.driver')}</span><a class="v plain" href={`#/kierowca/${encodeURIComponent(driver.personId)}`}>{driver.name}</a></div>
+                <div class="fld"><span class="meta">{tr.t('shell.col.driver')}</span><a class="v plain" href={driverHref(driver.personId)}>{driver.name}</a></div>
                 {#if listed && listed.relationship !== null}
                   <div class="fld"><span class="meta">{tr.t('staff.relationship')}</span><span class="v num">{listed.relationship}</span></div>
                 {/if}

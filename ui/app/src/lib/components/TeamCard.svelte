@@ -3,7 +3,7 @@
   import { hasFlag } from '../flags.mjs';
   import { livery } from '../livery.mjs';
   import { formatMoney } from '../money.mjs';
-  import { countryName, type Tr } from '../ui';
+  import { ageLabel, type Tr } from '../ui';
   import { seatRows } from '../team-seats.mjs';
   import Emblem from './Emblem.svelte';
   import Flag from './Flag.svelte';
@@ -85,7 +85,7 @@
             <span class="tc-driver">
               {#if hasFlag(driver.nationality)}<Flag code={driver.nationality} />{/if}
               <b>{driver.name}</b>
-              <small class="num" title={countryName(tr, driver.nationality)}>{tr.t('team.card.age', { age: String(driver.age) })}</small>
+              <small class="num">{ageLabel(tr, driver.age)}</small>
             </span>
           {/each}
         </span>

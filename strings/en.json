@@ -1923,6 +1923,7 @@
   "dev.damage.kind.light": "Repair",
   "dev.damage.kind.heavy": "Heavy repair",
   "dev.damage.kind.wrecked": "New chassis",
+  "dev.car": "Car {n}",
   "dev.damage.source.race": "crashed in the race",
   "dev.damage.source.test": "crashed in the test",
   "dev.damage.until": "ready {date}",

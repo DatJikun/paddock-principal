@@ -1961,6 +1961,7 @@
   "dev.damage.kind.light": "Naprawa",
   "dev.damage.kind.heavy": "Ciężka naprawa",
   "dev.damage.kind.wrecked": "Nowe podwozie",
+  "dev.car": "Auto {n}",
   "dev.damage.source.race": "wypadek w wyścigu",
   "dev.damage.source.test": "wypadek na teście",
   "dev.damage.until": "gotowe {date}",

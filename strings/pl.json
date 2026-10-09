@@ -1944,7 +1944,7 @@
   "team.level.infrastructure": "Infrastruktura",
   "team.level.drivers": "Kierowcy",
   "team.level.staff": "Personel",
-  "team.level.title": "{area}: {level} z 5",
+  "team.level.title": "{area}: {level} z {max}",
   "car.ledger.repair": "Naprawa po wypadku.",
   "car.ledger.chassis": "Nowe podwozie po wypadku.",
   "car.inbox.raceRepair.subject": "Auto {n} zostało uszkodzone w wyścigu. Naprawa potrwa {days} dni (gotowe {ready}) i kosztuje {cost}.",

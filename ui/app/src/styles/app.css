@@ -1074,8 +1074,8 @@ input[type=range]:focus-visible{outline-offset:4px}
 .tc-levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;padding:12px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .tc-levels .lv{display:grid;gap:5px;min-width:0}
 .tc-levels .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tc-levels .pips{gap:4px}
-.tc-levels .pips i{width:18px;height:9px;border-radius:2px}
+.tc-levels .pips{gap:2px}
+.tc-levels .pips i{width:9px;height:9px;border-radius:2px}
 .tc-levels .pips i.on,.pips i.on{background:color-mix(in oklab,var(--c1) 55%,var(--ink))}
 .tcard.wide{max-width:560px}
 

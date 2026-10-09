@@ -5,11 +5,16 @@ name: Windows release
 #   - workflow_dispatch: build any ref by hand, the zip is a workflow artifact.
 #   - pull_request that touches this file: builds and smoke-tests, publishes nothing.
 #   - tag v*: the same zip is also attached to a GitHub Release.
+#   - workflow_dispatch with release_tag: the same, without pushing a tag by hand (the Release creates the tag at the built commit).
 on:
   workflow_dispatch:
     inputs:
       ref:
         description: Branch, tag or commit to build (empty = the branch selected above)
+        required: false
+        default: ""
+      release_tag:
+        description: Publish a GitHub Release with this tag name, for example v0.1.0-playtest1 (empty = only a workflow artifact)
         required: false
         default: ""
   push:
@@ -262,7 +267,7 @@ jobs:
 
   release:
     name: attach to the GitHub Release
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    if: (github.ref_type == 'tag' && startsWith(github.ref_name, 'v')) || (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
     needs: package
     runs-on: ubuntu-latest
     permissions:
@@ -277,10 +282,12 @@ jobs:
       - name: Create the release if needed and upload the zip
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.release_tag != '' && inputs.release_tag || github.ref_name }}
+          TARGET: ${{ github.sha }}
         run: |
           set -euo pipefail
           if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes
+            # --target only matters when the tag does not exist yet: the Release creates it at the built commit.
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$TARGET" --title "$TAG" --generate-notes
           fi
           gh release upload "$TAG" release/*.zip --repo "$GITHUB_REPOSITORY" --clobber

@@ -109,6 +109,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - **Playtest 1, wyjaśnienia (#268):** własna akademia z ograniczoną liczbą miejsc, juniorzy z rynku wyłączni dla akademii, która ich przyjęła, i programy o jasnym koszcie i tempie (PP-069).
 - **Playtest 1, wyjaśnienia (#268):** infrastruktura z liczbami tego, co daje, droższy transport, dostawcy tylko silnik w panelach (PP-070).
 - **Multiplayer online (PP-045):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo.
+- **Playtest 1, poradnik w grze (#268):** książka z GUIDE.md otwierana z menu głównego, z lewego menu kariery i z menu na Esc, po polsku (PP-071).
 
 **Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.
 

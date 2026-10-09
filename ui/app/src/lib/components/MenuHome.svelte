@@ -20,7 +20,7 @@
     busy: boolean;
     canQuit: boolean;
     onContinue: () => void;
-    onOpen: (page: 'new' | 'quick' | 'load' | 'settings') => void;
+    onOpen: (page: 'new' | 'quick' | 'load' | 'settings' | 'guide') => void;
     onQuit: () => void;
   } = $props();
 </script>
@@ -59,6 +59,9 @@
     </button>
     <button type="button" class="tm" onclick={() => onOpen('settings')}>
       <span class="tm-icon">{@html icon(ICON.gear, 24)}</span><b>{tr.t('menu.settings')}</b>{@html icon(ICON.arrow, 22)}
+    </button>
+    <button type="button" class="tm" onclick={() => onOpen('guide')}>
+      <span class="tm-icon">{@html icon(ICON.book, 24)}</span><b>{tr.t('menu.guide')}</b>{@html icon(ICON.arrow, 22)}
     </button>
     {#if canQuit}
       <button type="button" class="tm" onclick={onQuit}>

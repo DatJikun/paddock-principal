@@ -3,9 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "guide": "node ../../tools/docs/build-docs.mjs --guide-book src/lib/guide.generated.json",
+    "predev": "npm run guide",
     "dev": "vite",
+    "prebuild": "npm run guide",
     "build": "vite build",
+    "precheck": "npm run guide",
     "check": "tsc --noEmit -p tsconfig.json && svelte-check --tsconfig ./tsconfig.svelte.json",
+    "pretest": "npm run guide",
     "test": "node --test src/lib/*.test.mjs"
   },
   "devDependencies": {

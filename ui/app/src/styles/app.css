@@ -369,6 +369,19 @@ a.plain:hover{text-decoration:underline;text-underline-offset:3px}
 .dash .inbox{display:flex;flex-direction:column}
 .dash .inbox .list{flex:1;min-height:0;overflow:hidden}
 .dash .inbox footer{margin-top:auto}
+/* the left column: the inbox on top and the paper below, each exactly half of the height, each scrolling inside itself */
+.dash .halves{gap:18px}
+.dash .halves>.panel{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+.dash .halves>.panel>header{padding:14px 20px 8px}
+.dash .halves .list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.dash .halves .empty{padding:0 20px 14px}
+.news{display:grid;gap:3px;padding:11px 18px;border-top:1px solid var(--rule);text-decoration:none;color:inherit;transition:background .15s}
+.news:hover{background:var(--tint)}
+.news .from{display:flex;justify-content:space-between;gap:10px;font:500 13px var(--ui);color:var(--ink2)}
+.news .when{font:600 12.5px var(--ui);color:var(--ink3);white-space:nowrap}
+.news .t{font:600 15px/1.3 var(--ui)}
+.news .sub{font:500 13.5px/1.3 var(--ui);color:var(--ink2)}
+.news.mine{background:color-mix(in oklab,var(--t1) 9%,transparent);box-shadow:inset 3px 0 0 var(--t1)}
 .race{display:block;text-decoration:none;padding:20px 24px;position:relative;overflow:hidden;flex:none;transition:transform .2s var(--ease)}
 .race:hover{transform:translateY(-2px)}
 .race .ring{position:absolute;right:-70px;top:-70px;width:180px;height:180px;border-radius:50%;
@@ -554,7 +567,7 @@ button.rnd:focus-visible{outline:2.5px solid var(--hi);outline-offset:3px}
 @media (max-width:1320px){
   .dash{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pulpit-wrap{height:auto}
-  .dash>.inbox{grid-column:1/-1;max-height:420px}
+  .dash>.halves{grid-column:1/-1;height:560px}
   #view.noscroll{overflow-y:auto}
   .cal{grid-template-columns:repeat(3,minmax(0,1fr))}
   .rp-grid{grid-template-columns:minmax(0,1fr) 340px}

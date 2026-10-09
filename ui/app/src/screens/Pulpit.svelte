@@ -2,6 +2,7 @@
   import type { RaceRowView, StandingRowView } from '../lib/api/types.generated';
   import Flag from '../lib/components/Flag.svelte';
   import MailRow from '../lib/components/MailRow.svelte';
+  import NewsTile from '../lib/components/NewsTile.svelte';
   import Status from '../lib/components/Status.svelte';
   import Tabs from '../lib/components/Tabs.svelte';
   import TrackMap from '../lib/components/TrackMap.svelte';
@@ -17,7 +18,7 @@
 
   const rank = (item: { status: string; needsDecision: boolean }) =>
     item.status !== 'Open' ? 2 : item.needsDecision ? 0 : 1;
-  let mails = $derived([...data.inbox.items].reverse().filter((item) => item.status === 'Open').sort((a, b) => rank(a) - rank(b)).slice(0, 7));
+  let mails = $derived([...data.inbox.items].reverse().filter((item) => item.status === 'Open').sort((a, b) => rank(a) - rank(b)));
   let next = $derived(data.next.round ? data.calendar.rounds.find((round) => round.round === data.next.round) ?? null : null);
   let daysLeft = $derived(daysBetween(today, data.next.date));
   let titles = $derived(
@@ -34,20 +35,32 @@
 </script>
 
 <div class="dash">
-  <section class="panel inbox">
-    <header>
-      <h2>{tr.t('shell.nav.inbox')}</h2>
-      {#if data.inbox.openCount > 0}<span class="count">{data.inbox.openCount}</span>{/if}
-    </header>
-    <div class="list">
-      {#each mails as item (item.id)}
-        <MailRow {item} {tr} />
-      {:else}
-        <div class="empty"><Status text={tr.t('pulpit.inbox.empty')} /></div>
-      {/each}
-    </div>
-    <footer><a class="link" href="#/skrzynka">{tr.t('pulpit.inbox.open')}{@html icon(ICON.arrow, 15)}</a></footer>
-  </section>
+  <div class="col halves">
+    <section class="panel inbox">
+      <header>
+        <h2>{tr.t('shell.nav.inbox')}</h2>
+        {#if data.inbox.openCount > 0}<span class="count">{data.inbox.openCount}</span>{/if}
+      </header>
+      <div class="list">
+        {#each mails as item (item.id)}
+          <MailRow {item} {tr} />
+        {:else}
+          <div class="empty"><Status text={tr.t('pulpit.inbox.empty')} /></div>
+        {/each}
+      </div>
+      <footer><a class="link" href="#/skrzynka">{tr.t('pulpit.inbox.open')}{@html icon(ICON.arrow, 15)}</a></footer>
+    </section>
+    <section class="panel paper">
+      <header><h2>{tr.t('paper.name')}</h2></header>
+      <div class="list">
+        {#each data.newspaper.headlines as item (item.id)}
+          <NewsTile {item} {tr} />
+        {:else}
+          <div class="empty"><Status text={tr.t('paper.empty')} /></div>
+        {/each}
+      </div>
+    </section>
+  </div>
 
   <div class="col">
     {#if data.next.round && data.next.circuitName}

@@ -586,6 +586,8 @@ Gazeta ze świata gry, wydawana co miesiąc. Działy:
 
 **Wszystko jest klikalne:** z artykułu o Le Mans przechodzisz do aktualnej klasyfikacji serii, z plotki („Alonso wraca do Renault?”) do profilu kierowcy i jego sytuacji kontraktowej. Gazeta pokazuje świat przez **wiedzę publiczną** (INV-003): plotki mogą być nieprawdziwe, a ich wiarygodność zależy od źródła. Treść wynika ze zdarzeń symulacji, a nie z generatora wypełniaczy.
 
+**Gazeta „Paddock” na pulpicie (#324, uwaga właściciela z testu 2026-10-09):** dolna połowa lewej kolumny pulpitu to strumień nagłówków, a skrzynka zajmuje górną połowę i przewija się w sobie. To widok pochodny, bez własnego stanu i bez losowania: zwycięzca wyścigu i wynik własnego zespołu, kontuzje z raportu wyścigu, podpisane umowy i przedłużenia kierowców, kluczowi pracownicy, końce karier i wyniki głosowań nad przepisami. Nagłówek ma etykietę, datę, tytuł i najwyżej jedną linię, a prowadzi do wyścigu, kierowcy, osoby z personelu, klasyfikacji albo wiadomości w skrzynce. Czytamy tylko wiedzę publiczną (INV-003): ani warunków cudzych umów, ani trwających ofert, ani ukrytych ocen. Nazwa „Paddock” to jeden klucz tłumaczenia. Osobny ekran gazety, archiwum i obrazki są poza zakresem; miesięcznik z PP-039 zostaje osobnym pomysłem.
+
 ---
 
 ## 15. Reputacja menedżera i zarząd

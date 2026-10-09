@@ -586,9 +586,6 @@ nav .mi small{margin-left:auto;font:500 12.5px var(--ui);opacity:.75}
 nav .mi[disabled]{cursor:not-allowed;opacity:.5}
 nav .mi:focus-visible{outline:2.5px solid var(--hi);outline-offset:-2px}
 .menu-nav{padding-top:10px}
-.hud .menu-btn{all:unset;box-sizing:border-box;cursor:pointer;display:grid;place-items:center;padding:0 14px;position:relative;transition:background .2s}
-.hud .menu-btn:hover{background:var(--tint)}
-.hud .menu-btn:active{background:color-mix(in oklab,var(--t1) 14%,transparent)}
 .hud .menu-btn:focus-visible{outline-offset:-3px}
 .hud .menu-btn+.cell{border-left:1px solid var(--rule)}
 

@@ -29,6 +29,8 @@ export const AXES = {
 
 export const MIN_YEAR = 1950;
 export const MAX_YEAR = 2026;
+/* The year the start screen opens on (#323). The bridge sends the same value as suggestedYear. */
+export const START_YEAR = 2010;
 
 /** Countries the principal can come from: every nationality in the people data, each with a name in the catalog. */
 export const COUNTRIES = [
@@ -38,7 +40,7 @@ export const COUNTRIES = [
 ];
 
 /** The form's starting point. Axes stay empty until a preset fills them. */
-export function emptySetup(year = 1955, seed = '') {
+export function emptySetup(year = START_YEAR, seed = '') {
   return {
     year,
     preset: 'Balanced',
@@ -123,7 +125,7 @@ export function newCareerArgs(managerId, setup, you, teamId) {
 }
 
 /** The year the form may send; anything else keeps the last good one. */
-export function clampYear(value, fallback = 1955) {
+export function clampYear(value, fallback = START_YEAR) {
   const year = Math.trunc(Number(value));
   if (!Number.isFinite(year)) return fallback;
   return Math.min(MAX_YEAR, Math.max(MIN_YEAR, year));

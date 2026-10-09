@@ -47,16 +47,57 @@
       '<svg x="10.4" y="8.4" width="3.2" height="2" viewBox="0 0 60 30" preserveAspectRatio="none"><use href="#ukj"/></svg>' +
       '<rect x="14.1" y="7.6" width="1.8" height="3.6" fill="#f17f29"/><rect x="14.1" y="8.3" width="1.8" height=".5" fill="#fff"/><rect x="14.1" y="9.3" width="1.8" height=".5" fill="#fff"/><rect x="14.1" y="10.3" width="1.8" height=".5" fill="#fff"/>' +
       '<rect x="16.4" y="8.4" width="3.2" height=".67" fill="#c8102e"/><rect x="16.4" y="9.07" width="3.2" height=".67" fill="#fff"/><rect x="16.4" y="9.73" width="3.2" height=".67" fill="#1c3f94"/><rect x="16.4" y="8.4" width="1" height="2" fill="#007a3d"/>',
+    FIN: '<rect width="30" height="20" fill="#fff"/><rect x="8" width="4" height="20" fill="#003580"/><rect y="8" width="30" height="4" fill="#003580"/>',
+    DEN: '<rect width="30" height="20" fill="#c8102e"/><rect x="8" width="4" height="20" fill="#fff"/><rect y="8" width="30" height="4" fill="#fff"/>',
+    /* Uruguay: nine stripes, a sun on the white canton (simplified, no rays) */
+    URU: Array.from({ length: 9 }, (_, i) => `<rect y="${(i * 20 / 9).toFixed(3)}" width="30" height="${(20 / 9 + .02).toFixed(3)}" fill="${i % 2 ? '#0038a8' : '#fff'}"/>`).join('') +
+      '<rect width="9" height="11.11" fill="#fff"/><circle cx="4.5" cy="5.6" r="2.4" fill="#fcd116"/>',
+    RUS: h3('#fff', '#0039a6', '#d52b1e'),
+    COL: '<rect width="30" height="10" fill="#fcd116"/><rect y="10" width="30" height="5" fill="#003893"/><rect y="15" width="30" height="5" fill="#ce1126"/>',
+    VEN: h3('#fcd116', '#003893', '#ce1126') + Array.from({ length: 8 }, (_, i) => `<polygon points="${star(9 + i * 12 / 7, 10, .9, 5, .45)}" fill="#fff"/>`).join(''),
+    /* East Germany: black-red-gold, the emblem reduced to a gold ring */
+    GDR: h3('#111', '#dd0000', '#ffce00') + '<circle cx="15" cy="10" r="3" fill="#ffce00"/><circle cx="15" cy="10" r="2.2" fill="#111"/>',
+    /* Rhodesia 1968-1979, approximation: Union Jack in the canton, the arms reduced to a roundel */
+    RHO: '<rect width="30" height="20" fill="#00843d"/>' + canton + '<circle cx="22" cy="10" r="4.5" fill="#fcd116"/><circle cx="22" cy="10" r="2.8" fill="#00843d"/>',
+    CZE: '<rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#d7141a"/><polygon points="0,0 15,10 0,20" fill="#11457e"/>',
+    IDN: '<rect width="30" height="10" fill="#e70011"/><rect y="10" width="30" height="10" fill="#fff"/>',
+    LIE: '<rect width="30" height="10" fill="#002b7f"/><rect y="10" width="30" height="10" fill="#ce1126"/><path d="M6 5.2l1.2-2.6 1.8 1.6 1.2-2.4 1.2 2.4 1.8-1.6 1.2 2.6z" fill="#ffd700"/><rect x="6" y="5.4" width="7.2" height="1" fill="#ffd700"/>',
+    CHI: '<rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#d52b1e"/><rect width="10" height="10" fill="#0039a6"/><polygon points="' + star(5, 5, 2.8) + '" fill="#fff"/>',
+    MYS: Array.from({ length: 14 }, (_, i) => `<rect y="${(i * 20 / 14).toFixed(3)}" width="30" height="${(20 / 14 + .02).toFixed(3)}" fill="${i % 2 ? '#fff' : '#cc0001'}"/>`).join('') +
+      '<rect width="15" height="10" fill="#010066"/><circle cx="6.5" cy="5" r="3.4" fill="#ffcc00"/><circle cx="7.7" cy="5" r="2.9" fill="#010066"/><polygon points="' + star(10.6, 5, 1.8) + '" fill="#ffcc00"/>',
+    CHN: '<rect width="30" height="20" fill="#de2910"/><polygon points="' + star(5, 5, 3.8) + '" fill="#ffde00"/>' +
+      [[10, 2], [12, 4], [12, 7], [10, 9]].map(([x, y]) => `<polygon points="${star(x, y, 1.2)}" fill="#ffde00"/>`).join(''),
+    /* Hong Kong: white bauhinia on red, petals simplified to ellipses */
+    HKG: '<rect width="30" height="20" fill="#de2910"/><g transform="translate(15 10)" fill="#fff">' +
+      [0, 1, 2, 3, 4].map((k) => `<ellipse cx="0" cy="-3.6" rx="2.3" ry="3.6" transform="rotate(${k * 72})"/>`).join('') + '</g><circle cx="15" cy="10" r=".9" fill="#de2910"/>',
+    LUX: h3('#ed2939', '#fff', '#00a1de'),
+    GRC: Array.from({ length: 9 }, (_, i) => `<rect y="${(i * 20 / 9).toFixed(3)}" width="30" height="${(20 / 9 + .02).toFixed(3)}" fill="${i % 2 ? '#fff' : '#0d5eaf'}"/>`).join('') +
+      '<rect width="9" height="11.11" fill="#0d5eaf"/><rect x="3.7" width="1.6" height="11.11" fill="#fff"/><rect y="4.76" width="9" height="1.6" fill="#fff"/>',
+    CYP: '<rect width="30" height="20" fill="#fff"/><path d="M8 11c2-3.5 6-3 7-5 2 2 6 2.5 7 5.5-3 1-6 1-8 1.5-3 .5-5 0-6-2z" fill="#d57800"/><path d="M9 15q6 4 12 0" stroke="#4e7d3f" stroke-width="1.2" fill="none"/><path d="M10 16.4q5 3 10 0" stroke="#4e7d3f" stroke-width="1" fill="none"/>',
+    TUR: '<rect width="30" height="20" fill="#e30a17"/><circle cx="11.5" cy="10" r="5" fill="#fff"/><circle cx="12.9" cy="10" r="4.1" fill="#e30a17"/><polygon points="' + star(17.3, 10, 2.2) + '" fill="#fff"/>',
+    SGP: '<rect width="30" height="10" fill="#ef3340"/><rect y="10" width="30" height="10" fill="#fff"/><circle cx="7.5" cy="5.2" r="3.6" fill="#fff"/><circle cx="8.8" cy="5.2" r="3" fill="#ef3340"/>' +
+      [[13, 2.8], [15.4, 3.9], [16.6, 6.5], [15.4, 9.1], [13, 10.2]].map(([x, y]) => `<polygon points="${star(x, y, .9)}" fill="#fff"/>`).join(''),
+    SAU: '<rect width="30" height="20" fill="#006c35"/><rect x="7.5" y="6" width="15" height="1.6" fill="#fff"/><rect x="9" y="12" width="12" height="1.2" fill="#fff"/><rect x="19.5" y="10.8" width="1.2" height="3.6" fill="#fff"/>',
+    QAT: '<rect width="30" height="20" fill="#8a1538"/><polygon points="0,0 8,2.5 0,5 8,7.5 0,10 8,12.5 0,15 8,17.5 0,20" fill="#fff"/>',
+    BHR: '<rect width="30" height="20" fill="#ce1126"/><polygon points="0,0 6,2 0,4 6,6 0,8 6,10 0,12 6,14 0,16 6,18 0,20" fill="#fff"/>',
+    /* South Korea: taegeuk reduced to two half discs, the four trigrams as bars */
+    KOR: '<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="5" fill="#cd2e3a"/><path d="M10 10A5 5 0 0 0 20 10A2.5 2.5 0 0 1 15 10A2.5 2.5 0 0 0 10 10Z" fill="#0047a0"/>' +
+      [[6, 5], [24, 5], [6, 15], [24, 15]].map(([x, y]) => `<g fill="#000">${[-1.2, 0, 1.2].map((dy) => `<rect x="${x - 2}" y="${(y + dy - .3).toFixed(2)}" width="4" height=".6"/>`).join('')}</g>`).join(''),
+    ARE: h3('#00732f', '#fff', '#000') + '<rect width="7.5" height="20" fill="#ff0000"/>',
+    AZE: h3('#0092d2', '#e4002b', '#00b33c') + '<circle cx="14.2" cy="10" r="3.2" fill="#fff"/><circle cx="15.2" cy="10" r="2.6" fill="#e4002b"/><polygon points="' + star(18.4, 10, 1.9) + '" fill="#fff"/>',
+    IND: h3('#ff9933', '#fff', '#138808') + '<circle cx="15" cy="10" r="2.6" fill="none" stroke="#000080" stroke-width=".5"/><circle cx="15" cy="10" r=".6" fill="#000080"/>',
+    HUN: h3('#ce2939', '#fff', '#477050'),
+    THA: '<rect width="30" height="3.33" fill="#a51931"/><rect y="3.33" width="30" height="3.33" fill="#fff"/><rect y="6.67" width="30" height="6.67" fill="#2d2a4a"/><rect y="13.33" width="30" height="3.33" fill="#fff"/><rect y="16.67" width="30" height="3.33" fill="#a51931"/>',
   };
   /* The world names real people by demonym ("Italian"), generated ones by code ("ITA"); both reach the same flag. */
-  const DEMONYM = { British: 'GBR', English: 'GBR', Italian: 'ITA', German: 'GER', French: 'FRA', American: 'USA', Swiss: 'SUI', Austrian: 'AUT',
+  /* Nationality strings as the Jolpica history gives them; the generated world keeps them as they are. Names come from strings/. */
+  export const DEMONYM = { British: 'GBR', English: 'GBR', Italian: 'ITA', German: 'GER', French: 'FRA', American: 'USA', Swiss: 'SUI', Austrian: 'AUT',
     Japanese: 'JPN', Brazilian: 'BRA', Spanish: 'ESP', Australian: 'AUS', Dutch: 'NED', Canadian: 'CAN', Irish: 'IRL', Belgian: 'BEL',
     Monegasque: 'MON', Swedish: 'SWE', Argentine: 'ARG', 'New Zealander': 'NZL', 'South African': 'RSA', Polish: 'POL', Portuguese: 'POR',
-    Mexican: 'MEX', Moroccan: 'MAR' };
+    Mexican: 'MEX', Moroccan: 'MAR', Finnish: 'FIN', Danish: 'DEN', Uruguayan: 'URU', Rhodesian: 'RHO', Russian: 'RUS', Venezuelan: 'VEN',
+    'East German': 'GDR', Colombian: 'COL', Thai: 'THA', Indian: 'IND', Hungarian: 'HUN', Czech: 'CZE', Indonesian: 'IDN',
+    Liechtensteiner: 'LIE', Chilean: 'CHI', Malaysian: 'MYS', Chinese: 'CHN', 'Hong Kong': 'HKG' };
   const ALIAS = { ZAF: 'RSA', DEU: 'GER', MCO: 'MON', NLD: 'NED', CHE: 'SUI', PRT: 'POR', ...DEMONYM };
-  const NAMES = { GBR: 'Wielka Brytania', FRA: 'Francja', ITA: 'Włochy', IRL: 'Irlandia', BEL: 'Belgia', GER: 'RFN', AUT: 'Austria', NED: 'Holandia',
-    ARG: 'Argentyna', MON: 'Monako', POL: 'Polska', ESP: 'Hiszpania', JPN: 'Japonia', SUI: 'Szwajcaria', SWE: 'Szwecja', BRA: 'Brazylia', USA: 'USA',
-    CAN: 'Kanada', AUS: 'Australia', NZL: 'Nowa Zelandia', RSA: 'RPA', MEX: 'Meksyk', POR: 'Portugalia', MAR: 'Maroko' };
 
   const ukj = `<symbol id="ukj" viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice">
     <clipPath id="ukj-c"><path d="M0,0v30h60v-30z"/></clipPath><clipPath id="ukj-t"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z"/></clipPath>
@@ -69,10 +110,6 @@ export function flagSprite() {
 
 export function flagCode(code) {
   return ALIAS[code] || code;
-}
-
-export function flagName(code) {
-  return NAMES[flagCode(code)] || code;
 }
 
 export function hasFlag(code) {

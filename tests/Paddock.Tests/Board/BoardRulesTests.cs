@@ -364,11 +364,53 @@ public class BoardRulesTests
         Assert.True(SeasonTarget.PenaltyTenths(SeasonAmbition.Expected) < SeasonTarget.PenaltyTenths(SeasonAmbition.Ambitious));
         Assert.True(SeasonTarget.Position(3, 5, SeasonAmbition.Safe) > SeasonTarget.Position(3, 5, SeasonAmbition.Expected));
         Assert.True(SeasonTarget.Position(3, 5, SeasonAmbition.Expected) > SeasonTarget.Position(3, 5, SeasonAmbition.Ambitious));
+        const long budget = 1_000_000;
+        Assert.True(SeasonTarget.BudgetDollars(budget, SeasonAmbition.Safe) < SeasonTarget.BudgetDollars(budget, SeasonAmbition.Expected));
+        Assert.True(SeasonTarget.BudgetDollars(budget, SeasonAmbition.Expected) < SeasonTarget.BudgetDollars(budget, SeasonAmbition.Ambitious));
+        Assert.True(SeasonTarget.FailBudgetDollars(budget, SeasonAmbition.Safe) < SeasonTarget.FailBudgetDollars(budget, SeasonAmbition.Expected));
+        Assert.True(SeasonTarget.FailBudgetDollars(budget, SeasonAmbition.Expected) < SeasonTarget.FailBudgetDollars(budget, SeasonAmbition.Ambitious));
+        Assert.True(SeasonTarget.FailBudgetDollars(budget, SeasonAmbition.Ambitious) > SeasonTarget.BudgetDollars(budget, SeasonAmbition.Ambitious));
         Assert.Equal(SeasonAmbition.Ambitious, SeasonTarget.ForArchetype("Contender"));
         Assert.Equal(SeasonAmbition.Ambitious, SeasonTarget.ForArchetype("Pretender"));
         Assert.Equal(SeasonAmbition.Safe, SeasonTarget.ForArchetype("Survivor"));
         Assert.Equal(SeasonAmbition.Expected, SeasonTarget.ForArchetype("Builder"));
         Assert.Equal(SeasonAmbition.Expected, SeasonTarget.ForArchetype(null));
+    }
+
+    [Theory]
+    [InlineData(1, 10)]
+    [InlineData(2, 10)]
+    [InlineData(3, 10)]
+    [InlineData(4, 10)]
+    [InlineData(1, 5)]
+    [InlineData(3, 5)]
+    [InlineData(2, 20)]
+    [InlineData(4, 20)]
+    public void ATopFourTeamGetsSeasonTargetsAtMostTwoPlacesApart(int expected, int field)
+    {
+        var safe = SeasonTarget.Position(expected, field, SeasonAmbition.Safe);
+        var mid = SeasonTarget.Position(expected, field, SeasonAmbition.Expected);
+        var hard = SeasonTarget.Position(expected, field, SeasonAmbition.Ambitious);
+        Assert.Equal(expected, mid);
+        Assert.InRange(safe - mid, 0, 2);
+        Assert.InRange(mid - hard, 0, 2);
+        if (expected > 1)
+        {
+            Assert.NotEqual(safe, mid);
+            Assert.NotEqual(mid, hard);
+        }
+    }
+
+    [Fact]
+    public void Ferrari2017DoesNotSpreadP1P3P5()
+    {
+        // Playtest 2: Ferrari, start 2017, ten constructors, expected P3 from the budget rank (no last-year table yet).
+        // The old fixed gap of 2 produced P1 / P3 / P5. A top-4 team must sit one place apart (#315).
+        Assert.Equal(1, SeasonTarget.PlaceGap(3, 10));
+        Assert.Equal(4, SeasonTarget.Position(3, 10, SeasonAmbition.Safe));
+        Assert.Equal(3, SeasonTarget.Position(3, 10, SeasonAmbition.Expected));
+        Assert.Equal(2, SeasonTarget.Position(3, 10, SeasonAmbition.Ambitious));
+        Assert.Equal(0, SeasonTarget.WinsRequired(3, 10, 20, SeasonAmbition.Ambitious));
     }
 
     [Fact]
@@ -445,9 +487,17 @@ public class BoardRulesTests
 
         var decision = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.SeasonTargetKind && item.IsOpen);
         Assert.Equal(SeasonTarget.Expected, decision.DefaultOptionId);
-        Assert.Equal("5", decision.Arguments["safeTarget"]);
+        Assert.Equal("4", decision.Arguments["safeTarget"]);
         Assert.Equal("3", decision.Arguments["expectedTarget"]);
-        Assert.Equal("1", decision.Arguments["ambitiousTarget"]);
+        Assert.Equal("2", decision.Arguments["ambitiousTarget"]);
+        Assert.Equal("0", decision.Arguments["safeBudget"]);
+        Assert.True(int.Parse(decision.Arguments["expectedBudget"], System.Globalization.CultureInfo.InvariantCulture) > 0);
+        Assert.True(
+            int.Parse(decision.Arguments["ambitiousBudget"], System.Globalization.CultureInfo.InvariantCulture)
+            > int.Parse(decision.Arguments["expectedBudget"], System.Globalization.CultureInfo.InvariantCulture));
+        Assert.True(
+            int.Parse(decision.Arguments["ambitiousFailBudget"], System.Globalization.CultureInfo.InvariantCulture)
+            > int.Parse(decision.Arguments["ambitiousBudget"], System.Globalization.CultureInfo.InvariantCulture));
         Assert.DoesNotContain(lab.Board.Objectives.OwnedBy(T3), objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
 
         Assert.IsType<CommandResult.Accepted>(lab.Submit(new ResolveInboxItemCommand
@@ -458,7 +508,7 @@ public class BoardRulesTests
             OptionId = SeasonTarget.Ambitious,
         }));
         var season = lab.Board.Objectives.OwnedBy(T3).Single(objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
-        Assert.Equal(1, ((ChampionshipPositionAtMost)season.Predicate).Position);
+        Assert.Equal(2, ((ChampionshipPositionAtMost)season.Predicate).Position);
         Assert.Equal("30", season.EffectOnMet.Arguments["points"]);
         Assert.Equal("-400", season.EffectOnFailed.Arguments["tenths"]);
         Assert.Equal("1", season.EffectOnFailed.Arguments["dismiss"]);
@@ -467,6 +517,10 @@ public class BoardRulesTests
         lab.AdvanceTo(new GameDate(1955, 12, 31));
         lab.Advance(1);
         Assert.Equal(Pam.Value, lab.Section.Board(T3)!.Principal!.Subject);
+        var missed = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.NoticeKind && item.SubjectKey == BoardKeys.NoticeTargetMissed);
+        Assert.Equal("2", missed.Arguments["target"]);
+        Assert.Equal("40", missed.Arguments["points"]);
+        Assert.True(int.Parse(missed.Arguments["failBudget"], System.Globalization.CultureInfo.InvariantCulture) > 0);
 
         var sacked = new Lab(noRaces: true);
         sacked.Appoint(Pam, T3);
@@ -486,6 +540,62 @@ public class BoardRulesTests
         sacked.Advance(1);
         Assert.NotEqual(Pam.Value, sacked.Section.Board(T3)!.Principal!.Subject);
         Assert.NotNull(sacked.Section.UnemployedManager(Pam.Value));
+    }
+
+    [Fact]
+    public void TakingTheAmbitiousTargetGrantsBudgetAndAMissChargesMore()
+    {
+        var funds = new RecordingFunds();
+        var lab = new Lab(noRaces: true, funds: funds);
+        lab.Appoint(Pam, T3);
+        lab.Advance(1);
+        var decision = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.SeasonTargetKind && item.IsOpen);
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(new ResolveInboxItemCommand
+        {
+            ManagerId = Pam,
+            IssuedOn = Date(lab.Today),
+            ItemId = decision.Id,
+            OptionId = SeasonTarget.Ambitious,
+        }));
+
+        var grant = Assert.Single(funds.Posts, post => post.Organization == T3);
+        Assert.Equal(SeasonTarget.BudgetDollars(3_000_000, SeasonAmbition.Ambitious), grant.Dollars);
+        Assert.Equal(BoardKeys.ReasonBudgetGrant, grant.Reason);
+        Assert.True(grant.Dollars > 0);
+
+        lab.Facts.Position(T3, 5);
+        lab.AdvanceTo(new GameDate(1955, 12, 31));
+        lab.Advance(1);
+
+        var forTeam = funds.Posts.Where(post => post.Organization == T3).ToArray();
+        Assert.Equal(2, forTeam.Length);
+        var charge = forTeam[1];
+        Assert.Equal(-SeasonTarget.FailBudgetDollars(3_000_000, SeasonAmbition.Ambitious), charge.Dollars);
+        Assert.True(-charge.Dollars > grant.Dollars);
+        Assert.Equal(BoardKeys.ReasonBudgetMiss, charge.Reason);
+    }
+
+    [Fact]
+    public void MeetingTheSeasonTargetTellsTheInbox()
+    {
+        var lab = new Lab(noRaces: true);
+        lab.Appoint(Pam, T3);
+        lab.Advance(1);
+        var decision = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.SeasonTargetKind && item.IsOpen);
+        Assert.IsType<CommandResult.Accepted>(lab.Submit(new ResolveInboxItemCommand
+        {
+            ManagerId = Pam,
+            IssuedOn = Date(lab.Today),
+            ItemId = decision.Id,
+            OptionId = SeasonTarget.Expected,
+        }));
+        lab.Facts.Position(T3, 3);
+        lab.AdvanceTo(new GameDate(1955, 12, 31));
+        lab.Advance(1);
+
+        var met = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.NoticeKind && item.SubjectKey == BoardKeys.NoticeTargetMet);
+        Assert.Equal("3", met.Arguments["target"]);
+        Assert.Equal("15", met.Arguments["points"]);
     }
 
     [Fact]
@@ -515,10 +625,18 @@ public class BoardRulesTests
         lab.Advance(1);
 
         var season = lab.Board.Objectives.OwnedBy(T3).Single(objective => objective.KindKey == BoardKeys.ObjectiveSeason);
-        Assert.Equal(1, ((ChampionshipPositionAtMost)season.Predicate).Position);
+        Assert.Equal(2, ((ChampionshipPositionAtMost)season.Predicate).Position);
         Assert.Equal(SeasonTarget.Ambitious, season.EffectOnMet.Arguments["ambition"]);
         var trace = Assert.Single(sink.Traces, item => item.Trigger == "board.seasonTarget:" + T3.Value);
         Assert.Equal(SeasonTarget.Ambitious, trace.ChosenOptionId);
+    }
+
+    private sealed class RecordingFunds : IBoardFunds
+    {
+        public List<(OrganizationId Organization, long Dollars, GameDate On, string Reason)> Posts { get; } = [];
+
+        public void Post(OrganizationId organization, long signedDollars, GameDate on, string reasonKey) =>
+            Posts.Add((organization, signedDollars, on, reasonKey));
     }
 
     private sealed class MemoryOfTraces : ITraceSink

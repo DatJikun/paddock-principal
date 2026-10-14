@@ -102,6 +102,18 @@ public static class BoardKeys
     [TranslationKey]
     public const string NoticeResigned = "board.notice.resigned";
 
+    [TranslationKey]
+    public const string NoticeTargetMet = "board.notice.targetMet";
+
+    [TranslationKey]
+    public const string NoticeTargetMissed = "board.notice.targetMissed";
+
+    [TranslationKey]
+    public const string ReasonBudgetGrant = "board.reason.budgetGrant";
+
+    [TranslationKey]
+    public const string ReasonBudgetMiss = "board.reason.budgetMiss";
+
     // ---- Objectives the board grants ----
 
     [TranslationKey]

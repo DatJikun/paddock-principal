@@ -55,7 +55,8 @@ public sealed class BoardBook
         BoardSection? section = null,
         ObjectivesSection? objectives = null,
         IBoardSeverance? severance = null,
-        PublicRankKeys? ranking = null)
+        PublicRankKeys? ranking = null,
+        IBoardFunds? funds = null)
     {
         ArgumentNullException.ThrowIfNull(contracts);
         ArgumentNullException.ThrowIfNull(facts);
@@ -64,6 +65,7 @@ public sealed class BoardBook
         MasterSeed = masterSeed;
         History = history ?? new NoBoardHistory();
         Severance = severance ?? new NoSeverance();
+        Funds = funds ?? NoBoardFunds.Instance;
         Ranking = ranking;
         _section = section ?? contracts.World.Section<BoardSection>(BoardSection.SectionName) ?? BoardSection.Empty;
         _objectives = objectives ?? contracts.World.Section<ObjectivesSection>(ObjectivesSection.SectionName) ?? ObjectivesSection.Empty;
@@ -80,6 +82,9 @@ public sealed class BoardBook
 
     /// <summary>Where the severance of a dismissed manager is paid from (the finance ledger in a career). Nothing is paid by default.</summary>
     public IBoardSeverance Severance { get; }
+
+    /// <summary>Where extra board budget and a missed-target charge are posted (the finance ledger in a career). Nothing is posted by default.</summary>
+    public IBoardFunds Funds { get; }
 
     /// <summary>The master seed that keyed draws derive from (INV-004).</summary>
     public ulong MasterSeed { get; }
@@ -161,6 +166,26 @@ public interface IBoardSeverance
 public sealed class NoSeverance : IBoardSeverance
 {
     public void Pay(OrganizationId payer, string managerId, long amount, GameDate on)
+    {
+    }
+}
+
+/// <summary>
+/// Posts extra board budget or a missed-target charge to the team's ledger. The finance module implements it in a career;
+/// it is a port so the board does not reference the ledger. Called with a non-zero whole-dollar amount.
+/// </summary>
+public interface IBoardFunds
+{
+    /// <summary>Positive <paramref name="signedDollars"/> is extra budget; negative is a charge. Zero is a no-op.</summary>
+    void Post(OrganizationId organization, long signedDollars, GameDate on, string reasonKey);
+}
+
+/// <summary>Nothing is posted. The default when there is no ledger.</summary>
+public sealed class NoBoardFunds : IBoardFunds
+{
+    public static NoBoardFunds Instance { get; } = new();
+
+    public void Post(OrganizationId organization, long signedDollars, GameDate on, string reasonKey)
     {
     }
 }

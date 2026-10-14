@@ -380,7 +380,7 @@ Czy kwoty od sponsorów są teraz wystarczające, czy nadal za małe?
 Każdy przychód i koszt trafia do księgi. Zarząd ocenia Cię po każdym wyścigu i może Cię zwolnić.
 
 ```wybory
-Cel na sezon | w skrzynce, termin {BoardEstimates.SeasonTargetDecisionDays|dni}, domyślnie oczekiwany: bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę)
+Cel na sezon | w skrzynce, termin {BoardEstimates.SeasonTargetDecisionDays|dni}, domyślnie oczekiwany: trzy cele blisko siebie (u czołówki o jedno miejsce); trudniejszy dokłada {BoardEstimates.AmbitiousBudgetMilli|m%} budżetu od razu i większą premię zaufania, łatwiejszy nic nie dokłada; niewykonanie trudniejszego zabiera {BoardEstimates.AmbitiousFailBudgetMilli|m%} i może kosztować posadę
 Na co wydać | rozwój auta i pensje to główne koszty; auto i rozwój płacisz co tydzień, pensje 1. dnia miesiąca
 Zejść pod kreskę | saldo może być ujemne, na powrót masz cały sezon, potem niewypłacalność
 Ryzykować przy słabych wynikach | zarząd zwalnia po {BoardEstimates.ReviewsToDismissBase}+ ocenach z rzędu pod progiem; starszy zespół jest cierpliwszy

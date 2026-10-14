@@ -14,7 +14,7 @@ namespace Paddock.Application.Finance;
 /// <summary>
 /// T37 finance in the career loop (#160). With era data it opens the books of every team (the opening capital comes from the era's
 /// budget for the team's tier), replaces the stand-ins of the other systems with the ledger (the payroll port of the contracts, the
-/// junior funding of the pool, the severance of the board), registers its three commands and the finance day handler (order 800),
+/// junior funding of the pool, the severance of the board, extra board budget), registers its three commands and the finance day handler (order 800),
 /// and tells the objectives the cash of a team (<c>finance.cash</c>). Without era data it does nothing and the stand-ins stay.
 /// <para>
 /// Race weekends (T47) post <see cref="ApplyRaceResultsCommand"/>'s ledger effect and the season's popularity directly from the
@@ -44,6 +44,7 @@ public sealed class FinanceModule : CareerModule
         context.Provide<IPayrollLedger>(new FinancePayroll(book));
         context.Provide<IJuniorFunding>(new FinanceJuniorFunding(book));
         context.Provide<IBoardSeverance>(new FinanceSeverance(book));
+        context.Provide<IBoardFunds>(new FinanceBoardFunds(book));
     }
 
     public override void Attach(CareerModuleContext context)
@@ -148,5 +149,34 @@ public sealed class FinanceSeverance : IBoardSeverance
             managerId,
             -Money.FromDollars(amount).Cents,
             FinanceReason.Termination));
+    }
+}
+
+/// <summary>Extra board budget and a missed-target charge, posted as owner funds (no ledger book, no posting).</summary>
+public sealed class FinanceBoardFunds : IBoardFunds
+{
+    private readonly FinanceBook _book;
+
+    public FinanceBoardFunds(FinanceBook book)
+    {
+        ArgumentNullException.ThrowIfNull(book);
+        _book = book;
+    }
+
+    public void Post(OrganizationId organization, long signedDollars, GameDate on, string reasonKey)
+    {
+        if (signedDollars == 0 || !_book.Section.HasBook(organization))
+        {
+            return;
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(reasonKey);
+        _book.Replace(_book.Section.Post(
+            organization,
+            on,
+            LedgerCategories.OwnerFunds,
+            null,
+            Money.FromDollars(signedDollars).Cents,
+            reasonKey));
     }
 }

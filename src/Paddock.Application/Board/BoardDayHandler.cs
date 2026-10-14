@@ -63,7 +63,7 @@ public static class BoardOutcomes
                 continue;
             }
 
-            engine.ApplyObjectiveOutcome(objective, outcome.Met);
+            engine.ApplyObjectiveOutcome(objective, outcome.Met, domainEvent.Date);
         }
 
         book.Update(ObjectiveOutcomes.Apply(book.Objectives, list));

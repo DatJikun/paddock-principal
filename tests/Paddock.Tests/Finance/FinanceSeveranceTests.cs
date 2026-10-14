@@ -1,3 +1,4 @@
+using Paddock.Application.Board;
 using Paddock.Application.Finance;
 using Paddock.Domain.Finance;
 using Paddock.Domain.Time;
@@ -56,5 +57,41 @@ public sealed class FinanceSeveranceTests
 
         Assert.Equal(entries, book.Section.EntriesOf(Alfa).Count);
         Assert.False(book.Section.HasBook(OrganizationId.Real("beta")));
+    }
+}
+
+/// <summary>#315: extra board budget and a missed-target charge go through the funds port as owner-funds lines.</summary>
+public sealed class FinanceBoardFundsTests
+{
+    private static readonly OrganizationId Alfa = OrganizationId.Real("alfa");
+
+    private static readonly GameDate Day = new(1956, 1, 3);
+
+    [Fact]
+    public void AGrantPostsOwnerFundsAndAMissChargesTheSameBook()
+    {
+        var world = WorldState.At(Day);
+        var facts = new EraFinanceFacts(FinanceEstimates.PromoterModel, 20_000, 60_000, 250_000);
+        var section = FinanceSection.Empty.Open(Alfa, Day, 60_000, facts);
+        world = world.WithSection(section);
+        var book = new FinanceBook(() => world, next => world = next);
+        var funds = new FinanceBoardFunds(book);
+
+        funds.Post(Alfa, 150_000, Day, BoardKeys.ReasonBudgetGrant);
+        Assert.Equal(
+            Money.FromDollars(60_000).Cents + Money.FromDollars(150_000).Cents,
+            book.Section.BalanceOf(Alfa));
+        var grant = book.Section.EntriesOf(Alfa)[^1];
+        Assert.Equal(LedgerCategories.OwnerFunds, grant.Category);
+        Assert.Equal(BoardKeys.ReasonBudgetGrant, grant.ReasonKey);
+
+        funds.Post(Alfa, -240_000, Day, BoardKeys.ReasonBudgetMiss);
+        Assert.Equal(
+            Money.FromDollars(60_000).Cents + Money.FromDollars(150_000).Cents - Money.FromDollars(240_000).Cents,
+            book.Section.BalanceOf(Alfa));
+        var before = book.Section.EntriesOf(Alfa).Count;
+        funds.Post(Alfa, 0, Day, BoardKeys.ReasonBudgetGrant);
+        funds.Post(OrganizationId.Real("beta"), 10_000, Day, BoardKeys.ReasonBudgetGrant);
+        Assert.Equal(before, book.Section.EntriesOf(Alfa).Count);
     }
 }

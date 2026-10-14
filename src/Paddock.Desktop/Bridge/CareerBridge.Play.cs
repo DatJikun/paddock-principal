@@ -314,7 +314,7 @@ public sealed partial class CareerBridge
             return DriverProfileRead.None(person);
         }
 
-        var profile = DriverProfileRead.Of(Session.World, id, Session.Date, person, EarlierSeasons(person));
+        var profile = DriverProfileRead.Of(Session.World, id, Session.Date, person, EarlierSeasons(person), ChampionshipRead.Standings(Session, Box.Inputs));
         if (!profile.Found)
         {
             return profile;
@@ -338,7 +338,7 @@ public sealed partial class CareerBridge
 
         _history ??= Paddock.Data.Historical.DriverCareerHistory.Load(_dataRoot);
         return _history.Before(personId, _config.StartYear)
-            .Select(line => new DriverSeasonView(line.Season, line.ConstructorId, line.ConstructorName, line.Starts, line.Wins, line.Podiums, line.Retirements, line.Best))
+            .Select(line => new DriverSeasonView(line.Season, line.ConstructorId, line.ConstructorName, line.Starts, line.Wins, line.Podiums, line.Retirements, line.Best, line.Place, line.Points))
             .ToArray();
     }
 

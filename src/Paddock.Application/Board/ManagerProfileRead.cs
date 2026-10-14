@@ -57,12 +57,6 @@ public static class ManagerProfileRead
         IReadOnlyList<KnownAttributeView> attributes = world.KnowledgeOf(observer, person.Id) is PersonKnowledgeView belief
             ? belief.Attributes.Select(attribute => new KnownAttributeView(attribute.Key, attribute.Band.Low, attribute.Band.High)).ToArray()
             : [];
-        var age = today.Year - person.BirthDate.Year;
-        if (today.Month < person.BirthDate.Month || (today.Month == person.BirthDate.Month && today.Day < person.BirthDate.Day))
-        {
-            age--;
-        }
-
-        return new ManagerProfileView(true, person.Id.Value, person.Name, person.Nationality, Math.Max(0, age), chosen.Start.ToString(), attributes);
+        return new ManagerProfileView(true, person.Id.Value, person.Name, person.Nationality, person.AgeOn(today), chosen.Start.ToString(), attributes);
     }
 }

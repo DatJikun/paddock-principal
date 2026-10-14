@@ -2,10 +2,10 @@
   import { teamLabel } from '../lib/career.mjs';
   import PersonCell from '../lib/components/PersonCell.svelte';
   import Stars from '../lib/components/Stars.svelte';
-  import { formatDate } from '../lib/date.mjs';
-  import { endsThisSeason } from '../lib/people.mjs';
+  import ContractEnd from '../lib/components/ContractEnd.svelte';
+  import { profileHref } from '../lib/person.mjs';
   import type { StaffData } from '../lib/screens';
-  import type { Tr } from '../lib/ui';
+  import { ageLabel, type Tr } from '../lib/ui';
 
   let { data, tr, teamId }: { data: StaffData; tr: Tr; teamId: string } = $props();
 
@@ -14,7 +14,7 @@
   let engineers = $derived(own.some((person) => person.role === 'RaceEngineer'));
 
   const driverName = (id: string | null) => data.drivers.own.find((driver) => driver.personId === id)?.name ?? null;
-  const open = (id: string) => (location.hash = `#/osoba/${encodeURIComponent(id)}`);
+  const open = (id: string) => (location.hash = profileHref('staff', id));
 </script>
 
 <div class="screen-head">
@@ -43,7 +43,7 @@
       <tbody>
         {#each own as person (person.personId)}
           <tr class="go-row" onclick={() => open(person.personId)}>
-            <td><PersonCell name={person.name} href={`#/osoba/${encodeURIComponent(person.personId)}`} nationality={person.nationality} sub={tr.t('team.card.age', { age: String(person.age) })} /></td>
+            <td><PersonCell name={person.name} href={profileHref('staff', person.personId)} nationality={person.nationality} sub={ageLabel(tr, person.age)} /></td>
             <td>{tr.t(`staff.role.${person.role}`)}</td>
             <td class="c"><Stars overall={person.overall} /></td>
             {#if engineers}
@@ -53,7 +53,7 @@
                 {/if}
               </td>
             {/if}
-            <td class="c num" class:bad={endsThisSeason(person.contractEnd, data.today)}>{person.contractEnd ? formatDate(person.contractEnd, tr.lang) : ''}</td>
+            <td class="c">{#if person.contractEnd}<ContractEnd {tr} end={person.contractEnd} today={data.today} />{/if}</td>
           </tr>
         {/each}
       </tbody>

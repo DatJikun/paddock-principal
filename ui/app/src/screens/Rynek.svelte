@@ -4,9 +4,11 @@
   import Stars from '../lib/components/Stars.svelte';
   import Status from '../lib/components/Status.svelte';
   import Tabs from '../lib/components/Tabs.svelte';
-  import { formatDate, formatDay } from '../lib/date.mjs';
+  import ContractEnd from '../lib/components/ContractEnd.svelte';
+  import { formatDay } from '../lib/date.mjs';
   import { formatMoney } from '../lib/money.mjs';
-  import { endsThisSeason, sortRows } from '../lib/people.mjs';
+  import { sortRows } from '../lib/people.mjs';
+  import { formatAge, profileHref, subjectKind } from '../lib/person.mjs';
   import type { MarketData } from '../lib/screens';
   import type { Tr } from '../lib/ui';
 
@@ -53,7 +55,7 @@
   }
 
   const sortClass = (key: Key) => (sortKey === key ? `sorted ${direction}` : '');
-  const href = (person: MarketPersonView) => `#/${person.kind === 'driver' ? 'kierowca' : 'osoba'}/${encodeURIComponent(person.personId)}`;
+  const href = (person: MarketPersonView) => profileHref(person.kind === 'driver' ? 'driver' : 'staff', person.personId);
 </script>
 
 <div class="screen-head">
@@ -101,10 +103,10 @@
           <tr class="go-row" onclick={() => (location.hash = href(person))}>
             <td><PersonCell name={person.name} href={href(person)} nationality={person.nationality} /></td>
             {#if kind === 'staff'}<td>{tr.t(`staff.role.${person.kind}`)}</td>{/if}
-            <td class="c num">{person.age}</td>
+            <td class="c num">{formatAge(person.age)}</td>
             <td class="c"><Stars overall={person.overall} /></td>
             <td class="c num">{person.salary > 0 ? formatMoney(person.salary * 100, tr.lang) : '—'}</td>
-            <td class="c num" class:bad={!person.freeAgent && endsThisSeason(person.contractEnd, today)}>{person.contractEnd && !person.freeAgent ? formatDate(person.contractEnd, tr.lang) : ''}</td>
+            <td class="c">{#if person.contractEnd && !person.freeAgent}<ContractEnd {tr} end={person.contractEnd} {today} />{/if}</td>
             <td>{#if person.freeAgent}<Status text={tr.t('driver.free')} tone="hi" />{:else}{person.organizationName ?? ''}{/if}</td>
           </tr>
         {/each}
@@ -118,7 +120,7 @@
       <div class="body talk-list">
         {#each data.negotiations.items as item (item.id)}
           <a class="talk" href={`#/negocjacja/${encodeURIComponent(item.id)}`}>
-            <PersonCell name={item.personName} nationality={item.nationality} sub={tr.t('negotiation.roundOf', { used: String(item.roundsUsed), max: String(item.maxRounds) })} />
+            <PersonCell name={item.personName} href={profileHref(subjectKind(item.subject.kind), item.person)} nationality={item.nationality} sub={tr.t('negotiation.roundOf', { used: String(item.roundsUsed), max: String(item.maxRounds) })} />
             <div class="talk-st">
               <Status text={tr.tMsg(item.statusText)} tone={item.status === 'Agreed' ? 'good' : ['Refused', 'WalkedAway', 'Lost', 'Lapsed'].includes(item.status) ? 'bad' : item.status === 'Countered' || item.status === 'PersonAgreed' ? 'hi' : ''} />
               <small class="muted num">{formatDay(item.deadline, tr.lang)}</small>

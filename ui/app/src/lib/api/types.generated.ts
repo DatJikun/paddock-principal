@@ -377,6 +377,7 @@ export interface LiveCarView {
   grid: number | null;
   nationality: string;
   own: boolean;
+  seatOrder: number;
   shortName: string;
   teamId: string;
   teamName: string;
@@ -637,6 +638,7 @@ export interface NewCareerCall {
   randomness: number | null;
   rules: string | null;
   seed: number | null;
+  startContracts: string | null;
   teamId: string;
   tilt: string;
   year: number | null;

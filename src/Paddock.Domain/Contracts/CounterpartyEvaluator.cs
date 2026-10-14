@@ -73,6 +73,8 @@ public sealed record OfferEvaluation(double Utility, IReadOnlyList<UtilityFactor
 /// <summary>
 /// Everything a person weighs besides the offer. <see cref="Traits"/> are the person's own hidden personality;
 /// <see cref="ReferenceSalary"/> comes from what the offering team believes about the person (bands), not from truth.
+/// <see cref="FirstSeatTaken"/> is true when another driver already holds the first-driver seat of the organization (#325): a person
+/// then cannot ask for that seat in a counter.
 /// </summary>
 public sealed record EvaluationContext(
     PersonalityTraits Traits,
@@ -80,7 +82,8 @@ public sealed record EvaluationContext(
     OrganizationAppeal Appeal,
     long ReferenceSalary,
     NegotiationSubject Subject,
-    bool IsCurrentEmployer);
+    bool IsCurrentEmployer,
+    bool FirstSeatTaken = false);
 
 /// <summary>
 /// The person's side of a negotiation: DESIGN section 8, <c>U = w1*prestige + w2*car + w3*salary + w4*status - w5*risk</c>,
@@ -186,14 +189,14 @@ public static class CounterpartyEvaluator
 
     /// <summary>
     /// The terms the person would sign instead: the cheapest change that reaches <paramref name="threshold"/>, trying salary
-    /// alone, then a better seat status with salary, then number one with salary. Null when no salary the person would
-    /// ask for (up to twice the reference) is enough.
+    /// alone, then a better seat status with salary, then number one with salary (not while another driver holds the first seat, #325).
+    /// Null when no salary the person would ask for (up to twice the reference) is enough.
     /// </summary>
     public static OfferTerms? TryCounter(OfferTerms offer, EvaluationContext context, double threshold)
     {
         ArgumentNullException.ThrowIfNull(offer);
         ArgumentNullException.ThrowIfNull(context);
-        foreach (var candidate in CounterBases(offer, context.Subject))
+        foreach (var candidate in CounterBases(offer, context.Subject, context.FirstSeatTaken))
         {
             var evaluation = Evaluate(candidate, context);
             if (evaluation.Utility >= threshold)
@@ -231,7 +234,7 @@ public static class CounterpartyEvaluator
         return null;
     }
 
-    private static IEnumerable<OfferTerms> CounterBases(OfferTerms offer, NegotiationSubject subject)
+    private static IEnumerable<OfferTerms> CounterBases(OfferTerms offer, NegotiationSubject subject, bool firstSeatTaken)
     {
         yield return offer;
         if (subject.Kind != NegotiationSubjectKind.DriverSeat || offer.Seat is not SeatStatus seat)
@@ -244,7 +247,7 @@ public static class CounterpartyEvaluator
             yield return WithSeat(offer, SeatStatus.Equal);
         }
 
-        if (seat != SeatStatus.NumberOne)
+        if (seat != SeatStatus.NumberOne && !firstSeatTaken)
         {
             yield return WithSeat(offer, SeatStatus.NumberOne);
         }

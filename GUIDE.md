@@ -19,7 +19,7 @@ Przycisk Dalej sam przesuwa kolejne dni, dopóki nic nie wymaga Twojej uwagi. Za
 ```wybory
 Ty | imię, nazwisko, narodowość (każda z danych o ludziach) i jedna cecha szefa, w której jesteś mocniejszy; przy każdej opcji jest jej krótki opis
 Rok i zespół | pierwszy sezon do testów to 1955, zespół wybierasz z kart
-Karta zespołu | skład kierowców, silnik (fabryczny albo nazwa dostawcy), budżet w dolarach, miejsce w poprzednim sezonie (gdy jest znane), cztery poziomy od 1 do 5 (auto, infrastruktura, kierowcy, personel) i znak zespołu; karty idą w kolejności poprzedniego sezonu
+Karta zespołu | skład kierowców, silnik (fabryczny albo nazwa dostawcy), budżet w dolarach, miejsce w poprzednim sezonie (gdy jest znane), cztery poziomy od 1 do {TeamCardsRead.MaxLevel} (auto, infrastruktura, kierowcy, personel) liczone względem najsłabszego i najsilniejszego zespołu sezonu i znak zespołu; karty idą w kolejności poprzedniego sezonu
 Preset | najbardziej historyczny, zbalansowany albo chaos
 Ludzie | prawdziwa kariera rok po roku, prawdziwy sufit talentu, prawdziwe nazwiska z losowymi umiejętnościami albo wszyscy generowani
 Przepisy | historyczne albo głosowane co sezon; przy głosowanych wybierasz jeden głos na zespół albo bank głosów (rozdział 14)
@@ -540,8 +540,19 @@ Rywale | wyniki, czasy, klasyfikacje | finansów, umów, wektora auta
 Pogoda | prognozę z błędem | przyszłej pogody
 ```
 
+### Gazeta na pulpicie
+
+Na pulpicie skrzynka zajmuje górną połowę kolumny, a dolną gazeta „Paddock”. Pisze o tym, co naprawdę wydarzyło się w świecie gry, i tylko o tym, co zobaczyłby każdy w padoku. Każdy nagłówek ma datę i prowadzi tam, gdzie dalej o tym przeczytasz.
+
+```pola
+O czym pisze | zwycięzca wyścigu i wynik Twojego zespołu, kontuzje, podpisane umowy i przedłużenia, nowy kluczowy pracownik zespołu, koniec kariery kierowcy, wynik głosowania nad przepisami | wiadomości o Twoim zespole mają wyraźniejsze tło
+Jak długo zostaje | nagłówek wisi przez {NewspaperEstimates.WindowDays|dni}, a gazeta mieści najwyżej {NewspaperEstimates.MaxHeadlines} najnowszych | starsze wiadomości znikają same
+Czego nie ma | warunków cudzych umów, ich ofert w toku, ukrytych ocen kierowców, juniorów rywali | to wszystko zostaje poza gazetą
+```
+
 ```pytania
 Czy rywale zachowują się bezmyślnie, wszechwiedząco, czy wiarygodnie? Opisz konkretną sytuację.
+Czy czegoś w gazecie brakuje albo czegoś jest za dużo?
 Czy gdzieś w grze widać dokładną wartość, której nie powinieneś znać?
 Czy chciałbyś grać w trybie bez liczb, w którym ludzie mówią słowami, np. „młody jest szybki, ale zjada opony”?
 ```

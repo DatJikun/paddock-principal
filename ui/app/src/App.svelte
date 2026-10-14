@@ -19,6 +19,7 @@
   import { getLanguage, loadLanguage, setLanguage, subscribeLanguage, translate, type Language } from './lib/i18n';
   import { formatMoney } from './lib/money.mjs';
   import { afterAdvance, blockingLabel, inboxArea, nextAction } from './lib/protocol.mjs';
+  import { headName } from './lib/shell-head.mjs';
   import { loadSettings, saveSettings } from './lib/settings.mjs';
   import { livery } from './lib/livery.mjs';
   import { loadScreen, type ScreenData } from './lib/screens';
@@ -57,6 +58,8 @@
   let langChoice = $state<Language>('pl');
   let session = $state<SessionView | null>(null);
   let shell = $state<ShellView | null>(null);
+  /* The player's own name as the wizard gave it; the top bar shows it under the team (#323). */
+  let managerName = $state('');
   let nextRace = $state<NextRaceView | null>(null);
   let saves = $state<SaveListItem[]>([]);
   /* 'menu' is the main menu and its pages; 'game' is the career. The bridge keeps a career in memory in both. */
@@ -138,6 +141,7 @@
     session = nextSession;
     if (!nextSession.started) {
       shell = null;
+      managerName = '';
       nextRace = null;
       screenData = { kind: 'none' };
       const saveList = await query('saves', call);
@@ -147,13 +151,15 @@
       return;
     }
     const asked = route;
-    const [nextShell, race, data] = await Promise.all([
+    const [nextShell, race, data, manager] = await Promise.all([
       query('shell', call),
       query('nextRace', call),
       loadScreen(asked.name, asked.args),
+      query('manager', call),
     ]);
     if (token !== refreshToken) return;
     shell = nextShell;
+    managerName = headName(manager);
     nextRace = race;
     const live = await query('liveClock', call).catch(() => null);
     if (token !== refreshToken) return;
@@ -713,10 +719,9 @@
     {#if inGame}
       <header class="top">
         <div class="hud">
-          <button class="cell menu-btn" type="button" aria-label={t('game.menu.open')} title={t('game.menu.open')} onclick={openGameMenu}>{@html icon(ICON.menu, 22)}</button>
           <a class="cell me" href="#/menedzer">
-            <span class="av">{initials(shell?.organizationName ?? '')}</span>
-            <span><b>{shell?.organizationName ?? '—'}</b><small>{t('shell.role')}</small></span>
+            <span class="av">{managerName ? initials(managerName) : '—'}</span>
+            <span><b>{shell?.organizationName ?? '—'}</b><small>{managerName || '—'}</small></span>
           </a>
           <a class="cell" href="#/finanse">
             <span class="meta">{t('shell.cash')}</span>
@@ -849,6 +854,7 @@
         {:else if route.name === 'ustawienia'}
           <div class="screen-head">
             <h1 class="screen">{t(SETTINGS.key)}</h1>
+            <button class="btn sm" type="button" onclick={openGameMenu}>{@html icon(ICON.menu, 16)}<span>{t('game.menu.open')}</span></button>
           </div>
           <SettingsPanel {tr} bind:lang={langChoice} bind:settings />
         {:else}

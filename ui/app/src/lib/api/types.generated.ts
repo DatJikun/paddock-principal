@@ -246,7 +246,9 @@ export interface DriverProfileView {
 
 export interface DriverSeasonView {
   best: number | null;
+  place: number | null;
   podiums: number;
+  points: string | null;
   retirements: number;
   season: number;
   starts: number;
@@ -291,6 +293,22 @@ export interface FundJuniorCall {
   managerId: string;
   personHandle: string;
   programme: string;
+}
+
+export interface HeadlineLink {
+  id: string;
+  kind: string;
+}
+
+export interface HeadlineView {
+  date: string;
+  id: string;
+  kind: string;
+  label: TranslationMessage;
+  line: TranslationMessage | null;
+  link: HeadlineLink;
+  mine: boolean;
+  title: TranslationMessage;
 }
 
 export interface InboxItemView {
@@ -624,6 +642,10 @@ export interface NewCareerCall {
   teamId: string;
   tilt: string;
   year: number | null;
+}
+
+export interface NewspaperView {
+  headlines: HeadlineView[];
 }
 
 export interface NextConceptCall {
@@ -1571,6 +1593,7 @@ export interface BridgeQueryMap {
   raceResult: { args: RaceResultCall; result: RaceResultView };
   nextRace: { args: ManagerCall; result: NextRaceView };
   track: { args: TrackCall; result: TrackView };
+  newspaper: { args: ManagerCall; result: NewspaperView };
   seasonOverview: { args: ManagerCall; result: SeasonOverviewView };
   staff: { args: ManagerCall; result: StaffListView };
   market: { args: ManagerCall; result: MarketView };

@@ -59,6 +59,8 @@ public class PitWallOrderBridgeTests
             var host = QuickRace(clock);
             var race = Data(host, "query", "liveRace");
             var own = OwnRunner(race);
+            // The orders below start at 200 s of the race: 20 s of the clock at x10, not at the slowest speed a race now opens at (#322).
+            Data(host, "command", "liveRaceControl", "{\"managerId\":\"human:player\",\"action\":\"setSpeed\",\"speed\":10}");
             Control(host, "play");
             clock.Now += 20_000;
             if (rival)

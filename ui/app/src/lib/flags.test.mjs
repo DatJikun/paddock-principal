@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { COUNTRIES } from './career.mjs';
 import { DEMONYM, flagCode, flagInner, flagSprite, hasFlag } from './flags.mjs';
 
 const pl = JSON.parse(readFileSync(new URL('../../../../strings/pl.json', import.meta.url), 'utf8'));
 const en = JSON.parse(readFileSync(new URL('../../../../strings/en.json', import.meta.url), 'utf8'));
-const AUTHORED = new URL('../../../../data/authored/', import.meta.url).pathname;
+const AUTHORED = fileURLToPath(new URL('../../../../data/authored/', import.meta.url));
 
 // The name pools use OTHER as a fallback bucket for a nationality without a pool of its own
 // (FixtureNameSource). A person never carries it, so it needs neither a flag nor a name.

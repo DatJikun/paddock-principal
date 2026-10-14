@@ -6,6 +6,7 @@
   import Status from '../lib/components/Status.svelte';
   import { formatDate, formatDay } from '../lib/date.mjs';
   import { formatMoney } from '../lib/money.mjs';
+  import { profileHref, subjectKind } from '../lib/person.mjs';
   import type { MarketData } from '../lib/screens';
   import { icon, ICON, type Tr } from '../lib/ui';
 
@@ -78,7 +79,7 @@
 {:else}
   <div class="neg">
     <section class="panel neg-head">
-      <PersonCell name={item.personName} href={`#/${item.subject.kind === 'DriverSeat' ? 'kierowca' : 'osoba'}/${encodeURIComponent(item.person)}`} nationality={item.nationality} />
+      <PersonCell name={item.personName} href={profileHref(subjectKind(item.subject.kind), item.person)} nationality={item.nationality} />
       <div class="fields">
         <div class="fld"><span class="meta">{tr.t('negotiation.state')}</span><span class="v"><Status text={tr.tMsg(item.statusText)} {tone} /></span></div>
         <div class="fld"><span class="meta">{tr.t('negotiation.interest')}</span><span class="v">{tr.tMsg(item.interest)}</span></div>

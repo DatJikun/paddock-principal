@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { ReportLineView } from '../lib/api/types.generated';
   import Flag from '../lib/components/Flag.svelte';
+  import PersonName from '../lib/components/PersonName.svelte';
   import Tabs from '../lib/components/Tabs.svelte';
   import TrackMap from '../lib/components/TrackMap.svelte';
   import { formatDate } from '../lib/date.mjs';
@@ -48,8 +49,8 @@
   let fastestId = $derived(facts?.fastestLap?.driverId ?? null);
 </script>
 
-{#snippet who(name: string, nationality: string)}
-  <span class="person">{#if hasFlag(nationality)}<Flag code={nationality} />{/if}<b>{name}</b></span>
+{#snippet who(name: string, nationality: string, id: string)}
+  <PersonName {name} {id} {nationality} />
 {/snippet}
 
 {#snippet teamTag(id: string, name: string)}
@@ -107,7 +108,7 @@
                     {#each grid as row (`${row.gridPosition}-${row.driverId}`)}
                       <tr class:mine={row.teamId === teamId}>
                         <td class="c num">{row.gridPosition}</td>
-                        <td>{@render who(row.driverName, row.nationality)}</td>
+                        <td>{@render who(row.driverName, row.nationality, row.driverId)}</td>
                         <td>{@render teamTag(row.teamId, row.teamName)}</td>
                       </tr>
                     {/each}
@@ -147,7 +148,7 @@
                       <tr class:mine={row.teamId === teamId}>
                         <td class="c num">{#if row.classified}{row.position}{:else}<span class="bad">{tr.t('race.dnf')}</span>{/if}</td>
                         <td>
-                          {@render who(row.driverName, row.nationality)}
+                          {@render who(row.driverName, row.nationality, row.driverId)}
                           {@render teamTag(row.teamId, row.teamName)}
                         </td>
                         <td class="c num">{row.gridPosition ?? ''}</td>
@@ -199,7 +200,7 @@
                         <td class:win={place === 1}>
                           {#if entry}
                             <span class="pod" class:mine={entry.teamId === teamId} style={`--team:${livery(entry.teamId).main}`}>
-                              <span class="person">{#if hasFlag(entry.nationality)}<Flag code={entry.nationality} />{/if}<b>{entry.driverName}</b></span>
+                              <PersonName name={entry.driverName} nationality={entry.nationality} />
                               <small>{entry.teamName}</small>
                             </span>
                           {/if}
@@ -228,7 +229,7 @@
                   {@const pole = result?.rows.find((row) => row.driverId === facts.pole?.driverId)}
                   <div class="fact wide">
                     <span class="meta">{tr.t('race.pole')}</span>
-                    <span class="fact-name">{#if pole && hasFlag(pole.nationality)}<Flag code={pole.nationality} />{/if}<b>{facts.pole.driverName}</b></span>
+                    <span class="fact-name"><PersonName name={facts.pole.driverName} id={facts.pole.driverId} nationality={pole?.nationality ?? ''} /></span>
                     {#if facts.pole.timeMs !== null}<span class="num fact-time">{formatLapTime(facts.pole.timeMs)}</span>{/if}
                   </div>
                 {/if}
@@ -236,7 +237,7 @@
                   {@const quick = result?.rows.find((row) => row.driverId === facts.fastestLap?.driverId)}
                   <div class="fact wide">
                     <span class="meta">{tr.t('race.fastestLap')}</span>
-                    <span class="fact-name">{#if quick && hasFlag(quick.nationality)}<Flag code={quick.nationality} />{/if}<b>{facts.fastestLap.driverName}</b></span>
+                    <span class="fact-name"><PersonName name={facts.fastestLap.driverName} id={facts.fastestLap.driverId} nationality={quick?.nationality ?? ''} /></span>
                     {#if facts.fastestLap.timeMs !== null}<span class="num fact-time">{formatLapTime(facts.fastestLap.timeMs)}</span>{/if}
                   </div>
                 {/if}

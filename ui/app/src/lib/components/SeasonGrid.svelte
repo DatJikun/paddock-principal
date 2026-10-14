@@ -6,6 +6,7 @@
   import { carsOrdered, resultText, resultTone } from '../overview.mjs';
   import { icon, ICON, points, type Tr } from '../ui';
   import Flag from './Flag.svelte';
+  import PersonName from './PersonName.svelte';
   import Tabs from './Tabs.svelte';
 
   let { overview, tr, teamId, onClose }: { overview: SeasonOverviewView; tr: Tr; teamId: string; onClose: () => void } = $props();
@@ -73,8 +74,7 @@
               <td class="ov-pos num">{row.position > 0 ? row.position : ''}</td>
               <td class="ov-name" style={`--stripe:${stripe(row)}`}>
                 <span class="ov-who">
-                  {#if !isTeams && hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}
-                  <b>{row.name}</b>
+                  {#if isTeams}<b>{row.name}</b>{:else}<PersonName name={row.name} id={row.id} nationality={row.nationality} />{/if}
                 </span>
                 {#if !isTeams && row.teamName}<small>{row.teamName}</small>{/if}
               </td>

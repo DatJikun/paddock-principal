@@ -52,6 +52,9 @@ public static class AuthoredDataLoader
         // Optional like the car strengths: a fixture data directory bans nothing.
         var bannedPath = Path.Combine(root, BannedRulesLoader.RelativePath.Replace('/', Path.DirectorySeparatorChar));
         var bannedRules = File.Exists(bannedPath) ? TryRead<BannedRulesFile>(bannedPath, failures) : null;
+        // Optional like the banned list: a fixture data directory has no authored first and second drivers.
+        var rolesPath = Path.Combine(root, DriverRolesLoader.RelativePath.Replace('/', Path.DirectorySeparatorChar));
+        var driverRoles = File.Exists(rolesPath) ? TryRead<DriverRolesFile>(rolesPath, failures) : null;
         var staff = TryRead<List<StaffMember>>(
             Path.Combine(root, "authored", "people", "staff.json"),
             failures);
@@ -145,7 +148,8 @@ public static class AuthoredDataLoader
             carStrength is null ? null : CarStrengthLoader.ToSource(carStrength),
             teamTiers is null ? null : TeamTiersLoader.ToSource(teamTiers),
             facilities,
-            bannedRules);
+            bannedRules,
+            driverRoles);
     }
 
     private static T? TryRead<T>(string path, List<string> failures)

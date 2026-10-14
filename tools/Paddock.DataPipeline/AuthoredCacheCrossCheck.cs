@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Paddock.Data.Authored;
 using Paddock.Data.Historical;
+using Paddock.Data.World;
 
 namespace Paddock.DataPipeline;
 
@@ -181,6 +182,20 @@ public static class AuthoredCacheCrossCheck
             errors.Add(new AuthoredDataError(
                 UnknownJolpicaDriver,
                 pair.Key + " (" + string.Join(", ", pair.Value) + ")"));
+        }
+
+        // The authored first and second drivers (#325) name drivers as the people schedule spells them; a renamed one carries a prefix.
+        foreach (var entry in data.DriverRolesFile?.Roles ?? [])
+        {
+            var source = entry.DriverId.StartsWith(ScheduleBackedPeopleProvider.RenamedDriverPrefix, StringComparison.Ordinal)
+                ? entry.DriverId[ScheduleBackedPeopleProvider.RenamedDriverPrefix.Length..]
+                : entry.DriverId;
+            if (!string.IsNullOrWhiteSpace(source) && !jolpicaDrivers.Contains(source))
+            {
+                errors.Add(new AuthoredDataError(
+                    UnknownJolpicaDriver,
+                    entry.DriverId + " (driver_roles.json " + entry.Year.ToString(CultureInfo.InvariantCulture) + ")"));
+            }
         }
 
         var mappedKeys = new HashSet<(int Season, int Round)>();

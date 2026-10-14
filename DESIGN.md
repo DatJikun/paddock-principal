@@ -501,6 +501,9 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 ## 10. Rynek i kontrakty
 
 - **Pola kontraktu:** pensja (suwak z sugerowanym przedziałem wokół pensji, jaką zespół uważa za adekwatną), premie (za zwycięstwa i tytuł; premia za punkt wycofana w #265), długość, status (#1 / równy / #2 / rezerwowy). Kierowcy wnoszący sponsora mają osobne pole.
+- **Kontrakty pierwszego poranka z prawdziwej historii (#325):** prawdziwy kierowca ma umowę do końca swojego rzeczywistego stażu w tym zespole (Alonso w Ferrari w 2010: do końca 2014), nigdy krócej niż do końca roku startu; tak samo prawdziwy personel, do końca wpisu w danych o personelu. Kto nie ma stażu w danych (kierowca uzupełniający, wygenerowany), ma umowę do końca roku startu. W kreatorze nowej kariery można wybrać „Kontrakt każdego kończy się w tym roku” (dawne zachowanie).
+- **Pierwszy i drugi kierowca (#325):** każdy kierowca ma w umowie rolę. Na starcie pierwszym jest lepiej oceniony kierowca zespołu (przy remisie starszy, potem mniejsze id), chyba że autorski plik ról mówi inaczej; ten plik właściciel uzupełnia ręcznie. Pierwszy kierowca jest zawsze po lewej (karta zespołu, ekran Kierowcy, panele wyścigu), drugi po prawej. W negocjacji drugi kierowca nie żąda miejsca numer jeden, dopóki zajmuje je ktoś inny w tym samym zespole. Zespół złożony z samych wygenerowanych kierowców nie ma hierarchii.
+- **Skala płac kierowców (SZACUNEK):** pensja odniesienia zależy od epoki i rangi: środek stawki przy 2,5 gwiazdki, szczyt przy 5 gwiazdkach (`driver_pay_midfield_nominal_usd`, `driver_pay_top_nominal_usd`). Kierowca z czołówki w 2010 zarabia dziesiątki milionów dolarów. Wartości są szacunkami o niskiej pewności; prawdziwe pensje wymagają źródeł spoza repozytorium i trafią do danych autorskich później.
 - **Klauzule** (głęboki system, którego nikt w gatunku nie ma):
   - **wyjścia z umowy:** kierowca może odejść, jeśli zespół spadnie poniżej np. 5. miejsca w konstruktorach albo nie da mu podium w ciągu N wyścigów; zespół może rozwiązać umowę, jeśli kierowca przegra pojedynek z partnerem albo nie zdobędzie punktów;
   - **opcja przedłużenia** po stronie zespołu albo kierowcy;
@@ -596,7 +599,7 @@ Pomysły ze starego GDD V4, dopasowane do obecnego projektu.
 - **Reputacja menedżera:** rośnie z wynikami ponad oczekiwania, tytułami i rozwojem ludzi, a spada ze słabymi wynikami i złym zarządzaniem pieniędzmi. Wpływa na oferty pracy, negocjacje z kierowcami i sponsorami, a także na wiarygodność obietnic (§6.3).
 - **Zarząd (albo właściciel)** stawia cele na sezon i na kilka lat i ocenia menedżera. Przed sezonem gracz wybiera jeden z trzech celów: bezpieczny (bez dodatkowego budżetu, mała premia zaufania), oczekiwany albo ambitny (dodatkowy budżet od razu, duża premia, porażka zabiera więcej z księgi i może kosztować posadę) (PP-058). Rozstęp między celami zależy od siły zespołu i wielkości stawki, u czołówki to jedno miejsce. Niespełniony cel jest w skrzynce z powodem. Jego cierpliwość zależy od osobowości właściciela. W zespole założonym przez gracza tę rolę pełnią inwestorzy i sponsor założycielski (§3.2).
 - **Pogoda w wyścigu:** sucho, lekki deszcz, ulewa, burza, ze zmianami w trakcie wyścigu.
-- **Tempo oglądania wyścigu:** na żywo, ×5, ×10, ×20 albo sam wynik.
+- **Tempo oglądania wyścigu:** na żywo, krokami ×1, ×2, ×5, ×10, ×20, ×30 albo sam wynik.
 
 ---
 

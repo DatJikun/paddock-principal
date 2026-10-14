@@ -2,13 +2,18 @@ using System.Globalization;
 using Paddock.Application.Career;
 using Paddock.Simulation.Career;
 using Paddock.Domain.Racing;
+using Paddock.Domain.Time;
 using Paddock.Domain.World;
 using Paddock.Simulation.Racing.Pits;
 using Paddock.Simulation.Racing.Tyres;
 
 namespace Paddock.Application.Racing;
 
-/// <summary>One car of a watched race: who drives it, for whom, from where on the grid. <see cref="CarId"/> is the id the tape and the frames use.</summary>
+/// <summary>
+/// One car of a watched race: who drives it, for whom, from where on the grid. <see cref="CarId"/> is the id the tape and the frames use.
+/// <see cref="SeatOrder"/> is the place of the car among its team's cars, counted from 0: the first driver is 0, the second 1 (#325).
+/// A screen that lists a team's cars side by side or one under the other keeps this order.
+/// </summary>
 public sealed record LiveCarView(
     string CarId,
     string DriverName,
@@ -17,7 +22,8 @@ public sealed record LiveCarView(
     string TeamId,
     string TeamName,
     int? Grid,
-    bool Own);
+    bool Own,
+    int SeatOrder = 0);
 
 /// <summary>
 /// One fact of the race tape as the screen gets it. The structured fields feed the timing tower and the map; <see cref="Key"/> and
@@ -176,6 +182,8 @@ public static class LiveRaceRead
                 own is not null && teamId == own));
         }
 
+        cars = SeatOrdered(cars, world, session.Date);
+
         string Name(string id) => people.TryGetValue(id, out var person) ? person.Name : id;
         string Team(string id) => teamOf.TryGetValue(id, out var teamId) ? TeamName(world, teamId) : "";
         bool Mine(string id) => own is not null && teamOf.TryGetValue(id, out var teamId) && teamId == own;
@@ -255,6 +263,37 @@ public static class LiveRaceRead
             .Zip(order, (lists, id) => new LiveCarFramesView(id, lists.T, lists.D, lists.S, lists.P, lists.M))
             .ToArray();
         return new LiveFramesView(true, from, to, cars);
+    }
+
+    /// <summary>
+    /// The cars with their <see cref="LiveCarView.SeatOrder"/> set: within a team the first driver comes first, then the second, then the
+    /// rest, by the seat on their contract on the day of the read. Equal seats keep the order of the grid, then of the id, so a team
+    /// whose drivers have no hierarchy is listed as it always was (#325).
+    /// </summary>
+    private static List<LiveCarView> SeatOrdered(List<LiveCarView> cars, WorldState world, GameDate today)
+    {
+        var seats = new Dictionary<(string Team, string Driver), int>();
+        foreach (var contract in world.Contracts)
+        {
+            if (contract.Role.IsDriver && contract.IsActiveOn(today))
+            {
+                seats[(contract.OrganizationId.Value, contract.PersonId.Value)] = (int)contract.Role.Seat;
+            }
+        }
+
+        int Rank(LiveCarView car) => seats.TryGetValue((car.TeamId, car.CarId), out var seat) ? seat : int.MaxValue;
+        var ordered = new List<LiveCarView>(cars.Count);
+        foreach (var team in cars.GroupBy(car => car.TeamId, StringComparer.Ordinal))
+        {
+            var order = 0;
+            foreach (var car in team.OrderBy(Rank).ThenBy(car => car.Grid ?? int.MaxValue).ThenBy(car => car.CarId, StringComparer.Ordinal))
+            {
+                ordered.Add(car with { SeatOrder = order++ });
+            }
+        }
+
+        var byId = ordered.ToDictionary(car => car.CarId, StringComparer.Ordinal);
+        return cars.Select(car => byId[car.CarId]).ToList();
     }
 
     private static LiveRaceView Empty(int season) =>

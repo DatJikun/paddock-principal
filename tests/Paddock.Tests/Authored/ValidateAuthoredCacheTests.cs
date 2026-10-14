@@ -143,6 +143,32 @@ public class ValidateAuthoredCacheTests
     }
 
     [Fact]
+    public void DriverRoles_NameOnlyDriversTheCacheKnowsAndStripTheRenamedPrefix()
+    {
+        // #325: the authored first and second drivers are checked against the Jolpica driver table when a cache is given.
+        using var fixture = CacheCrossCheckFixture.Materialize();
+        Directory.CreateDirectory(Path.Combine(fixture.DataRoot, "authored", "people"));
+        File.WriteAllText(
+            Path.Combine(fixture.DataRoot, "authored", "people", "driver_roles.json"),
+            """
+            { "notes": "fixture", "roles": [
+              { "year": 1950, "driver_id": "fangio", "role": "first" },
+              { "year": 1950, "driver_id": "driver:farina", "role": "second" },
+              { "year": 1950, "driver_id": "nobody", "role": "second" } ] }
+            """);
+        var stdout = new StringWriter();
+        var stderr = new StringWriter();
+
+        var code = Run(fixture, stdout, stderr);
+
+        Assert.Equal(1, code);
+        var lines = Lines(stdout);
+        Assert.Contains("authored data: ok", lines);
+        Assert.Contains("error [unknown-jolpica-driver]: nobody (driver_roles.json 1950)", lines);
+        Assert.DoesNotContain(lines, line => line.Contains("fangio", StringComparison.Ordinal) || line.Contains("farina", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void RaceMap_ReportsBothDirections()
     {
         using var fixture = CacheCrossCheckFixture.Materialize("race-map");

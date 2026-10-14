@@ -97,7 +97,7 @@ public sealed class PoolQuery
                 person.GivenName,
                 person.FamilyName,
                 person.Nationality,
-                world.CurrentDate.Year - person.BirthDate.Year,
+                person.AgeOn(world.CurrentDate),
                 attributes,
                 potential,
                 funding,
@@ -118,6 +118,24 @@ public sealed class PoolQuery
             Enum.GetValues<JuniorProgramme>()
                 .Select(programme => new ProgrammeView(programme, PoolEstimates.SpeedPercent(programme), Money.FromDollars(_funding.Cost(programme)).Cents))
                 .ToArray());
+    }
+
+    /// <summary>
+    /// The person behind a pool handle, for the viewer who may see him, or null for any other text. A row of the academy opens the same
+    /// profile as a row of the market through this (#326): the caller reads the person, the screen keeps the handle, so the id of a pool
+    /// member never reaches the view (PP-018). A junior of another academy is no one's here, as in <see cref="View"/>.
+    /// </summary>
+    public PersonId? Resolve(AccessContext access, string handle)
+    {
+        ArgumentNullException.ThrowIfNull(access);
+        ArgumentNullException.ThrowIfNull(handle);
+        var member = _book.Section.FindByHandle(handle);
+        if (member is null)
+        {
+            return null;
+        }
+
+        return member.Academy is { } holder && Organization(access) is OrganizationId viewing && viewing != holder ? null : member.Id;
     }
 
     /// <summary>

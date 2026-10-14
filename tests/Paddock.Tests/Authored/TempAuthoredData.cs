@@ -17,7 +17,8 @@ internal sealed class TempAuthoredData : IDisposable
         string? eraTimeline = null,
         string? cpi = null,
         IReadOnlyDictionary<string, string>? geometries = null,
-        string? bannedRules = null)
+        string? bannedRules = null,
+        string? driverRoles = null)
     {
         Root = Path.Combine(Path.GetTempPath(), "paddock-authored-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(Path.Combine(Root, "authored", "regulations"));
@@ -43,6 +44,11 @@ internal sealed class TempAuthoredData : IDisposable
         if (bannedRules is not null)
         {
             Write("authored/regulations/banned_rules.json", bannedRules);
+        }
+
+        if (driverRoles is not null)
+        {
+            Write("authored/people/driver_roles.json", driverRoles);
         }
 
         if (geometries is not null)

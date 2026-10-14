@@ -41,6 +41,21 @@ public readonly record struct GameDate : IComparable<GameDate>
     /// <summary>Days from this date until <paramref name="other"/>. Negative when <paramref name="other"/> is earlier.</summary>
     public int DaysUntil(GameDate other) => other.ToDateOnly().DayNumber - ToDateOnly().DayNumber;
 
+    /// <summary>
+    /// The whole years from this date to <paramref name="on"/>, counting a year only once the month and day have come round again.
+    /// Called on a birth date it is the age on <paramref name="on"/>; never negative.
+    /// </summary>
+    public int WholeYearsUntil(GameDate on)
+    {
+        var years = on.Year - Year;
+        if (on.Month < Month || (on.Month == Month && on.Day < Day))
+        {
+            years--;
+        }
+
+        return Math.Max(0, years);
+    }
+
     public int CompareTo(GameDate other)
     {
         var year = Year.CompareTo(other.Year);

@@ -1,12 +1,12 @@
 <script lang="ts">
   import { teamLabel } from '../lib/career.mjs';
   import AttrRow from '../lib/components/AttrRow.svelte';
-  import Flag from '../lib/components/Flag.svelte';
+  import Nationality from '../lib/components/Nationality.svelte';
   import Status from '../lib/components/Status.svelte';
   import { formatDate } from '../lib/date.mjs';
-  import { hasFlag } from '../lib/flags.mjs';
+  import { formatAge } from '../lib/person.mjs';
   import type { ManagerData } from '../lib/screens';
-  import { countryName, icon, ICON, initials, type Tr } from '../lib/ui';
+  import { icon, ICON, initials, type Tr } from '../lib/ui';
 
   let { data, tr, teamId }: { data: ManagerData; tr: Tr; teamId: string } = $props();
 
@@ -26,9 +26,9 @@
         <div class="fields mid">
           <div class="fld">
             <span class="meta">{tr.t('career.you.country')}</span>
-            <span class="v">{#if hasFlag(manager.nationality)}<Flag code={manager.nationality} size="md" />{/if}{countryName(tr, manager.nationality)}</span>
+            <span class="v"><Nationality {tr} code={manager.nationality} /></span>
           </div>
-          <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{manager.age}</span></div>
+          <div class="fld"><span class="meta">{tr.t('drivers.age')}</span><span class="v num">{formatAge(manager.age)}</span></div>
           <div class="fld"><span class="meta">{tr.t('staff.role')}</span><span class="v">{tr.t('shell.role')}</span></div>
           <div class="fld"><span class="meta">{tr.t('shell.col.team')}</span><span class="v">{teamLabel(teamId)}</span></div>
           {#if manager.since}

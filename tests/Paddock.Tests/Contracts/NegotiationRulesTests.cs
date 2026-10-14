@@ -48,8 +48,9 @@ public class NegotiationRulesTests
         PersonalityTraits? traits = null,
         int age = 30,
         NegotiationSubject? subject = null,
-        bool currentEmployer = false) =>
-        new(traits ?? Balanced, age, appeal ?? OrganizationAppeal.Neutral, Reference, subject ?? NegotiationSubject.DriverSeat, currentEmployer);
+        bool currentEmployer = false,
+        bool firstSeatTaken = false) =>
+        new(traits ?? Balanced, age, appeal ?? OrganizationAppeal.Neutral, Reference, subject ?? NegotiationSubject.DriverSeat, currentEmployer, firstSeatTaken);
 
     // --- Terms ---
 
@@ -338,6 +339,25 @@ public class NegotiationRulesTests
         Assert.Equal(SeatStatus.NumberOne, response.Counter!.Seat);
         Assert.Contains(NegotiationReasons.TeamTooWeak, response.Reasons);
         Assert.True(CounterpartyEvaluator.Evaluate(response.Counter, Context(weakAndRisky)).Utility >= response.Threshold);
+    }
+
+    [Fact]
+    public void ASecondDriverCannotAskForTheFirstSeatWhileAnotherDriverHoldsIt()
+    {
+        // #325: the same offer and the same weak team as above, but the first seat is taken, so the counter never names it.
+        var weakAndRisky = new OrganizationAppeal(0.0, 0.0, 0.9);
+        var floor = CounterpartyEvaluator.Floor(30, null);
+        var taken = Context(weakAndRisky, firstSeatTaken: true);
+        var response = NegotiationCore.Respond(Pending(Terms(100_000, SeatStatus.NumberTwo)), taken, floor);
+
+        Assert.NotEqual(SeatStatus.NumberOne, response.Counter?.Seat);
+        Assert.NotEqual(
+            SeatStatus.NumberOne,
+            CounterpartyEvaluator.TryCounter(Terms(100_000, SeatStatus.Equal), taken, floor + 0.5)?.Seat);
+
+        // The first driver himself may still ask for it on renewal: nobody else holds it.
+        var free = Context(weakAndRisky, firstSeatTaken: false);
+        Assert.Equal(SeatStatus.NumberOne, NegotiationCore.Respond(Pending(Terms(100_000, SeatStatus.NumberTwo)), free, floor).Counter!.Seat);
     }
 
     [Fact]

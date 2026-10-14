@@ -26,6 +26,9 @@ internal static class CareerConfigCodec
     /// <summary>Written only when it is not the default (see <see cref="CareerConfig.ToCanonicalJson"/>).</summary>
     private const string OptionalVoteMode = "voteMode";
 
+    /// <summary>Written only when it is not the default (#325), like <see cref="OptionalVoteMode"/>.</summary>
+    private const string OptionalStartContracts = "startContracts";
+
     public static CareerConfig Read(string payload)
     {
         ArgumentNullException.ThrowIfNull(payload);
@@ -60,14 +63,15 @@ internal static class CareerConfigCodec
         foreach (var property in document.RootElement.EnumerateObject())
         {
             count++;
-            if (Array.IndexOf(Properties, property.Name) < 0 && property.Name != OptionalVoteMode)
+            if (Array.IndexOf(Properties, property.Name) < 0 && property.Name != OptionalVoteMode && property.Name != OptionalStartContracts)
             {
                 throw new InvalidDataException($"Career config JSON has unknown property '{property.Name}'.");
             }
         }
 
         var hasVoteMode = document.RootElement.TryGetProperty(OptionalVoteMode, out _);
-        if (count != Properties.Length + (hasVoteMode ? 1 : 0))
+        var hasStartContracts = document.RootElement.TryGetProperty(OptionalStartContracts, out _);
+        if (count != Properties.Length + (hasVoteMode ? 1 : 0) + (hasStartContracts ? 1 : 0))
         {
             throw new InvalidDataException("Career config JSON is missing a property.");
         }
@@ -87,7 +91,8 @@ internal static class CareerConfigCodec
             RequireInt(document.RootElement, "startYear"),
             RequireString(document.RootElement, "playerTeam"),
             RequireBool(document.RootElement, "noNumbers"),
-            hasVoteMode ? RequireEnum<VoteMode>(document.RootElement, OptionalVoteMode) : VoteMode.OneVoteEach);
+            hasVoteMode ? RequireEnum<VoteMode>(document.RootElement, OptionalVoteMode) : VoteMode.OneVoteEach,
+            hasStartContracts ? RequireEnum<StartContracts>(document.RootElement, OptionalStartContracts) : StartContracts.Real);
     }
 
     private static string RequireString(JsonElement root, string name)

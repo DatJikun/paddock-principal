@@ -137,7 +137,7 @@ public static class TeamCardsRead
             var line = drivers
                 .OrderBy(entry => entry.Seat)
                 .ThenBy(entry => entry.Person.Id.Value, StringComparer.Ordinal)
-                .Select(entry => new TeamCardDriver(entry.Person.Name, entry.Person.Nationality, AgeOn(entry.Person.BirthDate, on), entry.Seat.ToString()))
+                .Select(entry => new TeamCardDriver(entry.Person.Name, entry.Person.Nationality, entry.Person.AgeOn(on), entry.Seat.ToString()))
                 .ToArray();
 
             TeamCardEngine? engine = null;
@@ -218,16 +218,5 @@ public static class TeamCardsRead
 
         var share = (own - low) / (high - low);
         return 1 + (int)Math.Round(share * (MaxLevel - 1), MidpointRounding.AwayFromZero);
-    }
-
-    private static int AgeOn(GameDate born, GameDate on)
-    {
-        var age = on.Year - born.Year;
-        if (on.Month < born.Month || (on.Month == born.Month && on.Day < born.Day))
-        {
-            age--;
-        }
-
-        return Math.Max(0, age);
     }
 }

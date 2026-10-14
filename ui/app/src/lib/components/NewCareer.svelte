@@ -15,9 +15,8 @@
     TILTS,
     withPreset,
   } from '../career.mjs';
-  import { hasFlag } from '../flags.mjs';
   import { icon, ICON, initials, countryName, type Tr } from '../ui';
-  import Flag from './Flag.svelte';
+  import Nationality from './Nationality.svelte';
   import Status from './Status.svelte';
   import Steps from './Steps.svelte';
   import Tabs from './Tabs.svelte';
@@ -186,7 +185,7 @@
         <h2>{name || '—'}</h2>
         <div class="tags">
           {#if you.nationality}
-            <span class="tag">{#if hasFlag(you.nationality)}<Flag code={you.nationality} />{/if}{countryName(tr, you.nationality)}</span>
+            <span class="tag"><Nationality {tr} code={you.nationality} size="" /></span>
           {/if}
           {#if you.tilt !== 'none'}<span class="tag">{tr.t(TILT_KEYS[you.tilt as keyof typeof TILT_KEYS])}</span>{/if}
         </div>
@@ -204,6 +203,10 @@
           bind:value={setup.year}
           onchange={() => (setup.year = clampYear(setup.year, suggestedYear))}
         />
+      </div>
+      <div class="fld">
+        <span class="meta">{tr.t('career.axis.contracts')}</span>
+        <Tabs group="contracts" items={AXES.contracts.map((value) => ({ value, label: tr.t(`career.contracts.${value}`) }))} bind:value={setup.contracts} />
       </div>
       <div class="fld">
         <span class="meta">{tr.t('shell.start.preset')}</span>
@@ -302,7 +305,7 @@
             <table class="kvt">
               <tbody>
                 <tr><th>{tr.t('shell.start.given')}</th><td>{name}</td></tr>
-                <tr><th>{tr.t('career.you.country')}</th><td>{#if hasFlag(you.nationality)}<Flag code={you.nationality} />{/if}{countryName(tr, you.nationality)}</td></tr>
+                <tr><th>{tr.t('career.you.country')}</th><td><Nationality {tr} code={you.nationality} size="" /></td></tr>
                 <tr><th>{tr.t('shell.start.tilt')}</th><td>{tr.t(TILT_KEYS[you.tilt as keyof typeof TILT_KEYS])}</td></tr>
               </tbody>
             </table>
@@ -318,6 +321,7 @@
                 <tr><th>{tr.t('career.axis.people')}</th><td>{tr.t(`career.people.${setup.people}`)}</td></tr>
                 <tr><th>{tr.t('career.axis.ai')}</th><td>{tr.t(`career.ai.${setup.ai}`)}</td></tr>
                 <tr><th>{tr.t('career.axis.rules')}</th><td>{tr.t(`career.rules.${setup.rules}`)}</td></tr>
+                <tr><th>{tr.t('career.axis.contracts')}</th><td>{tr.t(`career.contracts.${setup.contracts}`)}</td></tr>
                 <tr><th>{tr.t('career.axis.history')}</th><td class="num">{setup.history}</td></tr>
                 <tr><th>{tr.t('career.axis.randomness')}</th><td class="num">{setup.randomness}</td></tr>
               </tbody>

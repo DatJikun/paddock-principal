@@ -156,8 +156,22 @@ public sealed class ContractBook
             AppealOf(organization, today),
             referenceSalary,
             subject,
-            current is not null && current.OrganizationId == organization);
+            current is not null && current.OrganizationId == organization,
+            FirstSeatTaken(organization, person, subject, today));
     }
+
+    /// <summary>
+    /// True when a driver other than <paramref name="person"/> holds the first-driver seat of the organization today (#325). A person
+    /// who is not the first driver cannot demand first-driver terms there, so a counter never asks for that seat.
+    /// </summary>
+    private bool FirstSeatTaken(OrganizationId organization, PersonId person, NegotiationSubject subject, GameDate today) =>
+        subject.Kind == NegotiationSubjectKind.DriverSeat
+        && World.Contracts.Any(contract =>
+            contract.OrganizationId == organization
+            && contract.PersonId != person
+            && contract.Role.IsDriver
+            && contract.Role.Seat == SeatStatus.NumberOne
+            && contract.IsActiveOn(today));
 
     /// <summary>
     /// How attractive an organization looks to a person: its public appeal, with the prestige moved by the reputation of the

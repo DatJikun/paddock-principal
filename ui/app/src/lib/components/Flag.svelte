@@ -1,7 +1,16 @@
 <script lang="ts">
-  import { flagInner, flagName } from '../flags.mjs';
+  import { flagInner } from '../flags.mjs';
+  import { getLanguage, subscribeLanguage, type Language } from '../i18n';
+  import { countryName, translator } from '../ui';
 
   let { code, size = '' }: { code: string; size?: string } = $props();
+
+  let lang = $state<Language>(getLanguage());
+  $effect(() =>
+    subscribeLanguage(() => {
+      lang = getLanguage();
+    }),
+  );
 </script>
 
-<span class="flag {size}" title={flagName(code)}>{@html flagInner(code)}</span>
+<span class="flag {size}" title={countryName(translator(lang), code)}>{@html flagInner(code)}</span>

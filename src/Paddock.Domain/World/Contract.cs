@@ -3,7 +3,10 @@ using Paddock.Domain.Time;
 
 namespace Paddock.Domain.World;
 
-/// <summary>Seat status on a driver contract (DESIGN §10).</summary>
+/// <summary>
+/// Seat status on a driver contract (DESIGN §10). The members are declared in the order a team lists its drivers: the number one is
+/// first (the left card of a screen), the number two next, a reserve last. Screens sort a team's drivers by this value (#325).
+/// </summary>
 public enum SeatStatus
 {
     NumberOne = 0,

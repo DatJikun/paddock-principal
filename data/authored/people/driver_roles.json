@@ -1,0 +1,4 @@
+{
+  "notes": "Authored first and second drivers (#325). The default is the better-rated driver of a team as first, ties by age (the older) and then by driver id. An entry here wins over that default for the career that starts in 'year'. 'driver_id' is the id as the people schedule spells it (a Jolpica driverId; a driver whose id is also a constructor id is written 'driver:' plus that id). 'role' is 'first' or 'second'. A team whose other driver has no entry gets the opposite role. The file starts empty on purpose: the real roles of a grid need research and the owner fills them in.",
+  "roles": []
+}

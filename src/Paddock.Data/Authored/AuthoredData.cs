@@ -28,7 +28,8 @@ public sealed class AuthoredData
         ICarStrengthSource? carStrength = null,
         ITeamTierSource? teamTiers = null,
         FacilityCatalog? facilities = null,
-        BannedRulesFile? bannedRules = null)
+        BannedRulesFile? bannedRules = null,
+        DriverRolesFile? driverRoles = null)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(timeline);
@@ -108,7 +109,18 @@ public sealed class AuthoredData
         Facilities = facilities ?? FacilityCatalog.Empty;
         BannedRulesFile = bannedRules;
         BannedRules = bannedRules is null ? Paddock.Domain.Racing.BannedRules.None : BannedRulesLoader.ToBannedRules(bannedRules);
+        DriverRolesFile = driverRoles;
+        DriverRoles = driverRoles is null ? DriverRoleOverrides.None : new DriverRoleOverrides(driverRoles.Roles);
     }
+
+    /// <summary>
+    /// The authored first/second driver file as it was read, or null when a fixture has none (the default applies to every team).
+    /// Kept so the validator can check what was written (#325).
+    /// </summary>
+    public DriverRolesFile? DriverRolesFile { get; }
+
+    /// <summary>The authored seat roles by start year and driver id, which win over the default (#325).</summary>
+    public DriverRoleOverrides DriverRoles { get; }
 
     /// <summary>
     /// The authored banned list as it was read, or null when a fixture has none (nothing is banned then). Kept so the validator can

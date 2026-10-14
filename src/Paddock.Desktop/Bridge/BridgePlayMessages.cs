@@ -50,7 +50,7 @@ public sealed record TeamOptionView(
 public sealed record TeamListView(int Year, IReadOnlyList<TeamOptionView> Teams, TranslationMessage? Problem);
 
 /// <summary>
-/// Argument of <c>teams</c>. Year defaults to 1955 when omitted. The axes are the ones <c>newCareer</c> takes, read the same way:
+/// Argument of <c>teams</c>. Year defaults to 2010 when omitted. The axes are the ones <c>newCareer</c> takes, read the same way:
 /// the cards come from the world they would start, and a setup <c>newCareer</c> would refuse comes back as the problem.
 /// </summary>
 public sealed record TeamsCall(
@@ -73,7 +73,7 @@ public sealed record SaveListItem(string Name, string Date, string TeamId, strin
 public sealed record SaveListView(IReadOnlyList<SaveListItem> Saves);
 
 /// <summary>
-/// Starts a career. Preset defaults to Chaos and the year to 1955. Axes override the preset when set.
+/// Starts a career. Preset defaults to Chaos and the year to 2010. Axes override the preset when set.
 /// People fall back to generated names when the local cache is missing.
 /// </summary>
 public sealed record NewCareerCall(

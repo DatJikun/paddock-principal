@@ -8,7 +8,7 @@
   import { formatDate } from '../lib/date.mjs';
   import { hasFlag } from '../lib/flags.mjs';
   import { formatMoney } from '../lib/money.mjs';
-  import { bandOf, careerTotals, DRIVER_ATTRS, endsThisSeason } from '../lib/people.mjs';
+  import { bandOf, careerCells, careerTotals, DRIVER_ATTRS, endsThisSeason } from '../lib/people.mjs';
   import type { DriverData } from '../lib/screens';
   import { countryName, icon, ICON, initials, type Tr } from '../lib/ui';
 
@@ -181,51 +181,58 @@
           </div>
         </section>
 
-        <section class="panel tbl">
-          <header><h2>{tr.t('driver.career')}</h2></header>
-          {#if profile.seasons.length > 0}
-            <table class="table tight">
-              <thead>
-                <tr>
-                  <th class="c">{tr.t('driver.season')}</th>
-                  <th>{tr.t('shell.col.team')}</th>
-                  <th class="c">{tr.t('drivers.starts')}</th>
-                  <th class="c">{tr.t('shell.col.wins')}</th>
-                  <th class="c">{tr.t('drivers.podiums')}</th>
-                  <th class="c">{tr.t('driver.retired')}</th>
-                  <th class="c">{tr.t('driver.best')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each profile.seasons as row (row.season)}
-                  <tr>
-                    <td class="c num">{row.season}</td>
-                    <td>{row.teamName}</td>
-                    <td class="c num">{row.starts}</td>
-                    <td class="c num">{row.wins || ''}</td>
-                    <td class="c num">{row.podiums || ''}</td>
-                    <td class="c num">{row.retirements || ''}</td>
-                    <td class="c num">{row.best ?? ''}</td>
-                  </tr>
-                {/each}
-                {#if profile.seasons.length > 1}
-                  <tr class="mine">
-                    <td class="c">Σ</td>
-                    <td></td>
-                    <td class="c num">{totals.starts}</td>
-                    <td class="c num">{totals.wins || ''}</td>
-                    <td class="c num">{totals.podiums || ''}</td>
-                    <td class="c num">{totals.retirements || ''}</td>
-                    <td class="c num">{totals.best ?? ''}</td>
-                  </tr>
-                {/if}
-              </tbody>
-            </table>
-          {:else}
-            <div class="empty"><Status text={tr.t('driver.noRaces')} /></div>
-          {/if}
-        </section>
       </div>
     </div>
+
+    <section class="panel tbl career-panel">
+      <header><h2>{tr.t('driver.career')}</h2></header>
+      {#if profile.seasons.length > 0}
+        <div class="tbl-scroll">
+          <table class="table tight career">
+            <thead>
+              <tr>
+                <th class="c">{tr.t('driver.season')}</th>
+                <th>{tr.t('shell.col.team')}</th>
+                <th class="c">{tr.t('drivers.starts')}</th>
+                <th class="c">{tr.t('shell.col.wins')}</th>
+                <th class="c">{tr.t('drivers.podiums')}</th>
+                <th class="c">{tr.t('driver.retired')}</th>
+                <th class="c">{tr.t('driver.champPlace')}</th>
+                <th class="c">{tr.t('shell.col.points')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each profile.seasons as row (row.season)}
+                {@const cells = careerCells(row)}
+                <tr>
+                  <td class="c num">{cells.season}</td>
+                  <td>{cells.team}</td>
+                  <td class="c num">{cells.starts}</td>
+                  <td class="c num">{cells.wins}</td>
+                  <td class="c num">{cells.podiums}</td>
+                  <td class="c num">{cells.retirements}</td>
+                  <td class="c num">{cells.place}</td>
+                  <td class="c num">{cells.points}</td>
+                </tr>
+              {/each}
+              {#if profile.seasons.length > 1}
+                <tr class="mine">
+                  <td class="c">Σ</td>
+                  <td></td>
+                  <td class="c num">{totals.starts}</td>
+                  <td class="c num">{totals.wins}</td>
+                  <td class="c num">{totals.podiums}</td>
+                  <td class="c num">{totals.retirements}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              {/if}
+            </tbody>
+          </table>
+        </div>
+      {:else}
+        <div class="empty"><Status text={tr.t('driver.noRaces')} /></div>
+      {/if}
+    </section>
   </div>
 {/if}

@@ -10,6 +10,7 @@ import {
   latestSave,
   newCareerArgs,
   newestFirst,
+  START_YEAR,
   PRESET_KEYS,
   saveLabel,
   sameSave,
@@ -63,6 +64,13 @@ test('a seed that is not a plain number is left to the bridge default', () => {
   assert.equal(teamsArgs('m', { ...emptySetup(1955, 'abc') }).seed, null);
   assert.equal(teamsArgs('m', { ...emptySetup(1955, '') }).seed, null);
   assert.equal(teamsArgs('m', { ...emptySetup(1955, '12345678901234567890') }).seed, null);
+});
+
+test('the start screen opens on 2010 and a blank year falls back to it (#323)', () => {
+  assert.equal(START_YEAR, 2010);
+  assert.equal(emptySetup().year, 2010);
+  assert.equal(clampYear('x'), 2010);
+  assert.equal(clampYear('1962'), 1962);
 });
 
 test('the year stays inside the range the career allows', () => {

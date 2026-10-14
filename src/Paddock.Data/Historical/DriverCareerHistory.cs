@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Text.Json;
+using Paddock.Domain.Racing;
 
 namespace Paddock.Data.Historical;
 
@@ -11,7 +13,9 @@ public sealed record HistoricalSeasonLine(
     int Wins,
     int Podiums,
     int Retirements,
-    int? Best);
+    int? Best,
+    string Points = "0",
+    int? Place = null);
 
 /// <summary>
 /// The seasons real drivers raced before a career starts, counted from the local Jolpica cache (PP-041: local only, never
@@ -94,6 +98,14 @@ public sealed class DriverCareerHistory
             tally.Add(row);
         }
 
+        // The place is read over the whole field of the season, so every driver's total goes in first (#331).
+        var places = SeasonPlaces.Of(tallies.Select(entry => new SeasonTotal(
+            entry.Key.Season,
+            entry.Key.Driver,
+            entry.Value.Points,
+            entry.Value.Wins,
+            entry.Value.Podiums)));
+
         var byDriver = new Dictionary<string, List<HistoricalSeasonLine>>(StringComparer.Ordinal);
         foreach (var ((driver, season), tally) in tallies)
         {
@@ -110,7 +122,9 @@ public sealed class DriverCareerHistory
                 tally.Wins,
                 tally.Podiums,
                 tally.Retirements,
-                tally.Best));
+                tally.Best,
+                tally.Points.ToString("0.##########", CultureInfo.InvariantCulture),
+                places[(season, driver)]));
         }
 
         return new DriverCareerHistory(byDriver);
@@ -139,10 +153,13 @@ public sealed class DriverCareerHistory
 
         public int? Best { get; private set; }
 
+        public decimal Points { get; private set; }
+
         public void Add(HistoricalResult row)
         {
             ConstructorId = row.ConstructorId;
             Starts++;
+            Points += row.Points;
             if (!row.IsClassified)
             {
                 Retirements++;

@@ -44,6 +44,33 @@ public sealed class RealPeopleDataTests
     }
 
     [Fact]
+    public void APastSeasonRanksEveryDriverByPlainPointsOfTheWholeField()
+    {
+        // #331: the place is read over the field of the season (wins then podiums break a tie); the Indianapolis 500 is not in it.
+        const string races = """
+            {"schemaVersion":1,"races":[
+              {"season":1953,"round":1,"name":"A","circuitId":"a","date":"1953-01-01","time":null,"url":"","isIndianapolis500":false},
+              {"season":1953,"round":2,"name":"B","circuitId":"indianapolis","date":"1953-05-30","time":null,"url":"","isIndianapolis500":true}]}
+            """;
+        const string results = """
+            {"schemaVersion":1,"results":[
+              {"season":1953,"round":1,"driverId":"x","constructorId":"alfa","carNumber":"1","position":1,"positionText":"1","status":"Finished","points":8,"grid":1,"laps":10,"time":null,"timeMillis":null,"isClassified":true,"isDisqualified":false,"isSharedDrive":false},
+              {"season":1953,"round":1,"driverId":"y","constructorId":"ferrari","carNumber":"2","position":2,"positionText":"2","status":"Finished","points":6,"grid":2,"laps":10,"time":null,"timeMillis":null,"isClassified":true,"isDisqualified":false,"isSharedDrive":false},
+              {"season":1953,"round":1,"driverId":"z","constructorId":"ferrari","carNumber":"3","position":3,"positionText":"3","status":"Finished","points":4.5,"grid":3,"laps":10,"time":null,"timeMillis":null,"isClassified":true,"isDisqualified":false,"isSharedDrive":false},
+              {"season":1953,"round":2,"driverId":"y","constructorId":"ferrari","carNumber":"2","position":1,"positionText":"1","status":"Finished","points":9,"grid":1,"laps":10,"time":null,"timeMillis":null,"isClassified":true,"isDisqualified":false,"isSharedDrive":false}]}
+            """;
+
+        var history = DriverCareerHistory.Parse(results, races, null);
+
+        var x = Assert.Single(history.Before("x", 1955));
+        var y = Assert.Single(history.Before("y", 1955));
+        var z = Assert.Single(history.Before("z", 1955));
+        Assert.Equal(("8", 1), (x.Points, x.Place));
+        Assert.Equal(("6", 2), (y.Points, y.Place));
+        Assert.Equal(("4.5", 3), (z.Points, z.Place));
+    }
+
+    [Fact]
     public void PlainSeasonCountsComeFromTheResultsAndSkipTheIndianapolis500()
     {
         const string races = """

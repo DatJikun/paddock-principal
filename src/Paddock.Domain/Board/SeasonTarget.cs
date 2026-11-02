@@ -56,71 +56,57 @@ public static class SeasonTarget
     };
 
     /// <summary>
-    /// Places between adjacent season-target options. Stronger teams (a lower expected finish) get a tighter spread;
-    /// a larger field stretches the gap at the back. Never a fixed 2 (#315). ESTIMATE: 1 at the front, up to about
-    /// a fifth of the field at the back (<see cref="BoardEstimates.PlaceGapFieldDivisor"/>).
+    /// How many places separate two neighbouring targets (#315). A team expected near the front gets one place, so the options stay
+    /// close (a top-4 team: P2 / P3 / P4); the gap grows towards the back of the field and with the size of the field, up to
+    /// <see cref="BoardEstimates.TargetMaxPlaces"/>. Whole numbers only, from public facts (the expectation and the field).
     /// </summary>
-    public static int PlaceGap(int expected, int fieldSize)
+    public static int Places(int expected, int fieldSize)
     {
         var size = Math.Max(1, fieldSize);
-        var finish = Math.Clamp(expected, 1, size);
-        if (size <= 1)
+        if (size <= 2)
         {
             return 1;
         }
 
-        var rank = (finish - 1) / (double)(size - 1);
-        var maxGap = Math.Max(
-            1,
-            (int)Math.Round(size / (double)BoardEstimates.PlaceGapFieldDivisor, MidpointRounding.AwayFromZero));
-        return 1 + (int)Math.Round(rank * (maxGap - 1), MidpointRounding.AwayFromZero);
+        var finish = Math.Clamp(expected, 1, size);
+        var backExtra = Math.Max(0, ((size * BoardEstimates.TargetBackSpreadPercent) + 50) / 100 - 1);
+        var extra = (finish - 1) * backExtra / (size - 1);
+        return Math.Clamp(1 + extra, 1, BoardEstimates.TargetMaxPlaces);
     }
 
-    /// <summary>The championship position asked for. A larger number is easier. Clamped to the field.</summary>
+    /// <summary>
+    /// The championship position asked for. A larger number is easier. Clamped to the field. The three targets never coincide: a
+    /// team expected last is asked for one place better, so its safe target (last) is still easier than the expected one.
+    /// </summary>
     public static int Position(int expected, int fieldSize, SeasonAmbition ambition)
     {
         var size = Math.Max(1, fieldSize);
         var finish = Math.Clamp(expected, 1, size);
-        var gap = PlaceGap(finish, size);
-        var shift = ambition switch
+        var center = size >= 2 ? Math.Min(finish, size - 1) : 1;
+        var places = Places(finish, size);
+        return ambition switch
         {
-            SeasonAmbition.Safe => gap,
-            SeasonAmbition.Ambitious => -gap,
-            _ => 0,
+            SeasonAmbition.Safe => Math.Clamp(center + places, 1, size),
+            SeasonAmbition.Ambitious => Math.Clamp(center - places, 1, size),
+            _ => center,
         };
-        return Math.Clamp(finish + shift, 1, size);
     }
 
-    /// <summary>Extra budget in whole dollars paid when this target is taken, from the team's opening budget. ESTIMATE.</summary>
-    public static long BudgetDollars(long teamBudgetDollars, SeasonAmbition ambition) =>
-        Share(teamBudgetDollars, BudgetMilli(ambition));
-
-    /// <summary>Whole dollars charged when this target is missed, from the team's opening budget. ESTIMATE.</summary>
-    public static long FailBudgetDollars(long teamBudgetDollars, SeasonAmbition ambition) =>
-        Share(teamBudgetDollars, FailBudgetMilli(ambition));
-
-    private static int BudgetMilli(SeasonAmbition ambition) => ambition switch
+    /// <summary>
+    /// The board's bonus for meeting the target, in whole nominal dollars: a share of the era's typical team budget, so it means
+    /// the same in 1958 and in 2017. Strictly safe &lt; expected &lt; ambitious (PP-058: a small bonus for the safe target, a large
+    /// one for the ambitious). Fixed when the target is offered, so the player sees it before choosing.
+    /// </summary>
+    public static long BonusDollars(SeasonAmbition ambition, long typicalBudgetDollars)
     {
-        SeasonAmbition.Safe => BoardEstimates.SafeBudgetMilli,
-        SeasonAmbition.Ambitious => BoardEstimates.AmbitiousBudgetMilli,
-        _ => BoardEstimates.ExpectedBudgetMilli,
-    };
-
-    private static int FailBudgetMilli(SeasonAmbition ambition) => ambition switch
-    {
-        SeasonAmbition.Safe => BoardEstimates.SafeFailBudgetMilli,
-        SeasonAmbition.Ambitious => BoardEstimates.AmbitiousFailBudgetMilli,
-        _ => BoardEstimates.ExpectedFailBudgetMilli,
-    };
-
-    private static long Share(long teamBudgetDollars, int milli)
-    {
-        if (milli <= 0 || teamBudgetDollars <= 0)
+        var permille = ambition switch
         {
-            return 0;
-        }
-
-        return teamBudgetDollars * milli / 1000;
+            SeasonAmbition.Safe => BoardEstimates.SafeBonusPermille,
+            SeasonAmbition.Ambitious => BoardEstimates.AmbitiousBonusPermille,
+            _ => BoardEstimates.ExpectedBonusPermille,
+        };
+        var budget = Math.Max(0L, typicalBudgetDollars);
+        return ((budget / 1000) * permille) + ((budget % 1000) * permille / 1000);
     }
 
     /// <summary>

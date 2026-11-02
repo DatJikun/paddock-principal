@@ -164,7 +164,7 @@ internal static class BoardKit
             IBoardHistory? history = null,
             bool noRaces = false,
             IBoardSeverance? severance = null,
-            IBoardFunds? funds = null)
+            IBoardBonus? bonus = null)
         {
             Appeal = new ContractKit.FakeAppeal();
             Facts = new FakeFacts();
@@ -180,7 +180,7 @@ internal static class BoardKit
                 trace,
                 new BoardReputationSource(() => Board!.Section));
             Contracts = new ContractBook(BuildWorld(free), Environment);
-            Board = new BoardBook(Contracts, Facts, masterSeed, history, severance: severance, funds: funds);
+            Board = new BoardBook(Contracts, Facts, masterSeed, history, severance: severance, bonus: bonus);
             Managers = new ManagerRegistry();
             Managers.Register(Pam, ManagerKind.Human, "Pam");
             Managers.Register(Quinn, ManagerKind.Human, "Quinn");
@@ -335,4 +335,18 @@ internal static class BoardKit
             public string ContentHash() => _lab.Hash();
         }
     }
+}
+
+/// <summary>A SYNTHETIC era budget for the board's bonus (not a historical figure) that records every payment.</summary>
+internal sealed class FakeBoardBonus : IBoardBonus
+{
+    public FakeBoardBonus(long typicalDollars) => Typical = typicalDollars;
+
+    public long Typical { get; }
+
+    public List<(OrganizationId Organization, long Amount, GameDate On)> Paid { get; } = [];
+
+    public long TypicalBudgetDollars(int season) => Typical;
+
+    public void Pay(OrganizationId organization, long amount, GameDate on) => Paid.Add((organization, amount, on));
 }

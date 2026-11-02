@@ -462,7 +462,7 @@ public sealed class BoardEngine
                 else
                 {
                     var ambition = SeasonTarget.ForArchetype(StyleOf(board.Organization));
-                    GrantSeason(board.Organization, publicExpected, fieldSize, ambition, baseline, today);
+                    GrantSeason(board.Organization, publicExpected, fieldSize, ambition, baseline, today, bonus: Bonus(ambition, today));
                     TraceSeasonTarget(board, ambition, today);
                     expected = SeasonTarget.Position(publicExpected, fieldSize, ambition);
                 }
@@ -527,11 +527,10 @@ public sealed class BoardEngine
     }
 
     /// <summary>
-    /// Applies the effect of an objective the board granted when it is settled: the board's confidence moves by the stated amount,
-    /// extra budget is charged on a miss, and a human principal is told in the inbox with the reason (PP-058, #315).
+    /// Applies the effect of an objective the board granted when it is settled: the board's confidence moves by the stated amount.
     /// The effect is read from the objective, so the player saw it when the objective was granted (DESIGN section 3.2).
     /// </summary>
-    public void ApplyObjectiveOutcome(Objective objective, bool met, GameDate today)
+    public void ApplyObjectiveOutcome(Objective objective, bool met)
     {
         ArgumentNullException.ThrowIfNull(objective);
         if (objective.KindKey is not (BoardKeys.ObjectiveSeason or BoardKeys.ObjectiveMultiYear)
@@ -549,42 +548,103 @@ public sealed class BoardEngine
 
         var updated = board with { ConfidenceTenths = BoardEstimates.Clamp(board.ConfidenceTenths + tenths) };
         _book.Update(_book.Section.WithBoard(updated));
-        if (objective.KindKey == BoardKeys.ObjectiveSeason)
+        var bonus = met && effect.Arguments.TryGetValue("bonus", out var bonusText)
+            && long.TryParse(bonusText, NumberStyles.None, CultureInfo.InvariantCulture, out var amount)
+                ? amount
+                : 0L;
+        if (bonus > 0)
         {
-            if (!met
-                && effect.Arguments.TryGetValue("failBudget", out var failText)
-                && long.TryParse(failText, NumberStyles.None, CultureInfo.InvariantCulture, out var failDollars)
-                && failDollars > 0)
-            {
-                _book.Funds.Post(objective.Owner, -failDollars, today, BoardKeys.ReasonBudgetMiss);
-            }
-
-            TellSeasonOutcome(updated, effect, met, today);
+            _book.Bonus.Pay(objective.Owner, bonus, objective.Deadline);
         }
 
-        if (!met
+        var dismissOnFail = !met
             && effect.Arguments.TryGetValue("dismiss", out var dismiss)
             && dismiss == "1"
-            && updated.Principal is { } principal
-            && !principal.Founder
-            && objective.Deadline > principal.ProtectedUntil)
+            && updated.Principal is { Founder: false };
+        var dismissed = dismissOnFail && objective.Deadline > updated.Principal!.ProtectedUntil;
+        if (objective.KindKey == BoardKeys.ObjectiveSeason)
+        {
+            TellOutcome(updated, objective, met, Math.Abs(tenths) / 10, bonus, dismissOnFail && !dismissed);
+        }
+
+        if (dismissed)
         {
             Dismiss(updated, objective.Deadline, ReputationModel.DismissThresholdTenths(updated.Patience), ReputationModel.ReviewsToDismiss(updated.Patience));
         }
     }
 
-    /// <summary>Grants the season objective for a chosen ambition. The expected position stays the public one until this runs.</summary>
-    public void GrantSeason(OrganizationId organization, int expected, int fieldSize, SeasonAmbition ambition, decimal baseline, GameDate today, int? wins = null)
+    /// <summary>
+    /// Tells the human principal how the season target ended, with the reason: what was asked, what the team reached, the
+    /// confidence moved and the bonus paid (#315, PP-058: nothing fails silently). AI principals get no notice.
+    /// </summary>
+    private void TellOutcome(BoardRecord board, Objective objective, bool met, int points, long bonus, bool spared)
     {
-        var target = SeasonTarget.Position(expected, fieldSize, ambition);
-        var teamBudget = TeamBudgetDollars(organization);
-        var grantDollars = SeasonTarget.BudgetDollars(teamBudget, ambition);
-        var failDollars = SeasonTarget.FailBudgetDollars(teamBudget, ambition);
-        if (grantDollars > 0)
+        if (board.Principal is not { Kind: PrincipalKind.Human } principal)
         {
-            _book.Funds.Post(organization, grantDollars, today, BoardKeys.ReasonBudgetGrant);
+            return;
         }
 
+        var manager = new ManagerId(principal.Subject);
+        if (!_managers.Contains(manager))
+        {
+            return;
+        }
+
+        var (target, wins) = objective.Predicate switch
+        {
+            ChampionshipPositionWithWins withWins => (withWins.Position, withWins.Wins),
+            ChampionshipPositionAtMost atMost => (atMost.Position, 0),
+            _ => (0, 0),
+        };
+        var finish = _book.Facts.Number(objective.Owner, ObjectiveFactKeys.ChampionshipPosition);
+        var won = _book.Facts.Number(objective.Owner, ObjectiveFactKeys.SeasonWins);
+        string Whole(decimal value) => ((long)Math.Round(value, MidpointRounding.AwayFromZero)).ToString(CultureInfo.InvariantCulture);
+        string key;
+        if (met)
+        {
+            key = bonus > 0 ? BoardKeys.NoticeTargetMetBonus : BoardKeys.NoticeTargetMet;
+        }
+        else if (finish is null)
+        {
+            key = BoardKeys.NoticeTargetFailedUnknown;
+        }
+        else if (spared)
+        {
+            key = BoardKeys.NoticeTargetFailedSpared;
+        }
+        else
+        {
+            key = wins > 0 ? BoardKeys.NoticeTargetFailedWins : BoardKeys.NoticeTargetFailed;
+        }
+
+        _inbox.Post(
+            _managers,
+            manager,
+            new InboxItemDraft(
+                NoticeKind,
+                key,
+                [
+                    new("target", target.ToString(CultureInfo.InvariantCulture)),
+                    new("finish", finish is decimal place ? Whole(place) : string.Empty),
+                    new("wins", wins.ToString(CultureInfo.InvariantCulture)),
+                    new("won", won is decimal count ? Whole(count) : "0"),
+                    new("points", points.ToString(CultureInfo.InvariantCulture)),
+                    new("bonus", bonus.ToString(CultureInfo.InvariantCulture)),
+                ],
+                null,
+                null,
+                null),
+            objective.Deadline);
+    }
+
+    /// <summary>The bonus a target of this ambition pays this season (#315), from the era's public typical budget.</summary>
+    private long Bonus(SeasonAmbition ambition, GameDate today) =>
+        SeasonTarget.BonusDollars(ambition, _book.Bonus.TypicalBudgetDollars(today.Year));
+
+    /// <summary>Grants the season objective for a chosen ambition. The expected position stays the public one until this runs.</summary>
+    public void GrantSeason(OrganizationId organization, int expected, int fieldSize, SeasonAmbition ambition, decimal baseline, GameDate today, int? wins = null, long bonus = 0)
+    {
+        var target = SeasonTarget.Position(expected, fieldSize, ambition);
         Grant(
             organization,
             BoardKeys.ObjectiveSeason,
@@ -598,8 +658,7 @@ public sealed class BoardEngine
             SeasonTarget.KeyOf(ambition),
             ambition == SeasonAmbition.Ambitious,
             wins ?? SeasonTarget.WinsRequired(expected, fieldSize, SeasonRounds(today), ambition),
-            grantDollars,
-            failDollars);
+            bonus);
         var board = _book.Section.Board(organization);
         if (board is not null)
         {
@@ -636,7 +695,12 @@ public sealed class BoardEngine
             && int.TryParse(winsText, NumberStyles.None, CultureInfo.InvariantCulture, out var asked)
                 ? asked
                 : null;
-        GrantSeason(owner, expected, fieldSize, ambition, baseline, today, wins);
+        // The bonus is the one the player saw on the decision, not one recomputed today (#315).
+        var bonus = item.Arguments.TryGetValue(SeasonTarget.KeyOf(ambition) + "Bonus", out var bonusText)
+            && long.TryParse(bonusText, NumberStyles.None, CultureInfo.InvariantCulture, out var shown)
+                ? shown
+                : 0L;
+        GrantSeason(owner, expected, fieldSize, ambition, baseline, today, wins, bonus);
     }
 
     // ---------------------------------------------------------------- dismissal and replacement
@@ -938,51 +1002,6 @@ public sealed class BoardEngine
         return Math.Max(1L, (long)Math.Round(reference * BoardEstimates.SeveranceShare, MidpointRounding.AwayFromZero));
     }
 
-    private long TeamBudgetDollars(OrganizationId organization)
-    {
-        foreach (var team in _book.World.Organizations)
-        {
-            if (team.Id == organization)
-            {
-                return team.Budget;
-            }
-        }
-
-        return 0;
-    }
-
-    private void TellSeasonOutcome(BoardRecord board, ObjectiveEffect effect, bool met, GameDate today)
-    {
-        if (board.Principal is not { Kind: PrincipalKind.Human } principal)
-        {
-            return;
-        }
-
-        var manager = new ManagerId(principal.Subject);
-        if (!_managers.Contains(manager))
-        {
-            return;
-        }
-
-        var arguments = new List<KeyValuePair<string, string>>();
-        foreach (var pair in effect.Arguments)
-        {
-            arguments.Add(pair);
-        }
-
-        _inbox.Post(
-            _managers,
-            manager,
-            new InboxItemDraft(
-                NoticeKind,
-                met ? BoardKeys.NoticeTargetMet : BoardKeys.NoticeTargetMissed,
-                arguments,
-                null,
-                null,
-                null),
-            today);
-    }
-
     private void Grant(
         OrganizationId organization,
         string kind,
@@ -996,32 +1015,31 @@ public sealed class BoardEngine
         string? ambition = null,
         bool dismissOnFail = false,
         int wins = 0,
-        long grantDollars = 0,
-        long failDollars = 0)
+        long bonus = 0)
     {
         var penalty = penaltyTenths ?? tenths;
         var metPoints = (tenths / 10).ToString(CultureInfo.InvariantCulture);
         var failPoints = (penalty / 10).ToString(CultureInfo.InvariantCulture);
-        var targetText = target.ToString(CultureInfo.InvariantCulture);
         var met = new List<KeyValuePair<string, string>>
         {
             new("points", metPoints),
             new("tenths", tenths.ToString(CultureInfo.InvariantCulture)),
-            new("target", targetText),
-            new("budget", grantDollars.ToString(CultureInfo.InvariantCulture)),
         };
         var failed = new List<KeyValuePair<string, string>>
         {
             new("points", failPoints),
             new("tenths", (-penalty).ToString(CultureInfo.InvariantCulture)),
-            new("target", targetText),
-            new("failBudget", failDollars.ToString(CultureInfo.InvariantCulture)),
         };
         if (ambition is not null)
         {
             met.Add(new("ambition", ambition));
             failed.Add(new("ambition", ambition));
             failed.Add(new("dismiss", dismissOnFail ? "1" : "0"));
+        }
+
+        if (bonus > 0)
+        {
+            met.Add(new("bonus", bonus.ToString(CultureInfo.InvariantCulture)));
         }
 
         var (section, _) = _book.Objectives.Add(
@@ -1033,7 +1051,7 @@ public sealed class BoardEngine
                 wins > 0 ? new ChampionshipPositionWithWins(target, wins) : new ChampionshipPositionAtMost(target),
                 wins > 0 ? null : baseline,
                 deadline,
-                new ObjectiveEffect(BoardKeys.EffectConfidenceUp, met),
+                new ObjectiveEffect(bonus > 0 ? BoardKeys.EffectConfidenceUpBonus : BoardKeys.EffectConfidenceUp, met),
                 new ObjectiveEffect(BoardKeys.EffectConfidenceDown, failed)),
             today);
         _book.Update(section);
@@ -1044,7 +1062,7 @@ public sealed class BoardEngine
         var manager = new ManagerId(managerId);
         if (!_managers.Contains(manager))
         {
-            GrantSeason(organization, expected, fieldSize, SeasonAmbition.Expected, expected, today);
+            GrantSeason(organization, expected, fieldSize, SeasonAmbition.Expected, expected, today, bonus: Bonus(SeasonAmbition.Expected, today));
             return;
         }
 
@@ -1054,11 +1072,8 @@ public sealed class BoardEngine
             (SeasonTarget.RewardTenths(ambition) / 10).ToString(CultureInfo.InvariantCulture);
         string Loss(SeasonAmbition ambition) =>
             (SeasonTarget.PenaltyTenths(ambition) / 10).ToString(CultureInfo.InvariantCulture);
-        var teamBudget = TeamBudgetDollars(organization);
-        string Budget(SeasonAmbition ambition) =>
-            SeasonTarget.BudgetDollars(teamBudget, ambition).ToString(CultureInfo.InvariantCulture);
-        string FailBudget(SeasonAmbition ambition) =>
-            SeasonTarget.FailBudgetDollars(teamBudget, ambition).ToString(CultureInfo.InvariantCulture);
+        string Paid(SeasonAmbition ambition) =>
+            Bonus(ambition, today).ToString(CultureInfo.InvariantCulture);
         var wins = SeasonTarget.WinsRequired(expected, fieldSize, SeasonRounds(today), SeasonAmbition.Ambitious);
         _inbox.Post(
             _managers,
@@ -1080,12 +1095,9 @@ public sealed class BoardEngine
                     new("safeLoss", Loss(SeasonAmbition.Safe)),
                     new("expectedLoss", Loss(SeasonAmbition.Expected)),
                     new("ambitiousLoss", Loss(SeasonAmbition.Ambitious)),
-                    new("safeBudget", Budget(SeasonAmbition.Safe)),
-                    new("expectedBudget", Budget(SeasonAmbition.Expected)),
-                    new("ambitiousBudget", Budget(SeasonAmbition.Ambitious)),
-                    new("safeFailBudget", FailBudget(SeasonAmbition.Safe)),
-                    new("expectedFailBudget", FailBudget(SeasonAmbition.Expected)),
-                    new("ambitiousFailBudget", FailBudget(SeasonAmbition.Ambitious)),
+                    new("safeBonus", Paid(SeasonAmbition.Safe)),
+                    new("expectedBonus", Paid(SeasonAmbition.Expected)),
+                    new("ambitiousBonus", Paid(SeasonAmbition.Ambitious)),
                 ],
                 [
                     new InboxOption(SeasonTarget.Safe, BoardKeys.SeasonTargetSafeLabel, BoardKeys.SeasonTargetSafeConsequence),

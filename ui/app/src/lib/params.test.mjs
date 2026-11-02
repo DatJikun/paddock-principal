@@ -21,3 +21,9 @@ test('every parameter of a message is formatted', () => {
     salary: '$5,000',
   });
 });
+
+test('the board bonus of each season target is money (#315)', () => {
+  assert.equal(formatParameter('en', 'safeBonus', '1500000'), '$1,500,000');
+  assert.equal(formatParameter('en', 'expectedBonus', '4500000'), '$4,500,000');
+  assert.equal(formatParameter('en', 'ambitiousBonus', '12000000'), '$12,000,000');
+});

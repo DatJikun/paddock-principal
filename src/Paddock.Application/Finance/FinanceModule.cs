@@ -14,7 +14,7 @@ namespace Paddock.Application.Finance;
 /// <summary>
 /// T37 finance in the career loop (#160). With era data it opens the books of every team (the opening capital comes from the era's
 /// budget for the team's tier), replaces the stand-ins of the other systems with the ledger (the payroll port of the contracts, the
-/// junior funding of the pool, the severance of the board, extra board budget), registers its three commands and the finance day handler (order 800),
+/// junior funding of the pool, the severance of the board), registers its three commands and the finance day handler (order 800),
 /// and tells the objectives the cash of a team (<c>finance.cash</c>). Without era data it does nothing and the stand-ins stay.
 /// <para>
 /// Race weekends (T47) post <see cref="ApplyRaceResultsCommand"/>'s ledger effect and the season's popularity directly from the
@@ -44,7 +44,7 @@ public sealed class FinanceModule : CareerModule
         context.Provide<IPayrollLedger>(new FinancePayroll(book));
         context.Provide<IJuniorFunding>(new FinanceJuniorFunding(book));
         context.Provide<IBoardSeverance>(new FinanceSeverance(book));
-        context.Provide<IBoardFunds>(new FinanceBoardFunds(book));
+        context.Provide<IBoardBonus>(new FinanceBoardBonus(book, context.Inputs.Eras));
     }
 
     public override void Attach(CareerModuleContext context)
@@ -152,31 +152,38 @@ public sealed class FinanceSeverance : IBoardSeverance
     }
 }
 
-/// <summary>Extra board budget and a missed-target charge, posted as owner funds (no ledger book, no posting).</summary>
-public sealed class FinanceBoardFunds : IBoardFunds
+/// <summary>
+/// The board's season bonus (#315), sized from the era's typical team budget and posted to the team's ledger as owner funds
+/// (no ledger book, no posting).
+/// </summary>
+public sealed class FinanceBoardBonus : IBoardBonus
 {
     private readonly FinanceBook _book;
+    private readonly IEraFinanceSource _eras;
 
-    public FinanceBoardFunds(FinanceBook book)
+    public FinanceBoardBonus(FinanceBook book, IEraFinanceSource eras)
     {
         ArgumentNullException.ThrowIfNull(book);
+        ArgumentNullException.ThrowIfNull(eras);
         _book = book;
+        _eras = eras;
     }
 
-    public void Post(OrganizationId organization, long signedDollars, GameDate on, string reasonKey)
+    public long TypicalBudgetDollars(int season) => Math.Max(0L, _eras.Facts(season).TypicalDollars);
+
+    public void Pay(OrganizationId organization, long amount, GameDate on)
     {
-        if (signedDollars == 0 || !_book.Section.HasBook(organization))
+        if (amount <= 0 || !_book.Section.HasBook(organization))
         {
             return;
         }
 
-        ArgumentException.ThrowIfNullOrWhiteSpace(reasonKey);
         _book.Replace(_book.Section.Post(
             organization,
             on,
             LedgerCategories.OwnerFunds,
             null,
-            Money.FromDollars(signedDollars).Cents,
-            reasonKey));
+            Money.FromDollars(amount).Cents,
+            FinanceReason.BoardBonus));
     }
 }

@@ -90,10 +90,13 @@ public static class BoardEstimates
     public const int SeasonTargetDecisionDays = 14;
 
     /// <summary>
-    /// ESTIMATE (#315): the field size is divided by this to get the widest gap between adjacent season targets (at the back of the grid).
-    /// A field of 10 gives a max gap of 2; a top team still gets 1. Never a fixed 2 for every team.
+    /// ESTIMATE (#315): at the back of a field, the gap between two neighbouring targets is about this percentage of the field
+    /// (a 10-team field: 2 places, 20 teams: 3). At the front it is always one place.
     /// </summary>
-    public const int PlaceGapFieldDivisor = 5;
+    public const int TargetBackSpreadPercent = 15;
+
+    /// <summary>ESTIMATE (#315): the widest gap between two neighbouring targets, in places, whatever the field.</summary>
+    public const int TargetMaxPlaces = 3;
 
     /// <summary>
     /// ESTIMATE (#264): share of the season's races a team expected to lead must win for the ambitious target ("P1 and at least N wins").
@@ -103,6 +106,15 @@ public static class BoardEstimates
 
     /// <summary>ESTIMATE (#264): season length the board assumes when the calendar is not stored yet.</summary>
     public const int FallbackSeasonRounds = 8;
+
+    /// <summary>ESTIMATE (#315): the board's bonus for meeting the safe target, in thousandths of the era's typical team budget (1%).</summary>
+    public const int SafeBonusPermille = 10;
+
+    /// <summary>ESTIMATE (#315): the bonus for meeting the expected target (3% of the typical budget).</summary>
+    public const int ExpectedBonusPermille = 30;
+
+    /// <summary>ESTIMATE (#315): the bonus for meeting the ambitious target (8% of the typical budget).</summary>
+    public const int AmbitiousBonusPermille = 80;
 
     /// <summary>ESTIMATE (PP-058): confidence gained when the safe target is met (5 points). Less than <see cref="SeasonObjectiveTenths"/>.</summary>
     public const int SafeObjectiveTenths = 50;
@@ -115,24 +127,6 @@ public static class BoardEstimates
 
     /// <summary>ESTIMATE (PP-058): confidence lost when the ambitious target is failed (40 points). Failing it can also dismiss an unprotected principal.</summary>
     public const int AmbitiousFailTenths = 400;
-
-    /// <summary>ESTIMATE (#315): extra budget, in thousandths of the team's opening budget, paid on taking the safe target. Zero: the easy option is cheaper, not richer.</summary>
-    public const int SafeBudgetMilli = 0;
-
-    /// <summary>ESTIMATE (#315): extra budget thousandths paid on taking the expected target (2%).</summary>
-    public const int ExpectedBudgetMilli = 20;
-
-    /// <summary>ESTIMATE (#315): extra budget thousandths paid on taking the ambitious target (5%).</summary>
-    public const int AmbitiousBudgetMilli = 50;
-
-    /// <summary>ESTIMATE (#315): thousandths of the opening budget charged when the safe target is missed. Zero: you already took no extra money.</summary>
-    public const int SafeFailBudgetMilli = 0;
-
-    /// <summary>ESTIMATE (#315): thousandths charged when the expected target is missed (the extra budget given at the start).</summary>
-    public const int ExpectedFailBudgetMilli = 20;
-
-    /// <summary>ESTIMATE (#315): thousandths charged when the ambitious target is missed (8%). More than was granted, so a miss costs cash.</summary>
-    public const int AmbitiousFailBudgetMilli = 80;
 
     /// <summary>ESTIMATE: confidence change when the multi-year objective is met (20 points) or failed.</summary>
     public const int MultiYearObjectiveTenths = 200;

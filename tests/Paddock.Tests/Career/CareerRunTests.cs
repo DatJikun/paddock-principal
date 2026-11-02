@@ -41,8 +41,6 @@ namespace Paddock.Tests.Career;
 /// It changed again in #227: an opening car races at its strength (its levels are the strength, the development ceiling is the strength
 /// plus <c>CarEstimates.InitialHeadroom</c>) and a newly approved concept maps its full potential to the ceiling instead of about
 /// half of it, so the cars section differs. The retired string stayed chief,leap,vet.
-/// It changed again in #315: the season objective records the extra budget and the miss charge, so the objectives section differs.
-/// The retired string stayed chief,leap,vet.
 /// </para>
 /// </summary>
 public class CareerRunTests
@@ -50,8 +48,7 @@ public class CareerRunTests
     private const ulong Seed = 7;
 
     // Changed again in #265: two race engineers per team, no hidden roles on the roster.
-    // Changed again in #315: season-target effects record the extra budget and the miss charge, so the objectives section differs.
-    private const string StoredWorldHash = "594b2d986317858792992db41e630512898caea1d667aa530f365bd520063620";
+    private const string StoredWorldHash = "035a3f2013197c1e6b6b36608f698d295dcaa3b730c35876735395aa47ffa826";
 
     private const string StoredRetired = "chief,leap,vet";
 

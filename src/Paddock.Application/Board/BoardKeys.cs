@@ -102,17 +102,29 @@ public static class BoardKeys
     [TranslationKey]
     public const string NoticeResigned = "board.notice.resigned";
 
+    /// <summary>#315: the season target was met; the board raised its confidence (no ledger, so no bonus).</summary>
     [TranslationKey]
     public const string NoticeTargetMet = "board.notice.targetMet";
 
+    /// <summary>#315: the season target was met; the board raised its confidence and paid its bonus.</summary>
     [TranslationKey]
-    public const string NoticeTargetMissed = "board.notice.targetMissed";
+    public const string NoticeTargetMetBonus = "board.notice.targetMetBonus";
 
+    /// <summary>#315: the season target was missed: the asked and the reached position, and the confidence lost.</summary>
     [TranslationKey]
-    public const string ReasonBudgetGrant = "board.reason.budgetGrant";
+    public const string NoticeTargetFailed = "board.notice.targetFailed";
 
+    /// <summary>#315: the ambitious target with wins was missed: the asked and the reached position and wins.</summary>
     [TranslationKey]
-    public const string ReasonBudgetMiss = "board.reason.budgetMiss";
+    public const string NoticeTargetFailedWins = "board.notice.targetFailedWins";
+
+    /// <summary>#315: the season target counts as missed because no standings are known (an unknown fact is not met).</summary>
+    [TranslationKey]
+    public const string NoticeTargetFailedUnknown = "board.notice.targetFailedUnknown";
+
+    /// <summary>#315: the ambitious target was missed, and only the new principal's protection kept the job.</summary>
+    [TranslationKey]
+    public const string NoticeTargetFailedSpared = "board.notice.targetFailedSpared";
 
     // ---- Objectives the board grants ----
 
@@ -133,6 +145,10 @@ public static class BoardKeys
 
     [TranslationKey]
     public const string EffectConfidenceDown = "board.effect.confidenceDown";
+
+    /// <summary>#315: the met effect of a season target that also pays the board's bonus.</summary>
+    [TranslationKey]
+    public const string EffectConfidenceUpBonus = "board.effect.confidenceUpBonus";
 
     // ---- The board view ----
 

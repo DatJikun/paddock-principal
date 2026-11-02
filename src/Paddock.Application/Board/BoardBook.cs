@@ -55,8 +55,8 @@ public sealed class BoardBook
         BoardSection? section = null,
         ObjectivesSection? objectives = null,
         IBoardSeverance? severance = null,
-        PublicRankKeys? ranking = null,
-        IBoardFunds? funds = null)
+        IBoardBonus? bonus = null,
+        PublicRankKeys? ranking = null)
     {
         ArgumentNullException.ThrowIfNull(contracts);
         ArgumentNullException.ThrowIfNull(facts);
@@ -65,7 +65,7 @@ public sealed class BoardBook
         MasterSeed = masterSeed;
         History = history ?? new NoBoardHistory();
         Severance = severance ?? new NoSeverance();
-        Funds = funds ?? NoBoardFunds.Instance;
+        Bonus = bonus ?? new NoBoardBonus();
         Ranking = ranking;
         _section = section ?? contracts.World.Section<BoardSection>(BoardSection.SectionName) ?? BoardSection.Empty;
         _objectives = objectives ?? contracts.World.Section<ObjectivesSection>(ObjectivesSection.SectionName) ?? ObjectivesSection.Empty;
@@ -83,8 +83,8 @@ public sealed class BoardBook
     /// <summary>Where the severance of a dismissed manager is paid from (the finance ledger in a career). Nothing is paid by default.</summary>
     public IBoardSeverance Severance { get; }
 
-    /// <summary>Where extra board budget and a missed-target charge are posted (the finance ledger in a career). Nothing is posted by default.</summary>
-    public IBoardFunds Funds { get; }
+    /// <summary>Where the season bonus is sized and paid (#315).</summary>
+    public IBoardBonus Bonus { get; }
 
     /// <summary>The master seed that keyed draws derive from (INV-004).</summary>
     public ulong MasterSeed { get; }
@@ -162,30 +162,33 @@ public interface IBoardSeverance
     void Pay(OrganizationId payer, string managerId, long amount, GameDate on);
 }
 
-/// <summary>Nothing is paid or recorded beyond the board's own record of it. The default when there is no ledger.</summary>
-public sealed class NoSeverance : IBoardSeverance
+/// <summary>
+/// The board's season bonus (#315). The finance ledger implements it in a career; it is a port so the board does not reference the
+/// ledger. <see cref="TypicalBudgetDollars"/> is the era's public typical team budget, which sizes the bonus the player sees.
+/// </summary>
+public interface IBoardBonus
 {
-    public void Pay(OrganizationId payer, string managerId, long amount, GameDate on)
+    /// <summary>The era's typical team budget for <paramref name="season"/>, whole nominal dollars; 0 when unknown.</summary>
+    long TypicalBudgetDollars(int season);
+
+    /// <summary>Records that the board of <paramref name="organization"/> paid <paramref name="amount"/> (whole nominal dollars) to its team.</summary>
+    void Pay(OrganizationId organization, long amount, GameDate on);
+}
+
+/// <summary>No ledger: the bonus is 0 and nothing is paid. The default when there is no era finance.</summary>
+public sealed class NoBoardBonus : IBoardBonus
+{
+    public long TypicalBudgetDollars(int season) => 0;
+
+    public void Pay(OrganizationId organization, long amount, GameDate on)
     {
     }
 }
 
-/// <summary>
-/// Posts extra board budget or a missed-target charge to the team's ledger. The finance module implements it in a career;
-/// it is a port so the board does not reference the ledger. Called with a non-zero whole-dollar amount.
-/// </summary>
-public interface IBoardFunds
+/// <summary>Nothing is paid or recorded beyond the board's own record of it. The default when there is no ledger.</summary>
+public sealed class NoSeverance : IBoardSeverance
 {
-    /// <summary>Positive <paramref name="signedDollars"/> is extra budget; negative is a charge. Zero is a no-op.</summary>
-    void Post(OrganizationId organization, long signedDollars, GameDate on, string reasonKey);
-}
-
-/// <summary>Nothing is posted. The default when there is no ledger.</summary>
-public sealed class NoBoardFunds : IBoardFunds
-{
-    public static NoBoardFunds Instance { get; } = new();
-
-    public void Post(OrganizationId organization, long signedDollars, GameDate on, string reasonKey)
+    public void Pay(OrganizationId payer, string managerId, long amount, GameDate on)
     {
     }
 }

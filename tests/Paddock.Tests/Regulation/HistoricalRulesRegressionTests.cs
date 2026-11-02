@@ -21,16 +21,19 @@ namespace Paddock.Tests.Regulation;
 /// Re-pinned again in #325 (real contracts): the real staff of the authored data (Enzo Ferrari, Colotti, Maddock and others) now hold a
 /// contract to the end of their authored stint instead of the end of 1955, and contract end dates are in the hash. The 1955 fixture has no
 /// people cache, so every driver is generated: no driver contract, role or id moved, and the regulations are untouched.
+/// Re-pinned again in #315 (board targets): the three season targets sit one place apart near the front (they were two), so the AI
+/// boards' season objectives and expected positions move, the target decision carries each bonus, and a met target pays the board's
+/// bonus into the ledger at the season end. No RNG stream or id moved; later seasons can differ because the teams hold more cash.
 /// </summary>
 public class HistoricalRulesRegressionTests
 {
     private const ulong Seed = 7;
 
-    private const string HashOnTheLastDayOf1955 = "a7a48822066f8350c77197e022fce1847bc79f0df0f63f5c9a36e0fa33526fda";
+    private const string HashOnTheLastDayOf1955 = "771d6b838257ad24c66e00828d4a53531e01b6dfeec9b7993e6b442b0c30349c";
 
-    private const string HashAfterTheSeasonTurned = "68bd918a22570029343ad4895678baa74d5e93bf6a5300c82b17dc00cccb9f62";
+    private const string HashAfterTheSeasonTurned = "4a079cc066d79a42e619b23c32bbdcf2b7279598b3457155085ad3440245d82e";
 
-    private const string HashAfterTwoSeasons = "587cf9178686f26f991d7afe2f47b1b82607efeb210c8b023ae9dbf141270632";
+    private const string HashAfterTwoSeasons = "2c881f89a213311bd08a14d977a1c8f27540fee8ff41c9cf2e619c8a3d3f864e";
 
     private static (string Hash, bool HasRegulations, int Season, int Rounds, int NextSessions) Probe(GameDate stopOn)
     {

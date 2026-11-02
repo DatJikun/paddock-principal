@@ -597,7 +597,7 @@ Gazeta ze świata gry, wydawana co miesiąc. Działy:
 
 Pomysły ze starego GDD V4, dopasowane do obecnego projektu.
 - **Reputacja menedżera:** rośnie z wynikami ponad oczekiwania, tytułami i rozwojem ludzi, a spada ze słabymi wynikami i złym zarządzaniem pieniędzmi. Wpływa na oferty pracy, negocjacje z kierowcami i sponsorami, a także na wiarygodność obietnic (§6.3).
-- **Zarząd (albo właściciel)** stawia cele na sezon i na kilka lat i ocenia menedżera. Przed sezonem gracz wybiera jeden z trzech celów: bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę) (PP-058). Jego cierpliwość zależy od osobowości właściciela. W zespole założonym przez gracza tę rolę pełnią inwestorzy i sponsor założycielski (§3.2).
+- **Zarząd (albo właściciel)** stawia cele na sezon i na kilka lat i ocenia menedżera. Przed sezonem gracz wybiera jeden z trzech celów: bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę) (PP-058). Cele leżą blisko siebie: zespół z czołówki dostaje miejsce wyżej i niżej od oczekiwanego, a odstęp rośnie ku końcowi stawki i z jej wielkością (#315). Premia to pieniądze od zarządu, ułamek typowego budżetu epoki, ustalony i pokazany przy wyborze; spełniony cel ją wypłaca i podnosi zaufanie, niespełniony obniża zaufanie bez premii. Wynik celu przychodzi do skrzynki z powodem (cel i zajęte miejsce). Liczby to szacunki. Jego cierpliwość zależy od osobowości właściciela. W zespole założonym przez gracza tę rolę pełnią inwestorzy i sponsor założycielski (§3.2).
 - **Pogoda w wyścigu:** sucho, lekki deszcz, ulewa, burza, ze zmianami w trakcie wyścigu.
 - **Tempo oglądania wyścigu:** na żywo, krokami ×1, ×2, ×5, ×10, ×20, ×30 albo sam wynik.
 

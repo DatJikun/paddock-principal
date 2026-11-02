@@ -49,6 +49,9 @@ public static class FinanceKeys
     public const string Termination = "finance.reason.termination";
 
     [TranslationKey]
+    public const string BoardBonus = "finance.reason.board_bonus";
+
+    [TranslationKey]
     public const string ViewUnknown = "finance.view.unknown";
 
     [TranslationKey]

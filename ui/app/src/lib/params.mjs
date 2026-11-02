@@ -2,7 +2,7 @@ import { formatDate } from './date.mjs';
 import { formatMoney } from './money.mjs';
 
 /** Parameters the host sends as whole nominal dollars in invariant text. */
-const MONEY = new Set(['salary', 'partial', 'amount', 'bonus', 'severance', 'minimum']);
+const MONEY = new Set(['salary', 'partial', 'amount', 'bonus', 'severance', 'minimum', 'safeBonus', 'expectedBonus', 'ambitiousBonus']);
 
 /**
  * One message parameter as the player reads it. The host sends invariant text (ISO dates, whole dollars) because it does not

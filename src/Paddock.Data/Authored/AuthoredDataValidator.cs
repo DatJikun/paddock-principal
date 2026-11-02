@@ -754,9 +754,9 @@ public static partial class AuthoredDataValidator
         CircuitLayout? layout,
         TrackGeometry rawGeometry)
     {
-        var era = TrackEraDefaults.For(layout is null ? TrackEraDefaults.Table[0].FromYear : TrackGeometryCatalog.FirstSeason(layout));
+        IReadOnlyList<TrackEraDefault> eras = layout is null ? [TrackEraDefaults.Table[0]] : TrackGeometryCatalog.ErasOf(layout);
         var file = $"tracks/geometry/{geom.FileName ?? geom.LayoutId + ".json"}";
-        foreach (var problem in TrackDetailRules.Check(geom, era, rawGeometry, pointScale: 1.0))
+        foreach (var problem in TrackDetailRules.Check(geom, eras, rawGeometry, pointScale: 1.0))
         {
             var code = problem.Section switch
             {

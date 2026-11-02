@@ -20,15 +20,15 @@ public class TrackDetailTests
     private static readonly Lazy<AuthoredData> RepoData = new(
         () => AuthoredDataLoader.Load(Path.Combine(RepoPaths.Root(), "data")));
 
-    /// <summary>The sample circuits plus the fixture layout (first raced 2010, length close to the fixture's raw length).</summary>
-    private static string CircuitsWithFixture()
+    /// <summary>The sample circuits plus the fixture layout (raced in <paramref name="years"/>, length close to the fixture's raw length).</summary>
+    private static string CircuitsWithFixture(string years = "2010")
     {
         const string Anchor = """
                   "layout_id": "test_1950",
             """;
         var fixtureLayout = """
                   "layout_id": "fixture_2010",
-                  "years_used_in_f1": [2010],
+                  "years_used_in_f1": [YEARS],
                   "length_km": 5.883,
                   "corners": null,
                   "character": ["street"],
@@ -40,13 +40,16 @@ public class TrackDetailTests
                 {
             """;
         Assert.Contains(Anchor, AuthoredSamples.Circuits, StringComparison.Ordinal);
-        return AuthoredSamples.Circuits.Replace(Anchor, fixtureLayout + Anchor, StringComparison.Ordinal);
+        return AuthoredSamples.Circuits.Replace(
+            Anchor,
+            fixtureLayout.Replace("YEARS", years, StringComparison.Ordinal) + Anchor,
+            StringComparison.Ordinal);
     }
 
-    private static AuthoredData LoadWith(string json)
+    private static AuthoredData LoadWith(string json, string years = "2010")
     {
         using var temp = new TempAuthoredData(
-            circuits: CircuitsWithFixture(),
+            circuits: CircuitsWithFixture(years),
             geometries: new Dictionary<string, string>(StringComparer.Ordinal) { [FixtureFile] = json });
         return AuthoredDataLoader.Load(temp.Root);
     }
@@ -169,6 +172,60 @@ public class TrackDetailTests
     }
 
     [Fact]
+    public void EraDefaults_FollowTheSeasonRaced_AuthoredFieldsDoNot()
+    {
+        // One layout raced in 1972 and in 2010, once without authored width (defaults) and once with the full fixture.
+        var withoutWidth = Mutate(o => o.Remove("width_m"));
+        var bare = TrackGeometryCatalog.Create(LoadWith(withoutWidth, years: "1972, 2010"));
+        var full = TrackGeometryCatalog.Create(LoadWith(FixtureJson.Value, years: "1972, 2010"));
+
+        var bare1972 = bare.Resolve(FixtureLayout, 1972).Detail;
+        var bare2010 = bare.Resolve(FixtureLayout, 2010).Detail;
+
+        // Defaults differ by the season raced: 1970 row in 1972, 2005 row in 2010.
+        Assert.Equal(TrackEraDefaults.For(1972).WidthM, bare1972.WidthAt(0.3));
+        Assert.Equal(TrackEraDefaults.For(2010).WidthM, bare2010.WidthAt(0.3));
+        Assert.NotEqual(bare1972.WidthAt(0.3), bare2010.WidthAt(0.3));
+        Assert.Equal(TrackEraDefaults.For(1972).Edge, bare1972.EdgeAt(0.1, TrackSide.Left));
+        Assert.Equal(TrackEraDefaults.For(2010).Edge, bare2010.EdgeAt(0.1, TrackSide.Left));
+        Assert.NotEqual(bare1972.EdgeAt(0.1, TrackSide.Left), bare2010.EdgeAt(0.1, TrackSide.Left));
+
+        // Authored fields are the same in both seasons.
+        var full1972 = full.Resolve(FixtureLayout, 1972);
+        var full2010 = full.Resolve(FixtureLayout, 2010);
+        for (var i = 0; i < 200; i++)
+        {
+            var s = i / 200.0;
+            Assert.Equal(full1972.Detail.WidthAt(s), full2010.Detail.WidthAt(s));
+            Assert.Equal(full1972.Detail.ElevationAt(s), full2010.Detail.ElevationAt(s));
+        }
+
+        Assert.Equal(full1972.Detail.EdgeAt(0.3, TrackSide.Right), full2010.Detail.EdgeAt(0.3, TrackSide.Right));
+        Assert.Equal(full1972.Detail.PitLane!.TimeAtLimitSeconds, full2010.Detail.PitLane!.TimeAtLimitSeconds);
+        Assert.Same(full1972.Geometry, full2010.Geometry);
+        Assert.Equal(full1972.Corners, full2010.Corners);
+
+        // Without a season (map, editor): the layout's last season.
+        Assert.Equal(TrackEraDefaults.For(2010).WidthM, bare.Resolve(FixtureLayout).Detail.WidthAt(0.3));
+        Assert.Same(bare.Resolve(FixtureLayout, 1972), bare.Resolve(FixtureLayout, 1973));
+    }
+
+    [Fact]
+    public void AuthoredWidth_MustFitTheBandOfEveryEraTheLayoutIsRacedIn()
+    {
+        // 6 m fits the 1950 band (5-25 m) but not the 1970 band (7-25 m); the layout is raced in both eras.
+        var json = Mutate(o => o["width_m"]![1]!["w"] = 6.0);
+
+        var error = Assert.Single(
+            AuthoredDataValidator.Validate(LoadWith(json, years: "1955, 1972")),
+            e => e.Code.StartsWith("geometry-", StringComparison.Ordinal));
+        Assert.Equal($"tracks/geometry/{FixtureFile}: width_m[1].w: 6 m is outside the 1970 era band 7-25 m", error.Message);
+
+        var detail = TrackGeometryCatalog.Create(LoadWith(json, years: "1955, 1972")).Resolve(FixtureLayout, 1955).Detail;
+        Assert.False(detail.HasAuthoredWidth);
+    }
+
+    [Fact]
     public void CommittedLayouts_ResolveToEraDefaults_AtTheirCircuitLength()
     {
         var data = RepoData.Value;
@@ -180,7 +237,7 @@ public class TrackDetailTests
         {
             var layout = layouts[file.LayoutId];
             var resolved = catalog.Resolve(file.LayoutId);
-            var era = TrackEraDefaults.For(layout.YearsUsedInF1.Min());
+            var era = TrackEraDefaults.For(layout.YearsUsedInF1.Max());
 
             Assert.Equal(TrackGeometrySource.Authored, resolved.Source);
             Assert.Equal(layout.LengthKm * 1000.0, resolved.Geometry.LengthM, precision: 6);
@@ -190,6 +247,12 @@ public class TrackDetailTests
             Assert.Equal(era.Edge, resolved.Detail.EdgeAt(0.5, TrackSide.Left));
             Assert.Null(resolved.Detail.PitLane);
             Assert.Null(resolved.Detail.ElevationAt(0.5));
+            foreach (var season in layout.YearsUsedInF1)
+            {
+                var raced = catalog.Resolve(file.LayoutId, season);
+                Assert.Same(resolved.Geometry, raced.Geometry);
+                Assert.Equal(TrackEraDefaults.For(season).WidthM, raced.Detail.WidthAt(0.5));
+            }
         }
     }
 

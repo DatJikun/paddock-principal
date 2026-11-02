@@ -45,17 +45,21 @@ public static class TrackDetailRules
     /// Checks the v2 fields of <paramref name="file"/>.
     /// </summary>
     /// <param name="file">The layout file.</param>
-    /// <param name="era">Era row of the layout (width band).</param>
+    /// <param name="racedEras">Every era row the layout is raced in; an authored width must fit each band.</param>
     /// <param name="centreLine">Centre line in the same frame as the pit lane points after <paramref name="pointScale"/>, or null to skip the join check.</param>
     /// <param name="pointScale">Factor applied to pit lane coordinates and lane distances before the join check.</param>
-    public static List<TrackDetailProblem> Check(TrackGeometryFile file, TrackEraDefault era, TrackGeometry? centreLine, double pointScale)
+    public static List<TrackDetailProblem> Check(
+        TrackGeometryFile file,
+        IReadOnlyList<TrackEraDefault> racedEras,
+        TrackGeometry? centreLine,
+        double pointScale)
     {
         ArgumentNullException.ThrowIfNull(file);
-        ArgumentNullException.ThrowIfNull(era);
+        ArgumentNullException.ThrowIfNull(racedEras);
         var problems = new List<TrackDetailProblem>();
         if (file.WidthM is not null)
         {
-            CheckWidth(file.WidthM, era, problems);
+            CheckWidth(file.WidthM, racedEras, problems);
         }
 
         if (file.Edges is not null)
@@ -113,13 +117,14 @@ public static class TrackDetailRules
         }
     }
 
-    private static void CheckWidth(IReadOnlyList<TrackWidthPointFile> width, TrackEraDefault era, List<TrackDetailProblem> problems)
+    private static void CheckWidth(IReadOnlyList<TrackWidthPointFile> width, IReadOnlyList<TrackEraDefault> racedEras, List<TrackDetailProblem> problems)
     {
         CheckProfile(TrackDetailSection.Width, "width_m", width.Select(p => p.S).ToList(), problems);
         for (var i = 0; i < width.Count; i++)
         {
             var w = width[i].W;
-            if (w < era.MinWidthM || w > era.MaxWidthM)
+            var era = racedEras.FirstOrDefault(e => w < e.MinWidthM || w > e.MaxWidthM);
+            if (era is not null)
             {
                 problems.Add(new(
                     TrackDetailSection.Width,

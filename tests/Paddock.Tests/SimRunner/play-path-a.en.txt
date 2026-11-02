@@ -16,7 +16,7 @@ Principal attributes are an uncalibrated estimate: every attribute starts at 10,
 Date: 1955-01-01.
 Team: Ferrari.
 Cash: 60000.00.
-Forecast to the end of the season: 60000.00.
+Forecast to the end of the season: 38400.00.
 No championship position is on the board yet.
 Next race: 1955-03-03.
 Inbox: 1 open, 1 need a decision.
@@ -57,7 +57,7 @@ Sponsor slot 1: Technical or patron.
 Sponsor slot 2: Technical or patron.
 Sponsor slot 3: Technical or patron.
 Cash: 60000.00.
-Forecast to the end of the season: 60000.00.
+Forecast to the end of the season: 38400.00.
 Board of ferrari: confidence 60.
 Steady
 You cannot be dismissed yet: a new principal is protected for a full season, longer with a good reputation.
@@ -80,6 +80,6 @@ No decision you may read is on record.
 Ready.
 An unresolved matter is holding the clock.
 Waiting for Ada Lovelace.
-World hash ce1eb5d502624f653de976ad4303ecfeee0563305f568020bffee33d1aa37a40.
-Saved SAVE. World hash ce1eb5d502624f653de976ad4303ecfeee0563305f568020bffee33d1aa37a40.
+World hash a0213ff2271c3fd00629859f57776a82445587618c3d02e86c6356f180880070.
+Saved SAVE. World hash a0213ff2271c3fd00629859f57776a82445587618c3d02e86c6356f180880070.
 Session closed.

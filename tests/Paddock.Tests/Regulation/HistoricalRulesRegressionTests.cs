@@ -24,16 +24,19 @@ namespace Paddock.Tests.Regulation;
 /// Re-pinned again in #315 (board targets): the three season targets sit one place apart near the front (they were two), so the AI
 /// boards' season objectives and expected positions move, the target decision carries each bonus, and a met target pays the board's
 /// bonus into the ledger at the season end. No RNG stream or id moved; later seasons can differ because the teams hold more cash.
+/// Re-pinned again in #318 (playtest 2): every contract of the first morning is paid from the era scale instead of 0 (salaries are in the
+/// hash and the monthly payroll moves every ledger), each team knows its own drivers, and a staff member under contract is no longer a
+/// free agent (an AI signing of one starts after that contract). Pinned again after merging #315: these values carry both the board target change and the starting pay.
 /// </summary>
 public class HistoricalRulesRegressionTests
 {
     private const ulong Seed = 7;
 
-    private const string HashOnTheLastDayOf1955 = "771d6b838257ad24c66e00828d4a53531e01b6dfeec9b7993e6b442b0c30349c";
+    private const string HashOnTheLastDayOf1955 = "55b2d9031e02a52f504173ea556bae9d96caf98a5ad3134bc3552251cbb47825";
 
-    private const string HashAfterTheSeasonTurned = "4a079cc066d79a42e619b23c32bbdcf2b7279598b3457155085ad3440245d82e";
+    private const string HashAfterTheSeasonTurned = "20bad8b25db8dc1e8b27da1b5477901c159011dc30c332b39466f50af7664a58";
 
-    private const string HashAfterTwoSeasons = "2c881f89a213311bd08a14d977a1c8f27540fee8ff41c9cf2e619c8a3d3f864e";
+    private const string HashAfterTwoSeasons = "1da9f30cf71bc1bb0ea41b513c875522e166ce264f0658b7562810d766a1f1ed";
 
     private static (string Hash, bool HasRegulations, int Season, int Rounds, int NextSessions) Probe(GameDate stopOn)
     {

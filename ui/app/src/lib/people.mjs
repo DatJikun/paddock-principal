@@ -91,3 +91,34 @@ export function sortRows(rows, get, direction = 'asc') {
 export function starsOf(overall) {
   return Math.min(5, Math.max(0, Math.round((Number(overall) / 4) * 2) / 2));
 }
+
+/**
+ * The drivers the player can compare one driver with (#318): his teammates first, then everyone else on the market (under contract
+ * elsewhere or free), each person once, without the driver himself. Names only; the profiles come from the bridge.
+ */
+export function compareChoices(own, market, exclude) {
+  const seen = new Set([exclude]);
+  const choices = [];
+  const add = (person, group) => {
+    if (!person?.personId || seen.has(person.personId)) return;
+    seen.add(person.personId);
+    choices.push({ personId: person.personId, name: person.name, team: person.organizationName ?? null, group });
+  };
+  for (const driver of own ?? []) add(driver, 'own');
+  const others = [...(market?.contracted ?? []), ...(market?.freeAgents ?? [])].filter((person) => person.kind === 'driver');
+  for (const person of [...others].sort((a, b) => String(a.name).localeCompare(String(b.name)))) add(person, person.freeAgent ? 'free' : 'other');
+  return choices;
+}
+
+/**
+ * One kind of the market (drivers, or staff of any role), each person once. The bridge lists a person once; this keeps a stray
+ * duplicate from breaking the keyed table (the Personnel tab crashed on one, #318). A free entry loses to a contract.
+ */
+export function marketRows(market, kind) {
+  const rows = new Map();
+  for (const person of [...(market?.contracted ?? []), ...(market?.freeAgents ?? [])]) {
+    if ((kind === 'driver') !== (person.kind === 'driver')) continue;
+    if (!rows.has(person.personId)) rows.set(person.personId, person);
+  }
+  return [...rows.values()];
+}

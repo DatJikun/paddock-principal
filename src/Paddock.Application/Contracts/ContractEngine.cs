@@ -436,8 +436,7 @@ public sealed class ContractEngine
         ArgumentNullException.ThrowIfNull(negotiation);
         var terms = negotiation.Counter ?? throw new InvalidOperationException("There are no terms to sign.");
         var person = negotiation.Counterparty;
-        var latest = _book.LiveContractsOf(person, today).Select(contract => (GameDate?)contract.End).LastOrDefault();
-        var start = latest is GameDate end ? end.AddDays(1) : today;
+        var start = _book.BoundUntil(person, today) is GameDate end ? end.AddDays(1) : today;
         var finish = NegotiationEstimates.EndFor(start, terms.Years);
         var option = ContractTerms.OptionFor(terms.Option, start, finish);
         var spec = new ContractSpec(

@@ -17,6 +17,8 @@ public static class WorldInitGapCodes
 
     public const string StaffUnmappedRole = "world.init.gap.staff_unmapped_role";
 
+    public const string SalariesWithoutEraScale = "world.init.gap.salaries_without_era_scale";
+
     public const string StaffOrganizationAbsent = "world.init.gap.staff_organization_absent";
 
     public const string StaffRoleUnavailable = "world.init.gap.staff_role_unavailable";

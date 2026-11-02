@@ -57,6 +57,11 @@
     { value: 'season', label: tr.t('compare.season', { season: String(data.season) }) },
     { value: 'career', label: tr.t('compare.career') },
   ]);
+  /* The left driver stays; the right one is whoever the player picks (#318). */
+  function pick(id: string) {
+    if (id && id !== b.personId) location.hash = `#/porownaj/${encodeURIComponent(a.personId)}/${encodeURIComponent(id)}`;
+  }
+
   let shown = $derived(tabs.some((item) => item.value === tab) ? tab : (tabs[0]?.value ?? 'season'));
 </script>
 
@@ -70,6 +75,25 @@
 {#if !a.found || !b.found}
   <Status text={tr.t('driver.unknown')} tone="warn" />
 {:else}
+  {#snippet picker()}
+    <label class="cmp-pick">
+      <span class="meta">{tr.t('compare.with')}</span>
+      <select class="text sm" value={b.personId} onchange={(event) => pick((event.currentTarget as HTMLSelectElement).value)}>
+        {#if !data.choices.some((choice) => choice.personId === b.personId)}<option value={b.personId}>{b.name}</option>{/if}
+        {#each ['own', 'other', 'free'] as group (group)}
+          {@const members = data.choices.filter((choice) => choice.group === group)}
+          {#if members.length > 0}
+            <optgroup label={tr.t(`compare.group.${group}`)}>
+              {#each members as choice (choice.personId)}
+                <option value={choice.personId}>{choice.name}{choice.team ? ` · ${choice.team}` : ''}</option>
+              {/each}
+            </optgroup>
+          {/if}
+        {/each}
+      </select>
+    </label>
+  {/snippet}
+
   {#snippet side(profile: DriverProfileView, cls: string)}
     <a class="cmp-side {cls}" href={driverHref(profile.personId)}>
       <span class="face">{initials(profile.name)}</span>
@@ -85,6 +109,8 @@
       </div>
     </a>
   {/snippet}
+
+  <div class="cmp-tools">{@render picker()}</div>
 
   <section class="panel cmp">
     <div class="cmp-top">

@@ -6,6 +6,7 @@
   import ContractEnd from '../lib/components/ContractEnd.svelte';
   import Nationality from '../lib/components/Nationality.svelte';
   import Status from '../lib/components/Status.svelte';
+  import { formatDate } from '../lib/date.mjs';
   import { formatMoney } from '../lib/money.mjs';
   import { driverHref, formatAge } from '../lib/person.mjs';
   import type { StaffData } from '../lib/screens';
@@ -30,7 +31,9 @@
   let asking = $state(false);
 
   /* A person of the team or of a rival comes from the staff list; a free agent or someone on another roster, from the market. */
-  let listed = $derived(data.staff.people.find((item) => item.personId === id) ?? null);
+  let listed = $derived(
+    data.staff.people.find((item) => item.personId === id && item.ownTeam) ?? data.staff.people.find((item) => item.personId === id) ?? null,
+  );
   let market = $derived([...data.market.freeAgents, ...data.market.contracted].find((item) => item.personId === id) ?? null);
   let person = $derived(
     listed
@@ -45,6 +48,7 @@
           overall: listed.overall,
           attributes: listed.attributes,
           contractEnd: listed.contractEnd,
+          contractStart: listed.contractStart,
           salary: listed.salary,
           expected: 0,
           female: listed.female,
@@ -61,6 +65,7 @@
             overall: market.overall,
             attributes: market.attributes.length > 0 ? market.attributes : null,
             contractEnd: market.contractEnd,
+            contractStart: null,
             salary: 0,
             expected: market.salary,
             female: market.female,
@@ -132,6 +137,9 @@
           <header><h2>{tr.t('driver.contract')}</h2></header>
           <div class="body">
             <div class="fields">
+              {#if person.contractStart && person.contractStart > data.today}
+                <div class="fld"><span class="meta">{tr.t('driver.contract.from')}</span><span class="v num">{formatDate(person.contractStart, tr.lang)}</span></div>
+              {/if}
               {#if person.contractEnd}
                 <div class="fld"><span class="meta">{person.free ? tr.t('market.freeSince') : tr.t('driver.contract.until')}</span><span class="v"><ContractEnd {tr} end={person.contractEnd} today={data.today} quiet={!person.own} /></span></div>
               {/if}

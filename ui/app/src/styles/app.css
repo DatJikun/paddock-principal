@@ -771,6 +771,8 @@ select.text.sm{min-height:38px;font-size:14.5px}
 .bar.band i{background:color-mix(in oklab,var(--ink) 55%,transparent)}
 .persona{margin-top:6px}
 .table.fit{width:100%}
+/* The market and the staff list are as wide as their columns (#318, HANDOFF §3.5): no stretched Person and Role columns. */
+.market .table.fit,.staff-own .table.fit{width:max-content;max-width:100%}
 .profile .table.career{width:max-content;max-width:100%}
 .profile .career-panel{justify-self:start;max-width:100%}
 .profile .confirm{margin-top:0}
@@ -803,7 +805,9 @@ select.text.sm{min-height:38px;font-size:14.5px}
 .table td .sattrs{white-space:normal;max-width:420px}
 
 /* market and negotiation */
-.market-wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}
+.market-wrap{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+.market-wrap>.market{flex:0 1 auto;max-width:100%}
+.market-wrap>.talks{flex:1 1 300px;max-width:420px}
 .market{max-height:calc(100vh - 230px);overflow:auto}
 .market .table td,.market .table th{padding-left:14px;padding-right:14px}
 .talk-list{display:grid;gap:4px;padding-top:0}
@@ -855,7 +859,7 @@ select.text.sm{min-height:38px;font-size:14.5px}
 @media (max-width:1320px){
   .prof-grid,.prof-grid.f,.prof-grid.s{grid-template-columns:minmax(0,1fr)}
   .staff-grid,.neg-grid{grid-template-columns:minmax(0,1fr)}
-  .market-wrap{grid-template-columns:minmax(0,1fr)}
+  .market-wrap{flex-direction:column}
   .market{max-height:none}
   .dev{grid-template-columns:minmax(0,1fr);grid-template-areas:"concept" "grid" "und" "next" "decision" "projects"}
   .profile .hero{flex-wrap:wrap}
@@ -1139,6 +1143,13 @@ input[type=range]:focus-visible{outline-offset:4px}
 .slide-v{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .slide-v b{font-size:20px}
 .offer-grid .fld.salary{grid-column:1/-1}
+.offer-grid input[type=range]{width:100%}
+.cmp-tools{display:flex;justify-content:flex-end;margin:0 0 14px}
+.cmp-pick{display:grid;gap:4px;min-width:280px}
+.slide-n{font-size:18px}
+/* Typed amounts have no up/down arrows (#318): the number is typed, or set on a slider. */
+.plain-num{-moz-appearance:textfield;appearance:textfield}
+.plain-num::-webkit-outer-spin-button,.plain-num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .squad-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:22px}
 .dcard{display:grid;gap:18px;padding:22px 26px;text-decoration:none;color:inherit;transition:transform .18s var(--ease),box-shadow .18s}
 .dcard:hover{transform:translateY(-2px)}
@@ -1147,6 +1158,7 @@ input[type=range]:focus-visible{outline-offset:4px}
 .dcard-name{display:grid;gap:12px;min-width:0}
 .dcard-name h2{font-size:34px}
 .attrs.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 28px}
+.staff-own{justify-self:start;width:max-content;max-width:100%}
 .staff-own .table td,.staff-own .table th{padding-left:18px;padding-right:18px}
 .market .table .attr-ov{font-weight:700}
 .sal{font-feature-settings:"tnum"}

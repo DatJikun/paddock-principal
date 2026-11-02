@@ -1,4 +1,5 @@
 import { HUMAN_MANAGER_ID, query } from './api/client';
+import { compareChoices } from './people.mjs';
 import type {
   BoardView,
   CalendarRoundView,
@@ -68,7 +69,14 @@ export type DriverData = {
   negotiations: NegotiationsView;
 };
 
-export type CompareData = { kind: 'porownaj'; a: DriverProfileView; b: DriverProfileView; season: number };
+/** Two drivers side by side; <code>choices</code> are the drivers the player may put on the right instead (#318). */
+export type CompareData = {
+  kind: 'porownaj';
+  a: DriverProfileView;
+  b: DriverProfileView;
+  season: number;
+  choices: { personId: string; name: string; team: string | null; group: string }[];
+};
 
 export type StaffData = { kind: 'personel' | 'osoba'; staff: StaffListView; drivers: DriversView; market: MarketView; negotiations: NegotiationsView; today: string };
 
@@ -180,8 +188,14 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
       return { kind: 'kierowca', profile: view, squad, negotiations };
     }
     case 'porownaj': {
-      const [a, b, shell] = await Promise.all([profile(args[0] ?? ''), profile(args[1] ?? ''), query('shell', call)]);
-      return { kind: 'porownaj', a, b, season: Number(shell.date.slice(0, 4)) };
+      const [a, b, shell, drivers, market] = await Promise.all([
+        profile(args[0] ?? ''),
+        profile(args[1] ?? ''),
+        query('shell', call),
+        query('drivers', call),
+        query('market', call),
+      ]);
+      return { kind: 'porownaj', a, b, season: Number(shell.date.slice(0, 4)), choices: compareChoices(drivers.own, market, a.personId) };
     }
     case 'personel':
     case 'osoba': {

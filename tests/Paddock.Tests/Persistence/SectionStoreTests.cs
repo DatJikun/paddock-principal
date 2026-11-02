@@ -43,6 +43,25 @@ public class SectionStoreTests : IDisposable
     }
 
     [Fact]
+    public void AnItemsReadAndDeletedMarksRoundTripThroughTheSave()
+    {
+        // #320: the badge counts unread items, so reading one has to survive save and load, open or closed; so does deleting.
+        var section = WorldWithInbox().Section<InboxSection>(InboxSection.SectionName)!.MarkRead("inb:1").MarkRead("inb:2").Delete("inb:3");
+        var world = WorldFixtures.Small().WithSection(section);
+        using var file = NewSave();
+        var repository = new WorldRepository(file);
+
+        repository.SaveWorld(world, WorldFixtures.Opening);
+        var loaded = repository.LoadWorld();
+
+        Assert.Equal(world.StateHash(), loaded.StateHash());
+        var inbox = loaded.Section<InboxSection>(InboxSection.SectionName)!;
+        Assert.Equal([true, true, false], inbox.Items.Select(item => item.IsRead));
+        Assert.Equal([false, false, true], inbox.Items.Select(item => item.IsDeleted));
+        Assert.Equal(0, inbox.UnreadCount("mgr-bram"));
+    }
+
+    [Fact]
     public void SaveAllAndLoadAllCarryTheInboxToo()
     {
         var world = WorldWithInbox();

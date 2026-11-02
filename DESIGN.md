@@ -450,6 +450,13 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 **Incydenty i awarie:** ryzyko zależy od epoki (bezpieczeństwo), kierowcy (agresja, opanowanie) i sprzętu. Skutki to kontuzje i końce karier (PP-061). Lekka kontuzja wyklucza z 0–1 wyścigu, a przy starcie przez 21 dni daje lekką stratę tempa; poważna kontuzja wyłącza na kilka wyścigów (szacunek 2–6). Kończąca karierę i śmiertelna (przy włączonej opcji, PP-006) oznaczają odejście ze sportu. Na czas absencji zespół wystawia zastępcę (jedyny wyjątek od zasady PP-050 o braku zmian w sezonie): najpierw zakontraktowanego kierowcę rezerwowego, a w razie braku – jednorazowego zastępcę z wolnych agentów lub puli talentów (decyzja w skrzynce dla gracza, wybór AI ze śladem decyzji). Gdy nikt nie jest dostępny, auto nie startuje. Regularny kierowca wraca automatycznie po wyzdrowieniu. Większość awarii daje kilka okrążeń sygnałów (auto zwalnia), ale mniej więcej co trzecia przychodzi bez ostrzeżenia (PP-057).
 **Prezentacja:** najpierw backend (PP-020). Wyścig ma wynik natychmiastowy albo relację na żywo w formie tabeli z różnicami czasu i komunikatami. Mapa toru 2D powstanie po zbudowaniu UI.
 
+**Wyścig v2 (PP-073, PP-074; w budowie, od sezonu 2010).** Warstwy czasu okrążenia z akapitu wyżej przestają być osobnymi tabelami: biorą się z ruchu aut po prawdziwym torze.
+- **Tor ma charakter z kształtu.** Długa prosta przed ciasnym zakrętem to miejsce do ataku; wąski tor między barierami (Monako) prawie go nie daje; szybkie zakręty karzą jazdę tuż za rywalem, bo auto traci docisk. Postój kosztuje tyle, ile przejazd aleją serwisową z limitem prędkości plus postój w boksie, więc na torze z krótką aleją opłaca się częściej zjechać.
+- **Kierowca to nie tylko tempo.** Jak blisko granicy jedzie, jak często się myli (szeroki wyjazd na trawę lub żwir kosztuje czas), jak atakuje i jak się broni. Polecenia z boksu (tempo, silnik, zjazd) działają tak samo w oglądanym i symulowanym wyścigu.
+- **Na mapie jadą bolidy** w barwach zespołów; widać linię, walkę koło w koło i wjazd do alei.
+- **Najpierw sezon 2010** (bez DRS, bez tankowania, dwie mieszanki obowiązkowe). Wcześniejsze epoki jadą na obecnym silniku, dopóki właściciel nie zdecyduje inaczej (PP-074).
+- **Później:** wypadki z uderzenia w barierę i zakopanie w żwirze, temperatura opon i hamulców, wysokość toru w symulacji.
+
 ---
 
 ## 8. AI szefów zespołów
@@ -531,7 +538,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 ## 11. Czas i skrzynka
 
 - **Postęp dzień po dniu** (PP-016). Przycisk „Dalej” przewija dni do najbliższej sprawy wymagającej uwagi. W dzień wyścigu zmienia się w „Weekend wyścigowy”.
-- **Skrzynka:** sprawy przychodzą tylko wtedy, gdy mają treść. Cisza jest OK. Tylko decyzja blokuje przewijanie czasu. Skutek każdej opcji widać przed kliknięciem (wzorzec z Ping-Ponga).
+- **Skrzynka:** sprawy przychodzą tylko wtedy, gdy mają treść. Cisza jest OK. Tylko decyzja blokuje przewijanie czasu. Skutek każdej opcji widać przed kliknięciem (wzorzec z Ping-Ponga). Licznik przy skrzynce pokazuje wiadomości nieprzeczytane. Informację i decyzję już rozstrzygniętą albo wygasłą można usunąć z listy; otwartej decyzji nie (to, czy i z jakim skutkiem domyślnym, rozstrzyga właściciel w #320).
 - **Zdarzenia życiowe** (kontuzja, spadek formy, konflikt w zespole, mentor, rodzina) wywodzą się ze stanu osoby, a nie z losowego generatora wypełniaczy.
 
 ---
@@ -599,7 +606,7 @@ Gazeta ze świata gry, wydawana co miesiąc. Działy:
 
 Pomysły ze starego GDD V4, dopasowane do obecnego projektu.
 - **Reputacja menedżera:** rośnie z wynikami ponad oczekiwania, tytułami i rozwojem ludzi, a spada ze słabymi wynikami i złym zarządzaniem pieniędzmi. Wpływa na oferty pracy, negocjacje z kierowcami i sponsorami, a także na wiarygodność obietnic (§6.3).
-- **Zarząd (albo właściciel)** stawia cele na sezon i na kilka lat i ocenia menedżera. Przed sezonem gracz wybiera jeden z trzech celów: bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę) (PP-058). Jego cierpliwość zależy od osobowości właściciela. W zespole założonym przez gracza tę rolę pełnią inwestorzy i sponsor założycielski (§3.2).
+- **Zarząd (albo właściciel)** stawia cele na sezon i na kilka lat i ocenia menedżera. Przed sezonem gracz wybiera jeden z trzech celów: bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę) (PP-058). Cele leżą blisko siebie: zespół z czołówki dostaje miejsce wyżej i niżej od oczekiwanego, a odstęp rośnie ku końcowi stawki i z jej wielkością (#315). Premia to pieniądze od zarządu, ułamek typowego budżetu epoki, ustalony i pokazany przy wyborze; spełniony cel ją wypłaca i podnosi zaufanie, niespełniony obniża zaufanie bez premii. Wynik celu przychodzi do skrzynki z powodem (cel i zajęte miejsce). Liczby to szacunki. Jego cierpliwość zależy od osobowości właściciela. W zespole założonym przez gracza tę rolę pełnią inwestorzy i sponsor założycielski (§3.2).
 - **Pogoda w wyścigu:** sucho, lekki deszcz, ulewa, burza, ze zmianami w trakcie wyścigu.
 - **Tempo oglądania wyścigu:** na żywo, krokami ×1, ×2, ×5, ×10, ×20, ×30 albo sam wynik.
 

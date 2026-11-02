@@ -54,6 +54,7 @@ public sealed class BoardModule : CareerModule
             context.Require<IObjectiveFacts>(),
             context.Session.Clock.MasterSeed,
             severance: context.TryGet<IBoardSeverance>(),
+            bonus: context.TryGet<IBoardBonus>(),
             ranking: context.Inputs.RankKeys());
         var engine = new BoardEngine(book, context.Require<InboxBook>(), context.Managers);
         context.Provide(book);

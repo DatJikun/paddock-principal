@@ -156,4 +156,7 @@ public static class FinanceReason
     public const string Salary = "finance.reason.salary";
 
     public const string Termination = "finance.reason.termination";
+
+    /// <summary>The board paid its bonus for a season target met (#315).</summary>
+    public const string BoardBonus = "finance.reason.board_bonus";
 }

@@ -89,11 +89,14 @@ public static class BoardEstimates
     /// <summary>ESTIMATE (PP-058): days the player has to pick a season target. The default, if the decision lapses, is the expected target.</summary>
     public const int SeasonTargetDecisionDays = 14;
 
-    /// <summary>ESTIMATE (PP-058): places easier than the expected finish that the safe target asks for.</summary>
-    public const int SafePlacesEasier = 2;
+    /// <summary>
+    /// ESTIMATE (#315): at the back of a field, the gap between two neighbouring targets is about this percentage of the field
+    /// (a 10-team field: 2 places, 20 teams: 3). At the front it is always one place.
+    /// </summary>
+    public const int TargetBackSpreadPercent = 15;
 
-    /// <summary>ESTIMATE (#264): a team expected to lead has only one place to give: its safe target is P2.</summary>
-    public const int SafePlacesEasierForLeader = 1;
+    /// <summary>ESTIMATE (#315): the widest gap between two neighbouring targets, in places, whatever the field.</summary>
+    public const int TargetMaxPlaces = 3;
 
     /// <summary>
     /// ESTIMATE (#264): share of the season's races a team expected to lead must win for the ambitious target ("P1 and at least N wins").
@@ -104,8 +107,14 @@ public static class BoardEstimates
     /// <summary>ESTIMATE (#264): season length the board assumes when the calendar is not stored yet.</summary>
     public const int FallbackSeasonRounds = 8;
 
-    /// <summary>ESTIMATE (PP-058): places harder than the expected finish that the ambitious target asks for.</summary>
-    public const int AmbitiousPlacesHarder = 2;
+    /// <summary>ESTIMATE (#315): the board's bonus for meeting the safe target, in thousandths of the era's typical team budget (1%).</summary>
+    public const int SafeBonusPermille = 10;
+
+    /// <summary>ESTIMATE (#315): the bonus for meeting the expected target (3% of the typical budget).</summary>
+    public const int ExpectedBonusPermille = 30;
+
+    /// <summary>ESTIMATE (#315): the bonus for meeting the ambitious target (8% of the typical budget).</summary>
+    public const int AmbitiousBonusPermille = 80;
 
     /// <summary>ESTIMATE (PP-058): confidence gained when the safe target is met (5 points). Less than <see cref="SeasonObjectiveTenths"/>.</summary>
     public const int SafeObjectiveTenths = 50;

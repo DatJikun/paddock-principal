@@ -420,7 +420,8 @@ a.plain:hover{text-decoration:underline;text-underline-offset:3px}
 .car .body{padding-bottom:10px}
 .car footer,.stand footer{margin-top:auto}
 .car{display:flex;flex-direction:column}
-.stand{flex:1;display:flex;flex-direction:column}
+.stand{flex:1;display:flex;flex-direction:column;min-height:0}
+.stand .rows{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;position:relative}
 .stand .tabs-wrap{padding:0 22px 8px}
 .stand .table td{padding-top:6px;padding-bottom:6px}
 .stand .table td:first-child{padding-left:14px}.stand .table td:last-child{padding-right:22px}

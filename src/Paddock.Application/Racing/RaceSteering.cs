@@ -22,7 +22,8 @@ public interface IRaceRerun
 /// <summary>
 /// The pit walls' hold on a race that is still being watched (#286). The orders are data with a lap number and the id of the
 /// manager who gave them; the host re-runs the race with the whole list, from the same seed, so the same orders give the same
-/// race (INV-002) and nothing already seen changes. Only a race with no booked result has one: today the quick race.
+/// race (INV-002) and nothing already seen changes. Every race that is watched before it is booked has one: the quick race and the
+/// career's race of today (#316).
 /// </summary>
 public sealed class RaceSteering
 {

@@ -1793,7 +1793,6 @@
   "live.ui.fastest": "Fastest lap",
   "live.ui.radioLog": "Radio and race control",
   "live.ui.noRadio": "The radio is quiet so far.",
-  "live.order.locked": "This race's result is already booked, so the pit wall gives no orders here. Orders work in a quick race.",
   "live.order.notOwn": "That is not your team's car.",
   "live.order.notRunning": "That car is no longer running.",
   "live.order.tooLate": "Too late: too few laps are left.",
@@ -1911,7 +1910,7 @@
   "settings.speed.value": "{seconds} s",
   "settings.menuMotion": "Menu background motion",
   "shell.pause": "Pause",
-  "shell.go.race": "Race day",
+  "shell.go.race": "Simulate the race",
   "toast.inbox": "New message",
   "toast.open": "Open",
   "inbox.delete": "Delete",
@@ -1982,5 +1981,9 @@
   "paper.signing.renewed": "{driver} stays at {team}",
   "paper.team.hired": "{team} hires {person}",
   "paper.rules.adopted": "New rule from season {season}",
-  "paper.rules.kept": "Teams keep the rule"
+  "paper.rules.kept": "Teams keep the rule",
+  "live.order.closed": "The race is over.",
+  "race.watch.noRace": "There is no race today.",
+  "race.watch.notRaced": "Today's race cannot be run.",
+  "race.watch.saveAfterRace": "The pit wall has given orders in a race still running. Save after the race."
 }

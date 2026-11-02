@@ -82,7 +82,8 @@ public sealed class RaceWeekendDay : IDayHandler
 
     private void RunRace(DayContext context, GameDate today, RaceSessionPayload payload)
     {
-        if (Simulate(today, payload, []) is not { } run)
+        // A race the player watched this morning is run with the orders the pit walls gave; one nobody watched has none (#316).
+        if (Simulate(today, payload, _watch.OrdersFor(payload.Season, payload.Round)) is not { } run)
         {
             return;
         }
@@ -114,12 +115,30 @@ public sealed class RaceWeekendDay : IDayHandler
         }
 
         // Nothing is booked from a race run on its own, so the pit walls may still steer it while it is watched (#286).
-        Publish(payload, run, new RaceSteering(new Rerun(this, day, payload)));
+        Publish(payload, run, new RaceSteering(new Rerun(this, day, payload, archive: true)));
+        return true;
+    }
+
+    /// <summary>
+    /// The career's race of today, watched before the day books it (#316). It is the race <see cref="RunRace"/> will run, from the
+    /// same field, rules, streams and seed, and the pit walls steer it exactly as in a quick race. Only the watch gets it: nothing is
+    /// booked or archived until the day is lived, and then the day runs the round with the orders given here, so watching and
+    /// simulating are one race model (PP-058). False when the round cannot be raced.
+    /// </summary>
+    public bool Preview(GameDate day, RaceSessionPayload payload)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+        if (Simulate(day, payload, []) is not { } run)
+        {
+            return false;
+        }
+
+        Publish(payload, run, new RaceSteering(new Rerun(this, day, payload, archive: false)), archived: false);
         return true;
     }
 
     /// <summary>The same round again, with the pit walls' orders: same field, rules, streams and seed (INV-002).</summary>
-    private sealed class Rerun(RaceWeekendDay owner, GameDate day, RaceSessionPayload payload) : IRaceRerun
+    private sealed class Rerun(RaceWeekendDay owner, GameDate day, RaceSessionPayload payload, bool archive) : IRaceRerun
     {
         public PreparedRace? Prepare(ImmutableArray<PitWallOrder> orders)
         {
@@ -129,7 +148,7 @@ public sealed class RaceWeekendDay : IDayHandler
             }
 
             var steering = owner._watch.Steering;
-            return new PreparedRace(run.Published.Tape, () => owner.Publish(payload, run, steering));
+            return new PreparedRace(run.Published.Tape, () => owner.Publish(payload, run, steering, archive));
         }
     }
 
@@ -200,8 +219,8 @@ public sealed class RaceWeekendDay : IDayHandler
         return new WeekendRun(rules, total, layout, field, published, calls, TyreOffer.For(input));
     }
 
-    /// <summary>The race goes to the watch (the shell and the race mode) and to the round archive.</summary>
-    private void Publish(RaceSessionPayload payload, WeekendRun run, RaceSteering? steering = null)
+    /// <summary>The race goes to the watch (the shell and the race mode) and, unless it is only watched before the day, to the round archive.</summary>
+    private void Publish(RaceSessionPayload payload, WeekendRun run, RaceSteering? steering = null, bool archived = true)
     {
         var published = run.Published;
         _watch.Publish(
@@ -214,7 +233,12 @@ public sealed class RaceWeekendDay : IDayHandler
         _watch.PublishPitWall(published.PitWall, run.Tyres, steering);
         var world = _context.Session.World;
         var archive = world.Section<RaceResultsSection>(RaceResultsSection.SectionName) ?? RaceResultsSection.Empty;
-        _context.Session.StoreWorld(world.WithSection(RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, run.Field.StandIns, (int)Math.Round(run.Layout.LengthKm * 1000d, MidpointRounding.AwayFromZero))));
+        var recorded = RaceArchive.Record(archive, published, payload.Season, payload.Round, payload.LayoutId, run.Field.StandIns, (int)Math.Round(run.Layout.LengthKm * 1000d, MidpointRounding.AwayFromZero));
+        _watch.PublishStored(recorded.Find(payload.Season, payload.Round));
+        if (archived)
+        {
+            _context.Session.StoreWorld(world.WithSection(recorded));
+        }
     }
 
     private CarDamageDesk Desk() => new(

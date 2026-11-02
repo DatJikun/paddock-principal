@@ -1829,7 +1829,6 @@
   "live.ui.fastest": "Najszybsze okr.",
   "live.ui.radioLog": "Radio i dyrekcja",
   "live.ui.noRadio": "Na razie cisza w radiu.",
-  "live.order.locked": "Wynik tego wyścigu jest już zapisany, więc boks nie wydaje tu poleceń. Polecenia działają w szybkim wyścigu.",
   "live.order.notOwn": "To nie jest auto twojego zespołu.",
   "live.order.notRunning": "To auto już nie jedzie.",
   "live.order.tooLate": "Za późno: do mety zostało za mało okrążeń.",
@@ -1949,7 +1948,7 @@
   "settings.speed.value": "{seconds} s",
   "settings.menuMotion": "Ruch tła w menu",
   "shell.pause": "Pauza",
-  "shell.go.race": "Dzień wyścigu",
+  "shell.go.race": "Symuluj wyścig",
   "toast.inbox": "Nowa wiadomość",
   "toast.open": "Otwórz",
   "inbox.delete": "Usuń",
@@ -2024,5 +2023,9 @@
   "paper.signing.renewed": "{driver} zostaje w zespole {team}",
   "paper.team.hired": "{team} zatrudnia: {person}",
   "paper.rules.adopted": "Nowy przepis od sezonu {season}",
-  "paper.rules.kept": "Zespoły zostawiają przepis"
+  "paper.rules.kept": "Zespoły zostawiają przepis",
+  "live.order.closed": "Wyścig się skończył.",
+  "race.watch.noRace": "Dziś nie ma wyścigu.",
+  "race.watch.notRaced": "Tego wyścigu nie da się dziś rozegrać.",
+  "race.watch.saveAfterRace": "Boks wydał polecenia w trwającym wyścigu. Zapisz po wyścigu."
 }

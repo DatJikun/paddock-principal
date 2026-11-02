@@ -1638,6 +1638,7 @@ export interface BridgeCommandMap {
   respondToSupply: { args: SupplyResponseCall; result: CommandAck };
   liveRaceControl: { args: LiveRaceControlCall; result: LiveClockView };
   liveRaceOrder: { args: LiveRaceOrderCall; result: LiveClockView };
+  watchRace: { args: ManagerCall; result: LiveClockView };
   startQuickRace: { args: QuickRaceCall; result: QuickRaceStartedView };
   closeQuickRace: { args: ManagerCall; result: CommandAck };
 }

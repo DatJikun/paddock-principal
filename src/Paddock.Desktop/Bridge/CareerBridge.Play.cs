@@ -102,6 +102,8 @@ public sealed partial class CareerBridge
             case "closeQuickRace":
                 CloseQuickRace();
                 return PlayStep.Ok(BridgeValues.ToNode(new CommandAck(true)), inbox: false);
+            case "watchRace":
+                return WatchRace();
             default:
                 var command = Build(name, args, out var error);
                 if (error is not null)
@@ -140,14 +142,15 @@ public sealed partial class CareerBridge
         int? raceSeason = null;
         int? raceRound = null;
         string? layout = null;
-        if (Box.TryGet<RaceWatch>() is { Pending: true } watch && (watch.Season != _notedSeason || watch.Round != _notedRound))
+        // The day booked a race (#316): a watched one keeps its finished clock, a simulated one is not replayed, since a replay
+        // could take no orders. The shell goes to the result either way.
+        if (Box.TryGet<RaceWatch>() is { Pending: true, Steering: null } watch && (watch.Season != _notedSeason || watch.Round != _notedRound))
         {
             _notedSeason = watch.Season;
             _notedRound = watch.Round;
             raceSeason = watch.Season;
             raceRound = watch.Round;
             layout = watch.LayoutId;
-            OpenLiveRace(watch.Season, watch.Round);
         }
 
         return new AdvanceOutcome(true, null, DateText, play.Date.Year != before, raceSeason, raceRound, layout);
@@ -654,6 +657,11 @@ public sealed partial class CareerBridge
         if (!_play.QueueIsEmpty)
         {
             return PlayStep.Fail(TranslationMessage.Of(BridgeKeys.SaveNotMorning));
+        }
+
+        if (Box.TryGet<RaceWatch>() is { HoldsOrders: true })
+        {
+            return PlayStep.Fail(TranslationMessage.Of(CareerRaceKeys.SaveAfterRace));
         }
 
         var name = TextOf(args, "name");

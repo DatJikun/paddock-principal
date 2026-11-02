@@ -25,7 +25,7 @@ public sealed record LiveRaceControlCall(string ManagerId, string Action, double
 public sealed record LiveRaceOrderCall(string ManagerId, string CarId, string Action, string? Pace, string? Tyres, string? Engine, bool? On);
 
 /// <summary>
-/// The race the career just ran, watched live (PP-052). The bridge is the host of TECH §5.1: it owns the one race clock, every
+/// The career's race of today, watched live before the day books it (PP-052, #316). The bridge is the host of TECH §5.1: it owns the one race clock, every
 /// viewer reads it, and a viewing order from any viewer moves it for all (the host pushes <c>raceClock</c>). Watching changes
 /// nothing in the world, so the orders are not world commands.
 /// </summary>
@@ -36,7 +36,32 @@ public sealed partial class CareerBridge
     /// <summary>The clock the race playback reads. Tests replace it; the window uses a stopwatch.</summary>
     public IClock LiveClock { get; set; } = new StopwatchClock();
 
-    /// <summary>A race just ran: open its clock at race time 0, paused until a viewer starts it.</summary>
+    /// <summary>
+    /// Opens the career's race of today for watching before the day books it (#316), at race time 0, paused until a viewer starts
+    /// it. A second call on the same race keeps its clock and its orders. The race is booked when the day is lived.
+    /// </summary>
+    private PlayStep WatchRace()
+    {
+        if (!HasCareer)
+        {
+            return PlayStep.Fail(TranslationMessage.Of(BridgeKeys.NoCareer));
+        }
+
+        if (CareerRace.Watch(Box) is { } refusal)
+        {
+            return PlayStep.Fail(TranslationMessage.Of(refusal));
+        }
+
+        var watch = Box.Require<RaceWatch>();
+        if (LiveFor(watch, _live) is null)
+        {
+            OpenLiveRace(watch.Season, watch.Round);
+        }
+
+        return PlayStep.Ok(BridgeValues.ToNode(ReadLiveClock()), inbox: false);
+    }
+
+    /// <summary>Opens the clock of the race the watch holds at race time 0, paused until a viewer starts it.</summary>
     private void OpenLiveRace(int season, int round)
     {
         _live = Box.TryGet<RaceWatch>() is { Tape: { } tape } && !tape.Events.IsDefaultOrEmpty

@@ -149,7 +149,7 @@ public static class LiveRaceRead
         }
 
         var world = session.World;
-        var stored = world.Section<RaceResultsSection>(RaceResultsSection.SectionName)?.Find(watch.Season, watch.Round);
+        var stored = watch.Stored ?? world.Section<RaceResultsSection>(RaceResultsSection.SectionName)?.Find(watch.Season, watch.Round);
         var rows = new Dictionary<string, RaceResultRow>(StringComparer.Ordinal);
         foreach (var row in stored?.Rows ?? [])
         {
@@ -299,7 +299,7 @@ public static class LiveRaceRead
     private static LiveRaceView Empty(int season) =>
         new(false, season, 0, null, null, null, 0, 0, 0, null, null, true, [], [], new LiveStrategyView(null, null), NoPitWall);
 
-    private static LivePitWallView NoPitWall { get; } = new(false, LiveOrderKeys.Locked, 0, [], null, false, false, [], []);
+    private static LivePitWallView NoPitWall { get; } = new(false, LiveOrderKeys.Closed, 0, [], null, false, false, [], []);
 
     private static LivePitWallView PitWallOf(RaceWatch watch, IReadOnlyList<LivePitWallLapView> laps, Func<string, bool> mine)
     {
@@ -321,7 +321,7 @@ public static class LiveRaceRead
         var tyres = watch.Tyres;
         return new LivePitWallView(
             steering is not null,
-            steering is null ? LiveOrderKeys.Locked : null,
+            steering is null ? LiveOrderKeys.Closed : null,
             steering?.Revision ?? 0,
             tyres?.Compounds ?? [],
             tyres?.StartCompound,

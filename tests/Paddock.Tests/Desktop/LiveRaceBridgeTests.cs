@@ -5,7 +5,7 @@ using Paddock.Simulation.Racing.Playback;
 
 namespace Paddock.Tests.Desktop;
 
-/// <summary>The race the career just ran, watched live through the bridge (PP-052, TECH §5.1).</summary>
+/// <summary>The career's race of today, watched live through the bridge before the day books it (PP-052, TECH §5.1, #316).</summary>
 public class LiveRaceBridgeTests
 {
     private const string Manager = "{\"managerId\":\"human:player\"}";
@@ -28,8 +28,9 @@ public class LiveRaceBridgeTests
     {
         var clock = new ManualClock();
         var host = StartFerrariCareer(clock);
-        AdvanceUntilFirstRace(host);
+        AdvanceToRaceMorning(host);
         var hashBefore = host.StateHash;
+        Data(host, "command", "watchRace");
 
         var opened = Data(host, "query", "liveClock");
         Assert.True(opened.GetProperty("active").GetBoolean());
@@ -87,15 +88,9 @@ public class LiveRaceBridgeTests
             Assert.False(topJson.RootElement.TryGetProperty("error", out _));
         }
 
-        // The career's result is booked on race day, so its pit wall takes no orders yet (#286), and says why.
-        Assert.False(race.GetProperty("pitWall").GetProperty("canOrder").GetBoolean());
-        Assert.Equal(LiveOrderKeys.Locked, race.GetProperty("pitWall").GetProperty("locked").GetString());
-        var ownCar = own.First();
-        var locked = host.Handle(Message("o", "command", "liveRaceOrder", "{\"managerId\":\"human:player\",\"carId\":\"" + ownCar + "\",\"action\":\"pace\",\"pace\":\"push\"}"));
-        using (var lockedJson = JsonDocument.Parse(locked.Response))
-        {
-            Assert.Equal(LiveOrderKeys.Locked, lockedJson.RootElement.GetProperty("error").GetProperty("key").GetString());
-        }
+        // The career's race of today is watched before the day books it, so its pit wall takes orders as in a quick race (#316).
+        Assert.True(race.GetProperty("pitWall").GetProperty("canOrder").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, race.GetProperty("pitWall").GetProperty("locked").ValueKind);
 
         var frames = Data(host, "query", "liveFrames", "{\"managerId\":\"human:player\",\"fromMs\":30000,\"toMs\":40000}");
         Assert.True(frames.GetProperty("found").GetBoolean());
@@ -107,7 +102,7 @@ public class LiveRaceBridgeTests
         Assert.True(end.GetProperty("finished").GetBoolean());
         Assert.Equal(duration, end.GetProperty("raceTimeMs").GetInt64());
 
-        // Watching is not playing: the world is exactly as the race left it.
+        // Watching is not playing: nothing is booked until the day is lived.
         Assert.Equal(hashBefore, host.StateHash);
     }
 
@@ -118,7 +113,7 @@ public class LiveRaceBridgeTests
         Assert.True(json.RootElement.GetProperty("ok").GetBoolean(), exchange.Response);
     }
 
-    private static JsonElement Data(BridgeHost host, string kind, string name, string? args = null)
+    internal static JsonElement Data(BridgeHost host, string kind, string name, string? args = null)
     {
         var exchange = host.Handle(Message(name, kind, name, args));
         using var json = JsonDocument.Parse(exchange.Response);
@@ -126,7 +121,7 @@ public class LiveRaceBridgeTests
         return json.RootElement.GetProperty("data").Clone();
     }
 
-    private static BridgeHost StartFerrariCareer(IClock clock)
+    internal static BridgeHost StartFerrariCareer(IClock clock)
     {
         var career = CareerBridge.Lobby(BridgeTestData.DataRoot);
         career.LiveClock = clock;
@@ -141,24 +136,29 @@ public class LiveRaceBridgeTests
         return host;
     }
 
-    private static void AdvanceUntilFirstRace(BridgeHost host)
+    /// <summary>Lives days until the morning of the first race: the race is today and not run yet.</summary>
+    internal static void AdvanceToRaceMorning(BridgeHost host)
     {
         for (var day = 0; day < 90; day++)
         {
+            var next = Data(host, "query", "nextRace");
+            if (next.TryGetProperty("date", out var date) && date.ValueKind == JsonValueKind.String
+                && date.GetString() == Data(host, "query", "shell").GetProperty("date").GetString())
+            {
+                return;
+            }
+
             AnswerDecisions(host, day);
             var moved = host.Handle(Message("day" + day, "command", "advanceDay"));
             using var movedJson = JsonDocument.Parse(moved.Response);
             Assert.True(movedJson.RootElement.GetProperty("ok").GetBoolean(), moved.Response);
-            if (moved.Events.Any(item => item.Contains("raceFinished", StringComparison.Ordinal)))
-            {
-                return;
-            }
+            Assert.DoesNotContain(moved.Events, item => item.Contains("raceFinished", StringComparison.Ordinal));
         }
 
-        Assert.Fail("the first 1955 race did not run");
+        Assert.Fail("the first 1955 race day did not come");
     }
 
-    private static void AnswerDecisions(BridgeHost host, int day)
+    internal static void AnswerDecisions(BridgeHost host, int day)
     {
         for (var pass = 0; pass < 8; pass++)
         {
@@ -183,10 +183,10 @@ public class LiveRaceBridgeTests
         }
     }
 
-    private static string Message(string id, string kind, string name, string? args = null) =>
+    internal static string Message(string id, string kind, string name, string? args = null) =>
         "{\"id\":\"" + id + "\",\"kind\":\"" + kind + "\",\"name\":\"" + name + "\",\"args\":" + (args ?? Manager) + "}";
 
-    private sealed class ManualClock : IClock
+    internal sealed class ManualClock : IClock
     {
         public long Now { get; set; }
 

@@ -52,6 +52,28 @@ public static class FinanceKeys
     public const string BoardBonus = "finance.reason.board_bonus";
 
     [TranslationKey]
+    public const string WinBonus = "finance.reason.win_bonus";
+
+    [TranslationKey]
+    public const string TitleBonus = "finance.reason.title_bonus";
+
+    /// <summary>The ledger line of a contract bonus, naming the driver it was paid to (#355).</summary>
+    [TranslationKey]
+    public const string WinBonusLine = "finance.reason.win_bonus.driver";
+
+    [TranslationKey]
+    public const string TitleBonusLine = "finance.reason.title_bonus.driver";
+
+    /// <summary>The inbox kind of a paid contract bonus. Not a translation key: the subject carries the text.</summary>
+    public const string BonusNoticeKind = "finance.bonus";
+
+    [TranslationKey]
+    public const string WinBonusNotice = "finance.inbox.win_bonus.subject";
+
+    [TranslationKey]
+    public const string TitleBonusNotice = "finance.inbox.title_bonus.subject";
+
+    [TranslationKey]
     public const string ViewUnknown = "finance.view.unknown";
 
     [TranslationKey]

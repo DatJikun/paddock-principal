@@ -1,4 +1,5 @@
 using System.Globalization;
+using Paddock.Domain.Contracts;
 using Paddock.Domain.Time;
 using Paddock.Domain.World;
 
@@ -347,6 +348,95 @@ public sealed class FinanceSection : IWorldSection
                 contract.PersonId.Value,
                 -cents,
                 FinanceReason.Salary);
+        }
+
+        return section;
+    }
+
+    /// <summary>
+    /// #355: the win bonus of the race winner's contract. The classified entry in position 1 is the winner; its organization
+    /// pays the bonus of every contract it holds with that driver on the race day, as a salary line that names the driver.
+    /// A team without books, or a contract without a win bonus, pays nothing. Every team pays the same way, AI or human.
+    /// </summary>
+    public (FinanceSection Section, IReadOnlyList<ContractBonusPaid> Paid) PayWinBonuses(WorldState world, RaceResultsPublished race, GameDate on)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        ArgumentNullException.ThrowIfNull(race);
+        var section = this;
+        var paid = new List<ContractBonusPaid>();
+        foreach (var entry in race.Entries)
+        {
+            if (entry.Position != 1 || !entry.Classified)
+            {
+                continue;
+            }
+
+            section = section.PayBonus(world, entry.DriverId, entry.Organization, on, terms => terms.WinBonus, FinanceReason.WinBonus, paid);
+        }
+
+        return (section, paid);
+    }
+
+    /// <summary>
+    /// #355: the title bonus of the drivers' champion, on the day the title is decided. Every organization that holds an active
+    /// driver contract with the champion on that day and promised a title bonus in it pays it, as a salary line that names the driver.
+    /// </summary>
+    public (FinanceSection Section, IReadOnlyList<ContractBonusPaid> Paid) PayTitleBonuses(WorldState world, SeasonEnded season, GameDate on)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        ArgumentNullException.ThrowIfNull(season);
+        var section = this;
+        var paid = new List<ContractBonusPaid>();
+        foreach (var row in season.Drivers)
+        {
+            if (row.Position != 1)
+            {
+                continue;
+            }
+
+            section = section.PayBonus(world, row.DriverId, null, on, terms => terms.TitleBonus, FinanceReason.TitleBonus, paid);
+        }
+
+        return (section, paid);
+    }
+
+    private FinanceSection PayBonus(
+        WorldState world,
+        string driverId,
+        OrganizationId? payer,
+        GameDate on,
+        Func<ContractTerms, long> amount,
+        string reasonKey,
+        List<ContractBonusPaid> paid)
+    {
+        var terms = world.Section<ContractsSection>(ContractsSection.SectionName);
+        if (terms is null)
+        {
+            return this;
+        }
+
+        var section = this;
+        foreach (var contract in world.Contracts.OrderBy(contract => contract.Id.Value, StringComparer.Ordinal))
+        {
+            if (!string.Equals(contract.PersonId.Value, driverId, StringComparison.Ordinal)
+                || !contract.Role.IsDriver
+                || !contract.IsActiveOn(on)
+                || (payer is { } organization && contract.OrganizationId != organization)
+                || !section._books.ContainsKey(contract.OrganizationId.Value)
+                || terms.TermsOf(contract.Id) is not { } contractTerms)
+            {
+                continue;
+            }
+
+            var dollars = amount(contractTerms);
+            if (dollars <= 0)
+            {
+                continue;
+            }
+
+            var cents = Money.FromDollars(dollars).Cents;
+            section = section.Post(contract.OrganizationId, on, LedgerCategories.Salary, contract.PersonId.Value, -cents, reasonKey);
+            paid.Add(new ContractBonusPaid(contract.OrganizationId, contract.PersonId, cents, reasonKey));
         }
 
         return section;

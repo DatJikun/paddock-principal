@@ -181,7 +181,9 @@ public sealed class ApplyRaceResultsHandler : CommandHandler<ApplyRaceResultsCom
             throw new InvalidOperationException("Execute ran for a command that should have been rejected.");
         }
 
-        var (section, _) = _book.Section.ApplyRace(race, Money.FromDollars(facts.TypicalDollars).Cents, FinanceBook.ToGameDate(command.IssuedOn));
+        var on = FinanceBook.ToGameDate(command.IssuedOn);
+        var (section, _) = _book.Section.ApplyRace(race, Money.FromDollars(facts.TypicalDollars).Cents, on);
+        (section, _) = section.PayWinBonuses(_book.World, race, on);
         _book.Replace(section);
         return [new RaceMoneyPosted(command.ManagerId, command.IssuedOn, command.Season, command.Round)];
     }
@@ -214,7 +216,7 @@ public sealed class ApplySeasonEndedHandler : CommandHandler<ApplySeasonEndedCom
             throw new InvalidOperationException("Execute ran for a command that should have been rejected.");
         }
 
-        var section = _book.Section.ApplySeason(season);
+        var (section, _) = _book.Section.ApplySeason(season).PayTitleBonuses(_book.World, season, FinanceBook.ToGameDate(command.IssuedOn));
         _book.Replace(section);
         return [new SeasonPopularityUpdated(command.ManagerId, command.IssuedOn, season.Season, section.PopularityMilli)];
     }

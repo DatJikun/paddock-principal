@@ -529,7 +529,7 @@ Pieniądze w sporcie rosną (albo spadają) **z popularności, a nie z automatyc
 ## 11. Czas i skrzynka
 
 - **Postęp dzień po dniu** (PP-016). Przycisk „Dalej” przewija dni do najbliższej sprawy wymagającej uwagi. W dzień wyścigu zmienia się w „Weekend wyścigowy”.
-- **Skrzynka:** sprawy przychodzą tylko wtedy, gdy mają treść. Cisza jest OK. Tylko decyzja blokuje przewijanie czasu. Skutek każdej opcji widać przed kliknięciem (wzorzec z Ping-Ponga).
+- **Skrzynka:** sprawy przychodzą tylko wtedy, gdy mają treść. Cisza jest OK. Tylko decyzja blokuje przewijanie czasu. Skutek każdej opcji widać przed kliknięciem (wzorzec z Ping-Ponga). Licznik przy skrzynce pokazuje wiadomości nieprzeczytane. Informację i decyzję już rozstrzygniętą albo wygasłą można usunąć z listy; otwartej decyzji nie (to, czy i z jakim skutkiem domyślnym, rozstrzyga właściciel w #320).
 - **Zdarzenia życiowe** (kontuzja, spadek formy, konflikt w zespole, mentor, rodzina) wywodzą się ze stanu osoby, a nie z losowego generatora wypełniaczy.
 
 ---

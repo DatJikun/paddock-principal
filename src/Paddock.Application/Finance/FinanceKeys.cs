@@ -64,8 +64,8 @@ public static class FinanceKeys
     [TranslationKey]
     public const string TitleBonusLine = "finance.reason.title_bonus.driver";
 
-    /// <summary>The inbox kind of a paid contract bonus. Not a translation key: the subject carries the text.</summary>
-    public const string BonusNoticeKind = "finance.bonus";
+    /// <summary>The inbox kind of a paid contract bonus, filed under contracts. Not a translation key: the subject carries the text.</summary>
+    public const string BonusNoticeKind = "contract.bonus";
 
     [TranslationKey]
     public const string WinBonusNotice = "finance.inbox.win_bonus.subject";

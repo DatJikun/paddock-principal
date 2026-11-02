@@ -118,6 +118,12 @@ public sealed record RaceWeekendInput
     /// strategists alone decide, as before.
     /// </summary>
     public ImmutableArray<PitWallOrder> Orders { get; init; } = [];
+
+    /// <summary>
+    /// The teams' pre-race plans (#316), at most one per car. Empty for a race nobody planned: the strategists alone decide, as
+    /// before. A plan acts as orders given before lap 1 (<see cref="RacePlan.AsOrders"/>); an order during the race comes after it.
+    /// </summary>
+    public ImmutableArray<RacePlan> Plans { get; init; } = [];
 }
 
 /// <summary>

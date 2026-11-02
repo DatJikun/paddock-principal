@@ -43,6 +43,14 @@ internal sealed partial class WeekendRun
     private readonly Dictionary<(int Minute, double Quality), WeatherForecast> _forecasts = [];
     private readonly IncidentRaceContext _incidentContext;
 
+    /// <summary>The pre-race plans as orders before lap 1, then the pit walls' orders (#316): a later order wins.</summary>
+    private readonly ImmutableArray<PitWallOrder> _orders;
+
+    /// <summary>The cars whose plan names the stops (#316): their strategist calls only a stop the weather forces.</summary>
+    private readonly HashSet<string> _plannedStops = new(StringComparer.Ordinal);
+
+    private readonly Dictionary<string, RacePlan> _plans = new(StringComparer.Ordinal);
+
     private List<Car> _cars = [];
     private RngStream? _failureStream;
     private int _endLap;
@@ -77,6 +85,17 @@ internal sealed partial class WeekendRun
         var abrasiveDraw = _lapNoiseStream.DeriveChild("track-abrasiveness").NextDouble();
         _abrasiveness = WeekendConstants.AbrasivenessMin
             + ((WeekendConstants.AbrasivenessMax - WeekendConstants.AbrasivenessMin) * abrasiveDraw);
+
+        foreach (var plan in input.Plans)
+        {
+            _plans[plan.CarId] = plan;
+            if (plan.FixesStops)
+            {
+                _plannedStops.Add(plan.CarId);
+            }
+        }
+
+        _orders = [.. input.Plans.SelectMany(plan => plan.AsOrders()), .. input.Orders];
 
         _compoundInfos =
         [
@@ -234,7 +253,12 @@ internal sealed partial class WeekendRun
                 c => c.Id,
                 c => entry.TyreSupplier.Apply(c, entry.PartnerTuned),
                 StringComparer.Ordinal);
-            var startCompound = compounds[raceCompounds[startCompoundIndex].Id];
+            // The plan's start tyres when it names a race compound of the season (#316); otherwise the middle one, as before.
+            var startCompound = _plans.TryGetValue(entry.Primary.DriverId, out var plan)
+                && plan.StartCompoundId is { } planned
+                && raceCompounds.Any(c => c.Id == planned)
+                    ? compounds[planned]
+                    : compounds[raceCompounds[startCompoundIndex].Id];
             var burn = _fuel.BurnPerLapKg(_in.Season, entry.Engine, _in.Track.LengthKm, _in.TotalLaps);
             var tank = _fuel.StartLoadKg(_in.Season, entry.Engine, _in.Track.LengthKm, _in.TotalLaps);
             var start = _fuel.StartLoadKg(_in.Season, entry.Engine, _in.Track.LengthKm, _in.TotalLaps, plannedFuelStops);

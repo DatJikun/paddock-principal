@@ -78,11 +78,14 @@ public static class FinanceQuery
             outlook.ForecastCashCents,
             loans.Offers(subject, today).Count,
             TranslationMessage.Of(noteKey),
-            withLedger ? Latest(section.EntriesOf(subject)) : []);
+            withLedger ? Latest(section.EntriesOf(subject), world) : []);
     }
 
-    /// <summary>The newest lines first. The ledger is kept in posting order, so the tail is the latest.</summary>
-    private static LedgerLineView[] Latest(IReadOnlyList<LedgerEntry> entries)
+    /// <summary>
+    /// The newest lines first. The ledger is kept in posting order, so the tail is the latest. A contract bonus line names the
+    /// driver it was paid to (#355); every other line is its reason alone.
+    /// </summary>
+    private static LedgerLineView[] Latest(IReadOnlyList<LedgerEntry> entries, WorldState world)
     {
         var count = Math.Min(LedgerLines, entries.Count);
         var lines = new LedgerLineView[count];
@@ -93,10 +96,27 @@ public static class FinanceQuery
                 new DateOnly(entry.Date.Year, entry.Date.Month, entry.Date.Day),
                 entry.Category,
                 entry.AmountCents,
-                TranslationMessage.Of(entry.ReasonKey));
+                Reason(entry, world));
         }
 
         return lines;
+    }
+
+    private static TranslationMessage Reason(LedgerEntry entry, WorldState world)
+    {
+        var withDriver = entry.ReasonKey switch
+        {
+            FinanceReason.WinBonus => FinanceKeys.WinBonusLine,
+            FinanceReason.TitleBonus => FinanceKeys.TitleBonusLine,
+            _ => null,
+        };
+        if (withDriver is null || entry.Counterparty is not { } driverId)
+        {
+            return TranslationMessage.Of(entry.ReasonKey);
+        }
+
+        var name = world.Persons.FirstOrDefault(person => string.Equals(person.Id.Value, driverId, StringComparison.Ordinal))?.Name ?? driverId;
+        return TranslationMessage.Of(withDriver, ("driver", name));
     }
 }
 

@@ -89,6 +89,9 @@ public sealed class LedgerEntry
     public string ReasonKey { get; }
 }
 
+/// <summary>One contract bonus that was posted: who paid, to which driver, how much (cents, positive) and why.</summary>
+public sealed record ContractBonusPaid(OrganizationId Organization, PersonId Driver, long AmountCents, string ReasonKey);
+
 /// <summary>A line a system wants posted. <see cref="FinanceSection.Post"/> assigns the sequence.</summary>
 public sealed record LedgerDraft(
     OrganizationId Organization,

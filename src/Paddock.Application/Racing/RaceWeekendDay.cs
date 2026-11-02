@@ -300,6 +300,7 @@ public sealed class RaceWeekendDay : IDayHandler
 
         var race = FinanceStandings.Race(payload.Season, payload.Round, total, facts.RevenueModel, rows);
         var (section, _) = book.Section.ApplyRace(race, Money.FromDollars(facts.TypicalDollars).Cents, today);
+        (section, var bonuses) = section.PayWinBonuses(_context.Session.World, race, today);
         var typical = section.TypicalCents;
         var seasonCircuits = SeasonCircuitCountries(payload.Season);
         var started = new SortedSet<string>(StringComparer.Ordinal);
@@ -329,7 +330,18 @@ public sealed class RaceWeekendDay : IDayHandler
         }
 
         book.Replace(section);
+        TellBonuses(bonuses, today, ("season", payload.Season.ToString(CultureInfo.InvariantCulture)), ("round", payload.Round.ToString(CultureInfo.InvariantCulture)));
     }
+
+    private void TellBonuses(IReadOnlyList<ContractBonusPaid> bonuses, GameDate today, params (string Name, string Value)[] reason) =>
+        ContractBonusNotices.Post(
+            bonuses,
+            _context.Session.World,
+            today,
+            _context.TryGet<InboxBook>(),
+            _context.Managers,
+            _context.TryGet<ControlTable>() ?? _context.TryGet<IOrganizationControl>(),
+            reason);
 
     /// <summary>
     /// The country of every race of the season being raced, from the season's stored calendar: what the transport of a round is split over (#268).
@@ -637,7 +649,9 @@ public sealed class RaceWeekendDay : IDayHandler
         var constructors = standings.Constructors();
         var winners = constructors.Where(row => row.Wins > 0).Select(row => row.Id).OrderBy(id => id, StringComparer.Ordinal).ToArray();
         var season = FinanceStandings.Season(section.Season, section.RoundsCompleted, constructors, winners, standings.Drivers());
-        book.Replace(book.Section.ApplySeason(season));
+        var (paid, bonuses) = book.Section.ApplySeason(season).PayTitleBonuses(_context.Session.World, season, today);
+        book.Replace(paid);
+        TellBonuses(bonuses, today, ("season", section.Season.ToString(CultureInfo.InvariantCulture)));
         StoreChampionship(section.Season, standings, settled: true);
     }
 

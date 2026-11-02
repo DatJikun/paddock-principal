@@ -153,7 +153,7 @@ Czy niepewność skauta pomaga w decyzji, czy tylko irytuje?
 Kierowca ocenia ofertę według swojej osobowości. Jednej „wartości rynkowej” nie ma.
 
 ```wybory
-Pensja | suwak; sugerowany przedział wynika z umiejętności osoby, tak jak widzi je Twój zespół. Premii za punkt nie ma; premia za wygraną i za tytuł to też suwaki, od zera
+Pensja | suwak; sugerowany przedział wynika z umiejętności osoby, tak jak widzi je Twój zespół. Premii za punkt nie ma; premia za wygraną i za tytuł to też suwaki, od zera. Premię za wygraną zespół płaci w dniu każdego zwycięstwa kierowcy, a premię za tytuł przy zamknięciu sezonu, gdy mistrzostwo jest już rozstrzygnięte; widzisz ją w finansach z nazwiskiem kierowcy i dostajesz wiadomość w skrzynce
 Kontrakt od pierwszego dnia | każdy kierowca i każda osoba personelu ma na starcie kariery umowę z pensją i datą końca; pensja wynika ze skali płac epoki i umiejętności osoby. Profil kierowcy pokazuje pensję, wartość (ile Twój zespół uważa, że jest wart) i premie
 Personel | ta sama umowa co u kierowcy, tylko bez statusu i premii. Osobę z innego zespołu podpisujesz na czas po końcu jej obecnej umowy
 Opcja przedłużenia | na razie jej nie ma

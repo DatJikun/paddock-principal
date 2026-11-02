@@ -159,4 +159,10 @@ public static class FinanceReason
 
     /// <summary>The board paid its bonus for a season target met (#315).</summary>
     public const string BoardBonus = "finance.reason.board_bonus";
+
+    /// <summary>A contracted driver won a race, and the team paid the win bonus of the contract (#355).</summary>
+    public const string WinBonus = "finance.reason.win_bonus";
+
+    /// <summary>A contracted driver won the drivers' title, and the team paid the title bonus of the contract (#355).</summary>
+    public const string TitleBonus = "finance.reason.title_bonus";
 }

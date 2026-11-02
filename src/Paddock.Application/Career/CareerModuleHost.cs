@@ -81,6 +81,7 @@ public sealed class CareerModuleHost
 
         dispatcher.Register(new ResolveInboxItemHandler());
         dispatcher.Register(new DismissInboxItemHandler());
+        dispatcher.Register(new ReadInboxItemHandler());
         dispatcher.Register(new ExpireInboxItemHandler());
 
         // An offer that has passed its date lapses by its default option, as a logged command, before anything else is filed today.

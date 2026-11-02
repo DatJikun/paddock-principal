@@ -90,6 +90,18 @@ public sealed class InboxBook
         SyncBlocking(managers, new ManagerId(item.ManagerId));
     }
 
+    /// <summary>Records that the owner opened the item (#320). It touches neither the status nor the clock.</summary>
+    public void MarkRead(string itemId)
+    {
+        Section = Section.MarkRead(itemId);
+    }
+
+    /// <summary>Takes an answered or lapsed item out of the mailbox (#320). It touches neither the outcome nor the clock.</summary>
+    public void Delete(string itemId)
+    {
+        Section = Section.Delete(itemId);
+    }
+
     /// <summary>Closes an open item with no option taken (see <see cref="InboxSection.Withdraw"/>) and frees the clock if it was the last decision.</summary>
     public void Withdraw(ManagerRegistry managers, string itemId, GameDate today)
     {

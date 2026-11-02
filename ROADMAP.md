@@ -1,7 +1,21 @@
 # Paddock Principal — ROADMAP
 
-**Status:** aktualne na 2026-10-04
+**Status:** aktualne na 2026-11-02
 **Zasada:** każda faza kończy się bramką, czyli czymś, co da się uruchomić i ocenić. Poza fazą 0 nie ma faz „tylko dokumentacja”.
+
+---
+
+## Teraz (od 2026-11-02): playtest 3, start w 2010
+MVP 1955 (PP-060) jest zagrany, playtesty 1 i 2 przerobione w dużej części. Decyzja właściciela z 2026-11-02: **następny playtest gra start w 2010** (Ferrari, Red Bull albo słabszy zespół). Rok 1955 zostaje testem regresji (bramka #113), nie celem. Kolejka dla agentów jest w #131.
+
+1. **Fundament wyścigu (#316):** jeden model wyścigu dla kariery, szybkiego wyścigu i symulacji (PP-058), weekend z treningiem, kwalifikacjami (oglądaj albo symuluj), strategią przed startem i podsumowaniem. Dziś kariera blokuje polecenia z boksu (`live.order.locked`), a szybki wyścig je przyjmuje: to łamie PP-058. Interfejs weekendu nie zależy od modelu okrążenia, żeby track model v2 podmienił tylko silnik.
+2. **Blokery z playtestu 2, równolegle:** #318 (personel do podpisania, crash rynku, oceny 40, pensje od pierwszego dnia), #320 (skrzynka, pełna klasyfikacja), #315 (cele zarządu z kosztem i konsekwencją).
+3. **Track model v2 (#341, PP-073, PP-074), jak najszybciej:** część danych (format toru: szerokość, pobocza, krawężniki, aleja serwisowa; geometria 2010 z OSM, #328) rusza równolegle z punktem 1, gdy projekt jest zapisany w VISION, TECH §6.5 i DESIGN §7. Podmiana silnika na v2 dopiero po scaleniu #316.
+4. **Dane 2010:** warstwa nadpisań (#333), infrastruktura i pensje 2010 (#318, #319), negocjacje sponsora z niepewnym wynikiem (#319).
+5. **Ekran wyścigu (#317):** makiety do akceptacji właściciela, kod dopiero po akceptacji i po #316.
+- Później: kraje w czasie (#332), logo (#334), personel przychodzący w trakcie kariery (#299), wiek wejścia juniorów wg epoki (#195), głosowane przepisy (#287–#290, #273), zdarzenia historyczne (#298), cykl życia zespołów (#111), własne silniki (#164).
+
+**Bramka playtestu 3:** sezon 2010 zagrany w oknie od treningu do podsumowania każdego weekendu, polecenia z boksu działają w karierze, wyścig na v2 wygląda i rozkłada się realistycznie.
 
 ---
 
@@ -80,7 +94,7 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - Powstawanie, upadki i wykupy zespołów; propozycje historyczne.
 - Projekt szczegółowy: zakładanie i wykup zespołu w trakcie kariery.
 
-**Stan (2026-10-04):** zadania T35–T48 (#100–#113) są założone jako issues.
+**Stan (2026-11-02):** pętla kariery działa w CLI (`simrunner play`, #112) i w oknie gry. Bramka #113 zamknięta: 50 seedów do marca 1957 bez zawieszenia. MVP (PP-060, PP-064) zagrany w playteście 1. Lista poniżej to stan z 2026-10-04, zostawiony jako historia.
 - [x] T36: fundamenty (rejestr sekcji świata, skrzynka v0, cele), #117.
 - [ ] W toku (PR-y tuż przed otwarciem): T39 kontrakty i negocjacje (#104), T40 pula talentów (#105).
 - [x] T37: finanse v0 (księga, przychody epoki, popularność), #102.
@@ -110,6 +124,8 @@ Najbardziej ryzykowna część całego pomysłu, więc robimy ją pierwszą.
 - **Playtest 1, wyjaśnienia (#268):** infrastruktura z liczbami tego, co daje, droższy transport, dostawcy tylko silnik w panelach (PP-070).
 - **Multiplayer online (PP-045):** host i goście przez WebSocket, wspólna data, wspólne oglądanie wyścigu na żywo.
 - **Playtest 1, poradnik w grze (#268):** książka z GUIDE.md otwierana z menu głównego, z lewego menu kariery i z menu na Esc, po polsku (PP-071).
+
+**Stan (2026-11-02):** okno Photino z mostem JSON i trybem deweloperskim (#200), ekrany w `ui/app` dla wszystkich systemów MVP, poradnik w grze. Faza 6 ruszyła przed fazą 5 (PP-060).
 
 **Bramka:** Ty i kolega rozgrywacie razem sezon przez internet, każdy swoim zespołem.
 

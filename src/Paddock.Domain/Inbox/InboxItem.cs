@@ -176,7 +176,9 @@ public sealed class InboxItem
         InboxItemDraft draft,
         InboxStatus status,
         GameDate? closedOn,
-        string? chosenOptionId)
+        string? chosenOptionId,
+        bool isRead = false,
+        bool isDeleted = false)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(number, 1);
         ArgumentException.ThrowIfNullOrWhiteSpace(managerId);
@@ -197,6 +199,11 @@ public sealed class InboxItem
         }
 
         ValidateChoice(draft, status, chosenOptionId);
+        if (isDeleted && (status == InboxStatus.Open || status == InboxStatus.Dismissed))
+        {
+            throw new ArgumentException("Only an answered or lapsed item is deleted by a mark; an open notice is dismissed instead.", nameof(isDeleted));
+        }
+
         Number = number;
         ManagerId = managerId;
         Created = created;
@@ -204,6 +211,8 @@ public sealed class InboxItem
         Status = status;
         ClosedOn = closedOn;
         ChosenOptionId = chosenOptionId;
+        IsRead = isRead;
+        IsDeleted = isDeleted;
     }
 
     public InboxItemDraft Draft { get; }
@@ -239,7 +248,25 @@ public sealed class InboxItem
     /// <summary>The option that was executed. Null while open, for a dismissed item, and for an item that lapsed without a default.</summary>
     public string? ChosenOptionId { get; }
 
+    /// <summary>
+    /// True once the owner has opened the item (#320). It is the owner's view of their own mail, not truth about the world:
+    /// nothing in the simulation reads it, and it never changes the status. It survives every status change.
+    /// </summary>
+    public bool IsRead { get; }
+
+    /// <summary>
+    /// True once the owner has deleted an answered or lapsed item from their mailbox (#320). Like <see cref="IsRead"/> it is the
+    /// owner's view of their own mail: the record and its outcome stay. An open notice is deleted by dismissing it instead.
+    /// </summary>
+    public bool IsDeleted { get; }
+
+    /// <summary>True when the owner no longer wants it in the mailbox: a dismissed notice or a deleted closed item.</summary>
+    public bool IsRemoved => Status == InboxStatus.Dismissed || IsDeleted;
+
     public bool IsOpen => Status == InboxStatus.Open;
+
+    /// <summary>True for an open item the owner has not opened yet: what the inbox badge counts.</summary>
+    public bool IsUnread => IsOpen && !IsRead;
 
     /// <summary>True for an open decision item. Most of them hold the shared clock for their manager; see <see cref="IsHoldingClock"/>.</summary>
     public bool IsOpenDecision => IsOpen && NeedsDecision;
@@ -248,7 +275,13 @@ public sealed class InboxItem
     public bool IsHoldingClock => IsOpen && Draft.HoldsClock;
 
     internal InboxItem Closed(InboxStatus status, GameDate on, string? chosenOptionId) =>
-        new(Number, ManagerId, Created, Draft, status, on, chosenOptionId);
+        new(Number, ManagerId, Created, Draft, status, on, chosenOptionId, IsRead);
+
+    internal InboxItem MarkedRead() =>
+        new(Number, ManagerId, Created, Draft, Status, ClosedOn, ChosenOptionId, isRead: true, IsDeleted);
+
+    internal InboxItem MarkedDeleted() =>
+        new(Number, ManagerId, Created, Draft, Status, ClosedOn, ChosenOptionId, IsRead, isDeleted: true);
 
     private static void ValidateChoice(InboxItemDraft draft, InboxStatus status, string? chosenOptionId)
     {

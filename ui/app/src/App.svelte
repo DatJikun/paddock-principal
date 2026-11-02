@@ -401,6 +401,23 @@
     }
   }
 
+  /* Ids already sent, so a mail shown twice before the refresh lands is marked once. */
+  const reading = new Set<string>();
+
+  /** The player opened a mail: the core records it and the badge follows the unread count it reports. */
+  async function readItem(itemId: string) {
+    if (reading.has(itemId)) return;
+    reading.add(itemId);
+    try {
+      await command('readInbox', { managerId: HUMAN_MANAGER_ID, itemId });
+      await refresh();
+    } catch (error) {
+      catchFault(error);
+    } finally {
+      reading.delete(itemId);
+    }
+  }
+
   async function dismissItem(itemId: string) {
     if (busy) return;
     busy = true;
@@ -648,7 +665,7 @@
 
   $effect(() => {
     route;
-    shell?.inboxOpen;
+    shell?.inboxUnread;
     phase;
     menuPage;
     saves.length;
@@ -722,8 +739,8 @@
             <a href={`#/${item.id}`} data-r={item.id} class:on={lit === item.id} aria-current={lit === item.id ? 'page' : undefined}>
               {@html icon(item.icon ?? '')}
               <span>{t(item.key ?? '')}</span>
-              {#if item.id === 'skrzynka' && (shell?.inboxOpen ?? 0) > 0}
-                <span class="n">{shell?.inboxOpen}</span>
+              {#if item.id === 'skrzynka' && (shell?.inboxUnread ?? 0) > 0}
+                <span class="n">{shell?.inboxUnread}</span>
               {/if}
             </a>
           {/if}
@@ -832,7 +849,7 @@
             <Pulpit data={screenData} {tr} today={shell?.date ?? ''} {teamId} />
           </div>
         {:else if screenData.kind === 'skrzynka' && route.name === 'skrzynka'}
-          <Skrzynka data={screenData} {tr} selectedId={route.args[0] ?? null} {busy} onConfirm={confirmChoice} onDismiss={dismissItem} onDismissMany={dismissMany} />
+          <Skrzynka data={screenData} {tr} selectedId={route.args[0] ?? null} {busy} onConfirm={confirmChoice} onDismiss={dismissItem} onDismissMany={dismissMany} onRead={readItem} />
         {:else if screenData.kind === 'kalendarz' && route.name === 'kalendarz'}
           <Kalendarz data={screenData} {tr} />
         {:else if screenData.kind === 'wyscig' && route.name === 'wyscig'}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { bandOf, bandText, careerCells, careerTotals, DRIVER_ATTRS, endsThisSeason, SEATS, seasonRow, sortRows, starsOf } from './people.mjs';
+import { bandOf, bandText, careerCells, careerTotals, compareChoices, DRIVER_ATTRS, endsThisSeason, marketRows, SEATS, seasonRow, sortRows, starsOf } from './people.mjs';
 
 const pl = JSON.parse(readFileSync(new URL('../../../../strings/pl.json', import.meta.url), 'utf8'));
 const en = JSON.parse(readFileSync(new URL('../../../../strings/en.json', import.meta.url), 'utf8'));
@@ -63,4 +63,38 @@ test('starsOf turns the 1-20 overall into half stars', () => {
   assert.equal(starsOf(10), 2.5);
   assert.equal(starsOf(13), 3.5);
   assert.equal(starsOf(1), 0.5);
+});
+
+test('the comparison offers teammates first, then the market, each driver once and never the driver himself', () => {
+  const own = [{ personId: 'a', name: 'Alpha' }, { personId: 'b', name: 'Beta' }];
+  const market = {
+    contracted: [
+      { personId: 'z', name: 'Zed', kind: 'driver', freeAgent: false, organizationName: 'Red' },
+      { personId: 'e', name: 'Engineer', kind: 'RaceEngineer', freeAgent: false, organizationName: 'Red' },
+    ],
+    freeAgents: [
+      { personId: 'c', name: 'Cee', kind: 'driver', freeAgent: true, organizationName: null },
+      { personId: 'z', name: 'Zed', kind: 'driver', freeAgent: true, organizationName: null },
+    ],
+  };
+  assert.deepEqual(
+    compareChoices(own, market, 'a').map((item) => [item.personId, item.group]),
+    [['b', 'own'], ['c', 'free'], ['z', 'other']],
+  );
+});
+
+test('the market lists every person of one kind once, so the Personnel tab cannot meet a duplicate key', () => {
+  const market = {
+    contracted: [
+      { personId: 's1', kind: 'RaceEngineer', freeAgent: false },
+      { personId: 'd1', kind: 'driver', freeAgent: false },
+    ],
+    freeAgents: [
+      { personId: 's1', kind: 'RaceEngineer', freeAgent: true },
+      { personId: 's2', kind: 'Scout', freeAgent: true },
+    ],
+  };
+  const staff = marketRows(market, 'staff');
+  assert.deepEqual(staff.map((person) => [person.personId, person.freeAgent]), [['s1', false], ['s2', true]]);
+  assert.deepEqual(marketRows(market, 'driver').map((person) => person.personId), ['d1']);
 });

@@ -445,9 +445,10 @@ public class BoardRulesTests
 
         var decision = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.SeasonTargetKind && item.IsOpen);
         Assert.Equal(SeasonTarget.Expected, decision.DefaultOptionId);
-        Assert.Equal("5", decision.Arguments["safeTarget"]);
+        // #315: one place either side for a team expected third (it used to be P5 / P3 / P1).
+        Assert.Equal("4", decision.Arguments["safeTarget"]);
         Assert.Equal("3", decision.Arguments["expectedTarget"]);
-        Assert.Equal("1", decision.Arguments["ambitiousTarget"]);
+        Assert.Equal("2", decision.Arguments["ambitiousTarget"]);
         Assert.DoesNotContain(lab.Board.Objectives.OwnedBy(T3), objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
 
         Assert.IsType<CommandResult.Accepted>(lab.Submit(new ResolveInboxItemCommand
@@ -458,7 +459,7 @@ public class BoardRulesTests
             OptionId = SeasonTarget.Ambitious,
         }));
         var season = lab.Board.Objectives.OwnedBy(T3).Single(objective => objective.IsOpen && objective.KindKey == BoardKeys.ObjectiveSeason);
-        Assert.Equal(1, ((ChampionshipPositionAtMost)season.Predicate).Position);
+        Assert.Equal(2, ((ChampionshipPositionAtMost)season.Predicate).Position);
         Assert.Equal("30", season.EffectOnMet.Arguments["points"]);
         Assert.Equal("-400", season.EffectOnFailed.Arguments["tenths"]);
         Assert.Equal("1", season.EffectOnFailed.Arguments["dismiss"]);
@@ -515,7 +516,7 @@ public class BoardRulesTests
         lab.Advance(1);
 
         var season = lab.Board.Objectives.OwnedBy(T3).Single(objective => objective.KindKey == BoardKeys.ObjectiveSeason);
-        Assert.Equal(1, ((ChampionshipPositionAtMost)season.Predicate).Position);
+        Assert.Equal(2, ((ChampionshipPositionAtMost)season.Predicate).Position);
         Assert.Equal(SeasonTarget.Ambitious, season.EffectOnMet.Arguments["ambition"]);
         var trace = Assert.Single(sink.Traces, item => item.Trigger == "board.seasonTarget:" + T3.Value);
         Assert.Equal(SeasonTarget.Ambitious, trace.ChosenOptionId);

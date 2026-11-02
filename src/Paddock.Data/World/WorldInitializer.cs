@@ -4,6 +4,7 @@ using Paddock.Data.Authored;
 using Paddock.Data.Historical;
 using Paddock.Domain.Cars;
 using Paddock.Domain.Career;
+using Paddock.Domain.Contracts;
 using Paddock.Domain.Finance;
 using Paddock.Domain.People;
 using Paddock.Domain.Random;
@@ -165,6 +166,8 @@ public static class WorldInitializer
 
             FillStaff();
             ReportTeamsWithoutStaff();
+            PayStartContracts();
+            KnowOwnDrivers();
             AddCars();
             var pairings = StaffRoster.Pair(_world, GameDate.SeasonStart(_start));
             if (!pairings.IsEmpty)
@@ -1257,6 +1260,50 @@ public static class WorldInitializer
                 null);
             (_world, _) = _world.AddContract(spec);
             _staffedOrganizations.Add(organization.Value);
+        }
+
+        /// <summary>
+        /// Every contract of the first morning gets a salary from the era scale (#318), so nobody under contract is paid 0. Without
+        /// the era pay dimensions for the start year (a test fixture with no era timeline) the salaries stay 0 and the report says so.
+        /// </summary>
+        private void PayStartContracts()
+        {
+            if (!PaysEra(_data.EraPeriods, _start))
+            {
+                Gap(WorldInitGapCodes.SalariesWithoutEraScale, Number(_start));
+                return;
+            }
+
+            _world = StartingPay.PayUnpaid(_world, new EraPayBenchmark(_data.EraSetFor), GameDate.SeasonStart(_start));
+        }
+
+        private static bool PaysEra(IReadOnlyList<RulePeriod> periods, int year) =>
+            new[] { EraPayBenchmark.MidfieldDimension, EraPayBenchmark.TopDimension }.All(dimension =>
+                periods.Any(period => string.Equals(period.DimensionId, dimension, StringComparison.Ordinal)
+                    && period.FromYear <= year && (period.ToYear is null || period.ToYear >= year)));
+
+        /// <summary>
+        /// A team knows the drivers it employs on the first morning (#318), the way it knows its own staff: their current attributes
+        /// exactly, their ceiling not at all. Without this the profile of a team's own driver had no attributes and no overall.
+        /// A belief the team already has (none on the first morning) is not replaced.
+        /// </summary>
+        private void KnowOwnDrivers()
+        {
+            var today = GameDate.SeasonStart(_start);
+            foreach (var contract in _world.Contracts
+                .Where(item => item.Role.IsDriver && item.IsActiveOn(today))
+                .OrderBy(item => item.Id.Value, Ordinal))
+            {
+                if (_world.KnowledgeOf(contract.OrganizationId, contract.PersonId) is not null)
+                {
+                    continue;
+                }
+
+                var known = _world.GetPerson(contract.PersonId).Truth.Attributes
+                    .Select(attribute => new KnownAttribute(attribute.Key, new AttributeBand(attribute.Value, attribute.Value)))
+                    .ToArray();
+                _world = _world.SetKnowledge(new PersonKnowledge(contract.OrganizationId, contract.PersonId, known, null));
+            }
         }
 
         private GameDate StaffBirth(StaffMember member)

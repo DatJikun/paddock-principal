@@ -105,9 +105,13 @@ public class BoardCareerTests
         Assert.Equal(PrincipalKind.Ai, lab.Section.Board(T3)!.Principal!.Kind);
         Assert.Null(lab.Section.OrganizationOf(Pam.Value));
         Assert.False(lab.Environment.Control.Controls(Pam, T3));
-        var notice = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.NoticeKind);
-        Assert.Equal(BoardKeys.NoticeDismissed, notice.SubjectKey);
+        var notice = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.NoticeKind && item.SubjectKey == BoardKeys.NoticeDismissed);
         Assert.False(notice.NeedsDecision);
+
+        // #315: the missed 1955 target arrived in the inbox with its reason before the dismissal.
+        var missed = Assert.Single(lab.Inbox.Section.ItemsOf(Pam.Value), item => item.Kind == BoardEngine.NoticeKind && item.SubjectKey == BoardKeys.NoticeTargetFailed);
+        Assert.Equal("3", missed.Arguments["target"]);
+        Assert.Equal("5", missed.Arguments["finish"]);
 
         // Reputation: 30, minus 4 for the failed season, minus 8 for the dismissal.
         Assert.Equal(300 - 40 - 80, lab.Section.ReputationTenths(Pam.Value));

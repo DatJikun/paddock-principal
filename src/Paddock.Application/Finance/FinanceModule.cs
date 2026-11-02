@@ -44,6 +44,7 @@ public sealed class FinanceModule : CareerModule
         context.Provide<IPayrollLedger>(new FinancePayroll(book));
         context.Provide<IJuniorFunding>(new FinanceJuniorFunding(book));
         context.Provide<IBoardSeverance>(new FinanceSeverance(book));
+        context.Provide<IBoardBonus>(new FinanceBoardBonus(book, context.Inputs.Eras));
     }
 
     public override void Attach(CareerModuleContext context)
@@ -148,5 +149,41 @@ public sealed class FinanceSeverance : IBoardSeverance
             managerId,
             -Money.FromDollars(amount).Cents,
             FinanceReason.Termination));
+    }
+}
+
+/// <summary>
+/// The board's season bonus (#315), sized from the era's typical team budget and posted to the team's ledger as owner funds
+/// (no ledger book, no posting).
+/// </summary>
+public sealed class FinanceBoardBonus : IBoardBonus
+{
+    private readonly FinanceBook _book;
+    private readonly IEraFinanceSource _eras;
+
+    public FinanceBoardBonus(FinanceBook book, IEraFinanceSource eras)
+    {
+        ArgumentNullException.ThrowIfNull(book);
+        ArgumentNullException.ThrowIfNull(eras);
+        _book = book;
+        _eras = eras;
+    }
+
+    public long TypicalBudgetDollars(int season) => Math.Max(0L, _eras.Facts(season).TypicalDollars);
+
+    public void Pay(OrganizationId organization, long amount, GameDate on)
+    {
+        if (amount <= 0 || !_book.Section.HasBook(organization))
+        {
+            return;
+        }
+
+        _book.Replace(_book.Section.Post(
+            organization,
+            on,
+            LedgerCategories.OwnerFunds,
+            null,
+            Money.FromDollars(amount).Cents,
+            FinanceReason.BoardBonus));
     }
 }

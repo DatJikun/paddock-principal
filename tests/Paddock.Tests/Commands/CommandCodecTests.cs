@@ -19,6 +19,7 @@ public class CommandCodecTests
             new ResolveInboxItemCommand { ManagerId = manager, IssuedOn = Day, ItemId = "inb:7", OptionId = "accept \"now\"", SubmissionNumber = 4 },
             new DismissInboxItemCommand { ManagerId = manager, IssuedOn = Day, ItemId = "inb:8", SubmissionNumber = 5 },
             new ExpireInboxItemCommand { ManagerId = new ManagerId("ai:paddock"), IssuedOn = Day.AddDays(1), ItemId = "inb:9", SubmissionNumber = 6 },
+            new ReadInboxItemCommand { ManagerId = manager, IssuedOn = Day, ItemId = "inb:10", SubmissionNumber = 7 },
         ];
 
         foreach (var command in commands)
@@ -31,6 +32,7 @@ public class CommandCodecTests
 
         Assert.Equal("inbox.resolve/1", CommandCodec.Production.Encode(commands[0]).Tag);
         Assert.Equal("""{"itemId":"inb:8"}""", CommandCodec.Production.Encode(commands[1]).Text);
+        Assert.Equal("inbox.read/1", CommandCodec.Production.Encode(commands[3]).Tag);
     }
 
     [Fact]

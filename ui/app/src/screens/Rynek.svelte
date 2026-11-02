@@ -7,7 +7,7 @@
   import ContractEnd from '../lib/components/ContractEnd.svelte';
   import { formatDay } from '../lib/date.mjs';
   import { formatMoney } from '../lib/money.mjs';
-  import { sortRows } from '../lib/people.mjs';
+  import { marketRows, sortRows } from '../lib/people.mjs';
   import { formatAge, profileHref, subjectKind } from '../lib/person.mjs';
   import type { MarketData } from '../lib/screens';
   import type { Tr } from '../lib/ui';
@@ -22,8 +22,7 @@
   let sortKey = $state<Key>('overall');
   let direction = $state<'asc' | 'desc'>('desc');
 
-  let all = $derived([...data.market.freeAgents, ...data.market.contracted]);
-  let ofKind = $derived(all.filter((person) => (kind === 'driver' ? person.kind === 'driver' : person.kind !== 'driver')));
+  let ofKind = $derived(marketRows(data.market, kind));
   let shown = $derived(filter === 'free' ? ofKind.filter((person) => person.freeAgent) : ofKind);
   let rows = $derived(
     sortRows(shown, (person: MarketPersonView) => {

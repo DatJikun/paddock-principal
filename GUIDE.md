@@ -153,7 +153,10 @@ Czy niepewność skauta pomaga w decyzji, czy tylko irytuje?
 Kierowca ocenia ofertę według swojej osobowości. Jednej „wartości rynkowej” nie ma.
 
 ```wybory
-Pensja | suwak; sugerowany przedział wynika z umiejętności osoby, tak jak widzi je Twój zespół. Premii za punkt nie ma, zostają premia za wygraną i za tytuł
+Pensja | suwak; sugerowany przedział wynika z umiejętności osoby, tak jak widzi je Twój zespół. Premii za punkt nie ma; premia za wygraną i za tytuł to też suwaki, od zera
+Kontrakt od pierwszego dnia | każdy kierowca i każda osoba personelu ma na starcie kariery umowę z pensją i datą końca; pensja wynika ze skali płac epoki i umiejętności osoby. Profil kierowcy pokazuje pensję, wartość (ile Twój zespół uważa, że jest wart) i premie
+Personel | ta sama umowa co u kierowcy, tylko bez statusu i premii. Osobę z innego zespołu podpisujesz na czas po końcu jej obecnej umowy
+Opcja przedłużenia | na razie jej nie ma
 Przedkontrakt | kierowcę, któremu umowa kończy się w tym roku, można podpisać już teraz na następny sezon; umowa startuje dzień po końcu obecnej
 Długość | do {NegotiationEstimates.MaxYears|sezonów}; długość, opcje i klauzula wyjścia liczą się jako ryzyko
 Status | numer 1, równy albo numer 2
@@ -382,11 +385,25 @@ Czy kwoty od sponsorów są teraz wystarczające, czy nadal za małe?
 Każdy przychód i koszt trafia do księgi. Zarząd ocenia Cię po każdym wyścigu i może Cię zwolnić.
 
 ```wybory
-Cel na sezon | w skrzynce, termin {BoardEstimates.SeasonTargetDecisionDays|dni}, domyślnie oczekiwany: bezpieczny (mała premia), oczekiwany albo ambitny (duża premia, porażka może kosztować posadę)
+Cel na sezon | w skrzynce, termin {BoardEstimates.SeasonTargetDecisionDays|dni}, domyślnie oczekiwany: bezpieczny, oczekiwany albo ambitny; przy każdym widzisz premię i zmianę zaufania, zanim potwierdzisz
 Na co wydać | rozwój auta i pensje to główne koszty; auto i rozwój płacisz co tydzień, pensje 1. dnia miesiąca
 Zejść pod kreskę | saldo może być ujemne, na powrót masz cały sezon, potem niewypłacalność
 Ryzykować przy słabych wynikach | zarząd zwalnia po {BoardEstimates.ReviewsToDismissBase}+ ocenach z rzędu pod progiem; starszy zespół jest cierpliwszy
 Oferta pracy po zwolnieniu | wygasa po {BoardEstimates.OfferValidDays|dni}, a najpóźniej po {BoardEstimates.GuaranteeWindowDays|dni} zawsze jakaś jest
+```
+
+Trzy cele leżą blisko siebie. Zespół z czołówki dostaje miejsce wyżej i miejsce niżej od oczekiwanego, a zespół z końca stawki większy odstęp. Zespół, od którego oczekuje się mistrzostwa, przy ambitnym celu musi też wygrywać wyścigi.
+
+Trudniejszy cel lepiej płaci, ale łatwiej go przegrać. Spełniony cel daje premię zarządu i wzrost zaufania, niespełniony nie daje premii i obniża zaufanie. Wynik przychodzi do skrzynki z powodem: jakie miejsce było celem, a jakie zajął zespół. Zespoły AI grają na tych samych zasadach.
+
+```porownanie Bezpieczny | Ambitny
+Premia za spełnienie | {BoardEstimates.SafeBonusPermille|m%} typowego budżetu epoki, zaufanie +{BoardEstimates.SafeObjectiveTenths|t} | {BoardEstimates.AmbitiousBonusPermille|m%} typowego budżetu epoki, zaufanie +{BoardEstimates.AmbitiousObjectiveTenths|t}
+Porażka | zaufanie −{BoardEstimates.SafeFailTenths|t} | zaufanie −{BoardEstimates.AmbitiousFailTenths|t}, szef bez ochrony traci posadę
+```
+
+```pola
+Cel oczekiwany | premia {BoardEstimates.ExpectedBonusPermille|m%} typowego budżetu epoki | zaufanie ±{BoardEstimates.SeasonObjectiveTenths|t}
+Odstęp między celami | jedno miejsce w czołówce | z tyłu stawki najwyżej {BoardEstimates.TargetMaxPlaces} miejsca, w dużej stawce więcej niż w małej
 ```
 
 ```porownanie Przychody | Koszty

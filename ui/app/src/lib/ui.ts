@@ -31,6 +31,7 @@ export const ICON = {
   supply: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>',
   scout: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
   mail: '<path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/>',
+  trash: '<path d="M4 7h16M10 4h4M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   play: '<path d="M7 5l12 7-12 7z"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',

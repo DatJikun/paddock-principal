@@ -1,0 +1,70 @@
+{
+  "layout_id": "fixture_2010",
+  "control_points": [
+    [0.0, 0.0],
+    [400.0, 0.0],
+    [800.0, 0.0],
+    [1200.0, 0.0],
+    [1500.0, 0.0],
+    [1700.0, 60.0],
+    [1800.0, 200.0],
+    [1800.0, 500.0],
+    [1700.0, 640.0],
+    [1500.0, 700.0],
+    [1100.0, 700.0],
+    [900.0, 560.0],
+    [700.0, 520.0],
+    [500.0, 700.0],
+    [100.0, 700.0],
+    [-300.0, 700.0],
+    [-500.0, 640.0],
+    [-600.0, 500.0],
+    [-600.0, 200.0],
+    [-500.0, 60.0],
+    [-300.0, 0.0]
+  ],
+  "source": "hand-made test fixture, not a real circuit (no OSM or other third-party data)",
+  "notes": "Fixture for the track v2 format (#348): every optional field is present. Shapes and numbers are invented for tests.",
+  "corners": [
+    { "point": 6, "name": "East Hairpin" },
+    { "point": 12, "name": "Chicane" },
+    { "point": 17, "name": "West Hairpin" }
+  ],
+  "width_m": [
+    { "s": 0, "w": 15 },
+    { "s": 0.25, "w": 12 },
+    { "s": 0.55, "w": 11 },
+    { "s": 0.8, "w": 14 }
+  ],
+  "edges": [
+    { "from": 0.94, "to": 0.05, "side": "right", "kerb_m": 1.5, "runoff": "asphalt", "runoff_m": 30, "barrier": true },
+    { "from": 0.24, "to": 0.36, "side": "right", "kerb_m": 2, "runoff": "gravel", "runoff_m": 90, "barrier": true },
+    { "from": 0.24, "to": 0.36, "side": "left", "kerb_m": 1, "runoff": "grass", "runoff_m": 20, "barrier": true },
+    { "from": 0.52, "to": 0.58, "side": "right", "kerb_m": 1.2, "runoff": "grass", "runoff_m": 40, "barrier": false },
+    { "from": 0.83, "to": 0.89, "side": "right", "kerb_m": 1.5, "runoff": "gravel", "runoff_m": 70, "barrier": true }
+  ],
+  "pit_lane": {
+    "points": [
+      [-350, 8],
+      [-250, 25],
+      [-100, 25],
+      [100, 25],
+      [300, 25],
+      [500, 25],
+      [700, 25],
+      [900, 25],
+      [1050, 8]
+    ],
+    "entry_s": 0.94,
+    "exit_s": 0.179,
+    "limit_from": 100,
+    "limit_to": 1250,
+    "limit_kph": 80,
+    "boxes": [500, 515, 530, 545, 560, 575, 590, 605, 620, 635, 650, 665]
+  },
+  "elevation_m": [
+    { "s": 0, "h": 12 },
+    { "s": 0.3, "h": 18 },
+    { "s": 0.6, "h": 9 }
+  ]
+}

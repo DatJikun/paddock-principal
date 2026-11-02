@@ -1,4 +1,5 @@
 using Paddock.Application.Career;
+using Paddock.Domain.Contracts;
 using Paddock.Domain.People;
 using Paddock.Domain.Random;
 using Paddock.Simulation.Career;
@@ -21,7 +22,7 @@ public sealed class StaffModule : CareerModule
     public override void Attach(CareerModuleContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        context.AddDayHandler(new StaffDayHandler(context.Session));
+        context.AddDayHandler(new StaffDayHandler(context.Session, context.Inputs.Pay));
     }
 }
 
@@ -31,11 +32,14 @@ public sealed class StaffDayHandler : IDayHandler
     public const int DefaultOrder = 35;
 
     private readonly CareerSession _session;
+    private readonly IPayBenchmark? _pay;
 
-    public StaffDayHandler(CareerSession session)
+    /// <param name="pay">The era pay scale. A chair filled from the generated pool is paid from it (#318); without it the salary stays 0.</param>
+    public StaffDayHandler(CareerSession session, IPayBenchmark? pay = null)
     {
         ArgumentNullException.ThrowIfNull(session);
         _session = session;
+        _pay = pay;
     }
 
     public int Order => DefaultOrder;
@@ -54,6 +58,11 @@ public sealed class StaffDayHandler : IDayHandler
             var people = new RngStream(RngStreamName.People, context.Stream(RngStreamName.People).State);
             var filled = StaffRoster.Fill(world, people, new FixtureNameSource(), EmptyNameBlocklist.Instance, context.Today);
             world = filled.World;
+            if (_pay is not null && filled.Hired.Count > 0)
+            {
+                world = StartingPay.PayUnpaid(world, _pay, context.Today);
+            }
+
             foreach (var id in filled.Hired)
             {
                 _session.RegisterPerson(world.GetPerson(id), context.Today);

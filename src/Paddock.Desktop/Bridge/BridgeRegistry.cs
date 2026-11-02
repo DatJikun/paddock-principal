@@ -58,6 +58,7 @@ public static class BridgeRegistry
         Endpoint(Command, "advanceDay", typeof(ManagerCall), typeof(AdvanceDayView)),
         Endpoint(Command, "resolveInbox", typeof(ResolveInboxCall), typeof(CommandAck)),
         Endpoint(Command, "dismissInbox", typeof(DismissInboxCall), typeof(CommandAck)),
+        Endpoint(Command, "readInbox", typeof(ReadInboxCall), typeof(CommandAck)),
         Endpoint(Command, "newCareer", typeof(NewCareerCall), typeof(CareerStartedView)),
         Endpoint(Command, "loadCareer", typeof(LoadCareerCall), typeof(CareerStartedView)),
         Endpoint(Command, "saveCareer", typeof(SaveCareerCall), typeof(CareerSavedView)),

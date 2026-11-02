@@ -166,11 +166,8 @@ public sealed class FreeAgentQuery
         var lastEnd = new Dictionary<string, GameDate>(StringComparer.Ordinal);
         foreach (var contract in _book.World.Contracts)
         {
-            if (!contract.Exclusive)
-            {
-                continue;
-            }
-
+            // A staff chair is not exclusive (one person may hold two), but whoever holds one is not free (#318): listing them as
+            // free put them on the market twice.
             if (contract.End >= today)
             {
                 busy.Add(contract.PersonId.Value);

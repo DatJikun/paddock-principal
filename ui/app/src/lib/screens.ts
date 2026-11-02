@@ -20,6 +20,8 @@ import type {
   NewspaperView,
   NextRaceView,
   RaceResultView,
+  RaceSummaryView,
+  RaceWeekendView,
   SeasonOverviewView,
   StaffListView,
   StandingsView,
@@ -56,6 +58,12 @@ export type RaceData = {
   result: RaceResultView | null;
   track: TrackView | null;
 };
+
+/** Today's race weekend (#316): practice report, qualifying, plans; <code>track</code> is the circuit drawn in the head. */
+export type WeekendData = { kind: 'weekend'; weekend: RaceWeekendView; track: TrackView | null };
+
+/** The post-race summary of a booked round (#316). */
+export type SummaryData = { kind: 'podsumowanie'; summary: RaceSummaryView; round: CalendarRoundView | null };
 
 export type StandingsData = { kind: 'klasyfikacje'; standings: StandingsView; overview: SeasonOverviewView };
 
@@ -112,6 +120,8 @@ export type ScreenData =
   | InboxData
   | CalendarData
   | RaceData
+  | WeekendData
+  | SummaryData
   | StandingsData
   | SquadData
   | DriverData
@@ -169,6 +179,17 @@ export async function loadScreen(name: string, args: string[]): Promise<ScreenDa
         track(round.layoutId),
       ]);
       return { kind: 'wyscig', calendar, round, result, track: view };
+    }
+    case 'weekend': {
+      const weekend = await query('raceWeekend', call);
+      return { kind: 'weekend', weekend, track: await track(weekend.found ? weekend.layoutId : null) };
+    }
+    case 'podsumowanie': {
+      const calendar = await query('calendar', call);
+      const wanted = Number(args[0]);
+      const round = calendar.rounds.find((item) => item.round === wanted) ?? null;
+      const summary = await query('raceSummary', { managerId: HUMAN_MANAGER_ID, season: round?.season ?? null, round: round ? round.round : null });
+      return { kind: 'podsumowanie', summary, round };
     }
     case 'klasyfikacje': {
       const [standings, overview] = await Promise.all([query('standings', call), query('seasonOverview', call)]);

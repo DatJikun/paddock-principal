@@ -104,6 +104,10 @@ Dla nowej sesji (Opus 5.5, wyższy effort). Przeczytaj w całości, zanim zaczni
   - Mapa rysuje wyłącznie klatki `CarFrame` (te same pola co `src/Paddock.Domain/Racing/CarFrame.cs`). Rozsuwanie kropek na starcie i rozmieszczenie nazw zakrętów to wyłącznie układ na ekranie, nie zmienia wyników (`RaceLayout` w `js/race-map.js`, testy: `node --test "ui/prototype/tests/*.test.mjs"`).
   - Źródło klatek to na razie atrapa `MockRaceFeed` (`js/race-sim.js`); liczby w niej są szacunkowe. Do podpięcia taśmy z R-FRAMES (#152).
 
+### Weekend wyścigowy (#316, 2026-11-02)
+- W dniu wyścigu górny pasek prowadzi do ekranu „Weekend” (`#/weekend`, pod Kalendarzem): kroki Trening, Kwalifikacje, Strategia, Wyścig (`Steps`). Trening: tabela czasów i panele odczytu opon własnych aut. Kwalifikacje: „Oglądaj” (stawka spływa od końca, „Pokaż wynik” kończy) albo „Symuluj”. Strategia: panel na auto z `Tabs` (opony na start, tempo, silnik, postoje) i „Potwierdź plan”; po starcie oglądania plan jest zablokowany. Wyścig: „Oglądaj wyścig” albo „Symuluj wyścig”.
+- Po zaksięgowaniu wyścigu gra otwiera podsumowanie (`#/podsumowanie/<runda>`): wynik zespołu, klasyfikacja przed i po, pieniądze z dnia wyścigu, zarząd; „Kalendarz” wraca do kalendarza. Zrzuty: `ui/app/screenshots/316-*`.
+
 ### Klasyfikacje
 - OK, ale **konstruktorzy ładują się dłużej** (animacja wejścia). Ma być równo.
 - Przełącznik F1 / Samochody sportowe / F2 jest brzydki i „biedny”. Przeprojektuj (patrz §3.9) albo schowaj do czasu, aż ma sens.

@@ -45,6 +45,8 @@
   import Rynek from './screens/Rynek.svelte';
   import Skrzynka from './screens/Skrzynka.svelte';
   import Sponsorzy from './screens/Sponsorzy.svelte';
+  import Podsumowanie from './screens/Podsumowanie.svelte';
+  import Weekend from './screens/Weekend.svelte';
   import Wyscig from './screens/Wyscig.svelte';
   import Zarzad from './screens/Zarzad.svelte';
 
@@ -602,10 +604,10 @@
       if (!running && (type === 'dayAdvanced' || type === 'inboxChanged' || type === 'seasonChanged' || type === 'raceFinished')) {
         void refresh().catch(catchFault);
       }
-      /* The day booked today's race: show its result (a watched race stays on its finished screen until the player leaves). */
+      /* The day booked today's race: the post-race summary comes before the calendar (#316). A watched race stays on its finished screen until the player leaves. */
       if (type === 'raceFinished' && !racing) {
         const round = (data as { round?: number } | null)?.round;
-        if (round) location.hash = `#/wyscig/${round}`;
+        if (round) location.hash = `#/podsumowanie/${round}`;
       }
     });
     const onHash = () => {
@@ -770,11 +772,16 @@
         </div>
         <div class="spacer"></div>
         <div class="hud">
-          {#if liveOpen || (raceDays === 0 && !running)}
-            <button class="cell live" type="button" onclick={liveOpen ? enterRace : watchRace}>
+          {#if liveOpen}
+            <button class="cell live" type="button" onclick={enterRace}>
               <span class="meta">{t('live.ui.live')}</span>
               <b>{t('live.ui.watch')}</b>
             </button>
+          {:else if raceDays === 0 && !running}
+            <a class="cell live" href="#/weekend">
+              <span class="meta">{t('live.ui.live')}</span>
+              <b>{t('weekend.title')}</b>
+            </a>
           {/if}
           {#if nextRace?.circuitName && nextRace.round}
             <a class="cell next" href={`#/wyscig/${nextRace.round}`}>
@@ -852,6 +859,10 @@
           <Skrzynka data={screenData} {tr} selectedId={route.args[0] ?? null} {busy} onConfirm={confirmChoice} onDismiss={dismissItem} onDismissMany={dismissMany} onRead={readItem} />
         {:else if screenData.kind === 'kalendarz' && route.name === 'kalendarz'}
           <Kalendarz data={screenData} {tr} />
+        {:else if screenData.kind === 'weekend' && route.name === 'weekend'}
+          <Weekend data={screenData} {tr} {busy} {act} onWatch={watchRace} onSimulate={() => void stepDay()} />
+        {:else if screenData.kind === 'podsumowanie' && route.name === 'podsumowanie'}
+          <Podsumowanie data={screenData} {tr} {teamId} />
         {:else if screenData.kind === 'wyscig' && route.name === 'wyscig'}
           <Wyscig data={screenData} {tr} {teamId} />
         {:else if screenData.kind === 'klasyfikacje' && route.name === 'klasyfikacje'}

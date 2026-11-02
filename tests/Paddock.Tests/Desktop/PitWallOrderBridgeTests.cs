@@ -51,6 +51,7 @@ public class PitWallOrderBridgeTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void PaceIsTakenFromTheNextLapRivalsCannotBeOrderedAndTheSameOrdersGiveTheSameRace()
     {
         string Run(bool rival)

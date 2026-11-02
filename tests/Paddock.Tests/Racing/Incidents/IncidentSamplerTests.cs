@@ -166,7 +166,7 @@ public class IncidentSamplerTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void FatalShare_IsHigherIn1955Than2015()
     {
         static double FatalShare(int season)
@@ -185,7 +185,7 @@ public class IncidentSamplerTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void InjuriesAreRarerInTheModernEra()
     {
         static double InjuryShare(int season)
@@ -293,7 +293,7 @@ public class IncidentSamplerTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void Rain_ShiftsIncidentsTowardsSpinsAndBarriers()
     {
         var race = Race(1990, danger: 3);

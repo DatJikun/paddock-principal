@@ -18,6 +18,7 @@ public class CareerRaceFinishRateTests(ITestOutputHelper output)
     private static readonly ulong[] Seeds = [1, 2, 3];
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void WholeSeasonOf1955Career_FinishRateIsWithinCalibrationBand()
     {
         var starters = 0;

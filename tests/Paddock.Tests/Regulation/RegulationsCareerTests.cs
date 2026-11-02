@@ -26,6 +26,7 @@ public class RegulationsCareerTests
         session.World.Section<RegulationsSection>(RegulationsSection.SectionName)!.Find(SeriesIds.WorldChampionship)!;
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AVotedCareerLivesAYearOfPoliticsWithFiaVotesFeesAndResultsAndTheSameSeedGivesTheSameHash()
     {
         var (first, _) = Run(CareerPreset.Chaos, new GameDate(1956, 1, 3));
@@ -54,6 +55,7 @@ public class RegulationsCareerTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void TheVoteModeOfTheCareerStartReachesTheVote()
     {
         var (oneVote, _) = Run(CareerPreset.Chaos, new GameDate(1955, 12, 31));
@@ -99,6 +101,7 @@ public class RegulationsCareerTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ADropVotedForTheNextSeasonIsLaidOutOnTheLastDayAndTheSeasonInProgressKeepsItsCalendar()
     {
         var layouts = CareerKit.Data.Layouts;
@@ -151,6 +154,7 @@ public class RegulationsCareerTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ARuleVotedInSeasonNIsNotTheRuleOfSeasonNButIsTheRuleOfSeasonNPlusOne()
     {
         var (career, _) = Run(CareerPreset.Chaos, new GameDate(1956, 1, 3));

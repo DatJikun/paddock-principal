@@ -24,7 +24,7 @@ public class WeekendRunTests
     private const string Golden2012 = "8d1b5c55766db4e1edff8f4bf3732cc0629d3fb8e132a1dd9aae7a3945ece93b";
 
     [Theory]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     [InlineData(1955, Golden1955)]
     [InlineData(1988, Golden1988)]
     [InlineData(2012, Golden2012)]

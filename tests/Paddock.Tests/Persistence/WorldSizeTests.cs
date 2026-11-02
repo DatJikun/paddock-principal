@@ -50,6 +50,7 @@ public class WorldSizeTests : IDisposable
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ABigWorldStaysUnderTheDocumentedSizeAndTimeBounds()
     {
         var world = BigWorld();

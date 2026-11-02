@@ -49,6 +49,7 @@ public class Phase4ScenarioTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void TheScriptedStoryHashIsStable()
     {
         var first = Phase4Bot.Play(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed, Phase4Estimates.StoryUntil, Phase4Policy.Default);
@@ -71,6 +72,7 @@ public class Phase4ScenarioTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void CounterfactualPairsNameEveryDivergedObservable()
     {
         var pairs = Phase4Runner.CounterfactualPairs(DataRoot, Phase4Estimates.DefaultTeam, Phase4Estimates.StorySeed);
@@ -96,6 +98,7 @@ public class Phase4ScenarioTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void MonkeySeedsUseAnyTeamAndDoNotUnclassifiedLock()
     {
         Assert.Equal(50, Phase4Estimates.MonkeySeeds);

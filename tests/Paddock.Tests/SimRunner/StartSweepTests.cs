@@ -16,7 +16,7 @@ public class StartSweepTests
     private static readonly string FixturePath = Path.Combine(RepoPaths.Root(), "tests", "Paddock.Tests", "Fixtures", "starting-data", "three-seasons.json");
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void EveryFixtureYearBuildsItsWorldFromTheStartingDataAndPlaysItsFirstRace()
     {
         var first = Sweep();

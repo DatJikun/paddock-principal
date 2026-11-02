@@ -12,6 +12,7 @@ public class BridgeResumeTests
     private static readonly string[] Queries = ["inbox", "shell"];
 
     [Theory]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     [InlineData("1956-01-01", 40, 2)]
     [InlineData("1955-06-01", 40, 2)]
     public void AResumedSaveContinuesLikeTheLiveRun(string saveOn, int days, int seed)

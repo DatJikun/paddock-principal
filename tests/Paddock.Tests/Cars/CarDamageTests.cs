@@ -227,6 +227,7 @@ public sealed class CarDamageTests : IDisposable
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ASeasonOfRacingPostsRepairBillsTellsTheTeamsKeepsSparesAndMatchesTheSameSeed()
     {
         string Season(out CareerSession session)

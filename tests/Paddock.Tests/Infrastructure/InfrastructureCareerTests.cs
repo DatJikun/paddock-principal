@@ -125,6 +125,7 @@ public sealed class InfrastructureCareerTests
     /// in one ledger line a round, and no team has paid more, whatever its cash.
     /// </summary>
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ASeasonOfTransportAddsUpToTheSeasonShareOfTheEraBudget()
     {
         var session = CareerKit.Open(CareerPreset.Chaos, 1955, Seed);

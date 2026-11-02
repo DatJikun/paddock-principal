@@ -10,7 +10,7 @@ namespace Paddock.Tests.DataPipeline;
 public class RatingsV1Tests(ITestOutputHelper output)
 {
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void SyntheticWithCarEffects_RecoversDriverPeakAndCarEffect_AndBeatsOrMatchesV0()
     {
         var world = BuildWorld(seed: 7UL, seasons: 30, carBaseSd: 1.2);
@@ -181,7 +181,7 @@ public class RatingsV1Tests(ITestOutputHelper output)
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void Lineage_LinksCarEffectAcrossARename()
     {
         const int seasons = 6;

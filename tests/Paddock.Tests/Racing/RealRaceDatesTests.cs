@@ -190,6 +190,7 @@ public sealed class RealRaceDatesTests : IDisposable
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ARunWithRealDatesIsRepeatable()
     {
         string Hash()

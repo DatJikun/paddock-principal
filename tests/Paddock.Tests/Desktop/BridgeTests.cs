@@ -1034,6 +1034,7 @@ public class BridgeTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ASeasonNeverStallsOnAQuestionThePlayerCannotSee()
     {
         using var career = Lobby();

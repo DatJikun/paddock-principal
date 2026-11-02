@@ -12,6 +12,7 @@ public class RenewalSeasonTests
     private const string Team = "maserati";
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ALetAllContractsEndSeasonStillStartsTheNextSeasonsFirstRaceWithTwoDrivers()
     {
         var host = BridgeHost.Lobby(BridgeTestData.DataRoot);

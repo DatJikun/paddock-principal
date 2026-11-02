@@ -111,6 +111,7 @@ public sealed class CareerResumeTests : IDisposable
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AChainOfSavesAndResumesStillEqualsTheRunThatNeverStopped()
     {
         var whole = NewSession();

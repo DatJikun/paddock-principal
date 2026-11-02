@@ -44,6 +44,10 @@ public static partial class AuthoredDataValidator
     public const string GeometryDuplicate = "geometry-duplicate";
     public const string GeometryCorner = "geometry-corner";
     public const string GeometrySharpBend = "geometry-sharp-bend";
+    public const string GeometryWidth = "geometry-width";
+    public const string GeometryEdge = "geometry-edge";
+    public const string GeometryPitLane = "geometry-pit-lane";
+    public const string GeometryElevation = "geometry-elevation";
 
     /// <summary>Largest turn allowed between two consecutive 2 m path segments (about 4.6 m radius), in degrees. A cusp or loop exceeds it.</summary>
     private const double MaxBendPer2MDegrees = 25.0;
@@ -734,6 +738,34 @@ public static partial class AuthoredDataValidator
                     GeometrySharpBend,
                     $"track geometry '{geom.LayoutId}' bends more than {MaxBendPer2MDegrees.ToString("0", CultureInfo.InvariantCulture)} degrees within 2 m near sample {kinkAt.ToString(CultureInfo.InvariantCulture)} (a kink or a cusp, check control points that double back)"));
             }
+
+            AppendTrackDetailErrors(errors, geom, layout, rawGeometry);
+        }
+    }
+
+    /// <summary>
+    /// The v2 fields (PP-073, TECH §6.5a): the same rules the catalog applies, reported as
+    /// "tracks/geometry/&lt;file&gt;: &lt;field&gt;: &lt;reason&gt;". The pit lane join is checked against the raw
+    /// (unscaled) centre line, the frame the file is authored in.
+    /// </summary>
+    private static void AppendTrackDetailErrors(
+        List<AuthoredDataError> errors,
+        TrackGeometryFile geom,
+        CircuitLayout? layout,
+        TrackGeometry rawGeometry)
+    {
+        var era = TrackEraDefaults.For(layout is null ? TrackEraDefaults.Table[0].FromYear : TrackGeometryCatalog.FirstSeason(layout));
+        var file = $"tracks/geometry/{geom.FileName ?? geom.LayoutId + ".json"}";
+        foreach (var problem in TrackDetailRules.Check(geom, era, rawGeometry, pointScale: 1.0))
+        {
+            var code = problem.Section switch
+            {
+                TrackDetailSection.Width => GeometryWidth,
+                TrackDetailSection.Edges => GeometryEdge,
+                TrackDetailSection.PitLane => GeometryPitLane,
+                _ => GeometryElevation,
+            };
+            errors.Add(new AuthoredDataError(code, $"{file}: {problem.Field}: {problem.Reason}"));
         }
     }
 

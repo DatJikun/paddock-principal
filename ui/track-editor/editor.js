@@ -257,11 +257,11 @@ function fitView() {
 }
 
 // ---------- Undo ----------
-const snap = () => JSON.stringify({ p: S.points, s: S.imgScale, x: S.imgX, y: S.imgY, l: S.layoutId });
+const snap = () => JSON.stringify({ p: S.points, s: S.imgScale, x: S.imgX, y: S.imgY, l: S.layoutId, e: S.extra });
 function pushUndo() { S.undo.push(snap()); if (S.undo.length > 100) S.undo.shift(); S.redo.length = 0; updateButtons(); }
 function restore(str) {
   const o = JSON.parse(str);
-  S.points = o.p; S.imgScale = o.s; S.imgX = o.x; S.imgY = o.y; S.layoutId = o.l;
+  S.points = o.p; S.imgScale = o.s; S.imgX = o.x; S.imgY = o.y; S.layoutId = o.l; S.extra = o.e || {};
   if (S.sel >= S.points.length) S.sel = -1;
 }
 function undo() { if (!S.undo.length) return; S.redo.push(snap()); restore(S.undo.pop()); S.trace = S.trace && null; changed(); }
@@ -331,6 +331,7 @@ function draw() {
   if (S.geo && S.an) {
     const g = S.geo, an = S.an, n = g.count, sf = g.scale;
     const P = (i) => toScreen(g.xs[i % n] / sf, g.ys[i % n] / sf);
+    drawV2(g);
     ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 7;
     ctx.beginPath();
     for (let i = 0; i <= n; i++) { const p = P(i); if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }
@@ -412,6 +413,68 @@ function draw() {
   ctx.fillStyle = '#f2e8d5'; ctx.font = '600 12px Archivo, sans-serif'; ctx.fillText(fInt(step) + unit, 16, H - 30);
 }
 
+// ---------- Tor v2: szerokość, pobocza, aleja (TECH §6.5a) ----------
+const RUNOFF_COLORS = { asphalt: '#8a8f96', grass: '#4e8a45', gravel: '#c8a46a' };
+/** Pas wzdłuż krzywej: od offA do offB metrów od linii środkowej (dodatnie w lewo), dla próbek [i0, i1]. */
+function bandPath(g, i0, i1, offA, offB) {
+  const n = g.count, sf = g.scale, pts = [];
+  const at = (k, off) => {
+    const i = ((k % n) + n) % n, a = (i - 1 + n) % n, b = (i + 1) % n;
+    let tx = g.xs[b] - g.xs[a], ty = g.ys[b] - g.ys[a]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+    const o = off(i);
+    return toScreen((g.xs[i] - ty * o) / sf, (g.ys[i] + tx * o) / sf);
+  };
+  for (let k = i0; k <= i1; k++) pts.push(at(k, offA));
+  for (let k = i1; k >= i0; k--) pts.push(at(k, offB));
+  ctx.beginPath(); pts.forEach((p, j) => (j ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath();
+}
+function drawV2(g) {
+  const ex = S.extra, n = g.count;
+  const hasWidth = Array.isArray(ex.width_m) && ex.width_m.length > 0;
+  const half = (i) => (hasWidth ? TrackFile.widthAt(ex, i / n) : 0) / 2;
+  // Pobocza i krawężniki (tylko opisane odcinki; reszta to wartości epoki, których edytor nie zna).
+  if (Array.isArray(ex.edges)) {
+    for (const e of ex.edges) {
+      if (!(e.from >= 0 && e.from < 1 && e.to >= 0 && e.to < 1)) continue;
+      const i0 = Math.round(e.from * n), i1 = Math.round((e.to < e.from ? e.to + 1 : e.to) * n);
+      const sg = e.side === 'left' ? 1 : -1, kerb = Number(e.kerb_m) || 0, run = Number(e.runoff_m) || 0;
+      ctx.fillStyle = RUNOFF_COLORS[e.runoff] || '#555'; ctx.globalAlpha = 0.55;
+      bandPath(g, i0, i1, (i) => sg * (half(i) + kerb), (i) => sg * (half(i) + kerb + run)); ctx.fill();
+      ctx.globalAlpha = 1;
+      if (kerb > 0) { ctx.fillStyle = '#e5533d'; bandPath(g, i0, i1, (i) => sg * half(i), (i) => sg * (half(i) + kerb)); ctx.fill(); }
+      if (e.barrier) {
+        ctx.strokeStyle = '#f2e8d5'; ctx.lineWidth = 1.5; ctx.beginPath();
+        for (let k = i0; k <= i1; k++) {
+          const i = k % n, a = (i - 1 + n) % n, b = (i + 1) % n;
+          let tx = g.xs[b] - g.xs[a], ty = g.ys[b] - g.ys[a]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+          const o = sg * (half(i) + kerb + run), p = toScreen((g.xs[i] - ty * o) / g.scale, (g.ys[i] + tx * o) / g.scale);
+          if (k > i0) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+    }
+  }
+  // Nawierzchnia toru w opisanej szerokości.
+  if (hasWidth) { ctx.fillStyle = '#3b3631'; bandPath(g, 0, n, (i) => half(i), (i) => -half(i)); ctx.fill(); }
+  // Aleja serwisowa: cała ścieżka, odcinek z limitem, boksy, wjazd i wyjazd.
+  const pit = ex.pit_lane;
+  if (pit && Array.isArray(pit.points) && pit.points.length >= 2) {
+    const line = (pts) => { ctx.beginPath(); pts.forEach((p, j) => { const q = toScreen(p[0], p[1]); if (j) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }); ctx.stroke(); };
+    ctx.strokeStyle = 'rgba(63,184,201,.45)'; ctx.lineWidth = 3; line(pit.points);
+    const steps = 60, lim = [];
+    for (let k = 0; k <= steps; k++) lim.push(TrackFile.pitPointAt(pit, pit.limit_from + (pit.limit_to - pit.limit_from) * k / steps));
+    ctx.strokeStyle = '#3fb8c9'; ctx.lineWidth = 5; line(lim);
+    ctx.fillStyle = '#f2e8d5';
+    for (const b of pit.boxes || []) { const q = toScreen(...TrackFile.pitPointAt(pit, b)); ctx.fillRect(q[0] - 1.5, q[1] - 1.5, 3, 3); }
+    ctx.font = '700 11px Archivo, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const [p, label] of [[pit.points[0], 'WJAZD'], [pit.points[pit.points.length - 1], 'WYJAZD']]) {
+      const q = toScreen(p[0], p[1]);
+      ctx.fillStyle = '#14100d'; ctx.fillRect(q[0] - 24, q[1] - 22, 48, 15);
+      ctx.fillStyle = '#3fb8c9'; ctx.fillText(label, q[0], q[1] - 14);
+    }
+  }
+}
+
 // ---------- Panel ----------
 function chip(state, text) { return `<span class="chip ${state}"><i></i>${esc(text)}</span>`; }
 
@@ -459,14 +522,33 @@ function updatePanel() {
       ? an.brakes.map((b, i) => `<div class="it"><b>${i + 1}</b><span>${fInt(b.start)} – ${fInt(b.end)} m</span><span>${fInt(b.from)} → ${fInt(b.to)} km/h</span></div>`).join('')
       : '<div class="empty">Brak stref</div>';
   }
+  updateV2Panel();
   // Zaznaczony punkt
   const has = S.sel >= 0 && S.sel < n;
   for (const id of ['ptX', 'ptY']) $('#' + id).disabled = !has;
-  $('#btnDel').disabled = !has; $('#btnStart').disabled = !has || S.sel === 0;
+  $('#btnDel').disabled = !has; $('#btnStart').disabled = !has || S.sel === 0 || TrackFile.hasV2(S.extra);
   if (has && document.activeElement !== $('#ptX') && document.activeElement !== $('#ptY')) {
     $('#ptX').value = round3(pts[S.sel][0]); $('#ptY').value = round3(pts[S.sel][1]);
   } else if (!has) { $('#ptX').value = ''; $('#ptY').value = ''; }
   updateButtons();
+}
+function updateV2Panel() {
+  const ex = S.extra, tile = (k, v) => `<div><span>${k}</span><b>${esc(v)}</b></div>`;
+  const ws = Array.isArray(ex.width_m) ? ex.width_m.map((p) => p.w) : [];
+  const width = ws.length ? `${f1(Math.min(...ws))} – ${f1(Math.max(...ws))} m` : 'Domyślna epoki';
+  const edges = Array.isArray(ex.edges) ? `${ex.edges.length} ${plural(ex.edges.length, 'odcinek', 'odcinki', 'odcinków')}` : 'Domyślne epoki';
+  const pit = TrackFile.pitSummary(ex);
+  const elev = Array.isArray(ex.elevation_m) ? `${ex.elevation_m.length} ${plural(ex.elevation_m.length, 'punkt', 'punkty', 'punktów')}` : 'Brak';
+  $('#v2Stats').innerHTML = tile('Szerokość', width) + tile('Pobocza', edges) +
+    (pit
+      ? tile('Aleja', `${fInt(pit.length)} m`) + tile('Z limitem', `${fInt(pit.limitLength)} m`) +
+        tile('Limit', `${fInt(pit.limitKph)} km/h`) + tile('Przejazd na limicie', `${f1(pit.timeAtLimit)} s`) +
+        tile('Boksy', String(pit.boxes))
+      : tile('Aleja', 'Brak')) +
+    tile('Wysokość', elev);
+  const locked = TrackFile.hasV2(ex);
+  for (const id of ['#btnReverse', '#btnStart']) $(id).title = locked ? 'Niedostępne: pola v2 są opisane ułamkiem okrążenia od linii mety i w kierunku jazdy' : '';
+  $('#btnReverse').disabled = locked;
 }
 const round3 = (x) => { const r = Math.round(x * 1000) / 1000; return r === 0 ? 0 : r; };
 
@@ -480,27 +562,14 @@ function syncFields() {
 }
 
 // ---------- Plik ----------
-function fmtNum(x) {
-  let r = Math.round(x * 1000) / 1000; if (r === 0) r = 0;
-  let s = String(r); if (!/[.e]/.test(s)) s += '.0'; return s;
-}
+// Format i bezstratny zapis: track-file.js (TrackFile). Pola v2 i nieznane klucze leżą w S.extra bez zmian.
 function toJsonText() {
-  const lines = ['{', `  "layout_id": ${JSON.stringify(S.layoutId)},`, '  "control_points": ['];
-  S.points.forEach((p, i) => lines.push(`    [${fmtNum(p[0])}, ${fmtNum(p[1])}]${i < S.points.length - 1 ? ',' : ''}`));
-  lines.push('  ],');
-  const tail = [`  "source": ${JSON.stringify(S.source)}`, `  "notes": ${JSON.stringify(S.notes)}`];
-  for (const k of Object.keys(S.extra)) tail.push(`  ${JSON.stringify(k)}: ${JSON.stringify(S.extra[k])}`);
-  lines.push(tail.join(',\n'), '}');
-  return lines.join('\n') + '\n';
+  return TrackFile.format({ layoutId: S.layoutId, points: S.points, source: S.source, notes: S.notes, extra: S.extra });
 }
 function loadJsonText(text) {
-  const o = JSON.parse(text);
-  if (!Array.isArray(o.control_points) || !o.control_points.every((p) => Array.isArray(p) && p.length === 2 && isFinite(p[0]) && isFinite(p[1])))
-    throw new Error('control_points musi być listą par [x, y].');
+  const m = TrackFile.parse(text);
   pushUndo();
-  S.points = o.control_points.map((p) => [Number(p[0]), Number(p[1])]);
-  S.layoutId = o.layout_id || 'new_track'; S.source = o.source || ''; S.notes = o.notes || '';
-  S.extra = {}; for (const k of Object.keys(o)) if (!['layout_id', 'control_points', 'source', 'notes'].includes(k)) S.extra[k] = o[k];
+  S.points = m.points; S.layoutId = m.layoutId; S.source = m.source; S.notes = m.notes; S.extra = m.extra;
   S.sel = -1; S.trace = null; S.tool = "select";
   const kl = knownLayout(); if (kl) S.targetKm = kl.lengthKm;
   fitView(); changed();
@@ -798,13 +867,14 @@ for (const [id, key] of [['#imgScale', 'imgScale'], ['#imgX', 'imgX'], ['#imgY',
 }
 $('#traceTol').oninput = (e) => { $('#tolVal').textContent = e.target.value; if (S.trace) applyTrace(false); };
 $('#btnTrace').onclick = runTrace;
-$('#btnReverse').onclick = () => { if (S.points.length < 2) return; pushUndo(); S.points.reverse(); S.sel = -1; changed(); };
+$('#btnReverse').onclick = () => { if (S.points.length < 2 || TrackFile.hasV2(S.extra)) return; pushUndo(); S.points.reverse(); S.sel = -1; changed(); };
 $('#targetKm').addEventListener('input', (e) => { const v = parseFloat(e.target.value); S.targetKm = isFinite(v) && v > 0 ? v : null; schedule(); });
 $('#btnScale').onclick = () => {
   const tgt = targetLenM(); if (!S.geo || !tgt) return;
   const f = tgt / S.geo.rawLength; if (Math.abs(f - 1) < 1e-9) return;
   pushUndo();
   S.points = S.points.map((p) => [p[0] * f, p[1] * f]);
+  S.extra = TrackFile.scaleExtra(S.extra, f);
   S.imgScale *= f; S.imgX *= f; S.imgY *= f; S.view.cx *= f; S.view.cy *= f; S.view.zoom /= f; S.trace = null;
   changed();
 };
@@ -820,7 +890,7 @@ for (const [id, k] of [['#ptX', 0], ['#ptY', 1]]) {
   $(id).addEventListener('change', (e) => { const v = parseFloat(e.target.value); if (S.sel < 0 || !isFinite(v)) return; pushUndo(); S.points[S.sel][k] = v; changed(); });
 }
 $('#btnDel').onclick = deleteSelected;
-$('#btnStart').onclick = () => { if (S.sel <= 0) return; pushUndo(); S.points = S.points.slice(S.sel).concat(S.points.slice(0, S.sel)); S.sel = 0; changed(); };
+$('#btnStart').onclick = () => { if (S.sel <= 0 || TrackFile.hasV2(S.extra)) return; pushUndo(); S.points = S.points.slice(S.sel).concat(S.points.slice(0, S.sel)); S.sel = 0; changed(); };
 document.querySelectorAll('[data-cfg]').forEach((el) => {
   el.value = CFG[el.dataset.cfg];
   el.addEventListener('input', () => { const v = parseFloat(el.value); if (isFinite(v) && v > 0) { CFG[el.dataset.cfg] = v; schedule(); } });

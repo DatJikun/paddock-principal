@@ -10,6 +10,7 @@
   import { hasFlag } from '../lib/flags.mjs';
   import { formatLapTime, retirementLabel, timeCell } from '../lib/race.mjs';
   import type { PulpitData } from '../lib/screens';
+  import { championshipRows, hasConstructorsTitle } from '../lib/standings.mjs';
   import { countryName, icon, ICON, km, points, type Tr } from '../lib/ui';
 
   let { data, tr, today, teamId }: { data: PulpitData; tr: Tr; today: string; teamId: string } = $props();
@@ -21,12 +22,21 @@
   let mails = $derived([...data.inbox.items].reverse().filter((item) => item.status === 'Open').sort((a, b) => rank(a) - rank(b)));
   let next = $derived(data.next.round ? data.calendar.rounds.find((round) => round.round === data.next.round) ?? null : null);
   let daysLeft = $derived(daysBetween(today, data.next.date));
-  let titles = $derived(
-    data.standings.rules !== null && data.standings.rules.constructors !== 'NoChampionship' && data.standings.constructors.length > 0,
-  );
-  let rows = $derived(
-    ((table === 'constructors' && titles ? data.standings.constructors : data.standings.drivers) as StandingRowView[]).slice(0, 6),
-  );
+  let titles = $derived(hasConstructorsTitle(data.standings));
+  let rows = $derived(championshipRows(data.standings, table) as StandingRowView[]);
+  let standRows = $state<HTMLDivElement | null>(null);
+
+  /* The whole table scrolls inside the panel; our own line starts in view. */
+  $effect(() => {
+    rows;
+    const box = standRows;
+    const mine = box?.querySelector<HTMLElement>('tr.mine');
+    if (!box || !mine) return;
+    const top = mine.offsetTop;
+    if (top < box.scrollTop || top + mine.offsetHeight > box.scrollTop + box.clientHeight) {
+      box.scrollTop = Math.max(0, top - (box.clientHeight - mine.offsetHeight) / 2);
+    }
+  });
   let latestRound = $derived(data.latest.found ? data.calendar.rounds.find((round) => round.round === data.latest.round && round.season === data.latest.season) ?? null : null);
   let latestRows = $derived(
     data.latest.rows.filter((row, index) => index < 10 || row.teamId === teamId) as RaceRowView[],
@@ -39,7 +49,7 @@
     <section class="panel inbox">
       <header>
         <h2>{tr.t('shell.nav.inbox')}</h2>
-        {#if data.inbox.openCount > 0}<span class="count">{data.inbox.openCount}</span>{/if}
+        {#if data.inbox.unreadCount > 0}<span class="count">{data.inbox.unreadCount}</span>{/if}
       </header>
       <div class="list">
         {#each mails as item (item.id)}
@@ -182,17 +192,19 @@
         </div>
       {/if}
       {#if rows.length > 0}
-        <table class="table tight">
-          <tbody>
-            {#each rows as row (row.id)}
-              <tr class:mine={row.id === teamId || row.teamId === teamId}>
-                <td class="num c" style="width:40px">{row.position}</td>
-                <td><span class="person">{#if hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}{row.name}</span></td>
-                <td class="r num">{points(tr, row.points)}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
+        <div class="rows" bind:this={standRows}>
+          <table class="table tight">
+            <tbody>
+              {#each rows as row (row.id)}
+                <tr class:mine={row.id === teamId || row.teamId === teamId}>
+                  <td class="num c" style="width:40px">{row.position}</td>
+                  <td><span class="person">{#if hasFlag(row.nationality)}<Flag code={row.nationality} />{/if}{row.name}</span></td>
+                  <td class="r num">{points(tr, row.points)}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
       {/if}
       <footer><a class="link" href="#/klasyfikacje">{tr.t('pulpit.standings.full')}{@html icon(ICON.arrow, 15)}</a></footer>
     </section>

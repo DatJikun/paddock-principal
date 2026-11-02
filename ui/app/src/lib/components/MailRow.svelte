@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { InboxItemView } from '../api/types.generated';
   import { formatDay } from '../date.mjs';
+  import { mailLead } from '../mail.mjs';
   import { inboxArea } from '../protocol.mjs';
   import { areaIcon, icon, type Tr } from '../ui';
 
@@ -19,7 +20,7 @@
 <a
   class="mail"
   class:decision={deciding}
-  class:read={!open}
+  class:read={!open || item.read}
   class:sel={selected}
   href={`#/skrzynka/${encodeURIComponent(item.id)}`}
   aria-current={selected ? 'true' : undefined}
@@ -30,7 +31,7 @@
       {tr.t(area)}
       {#if deciding && item.validUntil}<span class="st bad solid">{formatDay(item.validUntil, tr.lang)}</span>{/if}
     </div>
-    <div class="t">{tr.tMsg(item.subject)}</div>
+    <div class="t">{mailLead(tr.tMsg(item.subject))}</div>
   </div>
   <span class="when">{formatDay(item.created, tr.lang)}</span>
   {#if onDelete}

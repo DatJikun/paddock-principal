@@ -273,6 +273,7 @@ public sealed partial class CareerBridge
             DateText,
             team.CashCents,
             inbox.OpenCount,
+            inbox.UnreadCount,
             inbox.OpenDecisionCount,
             blocking?.Kind,
             decision?.Id,

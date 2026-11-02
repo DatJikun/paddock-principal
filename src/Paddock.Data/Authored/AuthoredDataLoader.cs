@@ -79,7 +79,7 @@ public static class AuthoredDataLoader
                 var geom = TryRead<TrackGeometryFile>(file, failures);
                 if (geom is not null)
                 {
-                    geometryFiles.Add(geom);
+                    geometryFiles.Add(geom with { FileName = Path.GetFileName(file) });
                 }
             }
         }

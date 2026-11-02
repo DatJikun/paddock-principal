@@ -39,14 +39,20 @@
     return formatMoney(value * 100, tr.lang);
   }
 
+  /* A staff contract has the same flow without a seat, bonuses or an exit clause (#318). */
+  let staff = $derived(item?.subject.kind === 'StaffRole');
+
   function terms(value: OfferTerms) {
-    return [
+    const salary = [
       { label: tr.t('offer.salary'), value: money(value.salary) },
       { label: tr.t('offer.years'), value: String(value.years) },
+    ];
+    if (staff) return salary;
+    return [
+      ...salary,
       { label: tr.t('offer.seat'), value: value.seat ? tr.t(`seat.${value.seat}`) : '—' },
       { label: tr.t('offer.winBonus'), value: money(value.winBonus) },
       { label: tr.t('offer.titleBonus'), value: money(value.titleBonus) },
-      { label: tr.t('offer.option'), value: value.option ? `${tr.t(`offer.option.${value.option.holder}`)} +${value.option.extraYears}` : tr.t('offer.option.none') },
       { label: tr.t('offer.exit'), value: value.exit ? `P${value.exit.positionWorseThan}` : '—' },
     ];
   }
@@ -101,7 +107,7 @@
             <header><h2>{canOffer ? tr.t('negotiation.yourOffer') : tr.t('negotiation.waiting')}</h2></header>
             <div class="body">
               {#if canOffer}
-                <OfferForm {tr} initial={item.counter ?? item.offer} guide={item.salaryGuide} {busy} label={tr.t('negotiation.send')} onSubmit={send} />
+                <OfferForm {tr} initial={item.counter ?? item.offer} guide={item.salaryGuide} {staff} {busy} label={tr.t('negotiation.send')} onSubmit={send} />
               {/if}
               {#if asking === 'accept'}
                 <Confirmation {tr} {busy} ask={tr.t('negotiation.accept.ask', { name: item.personName })} onCancel={() => (asking = null)} onConfirm={accept} />

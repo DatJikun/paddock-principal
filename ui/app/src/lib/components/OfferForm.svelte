@@ -13,7 +13,7 @@
     winBonus: number;
     titleBonus: number;
     years: number;
-    seat: string;
+    seat: string | null;
     optionHolder: string | null;
     optionYears: number | null;
     exitWorseThan: number | null;
@@ -23,14 +23,17 @@
     tr,
     initial,
     guide = null,
+    staff = false,
     busy,
     label,
     onSubmit,
   }: {
     tr: Tr;
     initial: OfferTerms | null;
-    /** What the slider spans and where the suggested range sits, from the bridge. Without it the salary is a plain number. */
+    /** What the sliders span and where the suggested salary range sits, from the bridge. Without it the salary is typed. */
     guide?: SalaryGuideView | null;
+    /** A staff contract: the same flow, without a seat, bonuses or an exit clause (#318). */
+    staff?: boolean;
     busy: boolean;
     /** The button that starts the confirm step ("Wyślij ofertę", "Zaproponuj nowy kontrakt"). */
     label: string;
@@ -41,43 +44,30 @@
   let salary = $state<number | null>(untrack(() => initial?.salary ?? guide?.suggested ?? null));
   let years = $state(untrack(() => String(initial?.years ?? 1)));
   let seat = $state(untrack(() => initial?.seat ?? 'Equal'));
-  let winBonus = $state<number | null>(untrack(() => initial?.winBonus ?? 0));
-  let titleBonus = $state<number | null>(untrack(() => initial?.titleBonus ?? 0));
-  let holder = $state(untrack(() => initial?.option?.holder ?? 'none'));
-  let optionYears = $state<number | null>(untrack(() => initial?.option?.extraYears ?? 1));
+  let winBonus = $state<number>(untrack(() => initial?.winBonus ?? 0));
+  let titleBonus = $state<number>(untrack(() => initial?.titleBonus ?? 0));
   let exitWorse = $state<number | null>(untrack(() => initial?.exit?.positionWorseThan ?? null));
   let asking = $state(false);
 
-  /* The slider moves in round steps; the suggested range is painted on its track from the bridge's numbers. */
-  let step = $derived(guide && guide.max >= 20000 ? 1000 : 100);
-  const share = (value: number, g: SalaryGuideView) => ((value - g.min) / (g.max - g.min)) * 100;
-  let band = $derived(
-    guide && guide.max > guide.min
-      ? `linear-gradient(90deg, transparent ${share(guide.suggestedLow, guide)}%, var(--good) ${share(guide.suggestedLow, guide)}% ${share(guide.suggestedHigh, guide)}%, transparent ${share(guide.suggestedHigh, guide)}%)`
-      : '',
-  );
-
+  /* Sliders move in round steps, so the number under them reads cleanly. */
+  const stepFor = (max: number) => (max >= 2_000_000 ? 10_000 : max >= 200_000 ? 1_000 : max >= 20_000 ? 100 : 10);
   let ready = $derived(salary !== null && salary >= 0 && Number.isFinite(Number(salary)));
+  const money = (value: number | null) => formatMoney(Math.trunc(Number(value ?? 0)) * 100, tr.lang);
 
   function offer(): OfferInput {
     return {
       salary: Math.trunc(Number(salary ?? 0)),
-      winBonus: Math.trunc(Number(winBonus ?? 0)),
-      titleBonus: Math.trunc(Number(titleBonus ?? 0)),
+      winBonus: staff ? 0 : Math.trunc(Number(winBonus ?? 0)),
+      titleBonus: staff ? 0 : Math.trunc(Number(titleBonus ?? 0)),
       years: Number(years),
-      seat,
-      optionHolder: holder === 'none' ? null : holder,
-      optionYears: holder === 'none' ? null : Math.trunc(Number(optionYears ?? 1)),
-      exitWorseThan: exitWorse === null || Number.isNaN(Number(exitWorse)) ? null : Math.trunc(Number(exitWorse)),
+      seat: staff ? null : seat,
+      optionHolder: null,
+      optionYears: null,
+      exitWorseThan: staff || exitWorse === null || Number.isNaN(Number(exitWorse)) ? null : Math.trunc(Number(exitWorse)),
     };
   }
 
-  let ask = $derived(
-    tr.t('offer.ask', {
-      salary: formatMoney(Math.trunc(Number(salary ?? 0)) * 100, tr.lang),
-      years: String(years),
-    }),
-  );
+  let ask = $derived(tr.t('offer.ask', { salary: money(salary), years: String(years) }));
 </script>
 
 <div class="offer">
@@ -85,58 +75,42 @@
     <div class="fld salary">
       <span class="meta">{tr.t('offer.salary')}</span>
       {#if guide}
-        <div class="slide">
-          <div class="track" style:background={band}></div>
-          <input type="range" min={guide.min} max={guide.max} {step} bind:value={salary} aria-label={tr.t('offer.salary')} />
-        </div>
+        <input type="range" min={guide.min} max={guide.max} step={stepFor(guide.max)} bind:value={salary} aria-label={tr.t('offer.salary')} />
         <div class="slide-v">
-          <b class="num">{formatMoney(Math.trunc(Number(salary ?? 0)) * 100, tr.lang)}</b>
-          <small class="muted num">{tr.t('offer.suggested', { low: formatMoney(guide.suggestedLow * 100, tr.lang), high: formatMoney(guide.suggestedHigh * 100, tr.lang) })}</small>
+          <b class="num">{money(salary)}</b>
+          <small class="muted num">{tr.t('offer.suggested', { low: money(guide.suggestedLow), high: money(guide.suggestedHigh) })}</small>
         </div>
       {:else}
-        <input class="text num" type="number" min="0" step="1000" bind:value={salary} />
+        <input class="text num plain-num" type="number" min="0" step="1000" bind:value={salary} />
       {/if}
     </div>
     <div class="fld">
       <span class="meta">{tr.t('offer.years')}</span>
       <Tabs group="offer-years" items={['1', '2', '3', '4', '5'].map((value) => ({ value, label: value }))} bind:value={years} />
     </div>
-    <div class="fld">
-      <span class="meta">{tr.t('offer.seat')}</span>
-      <Tabs group="offer-seat" items={SEATS.map((value) => ({ value, label: tr.t(`seat.${value}`) }))} bind:value={seat} />
-    </div>
-    <label class="fld">
-      <span class="meta">{tr.t('offer.winBonus')}</span>
-      <input class="text num" type="number" min="0" step="1000" bind:value={winBonus} />
-    </label>
-    <label class="fld">
-      <span class="meta">{tr.t('offer.titleBonus')}</span>
-      <input class="text num" type="number" min="0" step="1000" bind:value={titleBonus} />
-    </label>
-    <div class="fld">
-      <span class="meta">{tr.t('offer.option')}</span>
-      <Tabs
-        group="offer-option"
-        items={[
-          { value: 'none', label: tr.t('offer.option.none') },
-          { value: 'Team', label: tr.t('offer.option.Team') },
-          { value: 'Person', label: tr.t('offer.option.Person') },
-        ]}
-        bind:value={holder}
-      />
-      <small class="muted hint">{tr.t('offer.option.explain', { days: '120' })}</small>
-    </div>
-    {#if holder !== 'none'}
+    {#if !staff}
+      <div class="fld">
+        <span class="meta">{tr.t('offer.seat')}</span>
+        <Tabs group="offer-seat" items={SEATS.map((value) => ({ value, label: tr.t(`seat.${value}`) }))} bind:value={seat} />
+      </div>
+      {#if guide && guide.winBonusMax > 0}
+        <div class="fld">
+          <span class="meta">{tr.t('offer.winBonus')}</span>
+          <input type="range" min="0" max={guide.winBonusMax} step={stepFor(guide.winBonusMax)} bind:value={winBonus} aria-label={tr.t('offer.winBonus')} />
+          <b class="num slide-n">{money(winBonus)}</b>
+        </div>
+        <div class="fld">
+          <span class="meta">{tr.t('offer.titleBonus')}</span>
+          <input type="range" min="0" max={guide.titleBonusMax} step={stepFor(guide.titleBonusMax)} bind:value={titleBonus} aria-label={tr.t('offer.titleBonus')} />
+          <b class="num slide-n">{money(titleBonus)}</b>
+        </div>
+      {/if}
       <label class="fld">
-        <span class="meta">{tr.t('offer.optionYears')}</span>
-        <input class="text num" type="number" min="1" max="5" bind:value={optionYears} />
+        <span class="meta">{tr.t('offer.exit')}</span>
+        <input class="text num plain-num" type="number" min="1" placeholder="—" bind:value={exitWorse} />
+        <small class="muted hint">{tr.t('offer.exit.explain')}</small>
       </label>
     {/if}
-    <label class="fld">
-      <span class="meta">{tr.t('offer.exit')}</span>
-      <input class="text num" type="number" min="1" placeholder="—" bind:value={exitWorse} />
-      <small class="muted hint">{tr.t('offer.exit.explain')}</small>
-    </label>
   </div>
 
   {#if asking}

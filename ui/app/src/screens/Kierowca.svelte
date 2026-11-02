@@ -34,7 +34,9 @@
   let talks = $derived(data.negotiations.items.find((item) => item.person === profile.personId && !['Agreed', 'Refused', 'WalkedAway', 'Lost', 'Lapsed'].includes(item.status)) ?? null);
   let totals = $derived(careerTotals(profile));
   let rated = $derived(profile.attributes.length > 0);
-  let asking = $state<'talk' | 'option' | null>(null);
+  let asking = $state<'talk' | null>(null);
+  /* The comparison opens with a teammate (or, for a driver of another team, our first driver); the player picks another there. */
+  let compareWith = $derived(others[0]?.personId ?? null);
   let renewing = $state(false);
 
   async function talk() {
@@ -42,11 +44,6 @@
     if (await act('openNegotiation', { organizationId: teamId, personId: profile.personId, subject: 'driver', deadline: null })) {
       location.hash = '#/rynek';
     }
-  }
-
-  async function exerciseOption() {
-    asking = null;
-    if (profile.contract) await act('renewContract', { contractId: profile.contract.contractId, exerciseOption: true });
   }
 
   async function renew(offer: OfferInput) {
@@ -84,8 +81,8 @@
       </div>
       <div class="hero-side">
         <div class="tools">
-          {#if profile.own && others.length > 0}
-            <a class="btn" href={`#/porownaj/${encodeURIComponent(profile.personId)}/${encodeURIComponent(others[0]?.personId ?? '')}`}>{tr.t('drivers.compare')}</a>
+          {#if compareWith}
+            <a class="btn" href={`#/porownaj/${encodeURIComponent(profile.personId)}/${encodeURIComponent(compareWith)}`}>{tr.t('drivers.compare')}</a>
           {/if}
           {#if profile.own}
             <a class="btn" href="#/kierowcy">{@html icon(ICON.back, 17)}<span>{tr.t('driver.squad')}</span></a>
@@ -132,17 +129,14 @@
           <header><h2>{tr.t('driver.contract')}</h2></header>
           <div class="body">
             {#if profile.contract}
-              <div class="fields">
+              <div class="fields boxed contract-terms">
                 <div class="fld"><span class="meta">{tr.t('driver.contract.until')}</span><span class="v"><ContractEnd {tr} end={profile.contract.end} {today} /></span></div>
-                {#if profile.contract.salary > 0}
-                  <div class="fld"><span class="meta">{tr.t('offer.salary')}</span><span class="v num">{formatMoney(profile.contract.salary * 100, tr.lang)}</span></div>
+                <div class="fld"><span class="meta">{tr.t('offer.salary')}</span><span class="v num">{formatMoney(profile.contract.salary * 100, tr.lang)}</span></div>
+                {#if profile.salaryGuide}
+                  <div class="fld"><span class="meta">{tr.t('driver.worth')}</span><span class="v num">{formatMoney(profile.salaryGuide.suggested * 100, tr.lang)}</span></div>
                 {/if}
-                {#if profile.contract.optionYears}
-                  <div class="fld">
-                    <span class="meta">{tr.t('offer.option')}</span>
-                    <span class="v num">+{profile.contract.optionYears}{#if profile.contract.optionDeadline}<small class="muted">{formatDate(profile.contract.optionDeadline, tr.lang)}</small>{/if}</span>
-                  </div>
-                {/if}
+                <div class="fld"><span class="meta">{tr.t('offer.winBonus')}</span><span class="v num">{formatMoney(profile.contract.winBonus * 100, tr.lang)}</span></div>
+                <div class="fld"><span class="meta">{tr.t('offer.titleBonus')}</span><span class="v num">{formatMoney(profile.contract.titleBonus * 100, tr.lang)}</span></div>
                 {#if profile.contract.releaseAmount !== null}
                   <div class="fld"><span class="meta">{tr.t('driver.release')}</span><span class="v num">{formatMoney(profile.contract.releaseAmount * 100, tr.lang)}</span></div>
                 {/if}
@@ -156,16 +150,11 @@
                   {/if}
                 </div>
               {/if}
-              {#if asking === 'option'}
-                <Confirmation {tr} {busy} ask={tr.t('driver.option.ask', { name: profile.name })} onCancel={() => (asking = null)} onConfirm={exerciseOption} />
-              {:else if renewing}
+              {#if renewing}
                 <OfferForm {tr} initial={null} guide={profile.salaryGuide} {busy} label={tr.t('driver.renew.send')} onSubmit={renew} />
                 <div class="confirm"><button class="btn sm" type="button" onclick={() => (renewing = false)}>{tr.t('game.menu.cancel')}</button></div>
               {:else}
                 <div class="confirm">
-                  {#if profile.contract.optionYears}
-                    <button class="btn" type="button" disabled={busy} onclick={() => (asking = 'option')}>{tr.t('driver.option.use')}</button>
-                  {/if}
                   <button class="btn primary" type="button" disabled={busy} onclick={() => (renewing = true)}>{tr.t('driver.renew')}</button>
                 </div>
               {/if}

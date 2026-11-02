@@ -218,6 +218,8 @@ export interface DriverContractView {
   salary: number;
   seat: string;
   start: string;
+  titleBonus: number;
+  winBonus: number;
 }
 
 export interface DriverProfileView {
@@ -1134,6 +1136,8 @@ export interface SalaryGuideView {
   suggested: number;
   suggestedHigh: number;
   suggestedLow: number;
+  titleBonusMax: number;
+  winBonusMax: number;
 }
 
 export interface SaveCareerCall {
@@ -1382,6 +1386,7 @@ export interface StaffPersonView {
   age: number;
   attributes: StaffAttributeView[] | null;
   contractEnd: string | null;
+  contractStart: string | null;
   driverId: string | null;
   female: boolean;
   name: string;

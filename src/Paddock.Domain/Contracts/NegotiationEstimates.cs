@@ -197,6 +197,12 @@ public static class NegotiationEstimates
     /// <summary>ESTIMATE: end of the suggested range on the slider, as a share of the reference.</summary>
     public const double SalarySuggestedHighShare = 1.25;
 
+    /// <summary>ESTIMATE: top of the win-bonus slider (#318), as a share of the reference salary, per win.</summary>
+    public const double WinBonusSliderMaxShare = 0.1;
+
+    /// <summary>ESTIMATE: top of the title-bonus slider (#318), as a share of the reference salary.</summary>
+    public const double TitleBonusSliderMaxShare = 0.5;
+
     // --- Parallel work, ending a contract ---
 
     /// <summary>ESTIMATE: negotiations a team can run at once without a skilled principal.</summary>

@@ -21,16 +21,19 @@ namespace Paddock.Tests.Regulation;
 /// Re-pinned again in #325 (real contracts): the real staff of the authored data (Enzo Ferrari, Colotti, Maddock and others) now hold a
 /// contract to the end of their authored stint instead of the end of 1955, and contract end dates are in the hash. The 1955 fixture has no
 /// people cache, so every driver is generated: no driver contract, role or id moved, and the regulations are untouched.
+/// Re-pinned again in #318 (playtest 2): every contract of the first morning is paid from the era scale instead of 0 (salaries are in the
+/// hash and the monthly payroll moves every ledger), each team knows its own drivers, and a staff member under contract is no longer a
+/// free agent (an AI signing of one starts after that contract). With those three changes switched off the old pins pass unchanged.
 /// </summary>
 public class HistoricalRulesRegressionTests
 {
     private const ulong Seed = 7;
 
-    private const string HashOnTheLastDayOf1955 = "a7a48822066f8350c77197e022fce1847bc79f0df0f63f5c9a36e0fa33526fda";
+    private const string HashOnTheLastDayOf1955 = "1a4035a026d147dddb6ffe48be4e7154cf70b607e9e795dacbfd4582a5855400";
 
-    private const string HashAfterTheSeasonTurned = "68bd918a22570029343ad4895678baa74d5e93bf6a5300c82b17dc00cccb9f62";
+    private const string HashAfterTheSeasonTurned = "6f013eef38c5c034ab0e14e7fc683eea5db9fe48a6c0a3946f08b0e14540b537";
 
-    private const string HashAfterTwoSeasons = "587cf9178686f26f991d7afe2f47b1b82607efeb210c8b023ae9dbf141270632";
+    private const string HashAfterTwoSeasons = "e13a6c7b5c43c794b7b658317b958b20a8c08ec1b790dd45e1f769f5480c182d";
 
     private static (string Hash, bool HasRegulations, int Season, int Rounds, int NextSessions) Probe(GameDate stopOn)
     {

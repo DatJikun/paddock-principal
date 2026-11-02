@@ -48,7 +48,9 @@ public class CareerRunTests
     private const ulong Seed = 7;
 
     // Changed again in #265: two race engineers per team, no hidden roles on the roster.
-    private const string StoredWorldHash = "035a3f2013197c1e6b6b36608f698d295dcaa3b730c35876735395aa47ffa826";
+    // Changed again in #318: start contracts are paid from the era scale (payroll moves every ledger), teams know their own drivers,
+    // and contracted staff are not free agents. The retired string did not move.
+    private const string StoredWorldHash = "b572b0983adbabb7fbb94688b9b0ba6e106515891cfec8d5a5437dc6e3c57e45";
 
     private const string StoredRetired = "chief,leap,vet";
 

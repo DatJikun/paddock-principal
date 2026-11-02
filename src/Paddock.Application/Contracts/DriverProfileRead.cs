@@ -25,8 +25,21 @@ public sealed record DriverSeasonView(
     int? Place = null,
     string? Points = null);
 
-/// <summary>The terms of a contract the observer's own team holds. Salary is a nominal placeholder, not a calibrated figure.</summary>
-public sealed record DriverContractView(string ContractId, string Seat, string Start, string End, long Salary, int? OptionYears, string? OptionDeadline, long? ReleaseAmount);
+/// <summary>
+/// The terms of a contract the observer's own team holds: nominal salary per season and the bonuses per win and per title (0 when
+/// the contract has none, as on the first morning, #318). The salary is on the era scale, an ESTIMATE until calibrated.
+/// </summary>
+public sealed record DriverContractView(
+    string ContractId,
+    string Seat,
+    string Start,
+    string End,
+    long Salary,
+    int? OptionYears,
+    string? OptionDeadline,
+    long? ReleaseAmount,
+    long WinBonus = 0,
+    long TitleBonus = 0);
 
 /// <summary>
 /// One driver as the observer's team may read him. Attributes and potential are the bands the team believes (INV-003), never
@@ -133,8 +146,9 @@ public static class DriverProfileRead
             potential = belief.Potential is { } band ? new KnownAttributeView("potential", band.Low, band.High) : null;
         }
 
-        DriverContractView? terms = own && contract is not null ? ViewOf(contract) : null;
-        DriverContractView? next = upcoming is not null && upcoming.OrganizationId == observer ? ViewOf(upcoming) : null;
+        var section = world.Section<ContractsSection>(ContractsSection.SectionName);
+        DriverContractView? terms = own && contract is not null ? ViewOf(contract, section) : null;
+        DriverContractView? next = upcoming is not null && upcoming.OrganizationId == observer ? ViewOf(upcoming, section) : null;
 
         return new DriverProfileView(
             true,
@@ -159,7 +173,7 @@ public static class DriverProfileRead
             upcoming?.Start.ToString());
     }
 
-    private static DriverContractView ViewOf(Contract contract) =>
+    private static DriverContractView ViewOf(Contract contract, ContractsSection? section) =>
         new(
             contract.Id.Value,
             contract.Role.Seat.ToString(),
@@ -168,7 +182,9 @@ public static class DriverProfileRead
             contract.Salary,
             contract.Option is { } option ? option.ExtraYears : null,
             contract.Option is { } held ? held.Deadline.ToString() : null,
-            contract.ReleaseClause is { } release ? release.Amount : null);
+            contract.ReleaseClause is { } release ? release.Amount : null,
+            section?.TermsOf(contract.Id)?.WinBonus ?? 0,
+            section?.TermsOf(contract.Id)?.TitleBonus ?? 0);
 
     private static IReadOnlyList<DriverSeasonView> Merge(IReadOnlyList<DriverSeasonView>? earlier, IReadOnlyList<DriverSeasonView> archived)
     {

@@ -106,7 +106,7 @@ public sealed class PeopleContractsBridgeTests
             .ToArray();
         // He finishes the season with his old team and joins us the day after: one employer at a time.
         Assert.Contains(signed, person => !person.GetProperty("ownTeam").GetBoolean());
-        var ours = Assert.Single(signed, person => person.GetProperty("ownTeam").GetBoolean() || person.GetProperty("organizationId").GetString() == "ferrari");
+        var ours = Assert.Single(signed, person => person.GetProperty("ownTeam").GetBoolean());
         Assert.True(ours.GetProperty("salary").GetInt64() > 0);
         Assert.True(string.CompareOrdinal(ours.GetProperty("contractStart").GetString(), currentEnd) > 0, ours.ToString());
     }

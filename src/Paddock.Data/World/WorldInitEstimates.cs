@@ -12,7 +12,7 @@ public static class WorldInitEstimates
     /// <summary>ESTIMATE: length of the first contract of every driver and staff member, in seasons.</summary>
     public const int InitialContractSeasons = 1;
 
-    /// <summary>ESTIMATE: nominal salary of a starting contract. The economy is a later phase, so this means "not modelled".</summary>
+    /// <summary>Salary a starting contract is written with before <c>StartingPay</c> prices it from the era scale (#318). 0 = "not priced yet".</summary>
     public const long PlaceholderSalary = 0;
 
     /// <summary>

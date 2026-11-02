@@ -113,6 +113,25 @@ public sealed class ContractBook
             .ThenBy(contract => contract.Id.Value, StringComparer.Ordinal)
             .ToArray();
 
+    /// <summary>
+    /// The last day the person is bound to any employer, or null when they are bound to none. Unlike <see cref="LiveContractsOf"/>
+    /// it counts the non-exclusive staff contracts too (the chairs of the first morning and of the generated pool), so a staff
+    /// member signed away from another team joins after that contract, never while still employed there (#318).
+    /// </summary>
+    public GameDate? BoundUntil(PersonId person, GameDate today)
+    {
+        GameDate? last = null;
+        foreach (var contract in World.Contracts)
+        {
+            if (contract.PersonId == person && contract.End >= today && (last is null || contract.End > last))
+            {
+                last = contract.End;
+            }
+        }
+
+        return last;
+    }
+
     /// <summary>The contract a person holds today, or null.</summary>
     public Contract? ActiveContractOf(PersonId person, GameDate today) =>
         LiveContractsOf(person, today).FirstOrDefault(contract => contract.Start <= today);

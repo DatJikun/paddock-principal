@@ -39,6 +39,7 @@ public static class SaveMigrations
         new V031_SponsorTerms(),
         new V032_AcademyPerTeam(),
         new V033_CarDamage(),
+        new V034_InboxRead(),
     ];
 
     static SaveMigrations()

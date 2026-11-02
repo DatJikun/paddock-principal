@@ -39,6 +39,23 @@ public sealed record DismissInboxItemCommand : ICommand
 }
 
 /// <summary>
+/// The manager opens an item (#320), which takes it off the unread count. Any item of their own, open or closed; reading one
+/// that is already read is accepted and changes nothing. It never answers, dismisses or delays anything.
+/// </summary>
+public sealed record ReadInboxItemCommand : ICommand
+{
+    public required ManagerId ManagerId { get; init; }
+
+    public long SubmissionNumber { get; init; }
+
+    public required DateOnly IssuedOn { get; init; }
+
+    public required string ItemId { get; init; }
+
+    public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
+}
+
+/// <summary>
 /// Issued by the host for the item's own manager when an item is past its validity date (see <see cref="InboxExpiry"/>).
 /// The declared default option is executed, or, when the item has none or its owner can no longer accept it,
 /// the item only lapses. It is a command so that expiry is logged and replayed like any other change (INV-001, INV-002).
@@ -129,6 +146,18 @@ public sealed class DismissInboxItemHandler : CommandHandler<DismissInboxItemCom
     protected override IReadOnlyList<IDomainEvent> ExecuteTyped(DismissInboxItemCommand command, CommandContext context)
     {
         context.Inbox.Dismiss(context.Managers, command.ItemId, InboxBook.ToGameDate(command.IssuedOn));
+        return [];
+    }
+}
+
+public sealed class ReadInboxItemHandler : CommandHandler<ReadInboxItemCommand>
+{
+    protected override TranslationMessage? ValidateTyped(ReadInboxItemCommand command, CommandContext context) =>
+        InboxHandlers.OwnItem(command.ManagerId, command.ItemId, context) is null ? TranslationMessage.Of(InboxKeys.ItemUnknown) : null;
+
+    protected override IReadOnlyList<IDomainEvent> ExecuteTyped(ReadInboxItemCommand command, CommandContext context)
+    {
+        context.Inbox.MarkRead(command.ItemId);
         return [];
     }
 }

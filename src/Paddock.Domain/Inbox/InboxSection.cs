@@ -30,6 +30,7 @@ namespace Paddock.Domain.Inbox;
 /// status &lt;Open|Resolved|Dismissed|Expired&gt;
 /// closed &lt;len&gt;:&lt;date or -&gt;
 /// chosen &lt;len&gt;:&lt;optionId or -&gt;
+/// read                      (only for an item its owner has opened, #320; an unread item writes nothing, so older hashes hold)
 /// </code>
 /// </para>
 /// </summary>
@@ -112,6 +113,13 @@ public sealed class InboxSection : IWorldSection
         return _items.Values.Count(item => item.ManagerId == managerId && item.IsOpenDecision);
     }
 
+    /// <summary>How many open items of this manager the manager has not opened yet (#320). A closed item is never counted.</summary>
+    public int UnreadCount(string managerId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(managerId);
+        return _items.Values.Count(item => item.ManagerId == managerId && item.IsUnread);
+    }
+
     /// <summary>How many open decisions of this manager hold the clock (a decision with a deadline and a default may not).</summary>
     public int HoldingClockCount(string managerId)
     {
@@ -168,6 +176,16 @@ public sealed class InboxSection : IWorldSection
         }
 
         return Replace(item.Closed(InboxStatus.Dismissed, today, null));
+    }
+
+    /// <summary>
+    /// Records that the owner has opened the item, whatever its status. Reading it again returns the same section.
+    /// Reading changes nothing else: the status, the clock and every decision stay as they were.
+    /// </summary>
+    public InboxSection MarkRead(string itemId)
+    {
+        var item = Find(itemId) ?? throw new InvalidOperationException($"Unknown inbox item '{itemId}'.");
+        return item.IsRead ? this : Replace(item.MarkedRead());
     }
 
     /// <summary>
@@ -251,6 +269,10 @@ public sealed class InboxSection : IWorldSection
             writer.Line("status " + item.Status);
             writer.TextLine("closed", item.ClosedOn?.ToString() ?? "-");
             writer.TextLine("chosen", item.ChosenOptionId ?? "-");
+            if (item.IsRead)
+            {
+                writer.Line("read");
+            }
         }
     }
 

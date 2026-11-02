@@ -322,6 +322,7 @@ export interface InboxItemView {
   managerId: string;
   needsDecision: boolean;
   options: InboxOptionView[];
+  read: boolean;
   status: InboxStatus;
   subject: TranslationMessage;
   validUntil: IsoDate | null;
@@ -338,6 +339,7 @@ export interface InboxView {
   items: InboxItemView[];
   openCount: number;
   openDecisionCount: number;
+  unreadCount: number;
 }
 
 export interface InfrastructureOverview {
@@ -1069,6 +1071,11 @@ export interface RaceRowView {
   timeMs: number | null;
 }
 
+export interface ReadInboxCall {
+  itemId: string;
+  managerId: string;
+}
+
 export interface RenewContractCall {
   contractId: string;
   exerciseOption: boolean;
@@ -1190,6 +1197,7 @@ export interface ShellView {
   importantSubject: TranslationMessage | null;
   inboxDecisions: number;
   inboxOpen: number;
+  inboxUnread: number;
   managerId: string;
   organizationId: string | null;
   organizationName: string | null;
@@ -1609,6 +1617,7 @@ export interface BridgeCommandMap {
   advanceDay: { args: ManagerCall; result: AdvanceDayView };
   resolveInbox: { args: ResolveInboxCall; result: CommandAck };
   dismissInbox: { args: DismissInboxCall; result: CommandAck };
+  readInbox: { args: ReadInboxCall; result: CommandAck };
   newCareer: { args: NewCareerCall; result: CareerStartedView };
   loadCareer: { args: LoadCareerCall; result: CareerStartedView };
   saveCareer: { args: SaveCareerCall; result: CareerSavedView };

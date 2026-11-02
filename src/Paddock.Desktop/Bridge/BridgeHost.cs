@@ -229,6 +229,21 @@ public sealed class BridgeHost
                         IssuedOn = _career.IssuedOn,
                         ItemId = dismissId,
                     }));
+            case "readInbox":
+                var readId = Text(args, "itemId");
+                if (readId is null)
+                {
+                    return Fail(id, BridgeKeys.BadMessage, null);
+                }
+
+                return Finish(
+                    id,
+                    _career.Submit(new ReadInboxItemCommand
+                    {
+                        ManagerId = _career.Human,
+                        IssuedOn = _career.IssuedOn,
+                        ItemId = readId,
+                    }));
             default:
                 throw new InvalidOperationException("Command '" + name + "' is registered but not implemented.");
         }

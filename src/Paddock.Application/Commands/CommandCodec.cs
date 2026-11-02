@@ -109,6 +109,15 @@ public sealed class CommandCodec
                 IssuedOn = issued,
                 ItemId = FlatJson.Read(body, "itemId").String("itemId"),
             }),
+        CommandCodecEntry.For<ReadInboxItemCommand>(
+            "inbox.read/1",
+            command => FlatJson.Write(("itemId", command.ItemId)),
+            (body, manager, issued) => new ReadInboxItemCommand
+            {
+                ManagerId = manager,
+                IssuedOn = issued,
+                ItemId = FlatJson.Read(body, "itemId").String("itemId"),
+            }),
         CommandCodecEntry.For<ExpireInboxItemCommand>(
             "inbox.expire/1",
             command => FlatJson.Write(("itemId", command.ItemId)),

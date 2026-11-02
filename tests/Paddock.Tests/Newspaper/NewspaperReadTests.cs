@@ -302,6 +302,7 @@ public class NewspaperReadTests
             Paddock.Domain.Inbox.InboxStatus.Open,
             null,
             null,
+            false,
             false);
         var paper = NewspaperRead.Read(new NewspaperSources
         {

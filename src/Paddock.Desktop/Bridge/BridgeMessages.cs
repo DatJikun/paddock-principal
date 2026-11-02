@@ -11,6 +11,9 @@ public sealed record ResolveInboxCall(string ManagerId, string ItemId, string Op
 /// <summary>Argument of <c>dismissInbox</c>.</summary>
 public sealed record DismissInboxCall(string ManagerId, string ItemId);
 
+/// <summary>Argument of <c>readInbox</c> (#320).</summary>
+public sealed record ReadInboxCall(string ManagerId, string ItemId);
+
 /// <summary>
 /// The top bar: the career date, the team's cash in integer cents, and whatever is holding the clock.
 /// Cash is null when this manager does not run a team with open books. The Important fields name the newest open item that should
@@ -21,6 +24,7 @@ public sealed record ShellView(
     string Date,
     long? CashCents,
     int InboxOpen,
+    int InboxUnread,
     int InboxDecisions,
     string? BlockingKind,
     string? DecisionItemId,

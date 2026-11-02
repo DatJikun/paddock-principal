@@ -263,6 +263,71 @@ public class InboxTests
         Assert.Equal(InboxKeys.ItemClosed, Rejection(lab.Dismiss(Anna, note)));
     }
 
+    // --- Read state (#320) ---
+
+    [Fact]
+    public void TheUnreadCountFollowsReadingAndClosingButNotTheDecisionsState()
+    {
+        var lab = TwoHumansAndABot();
+        var notes = Enumerable.Range(0, 3).Select(_ => lab.Post(Anna, Note())).ToArray();
+        var decision = lab.Post(Anna, Decision());
+        lab.Post(Bram, Note());
+        Assert.Equal(4, lab.Book.Section.UnreadCount(Anna.Value));
+        Assert.Equal(4, lab.Query.View(AccessContext.ForManager(new AccessManagerId(Anna.Value))).UnreadCount);
+
+        Assert.IsType<CommandResult.Accepted>(lab.Read(Anna, notes[0]));
+        Assert.Equal(3, lab.Book.Section.UnreadCount(Anna.Value));
+
+        // Reading a decision takes it off the badge but leaves it open and holding the clock.
+        Assert.IsType<CommandResult.Accepted>(lab.Read(Anna, decision));
+        Assert.Equal(2, lab.Book.Section.UnreadCount(Anna.Value));
+        Assert.True(lab.Book.Section.Find(decision)!.IsHoldingClock);
+        Assert.Equal(1, lab.Book.Section.HoldingClockCount(Anna.Value));
+
+        // A deleted item leaves the count unread or not, and keeps its read mark when it closes.
+        lab.Dismiss(Anna, notes[1]);
+        lab.Dismiss(Anna, notes[0]);
+        Assert.Equal(1, lab.Book.Section.UnreadCount(Anna.Value));
+        Assert.True(lab.Book.Section.Find(notes[0])!.IsRead);
+        Assert.False(lab.Book.Section.Find(notes[1])!.IsRead);
+        Assert.Equal(1, lab.Book.Section.UnreadCount(Bram.Value));
+    }
+
+    [Fact]
+    public void ReadingTwiceChangesNothingAndAnotherManagersItemReadsAsMissing()
+    {
+        var lab = TwoHumansAndABot();
+        var note = lab.Post(Anna, Note());
+        var untouched = lab.Hash();
+        lab.Read(Anna, note);
+        var once = lab.Hash();
+
+        Assert.NotEqual(untouched, once);
+        Assert.IsType<CommandResult.Accepted>(lab.Read(Anna, note));
+        Assert.Equal(once, lab.Hash());
+        Assert.Equal(InboxKeys.ItemUnknown, Rejection(lab.Read(Bram, note)));
+        Assert.Equal(InboxKeys.ItemUnknown, Rejection(lab.Read(Anna, "inb:99")));
+    }
+
+    [Fact]
+    public void AnUnreadInboxKeepsItsOldCanonicalText()
+    {
+        // An unread item writes no read line, so a world saved before #320 hashes the same.
+        var lab = TwoHumansAndABot();
+        lab.Post(Anna, Note());
+        var text = Canonical(lab.Book.Section);
+        Assert.DoesNotContain("\nread\n", text);
+        lab.Read(Anna, "inb:1");
+        Assert.Contains("\nread\n", Canonical(lab.Book.Section));
+    }
+
+    private static string Canonical(InboxSection section)
+    {
+        var writer = new CanonicalWriter();
+        section.WriteCanonical(writer);
+        return writer.ToString();
+    }
+
     // --- Per-manager isolation (INV-003) ---
 
     [Fact]

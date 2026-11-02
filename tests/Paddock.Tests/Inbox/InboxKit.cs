@@ -62,6 +62,7 @@ internal static class InboxKit
             Dispatcher.Register(new ResolveInboxItemHandler());
             Dispatcher.Register(new DismissInboxItemHandler());
             Dispatcher.Register(new ExpireInboxItemHandler());
+            Dispatcher.Register(new ReadInboxItemHandler());
             Queue = new CommandQueue();
             Query = new InboxQuery(Book);
         }
@@ -102,6 +103,9 @@ internal static class InboxKit
 
         public CommandResult Dismiss(ManagerId manager, string itemId, int day = 0) =>
             Submit(new DismissInboxItemCommand { ManagerId = manager, IssuedOn = ToDateOnly(Day(day)), ItemId = itemId });
+
+        public CommandResult Read(ManagerId manager, string itemId, int day = 0) =>
+            Submit(new ReadInboxItemCommand { ManagerId = manager, IssuedOn = ToDateOnly(Day(day)), ItemId = itemId });
 
         public string Post(ManagerId manager, InboxItemDraft draft, int day = 0) =>
             Book.Post(Managers, manager, draft, Day(day)).ItemId;

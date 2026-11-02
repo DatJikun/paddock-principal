@@ -450,6 +450,13 @@ Krzywa kariery obejmuje wzrost, szczyt, plateau i spadek, z indywidualnymi datam
 **Incydenty i awarie:** ryzyko zależy od epoki (bezpieczeństwo), kierowcy (agresja, opanowanie) i sprzętu. Skutki to kontuzje i końce karier (PP-061). Lekka kontuzja wyklucza z 0–1 wyścigu, a przy starcie przez 21 dni daje lekką stratę tempa; poważna kontuzja wyłącza na kilka wyścigów (szacunek 2–6). Kończąca karierę i śmiertelna (przy włączonej opcji, PP-006) oznaczają odejście ze sportu. Na czas absencji zespół wystawia zastępcę (jedyny wyjątek od zasady PP-050 o braku zmian w sezonie): najpierw zakontraktowanego kierowcę rezerwowego, a w razie braku – jednorazowego zastępcę z wolnych agentów lub puli talentów (decyzja w skrzynce dla gracza, wybór AI ze śladem decyzji). Gdy nikt nie jest dostępny, auto nie startuje. Regularny kierowca wraca automatycznie po wyzdrowieniu. Większość awarii daje kilka okrążeń sygnałów (auto zwalnia), ale mniej więcej co trzecia przychodzi bez ostrzeżenia (PP-057).
 **Prezentacja:** najpierw backend (PP-020). Wyścig ma wynik natychmiastowy albo relację na żywo w formie tabeli z różnicami czasu i komunikatami. Mapa toru 2D powstanie po zbudowaniu UI.
 
+**Wyścig v2 (PP-073, PP-074; w budowie, od sezonu 2010).** Warstwy czasu okrążenia z akapitu wyżej przestają być osobnymi tabelami: biorą się z ruchu aut po prawdziwym torze.
+- **Tor ma charakter z kształtu.** Długa prosta przed ciasnym zakrętem to miejsce do ataku; wąski tor między barierami (Monako) prawie go nie daje; szybkie zakręty karzą jazdę tuż za rywalem, bo auto traci docisk. Postój kosztuje tyle, ile przejazd aleją serwisową z limitem prędkości plus postój w boksie, więc na torze z krótką aleją opłaca się częściej zjechać.
+- **Kierowca to nie tylko tempo.** Jak blisko granicy jedzie, jak często się myli (szeroki wyjazd na trawę lub żwir kosztuje czas), jak atakuje i jak się broni. Polecenia z boksu (tempo, silnik, zjazd) działają tak samo w oglądanym i symulowanym wyścigu.
+- **Na mapie jadą bolidy** w barwach zespołów; widać linię, walkę koło w koło i wjazd do alei.
+- **Najpierw sezon 2010** (bez DRS, bez tankowania, dwie mieszanki obowiązkowe). Wcześniejsze epoki jadą na obecnym silniku, dopóki właściciel nie zdecyduje inaczej (PP-074).
+- **Później:** wypadki z uderzenia w barierę i zakopanie w żwirze, temperatura opon i hamulców, wysokość toru w symulacji.
+
 ---
 
 ## 8. AI szefów zespołów

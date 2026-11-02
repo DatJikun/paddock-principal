@@ -8,7 +8,7 @@ namespace Paddock.Tests.SimRunner;
 public class RunCommandTests
 {
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void OneSeasonPrintsTheEstimateLineAndAStableHash()
     {
         var first = Run(["run", "--preset", "Chaos", "--from", "1950", "--to", "1950", "--seed", "7"], out var code);
@@ -49,6 +49,7 @@ public class RunCommandTests
     }
 
     [Theory]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     [InlineData("Chaos")]
     [InlineData("MostHistorical")]
     public void The1955SeasonRunTwiceGivesTheSameHashAndPrintsTheEconomyInBothLanguages(string preset)
@@ -70,6 +71,7 @@ public class RunCommandTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void SaveWritesAWorldThatLoadsToThePrintedHash()
     {
         var directory = Directory.CreateTempSubdirectory("paddock-run-cmd-");

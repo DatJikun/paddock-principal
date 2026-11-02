@@ -6,7 +6,7 @@ using Paddock.SimRunner;
 namespace Paddock.Tests.SimRunner;
 
 /// <summary><c>run --resume</c>: the same future as a run that never stopped, and refusals that name the reason (issue #123).</summary>
-[Trait("Category", "Slow")]
+[Trait(TestCategory.Name, TestCategory.Slow)]
 public sealed class ResumeCommandTests : IDisposable
 {
     private readonly string _directory = Directory.CreateTempSubdirectory("paddock-resume-cmd-").FullName;

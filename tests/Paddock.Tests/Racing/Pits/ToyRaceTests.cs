@@ -105,7 +105,7 @@ public class ToyRaceTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AStrongStrategist_BeatsAWeakOne_Over500Races()
     {
         // Smaller search than the default so 1000 races stay fast; both strategists use the same one.

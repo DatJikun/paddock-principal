@@ -17,6 +17,7 @@ people, where history can be changed. The owner (DatJikun) reviews; agents build
   issue. Never push to `main`, never merge your own PR.
 - A PR is ready when: builds, all tests pass, new behaviour has tests, and the
   PR description says what changed, why, and what was NOT done.
+- While working, run the fast tests: `dotnet test -c Release --no-build --filter "Category!=Slow"`; run the full suite once before opening a PR (CI always runs everything).
 - Don't refactor or "improve" code outside the issue's scope — note it in the PR.
 
 ## UI work

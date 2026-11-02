@@ -28,7 +28,7 @@ public class WeekendIncidentTests
     private static readonly Lazy<RaceWeekendResult[]> FatalitiesOn = new(() => Chaotic(FatalityLevel.On));
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void NobodyDies_WhenFatalitiesAreOff_ButCareersCanEnd()
     {
         var people = FatalitiesOff.Value.SelectMany(r => r.PersonOutcomes).ToList();
@@ -40,7 +40,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ADeathIsPossible_OnlyWhenFatalitiesAreOn_AndIsAFactNotAnAppliedState()
     {
         var deaths = FatalitiesOn.Value.SelectMany(r => r.PersonOutcomes).Where(p => p.Fatal).ToList();
@@ -55,7 +55,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void EveryNeutralisationKind_IsMet_AndEveryTapeStaysValid()
     {
         var races = FatalitiesOn.Value.Concat(FatalitiesOff.Value).ToList();
@@ -89,7 +89,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AnAccidentRetirement_FollowsItsIncidentOnTheTape()
     {
         foreach (var race in FatalitiesOff.Value)
@@ -107,7 +107,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AResumedRedFlag_StopsTheClockOfTheRace()
     {
         var race = FatalitiesOn.Value.First(r => r.Neutralisations.Any(n => n is { Kind: NeutralisationKind.RedFlag, RaceResumed: true }));
@@ -131,7 +131,7 @@ public class WeekendIncidentTests
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void LapTimesOnTheTape_ArePositive_AndCumulativeTimeRises()
     {
         foreach (var race in FatalitiesOn.Value.Concat(FatalitiesOff.Value))

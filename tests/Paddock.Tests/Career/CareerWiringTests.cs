@@ -105,6 +105,7 @@ public sealed class CareerWiringTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void TheLedgerPaysTheSalariesOfRenewedContractsAndStandsInForThePayroll()
     {
         var session = CareerKit.Open(CareerPreset.Chaos, 1955, Seed);
@@ -139,6 +140,7 @@ public sealed class CareerWiringTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void RaceIncomeKeepsAnAiOnlyCareerRenewingContractsThrough1960()
     {
         // PP-055's January lump is gone. Start money, prize money and the race running cost are booked from results
@@ -160,6 +162,7 @@ public sealed class CareerWiringTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void TheCashOfATeamIsAnObjectiveFactInWholeDollars()
     {
         var session = CareerKit.Open(CareerPreset.Chaos, 1955, Seed);
@@ -193,6 +196,7 @@ public sealed class CareerWiringTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void ASeasonRunTwiceGivesTheSameWorldHashAndTheNewSectionsAreInIt()
     {
         var first = CareerKit.Open(CareerPreset.Chaos, 1955, Seed);
@@ -212,6 +216,7 @@ public sealed class CareerWiringTests
     }
 
     [Theory]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     [InlineData(1955, 1, 2)]
     [InlineData(1955, 3, 20)]
     [InlineData(1955, 7, 1)]

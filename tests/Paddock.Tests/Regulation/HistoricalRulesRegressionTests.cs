@@ -54,6 +54,7 @@ public class HistoricalRulesRegressionTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AHistoricalSeasonKeepsItsHashAndItsResults()
     {
         var end = Probe(new GameDate(1955, 12, 30));
@@ -66,6 +67,7 @@ public class HistoricalRulesRegressionTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AHistoricalCareerLaysOutTheNextCalendarFromTheAuthoredMapAndKeepsItsHash()
     {
         var turned = Probe(new GameDate(1956, 1, 3));

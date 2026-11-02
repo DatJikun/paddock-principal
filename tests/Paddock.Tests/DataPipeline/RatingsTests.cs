@@ -9,7 +9,7 @@ namespace Paddock.Tests.DataPipeline;
 public class RatingsTests
 {
     [Fact]
-    [Trait("Category", "Slow")]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void RecoveryOnSyntheticData_RecoversDriverSkillWithSpearmanAtLeast085()
     {
         // Deterministic RNG with fixed seed

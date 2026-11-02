@@ -19,6 +19,7 @@ public class PrincipalLivenessTests(ITestOutputHelper output)
     public static IEnumerable<object[]> Seeds() => new[] { 7UL, 11UL, 23UL, 101UL, 2026UL }.Select(seed => new object[] { seed });
 
     [Theory]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     [MemberData(nameof(Seeds))]
     public void TenSeasonsKeepSeatsFilledContractsClearAndCashInsideTheOverdraft(ulong seed)
     {
@@ -67,6 +68,7 @@ public class PrincipalLivenessTests(ITestOutputHelper output)
     }
 
     [Theory]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     [InlineData(0.9)]
     [InlineData(0.6)]
     public void WhenMoneyIsTightTheAiStillStaysInsideCashPlusTheOverdraft(double revenueShare)

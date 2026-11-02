@@ -22,6 +22,7 @@ public sealed class SponsorSeasonsTests
     private const ulong Seed = 7;
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void EveryTeamHasSponsorCandidatesInEverySeasonOfAThreeSeasonRun()
     {
         for (var year = 1955; year <= 1957; year++)
@@ -48,6 +49,7 @@ public sealed class SponsorSeasonsTests
     }
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AiManagersAreNotGivenSponsorNoticesNobodyWillRead()
     {
         var session = CareerKit.Open(CareerPreset.Chaos, 1955, Seed);

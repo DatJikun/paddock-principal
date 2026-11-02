@@ -175,6 +175,7 @@ public class PrincipalBehaviourTests(ITestOutputHelper output)
     // ---------------------------------------------------------------- INV-002, INV-006, INV-004
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void TheSameSeedGivesTheSameHashAndTheSameCommandsTwiceAndAnotherSeedDiffers()
     {
         var first = new PrincipalKit(new PrincipalKitOptions { Seed = 9UL });
@@ -268,6 +269,7 @@ public class PrincipalBehaviourTests(ITestOutputHelper output)
     // ---------------------------------------------------------------- cadence and runtime
 
     [Fact]
+    [Trait(TestCategory.Name, TestCategory.Slow)]
     public void AnIdleDayCostsOneDateComparisonPerTeamAndTenSeasonsAreReported()
     {
         var kit = new PrincipalKit(new PrincipalKitOptions { Seed = 3UL });

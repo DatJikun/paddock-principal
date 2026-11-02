@@ -316,6 +316,7 @@ export interface InboxItemView {
   closedOn: IsoDate | null;
   created: IsoDate;
   defaultOptionId: string | null;
+  deleted: boolean;
   id: string;
   important: boolean;
   kind: string;

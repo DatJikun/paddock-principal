@@ -41,8 +41,8 @@ public sealed class InboxSectionStore : ISectionStore
             Run(
                 connection,
                 transaction,
-                "INSERT INTO inbox_items (number, manager_id, created, kind, subject_key, valid_until, default_option, status, closed_on, chosen_option, is_read) "
-                + "VALUES ($n, $manager, $created, $kind, $subject, $until, $default, $status, $closed, $chosen, $read)",
+                "INSERT INTO inbox_items (number, manager_id, created, kind, subject_key, valid_until, default_option, status, closed_on, chosen_option, is_read, is_deleted) "
+                + "VALUES ($n, $manager, $created, $kind, $subject, $until, $default, $status, $closed, $chosen, $read, $deleted)",
                 [
                     ("$n", item.Number),
                     ("$manager", item.ManagerId),
@@ -55,6 +55,7 @@ public sealed class InboxSectionStore : ISectionStore
                     ("$closed", item.ClosedOn?.ToString()),
                     ("$chosen", item.ChosenOptionId),
                     ("$read", item.IsRead ? 1L : 0L),
+                    ("$deleted", item.IsDeleted ? 1L : 0L),
                 ]);
             foreach (var argument in item.Arguments)
             {
@@ -151,7 +152,7 @@ public sealed class InboxSectionStore : ISectionStore
         using (var command = connection.CreateCommand())
         {
             command.CommandText =
-                "SELECT number, manager_id, created, kind, subject_key, valid_until, default_option, status, closed_on, chosen_option, is_read "
+                "SELECT number, manager_id, created, kind, subject_key, valid_until, default_option, status, closed_on, chosen_option, is_read, is_deleted "
                 + "FROM inbox_items ORDER BY number";
             using var reader = command.ExecuteReader();
             while (reader.Read())
@@ -177,7 +178,8 @@ public sealed class InboxSectionStore : ISectionStore
                     status,
                     reader.IsDBNull(8) ? null : ParseDate(reader.GetString(8)),
                     reader.IsDBNull(9) ? null : reader.GetString(9),
-                    reader.GetInt64(10) == 1));
+                    reader.GetInt64(10) == 1,
+                    reader.GetInt64(11) == 1));
             }
         }
 

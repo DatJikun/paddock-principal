@@ -31,6 +31,7 @@ namespace Paddock.Domain.Inbox;
 /// closed &lt;len&gt;:&lt;date or -&gt;
 /// chosen &lt;len&gt;:&lt;optionId or -&gt;
 /// read                      (only for an item its owner has opened, #320; an unread item writes nothing, so older hashes hold)
+/// deleted                   (only for an answered or lapsed item its owner has deleted, #320; same rule)
 /// </code>
 /// </para>
 /// </summary>
@@ -189,6 +190,21 @@ public sealed class InboxSection : IWorldSection
     }
 
     /// <summary>
+    /// Takes an answered or lapsed item out of its owner's mailbox (#320). The record and its outcome stay; nothing else changes.
+    /// An open item cannot be deleted this way: a notice is dismissed, and a decision has to be answered.
+    /// </summary>
+    public InboxSection Delete(string itemId)
+    {
+        var item = Find(itemId) ?? throw new InvalidOperationException($"Unknown inbox item '{itemId}'.");
+        if (item.IsOpen || item.IsRemoved)
+        {
+            throw new InvalidOperationException($"Item '{itemId}' is {item.Status} and cannot be deleted.");
+        }
+
+        return Replace(item.MarkedDeleted());
+    }
+
+    /// <summary>
     /// Closes an open item with no option taken, whatever its validity date. For the poster only: a decision whose manager
     /// can no longer answer it (a dismissed principal's renewal prompt) must not hold the shared clock for ever.
     /// </summary>
@@ -272,6 +288,11 @@ public sealed class InboxSection : IWorldSection
             if (item.IsRead)
             {
                 writer.Line("read");
+            }
+
+            if (item.IsDeleted)
+            {
+                writer.Line("deleted");
             }
         }
     }

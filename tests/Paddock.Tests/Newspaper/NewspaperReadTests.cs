@@ -303,6 +303,7 @@ public class NewspaperReadTests
             null,
             null,
             false,
+            false,
             false);
         var paper = NewspaperRead.Read(new NewspaperSources
         {

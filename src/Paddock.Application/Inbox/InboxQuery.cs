@@ -11,7 +11,7 @@ public sealed record InboxOptionView(string Id, TranslationMessage Label, Transl
 /// <summary>
 /// One item as a manager reads it. Texts are translation keys with the item's argument values (PP-021).
 /// <see cref="ValidUntil"/> and <see cref="DefaultOptionId"/> are set together for an offer that lapses:
-/// the player can see what happens if nobody answers. <see cref="Read"/> is true once the owner has opened it (#320). <see cref="Important"/> says whether the item should stop automatic play (see <see cref="InboxImportance"/>).
+/// the player can see what happens if nobody answers. <see cref="Read"/> is true once the owner has opened it, <see cref="Deleted"/> once they took it out of the mailbox (a dismissed notice or a deleted closed item, #320). <see cref="Important"/> says whether the item should stop automatic play (see <see cref="InboxImportance"/>).
 /// </summary>
 public sealed record InboxItemView(
     string Id,
@@ -27,6 +27,7 @@ public sealed record InboxItemView(
     DateOnly? ClosedOn,
     string? ChosenOptionId,
     bool Read,
+    bool Deleted,
     bool Important);
 
 /// <summary>The items one viewer may see, in order of item number.</summary>
@@ -107,6 +108,7 @@ public sealed class InboxQuery
             item.ClosedOn is GameDate closed ? InboxBook.ToDateOnly(closed) : null,
             item.ChosenOptionId,
             item.IsRead,
+            item.IsRemoved,
             InboxImportance.IsImportant(item.Kind, item.NeedsDecision));
     }
 }

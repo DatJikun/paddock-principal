@@ -433,7 +433,12 @@ a.plain:hover{text-decoration:underline;text-underline-offset:3px}
 .rhead{display:flex;align-items:center;gap:16px;margin-bottom:18px}
 .av.big{width:52px;height:52px;font-size:20px;background:var(--t2);color:var(--on2)}
 .rhead h2{font-size:32px;margin-top:2px}
-.letter{font-size:17px;line-height:1.55;max-width:65ch}
+.letter{font-size:17px;line-height:1.55;max-width:65ch;display:grid;gap:10px}
+.letter p{margin:0}
+.letter .lead{font:600 20px/1.35 var(--ui)}
+.mail-fields{padding:14px 20px;margin:6px 0;width:fit-content;max-width:100%}
+.mail-fields .v.list{display:grid;gap:4px;align-items:start}
+.confirm.erase{justify-content:flex-end}
 .reader .choices{margin-top:22px}
 
 /* ---------- Kalendarz ---------- */

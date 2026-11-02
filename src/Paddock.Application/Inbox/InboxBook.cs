@@ -96,6 +96,12 @@ public sealed class InboxBook
         Section = Section.MarkRead(itemId);
     }
 
+    /// <summary>Takes an answered or lapsed item out of the mailbox (#320). It touches neither the outcome nor the clock.</summary>
+    public void Delete(string itemId)
+    {
+        Section = Section.Delete(itemId);
+    }
+
     /// <summary>Closes an open item with no option taken (see <see cref="InboxSection.Withdraw"/>) and frees the clock if it was the last decision.</summary>
     public void Withdraw(ManagerRegistry managers, string itemId, GameDate today)
     {

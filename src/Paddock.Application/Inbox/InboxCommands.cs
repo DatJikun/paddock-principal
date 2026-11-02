@@ -24,7 +24,10 @@ public sealed record ResolveInboxItemCommand : ICommand
     public ICommand WithSubmissionNumber(long submissionNumber) => this with { SubmissionNumber = submissionNumber };
 }
 
-/// <summary>The manager closes an information item. A decision cannot be dismissed, it has to be answered.</summary>
+/// <summary>
+/// The manager deletes an item from the mailbox. An open information item is dismissed (closed). An answered or lapsed item
+/// keeps its outcome and is only marked deleted (#320). An open decision cannot be deleted, it has to be answered.
+/// </summary>
 public sealed record DismissInboxItemCommand : ICommand
 {
     public required ManagerId ManagerId { get; init; }
@@ -135,17 +138,27 @@ public sealed class DismissInboxItemHandler : CommandHandler<DismissInboxItemCom
             return TranslationMessage.Of(InboxKeys.ItemUnknown);
         }
 
-        if (!item.IsOpen)
+        if (item.IsRemoved)
         {
             return TranslationMessage.Of(InboxKeys.ItemClosed);
         }
 
-        return item.NeedsDecision ? TranslationMessage.Of(InboxKeys.DecisionCannotBeDismissed) : null;
+        return item.IsOpenDecision ? TranslationMessage.Of(InboxKeys.DecisionCannotBeDismissed) : null;
     }
 
     protected override IReadOnlyList<IDomainEvent> ExecuteTyped(DismissInboxItemCommand command, CommandContext context)
     {
-        context.Inbox.Dismiss(context.Managers, command.ItemId, InboxBook.ToGameDate(command.IssuedOn));
+        var item = InboxHandlers.OwnItem(command.ManagerId, command.ItemId, context)
+            ?? throw new InvalidOperationException("Execute ran for a command that should have been rejected.");
+        if (item.IsOpen)
+        {
+            context.Inbox.Dismiss(context.Managers, command.ItemId, InboxBook.ToGameDate(command.IssuedOn));
+        }
+        else
+        {
+            context.Inbox.Delete(command.ItemId);
+        }
+
         return [];
     }
 }

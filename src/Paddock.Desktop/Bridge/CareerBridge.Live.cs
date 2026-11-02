@@ -26,8 +26,8 @@ public sealed record LiveRaceOrderCall(string ManagerId, string CarId, string Ac
 
 /// <summary>
 /// The career's race of today, watched live before the day books it (PP-052, #316). The bridge is the host of TECH §5.1: it owns the one race clock, every
-/// viewer reads it, and a viewing order from any viewer moves it for all (the host pushes <c>raceClock</c>). Watching changes
-/// nothing in the world, so the orders are not world commands.
+/// viewer reads it, and a viewing order from any viewer moves it for all (the host pushes <c>raceClock</c>). Opening the career's
+/// race and every pit wall order are world commands (#316), so the race day, a save and a replay all see them.
 /// </summary>
 public sealed partial class CareerBridge
 {
@@ -53,12 +53,43 @@ public sealed partial class CareerBridge
         }
 
         var watch = Box.Require<RaceWatch>();
+        if (watch.Steering is { } steering && watch.Tape is { } tape)
+        {
+            // The world keeps what was watched and every order (#316): the day books the race with them, a save keeps them, and a
+            // replay of the command log rebuilds them (INV-002). The tape is recorded so a booked race that differs is never silent.
+            steering.Booking = (issued, run) => BookOrders(watch, issued, run);
+            if (RaceWeekendState.Of(Session, watch.Season, watch.Round)?.WatchedTapeHash != tape.Hash
+                && Submit(new WatchRaceCommand { ManagerId = Human, IssuedOn = IssuedOn, Season = watch.Season, Round = watch.Round, TapeHash = tape.Hash })
+                    is CommandResult.Rejected rejected)
+            {
+                return PlayStep.Fail(rejected.Reason);
+            }
+        }
+
         if (LiveFor(watch, _live) is null)
         {
             OpenLiveRace(watch.Season, watch.Round);
         }
 
         return PlayStep.Ok(BridgeValues.ToNode(ReadLiveClock()), inbox: false);
+    }
+
+    /// <summary>Submits the manager's orders of the watched career race and the tape they make; the refusal key or null.</summary>
+    private string? BookOrders(RaceWatch watch, System.Collections.Immutable.ImmutableArray<IssuedOrder> issued, Paddock.Domain.Racing.RaceTape run)
+    {
+        var own = issued.Where(order => LiveRaceOrders.TeamOf(Session, watch, order.Order.CarId) is { } team
+                && Box.TryGet<BoardBook>()?.Section.OrganizationOf(Human.Value) is { } mine && mine.Value == team)
+            .ToHashSet();
+        var command = new SetPitWallOrdersCommand
+        {
+            ManagerId = Human,
+            IssuedOn = IssuedOn,
+            Season = watch.Season,
+            Round = watch.Round,
+            Orders = [.. own.Select(RaceWeekendState.FromOrder)],
+            TapeHash = run.Hash,
+        };
+        return Submit(command) is CommandResult.Rejected rejected ? rejected.Reason.Key : null;
     }
 
     /// <summary>Opens the clock of the race the watch holds at race time 0, paused until a viewer starts it.</summary>

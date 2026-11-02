@@ -294,6 +294,13 @@ public sealed partial class CareerBridge
         return new SaveListView(items);
     }
 
+    /// <summary>The post-race summary of a round (#316), with the board's mood after the day's review.</summary>
+    private RaceSummaryView ReadRaceSummary(JsonElement args)
+    {
+        var board = Board().View(Access(), Session.Date).Own?.State;
+        return RaceSummaryRead.Read(Session, Box.Inputs, Box.TryGet<BoardBook>()?.Section.OrganizationOf(Human.Value), IntOf(args, "season"), IntOf(args, "round"), board);
+    }
+
     private RaceResultView ReadRace(JsonElement args) =>
         ChampionshipRead.Result(Session, IntOf(args, "season"), IntOf(args, "round"), Access());
 
@@ -659,11 +666,6 @@ public sealed partial class CareerBridge
             return PlayStep.Fail(TranslationMessage.Of(BridgeKeys.SaveNotMorning));
         }
 
-        if (Box.TryGet<RaceWatch>() is { HoldsOrders: true })
-        {
-            return PlayStep.Fail(TranslationMessage.Of(CareerRaceKeys.SaveAfterRace));
-        }
-
         var name = TextOf(args, "name");
         if (name is null)
         {
@@ -812,6 +814,8 @@ public sealed partial class CareerBridge
                 return CancelTest(args, issued, out error);
             case "bookTest":
                 return RentTest(args, issued, out error);
+            case "setRacePlan":
+                return RacePlan(args, issued, out error);
             case "assignScoutFocus":
                 error = null;
                 return new AssignScoutFocusCommand { ManagerId = Human, IssuedOn = issued, PersonHandle = TextOf(args, "personHandle") };
@@ -1091,6 +1095,54 @@ public sealed partial class CareerBridge
         }
 
         return new UpgradeFacilityCommand { ManagerId = Human, IssuedOn = issued, OrganizationId = organization, Kind = kind };
+    }
+
+    /// <summary>The plan of one own car in today's race (#316); the world command checks the race, the car and the rules.</summary>
+    private ICommand? RacePlan(JsonElement args, DateOnly issued, out TranslationMessage? error)
+    {
+        error = null;
+        var car = TextOf(args, "carId");
+        var season = IntOf(args, "season");
+        var round = IntOf(args, "round");
+        var pace = TextOf(args, "pace");
+        var engine = RaceWeekendRead.EngineOf(TextOf(args, "engine"));
+        if (car is null || season is not int year || round is not int number || engine is not { } engineMode
+            || (pace is not null && RaceWeekendRead.PaceOf(pace) is null))
+        {
+            error = TranslationMessage.Of(BridgeKeys.BadMessage);
+            return null;
+        }
+
+        string stops = "*";
+        if (args.TryGetProperty("stops", out var list) && list.ValueKind == JsonValueKind.Array)
+        {
+            var planned = new List<Paddock.Domain.Racing.WeekendPlannedStop>();
+            foreach (var item in list.EnumerateArray())
+            {
+                if (IntOf(item, "lap") is not int lap || TextOf(item, "tyres") is not { } tyres)
+                {
+                    error = TranslationMessage.Of(BridgeKeys.BadMessage);
+                    return null;
+                }
+
+                planned.Add(new Paddock.Domain.Racing.WeekendPlannedStop(lap, tyres));
+            }
+
+            stops = Paddock.Domain.Racing.RaceWeekendSection.StopsText(planned);
+        }
+
+        return new SetRacePlanCommand
+        {
+            ManagerId = Human,
+            IssuedOn = issued,
+            Season = year,
+            Round = number,
+            CarId = car,
+            StartCompoundId = TextOf(args, "startTyres"),
+            Pace = pace is null ? null : RaceWeekendRead.PaceOf(pace)!.Value.ToString(),
+            Engine = engineMode.ToString(),
+            Stops = stops,
+        };
     }
 
     private ICommand? RentTest(JsonElement args, DateOnly issued, out TranslationMessage? error)

@@ -40,6 +40,7 @@ public static class SaveMigrations
         new V032_AcademyPerTeam(),
         new V033_CarDamage(),
         new V034_InboxReadAndDeleted(),
+        new V035_RaceWeekend(),
     ];
 
     static SaveMigrations()

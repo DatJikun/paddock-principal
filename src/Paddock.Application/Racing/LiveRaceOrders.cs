@@ -138,15 +138,18 @@ public static class LiveRaceOrders
                     return LiveOrderKeys.NoPit;
                 }
 
-                return steering.TryApply(kept, tape, nowMs) ? null : LiveOrderKeys.Unsafe;
+                return Apply(steering, kept, tape, nowMs);
             }
         }
 
-        return steering.TryApply(issued.Add(new IssuedOrder(managerId, nowMs, order)), tape, nowMs) ? null : LiveOrderKeys.Unsafe;
+        return Apply(steering, issued.Add(new IssuedOrder(managerId, nowMs, order)), tape, nowMs);
     }
 
+    private static string? Apply(RaceSteering steering, ImmutableArray<IssuedOrder> issued, RaceTape tape, long nowMs) =>
+        steering.TryApply(issued, tape, nowMs, out var refusal) ? null : refusal ?? LiveOrderKeys.Unsafe;
+
     /// <summary>The team of a car in the watched race, from the round's archive rows (the same rows the race read uses).</summary>
-    internal static string? TeamOf(CareerSession session, RaceWatch watch, string carId) =>
+    public static string? TeamOf(CareerSession session, RaceWatch watch, string carId) =>
         (watch.Stored ?? session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName)?.Find(watch.Season, watch.Round))?.Rows
             .FirstOrDefault(row => row.DriverId == carId)?.TeamId;
 

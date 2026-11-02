@@ -2045,5 +2045,13 @@
   "live.order.closed": "Wyścig się skończył.",
   "race.watch.noRace": "Dziś nie ma wyścigu.",
   "race.watch.notRaced": "Tego wyścigu nie da się dziś rozegrać.",
-  "race.watch.saveAfterRace": "Boks wydał polecenia w trwającym wyścigu. Zapisz po wyścigu."
+  "race.weekend.noRace": "Dziś nie ma wyścigu.",
+  "race.weekend.notOwn": "To nie jest auto twojego zespołu.",
+  "race.weekend.started": "Wyścig już trwa. Plan można zmienić tylko przed startem.",
+  "race.weekend.badTyre": "Tych opon nie ma w tym wyścigu.",
+  "race.weekend.badStops": "Postoje muszą być na rosnących okrążeniach przed metą i nie może ich być za dużo.",
+  "race.weekend.needsMix": "Przepisy wymagają w wyścigu dwóch różnych mieszanek na sucho.",
+  "race.weekend.noTyreChange": "W tej epoce nie zmienia się opon w trakcie wyścigu.",
+  "race.weekend.badMode": "Nieznane tempo albo tryb silnika.",
+  "race.rerun.subject": "Wyścig policzono od nowa po zmianie w składzie lub autach. Wynik zespołu: {result}."
 }

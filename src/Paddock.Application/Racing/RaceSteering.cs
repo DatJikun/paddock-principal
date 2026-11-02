@@ -29,14 +29,22 @@ public sealed class RaceSteering
 {
     private readonly IRaceRerun _rerun;
 
-    public RaceSteering(IRaceRerun rerun)
+    /// <summary>A steering with no orders yet, or with the orders a career already holds for the race (#316).</summary>
+    public RaceSteering(IRaceRerun rerun, ImmutableArray<IssuedOrder> issued = default)
     {
         ArgumentNullException.ThrowIfNull(rerun);
         _rerun = rerun;
+        Issued = issued.IsDefault ? [] : issued;
     }
 
     /// <summary>Every order taken so far, in the order the host took them.</summary>
-    public ImmutableArray<IssuedOrder> Issued { get; private set; } = [];
+    public ImmutableArray<IssuedOrder> Issued { get; private set; }
+
+    /// <summary>
+    /// Where a career race keeps its orders (#316): called with the new list and its tape before the race is shown, it submits
+    /// the world command and returns its refusal key, or null. A quick race books nothing and has none.
+    /// </summary>
+    public Func<ImmutableArray<IssuedOrder>, RaceTape, string?>? Booking { get; set; }
 
     /// <summary>Grows with every order the race was re-run for, so a viewer knows its copy of the race is old.</summary>
     public int Revision { get; private set; }
@@ -47,8 +55,21 @@ public sealed class RaceSteering
     /// </summary>
     internal bool TryApply(ImmutableArray<IssuedOrder> issued, RaceTape current, long nowMs)
     {
+        return TryApply(issued, current, nowMs, out _);
+    }
+
+    /// <summary>As <see cref="TryApply(ImmutableArray{IssuedOrder}, RaceTape, long)"/>; <paramref name="refusal"/> is the booking's refusal key.</summary>
+    internal bool TryApply(ImmutableArray<IssuedOrder> issued, RaceTape current, long nowMs, out string? refusal)
+    {
+        refusal = null;
         if (_rerun.Prepare([.. issued.Select(o => o.Order)]) is not { } run || !current.SameBefore(run.Tape, nowMs))
         {
+            return false;
+        }
+
+        if (Booking?.Invoke(issued, run.Tape) is { } refused)
+        {
+            refusal = refused;
             return false;
         }
 

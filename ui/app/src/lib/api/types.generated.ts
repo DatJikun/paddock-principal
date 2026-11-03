@@ -936,6 +936,16 @@ export interface PastRaceView {
   source: string;
 }
 
+export interface PlannedStopCall {
+  lap: number;
+  tyres: string;
+}
+
+export interface PlannedStopView {
+  lap: number;
+  tyres: string;
+}
+
 export interface PointsScaleView {
   constructors: string;
   countedResults: number;
@@ -976,6 +986,25 @@ export interface PoolView {
   programmes: ProgrammeView[];
 }
 
+export interface PracticeLineView {
+  bestLapMs: number;
+  carId: string;
+  driverName: string;
+  gapMs: number;
+  longRunMs: number;
+  own: boolean;
+  position: number;
+  teamId: string;
+  teamName: string;
+  tyres: PracticeTyreView[];
+}
+
+export interface PracticeTyreView {
+  highLaps: number;
+  lowLaps: number;
+  tyres: string;
+}
+
 export interface PresetView {
   ai: string;
   fatality: string;
@@ -991,6 +1020,26 @@ export interface ProgrammeView {
   costCents: number;
   programme: JuniorProgramme;
   speedPercent: number;
+}
+
+export interface QualifyingLineView {
+  bestLapMs: number | null;
+  carId: string;
+  driverName: string;
+  gapMs: number | null;
+  own: boolean;
+  position: number;
+  teamId: string;
+  teamName: string;
+}
+
+export interface QualifyingOutView {
+  bestLapMs: number | null;
+  carId: string;
+  driverName: string;
+  own: boolean;
+  reason: string;
+  teamName: string;
 }
 
 export interface QuickRaceCall {
@@ -1040,6 +1089,17 @@ export interface RaceFactsView {
   pole: RaceFactDriverView | null;
 }
 
+export interface RacePlanView {
+  carId: string;
+  driverName: string;
+  engine: string;
+  grid: number;
+  pace: string | null;
+  "set": boolean;
+  startTyres: string;
+  stops: PlannedStopView[] | null;
+}
+
 export interface RaceResultCall {
   managerId: string;
   round: number | null;
@@ -1072,6 +1132,42 @@ export interface RaceRowView {
   teamId: string;
   teamName: string;
   timeMs: number | null;
+}
+
+export interface RaceSummaryView {
+  balanceCents: number | null;
+  board: BoardStateView | null;
+  drivers: SummaryStandingView[];
+  found: boolean;
+  money: SummaryMoneyView[];
+  result: RaceResultView;
+  round: number;
+  season: number;
+  team: SummaryStandingView | null;
+  teamId: string | null;
+}
+
+export interface RaceWeekendView {
+  canPlan: boolean;
+  circuitName: string | null;
+  defaultStartTyres: string;
+  dryTyres: string[];
+  found: boolean;
+  grid: QualifyingLineView[];
+  layoutId: string;
+  maxStops: number;
+  notQualified: QualifyingOutView[];
+  planLocked: string | null;
+  plans: RacePlanView[];
+  practice: PracticeLineView[];
+  refuelling: boolean;
+  requiredDryCompounds: number;
+  round: number;
+  season: number;
+  totalLaps: number;
+  tyreChange: boolean;
+  watched: boolean;
+  wetTyres: string;
 }
 
 export interface ReadInboxCall {
@@ -1188,6 +1284,17 @@ export interface SessionView {
   started: boolean;
   suggestedSeed: string;
   suggestedYear: number;
+}
+
+export interface SetRacePlanCall {
+  carId: string;
+  engine: string | null;
+  managerId: string;
+  pace: string | null;
+  round: number;
+  season: number;
+  startTyres: string | null;
+  stops: PlannedStopCall[] | null;
 }
 
 export interface ShellView {
@@ -1443,6 +1550,21 @@ export interface SubmitOfferCall {
   years: number;
 }
 
+export interface SummaryMoneyView {
+  amountCents: number;
+  category: string;
+  reasonKey: string;
+}
+
+export interface SummaryStandingView {
+  after: number;
+  before: number | null;
+  id: string;
+  name: string;
+  pointsAfter: string;
+  pointsBefore: string;
+}
+
 export interface SupplyProposalCall {
   annualPriceCents: number;
   exclusive: boolean;
@@ -1614,6 +1736,8 @@ export interface BridgeQueryMap {
   driver: { args: DriverCall; result: DriverProfileView };
   manager: { args: ManagerCall; result: ManagerProfileView };
   liveRace: { args: ManagerCall; result: LiveRaceView };
+  raceWeekend: { args: ManagerCall; result: RaceWeekendView };
+  raceSummary: { args: RaceResultCall; result: RaceSummaryView };
   liveFrames: { args: LiveFramesCall; result: LiveFramesView };
   liveClock: { args: ManagerCall; result: LiveClockView };
   quickRounds: { args: QuickRoundsCall; result: QuickRoundsView };
@@ -1654,6 +1778,7 @@ export interface BridgeCommandMap {
   liveRaceControl: { args: LiveRaceControlCall; result: LiveClockView };
   liveRaceOrder: { args: LiveRaceOrderCall; result: LiveClockView };
   watchRace: { args: ManagerCall; result: LiveClockView };
+  setRacePlan: { args: SetRacePlanCall; result: CommandAck };
   startQuickRace: { args: QuickRaceCall; result: QuickRaceStartedView };
   closeQuickRace: { args: ManagerCall; result: CommandAck };
 }

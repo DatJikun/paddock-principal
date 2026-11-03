@@ -55,6 +55,12 @@ public sealed class RaceWeekendDay : IDayHandler
 
     public int Order => HandlerOrder;
 
+    /// <summary>
+    /// The engine of the player's races (PP-052, PP-074): the lap engine until the owner switches. Practice, qualifying and the race
+    /// all come from it, so one career never mixes engines.
+    /// </summary>
+    public const RaceEngineKind Engine = RaceEngineKind.Lap;
+
     public void OnDay(DayContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -82,9 +88,13 @@ public sealed class RaceWeekendDay : IDayHandler
 
     private void RunRace(DayContext context, GameDate today, RaceSessionPayload payload)
     {
-        // A race the player watched this morning is run with the orders the pit walls gave; one nobody watched has none (#316).
-        if (Simulate(today, payload, _watch.OrdersFor(payload.Season, payload.Round)) is not { } run)
+        // The day books the round with the plans and the pit wall orders the world holds for it (#316): the commands that set
+        // them are logged, so a replay of the log books the same race (INV-002). A round nobody planned or watched has none.
+        var weekend = RaceWeekendState.Of(_context.Session, payload.Season, payload.Round);
+        var orders = RaceWeekendState.Orders(weekend).Select(issued => issued.Order).ToImmutableArray();
+        if (Simulate(today, payload, orders) is not { } run)
         {
+            DropWeekend();
             return;
         }
 
@@ -98,6 +108,55 @@ public sealed class RaceWeekendDay : IDayHandler
         ApplyDamage(today, payload, run);
         PostDueStandInDecisions(today);
         Publish(payload, run);
+        NoteRerun(today, weekend, run);
+        DropWeekend();
+    }
+
+    /// <summary>
+    /// The race the players watched is not the one the day booked (#316): something changed the field or the cars between the
+    /// watch and the day (a command on race morning, a contract or a birthday the day handles first). The day books the race it
+    /// runs now, and every manager of a team in it is told, with the team's result, so the change is never silent (PP-058).
+    /// </summary>
+    private void NoteRerun(GameDate today, RaceWeekendSection? weekend, WeekendRun run)
+    {
+        if (weekend?.WatchedTapeHash is not { } watched || watched == run.Published.Tape.Hash
+            || _context.TryGet<InboxBook>() is not { } inbox
+            || (_context.TryGet<ControlTable>() ?? _context.TryGet<IOrganizationControl>()) is not { } control
+            || _context.Managers is not { } managers)
+        {
+            return;
+        }
+
+        foreach (var team in run.Field.Entries.Select(entry => entry.ConstructorId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+        {
+            if (!Paddock.Application.Cars.CarCommandSupport.TryOrganization(team, out var organization))
+            {
+                continue;
+            }
+
+            var places = run.Published.Classification.Cars
+                .Where(car => car.ConstructorId == team)
+                .Select(car => car.IsClassified ? "P" + car.Position.ToString(CultureInfo.InvariantCulture) : "DNF");
+            var draft = new InboxItemDraft(
+                RaceWeekendKeys.RerunKind,
+                RaceWeekendKeys.RerunSubject,
+                [new("result", string.Join(", ", places))],
+                null,
+                null,
+                null);
+            foreach (var manager in HumanManagers(control, managers, organization))
+            {
+                inbox.Post(managers, manager, draft, today);
+            }
+        }
+    }
+
+    private void DropWeekend()
+    {
+        if (_context.Session.World.Section(RaceWeekendSection.SectionName) is not null)
+        {
+            _context.Session.StoreWorld(_context.Session.World.WithoutSection(RaceWeekendSection.SectionName));
+        }
     }
 
     /// <summary>
@@ -133,8 +192,38 @@ public sealed class RaceWeekendDay : IDayHandler
             return false;
         }
 
-        Publish(payload, run, new RaceSteering(new Rerun(this, day, payload, archive: false)), archived: false);
+        // The orders already given (this morning, or before a save) are in the world: the watch opens on the race they make.
+        var issued = RaceWeekendState.Orders(RaceWeekendState.Of(_context.Session, payload.Season, payload.Round));
+        if (!issued.IsDefaultOrEmpty && Simulate(day, payload, [.. issued.Select(order => order.Order)]) is { } ordered)
+        {
+            run = ordered;
+        }
+
+        Publish(payload, run, new RaceSteering(new Rerun(this, day, payload, archive: false), issued), archived: false);
         return true;
+    }
+
+    /// <summary>
+    /// What the weekend's sessions before the race see of round <paramref name="payload"/> on <paramref name="day"/> (#316): the
+    /// weekend input the race runs from (without orders), its practice, its qualifying and the tyres a plan may use. The sessions
+    /// come from <see cref="IWeekendSessions"/>, so the steps do not depend on the engine. Null when the round cannot be raced.
+    /// </summary>
+    public WeekendSessions? Sessions(GameDate day, RaceSessionPayload payload)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+        if (Prepare(day, payload, []) is not { } prepared)
+        {
+            return null;
+        }
+
+        var sessions = RaceSimulators.Sessions(Engine);
+        return new WeekendSessions(
+            prepared.Input,
+            prepared.Field,
+            sessions.Practice(prepared.Input),
+            sessions.Qualifying(prepared.Input),
+            TyreOffer.For(prepared.Input),
+            PitRules.For(prepared.Rules));
     }
 
     /// <summary>The same round again, with the pit walls' orders: same field, rules, streams and seed (INV-002).</summary>
@@ -161,7 +250,9 @@ public sealed class RaceWeekendDay : IDayHandler
         StrategyCalls Calls,
         TyreOffer Tyres);
 
-    private WeekendRun? Simulate(GameDate today, RaceSessionPayload payload, ImmutableArray<PitWallOrder> orders)
+    private sealed record Prepared(RuleSet Rules, int TotalRounds, TrackLayout Layout, RaceField Field, RaceWeekendInput Input);
+
+    private Prepared? Prepare(GameDate today, RaceSessionPayload payload, ImmutableArray<PitWallOrder> orders)
     {
         var rules = ActiveRules(payload.Season);
         if (rules is null)
@@ -211,12 +302,23 @@ public sealed class RaceWeekendDay : IDayHandler
             TotalLaps = RaceDistance.LapsFor(rules, layout),
             Entries = field.Entries,
             Orders = orders,
+            Plans = RaceWeekendState.Plans(RaceWeekendState.Of(_context.Session, payload.Season, payload.Round)),
         };
+        return new Prepared(rules, total, layout, field, input);
+    }
+
+    private WeekendRun? Simulate(GameDate today, RaceSessionPayload payload, ImmutableArray<PitWallOrder> orders)
+    {
+        if (Prepare(today, payload, orders) is not { } prepared)
+        {
+            return null;
+        }
+
         var calls = new StrategyCalls();
-        var request = RaceSimulationRequest.ForWeekend(input, calls, geometry: _context.Inputs.TrackGeometry?.GeometryOf(payload.LayoutId));
-        _ = RaceSession.Run(request);
-        var published = request.Published ?? throw new InvalidOperationException("The lap engine published no race facts.");
-        return new WeekendRun(rules, total, layout, field, published, calls, TyreOffer.For(input));
+        var request = RaceSimulationRequest.ForWeekend(prepared.Input, calls, geometry: _context.Inputs.TrackGeometry?.GeometryOf(payload.LayoutId));
+        _ = RaceSession.Run(request, Engine);
+        var published = request.Published ?? throw new InvalidOperationException("The race engine published no race facts.");
+        return new WeekendRun(prepared.Rules, prepared.TotalRounds, prepared.Layout, prepared.Field, published, calls, TyreOffer.For(prepared.Input));
     }
 
     /// <summary>The race goes to the watch (the shell and the race mode) and, unless it is only watched before the day, to the round archive.</summary>

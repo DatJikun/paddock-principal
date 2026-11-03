@@ -29,8 +29,9 @@ public class LiveRaceBridgeTests
         var clock = new ManualClock();
         var host = StartFerrariCareer(clock);
         AdvanceToRaceMorning(host);
-        var hashBefore = host.StateHash;
         Data(host, "command", "watchRace");
+        // Opening the race records the tape being watched (#316); playing it changes nothing more.
+        var hashBefore = host.StateHash;
 
         var opened = Data(host, "query", "liveClock");
         Assert.True(opened.GetProperty("active").GetBoolean());
@@ -104,6 +105,7 @@ public class LiveRaceBridgeTests
 
         // Watching is not playing: nothing is booked until the day is lived.
         Assert.Equal(hashBefore, host.StateHash);
+        Assert.Equal(0, Data(host, "query", "raceResult", "{\"managerId\":\"human:player\"}").GetProperty("rows").GetArrayLength());
     }
 
     private static void Control(BridgeHost host, string action)

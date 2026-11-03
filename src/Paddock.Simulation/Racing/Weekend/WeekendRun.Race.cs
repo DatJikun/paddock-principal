@@ -395,8 +395,19 @@ internal sealed partial class WeekendRun
             return;
         }
 
+        // A plan that names the stops keeps them (#316): the strategist only changes between wet and dry tyres when the weather turns.
+        if (_plannedStops.Contains(car.TapeId) && !WeatherChange(car, compound))
+        {
+            return;
+        }
+
         car.Pit = new PendingPit(compound, refuel, swap);
     }
+
+    private bool WeatherChange(Car car, string? compound) =>
+        compound is { } id && car.Compounds.TryGetValue(id, out var next) && IsWet(next) != IsWet(car.Tyre.Compound);
+
+    private static bool IsWet(TyreCompound compound) => compound.Kind == TyreCompoundKind.Wet;
 
     // ---- Orders from the pit wall (#286) -------------------------------------------------------------------
 
@@ -404,7 +415,7 @@ internal sealed partial class WeekendRun
 
     private void ApplyOrders(Car car, int index, Car[] start, int lap, bool consulted)
     {
-        foreach (var order in _in.Orders)
+        foreach (var order in _orders)
         {
             if (order.Lap != lap || !string.Equals(order.CarId, car.TapeId, StringComparison.Ordinal))
             {

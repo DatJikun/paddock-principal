@@ -644,7 +644,7 @@ public static class LiveRaceRead
     private static string Short(Person person) =>
         string.IsNullOrWhiteSpace(person.FamilyName) ? person.Name : person.FamilyName;
 
-    private static string TeamName(WorldState world, string id)
+    internal static string TeamName(WorldState world, string id)
     {
         foreach (var organization in world.Organizations)
         {

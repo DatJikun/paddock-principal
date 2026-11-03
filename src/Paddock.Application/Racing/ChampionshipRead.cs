@@ -368,6 +368,9 @@ public static class ChampionshipRead
         return list;
     }
 
+    /// <summary>The rules of <paramref name="season"/>: the stored (voted) set, else the authored periods.</summary>
+    internal static RuleSet? RulesFor(CareerInputs inputs, WorldState world, int season) => Rules(inputs, world, season);
+
     private static RuleSet? Rules(CareerInputs inputs, WorldState world, int season)
     {
         var stored = world.Section<RegulationsSection>(RegulationsSection.SectionName)?.RuleSetFor(SeriesIds.WorldChampionship, season);
@@ -447,7 +450,7 @@ public static class ChampionshipRead
 
     private static string Points(decimal points) => points.ToString(CultureInfo.InvariantCulture);
 
-    private static string PersonName(WorldState world, string id)
+    internal static string PersonName(WorldState world, string id)
     {
         foreach (var person in world.Persons)
         {

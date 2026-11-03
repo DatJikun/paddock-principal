@@ -1,4 +1,5 @@
 using Paddock.Application.Career;
+using Paddock.Application.Commands;
 using Paddock.Application.Development;
 using Paddock.Application.Inbox;
 using Paddock.Domain.Objectives;
@@ -20,7 +21,9 @@ public sealed class RacingModule : CareerModule
     public override string Name => ModuleName;
 
     public override IReadOnlyList<string> Sections =>
-        [ChampionshipSection.SectionName, RaceResultsSection.SectionName, RaceCalendarSection.SectionName];
+        [ChampionshipSection.SectionName, RaceResultsSection.SectionName, RaceCalendarSection.SectionName, RaceWeekendSection.SectionName];
+
+    public override IReadOnlyList<CommandCodecEntry> CommandCodecs => RaceWeekendCommandCodecs.Entries;
 
     public override void Configure(CareerModuleContext context)
     {
@@ -34,6 +37,7 @@ public sealed class RacingModule : CareerModule
         ArgumentNullException.ThrowIfNull(context);
         var watch = context.Require<RaceWatch>();
         context.AddDayHandler(new RaceWeekendDay(context, watch));
+        context.AddCommandHandlers(dispatcher => RaceWeekendRegistration.Register(dispatcher, context));
         if (context.TryGet<InboxResolvers>() is { } resolvers)
         {
             resolvers.Register(new StandInResolver());

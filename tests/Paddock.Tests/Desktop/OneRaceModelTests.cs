@@ -48,8 +48,6 @@ public class OneRaceModelTests
         var ordered = Events(watched);
         Assert.NotEqual(Events(race), ordered);
 
-        // A save now would drop the order, so it waits until the race is booked.
-        Assert.Equal(CareerRaceKeys.SaveAfterRace, Error(watched, "saveCareer", "{\"managerId\":\"human:player\",\"name\":\"mid-race\"}"));
 
         Assert.True(Booked(watched));
         Assert.Equal(ordered, Events(watched));

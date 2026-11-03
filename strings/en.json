@@ -2003,5 +2003,13 @@
   "live.order.closed": "The race is over.",
   "race.watch.noRace": "There is no race today.",
   "race.watch.notRaced": "Today's race cannot be run.",
-  "race.watch.saveAfterRace": "The pit wall has given orders in a race still running. Save after the race."
+  "race.weekend.noRace": "There is no race today.",
+  "race.weekend.notOwn": "That is not your team's car.",
+  "race.weekend.started": "The race has started. The plan can only change before the start.",
+  "race.weekend.badTyre": "Those tyres are not available in this race.",
+  "race.weekend.badStops": "Stops must be on rising laps before the flag, and not too many.",
+  "race.weekend.needsMix": "The rules require two different dry compounds in the race.",
+  "race.weekend.noTyreChange": "Tyres are not changed during the race in this era.",
+  "race.weekend.badMode": "Unknown pace or engine mode.",
+  "race.rerun.subject": "The race was run again after a change to the field or the cars. Team result: {result}."
 }

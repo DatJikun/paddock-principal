@@ -222,3 +222,21 @@ public sealed record SupplyProposalCall(
 
 /// <summary>Accepts or refuses a supplier's counter.</summary>
 public sealed record SupplyResponseCall(string ManagerId, string OrganizationId, string NegotiationId, bool Accept);
+
+/// <summary>
+/// Argument of <c>setRacePlan</c> (#316): the plan of one own car in today's race. <see cref="Pace"/> null leaves the pace to the
+/// strategist (else <c>conserve</c>, <c>save</c>, <c>standard</c>, <c>push</c> or <c>qualifying</c>); <see cref="Engine"/> is <c>lean</c>,
+/// <c>standard</c> or <c>full</c>; <see cref="Stops"/> null leaves the stops to the strategist, an empty list plans none.
+/// </summary>
+public sealed record SetRacePlanCall(
+    string ManagerId,
+    int Season,
+    int Round,
+    string CarId,
+    string? StartTyres,
+    string? Pace,
+    string? Engine,
+    IReadOnlyList<PlannedStopCall>? Stops);
+
+/// <summary>One planned stop of <see cref="SetRacePlanCall"/>.</summary>
+public sealed record PlannedStopCall(int Lap, string Tyres);

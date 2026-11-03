@@ -182,11 +182,16 @@ public sealed partial class CareerBridge
             "driver" => BridgeValues.ToNode(ReadDriver(args)),
             "manager" => BridgeValues.ToNode(ReadManager()),
             "liveRace" => BridgeValues.ToNode(ReadLiveRace()),
+            "raceWeekend" => BridgeValues.ToNode(RaceWeekendRead.Read(Box, Box.TryGet<BoardBook>()?.Section.OrganizationOf(Human.Value), Circuits)),
+            "raceSummary" => BridgeValues.ToNode(ReadRaceSummary(args)),
             "liveFrames" => BridgeValues.ToNode(ReadLiveFrames(args)),
             "liveClock" => BridgeValues.ToNode(ReadLiveClock()),
             _ => throw new InvalidOperationException("Query '" + name + "' is registered but not implemented."),
         };
     }
+
+    /// <summary>The career's command log in the order the commands ran (what a save keeps and a replay runs, INV-002).</summary>
+    public IReadOnlyList<ICommand> CommandLog => HasCareer ? Box.CommandLog.Entries : [];
 
     public CommandResult Submit(ICommand command)
     {

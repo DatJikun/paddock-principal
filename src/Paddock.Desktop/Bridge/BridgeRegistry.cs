@@ -52,6 +52,8 @@ public static class BridgeRegistry
         Endpoint(Query, "driver", typeof(DriverCall), typeof(DriverProfileView)),
         Endpoint(Query, "manager", typeof(ManagerCall), typeof(ManagerProfileView)),
         Endpoint(Query, "liveRace", typeof(ManagerCall), typeof(LiveRaceView)),
+        Endpoint(Query, "raceWeekend", typeof(ManagerCall), typeof(RaceWeekendView)),
+        Endpoint(Query, "raceSummary", typeof(RaceResultCall), typeof(RaceSummaryView)),
         Endpoint(Query, "liveFrames", typeof(LiveFramesCall), typeof(LiveFramesView)),
         Endpoint(Query, "liveClock", typeof(ManagerCall), typeof(LiveClockView)),
         Endpoint(Query, "quickRounds", typeof(QuickRoundsCall), typeof(QuickRoundsView)),
@@ -89,6 +91,7 @@ public static class BridgeRegistry
         Endpoint(Command, "liveRaceControl", typeof(LiveRaceControlCall), typeof(LiveClockView)),
         Endpoint(Command, "liveRaceOrder", typeof(LiveRaceOrderCall), typeof(LiveClockView)),
         Endpoint(Command, "watchRace", typeof(ManagerCall), typeof(LiveClockView)),
+        Endpoint(Command, "setRacePlan", typeof(SetRacePlanCall), typeof(CommandAck)),
         Endpoint(Command, "startQuickRace", typeof(QuickRaceCall), typeof(QuickRaceStartedView)),
         Endpoint(Command, "closeQuickRace", typeof(ManagerCall), typeof(CommandAck)),
     ];

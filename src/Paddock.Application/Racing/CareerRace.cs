@@ -50,7 +50,4 @@ public static class CareerRaceKeys
 
     /// <summary>Today's round cannot be raced (no rules for the season, no field).</summary>
     public const string NotRaced = "race.watch.notRaced";
-
-    /// <summary>A save while a watched race holds orders would drop them: the race is booked first.</summary>
-    public const string SaveAfterRace = "race.watch.saveAfterRace";
 }

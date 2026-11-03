@@ -515,8 +515,28 @@
     racing = true;
   }
 
-  function leaveRace() {
+  /** Today's race, watched before the day books it (#316): its pit wall takes orders, and the day then books what was watched. */
+  async function watchRace() {
+    if (busy || racing) return;
+    busy = true;
+    fault = null;
+    try {
+      raceClock = await command('watchRace', call);
+      enterRace();
+    } catch (error) {
+      catchFault(error);
+    } finally {
+      busy = false;
+    }
+  }
+
+  /** Leaving a watched race of today lives the day, which books it with the orders given; the result screen follows. */
+  async function leaveRace() {
     racing = false;
+    if (raceDays === 0) {
+      await stepDay();
+      return;
+    }
     void refresh().catch(catchFault);
   }
 
@@ -582,8 +602,11 @@
       if (!running && (type === 'dayAdvanced' || type === 'inboxChanged' || type === 'seasonChanged' || type === 'raceFinished')) {
         void refresh().catch(catchFault);
       }
-      /* The race ran today: watch it live (the result is already written; leaving early skips nothing). */
-      if (type === 'raceFinished') enterRace();
+      /* The day booked today's race: show its result (a watched race stays on its finished screen until the player leaves). */
+      if (type === 'raceFinished' && !racing) {
+        const round = (data as { round?: number } | null)?.round;
+        if (round) location.hash = `#/wyscig/${round}`;
+      }
     });
     const onHash = () => {
       if (phase === 'game') void transition(parseRoute(location.hash));
@@ -747,8 +770,8 @@
         </div>
         <div class="spacer"></div>
         <div class="hud">
-          {#if liveOpen}
-            <button class="cell live" type="button" onclick={enterRace}>
+          {#if liveOpen || (raceDays === 0 && !running)}
+            <button class="cell live" type="button" onclick={liveOpen ? enterRace : watchRace}>
               <span class="meta">{t('live.ui.live')}</span>
               <b>{t('live.ui.watch')}</b>
             </button>

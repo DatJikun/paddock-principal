@@ -29,8 +29,9 @@ public sealed record TyreOffer(IReadOnlyList<string> Compounds, string StartComp
 }
 
 /// <summary>
-/// The last race the career ran, kept in memory for the shell. It is not part of the world and not saved: a race is one
-/// day, and the result that matters is already in the championship, the ledger and the cars (INV-007).
+/// The race the shell shows, kept in memory: the career's race of today while it is watched (not booked yet, with the pit walls'
+/// hold on it), then the race the day booked. It is not part of the world and not saved: a race is one day, and the result
+/// that matters is in the championship, the ledger and the cars once the day is lived (INV-007).
 /// </summary>
 public sealed class RaceWatch
 {
@@ -55,8 +56,21 @@ public sealed class RaceWatch
     /// <summary>The tyres a stop may fit and what a stop can do; null before the first race.</summary>
     public TyreOffer? Tyres { get; private set; }
 
-    /// <summary>The pit walls' hold on the race while it is watched; null when its result is already booked (the career's race day).</summary>
+    /// <summary>The pit walls' hold on the race while it is watched; null once the race day has booked it (the race is over).</summary>
     public RaceSteering? Steering { get; private set; }
+
+    /// <summary>
+    /// The pit walls' orders for round <paramref name="round"/> of <paramref name="season"/>, while this watch holds that race unbooked
+    /// (#316). The race day runs the round with them, so a watched race and a simulated one are the same race with other orders
+    /// (PP-058). Empty when the round was not watched.
+    /// </summary>
+    public ImmutableArray<PitWallOrder> OrdersFor(int season, int round) =>
+        Steering is { } steering && Tape is not null && Season == season && Round == round
+            ? [.. steering.Issued.Select(issued => issued.Order)]
+            : [];
+
+    /// <summary>True while a watched race that is not booked yet holds pit wall orders: a save now would drop them (#316).</summary>
+    public bool HoldsOrders => Steering is { Issued.IsDefaultOrEmpty: false };
 
     public void Publish(
         int season,
@@ -78,8 +92,18 @@ public sealed class RaceWatch
         PitWall = [];
         Tyres = null;
         Steering = null;
+        Stored = null;
         Pending = true;
     }
+
+    /// <summary>
+    /// The round as the archive holds it (or will, once the day books a watched race, #316): the teams, the grid and the report
+    /// the race read shows. Null for a race published without it; the read then looks in the world's archive.
+    /// </summary>
+    public StoredRace? Stored { get; private set; }
+
+    /// <summary>The archive's rows of the race just published. Call right after <see cref="Publish"/>.</summary>
+    public void PublishStored(StoredRace? stored) => Stored = stored;
 
     /// <summary>The pit wall side of the race just published (#286). Call right after <see cref="Publish"/>.</summary>
     public void PublishPitWall(ImmutableArray<PitWallLap> pitWall, TyreOffer tyres, RaceSteering? steering)

@@ -64,7 +64,7 @@ public static class LiveRaceOrders
         if (watch.Steering is not { } steering || watch.Tape is not { } tape || watch.Tyres is not { } tyres
             || tape.Events.IsDefaultOrEmpty || tape.Events[0] is not RaceStarted started)
         {
-            return LiveOrderKeys.Locked;
+            return LiveOrderKeys.Closed;
         }
 
         if (observer is not { IsAssigned: true } team || TeamOf(session, watch, request.CarId) != team.Value)
@@ -145,9 +145,9 @@ public static class LiveRaceOrders
         return steering.TryApply(issued.Add(new IssuedOrder(managerId, nowMs, order)), tape, nowMs) ? null : LiveOrderKeys.Unsafe;
     }
 
-    /// <summary>The team of a car in the watched race, from the round's archive (the same rows the race read uses).</summary>
+    /// <summary>The team of a car in the watched race, from the round's archive rows (the same rows the race read uses).</summary>
     internal static string? TeamOf(CareerSession session, RaceWatch watch, string carId) =>
-        session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName)?.Find(watch.Season, watch.Round)?.Rows
+        (watch.Stored ?? session.World.Section<RaceResultsSection>(RaceResultsSection.SectionName)?.Find(watch.Season, watch.Round))?.Rows
             .FirstOrDefault(row => row.DriverId == carId)?.TeamId;
 
     // Another car of the same team still in the race: the only one a team order can let by.
@@ -214,7 +214,9 @@ public static class LiveRaceOrders
 /// <summary>Refusals of a pit wall order.</summary>
 public static class LiveOrderKeys
 {
-    public const string Locked = "live.order.locked";
+    /// <summary>The race is over (the day booked it): there is nothing left to order (#316).</summary>
+    public const string Closed = "live.order.closed";
+
     public const string NotOwn = "live.order.notOwn";
     public const string NotRunning = "live.order.notRunning";
     public const string TooLate = "live.order.tooLate";
@@ -224,5 +226,5 @@ public static class LiveOrderKeys
     public const string Unsafe = "live.order.unsafe";
     public const string NoMate = "live.order.noMate";
 
-    public static IReadOnlyList<string> All { get; } = [Locked, NotOwn, NotRunning, TooLate, BadTyre, NoStop, NoPit, Unsafe, NoMate];
+    public static IReadOnlyList<string> All { get; } = [Closed, NotOwn, NotRunning, TooLate, BadTyre, NoStop, NoPit, Unsafe, NoMate];
 }

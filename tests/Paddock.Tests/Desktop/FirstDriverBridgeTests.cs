@@ -143,7 +143,9 @@ public sealed class FirstDriverBridgeTests : IDisposable
     {
         var clock = new ManualClock();
         var host = Start("Real", clock);
-        AdvanceUntilFirstRace(host);
+        // The race is watched before the day books it (#316).
+        LiveRaceBridgeTests.AdvanceToRaceMorning(host);
+        Data(host, "command", "watchRace", Manager);
 
         var cars = Data(host, "query", "liveRace", Manager).GetProperty("cars").EnumerateArray()
             .Where(car => car.GetProperty("own").GetBoolean())
@@ -164,23 +166,6 @@ public sealed class FirstDriverBridgeTests : IDisposable
 
     private static string Message(string id, string kind, string name, string? args = null) =>
         "{\"id\":\"" + id + "\",\"kind\":\"" + kind + "\",\"name\":\"" + name + "\",\"args\":" + (args ?? Manager) + "}";
-
-    private static void AdvanceUntilFirstRace(BridgeHost host)
-    {
-        for (var day = 0; day < 90; day++)
-        {
-            AnswerDecisions(host, day);
-            var moved = host.Handle(Message("day" + day, "command", "advanceDay"));
-            using var movedJson = JsonDocument.Parse(moved.Response);
-            Assert.True(movedJson.RootElement.GetProperty("ok").GetBoolean(), moved.Response);
-            if (moved.Events.Any(item => item.Contains("raceFinished", StringComparison.Ordinal)))
-            {
-                return;
-            }
-        }
-
-        Assert.Fail("the first 1955 race did not run");
-    }
 
     private static void AnswerDecisions(BridgeHost host, int day)
     {
